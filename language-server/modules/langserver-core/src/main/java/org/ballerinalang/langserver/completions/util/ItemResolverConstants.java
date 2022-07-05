@@ -59,6 +59,7 @@ public class ItemResolverConstants {
     public static final String DESCENDING = "descending";
     public static final String DEFAULT = "default";
     public static final String ROLLBACK = "rollback";
+    public static final String INIT = "init";
 
     public static final String ANON_FUNCTION = "function (..) {..}";
     public static final String FUNCTION = "function";
@@ -106,10 +107,10 @@ public class ItemResolverConstants {
     public static final String NONE = "none";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String OBJECT_TYPE_DESC = "object {}";
-    public static final String RECORD_TYPE = "type <RecordName> record";
+    public static final String RECORD_TYPE = "type <RecordName> record {}";
     public static final String RECORD_TYPE_DESC = "record {}";
     public static final String ERROR_TYPE = "type <ErrorName> error<?>";
-    public static final String CLOSED_RECORD_TYPE = "type <RecordName> closed record";
+    public static final String CLOSED_RECORD_TYPE = "type <RecordName> record {||}";
     public static final String CLOSED_RECORD_TYPE_DESC = "record {||}";
     public static final String TYPE_TYPE = "type";
     public static final String TABLE_TYPE = "type TypeName table<>;";
@@ -155,4 +156,5 @@ public class ItemResolverConstants {
     public static final String CONST_KEYWORD = "const";
     public static final String RECORD_KEYWORD = "record";
     public static final String OBJECT_KEYWORD = "object";
+    public static final String OUTER_KEYWORD = "outer";
 }

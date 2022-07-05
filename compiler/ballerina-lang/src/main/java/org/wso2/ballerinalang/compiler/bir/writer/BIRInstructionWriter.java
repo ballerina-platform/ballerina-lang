@@ -390,8 +390,8 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewArray.lhsOp.accept(this);
         birNewArray.sizeOp.accept(this);
         buf.writeInt(birNewArray.values.size());
-        for (BIROperand value : birNewArray.values) {
-            value.accept(this);
+        for (BIRNode.BIRListConstructorEntry listValueEntry : birNewArray.values) {
+            listValueEntry.exprOp.accept(this);
         }
     }
 

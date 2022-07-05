@@ -2635,14 +2635,23 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         TypeDescriptorNode memberTypeDesc =
                 modifyNode(arrayTypeDescriptorNode.memberTypeDesc());
-        Token openBracket =
-                modifyToken(arrayTypeDescriptorNode.openBracket());
-        Node arrayLength =
-                modifyNode(arrayTypeDescriptorNode.arrayLength().orElse(null));
-        Token closeBracket =
-                modifyToken(arrayTypeDescriptorNode.closeBracket());
+        NodeList<ArrayDimensionNode> dimensions =
+                modifyNodeList(arrayTypeDescriptorNode.dimensions());
         return arrayTypeDescriptorNode.modify(
                 memberTypeDesc,
+                dimensions);
+    }
+
+    @Override
+    public ArrayDimensionNode transform(
+            ArrayDimensionNode arrayDimensionNode) {
+        Token openBracket =
+                modifyToken(arrayDimensionNode.openBracket());
+        Node arrayLength =
+                modifyNode(arrayDimensionNode.arrayLength().orElse(null));
+        Token closeBracket =
+                modifyToken(arrayDimensionNode.closeBracket());
+        return arrayDimensionNode.modify(
                 openBracket,
                 arrayLength,
                 closeBracket);
@@ -3108,9 +3117,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token failKeyword =
                 modifyToken(onFailClauseNode.failKeyword());
         TypeDescriptorNode typeDescriptor =
-                modifyNode(onFailClauseNode.typeDescriptor());
+                modifyNode(onFailClauseNode.typeDescriptor().orElse(null));
         IdentifierToken failErrorName =
-                modifyNode(onFailClauseNode.failErrorName());
+                modifyNode(onFailClauseNode.failErrorName().orElse(null));
         BlockStatementNode blockStatement =
                 modifyNode(onFailClauseNode.blockStatement());
         return onFailClauseNode.modify(
@@ -3232,6 +3241,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 parameterizedTypeDescriptorNode.kind(),
                 keywordToken,
                 typeParamNode);
+    }
+
+    @Override
+    public SpreadMemberNode transform(
+            SpreadMemberNode spreadMemberNode) {
+        Token ellipsis =
+                modifyToken(spreadMemberNode.ellipsis());
+        ExpressionNode expression =
+                modifyNode(spreadMemberNode.expression());
+        return spreadMemberNode.modify(
+                ellipsis,
+                expression);
     }
 
     // Tokens

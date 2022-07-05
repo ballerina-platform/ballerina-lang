@@ -7,7 +7,7 @@ function testInvokeFunctionInOrder1() returns [int, float, string, int, string, 
 }
 
 function testInvokeFunctionInOrder2() returns [int, float, string, int, string, int[]] {
-    int[] array = [40, 50, 60];
+    int[] _ = [40, 50, 60];
     return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob");
 }
 

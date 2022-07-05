@@ -13,7 +13,7 @@ function calculateExp1 (int x, int y) returns (int) {
         z = z + 10;
     }
     break;
-    int a = 10;
+    int _ = 10;
     return z;
 }
 
@@ -28,7 +28,7 @@ function calculateExp2 (int x, int y) returns (int) {
         } else if (yCopy > 20) {
             z = 1000;
             break;
-            int a = 10;
+            int _ = 10;
         }
         z = z + 10;
     }

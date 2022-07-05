@@ -1,5 +1,5 @@
 import myproject.schema;
 
 public function initDatabase() {
-	schema:Employee john = {};
+	schema:Employee _ = {};
 }

@@ -28,6 +28,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,8 +80,10 @@ public class FileSystemCache extends CompilationCache {
         Path birFilePath = getBirPath().resolve(moduleName.toString() + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
         if (!Files.exists(birFilePath)) {
             try {
+                File tempBirFile = birPath.resolve(".tmp").toFile();
                 // TODO Can we improve this logic
-                FileUtils.writeByteArrayToFile(birFilePath.toFile(), birContent.toByteArray());
+                FileUtils.writeByteArrayToFile(tempBirFile, birContent.toByteArray());
+                FileUtils.moveFile(tempBirFile, birFilePath.toFile());
             } catch (IOException e) {
                 // TODO proper error handling
                 throw new RuntimeException("Failed to cache the bir of module: " + moduleName, e);

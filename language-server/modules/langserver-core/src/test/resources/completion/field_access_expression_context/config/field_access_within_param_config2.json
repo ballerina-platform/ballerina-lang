@@ -15,7 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "performTask",
       "insertText": "performTask()",
       "insertTextFormat": "Snippet"

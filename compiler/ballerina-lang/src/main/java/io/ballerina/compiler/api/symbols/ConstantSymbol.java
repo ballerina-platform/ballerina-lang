@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.symbols;
 
+import java.util.Optional;
+
 /**
  * Represent Constant Symbol.
  *
@@ -30,6 +32,13 @@ public interface ConstantSymbol extends VariableSymbol, SingletonTypeSymbol, Ann
      * @return {@link Object} value of the constant
      */
     Object constValue();
+
+    /**
+     * Gives a string representation of the resolved constant value.
+     *
+     * @return A string representation of the constant
+     */
+    Optional<String> resolvedValue();
 
     /**
      * Gets the broader type of constant expression associated with this symbol.

@@ -65,4 +65,20 @@ public class DocCommandTest extends BaseCommandTest {
         Files.delete(this.testResources.resolve("doc_project").resolve("target")
                 .resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0").resolve("index.html"));
     }
+
+    @Test(description = "Test doc command on a ballerina project with custom target dir.")
+    public void testDocCommandWithCustomTarget() throws IOException {
+        Path projectPath = this.testResources.resolve("doc_project");
+        Path customTargetPath = projectPath.resolve("custom");
+        System.setProperty("user.dir", projectPath.toString());
+
+        DocCommand docCommand = new DocCommand(this.printStream, this.printStream, false, customTargetPath);
+        docCommand.execute();
+
+        Assert.assertTrue(Files.exists(customTargetPath.resolve("apidocs").resolve("foo").resolve("winery")
+                .resolve("0.1.0").resolve("index.html")));
+
+        Files.delete(customTargetPath.resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0")
+                .resolve("index.html"));
+    }
 }

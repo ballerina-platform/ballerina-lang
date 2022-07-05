@@ -38,6 +38,13 @@
               "message": {
                 "pattern": "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters"
               }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?![0-9]).+",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have initial numeric characters"
+              }
             }
           ]
         },
@@ -69,6 +76,13 @@
               "pattern": "^(?!.*__).*$",
               "message": {
                 "pattern": "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?![0-9]).+",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have initial numeric characters"
               }
             }
           ]
@@ -107,8 +121,31 @@
             "type": "string"
           }
         },
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "distribution": {
           "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "pattern": "^private$",
+          "message": {
+            "pattern": "invalid 'visibility' under [package]: 'visibility' can only have value 'private'"
+          }
+        },
+        "icon": {
+          "type": "string",
+          "pattern": ".*.png$",
+          "message": {
+            "pattern": "invalid 'icon' under [package]: 'icon' can only have 'png' images"
+          }
+        },
+        "template": {
+          "type": "boolean"
         }
       }
     },
@@ -192,14 +229,17 @@
             }
           },
           "repository": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^local$",
+            "message": {
+              "pattern": "invalid 'repository' under [dependency]: 'repository' can only have the value 'local'"
+            }
           }
         },
         "required": [
           "org",
           "name",
-          "version",
-          "repository"
+          "version"
         ],
         "message": {
           "required": "'${property}' under [[dependency]] is missing"

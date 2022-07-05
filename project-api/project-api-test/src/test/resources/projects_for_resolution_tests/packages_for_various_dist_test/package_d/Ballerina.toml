@@ -1,0 +1,4 @@
+[package]
+org = "various_dist_test"
+name = "package_d"
+version = "0.1.0"

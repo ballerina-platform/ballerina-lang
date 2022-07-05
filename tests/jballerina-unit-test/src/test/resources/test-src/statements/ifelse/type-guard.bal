@@ -943,24 +943,16 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     boolean isGenericError = a1 is error && a2 is error;
     return [isSpecificError, isGenericError];
 }
+
 function testCustomErrorType() {
-    Details d = { message: "detail message" };
+    Details d = {message: "detail message"};
     MyError|MyErrorTwo e = error MyError(ERR_REASON, message = d.message);
-    if (e is MyErrorTwo) {
-        test:assertFail();
-    }
-    if (e is MyError) {
-    } else {
-        test:assertFail();
-    }
+    test:assertFalse(e is MyErrorTwo);
+    test:assertTrue(e is MyError);
+
     MyErrorTwo|MyError e1 = error MyError(ERR_REASON, message = d.message);
-    if (e1 is MyErrorTwo) {
-        test:assertFail();
-    }
-    if (e1 is MyError) {
-    } else {
-        test:assertFail();
-    }
+    test:assertFalse(e1 is MyErrorTwo);
+    test:assertTrue(e1 is MyError);
 }
 
 function testTypeGuardForCustomErrorNegative() returns boolean {
@@ -1057,7 +1049,7 @@ function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean 
 }
 
 type Detail record {
-    string message?;
+    string message;
     error cause?;
     int? code;
     float f?;
@@ -1754,6 +1746,33 @@ function goo(SomeRecord|int aa) {
 
 function yoo(SomeRecord|int|() aa) {
 
+}
+
+type R1 readonly & record {|int i;|}?;
+type R2 (readonly & record {|int i;|})?;
+type R record {|int i;|};
+
+function testR1(R1 r) {
+    if r is R {
+        R x = r; // no error
+        assertEquality(x.i, 2);
+    } else {
+        panic error("Type of 'r' should be 'R'");
+    }
+}
+
+function testR2(R2 r) {
+    if r is R {
+        R x = r; // no error
+        assertEquality(x.i, 3);
+    } else {
+        panic error("Type of 'r' should be 'R'");
+    }
+}
+
+function testTypeTestingInReadonlyRecord() {
+    testR1({i: 2});
+    testR2({i: 3});
 }
 
 function assertTrue(anydata actual) {

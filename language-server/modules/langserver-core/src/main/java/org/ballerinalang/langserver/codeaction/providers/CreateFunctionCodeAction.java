@@ -15,16 +15,21 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
+import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -58,22 +63,15 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION))) {
-            return Collections.emptyList();
-        }
-
-        if (positionDetails.matchedNode() == null) {
-            return Collections.emptyList();
-        }
-
         Optional<FunctionCallExpressionNode> callExpr = 
                 checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
-        if (callExpr.isEmpty()) {
+
+        if (callExpr.isEmpty() || isInvalidReturnType(context, callExpr.get())) {
             return Collections.emptyList();
         }
 
         String diagnosticMessage = diagnostic.message();
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         String uri = context.fileUri();
         CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, range);
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -85,9 +83,8 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         boolean isWithinFile = callExpr.get().functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
         if (isWithinFile) {
             String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
-            CodeAction action = new CodeAction(commandTitle);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
+            Command command = new Command(commandTitle, CreateFunctionExecutor.COMMAND, args);
+            CodeAction action = createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
             action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
             return Collections.singletonList(action);
         }
@@ -98,6 +95,16 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public boolean validate(Diagnostic diagnostic,
+                            DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        if (!diagnostic.message().startsWith(UNDEFINED_FUNCTION) || positionDetails.matchedNode() == null) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     /**
@@ -125,5 +132,26 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         }
 
         return Optional.ofNullable(functionCallExpressionNode);
+    }
+
+    private boolean isInvalidReturnType(CodeActionContext context, FunctionCallExpressionNode callExpr) {
+        SemanticModel semanticModel = context.currentSemanticModel().get();
+        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
+        typeFinder.findTypeOf(callExpr);
+        Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
+        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
+        
+        /*
+        Check for the parent being `CALL_STATEMENT` to suggest the code action for the following
+        eg: 
+            function testF() {
+                addTwoIntegers(a, b);
+            }
+         */
+        return callExpr.parent().kind() != SyntaxKind.CALL_STATEMENT
+                && ((returnTypeSymbol.isPresent()
+                && returnTypeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR)
+                || (returnTypeDescKind.isPresent() && (returnTypeDescKind.get() == TypeDescKind.COMPILATION_ERROR
+                || returnTypeDescKind.get() == TypeDescKind.NONE)));
     }
 }

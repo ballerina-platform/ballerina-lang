@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -47,62 +47,61 @@ public class VarMutabilityWithWorkersTest {
 
     @Test(description = "Test variable mutability with basic types")
     public void basicWorkerTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "basicWorkerTest", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Object returns = BRunUtil.invoke(compileResult, "basicWorkerTest", new Object[0]);
+        Assert.assertEquals(returns, 50L);
     }
 
     @Test(description = "Test variable mutability with tuples")
     public void testWithTuples() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testWithTuples", new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0].stringValue().contains("Changed inside worker 1!!!"));
-        Assert.assertTrue(returns[0].stringValue().contains("Changed inside worker 2!!!"));
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 150);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testWithTuples", new Object[0]);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0).toString().contains("Changed inside worker 1!!!"));
+        Assert.assertTrue(returns.get(0).toString().contains("Changed inside worker 2!!!"));
+        Assert.assertEquals(returns.get(1), 150L);
     }
 
     @Test(description = "Test variable mutability with maps")
     public void testWithMaps() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testWithMaps");
-        BMap resMap = (BMap) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testWithMaps");
+        BMap resMap = (BMap) returns;
         Assert.assertEquals(resMap.size(), 7);
-        Assert.assertEquals(resMap.getMap().get("a").toString(), "AAAA");
-        Assert.assertEquals(resMap.getMap().get("b").toString(), "B");
-        Assert.assertEquals(resMap.getMap().get("c").toString(), "C");
-        Assert.assertEquals(resMap.getMap().get("d").toString(), "D");
-        Assert.assertEquals(resMap.getMap().get("e").toString(), "EEE");
-        Assert.assertEquals(resMap.getMap().get("x").toString(), "X");
-        Assert.assertEquals(resMap.getMap().get("n").toString(), "N");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("a")).toString(), "AAAA");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("b")).toString(), "B");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("c")).toString(), "C");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("d")).toString(), "D");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("e")).toString(), "EEE");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("x")).toString(), "X");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("n")).toString(), "N");
     }
 
     @Test(description = "Test variable mutability with complex workers")
     public void complexWorkerTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "complexWorkerTest");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 400);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "complexWorkerTest");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0), 400L);
 
-        BMap resMap = (BMap) returns[1];
+        BMap resMap = (BMap) returns.get(1);
         Assert.assertEquals(resMap.size(), 6);
-        Assert.assertEquals(resMap.getMap().get("a").toString(), "AAAA");
-        Assert.assertEquals(resMap.getMap().get("b").toString(), "BBBB");
-        Assert.assertEquals(resMap.getMap().get("c").toString(), "C");
-        Assert.assertEquals(resMap.getMap().get("d").toString(), "D");
-        Assert.assertEquals(resMap.getMap().get("e").toString(), "EE");
-        Assert.assertEquals(resMap.getMap().get("m").toString(), "MMM");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("a")).toString(), "AAAA");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("b")).toString(), "BBBB");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("c")).toString(), "C");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("d")).toString(), "D");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("e")).toString(), "EE");
+        Assert.assertEquals(resMap.get(StringUtils.fromString("m")).toString(), "MMM");
     }
 
     @Test(description = "Test variable mutability with records")
     public void testWithRecords() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testWithRecords");
-        Assert.assertEquals(((BMap) returns[0]).size(), 3);
-        Assert.assertEquals(((BMap) returns[0]).getMap().toString(), "{name=Adam Page, age=24, email=adamp@wso2.com}");
+        Object returns = BRunUtil.invoke(compileResult, "testWithRecords");
+        Assert.assertEquals(((BMap) returns).size(), 3);
+        Assert.assertEquals(returns.toString(),
+                "{\"name\":\"Adam Page\",\"age\":24,\"email\":\"adamp@wso2.com\"}");
     }
 
     @Test(description = "Test variable mutability with objects")
     public void testWithObjects() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testWithObjects");
-        Assert.assertEquals(((BMap) returns[0]).size(), 3);
-        Assert.assertEquals(((BMap) returns[0]).getMap().toString(), "{age=40, name=Adam, fullName=Adam Adam Page}");
+        Object returns = BRunUtil.invoke(compileResult, "testWithObjects");
+        Assert.assertEquals(returns.toString(), "{age:40, name:Adam, fullName:Adam Adam Page}");
     }
 
     @AfterClass

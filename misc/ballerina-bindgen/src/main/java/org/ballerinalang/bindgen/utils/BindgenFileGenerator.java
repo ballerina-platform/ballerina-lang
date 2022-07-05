@@ -24,6 +24,7 @@ import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JError;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,12 +41,14 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_
 public class BindgenFileGenerator {
 
     private JClass jClass;
-    private Class currentClass;
+    private Class<?> currentClass;
     private SyntaxTree syntaxTree;
-    private BindgenEnv env;
-    private Path jClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jclass.bal");
-    private Path jEmptyClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "empty_jclass.bal");
-    private Path jErrorTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jerror.bal");
+
+    private final BindgenEnv env;
+    private final Path jClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jclass.bal");
+    private final Path jEmptyClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "empty_jclass.bal");
+    private final Path jErrorTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jerror.bal");
+    private static final CharSequence UNIX_FS = "/";
 
     public BindgenFileGenerator(BindgenEnv env) {
         this.env = env;
@@ -87,7 +90,6 @@ public class BindgenFileGenerator {
         String content = readTemplateFile(filePath);
         return replacePlaceholders(content, alias);
     }
-
 
     private SyntaxTree replacePlaceholders(String content, String alias) {
         String modifiedContent = content.replace("FULL_CLASS_NAME", currentClass.getName())
@@ -131,7 +133,9 @@ public class BindgenFileGenerator {
 
     private String readTemplateFile(Path filePath) throws BindgenException {
         try {
-            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(filePath.toString());
+            // 'java.lang.ClassLoader#getResourceAsStream' accepts only UNIX file separators.
+            String unixPath = filePath.toString().replace(File.separator, UNIX_FS);
+            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(unixPath);
             return IOUtils.toString(stream, UTF_8);
         } catch (Exception e) {
             throw new BindgenException("error: unable to read the internal template file: " + e.getMessage(), e);

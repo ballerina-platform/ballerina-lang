@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -35,13 +37,17 @@ import java.util.List;
  * @since 0.985.0
  */
 public class BLangErrorVarRef extends BLangVariableReference implements ErrorVariableReferenceNode {
-    public BVarSymbol varSymbol;
+
+    // BLangNodes
     public BLangIdentifier pkgAlias;
     public BLangVariableReference message;
     public BLangVariableReference cause;
     public List<BLangNamedArgsExpression> detail;
     public BLangVariableReference restVar;
     public BLangType typeNode;
+
+    // Semantic Data
+    public BVarSymbol varSymbol;
 
     public BLangErrorVarRef() {
         detail = new ArrayList<>();
@@ -80,6 +86,16 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

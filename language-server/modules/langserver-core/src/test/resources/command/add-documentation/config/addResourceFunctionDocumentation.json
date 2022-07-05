@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "addResourceFunctionDocumentation.bal",
   "expected": {
     "result": {
       "edit": {
@@ -28,7 +29,7 @@
                     "character": 4
                   }
                 },
-                "newText": "# Description\n    #\n    # + id - Parameter Description  \n    # + path - Parameter Description  \n    # + caller - Parameter Description  \n    # + req - Parameter Description  \n    "
+                "newText": "# Description\n    #\n    # + id - Parameter Description  \n    # + path - Parameter Description  \n    # + caller - Parameter Description  \n    # + req - Parameter Description\n    "
               }
             ]
           }

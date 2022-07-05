@@ -51,18 +51,18 @@ public class DebugCompletionTest extends BaseTestCase {
 
     @Test
     public void testDebugCompletions() throws BallerinaTestException {
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 67));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 75));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 77));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 82));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 88));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 99));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 71));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 79));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 81));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 86));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 92));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 103));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
-        Assert.assertEquals(completions.size(), 30);
+        Assert.assertEquals(completions.size(), 31);
 
         // Test for global variable completions in the beginning of the main() method.
         debugTestRunner.assertCompletions(completions, "globalVar");
@@ -82,7 +82,7 @@ public class DebugCompletionTest extends BaseTestCase {
         // Debug completions test at the end of the main() method.
         assertCompletionSuggestions();
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
-        Assert.assertEquals(completions.size(), 41);
+        Assert.assertEquals(completions.size(), 42);
     }
 
     private void assertCompletionSuggestions() throws BallerinaTestException {
@@ -129,8 +129,17 @@ public class DebugCompletionTest extends BaseTestCase {
         debugTestRunner.assertCompletions(completions, "carName");
 
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "person.getCar().getCarName().");
-        Assert.assertEquals(completions.size(), 34);
+        Assert.assertEquals(completions.size(), 37);
         debugTestRunner.assertCompletions(completions, "toBalString()");
+
+        // Debug completions test for object remote functions
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "person->");
+        Assert.assertEquals(completions.size(), 1);
+        debugTestRunner.assertCompletions(completions, "sayHello()");
+
+        completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "person->say");
+        Assert.assertEquals(completions.size(), 1);
+        debugTestRunner.assertCompletions(completions, "sayHello()");
     }
 
     @AfterClass(alwaysRun = true)

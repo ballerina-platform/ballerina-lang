@@ -18,9 +18,7 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -36,6 +34,7 @@ import org.testng.annotations.Test;
  * @since 0.990.4
  */
 public class MatchStructuredErrorPatternsTest {
+
     private CompileResult result, resultNegative;
 
     @BeforeClass
@@ -47,35 +46,30 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        int i = -1;
-        Assert.assertEquals(returns[++i].stringValue(), "Error Code:Msg");
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch", new Object[]{});
+        Assert.assertEquals(returns.toString(), "Error Code:Msg");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch2() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch2", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        int i = -1;
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch2", new Object[]{});
+
         String msg = "Matched with ";
-        Assert.assertEquals(returns[++i].stringValue(), msg + "error : Error Code {\"message\":\"Msg\"}");
+        Assert.assertEquals(returns.toString(), msg + "error : Error Code {\"message\":\"Msg\"}");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch3() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch3", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        int i = -1;
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch3", new Object[]{});
         String msg = "Matched with ";
-        Assert.assertEquals(returns[++i].stringValue(), msg + "error : Error Code");
+        Assert.assertEquals(returns.toString(), msg + "error : Error Code");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch4() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch4", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        BValueArray results = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch4", new Object[]{});
+
+        BArray results = (BArray) returns;
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "boolean : true");
@@ -84,9 +78,9 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch5() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch5", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        BValueArray results = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch5", new Object[]{});
+
+        BArray results = (BArray) returns;
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "a record : true");
@@ -98,9 +92,9 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch6() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch6", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        BValueArray results = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch6", new Object[]{});
+
+        BArray results = (BArray) returns;
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "string");
@@ -110,9 +104,9 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testErrorWithUnderscore() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        BValueArray results = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(result, "testErrorWithUnderscore", new Object[]{});
+
+        BArray results = (BArray) returns;
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "error reason = Error One");
@@ -120,9 +114,9 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch7() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch7", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        BValueArray results = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch7", new Object[]{});
+
+        BArray results = (BArray) returns;
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "a record : true");
@@ -132,9 +126,9 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test error pattern matching with union of finite type reason")
     public void testFiniteTypedReasonVariable() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypedReasonVariable");
-        Assert.assertEquals(returns.length, 1);
-        BValueArray results = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(result, "testFiniteTypedReasonVariable");
+
+        BArray results = (BArray) returns;
         int i = -1;
         Assert.assertEquals(results.getString(++i), "reason = Error One, message = msgOne, fatal = true");
         Assert.assertEquals(results.getString(++i), "reason = Error Three, message = msgTwo, fatal = false");
@@ -142,64 +136,93 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "TestMatchingErrorRestParameter")
     public void testErrorRestParameterMatch() {
-        BInteger[] args0 = { new BInteger(0) };
-        BValue[] returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
-        Assert.assertEquals(returns0[0].stringValue(), "Error Code{}");
+        Long[] args0 = {0L};
+        Object returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
+        Assert.assertEquals(returns0.toString(), "Error Code{}");
 
-        BInteger[] args1 = { new BInteger(1) };
-        BValue[] returns1 = BRunUtil.invoke(result, "testErrorRestParamMatch", args1);
-        Assert.assertEquals(returns1[0].stringValue(), "[\"x\",1]");
+        Long[] args1 = {1L};
+        Object returns1 = BRunUtil.invoke(result, "testErrorRestParamMatch", args1);
+        Assert.assertEquals(returns1.toString(), "[\"x\",1]");
 
-        BInteger[] args2 = { new BInteger(2) };
-        BValue[] returns2 = BRunUtil.invoke(result, "testErrorRestParamMatch", args2);
-        Assert.assertEquals(returns2[0].stringValue(), "x");
+        Long[] args2 = {2L};
+        Object returns2 = BRunUtil.invoke(result, "testErrorRestParamMatch", args2);
+        Assert.assertEquals(returns2.toString(), "x");
 
-        BInteger[] args3 = { new BInteger(3) };
-        BValue[] returns3 = BRunUtil.invoke(result, "testErrorRestParamMatch", args3);
-        Assert.assertEquals(returns3[0].stringValue(), "Error Code{\"foo\":\"foo\"}");
+        Long[] args3 = {3L};
+        Object returns3 = BRunUtil.invoke(result, "testErrorRestParamMatch", args3);
+        Assert.assertEquals(returns3.toString(), "Error Code{\"foo\":\"foo\"}");
     }
 
     @Test(description = "Test error match pattern")
     public void testErrorMatchPattern() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorMatchPattern", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        int i = -1;
-        Assert.assertEquals(returns[++i].stringValue(), "Error Code:Msg");
+        Object returns = BRunUtil.invoke(result, "testErrorMatchPattern", new Object[]{});
+        Assert.assertEquals(returns.toString(), "Error Code:Msg");
     }
 
     @Test(description = "Test error const reason match pattern")
     public void testErrorConstReasonMatchPattern() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorConstReasonMatchPattern", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        int i = -1;
-        Assert.assertEquals(returns[++i].stringValue(), "Const reason:Msg");
+        Object returns = BRunUtil.invoke(result, "testErrorConstReasonMatchPattern", new Object[]{});
+        Assert.assertEquals(returns.toString(), "Const reason:Msg");
     }
 
     @Test(description = "Test indirect error match pattern")
     public void testIndirectErrorMatchPattern() {
-        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorMatchPattern", new BValue[]{});
-        Assert.assertEquals(returns[0].stringValue(), "Msg");
+        Object returns = BRunUtil.invoke(result, "testIndirectErrorMatchPattern", new Object[]{});
+        Assert.assertEquals(returns.toString(), "Msg");
     }
 
     @Test
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative.getWarnCount(), 8);
         int i = -1;
         String unreachablePattern = "unreachable pattern";
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 28, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 28, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 29, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'detail'", 29, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 29, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'detail'", 33, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 33, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 34, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 43, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 43, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 48, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 48, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 49, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 49, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 49, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 49, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 50, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 50, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 50, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 59, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 59, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 60, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 60, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 64, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 64, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 65, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 79, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 79, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 79, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'extra'", 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 84, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 84, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 84, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 85, 9);
+        Assert.assertEquals(resultNegative.getWarnCount(), i + 1);
     }
 
     @Test()
     public void testErrorMatchWihtoutReason() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorMatchWihtoutReason");
-        Assert.assertEquals(returns[0].stringValue(), "error detail message");
+        Object returns = BRunUtil.invoke(result, "testErrorMatchWihtoutReason");
+        Assert.assertEquals(returns.toString(), "error detail message");
     }
 
     @AfterClass

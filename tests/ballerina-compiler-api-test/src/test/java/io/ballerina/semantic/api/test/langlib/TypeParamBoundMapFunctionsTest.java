@@ -19,14 +19,18 @@
 package io.ballerina.semantic.api.test.langlib;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -74,6 +78,26 @@ public class TypeParamBoundMapFunctionsTest {
 
         assertEquals(params.size(), 1);
         assertParam(params.get(0));
+
+        assertTrue(iteratorFnType.returnTypeDescriptor().isPresent());
+        Map<String, MethodSymbol> methods =
+                ((BallerinaObjectTypeSymbol) iteratorFnType.returnTypeDescriptor().get()).methods();
+        assertEquals(methods.size(), 1);
+        MethodSymbol methodSymbol = methods.get("next");
+        assertEquals(methodSymbol.typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+
+        FunctionTypeSymbol functionTypeSymbol = methodSymbol.typeDescriptor();
+        assertTrue(functionTypeSymbol.returnTypeDescriptor().isPresent());
+        assertEquals(functionTypeSymbol.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
+        UnionTypeSymbol returnTypeDesc = (UnionTypeSymbol) functionTypeSymbol.returnTypeDescriptor().get();
+        List<TypeSymbol> unionTypeSymbols = returnTypeDesc.memberTypeDescriptors();
+        TypeSymbol firstReturnTypeSym = unionTypeSymbols.get(0);
+        TypeSymbol secondReturnTypeSym = unionTypeSymbols.get(1);
+        assertEquals(firstReturnTypeSym.typeKind(), TypeDescKind.RECORD);
+        assertEquals(secondReturnTypeSym.typeKind(), TypeDescKind.NIL);
+        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) firstReturnTypeSym;
+        TypeSymbol valueRecFieldType = recordTypeSymbol.fieldDescriptors().get("value").typeDescriptor();
+        assertEquals(valueRecFieldType.typeKind(), TypeDescKind.FLOAT);
     }
 
     @Test
@@ -113,7 +137,7 @@ public class TypeParamBoundMapFunctionsTest {
 
     @Test
     public void testMap() {
-        FunctionTypeSymbol mapFnType = assertFnNameAndGetParams("map");
+        FunctionTypeSymbol mapFnType = assertFnNameAndGetParams("'map");
         List<ParameterSymbol> params = mapFnType.params().get();
 
         assertEquals(params.size(), 2);
@@ -129,7 +153,10 @@ public class TypeParamBoundMapFunctionsTest {
 
         TypeSymbol mapFnRetType = mapFnType.returnTypeDescriptor().get();
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.MAP);
-        assertEquals(((MapTypeSymbol) mapFnRetType).typeParam().typeKind(), TypeDescKind.UNION);
+
+        TypeSymbol typeParameterSymbol = ((MapTypeSymbol) mapFnRetType).typeParam();
+        assertEquals(typeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) typeParameterSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
     }
 
     @Test
@@ -186,10 +213,13 @@ public class TypeParamBoundMapFunctionsTest {
 //        assertEquals(fnType.params().get().get(0).typeDescriptor().typeKind(), TypeDescKind.INT);
 //        assertEquals(fnType.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
 
-        assertEquals(params.get(2).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        TypeSymbol parameterTypeSymbol = params.get(2).typeDescriptor();
+        assertEquals(parameterTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) parameterTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
 
         TypeSymbol pushFnRetType = reduceFnType.returnTypeDescriptor().get();
-        assertEquals(pushFnRetType.typeKind(), TypeDescKind.UNION);
+        assertEquals(pushFnRetType.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) pushFnRetType).typeDescriptor().typeKind(), TypeDescKind.UNION);
     }
 
     @Test

@@ -34,6 +34,7 @@ public class BallerinaPackageServiceServerCapabilitySetter extends
         BallerinaPackageServerCapabilities capabilities = new BallerinaPackageServerCapabilities();
         capabilities.setMetadata(true);
         capabilities.setComponents(true);
+        capabilities.setConfigSchema(true);
         return Optional.of(capabilities);
     }
 

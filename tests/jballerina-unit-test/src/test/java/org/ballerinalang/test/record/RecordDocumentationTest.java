@@ -40,7 +40,7 @@ public class RecordDocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc annotation.", groups = {"disableOnOldParser"})
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 3);
@@ -88,11 +88,11 @@ public class RecordDocumentationTest {
                 EMPTY_STRING), "struct `field c` documentation");
     }
 
-    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc negative cases.", groups = {"disableOnOldParser"})
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0,
-                            getErrorString(compileResult.getDiagnostics()));
+                getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 20);
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);
@@ -112,12 +112,12 @@ public class RecordDocumentationTest {
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'reqest'", 86, 9);
         BAssertUtil.validateWarning(compileResult, i++, "field 'abc' already documented", 95, 5);
         BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 95,
-                                    75);
+                75);
         BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 99,
-                                    33);
+                33);
         BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'def'", 103, 5);
         BAssertUtil.validateWarning(compileResult, i, "invalid reference in documentation 'Baz' for type 'type'", 106,
-                                    33);
+                33);
     }
 
     private String getErrorString(Diagnostic[] diagnostics) {

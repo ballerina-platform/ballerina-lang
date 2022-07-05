@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -40,10 +38,9 @@ public class WorkerCallingFunction {
 
     @Test(description = "Test worker calling function")
     public void testWorkerCallingFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "testWorkerInVM");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+        Object returns = BRunUtil.invoke(result, "testWorkerInVM");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 20L);
     }
 
     @AfterClass

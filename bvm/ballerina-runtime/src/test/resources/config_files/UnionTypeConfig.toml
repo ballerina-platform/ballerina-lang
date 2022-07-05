@@ -3,7 +3,6 @@ intStringVar=123456
 byteStringVar=5
 floatIntStringVar=123.45
 decimalStringVar=7.89
-arrayUnionVar = [123,456,789]
 anyDataPrimitiveTypeVar = 9.87
 color="RED"
 

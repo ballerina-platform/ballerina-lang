@@ -1,5 +1,5 @@
-import ballerina/io;
-import ballerina/http;
+import ballerina/iox;
+import ballerina/httpx;
 import ballerina/log;
 import project.module1 as mod1;
 import ballerina/test;
@@ -73,7 +73,7 @@ public function main() {
 
     // 4. Different module class reference
     mod1:Counter counter = new (12);
-    io:println(counter.get());
+    iox:println(counter.get());
 
     // ** Object
     // 1. Same module level object reference in the same file (declaration before the reference)
@@ -91,7 +91,7 @@ public function main() {
             }
         }
     };
-    io:println("City: ", john.address.city);
+    iox:println("City: ", john.address.city);
 
     // 2. Same module level object reference, but in a separate file
     DummyObject objectIns = object {
@@ -149,32 +149,32 @@ public function main() {
     };
 
     // 2. Same module level function reference in the same file (declaration before the reference)
-    io:println(lookup("france"));
+    iox:println(lookup("france"));
 
     // 3. Same module level function reference, but in a separate file
     future<int> fut = @strand {thread: "any"} start foo();
 
     // 4. Different module function reference
-    io:print(mod1:printDetails("Alice", 20, "JP"));
+    iox:print(mod1:printDetails("Alice", 20, "JP"));
     byte[] bytes = base16 `aeeecdefabcd12345567888822`;
     string str = check string:fromBytes(bytes);
 
     // ** Enum
     // 1. Same module level enum reference in the same file (declaration before the reference)
-    io:print(NodeType);
-    io:print(Super);
+    iox:print(NodeType);
+    iox:print(Super);
 
     // 2. Same module level enum reference, but in a separate file
-    io:print(PET);
-    io:print(DOG);
+    iox:print(PET);
+    iox:print(DOG);
 
     // 3. Same module level enum reference in the same file (declaration after the reference)
-    io:print(OCCUPATION);
-    io:print(Doctor);
+    iox:print(OCCUPATION);
+    iox:print(Doctor);
 
     // 4. Different module enum reference
-    io:print(mod1:RED);
-    io:print(mod1:Color);
+    iox:print(mod1:RED);
+    iox:print(mod1:Color);
 
     // ** Variable **
     // 1. Define variable
@@ -184,22 +184,22 @@ public function main() {
         "England": "London"
     };
     foreach var [country, capital] in countryCapitals.entries() {
-        io:println("Country: ", country, ", Capital: ", capital);
+        iox:println("Country: ", country, ", Capital: ", capital);
     }
 
     // 2. Same module level variable reference in the same file (declaration before the reference)
     int|error futureIns = wait fut;
-    io:println(futureIns);
+    iox:println(futureIns);
 
     // 3. Same module level variable reference, but in a separate file
-    io:print('from);
+    iox:print('from);
 
     // 4. Same module level variable reference in the same file (declaration after the reference)
-    io:print(GREETING);
+    iox:print(GREETING);
 
     // 5. Different module variable reference
-    io:print(mod1:ONE);
-    io:print(++mod1:count);
+    iox:print(mod1:ONE);
+    iox:print(++mod1:count);
 
     // ** Record **
     // 1. Define record
@@ -207,7 +207,7 @@ public function main() {
         x: 1,
         y: 2
     };
-    io:print(r.x);
+    iox:print(r.x);
 
     // 2. Same module level record reference in the same file (declaration before the reference)
     Address adr = object {
@@ -229,12 +229,12 @@ public function main() {
         firstName: "Rowan",
         lastName: "Atkinson"
     };
-    io:println(name1);
+    iox:println(name1);
 
     // 4. Same module level record reference in the same file (declaration after the reference)
     var evenNumber = evenNumberStream.next();
     if (evenNumber is ResultValue) {
-        io:println("Retrieved even number: ", evenNumber.value);
+        iox:println("Retrieved even number: ", evenNumber.value);
     }
 
     // 5. Different module record reference
@@ -243,7 +243,7 @@ public function main() {
         age: 24,
         salary: 8000.0
     };
-    io:print(teacher.name);
+    iox:print(teacher.name);
 }
 
 readonly class MainController {
@@ -279,21 +279,21 @@ function loadMap() returns RoMap {
 }
 
 // ** Service **
-service /stockquote on new http:Listener(8889) {
+service /stockquote on new httpx:Listener(8889) {
     # Description
     #
     # + conn - Parameter Description
     # + req - Parameter Description
-    transactional resource function post update/updateStockQuote(http:Caller conn, http:Request req) {
-        json|http:ClientError updateReq = <@untainted>req.getJsonPayload();
+    transactional resource function post update/updateStockQuote(httpx:Caller conn, httpx:Request req) {
+        json|httpx:ClientError updateReq = <@untainted>req.getJsonPayload();
 
         // Generate the response.
-        http:Response res = new;
+        httpx:Response res = new;
         if (updateReq is json) {
             string msg = "Update stock quote request received. " + "symbol:%s, price:%s" + updateReq.toString();
             log:printInfo(msg);
             json jsonRes = {"message": "updating stock"};
-            res.statusCode = http:STATUS_OK;
+            res.statusCode = httpx:STATUS_OK;
             res.setJsonPayload(jsonRes);
         }
 

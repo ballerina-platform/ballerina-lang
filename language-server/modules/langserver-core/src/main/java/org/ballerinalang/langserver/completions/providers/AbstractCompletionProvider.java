@@ -40,21 +40,25 @@ import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
@@ -74,6 +78,7 @@ import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBu
 import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.XMLNSCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -191,9 +196,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 Null check added for safety.
                 Eg: public listener test = <cursor>
                  */
-                String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
-                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
-                        typeName);
+                String typeName = (typeDesc == null || typeDesc.typeKind() == null) ? "" :
+                        NameUtil.getModifiedTypeName(ctx, typeDesc);
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, 
+                        varSymbol.getName().orElse(""), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
 
                 if (typeDesc != null) {
@@ -207,14 +213,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             } else if (symbol.kind() == PARAMETER) {
                 ParameterSymbol paramSymbol = (ParameterSymbol) symbol;
                 TypeSymbol typeDesc = paramSymbol.typeDescriptor();
-                String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
+                String typeName = NameUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == PATH_PARAMETER) {
                 PathParameterSymbol paramSymbol = (PathParameterSymbol) symbol;
                 TypeSymbol typeDesc = paramSymbol.typeDescriptor();
-                String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
+                String typeName = NameUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
@@ -270,9 +276,32 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()),
                 new SnippetCompletionItem(context, Snippet.KW_TRUE.get()),
-                new SnippetCompletionItem(context, Snippet.KW_FALSE.get())
+                new SnippetCompletionItem(context, Snippet.KW_FALSE.get()),
+                new SnippetCompletionItem(context, Snippet.KW_NIL.get())
         ));
 
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (nodeAtCursor.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return completionItems;
+        }
+        String prefix = ((SimpleNameReferenceNode) nodeAtCursor).name().text();
+        context.currentDocImportsMap().forEach((importDeclarationNode, moduleSymbol) -> {
+            List<Symbol> symbols = moduleSymbol.allSymbols();
+            CodeActionModuleId moduleId = CodeActionModuleId.from(importDeclarationNode);
+            List<Symbol> filteredList = SymbolUtil.filterSymbolsByPrefix(symbols, context, prefix, moduleId);
+            List<LSCompletionItem> completionItemList = getCompletionItemList(filteredList, context);
+
+            for (LSCompletionItem lsCompletionItem : completionItemList) {
+                CompletionItem completionItem = lsCompletionItem.getCompletionItem();
+                String insertText = completionItem.getInsertText();
+                String label = completionItem.getLabel();
+                String moduleName = importDeclarationNode.prefix().isEmpty() ? moduleSymbol.id().moduleName()
+                        : importDeclarationNode.prefix().get().prefix().text();
+                completionItem.setInsertText(moduleName + ":" + insertText);
+                completionItem.setLabel(moduleName + ":" + label);
+                completionItems.add(lsCompletionItem);
+            }
+        });
         return completionItems;
     }
 
@@ -323,28 +352,30 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             }
             String label = prefix;
             String insertText = CommonUtil.escapeReservedKeyword(prefix);
-            CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>());
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>(), prefix);
             processedList.add(processedModuleHash);
             completionItems.add(new SymbolCompletionItem(ctx, moduleSymbol, item));
         });
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
-        List<Package> packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
+        List<LSPackageLoader.PackageInfo> packages = 
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
-            String orgName = CommonUtil.escapeModuleName(pkg.packageOrg().value());
-            if (CommonUtil.matchingImportedModule(ctx, pkg).isEmpty()
+            String orgName = ModuleUtil.escapeModuleName(pkg.packageOrg().value());
+            if (ModuleUtil.matchingImportedModule(ctx, pkg).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
                     && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
                 List<String> pkgNameComps = Arrays.stream(name.split("\\."))
-                        .map(CommonUtil::escapeModuleName)
+                        .map(ModuleUtil::escapeModuleName)
                         .collect(Collectors.toList());
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
-                String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+                String insertText = NameUtil.getValidatedSymbolName(ctx, aliasComponent);
                 String alias = !insertText.equals(aliasComponent) ? insertText : "";
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
-                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits);
+                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits,
+                        aliasComponent);
                 completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }
         });
@@ -368,7 +399,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             String aliasComponent = moduleNameComponents.get(moduleNameComponents.size() - 1);
 
             // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
-            String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+            String insertText = NameUtil.getValidatedSymbolName(ctx, aliasComponent);
             String alias = !insertText.equals(aliasComponent) ? insertText : "";
             String pkgName = CommonUtil.escapeReservedKeyword(module.moduleName().packageName().value());
             String label = pkgName + "." + String.join(".", moduleNameComponents);
@@ -376,7 +407,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 return;
             }
             List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, alias, ctx);
-            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits);
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits, alias);
             completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
         });
 
@@ -389,7 +420,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context completion context
      * @param node    node to evaluate upon
      * @return {@link Boolean}
-     * @deprecated Use {@link QNameReferenceUtil#onQualifiedNameIdentifier(BallerinaCompletionContext, Node)} instead
+     * @deprecated Use {@link QNameRefCompletionUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)} 
+     * instead
      */
     @Deprecated(forRemoval = true)
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
@@ -539,7 +571,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {
         return this.expressionCompletions(context);
     }
-    
+
     protected List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
         // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
         return Arrays.asList(
@@ -576,9 +608,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
-    private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits) {
+    private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits,
+                                                   String prefix) {
         CompletionItem moduleCompletionItem = new CompletionItem();
         moduleCompletionItem.setLabel(label);
+        if (prefix != null) {
+            moduleCompletionItem.setFilterText(prefix);
+        }
         moduleCompletionItem.setInsertText(insertText);
         moduleCompletionItem.setDetail(ItemResolverConstants.MODULE_TYPE);
         moduleCompletionItem.setKind(CompletionItemKind.Module);
@@ -599,7 +635,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     private List<LSCompletionItem> populateSelfClassSymbolCompletionItems(Symbol symbol, BallerinaCompletionContext ctx,
                                                                           TypeSymbol rawType) {
         Optional<ModuleMemberDeclarationNode> moduleMember = ctx.enclosedModuleMember();
-        if (moduleMember.isEmpty() || !CommonUtil.isSelfClassSymbol(symbol, ctx, moduleMember.get())) {
+        if (moduleMember.isEmpty() || (!SymbolUtil.isSelfClassSymbol(symbol, ctx, moduleMember.get())
+                && !SymbolUtil.isSelfObjectSymbol(symbol, ctx.getNodeAtCursor()))) {
             return Collections.emptyList();
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -628,7 +665,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      *
      * @param node    node of which the qualifiers are checked.
      * @param context completion context.
-     * @return
+     * @return completion items
      */
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -702,7 +739,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         if (typeSymbolAtCursor.isEmpty() || typeSymbolAtCursor.get().typeKind() != TypeDescKind.FUNCTION) {
             return Optional.empty();
         }
-        
+
         TypeSymbol symbol = typeSymbolAtCursor.get();
         FunctionTypeSymbol functionTypeSymbol = ((FunctionTypeSymbol) symbol);
         Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
@@ -710,7 +747,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         if (returnTypeSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         List<String> args = new ArrayList<>();
         int argIndex = 1;
         Set<String> visibleSymbolNames = visibleSymbols
@@ -719,27 +756,53 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-                
+
         if (functionTypeSymbol.params().isPresent()) {
             // variable names
             for (ParameterSymbol parameterSymbol : functionTypeSymbol.params().get()) {
                 String varName = "";
                 TypeSymbol parameterTypeSymbol = parameterSymbol.typeDescriptor();
-                varName = CommonUtil.generateParameterName(varName, argIndex, parameterTypeSymbol,
+                varName = NameUtil.generateParameterName(varName, argIndex, parameterTypeSymbol,
                         visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(context, parameterTypeSymbol) + " " + varName);
                 visibleSymbolNames.add(varName);
                 argIndex++;
             }
         }
-        
+
         String functionName = "";
-        String snippet = FunctionGenerator.generateFunction(context, false, functionName, args, 
+        String snippet = FunctionGenerator.generateFunction(context, false, functionName, args,
                 returnTypeSymbol.get());
-        SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
+        SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION,
                 ItemResolverConstants.FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET);
         snippetBlock.setId(ItemResolverConstants.ANON_FUNCTION);
-        
+
         return Optional.of(new SnippetCompletionItem(context, snippetBlock));
+    }
+
+    /**
+     * Sets the sort text of the provided completion item based on provided rank and context type.
+     *
+     * @param context        Completion context
+     * @param completionItem Completion item
+     * @param rank           A secondary rank to be considered other than assignability
+     */
+    protected void sortByAssignability(BallerinaCompletionContext context, LSCompletionItem completionItem, int rank) {
+        Optional<TypeSymbol> contextType = context.getContextType();
+        String sortText = "";
+        // First we sort the assignable items above others, and then sort by the rank
+        if (contextType.isPresent() && SortingUtil.isCompletionItemAssignable(completionItem, contextType.get())) {
+            // Rank directly assignable ones first
+            sortText += SortingUtil.genSortText(1);
+        } else if (contextType.isPresent() &&
+                SortingUtil.isCompletionItemAssignableWithCheck(completionItem, contextType.get())) {
+            // Then the items which can be made assignable using a check expression
+            sortText += SortingUtil.genSortText(2);
+        } else {
+            sortText += SortingUtil.genSortText(3);
+        }
+        sortText += SortingUtil.genSortText(rank);
+
+        completionItem.getCompletionItem().setSortText(sortText);
     }
 }

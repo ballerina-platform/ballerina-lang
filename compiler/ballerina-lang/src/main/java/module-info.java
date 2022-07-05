@@ -14,6 +14,7 @@ module io.ballerina.lang {
     requires io.ballerina.toml;
     requires io.ballerina.central.client;
     requires java.semver;
+    requires io.ballerina.identifier;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;
@@ -69,6 +70,7 @@ module io.ballerina.lang {
     exports io.ballerina.projects;
     exports io.ballerina.projects.environment;
     exports io.ballerina.projects.util;
+    exports io.ballerina.projects.configurations;
     exports io.ballerina.projects.directory;
     exports io.ballerina.projects.bala;
     exports io.ballerina.projects.repos;
@@ -77,4 +79,7 @@ module io.ballerina.lang {
     exports io.ballerina.projects.internal.model; // TODO Remove this exports
     exports io.ballerina.projects.internal.environment; // TODO Remove these exports
     exports io.ballerina.projects.internal to io.ballerina.cli;
+    exports io.ballerina.projects.internal.bala;
+    exports io.ballerina.projects.internal.configschema to org.ballerinalang.config.schema.generator,
+            io.ballerina.language.server.core;
 }

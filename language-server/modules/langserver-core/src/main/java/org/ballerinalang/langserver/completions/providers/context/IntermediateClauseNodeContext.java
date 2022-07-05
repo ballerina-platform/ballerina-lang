@@ -19,6 +19,7 @@ import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
 
@@ -46,9 +47,11 @@ public abstract class IntermediateClauseNodeContext<T extends IntermediateClause
         if (lastNode.isEmpty() || lastNode.get().isMissing()) {
             return false;
         }
+        CompleteExpressionValidator validator = new CompleteExpressionValidator();
+        boolean completed = lastNode.get().apply(validator);
 
         int cursor = context.getCursorPositionInTree();
-        return lastNode.get().textRange().endOffset() < cursor;
+        return (lastNode.get().textRange().endOffset() < cursor) && completed;
     }
 
     /**

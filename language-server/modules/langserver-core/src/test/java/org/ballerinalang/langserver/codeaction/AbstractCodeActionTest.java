@@ -17,11 +17,16 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.AbstractLSTest;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -33,6 +38,7 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -42,60 +48,55 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 /**
- * Test Cases for CodeActions.
+ * Abstract test for code action related tests.
  *
  * @since 2.0.0
  */
-public abstract class AbstractCodeActionTest {
-    public Endpoint serviceEndpoint;
+public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
-    private final JsonParser parser = new JsonParser();
-
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
-    private static final WorkspaceManager workspaceManager
-            = BallerinaWorkspaceManager.getInstance(new LanguageServerContextImpl());
-    
-    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
+    private  WorkspaceManager workspaceManager;
 
-    @BeforeClass
-    public void init() throws Exception {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
-    }
+    private LanguageServerContext serverContext;
 
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        String configJsonPath = getConfigJsonPath(config);
-        Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        Path configJsonPath = getConfigJsonPath(config);
+        TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configJsonPath), TestConfig.class);
+        Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(testConfig.source);
+        TestUtil.openDocument(getServiceEndpoint(), sourcePath);
 
         // Filter diagnostics for the cursor position
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
-        Position pos = new Position(configJsonObject.get("line").getAsInt(),
-                                    configJsonObject.get("character").getAsInt());
+        Position pos = testConfig.position;
         diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         Range range = new Range(pos, pos);
         String res = getResponse(sourcePath, range, codeActionContext);
 
-        for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
-            JsonObject expected = element.getAsJsonObject();
-            String expTitle = expected.get("title").getAsString();
+        List<CodeActionObj> mismatchedCodeActions = new ArrayList<>();
+        for (CodeActionObj expected : testConfig.expected) {
+            // Create an object to keep track of the actual code action received
+            CodeActionObj actual = new CodeActionObj();
 
             boolean codeActionFound = false;
             JsonObject responseJson = getResponseJson(res);
@@ -107,34 +108,54 @@ public abstract class AbstractCodeActionTest {
 
                 // Match title
                 String actualTitle = right.get("title").getAsString();
-                if (!expTitle.equals(actualTitle)) {
+                if (!expected.title.equals(actualTitle)) {
                     continue;
                 }
+
+                // We have to make sure the title is a match since we are checking against all the
+                // code actions received.
+                actual.title = actualTitle;
+
+                // Match code action kind
+                actual.kind = right.get("kind") == null ? null : right.get("kind").getAsString();
+                if (expected.kind != null) {
+                    if (!expected.kind.equals(actual.kind)) {
+                        continue;
+                    }
+                }
+
                 // Match edits
-                if (expected.get("edits") != null) {
-                    JsonArray actualEdit = right.get("edit").getAsJsonObject().get("documentChanges")
-                            .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
-                    JsonArray expEdit = expected.get("edits").getAsJsonArray();
+                if (expected.edits != null) {
+                    JsonElement editsElement = right.get("edit").getAsJsonObject().get("documentChanges")
+                            .getAsJsonArray().get(0).getAsJsonObject().get("edits");
+                    Type type = new TypeToken<List<TextEdit>>() {
+                    }.getType();
+                    List<TextEdit> actualEdit = gson.fromJson(editsElement, type);
+                    List<TextEdit> expEdit = expected.edits;
                     if (!expEdit.equals(actualEdit)) {
+                        actual.edits = actualEdit;
                         continue;
                     }
                 }
                 // Match args
-                if (expected.get("command") != null) {
-                    JsonObject expectedCommand = expected.get("command").getAsJsonObject();
+                if (expected.command != null) {
+                    JsonObject expectedCommand = expected.command;
                     JsonObject actualCommand = right.get("command").getAsJsonObject();
 
                     if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
+                        actual.command = actualCommand;
                         continue;
                     }
 
                     if (!Objects.equals(actualCommand.get("title"), expectedCommand.get("title"))) {
+                        actual.command = actualCommand;
                         continue;
                     }
 
                     JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                     JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
                     if (!TestUtil.isArgumentsSubArray(actualArgs, expArgs)) {
+                        actual.command = actualCommand;
                         continue;
                     }
 
@@ -142,7 +163,7 @@ public abstract class AbstractCodeActionTest {
                     for (JsonElement actualArg : actualArgs) {
                         JsonObject arg = actualArg.getAsJsonObject();
                         if ("doc.uri".equals(arg.get("key").getAsString())) {
-                            Optional<Path> docPath = CommonUtil.getPathFromURI(arg.get("value").getAsString());
+                            Optional<Path> docPath = PathUtil.getPathFromURI(arg.get("value").getAsString());
                             if (docPath.isPresent()) {
                                 // We just check file names, since one refers to file in build/ while
                                 // the other refers to the file in test resources
@@ -152,6 +173,7 @@ public abstract class AbstractCodeActionTest {
                     }
 
                     if (!docUriFound) {
+                        actual.command = actualCommand;
                         continue;
                     }
                 }
@@ -159,47 +181,51 @@ public abstract class AbstractCodeActionTest {
                 codeActionFound = true;
                 break;
             }
-            String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
-            Assert.assertTrue(codeActionFound,
-                    "Cannot find expected Code Action for: " + expTitle + ", cursor at " + cursorStr
-                            + " in " + sourcePath);
+
+            if (!codeActionFound && actual.title != null) {
+                mismatchedCodeActions.add(actual);
+            }
         }
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+        TestUtil.closeDocument(getServiceEndpoint(), sourcePath);
+
+        String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
+        if (!mismatchedCodeActions.isEmpty()) {
+//            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
+            Assert.fail(String.format("Cannot find expected code action(s) for: '%s', cursor at [%s] in '%s': %s",
+                    Arrays.toString(mismatchedCodeActions.toArray()),
+                    cursorStr, sourcePath, testConfig.description));
+        }
     }
 
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
-        return TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        return TestUtil.getCodeActionResponse(getServiceEndpoint(), sourcePath.toString(), range, codeActionContext);
     }
 
     /**
      * For testing negative cases like cases where code actions should not be suggested.
      *
      * @param config Config file name
-     * @param source Source file name
      */
-    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
-        String configJsonPath = getConfigJsonPath(config);
-        Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        Endpoint endpoint = getServiceEndpoint();
+        Path configJsonPath = getConfigJsonPath(config);
+        TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configJsonPath), TestConfig.class);
+        Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(testConfig.source);
+        TestUtil.openDocument(endpoint, sourcePath);
 
         // Filter diagnostics for the cursor position
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
-        Position pos = new Position(configJsonObject.get("line").getAsInt(),
-                configJsonObject.get("character").getAsInt());
+        Position pos = testConfig.position;
         diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         Range range = new Range(pos, pos);
-        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
-        for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
-            JsonObject expected = element.getAsJsonObject();
-            String notExpectedTitle = expected.get("title").getAsString();
-
+        String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), range, codeActionContext);
+        for (CodeActionObj expected : testConfig.expected) {
             JsonObject responseJson = this.getResponseJson(res);
             for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
                 JsonObject right = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
@@ -209,29 +235,84 @@ public abstract class AbstractCodeActionTest {
 
                 // Match title
                 String actualTitle = right.get("title").getAsString();
-                Assert.assertNotEquals(notExpectedTitle, actualTitle);
+                Assert.assertNotEquals(expected.title, actualTitle,
+                        String.format("Found an unexpected code action: %s", testConfig.description));
             }
         }
     }
 
-    private String getConfigJsonPath(String configFilePath) {
-        return "codeaction" + File.separator + getResourceDir() + File.separator + "config" + File.separator +
-                configFilePath;
-    }
-
-    @AfterClass
-    public void cleanupLanguageServer() {
-        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
+    private Path getConfigJsonPath(String configFilePath) {
+        return FileUtils.RES_DIR.resolve("codeaction")
+                .resolve(getResourceDir())
+                .resolve("config")
+                .resolve(configFilePath);
     }
 
     private JsonObject getResponseJson(String response) {
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
+    }
+    
+    @BeforeClass
+    public void setup() {
+        workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
+        serverContext = new LanguageServerContextImpl();
+    }
+
+    /**
+     * Update mismatched code actions in the test config.
+     *
+     * @param testConfig            Original test config
+     * @param mismatchedCodeActions Mismatched code actions
+     * @param configPath            Config file path
+     * @throws IOException File operations, etc
+     */
+    private void updateConfig(TestConfig testConfig, List<CodeActionObj> mismatchedCodeActions, Path configPath)
+            throws IOException {
+        for (int i = 0; i < testConfig.expected.size(); i++) {
+            CodeActionObj codeAction = testConfig.expected.get(i);
+            final int idx = i;
+            mismatchedCodeActions.stream()
+                    .filter(item -> item.title.equals(codeAction.title))
+                    .findFirst()
+                    .ifPresent(mismatchedCodeAction -> testConfig.expected.set(idx, mismatchedCodeAction));
+        }
+        String objStr = gson.toJson(testConfig).concat(System.lineSeparator());
+        Files.write(configPath, objStr.getBytes(StandardCharsets.UTF_8));
     }
 
     @DataProvider(name = "codeaction-data-provider")
     public abstract Object[][] dataProvider();
 
     public abstract String getResourceDir();
+    
+    @AfterClass
+    public void cleanUp() {
+        this.serverContext = null;
+        this.workspaceManager = null;
+    }
+
+    /**
+     * Represents a code action test config.
+     */
+    static class TestConfig {
+        Position position;
+        String source;
+        List<CodeActionObj> expected;
+
+        String description;
+    }
+
+    static class CodeActionObj {
+        String title;
+        String kind;
+        List<TextEdit> edits;
+        JsonObject command;
+
+        @Override
+        public String toString() {
+            return title;
+        }
+    }
 }

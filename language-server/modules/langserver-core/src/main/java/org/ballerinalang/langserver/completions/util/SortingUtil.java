@@ -25,17 +25,20 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Project;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
@@ -51,6 +54,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.CompletionItemType.SNIPPET;
+import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.CompletionItemType.SYMBOL;
 
 /**
  * Enclose a set of utilities for sorting and ranking of completion items.
@@ -169,7 +173,7 @@ public class SortingUtil {
      * 4. Constant
      * 5. Enums
      * 6. Enum Member
-     * 7. Basic Types (boolean, int, string, etc)
+     * 7. Basic Types (boolean, int, string, etc.)
      * 8. Type Descriptor snippets (record snippet, object snippet)
      * 8+. keywords (true, false, record, object)
      *
@@ -207,7 +211,7 @@ public class SortingUtil {
             /*
             Case 1 and 2
             Types in the same module get the priority.
-            Types coming from lang.value (StrandData, Thread) get the second highest priority
+            Types coming from lang.value (StrandData, Thread) get the second-highest priority
             
             Note: At this point there shouldn't be any symbol kind other than TYPE
              */
@@ -249,9 +253,19 @@ public class SortingUtil {
                                                     TypeSymbol typeSymbol) {
         if (isCompletionItemAssignable(completionItem, typeSymbol)) {
             return genSortText(1) + genSortText(toRank(context, completionItem));
-        } else {
-            return genSortText(toRank(context, completionItem, 2));
+        } else if (typeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            CompletionItemKind completionItemKind = completionItem.getCompletionItem().getKind();
+            if (completionItem.getType() == SYMBOL && completionItemKind == CompletionItemKind.Function) {
+                return genSortText(2) + genSortText(toRank(context, completionItem));
+            } else if (completionItem.getType() == SNIPPET) {
+                if (((SnippetCompletionItem) completionItem).id().equals(ItemResolverConstants.ANON_FUNCTION)) {
+                    return genSortText(3) + genSortText(toRank(context, completionItem));
+                } else if (((SnippetCompletionItem) completionItem).id().equals(Snippet.KW_FUNCTION.name())) {
+                    return genSortText(4) + genSortText(toRank(context, completionItem));
+                }
+            }
         }
+        return genSortText(toRank(context, completionItem, 4));
     }
 
     /**
@@ -262,6 +276,42 @@ public class SortingUtil {
      * @return True if assignable
      */
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
+        if (completionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter) {
+            return false;
+        }
+        Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
+        return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
+    }
+
+    /**
+     * Check if a completion item is assignable after adding a check expression to it.
+     *
+     * @param completionItem Completion item
+     * @param typeSymbol     Type symbol
+     * @return True if assignable after adding a check expression
+     */
+    public static boolean isCompletionItemAssignableWithCheck(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
+        Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
+
+        if (optionalTypeSymbol.isEmpty() || optionalTypeSymbol.get().typeKind() != TypeDescKind.UNION) {
+            return false;
+        }
+
+        TypeSymbol rawTypeSymbol = CommonUtil.getRawType(typeSymbol);
+        UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) optionalTypeSymbol.get();
+        return CodeActionUtil.hasErrorMemberType(unionTypeSymbol) &&
+                unionTypeSymbol.memberTypeDescriptors().stream()
+                        .map(CommonUtil::getRawType)
+                        .anyMatch(type -> type.subtypeOf(rawTypeSymbol));
+    }
+
+    /**
+     * Get the symbol from completion item provided.
+     *
+     * @param completionItem Completion item
+     * @return Symbol or empty if it's not a symbol completion item
+     */
+    private static Optional<TypeSymbol> getSymbolFromCompletionItem(LSCompletionItem completionItem) {
         Optional<TypeSymbol> optionalTypeSymbol = Optional.empty();
         switch (completionItem.getType()) {
             case SYMBOL:
@@ -289,14 +339,9 @@ public class SortingUtil {
                 optionalTypeSymbol = ((FunctionPointerCompletionItem) completionItem).getSymbol()
                         .flatMap(SymbolUtil::getTypeDescriptor);
                 break;
-            case SNIPPET:
-                if (typeSymbol.typeKind() == TypeDescKind.FUNCTION
-                        && ((SnippetCompletionItem) completionItem).id().equals(ItemResolverConstants.ANON_FUNCTION)) {
-                        return true;
-                }
         }
 
-        return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
+        return optionalTypeSymbol;
     }
 
     /**
@@ -356,14 +401,14 @@ public class SortingUtil {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (typeDesc.get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) typeDesc.get();
-            String alias = QNameReferenceUtil.getAlias(qNameRef);
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+            String alias = QNameRefCompletionUtil.getAlias(qNameRef);
+            Optional<ModuleSymbol> moduleSymbol = ModuleUtil.searchModuleForAlias(context, alias);
 
             if (moduleSymbol.isEmpty()) {
                 return Optional.empty();
             }
             String identifier = qNameRef.identifier().text();
-            return CommonUtil.getTypeFromModule(context, alias, identifier);
+            return ModuleUtil.getTypeFromModule(context, alias, identifier);
         }
         if (typeDesc.get().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String nameRef = ((SimpleNameReferenceNode) typeDesc.get()).name().text();
@@ -412,7 +457,7 @@ public class SortingUtil {
      * @return Rank
      */
     public static int toRank(BallerinaCompletionContext context, LSCompletionItem completionItem, int rankOffset) {
-        boolean onQnameRef = QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor());
+        boolean onQnameRef = QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor());
         int rank = -1;
         CompletionItemKind completionItemKind = completionItem.getCompletionItem().getKind();
         switch (completionItem.getType()) {
@@ -494,5 +539,46 @@ public class SortingUtil {
         }
 
         return rank;
+    }
+
+    /**
+     * Checks whether the symbol completion item is within the range of given node and cursor.
+     *
+     * @param context   Completion Context
+     * @param lsCItem   LS Completion Item
+     * @param startNode Starting Node
+     * @return {@link Boolean}
+     */
+    public static boolean isSymbolCItemWithinNodeAndCursor(BallerinaCompletionContext context,
+                                                           LSCompletionItem lsCItem, Node startNode) {
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL
+                || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
+            return false;
+        }
+        return ((SymbolCompletionItem) lsCItem).getSymbol().get().getLocation()
+                .filter(location -> startNode.textRange().startOffset() < location.textRange().startOffset())
+                .filter(location -> location.textRange().endOffset() < context.getCursorPositionInTree())
+                .isPresent();
+    }
+
+    /**
+     * Loop through the parent clauseNode to find the outermost Query Expression Node if exists.
+     *
+     * @param clauseNode clauseNode
+     * @return {@link Optional}    outermost QueryExpressionNode related to the clause node
+     */
+    public static Optional<QueryExpressionNode> getTheOutermostQueryExpressionNode(Node clauseNode) {
+        Node evalNode1 = clauseNode;
+        Node evalNode2 = clauseNode;
+        while (evalNode1.parent() != null) {
+            if (evalNode1.kind() == SyntaxKind.QUERY_EXPRESSION) {
+                evalNode2 = evalNode1;
+            }
+            evalNode1 = evalNode1.parent();
+        }
+        if (evalNode2.kind() == SyntaxKind.QUERY_EXPRESSION) {
+            return Optional.of((QueryExpressionNode) evalNode2);
+        }
+        return Optional.empty();
     }
 }

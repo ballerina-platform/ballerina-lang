@@ -16,16 +16,19 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -50,9 +53,9 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
      */
     protected List<LSCompletionItem> getBodyContextItems(BallerinaCompletionContext context, Node node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
             return this.getCompletionItemList(typesInModule, context);
         }
         
@@ -67,6 +70,9 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+            if (this.onSuggestInitMethod(node)) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
+            }
         } else if (this.isClientObject(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
@@ -91,5 +97,13 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
         return (node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
                 && ((ObjectConstructorExpressionNode) node).objectTypeQualifiers().stream()
                 .anyMatch(token -> token.kind() == SyntaxKind.CLIENT_KEYWORD));
+    }
+
+    private boolean onSuggestInitMethod(Node node) {
+        return node.kind() == SyntaxKind.SERVICE_DECLARATION 
+                && ((ServiceDeclarationNode) node).members().stream()
+                .filter(member-> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
+                .map(member->(FunctionDefinitionNode) member)
+                .noneMatch(funcDef -> ItemResolverConstants.INIT.equals(funcDef.functionName().text()));
     }
 }

@@ -17,12 +17,20 @@
   },
   {
     "description": "An enum member can be used in the same way as a string constant.",
-    "code": "string skyColor = BLUE; skyColor",
+    "code": "string skyColor = BLUE;"
+  },
+  {
+    "description": "An enum member can be used in the same way as a string constant - get value.",
+    "code": "skyColor",
     "expr": "\"BLUE\""
   },
   {
     "description": "Enums can be treated as strings.",
-    "code": "string concatenated = concat(QUEEN, PF); concatenated",
+    "code": "string concatenated = concat(QUEEN, PF);"
+  },
+  {
+    "description": "Enums can be treated as strings - get value.",
+    "code": "concatenated",
     "expr": "\"QUEEN and Pink Floyd\""
   },
   {
@@ -31,17 +39,29 @@
   },
   {
     "description": "Enum type can be used as a type.",
-    "code": "Language language = getLanguage(\"e\"); language",
+    "code": "Language language = getLanguage(\"e\");"
+  },
+  {
+    "description": "Enum type can be used as a type - get value.",
+    "code": "language",
     "expr": "\"english\""
   },
   {
     "description": "Enum value can be used as a type assigned by a string.",
-    "code": "Language sinhala = \"sinhala\"; sinhala",
+    "code": "Language sinhala = \"sinhala\";"
+  },
+  {
+    "description": "Enum value can be used as a type assigned by a string - get value.",
+    "code": "sinhala",
     "expr": "\"sinhala\""
   },
   {
     "description": "Enum value can be used as a type.",
-    "code": "Language english = \"english\"; english",
+    "code": "Language english = \"english\";"
+  },
+  {
+    "description": "Enum value can be used as a type - get value.",
+    "code": "english",
     "expr": "\"english\""
   },
   {

@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 8,
+    "character": 30
+  },
+  "source": "service_decl/source/source6e.bal",
+  "items": [
+    {
+      "label": "listener1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "A",
+      "insertText": "listener1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

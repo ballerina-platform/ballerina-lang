@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
@@ -33,10 +35,15 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
  */
 public class BLangOnFailClause extends BLangNode implements OnFailClauseNode {
 
+    // BLangNodes
     public BLangBlockStmt body;
     public VariableDefinitionNode variableDefinitionNode;
-    public BType varType;
+
+    // Parser Flags and Data
     public boolean isDeclaredWithVar;
+
+    // Semantic Data
+    public BType varType;
     public boolean bodyContainsFail;
     public boolean isInternal;
 
@@ -71,6 +78,16 @@ public class BLangOnFailClause extends BLangNode implements OnFailClauseNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
@@ -29,9 +31,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
  * @since 0.94
  */
 public class BLangSimpleVariableDef extends BLangStatement implements VariableDefinitionNode {
-    
+
+    // BLangNodes
     public BLangSimpleVariable var;
 
+    // Parser Flags and Data
     // TODO: remove this and apply the property as a flag set.
     public boolean isInFork = false;
     public boolean isWorker = false;
@@ -44,6 +48,16 @@ public class BLangSimpleVariableDef extends BLangStatement implements VariableDe
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

@@ -128,6 +128,9 @@ public class DotGraphs {
         } else if (depNode.pkgDesc().repository().isPresent()) {
             attrs.add(getLocalRepoNodeLine());
         }
+        if (depNode.errorNode()) {
+            attrs.add(getErrorNodeLine());
+        }
         attrs.add(labelAttr);
         return attrs.toString();
     }
@@ -185,6 +188,10 @@ public class DotGraphs {
 
     private static String getLocalRepoNodeLine() {
         return "repo=\"local\"";
+    }
+
+    private static String getErrorNodeLine() {
+        return "error=\"true\"";
     }
 
     private static DependencyGraph<DependencyNode> toDependencyNodeGraph(

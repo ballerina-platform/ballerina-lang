@@ -64,10 +64,18 @@ public [int, string, int...] [intVar, stringVar, ...otherValues] = [5, "myString
 
 # Record
 @varDecl
-public record {string a; int b;} {aValue, bValue} = {a: "one", b: 2};
+public record {string a; int b;} {a, b} = {a: "one", b: 2};
 
 # Mapping
 @varDecl
 var {a: valueA, b: valueB} = {a: "A", b: 2};
+
+function test() {
+    @varDecl
+    string str = "foo";
+
+    @varDecl
+    final var str2 = "value";
+}
 
 public annotation varDecl;

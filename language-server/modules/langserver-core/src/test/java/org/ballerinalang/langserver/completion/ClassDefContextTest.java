@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -31,6 +32,13 @@ import java.util.List;
  * @since 2.0.0
  */
 public class ClassDefContextTest extends CompletionTest {
+
+    @BeforeClass
+    @Override
+    public void init() throws Exception {
+        super.init();
+        preLoadAndInit();
+    }
 
     @Test(dataProvider = "completion-data-provider")
     @Override

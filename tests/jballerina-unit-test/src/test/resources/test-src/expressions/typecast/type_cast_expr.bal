@@ -444,7 +444,10 @@ function testTypedescCastPositive() returns boolean {
 function testTypedescCastNegative() {
     typedesc<int> t1 = int;
     any a = t1;
-    assertTypeCastFailureWithMessage(trap <int> a, "incompatible types: 'typedesc' cannot be cast to 'int'");
+    assertTypeCastFailureWithMessage(trap <int>a, "incompatible types: 'typedesc<int>' cannot be cast to 'int'");
+
+    typedesc<int> i = typeof 1;
+    assertTypeCastFailureWithMessage(trap <typedesc<string>><any>i, "incompatible types: 'typedesc<1>' cannot be cast to 'typedesc<string>'");
 }
 
 function testMapElementCastPositive() returns boolean {

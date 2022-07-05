@@ -18,11 +18,11 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -37,15 +37,17 @@ import org.testng.annotations.Test;
  */
 public class SealedArrayTest {
 
-    private CompileResult compileResult, resultNegative, semanticsNegative, listExprNegative;
+    private CompileResult compileResult, resultNegative, semanticsNegative, listExprNegative, codeAnalysisNegative;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/sealed_array.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_negative.bal");
         listExprNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_listexpr_negative.bal");
-        semanticsNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_semantics_negative" +
-                                                         ".bal");
+        semanticsNegative = BCompileUtil.compile(
+                "test-src/statements/arrays/sealed_array_semantics_negative.bal");
+        codeAnalysisNegative = BCompileUtil.compile(
+                "test-src/statements/arrays/sealed_array_code_analysis_negative.bal");
     }
 
     @Test
@@ -127,68 +129,62 @@ public class SealedArrayTest {
 
     @Test
     public void testUnionAndMatchSealedArrayStatement() {
-        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
+        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args = {bFloatArray};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
-                "matched sealed float array size 4", "Couldn't match sealed array type");
+        Object[] args = {bFloatArray};
+        Object returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args);
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(), "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat, 5);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 5);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
         bFloatArray.add(0, 45.5);
-        BValue[] args2 = {bFloatArray};
+        Object[] args2 = {bFloatArray};
         returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args2);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args3 = {bFloatArray};
+        Object[] args3 = {bFloatArray};
         returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args3);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match unsealed array type");
     }
 
     @Test
     public void testUnionAndMatchNoSealedArrayStatement() {
-        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
+        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args = {bFloatArray};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Object[] args = {bFloatArray};
+        Object returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args);
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args2 = {bFloatArray};
+        Object[] args2 = {bFloatArray};
         returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args2);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Assert.assertFalse(returnValues == null , "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match unsealed array type");
     }
 
@@ -210,11 +206,11 @@ public class SealedArrayTest {
                                   "invalid usage of list constructor: type 'Age[5][1]' does not have a filler value",
                                   43, 19);
         BAssertUtil.validateError(listExprNegative, 3,
-                                  "invalid usage of list constructor: type '1|2|3|4[3]' does not have a filler value",
+                                  "invalid usage of list constructor: type 'myVar[3]' does not have a filler value",
                                   63, 18);
         BAssertUtil.validateError(listExprNegative, 4,
-                                  "invalid usage of list constructor: type '0|0.0f|[3]' does not have a filler value",
-                                  69, 34);
+                                  "invalid usage of list constructor: type 'myNonHomogeneousUnion[3]' " +
+                                          "does not have a filler value", 69, 34);
         BAssertUtil.validateError(listExprNegative, 5,
                                   "invalid usage of list constructor: type 'Rec[2]' does not have a filler value",
                                   88, 16);
@@ -246,15 +242,11 @@ public class SealedArrayTest {
         BAssertUtil.validateError(listExprNegative, 14,
                                   "invalid usage of list constructor: type '(map<FooBar>|map<string>)[2]' does not" +
                                           " have a filler value", 155, 38);
-        BAssertUtil.validateError(listExprNegative, 15,
-                                  "invalid usage of list constructor: type 'LiteralConstAndIntType[2]' does not have " +
-                                          "a filler value", 162, 35);
-        Assert.assertEquals(listExprNegative.getErrorCount(), 16);
+        Assert.assertEquals(listExprNegative.getErrorCount(), 15);
     }
 
     @Test
     public void testSemanticsNegativeSealedArrays() {
-        Assert.assertEquals(semanticsNegative.getErrorCount(), 22);
         int i = 0;
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
@@ -275,31 +267,86 @@ public class SealedArrayTest {
         BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in closed array. expected '4', but found '5'",
                 78, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '4'", 81, 8);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size", 83,
+        BAssertUtil.validateError(semanticsNegative, i++, "length of the array cannot be inferred from the context", 83,
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 85,
                 18);
-        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'S1|S2'",
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'FiniteOne'",
                 104, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space '3|4|5'" +
-                " out of range", 105, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space '3|4|5'" +
-                " out of range", 106, 23);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: " +
+                "value space 'FiniteTwo' out of range", 105, 20);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: " +
+                "value space 'FiniteTwo' out of range", 106, 23);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
-                "'0|1|2|S1'", 107, 20);
+                "'FiniteThree'", 107, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
                         "'FiniteFour'", 108, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space " +
                 "'FiniteFive' out of range", 109, 23);
-        BAssertUtil.validateError(semanticsNegative, i, "incompatible types: expected 'int[*]', found " +
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[*]', found " +
                         "'int[]'", 114, 22);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 123, 15);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 124, 15);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 125, 7);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 126, 7);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[*]', found 'int[1]'",
+                133, 13);
+        Assert.assertEquals(semanticsNegative.getErrorCount(), i);
+    }
+
+    @Test
+    public void testCodeAnalysisNegativeSealedArrays() {
+        int i = 0;
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                18, 4);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                22, 15);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                23, 43);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                24, 40);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                32, 16);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                36, 24);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                40, 24);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                44, 41);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                44, 51);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                48, 14);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                51, 2);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                52, 9);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                53, 2);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                55, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                56, 11);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                57, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                58, 11);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                58, 54);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                58, 78);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                59, 39);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                60, 36);
+        Assert.assertEquals(codeAnalysisNegative.getErrorCount(), i);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void invalidIndexAccess() {
-        BValue[] args = {new BInteger(5)};
+        Object[] args = {5};
         BRunUtil.invoke(compileResult, "invalidIndexAccess", args);
     }
 
@@ -341,11 +388,11 @@ public class SealedArrayTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
-        BValue[] args = {bIntArray, new BInteger(5)};
+        Object[] args = {bIntArray, (5)};
         BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
     }
 
@@ -355,10 +402,10 @@ public class SealedArrayTest {
                     "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                             "\\{\"message\":\"array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
-        BInteger bInteger = new BInteger(1);
-        BInteger bInteger2 = new BInteger(4);
-        BValue[] args = {bInteger};
-        BValue[] args2 = {bInteger2};
+        long bInteger = (1);
+        long bInteger2 = (4);
+        Object[] args = {bInteger};
+        Object[] args2 = {bInteger2};
         BRunUtil.invoke(compileResult, "invalidIndexJSONArray", args);
         BRunUtil.invoke(compileResult, "invalidIndexJSONArray", args2);
     }
@@ -372,45 +419,45 @@ public class SealedArrayTest {
 
     @Test
     public void accessValidIndexOfMatchedUnsealedArray() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
-        BValue[] args = {bIntArray, new BInteger(5)};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 10, "Invalid match for sealed array");
+        Object[] args = {bIntArray, (5)};
+        Object returnValues = BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
+        Assert.assertEquals(returnValues, 10L, "Invalid match for sealed array");
     }
 
     @Test
     public void testSealedArrayConstrainedMap() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BValueArray bIntArray2 = new BValueArray(BTypes.typeInt);
+        BArray bIntArray2 = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         bIntArray2.add(0, 1);
         bIntArray2.add(1, 3);
         bIntArray2.add(2, 5);
-        BValue[] args = {bIntArray, bIntArray2};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMap", args);
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Invalid match for sealed array");
+        Object[] args = {bIntArray, bIntArray2};
+        Object returnValues = BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMap", args);
+        Assert.assertEquals(returnValues, 5L, "Invalid match for sealed array");
     }
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BValue[] args = {bIntArray, new BInteger(3)};
+        Object[] args = {bIntArray, (3)};
         BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
     }
 
     @Test(groups = { "disableOnOldParser" })
     public void testArrayWithConstantSizeReferenceFill() {
-        BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill");
+        BRunUtil.invoke(compileResult, "testArrayWithConstantSizeReferenceFill");
     }
 
     @Test

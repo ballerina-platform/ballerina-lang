@@ -29,5 +29,6 @@ import java.util.Map;
  */
 public abstract class BLangBindingPattern extends BLangNode implements BindingPatternNode {
 
+    // Semantic Data
     public Map<String, BVarSymbol> declaredVars = new HashMap<>();
 }

@@ -36,17 +36,23 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
+    }
+
+    @Override
+    public boolean loadMockedPackages() {
+        return true;
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"importModule1a.json", "importModule1.bal"},
-                {"importModule1b.json", "importModule1.bal"},
-                {"importModule2.json", "importModule2.bal"},
+                {"importModule1a.json"},
+                {"importModule1b.json"},
+                {"importModule2.json"},
+                {"importModule3.json"}
         };
     }
 }

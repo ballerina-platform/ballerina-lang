@@ -20,7 +20,6 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -37,16 +36,8 @@ public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Token openBracket() {
-        return childInBucket(1);
-    }
-
-    public Optional<Node> arrayLength() {
-        return optionalChildInBucket(2);
-    }
-
-    public Token closeBracket() {
-        return childInBucket(3);
+    public NodeList<ArrayDimensionNode> dimensions() {
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -63,29 +54,21 @@ public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
     protected String[] childNames() {
         return new String[]{
                 "memberTypeDesc",
-                "openBracket",
-                "arrayLength",
-                "closeBracket"};
+                "dimensions"};
     }
 
     public ArrayTypeDescriptorNode modify(
             TypeDescriptorNode memberTypeDesc,
-            Token openBracket,
-            Node arrayLength,
-            Token closeBracket) {
+            NodeList<ArrayDimensionNode> dimensions) {
         if (checkForReferenceEquality(
                 memberTypeDesc,
-                openBracket,
-                arrayLength,
-                closeBracket)) {
+                dimensions.underlyingListNode())) {
             return this;
         }
 
         return NodeFactory.createArrayTypeDescriptorNode(
                 memberTypeDesc,
-                openBracket,
-                arrayLength,
-                closeBracket);
+                dimensions);
     }
 
     public ArrayTypeDescriptorNodeModifier modify() {
@@ -100,16 +83,12 @@ public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
     public static class ArrayTypeDescriptorNodeModifier {
         private final ArrayTypeDescriptorNode oldNode;
         private TypeDescriptorNode memberTypeDesc;
-        private Token openBracket;
-        private Node arrayLength;
-        private Token closeBracket;
+        private NodeList<ArrayDimensionNode> dimensions;
 
         public ArrayTypeDescriptorNodeModifier(ArrayTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
             this.memberTypeDesc = oldNode.memberTypeDesc();
-            this.openBracket = oldNode.openBracket();
-            this.arrayLength = oldNode.arrayLength().orElse(null);
-            this.closeBracket = oldNode.closeBracket();
+            this.dimensions = oldNode.dimensions();
         }
 
         public ArrayTypeDescriptorNodeModifier withMemberTypeDesc(
@@ -119,32 +98,17 @@ public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
             return this;
         }
 
-        public ArrayTypeDescriptorNodeModifier withOpenBracket(
-                Token openBracket) {
-            Objects.requireNonNull(openBracket, "openBracket must not be null");
-            this.openBracket = openBracket;
-            return this;
-        }
-
-        public ArrayTypeDescriptorNodeModifier withArrayLength(
-                Node arrayLength) {
-            this.arrayLength = arrayLength;
-            return this;
-        }
-
-        public ArrayTypeDescriptorNodeModifier withCloseBracket(
-                Token closeBracket) {
-            Objects.requireNonNull(closeBracket, "closeBracket must not be null");
-            this.closeBracket = closeBracket;
+        public ArrayTypeDescriptorNodeModifier withDimensions(
+                NodeList<ArrayDimensionNode> dimensions) {
+            Objects.requireNonNull(dimensions, "dimensions must not be null");
+            this.dimensions = dimensions;
             return this;
         }
 
         public ArrayTypeDescriptorNode apply() {
             return oldNode.modify(
                     memberTypeDesc,
-                    openBracket,
-                    arrayLength,
-                    closeBracket);
+                    dimensions);
         }
     }
 }

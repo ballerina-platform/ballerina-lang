@@ -1,3 +1,4 @@
+import ballerina/jballerina.java;
 import testorg/foo;
 
 function testSimpleBooleanConstMap() returns map<boolean> {
@@ -157,3 +158,86 @@ function testConstInAnnotations() returns foo:TestConfig? {
     typedesc<RecordOne> t = typeof r1;
     return t.@foo:testAnnotation;
 }
+
+function testConstTypesInline() {
+    1 _ = foo:XCONST; // OK
+    anydata a = foo:XCONST;
+    assertTrue(a is 1);
+    assertEqual(1, a);
+
+    readonly & record {| 1 a; 2 b; |} _ = foo:BCONST; // OK
+    anydata b = foo:BCONST;
+    assertTrue(b is readonly & record {| 1 a; 2 b; |});
+    assertEqual({a: 1, b: 2}, b);
+
+    readonly & record {| record {| 1 a; 2 b; |} a; record {| 3 a; |} b; |} _ = foo:CCONST; // OK
+    anydata c = foo:CCONST;
+    assertTrue(c is readonly & record {| record {| 1 a; 2 b; |} a; record {| 3 a; |} b; |});
+    assertEqual({a: {a: 1, b: 2}, b: {a: 3}}, c);
+}
+
+function testInvalidRuntimeUpdateOfConstMaps() {
+    map<int> a = foo:BCONST;
+
+    function () fn = function () {
+        a["a"] = 1;
+    };
+    error? res = trap fn();
+    // TODO: replace with an equality check once https://github.com/ballerina-platform/ballerina-lang/issues/34808 is fixed.
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
+
+    record {| 1 a; 2 b; |} b = foo:CCONST.a;
+    fn = function () {
+        b.b = 2;
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
+
+    map<map<int>> c = foo:CCONST;
+    fn = function () {
+        c["a"]["a"] = 2;
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
+
+    fn = function () {
+        c["c"] = {};
+    };
+    res = trap fn();
+    // https://github.com/ballerina-platform/ballerina-lang/issues/34798
+    assertInvalidUpdateError(res, "invalid value for record field 'c': expected value of type 'never', found 'map<int>'");
+
+    fn = function () {
+        c["a"] = {a: 1, b: 2};
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
+}
+
+function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
+    assertTrue(res is error);
+    error err = <error> res;
+    assertEqual("{ballerina/lang.map}InherentTypeViolation", err.message());
+    assertTrue(matches(<string> checkpanic err.detail()["message"], expectedDetailMessage));
+}
+
+function assertTrue(anydata actual) {
+    assertEqual(true, actual);
+}
+
+function assertEqual(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error(string `expected '${expected.toBalString()}', found '${actual.toBalString()}'`);
+}
+
+isolated function matches(string stringToMatch, string regex) returns boolean {
+    return matchesExternal(java:fromString(stringToMatch), java:fromString(regex));
+}
+
+isolated function matchesExternal(handle stringToMatch, handle regex) returns boolean = @java:Method {
+    name: "matches",
+    'class: "java.lang.String",
+    paramTypes: ["java.lang.String"]
+} external;

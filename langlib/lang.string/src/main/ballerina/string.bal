@@ -267,3 +267,43 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
     'class: "org.ballerinalang.langlib.string.FromCodePointInt",
     name: "fromCodePointInt"
 } external;
+
+# Adds padding to the start of a string.
+# Adds sufficient `padChar` characters at the start of `str` to make its length be `len`.
+# If the length of `str` is >= `len`, returns `str`.
+#
+# + str - the string to pad
+# + len - the length of the string to be returned
+# + padChar - the character to use for padding `str`; defaults to a space character
+# + return - `str` padded with `padChar`
+public isolated function padStart(string str, int len, Char padChar = " ") returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.string.PadStart",
+    name: "padStart"
+} external;
+
+# Adds padding to the end of a string.
+# Adds sufficient `padChar` characters to the end of `str` to make its length be `len`.
+# If the length of `str` is >= `len`, returns `str`.
+#
+# + str - the string to pad
+# + len - the length of the string to be returned
+# + padChar - the character to use for padding `str`; defaults to a space character
+# + return - `str` padded with `padChar`
+public isolated function padEnd(string str, int len, Char padChar = " ") returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.string.PadEnd",
+    name: "padEnd"
+} external;
+
+# Pads a string with zeros.
+# The zeros are added at the start of the string, after a `+` or `-` sign if there is one.
+# Sufficient zero characters are added to `str` to make its length be `len`.
+# If the length of `str` is >= `len`, returns `str`.
+#
+# + str - the string to pad
+# + len - the length of the string to be returned
+# + zeroChar - the character to use for the zero; defaults to ASCII zero `0`
+# + return - `str` padded with zeros
+public isolated function padZero(string str, int len, Char zeroChar = "0") returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.string.PadZero",
+    name: "padZero"
+} external;

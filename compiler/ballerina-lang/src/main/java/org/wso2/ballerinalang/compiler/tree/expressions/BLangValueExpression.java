@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
  */
 public abstract class BLangValueExpression extends BLangExpression {
 
+    // Semantic Data
     public boolean isLValue = false;
     public boolean isCompoundAssignmentLValue = false;
     public BSymbol symbol;

@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -36,9 +35,8 @@ import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_IS_TYPE;
 
 /**
  * BIR Type checking instructions to JVM byte code generation class.
@@ -51,10 +49,9 @@ public class JvmTypeTestGen {
     private final MethodVisitor mv;
     private final JvmTypeGen jvmTypeGen;
 
-    public JvmTypeTestGen(JvmInstructionGen jvmInstructionGen, CompilerContext compilerContext, MethodVisitor mv,
-                          JvmTypeGen jvmTypeGen) {
+    public JvmTypeTestGen(JvmInstructionGen jvmInstructionGen, Types types, MethodVisitor mv, JvmTypeGen jvmTypeGen) {
         this.jvmInstructionGen = jvmInstructionGen;
-        types = Types.getInstance(compilerContext);
+        this.types = types;
         this.mv = mv;
         this.jvmTypeGen = jvmTypeGen;
     }
@@ -79,7 +76,7 @@ public class JvmTypeTestGen {
         jvmTypeGen.loadType(this.mv, targetType);
 
         this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                                String.format("(L%s;L%s;)Z", OBJECT, TYPE), false);
+                                CHECK_IS_TYPE, false);
         jvmInstructionGen.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 

@@ -18,8 +18,15 @@
 package org.ballerinalang.test.javainterop;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
@@ -28,18 +35,6 @@ import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlValue;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BTypeDescValue;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BValueType;
-import org.ballerinalang.core.model.values.BXML;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -69,87 +64,82 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina array value as return and map as a param")
     public void testInteropWithBalArrayAndMap() {
-        BValue[] returns = BRunUtil.invoke(result, "interopWithArrayAndMap");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "interopWithArrayAndMap");
 
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.stringValue(), "[1, 8]");
+        Assert.assertTrue(returns instanceof BArray);
+        BArray arr = (BArray) returns;
+        Assert.assertEquals(arr.toString(), "[1,8]");
     }
 
     @Test(description = "Test interoperability with ballerina service type value as a param")
     public void testInteropWithServiceTypesAndStringReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "acceptServiceAndBooleanReturn");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "acceptServiceAndBooleanReturn");
 
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        BBoolean bool = (BBoolean) returns[0];
-        Assert.assertTrue(bool.booleanValue());
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test interoperability with ballerina ref types as params and map return")
     public void testInteropWithRefTypesAndMapReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");
 
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap bMap = (BMap) returns[0];
-        Assert.assertEquals(bMap.stringValue(), "{\"a\":{}, \"b\":[5, \"hello\", {}]," +
-                " \"c\":{name:\"sameera\"}, \"e\":{}, \"f\":83, \"g\":{name:\"sample\"}}");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap bMap = (BMap) returns;
+        Assert.assertEquals(bMap.toString(), "{\"a\":object Person,\"b\":[5,\"hello\",object Person]," +
+                "\"c\":{\"name\":\"sameera\"},\"e\":object Person,\"f\":83,\"g\":{\"name\":\"sample\"}}");
     }
 
     @Test(description = "Test interoperability with ballerina error return")
     public void testInteropWithErrorReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "interopWithErrorReturn");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "interopWithErrorReturn");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "example error with given reason");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "example error with given reason");
     }
 
     @Test(description = "Test interoperability with ballerina union return")
     public void testInteropWithUnionReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "interopWithUnionReturn");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "interopWithUnionReturn");
 
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
+    }
+
+    @Test(description = "Test interoperability with ballerina error union return")
+    public void testInteropWithErrorUnionReturn() {
+        BRunUtil.invoke(result, "testInteropWithErrorUnionReturn");
     }
 
     @Test(description = "Test interoperability with ballerina object return")
     public void testInteropWithObjectReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "interopWithObjectReturn");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "interopWithObjectReturn");
 
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test interoperability with ballerina record return")
     public void testInteropWithRecordReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "interopWithRecordReturn");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "interopWithRecordReturn");
 
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test interoperability with ballerina any return")
     public void testInteropWithAnyReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "interopWithAnyReturn");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "interopWithAnyReturn");
 
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test interoperability with ballerina anydata return")
     public void testInteropWithAnydataReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "interopWithAnydataReturn");
-        Assert.assertEquals(returns.length, 1);
+        Object returns = BRunUtil.invoke(result, "interopWithAnydataReturn");
 
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -159,84 +149,86 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina json return")
     public void testInteropWithJsonReturns() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonReturns");
-        Assert.assertEquals(returns.length, 5);
+        Object val = BRunUtil.invoke(result, "testJsonReturns");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 5);
 
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].toString(), "{\"name\":\"John\"}");
+        Assert.assertTrue(returns.get(0) instanceof BMap);
+        Assert.assertEquals(returns.get(0).toString(), "{\"name\":\"John\"}");
 
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 4L);
 
-        Assert.assertTrue(returns[2] instanceof BMap);
-        Assert.assertEquals(returns[2].toString(), "{\"name\":\"Doe\"}");
+        Assert.assertTrue(returns.get(2) instanceof BMap);
+        Assert.assertEquals(returns.get(2).toString(), "{\"name\":\"Doe\"}");
 
-        Assert.assertTrue(returns[3] instanceof BValueArray);
-        Assert.assertEquals(returns[3].toString(), "[\"John\"]");
+        Assert.assertTrue(returns.get(3) instanceof BArray);
+        Assert.assertEquals(returns.get(3).toString(), "[\"John\"]");
 
-        Assert.assertNull(returns[4]);
+        Assert.assertNull(returns.get(4));
     }
 
     @Test(description = "Test interoperability with ballerina json params")
     public void testInteropWithJsonParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonParams");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+        Object returns = BRunUtil.invoke(result, "testJsonParams");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 7L);
     }
 
     @Test
     public void testGetXML() {
-        BValue[] returns = BRunUtil.invoke(result, "getXML");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<hello></hello>");
+        Object returns = BRunUtil.invoke(result, "getXML");
+        Assert.assertTrue(returns instanceof BXml);
+        Assert.assertEquals(returns.toString(), "<hello></hello>");
     }
 
     @Test
     public void testPassXML() {
-        BValue[] returns = BRunUtil.invoke(result, "testPassingXML");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "<foo></foo>");
+        Object returns = BRunUtil.invoke(result, "testPassingXML");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "<foo></foo>");
     }
 
     @Test
     public void testGetAllInts() {
-        BValue[] returns = BRunUtil.invoke(result, "getAllInts");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Object returns = BRunUtil.invoke(result, "getAllInts");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 2L);
     }
 
     @Test
     public void testAcceptAllInts() {
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptAllInts");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
-        Assert.assertTrue(returns[2] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 4);
+        Object val = BRunUtil.invoke(result, "testAcceptAllInts");
+        BArray returns = (BArray) val;
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 4L);
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 4.0);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertEquals(returns.get(2), 4L);
     }
 
     @Test
     public void testGetMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getMixType");
-        Assert.assertTrue(returns[0] instanceof BValueType);
-        Assert.assertEquals(((BValueType) returns[0]).intValue(), 5);
+        Object returns = BRunUtil.invoke(result, "getMixType");
+        Assert.assertTrue(returns instanceof Integer);
+        Assert.assertEquals(returns, 5);
     }
 
     @Test
     public void testGetIntegersAsMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getIntegersAsMixType");
-        Assert.assertTrue(returns[0] instanceof BValueType);
-        Assert.assertEquals(((BValueType) returns[0]).intValue(), 2);
+        Object returns = BRunUtil.invoke(result, "getIntegersAsMixType");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 2L);
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
-        Assert.assertTrue(returns[0] instanceof BValueType);
-        Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
+        Object returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
+        Assert.assertTrue(returns instanceof ObjectType);
+        Assert.assertEquals(returns, 3);
     }
 
     @Test
@@ -251,69 +243,71 @@ public class RefTypeTests {
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: 'class java.lang.String' cannot be assigned to type 'anydata'\n" +
                 "\tat ballerina_types_as_interop_types:" +
-                "acceptNothingInvalidAnydataReturn(ballerina_types_as_interop_types.bal:196)\n" +
+                "acceptNothingInvalidAnydataReturn(ballerina_types_as_interop_types.bal:203)\n" +
                 "\t   ballerina_types_as_interop_types:" +
                 "interopWithJavaStringReturn(ballerina_types_as_interop_types.bal:174)");
     }
 
     @Test
     public void testAcceptMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptMixTypes");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "hello");
-        Assert.assertTrue(returns[2] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Object val = BRunUtil.invoke(result, "testAcceptMixTypes");
+        BArray returns = (BArray) val;
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 2L);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "hello");
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test
     public void testUseFunctionPointer() {
-        BValue[] returns = BRunUtil.invoke(result, "testUseFunctionPointer");
-        Assert.assertTrue(returns[0] instanceof BValueType);
-        Assert.assertEquals(((BValueType) returns[0]).intValue(), 7);
+        Object returns = BRunUtil.invoke(result, "testUseFunctionPointer");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 7L);
     }
 
     @Test
     public void testGetFunctionPointer() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetFunctionPointer");
-        Assert.assertTrue(returns[0] instanceof BValueType);
-        Assert.assertEquals(((BValueType) returns[0]).intValue(), 10);
+        Object returns = BRunUtil.invoke(result, "testGetFunctionPointer");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testUseTypeDesc() {
-        BValue[] returns = BRunUtil.invoke(result, "testUseTypeDesc");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "typedesc json");
+        Object returns = BRunUtil.invoke(result, "testUseTypeDesc");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "typedesc json");
     }
 
     @Test
     public void testGetTypeDesc() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetTypeDesc");
-        Assert.assertTrue(returns[0] instanceof BTypeDescValue);
-        Assert.assertEquals(returns[0].stringValue(), "xml");
+        Object returns = BRunUtil.invoke(result, "testGetTypeDesc");
+        Assert.assertTrue(returns instanceof BTypedesc);
+        Assert.assertEquals(returns.toString(), "typedesc xml<(lang.xml:Element|lang.xml:Comment|lang" +
+                ".xml:ProcessingInstruction|lang.xml:Text)>");
     }
 
     @Test
     public void testUseFuture() {
-        BValue[] returns = BRunUtil.invoke(result, "testUseFuture");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object returns = BRunUtil.invoke(result, "testUseFuture");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 4L);
     }
 
     @Test
     public void testGetFuture() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetFuture");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object returns = BRunUtil.invoke(result, "testGetFuture");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 4L);
     }
 
     @Test
     public void testGetHandle() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetHandle");
-        Assert.assertTrue(returns[0] instanceof BHandleValue);
-        BHandleValue handle = (BHandleValue) returns[0];
+        Object returns = BRunUtil.invoke(result, "testGetHandle");
+        Assert.assertTrue(returns instanceof HandleValue);
+        HandleValue handle = (HandleValue) returns;
         Assert.assertTrue(handle.getValue() instanceof Map);
         Map map = (Map) handle.getValue();
         Assert.assertEquals(map.size(), 1);
@@ -322,16 +316,16 @@ public class RefTypeTests {
 
     @Test
     public void testUseHandle() {
-        BValue[] returns = BRunUtil.invoke(result, "testUseHandle");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
+        Object returns = BRunUtil.invoke(result, "testUseHandle");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test
     public void testUseHandleInUnion() {
-        BValue[] returns = BRunUtil.invoke(result, "testUseHandleInUnion");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
+        Object returns = BRunUtil.invoke(result, "testUseHandleInUnion");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test
@@ -340,9 +334,9 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:436)\n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:450)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "428)");
+                "439)");
     }
 
     @Test

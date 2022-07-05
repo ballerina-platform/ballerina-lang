@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -48,9 +47,10 @@ public class TypeParamTest {
                 "next () returns (record {| string value; |}?); }', found 'object { public isolated function next ()" +
                 " returns (record {| record {| string x; anydata...; |} value; |}?); }'", 38, 12);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'string'", 48, 18);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'Foo', found 'string'", 50, 14);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'string'", 51, 14);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'BarDetail'", 65, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '\"Foo\"', found 'string'", 50, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '\"Bar\"', found 'string'", 51, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found " +
+                "'(BarDetail & readonly)'", 65, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'int'", 72, 15);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found '(Person|error)'",
                 89, 16);
@@ -72,6 +72,17 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(int|string)', found 'float'", 131, 24);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '[int,(int|float)][]', found '[int," +
                 "(int|float|string)][]'", 137, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'function " +
+                "(ballerina/lang.table:0.0.0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', " +
+                "found 'function (other) returns (DataRow)'", 150, 31);
+        BAssertUtil.validateError(result, err++, "unknown type 'dRecord'", 150, 40);
+        BAssertUtil.validateError(result, err++, "missing identifier", 150, 47);
+        BAssertUtil.validateError(result, err++, "unknown type 'x'", 158, 35);
+        BAssertUtil.validateError(result, err++, "missing identifier", 158, 36);
+        BAssertUtil.validateError(result, err++, "undefined symbol 'x'", 159, 16);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'function " +
+                "(ballerina/lang.table:0.0.0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', " +
+                "found 'function (string) returns (DataRow)'", 164, 31);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 
@@ -101,12 +112,10 @@ public class TypeParamTest {
         CompileResult result = BCompileUtil.compile("test-src/type-param/imported_type_param.bal");
         Assert.assertEquals(result.getErrorCount(), 0, "compilation contains error\n"
                 + Arrays.toString(result.getDiagnostics()));
-        BValue[] ret1 = BRunUtil.invoke(result, "testImportedModuleTypeParam1");
-        Assert.assertEquals(ret1.length, 1);
-        Assert.assertEquals(ret1[0].stringValue(), "[20, 40, 60, 80]");
-        BValue[] ret2 = BRunUtil.invoke(result, "testImportedModuleTypeParam2");
-        Assert.assertEquals(ret2.length, 1);
-        Assert.assertEquals(ret2[0].stringValue(), "100");
+        Object ret1 = BRunUtil.invoke(result, "testImportedModuleTypeParam1");
+        Assert.assertEquals(ret1.toString(), "[20,40,60,80]");
+        Object ret2 = BRunUtil.invoke(result, "testImportedModuleTypeParam2");
+        Assert.assertEquals(ret2.toString(), "100");
     }
 
     @Test(description = "Tests for type narrowing for union return parameters")
@@ -135,6 +144,21 @@ public class TypeParamTest {
                 "test-src/type-param/type_param_resolution_with_exprs_two.bal",
                 "test-src/type-param/type_param_resolution_with_exprs_three.bal",
                 "test-src/type-param/type_param_resolution_with_exprs_four.bal"
+        };
+    }
+
+    @Test(dataProvider = "typeParamAnalysisWithTypeReferenceTypesTestFiles")
+    public void testTypeParamAnalysisWithTypeReferenceTypes(String fileName) {
+        CompileResult result = BCompileUtil.compile(fileName);
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testFn");
+    }
+
+    @DataProvider
+    public Object[] typeParamAnalysisWithTypeReferenceTypesTestFiles() {
+        return new Object[]{
+                "test-src/type-param/type_param_analysis_with_type_reference_types_test_1.bal",
+                "test-src/type-param/type_param_analysis_with_type_reference_types_test_2.bal"
         };
     }
 }

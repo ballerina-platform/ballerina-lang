@@ -5,6 +5,7 @@ countryCodes = ["United States","Sri Lanka"]
 
 anydataVar ="hello"
 intStringVar=12345
+intArrayVar = [123, 456, 789]
 anydataArray = ["hello", 1, 2, 3.4, false]
 number="three"
 
@@ -105,6 +106,7 @@ countryCode = "United States"
 countryCodes = ["Sri Lanka", "United States"]
 anydataVar ="hello"
 intStringVar=12345
+intArrayVar = [123, 456, 789]
 anydataArray = ["hello", 1, 2, 3.4, false]
 number="three"
 

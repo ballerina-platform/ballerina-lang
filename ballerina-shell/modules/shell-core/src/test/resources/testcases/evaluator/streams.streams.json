@@ -42,7 +42,11 @@
   },
   {
     "description": "Check the stream result student.",
-    "code": "var studentSr = <StudentValue> checkpanic student; studentSr.value",
+    "code": "var studentSr = <StudentValue> checkpanic student;"
+  },
+  {
+    "description": "Check the stream result student - get value.",
+    "code": "studentSr.value",
     "expr": "{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":1.5}"
   },
   {
@@ -55,7 +59,11 @@
   },
   {
     "description": "Check the iterator result student.",
-    "code": "StudentValue  nextStudentV = <StudentValue> checkpanic nextStudent; nextStudentV.value;",
+    "code": "StudentValue  nextStudentV = <StudentValue> checkpanic nextStudent;"
+  },
+  {
+    "description": "Check the iterator result student - get value.",
+    "code": "nextStudentV.value;",
     "expr": "{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":1.5}"
   }
 ]

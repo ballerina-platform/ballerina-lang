@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.types.typedesc;
 
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BTypeDescValue;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BTypedesc;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -41,7 +41,7 @@ public class TypedescTests {
         result = BCompileUtil.compile("test-src/types/typedesc/typedesc_positive.bal");
     }
 
-    @Test(description = "Test basics types", groups = { "disableOnOldParser" })
+    @Test(description = "Test basics types")
     public void testNegative() {
         final CompileResult compileResult = BCompileUtil.compile("test-src/types/typedesc/typedesc_negative.bal");
         int index = 0;
@@ -52,7 +52,7 @@ public class TypedescTests {
         validateError(compileResult, index++, "invalid operation: type 'int' does not support member access", 10, 18);
         validateError(compileResult, index++, "missing key expr in member access expr", 10, 22);
         validateError(compileResult, index++, "invalid operation: type 'string' does not support member access",
-                      10, 24);
+                10, 24);
         validateError(compileResult, index++, "missing key expr in member access expr", 10, 31);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<readonly>', found " +
                 "'typedesc<int[]>'", 21, 28);
@@ -61,9 +61,9 @@ public class TypedescTests {
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', " +
                 "found 'typedesc<ImmutableIntArray>'", 23, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string[]>', found " +
-                "'typedesc<foo>'", 24, 28);
+                "'typedesc<\"foo\">'", 24, 28);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', found " +
-                "'typedesc<foo|1>'", 25, 26);
+                "'typedesc<\"foo\"|1>'", 25, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', found " +
                 "'typedesc<function (int) returns (string)>'", 26, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<function (int) returns (string)" +
@@ -73,13 +73,13 @@ public class TypedescTests {
 
     @Test(description = "Test basics types")
     public void testBasicTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicTypes");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(returns[0].stringValue(), "int");
-        Assert.assertEquals(returns[1].stringValue(), "string");
-        Assert.assertEquals(returns[2].stringValue(), "float");
-        Assert.assertEquals(returns[3].stringValue(), "boolean");
-        Assert.assertEquals(returns[4].stringValue(), "byte");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicTypes");
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertEquals(returns.get(0).toString(), "typedesc int");
+        Assert.assertEquals(returns.get(1).toString(), "typedesc string");
+        Assert.assertEquals(returns.get(2).toString(), "typedesc float");
+        Assert.assertEquals(returns.get(3).toString(), "typedesc boolean");
+        Assert.assertEquals(returns.get(4).toString(), "typedesc byte");
     }
 
     @Test(description = "Test buildin ref types")
@@ -89,67 +89,67 @@ public class TypedescTests {
 
     @Test(description = "Test object types")
     public void testObjectTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectTypes");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "Person");
-        Assert.assertTrue(returns[1] instanceof BTypeDescValue);
-        Assert.assertEquals(TypeTags.OBJECT_TYPE_TAG, ((BTypeDescValue) returns[1]).value().getTag());
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectTypes");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "typedesc Person");
+        Assert.assertTrue(returns.get(1) instanceof BTypedesc);
+        Assert.assertEquals(TypeTags.OBJECT_TYPE_TAG, ((BTypedesc) returns.get(1)).getDescribingType().getTag());
     }
 
     @Test(description = "Test array types")
     public void testArrayTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayTypes");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "int[]");
-        Assert.assertEquals(returns[1].stringValue(), "int[][]");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testArrayTypes");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "typedesc intArray");
+        Assert.assertEquals(returns.get(1).toString(), "typedesc intArrayArray");
     }
 
     @Test(description = "Test tuple/union types")
     public void testTupleUnionTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleUnionTypes");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "[string,Person]");
-        Assert.assertEquals(returns[1].stringValue(), "int|string");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleUnionTypes");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "typedesc stringOrPerson");
+        Assert.assertEquals(returns.get(1).toString(), "typedesc intOrString");
     }
 
     @Test(description = "Test tuples with expressions")
     public void testTuplesWithExpressions() {
-        BValue[] returns = BRunUtil.invoke(result, "testTuplesWithExpressions");
-        Assert.assertEquals(returns[0].stringValue(), "[string,int,[string,string,string],string,int]");
+        Object returns = BRunUtil.invoke(result, "testTuplesWithExpressions");
+        Assert.assertEquals(returns.toString(), "typedesc [string,int,[string,string,string],string,int]");
     }
 
     @Test(description = "Test Record types")
     public void testRecordTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordTypes");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "RecordA");
-        Assert.assertTrue(returns[1] instanceof BTypeDescValue);
-        Assert.assertEquals(TypeTags.RECORD_TYPE_TAG, ((BTypeDescValue) returns[1]).value().getTag());
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordTypes");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "typedesc RecordA");
+        Assert.assertTrue(returns.get(1) instanceof BTypedesc);
+        Assert.assertEquals(TypeTags.RECORD_TYPE_TAG, ((BTypedesc) returns.get(1)).getDescribingType().getTag());
     }
 
     @Test(description = "Test any to typedesc cast")
     public void testAnyToTypedescCast() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnyToTypedesc");
-        Assert.assertEquals(returns[0].stringValue(), "int");
+        Object returns = BRunUtil.invoke(result, "testAnyToTypedesc");
+        Assert.assertEquals(returns.toString(), "typedesc int");
     }
 
     @Test(description = "Test module level typedesc definition")
     public void testModuleLevelTypeDesc() {
-        BValue[] returns = BRunUtil.invoke(result, "testModuleLevelTypeDesc");
-        Assert.assertTrue(returns[0] instanceof BTypeDescValue);
-        Assert.assertEquals(TypeTags.JSON_TAG, ((BTypeDescValue) returns[0]).value().getTag());
+        Object returns = BRunUtil.invoke(result, "testModuleLevelTypeDesc");
+        Assert.assertTrue(returns instanceof BTypedesc);
+        Assert.assertEquals(TypeTags.JSON_TAG, ((BTypedesc) returns).getDescribingType().getTag());
     }
 
     @Test(description = "Test method level typedesc definition")
     public void testMethodLevelTypeDesc() {
-        BValue[] returns = BRunUtil.invoke(result, "testMethodLevelTypeDesc");
-        Assert.assertTrue(returns[0] instanceof BTypeDescValue);
-        Assert.assertEquals(TypeTags.JSON_TAG, ((BTypeDescValue) returns[0]).value().getTag());
+        Object returns = BRunUtil.invoke(result, "testMethodLevelTypeDesc");
+        Assert.assertTrue(returns instanceof BTypedesc);
+        Assert.assertEquals(TypeTags.JSON_TAG, ((BTypedesc) returns).getDescribingType().getTag());
     }
 
     @Test(description = "Test custom error typedesc")
     public void testCustomErrorTypeDesc() {
-        BValue[] returns = BRunUtil.invoke(result, "testCustomErrorTypeDesc");
+        Object returns = BRunUtil.invoke(result, "testCustomErrorTypeDesc");
     }
 
     @Test
@@ -197,10 +197,10 @@ public class TypedescTests {
         BRunUtil.invoke(result, "testMethodLevelTypeDescWithoutConstraint");
     }
 
-   @Test
-   public void testCustomErrorTypeDescWithoutConstraint() {
-       BRunUtil.invoke(result, "testCustomErrorTypeDescWithoutConstraint");
-   }
+    @Test
+    public void testCustomErrorTypeDescWithoutConstraint() {
+        BRunUtil.invoke(result, "testCustomErrorTypeDescWithoutConstraint");
+    }
 
     @Test
     public void testTypeDefWithIntersectionTypeDescAsTypedesc() {
@@ -221,7 +221,6 @@ public class TypedescTests {
     public void testTypeDefWithIntersectionTypeDescAsTypedescNegative() {
         BRunUtil.invoke(result, "testTypeDefWithIntersectionTypeDescAsTypedescNegative");
     }
-
 
     @AfterClass
     public void tearDown() {

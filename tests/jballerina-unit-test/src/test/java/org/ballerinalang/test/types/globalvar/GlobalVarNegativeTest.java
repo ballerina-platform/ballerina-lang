@@ -29,7 +29,10 @@ import org.testng.annotations.Test;
  */
 public class GlobalVarNegativeTest {
 
-    @Test(groups = { "disableOnOldParser" })
+    private static final String INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX =
+            "cannot call a function or method in the same module before all module-level variables are initialized: ";
+
+    @Test
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
@@ -50,7 +53,6 @@ public class GlobalVarNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/global_variable_init_negative" +
                 ".bal");
 
-        Assert.assertEquals(result.getErrorCount(), 8);
         int i = 0;
         BAssertUtil.validateError(result, i++, "uninitialized variable 'i'", 17, 1);
         BAssertUtil.validateError(result, i++, "uninitialized variable 's'", 18, 1);
@@ -59,18 +61,43 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 25, 5);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 31, 5);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 39, 13);
-        BAssertUtil.validateError(result, i, "variable 's' is not initialized", 40, 18);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 40, 16);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func1'", 43, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func2'", 45, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func3'", 47, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func4'", 49, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func5'", 51, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func6'", 53, 1);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test
     void testGlobalVariableInitWithInvocationNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/variabledef" +
-                "/global_variable_init_with_invocation_negative.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/variabledef/global_variable_init_with_invocation_negative.bal");
 
-        Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "variable(s) 'i, s' not initialized", 21, 9);
-        BAssertUtil.validateError(result, i, "variable(s) 's' not initialized", 22, 9);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'i, s, t, u' not initialized", 24, 5);
+        BAssertUtil.validateError(result, i++, "variable 'lf' is not initialized", 24, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'i, s, u' not initialized", 26, 5);
+        BAssertUtil.validateError(result, i++, "variable 't' is not initialized", 26, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'i, s, t, u' not initialized", 28, 9);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 's, t' not initialized", 30, 5);
+        BAssertUtil.validateError(result, i++, "variable 'u' is not initialized", 30, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 's, t, u' not initialized", 32, 9);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'u' not initialized", 34, 5);
+        BAssertUtil.validateError(result, i++, "variable 't' is not initialized", 34, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'u' not initialized", 38, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'u' not initialized", 38, 5);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test
@@ -134,8 +161,9 @@ public class GlobalVarNegativeTest {
                 "union member type '(json & readonly)' is not supported", 93, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json & readonly)" +
                 "'", 94, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string] & " +
-                "readonly)'", 97, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string,json]" +
+                " & readonly)'\n\t" +
+                "tuple element type '(json & readonly)' is not supported", 97, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

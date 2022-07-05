@@ -1,34 +1,34 @@
 /*
-*   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.core.model.types.BAnydataType;
-import org.ballerinalang.core.model.types.BArrayType;
-import org.ballerinalang.core.model.types.BErrorType;
-import org.ballerinalang.core.model.types.BJSONType;
-import org.ballerinalang.core.model.types.BMapType;
-import org.ballerinalang.core.model.types.BRecordType;
-import org.ballerinalang.core.model.types.BStringType;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BAnydataType;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BErrorType;
+import io.ballerina.runtime.internal.types.BJsonType;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -38,6 +38,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.LinkedHashMap;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
 /**
  * Test cases for stamping Record type variables.
@@ -50,180 +52,173 @@ public class RecordStampInbuiltFunctionTest {
 
     @BeforeClass
     public void setup() {
+
         compileResult = BCompileUtil.compile("test-src/expressions/stamp/record-stamp-expr-test.bal");
     }
-
 
     //------------------------Record Stamp Test cases ----------------------------------------------------
 
     @Test
     public void testStampOpenRecords() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampWithOpenRecords");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampWithOpenRecords");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(employee0.get("age").stringValue(), "25");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("age")).toString(), "25");
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
     @Test
     public void testStampOpenRecordsNonAssignable() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignable");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignable");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(employee0.size(), 5);
         Assert.assertEquals((employee0.getType()).toString(), "Teacher");
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
     }
 
     @Test
     public void testStampClosedRecordWithOpenRecord() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampClosedRecordWithOpenRecord");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampClosedRecordWithOpenRecord");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(employee0.size(), 4);
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
     @Test
     public void testStampClosedRecordWithClosedRecord() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampClosedRecordWithClosedRecord");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampClosedRecordWithClosedRecord");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(employee0.size(), 4);
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
     @Test
     public void testStampRecordToJSON() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToJSON");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToJSON");
+        BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJSONType.class);
+        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJsonType.class);
 
-        Assert.assertEquals((mapValue0.getMap()).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
-        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("school")).getType().getClass(),
+        Assert.assertEquals((mapValue0).size(), 4);
+        Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school")).toString(),
+                "Hindu College");
+        Assert.assertEquals(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 
     @Test
     public void testStampRecordToMap() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToMap");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToMap");
+        BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals((mapValue0).size(), 4);
 
         Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
 
-        Assert.assertEquals(mapValue0.get("name").stringValue(), "John");
-        Assert.assertEquals(mapValue0.get("name").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("name")).toString(), "John");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("status").stringValue(), "single");
-        Assert.assertEquals(mapValue0.get("status").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("batch").stringValue(), "LK2014");
-        Assert.assertEquals(mapValue0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("school").stringValue(), "Hindu College");
-        Assert.assertEquals(mapValue0.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("school")).toString(), "Hindu College");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
     }
 
     @Test
     public void testStampRecordToMapV2() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToMapV2");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToMapV2");
+        BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals((mapValue0).size(), 4);
 
         Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
 
-        Assert.assertEquals(mapValue0.get("name").stringValue(), "John");
-        Assert.assertEquals(mapValue0.get("name").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("name")).toString(), "John");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("status").stringValue(), "single");
-        Assert.assertEquals(mapValue0.get("status").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("batch").stringValue(), "LK2014");
-        Assert.assertEquals(mapValue0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("school").stringValue(), "Hindu College");
-        Assert.assertEquals(mapValue0.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("school")).toString(), "Hindu College");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
 
     }
 
     @Test
     public void testStampRecordToMapV3() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToMapV3");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToMapV3");
+        BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals((mapValue0.getMap()).size(), 6);
+        Assert.assertEquals((mapValue0).size(), 6);
 
         Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
 
-        Assert.assertEquals(mapValue0.get("name").stringValue(), "Raja");
-        Assert.assertEquals(mapValue0.get("name").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("name")).toString(), "Raja");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue0.get("age").getType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("age")).toString(), "25");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
 
-        Assert.assertEquals(mapValue0.get("status").stringValue(), "single");
-        Assert.assertEquals(mapValue0.get("status").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("batch").stringValue(), "LK2014");
-        Assert.assertEquals(mapValue0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("school").stringValue(), "Hindu College");
-        Assert.assertEquals(mapValue0.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue0.get(StringUtils.fromString("school")).toString(), "Hindu College");
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
 
-        Assert.assertEquals(mapValue0.get("emp").size(), 3);
-        Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.get("emp").getType()).getConstrainedType().getClass(),
+        Assert.assertEquals(((BMap) mapValue0.get(StringUtils.fromString("emp"))).size(), 3);
+        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("emp"))).getClass(), BMapType.class);
+        Assert.assertEquals(
+                ((BMapType) getType(mapValue0.get(StringUtils.fromString("emp")))).getConstrainedType().getClass(),
                 BAnydataType.class);
     }
 
     @Test
     public void testStampRecordToAnydata() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToAnydata");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToAnydata");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 5);
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
@@ -233,75 +228,72 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampFunctionReferenceWithOpenRecords() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithOpenRecords");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithOpenRecords");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(employee0.get("age").stringValue(), "25");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("age")).toString(), "25");
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
     @Test
     public void testStampFunctionReferenceWithArgs() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithArgs");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithArgs");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(employee0.get("age").stringValue(), "23");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("age")).toString(), "23");
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
     @Test
     public void testStampOpenRecordToTypeClosedRecord() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecord");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecord");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 5);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "NonAcademicStaff");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("school").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("school").stringValue(), "Hindu College");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
     @Test
     public void testStampExtendedRecordToOpenRecord() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecord");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecord");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "Employee");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.get("address").getType()).getConstrainedType().getClass(),
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getClass(), BMapType.class);
+        Assert.assertEquals(
+                ((BMapType) getType(mapValue.get(StringUtils.fromString("address")))).getConstrainedType().getClass(),
                 BAnydataType.class);
 
     }
@@ -309,241 +301,231 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampExtendedRecordToOpenRecordV2() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV2");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV2");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithMap");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.get("address").getType()).getConstrainedType().getClass(),
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getClass(), BMapType.class);
+        Assert.assertEquals(
+                ((BMapType) getType(mapValue.get(StringUtils.fromString("address")))).getConstrainedType().getClass(),
                 BAnydataType.class);
     }
 
     @Test
     public void testStampExtendedRecordToOpenRecordV3() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV3");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV3");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithRecord");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BRecordType.class);
-        Assert.assertEquals(mapValue.get("address").getType().getName(), "Address");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getClass(), BRecordType.class);
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getName(), "Address");
     }
 
     @Test
     public void testStampExtendedRecordToOpenRecordV4() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV4");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV4");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployee");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BRecordType.class);
-        Assert.assertEquals(mapValue.get("address").getType().getName(), "Address");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getClass(), BRecordType.class);
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getName(), "Address");
     }
 
     @Test
     public void testStampExtendedRecordToOpenRecordV5() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV5");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV5");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployee");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BRecordType.class);
-        Assert.assertEquals(mapValue.get("address").getType().getName(), "Address");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getClass(), BRecordType.class);
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getName(), "Address");
     }
 
     @Test
     public void testStampExtendedRecordToOpenRecordV6() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV6");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV6");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithUnionRest");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BMapType.class);
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getClass(), BMapType.class);
     }
 
     @Test
     public void testStampNilTypeToOpenRecord() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampNilTypeToOpenRecord");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampNilTypeToOpenRecord");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(employee0.get("age").stringValue(), "25");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("age")).toString(), "25");
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
     @Test
     public void testStampRecordWithNilValues() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordWithNilValues");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordWithNilValues");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertNull(employee0.get("school"));
+        Assert.assertNull(employee0.get(StringUtils.fromString("school")));
     }
 
     @Test
     public void testStampRecordWithNilValuesV2() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordWithNilValuesV2");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordWithNilValuesV2");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertNull(employee0.get("school"));
+        Assert.assertNull(employee0.get(StringUtils.fromString("school")));
     }
 
     @Test
     public void testStampExtendedRecordToRecordWithUnionV7() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampExtendedRecordToRecordWithUnionV7");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToRecordWithUnionV7");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithRecord");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(mapValue.get("address").getType().getClass(), BRecordType.class);
-        Assert.assertEquals(mapValue.get("address").getType().getName(), "Address");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getClass(), BRecordType.class);
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("address"))).getName(), "Address");
     }
 
     @Test
     public void testStampRecordToRecordWithNilValues() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToRecordWithNilValues");
-        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToRecordWithNilValues");
+        BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 4);
 
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "ExtendedEmployeeWithNilRecord");
 
-        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertNull(mapValue.get("address"));
+        Assert.assertNull(mapValue.get(StringUtils.fromString("address")));
     }
 
     @Test
     public void testStampRecordToRecordWithOptionalFields() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToRecordWithOptionalFields");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToRecordWithOptionalFields");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
         Assert.assertEquals(employee0.size(), 3);
 
-        Assert.assertEquals(employee0.get("name").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("name")).toString(), "Raja");
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(employee0.get("status").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("status").stringValue(), "single");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("status")).toString(), "single");
     }
 
     @Test
     public void testStampAnyRecordToRecord() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampAnyRecordToRecord");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampAnyRecordToRecord");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
 
         Assert.assertEquals(employee0.getType().getClass(), BRecordType.class);
         Assert.assertEquals(employee0.getType().getName(), "OpenEmployee");
 
-        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(employee0.get("age").stringValue(), "25");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("age")).toString(), "25");
 
-        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertEquals(employee0.get("status").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("status").stringValue(), "single");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("status")).toString(), "single");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
-        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
     @Test
     public void testStampComplexRecordToJSON() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampComplexRecordToJSON");
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampComplexRecordToJSON");
+        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
-        Assert.assertEquals(results.length, 1);
 
         Assert.assertEquals(employee0.getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BAnydataType.class);
 
-        Assert.assertEquals((employee0.get("marks").getType().getClass()), BArrayType.class);
-        Assert.assertEquals(((BArrayType) (employee0).get("marks").getType()).getElementType().getTag(),
-                            TypeTags.ANYDATA_TAG);
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("marks"))).getClass(), BArrayType.class);
+        Assert.assertEquals(
+                ((BArrayType) getType(employee0.get(StringUtils.fromString("marks")))).getElementType().getTag(),
+                TypeTags.ANYDATA_TAG);
 
-        Assert.assertEquals(employee0.get("info").getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) employee0.get("info").getType()).getConstrainedType().getClass(),
+        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("info"))).getClass(), BMapType.class);
+        Assert.assertEquals(
+                ((BMapType) getType(employee0.get(StringUtils.fromString("info")))).getConstrainedType().getClass(),
                 BAnydataType.class);
     }
 
@@ -551,50 +533,63 @@ public class RecordStampInbuiltFunctionTest {
 
     @Test
     public void testStampOpenRecordToMap() {
-        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordToMap");
-        BValue error = results[0];
 
-        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Teacher' value cannot be converted to 'map<string>'");
+        Object results = BRunUtil.invoke(compileResult, "stampOpenRecordToMap");
+        Object error = results;
+
+        Assert.assertEquals(getType(error).getClass(), BErrorType.class);
+        Assert.assertEquals(
+                ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
+                        .toString(),
+                "'Teacher' value cannot be converted to 'StringMap': " +
+                        "\n\t\tmap field 'age' should be of type 'string', found '25'");
     }
 
     @Test
     public void testStampOpenRecordToTypeClosedRecordNegative() {
-        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecordNegative");
-        BValue error = results[0];
 
-        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Teacher' value cannot be converted to 'NonAcademicStaff': " +
-                "\n\t\tvalue of field 'postalCode' adding to the record 'NonAcademicStaff' should be of type 'string'");
+        Object results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecordNegative");
+        Object error = results;
+
+        Assert.assertEquals(getType(error).getClass(), BErrorType.class);
+        Assert.assertEquals(
+                ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
+                        .toString(),
+                "'Teacher' value cannot be converted to 'NonAcademicStaff': \n\t\tvalue of field 'postalCode' " +
+                        "adding to the record 'NonAcademicStaff' should be of type 'string', found '600'");
     }
 
     @Test
     public void testStampWithOpenRecordsNonAssignableNegative() {
-        BValue[] results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignableNegative");
-        BValue error = results[0];
 
-        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'Teacher': " +
-                "\n\t\tmissing required field 'school' of type 'string' in record 'Teacher'" +
-                "\n\t\tmissing required field 'age' of type 'int' in record 'Teacher'");
+        Object results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignableNegative");
+        Object error = results;
+
+        Assert.assertEquals(getType(error).getClass(), BErrorType.class);
+        Assert.assertEquals(
+                ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
+                        .toString(),
+                "'Employee' value cannot be converted to 'Teacher': " +
+                        "\n\t\tmissing required field 'school' of type 'string' in record 'Teacher'" +
+                        "\n\t\tmissing required field 'age' of type 'int' in record 'Teacher'");
     }
 
     @Test
     public void testStampOpenRecordWithInvalidValues() {
-        BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordWithInvalidValues");
-        BValue error = results[0];
 
-        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'Teacher': " +
-                "\n\t\tfield 'school' in record 'Teacher' should be of type 'string'");
+        Object results = BRunUtil.invoke(compileResult, "stampOpenRecordWithInvalidValues");
+        Object error = results;
+
+        Assert.assertEquals(getType(error).getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results).getDetails()).get(
+                        StringUtils.fromString("message")).toString(),
+                "'Employee' value cannot be converted to 'Teacher': " +
+                        "\n\t\tfield 'school' in record 'Teacher' should be of type 'string', found '789'");
     }
 
     @AfterClass
     public void tearDown() {
+
         compileResult = null;
     }
 }

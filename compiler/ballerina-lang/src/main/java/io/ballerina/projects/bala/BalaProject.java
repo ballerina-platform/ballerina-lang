@@ -29,6 +29,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 
@@ -60,6 +61,22 @@ public class BalaProject extends Project {
     private BalaProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath) {
         super(ProjectKind.BALA_PROJECT, balaPath, environmentBuilder);
         this.platform = BalaFiles.readPackageJson(balaPath).getPlatform();
+    }
+
+    @Override
+    public void clearCaches() {
+        resetPackage(this);
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
+    }
+
+    @Override
+    public Project duplicate() {
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = new BalaProject(projectEnvironmentBuilder, this.sourceRoot);
+        return resetPackage(balaProject);
     }
 
     @Override
@@ -116,5 +133,10 @@ public class BalaProject extends Project {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public Path targetDir() {
+        throw new UnsupportedOperationException("target directory is not supported for BalaProject");
     }
 }

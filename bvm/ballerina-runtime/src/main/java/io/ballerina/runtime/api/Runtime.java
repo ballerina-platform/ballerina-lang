@@ -20,9 +20,11 @@ package io.ballerina.runtime.api;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -72,6 +74,9 @@ public class Runtime {
      * @param returnType Expected return type of this method.
      * @param args       Ballerina function arguments.
      * @return {@link FutureValue} containing return value for executing this method.
+     * <p>
+     * This method needs to be called if object.getType().isIsolated() or
+     * object.getType().isIsolated(methodName) returns false.
      */
     public BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
@@ -105,6 +110,9 @@ public class Runtime {
      * @param returnType Expected return type of this method.
      * @param args       Ballerina function arguments.
      * @return {@link FutureValue} containing return value for executing this method.
+     * <p>
+     * This method needs to be called if both object.getType().isIsolated() and
+     * object.getType().isIsolated(methodName) returns true.
      */
     public BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
@@ -145,7 +153,8 @@ public class Runtime {
      * for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
      * otherwise @invokeMethodAsyncSequentially .
      * <p>
-     * We can decide the object method isolation by using object.getType().isIsolated(methodName).
+     * We can decide the object method isolation if and only if both object.getType().isIsolated() and
+     * object.getType().isIsolated(methodName) returns true.
      */
     @Deprecated
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
@@ -153,7 +162,8 @@ public class Runtime {
                                      Type returnType, Object... args) {
         try {
             validateArgs(object, methodName);
-            boolean isIsolated = object.getType().isIsolated(methodName);
+            ObjectType objectType = object.getType();
+            boolean isIsolated = objectType.isIsolated() && objectType.isIsolated(methodName);
             Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
             if (isIsolated) {
                 return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
@@ -185,7 +195,8 @@ public class Runtime {
      * for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
      * otherwise @invokeMethodAsyncSequentially .
      * <p>
-     * We can decide the object method isolation by using object.getType().isIsolated(methodName).
+     * We can decide the object method isolation if both object.getType().isIsolated() and
+     * object.getType().isIsolated(methodName) returns true.
      */
     @Deprecated
     public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
@@ -204,10 +215,14 @@ public class Runtime {
     }
 
     public void registerListener(BObject listener) {
-        scheduler.getListenerRegistry().registerListener(listener);
+        scheduler.getRuntimeRegistry().registerListener(listener);
     }
 
     public void deregisterListener(BObject listener) {
-        scheduler.getListenerRegistry().deregisterListener(listener);
+        scheduler.getRuntimeRegistry().deregisterListener(listener);
+    }
+
+    public void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {
+        scheduler.getRuntimeRegistry().registerStopHandler(stopHandler);
     }
 }

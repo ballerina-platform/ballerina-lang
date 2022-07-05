@@ -1942,12 +1942,19 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createArrayTypeDescriptorNode(
             STNode memberTypeDesc,
+            STNode dimensions) {
+
+        return new STArrayTypeDescriptorNode(
+                memberTypeDesc,
+                dimensions);
+    }
+
+    public static STNode createArrayDimensionNode(
             STNode openBracket,
             STNode arrayLength,
             STNode closeBracket) {
 
-        return new STArrayTypeDescriptorNode(
-                memberTypeDesc,
+        return new STArrayDimensionNode(
                 openBracket,
                 arrayLength,
                 closeBracket);
@@ -2384,6 +2391,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 kind,
                 keywordToken,
                 typeParamNode);
+    }
+
+    public static STNode createSpreadMemberNode(
+            STNode ellipsis,
+            STNode expression) {
+
+        return new STSpreadMemberNode(
+                ellipsis,
+                expression);
     }
 }
 

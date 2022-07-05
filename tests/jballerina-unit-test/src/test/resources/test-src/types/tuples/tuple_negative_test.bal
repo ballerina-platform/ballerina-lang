@@ -202,3 +202,33 @@ function testTupleToJSONAssignmentNegative() {
     jsonTest = <json[]>C;
     jsonTest = C;
 }
+
+public function testUnionsOfTupleSingletons() {
+     [1, "hello"]|[1] f; // Must not crash
+     f = [1]; // ambiguous, [1] can match for both [1, "hello"] and [1] finite tuple values;
+}
+
+public function testTupleParamWithExistingArg1() {
+    testFunc1(1, 2, 3);
+}
+
+function testFunc1(int i, int... i) {
+}
+
+public function testTupleParamWithExistingArg2() {
+    testFunc2(1, 2, 3, 4);
+}
+
+function testFunc2(int i, int j, int... i) {
+}
+
+public function testTupleParamWithExistingArg3() {
+    testFunc3("1", 2, 3);
+}
+
+public function testTupleParamWithExistingArg4() {
+    testFunc2(1, 2, 3 + "4");
+}
+
+function testFunc3(string i, int... i) {
+}

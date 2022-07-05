@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.test.expressions.varref;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -30,14 +30,13 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Map;
-
 /**
  * Test cases for error variable references.
  *
  * @since 0.990.4
  */
 public class ErrorVariableReferenceTest {
+
     private CompileResult result;
 
     @BeforeClass
@@ -47,143 +46,150 @@ public class ErrorVariableReferenceTest {
 
     @Test(description = "Test simple error var def with string and map")
     public void testBasicErrorVariableWithMapDetails() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
-        Assert.assertEquals(returns.length, 12);
-        Assert.assertEquals(returns[0].stringValue(), "Error One");
-        Assert.assertEquals(returns[1].stringValue(), "Error One");
-        Assert.assertEquals(returns[2].stringValue(), "Error Two");
-        Assert.assertEquals(returns[3].stringValue(), "Error Two");
-        Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg One");
-        Assert.assertEquals(returns[5].stringValue(), "Msg One");
-        Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Two");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Two");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
+        Object arr = BRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 10);
+        Assert.assertEquals(returns.get(0).toString(), "Error One");
+        Assert.assertEquals(returns.get(1).toString(), "Error One");
+        Assert.assertEquals(returns.get(2).toString(), "Error Two");
+        Assert.assertEquals(returns.get(3).toString(), "Error Two");
+        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg One");
+        Assert.assertEquals(returns.get(5).toString(), "Msg One");
+        Assert.assertEquals(returns.get(6).toString(), "Detail Msg");
+        Assert.assertEquals(((BMap) returns.get(7)).get(StringUtils.fromString("message")).toString(), "Msg Two");
+        Assert.assertTrue((Boolean) ((BMap) returns.get(7)).get(StringUtils.fromString("fatal")));
+        Assert.assertEquals(returns.get(8).toString(), "Msg Two");
+        Assert.assertTrue((Boolean) returns.get(9));
     }
 
     @Test(description = "Test simple error var def with const and map")
     public void testBasicErrorVariableWithConstAndMap() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
-        Assert.assertEquals(returns.length, 13);
-        Assert.assertEquals(returns[0].stringValue(), "Some Error One");
-        Assert.assertEquals(returns[1].stringValue(), "Some Error One");
-        Assert.assertEquals(returns[2].stringValue(), "Some Error Two");
-        Assert.assertEquals(returns[3].stringValue(), "Some Error Two");
-        Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg Three");
-        Assert.assertEquals(returns[5].stringValue(), "Msg Three");
-        Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Four");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Four");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
-        Assert.assertEquals(returns[12].stringValue(), "Some Error One {message:\"Msg Three\", detail:\"Detail Msg\"}");
+        Object arr = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 11);
+        Assert.assertEquals(returns.get(0).toString(), "Some Error One");
+        Assert.assertEquals(returns.get(1).toString(), "Some Error One");
+        Assert.assertEquals(returns.get(2).toString(), "Some Error Two");
+        Assert.assertEquals(returns.get(3).toString(), "Some Error Two");
+        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(), "Msg Three");
+        Assert.assertEquals(returns.get(5).toString(), "Msg Three");
+        Assert.assertEquals(returns.get(6).toString(), "Detail Msg");
+        Assert.assertEquals(((BMap) returns.get(7)).get(StringUtils.fromString("message")).toString(), "Msg Four");
+        Assert.assertTrue((Boolean) ((BMap) returns.get(7)).get(StringUtils.fromString("fatal")));
+        Assert.assertEquals(returns.get(8).toString(), "Msg Four");
+        Assert.assertTrue((Boolean) returns.get(9));
+        Assert.assertEquals(returns.get(10).toString(),
+                "error CMS (\"Some Error One\",message=\"Msg Three\",detail=\"Detail Msg\")");
     }
 
     @Test(description = "Test simple error var def with record as detail")
     public void testBasicErrorVariableWithRecordDetails() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithRecordDetails");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(returns[0].stringValue(), "Error One");
-        Assert.assertEquals(returns[1].stringValue(), "Error One");
-        Assert.assertEquals(returns[2].stringValue(), "Something Wrong");
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
-        Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Something Wrong");
+        Object arr = BRunUtil.invoke(result, "testBasicErrorVariableWithRecordDetails");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertEquals(returns.get(0).toString(), "Error One");
+        Assert.assertEquals(returns.get(1).toString(), "Error One");
+        Assert.assertEquals(returns.get(2).toString(), "Something Wrong");
+        Assert.assertTrue((Boolean) returns.get(3));
+        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("message")).toString(),
+                "Something Wrong");
     }
 
     @Test(description = "Test simple error var def inside tuple")
     public void testErrorInTuple() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorInTuple");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
-        Assert.assertEquals(returns[1].stringValue(), "Bal");
-        Assert.assertEquals(returns[2].stringValue(), "Err");
-        Assert.assertEquals(returns[3].stringValue(), "Something Wrong2");
-        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testErrorInTuple");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertEquals(returns.get(0), 12L);
+        Assert.assertEquals(returns.get(1).toString(), "Bal");
+        Assert.assertEquals(returns.get(2).toString(), "Err");
+        Assert.assertEquals(returns.get(3).toString(), "Something Wrong2");
+        Assert.assertTrue((Boolean) returns.get(4));
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error", enabled = false)
     public void testErrorInTupleWithDestructure() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
-        Assert.assertEquals(returns[1].stringValue(), "Bal");
-        Assert.assertEquals(returns[2].stringValue(), "Err2");
-        Assert.assertEquals(returns[3].stringValue(), "{\"message\":\"Something Wrong2\"}");
-        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testErrorInTupleWithDestructure");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertEquals(returns.get(0), 12);
+        Assert.assertEquals(returns.get(1).toString(), "Bal");
+        Assert.assertEquals(returns.get(2).toString(), "Err2");
+        Assert.assertEquals(returns.get(3).toString(), "{\"message\":\"Something Wrong2\"}");
+        Assert.assertTrue((Boolean) returns.get(4));
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error", enabled = false)
     public void testErrorInTupleWithDestructure2() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
-        Assert.assertEquals(returns[1].stringValue(), "Bal");
-        Assert.assertEquals(returns[2].stringValue(), "Err2");
-        Assert.assertEquals(returns[3].stringValue(), "Something Wrong2");
-        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertEquals(returns.get(0), 12);
+        Assert.assertEquals(returns.get(1).toString(), "Bal");
+        Assert.assertEquals(returns.get(2).toString(), "Err2");
+        Assert.assertEquals(returns.get(3).toString(), "Something Wrong2");
+        Assert.assertTrue((Boolean) returns.get(4));
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error", enabled = false)
     public void testErrorInRecordWithDestructure() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorInRecordWithDestructure");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1000);
-        Assert.assertEquals(returns[1].stringValue(), "Err3");
-        Assert.assertEquals(returns[2].stringValue(), "Something Wrong3");
+        Object arr = BRunUtil.invoke(result, "testErrorInRecordWithDestructure");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0), 1000);
+        Assert.assertEquals(returns.get(1).toString(), "Err3");
+        Assert.assertEquals(returns.get(2).toString(), "Something Wrong3");
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error", enabled = false)
     public void testErrorInRecordWithDestructure2() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorInRecordWithDestructure2");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1000);
-        Assert.assertEquals(returns[1].stringValue(), "Err3");
-        Assert.assertEquals(returns[2].stringValue(), "Something Wrong3");
-        Assert.assertNull(returns[3]);
+        Object arr = BRunUtil.invoke(result, "testErrorInRecordWithDestructure2");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertEquals(returns.get(0), 1000);
+        Assert.assertEquals(returns.get(1).toString(), "Err3");
+        Assert.assertEquals(returns.get(2).toString(), "Something Wrong3");
+        Assert.assertNull(returns.get(3));
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorWithRestParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorWithRestParam");
-        Assert.assertEquals(returns.length, 1);
-        Map<String, BValue> results = ((BMap) returns[0]).getMap();
-        Assert.assertEquals(results.get("fatal").stringValue(), "true");
-        Assert.assertEquals(results.get("extra").stringValue(), "extra");
+        Object returns = BRunUtil.invoke(result, "testErrorWithRestParam");
+        BMap<BString, Object> results = (BMap) returns;
+        Assert.assertEquals(results.get(StringUtils.fromString("fatal")).toString(), "true");
+        Assert.assertEquals(results.get(StringUtils.fromString("extra")).toString(), "extra");
     }
 
     @Test(description = "Test simple error var ref with underscore")
     public void testErrorWithUnderscore() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "Error");
-        Map<String, BValue> results = ((BMap) returns[1]).getMap();
-        Assert.assertEquals(results.get("message").stringValue(), "Fatal");
-        Assert.assertEquals(results.get("fatal").stringValue(), "true");
+        Object arr = BRunUtil.invoke(result, "testErrorWithUnderscore");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "Error");
+        BMap<BString, Object> results = (BMap) returns.get(1);
+        Assert.assertEquals(results.get(StringUtils.fromString("message")).toString(), "Fatal");
+        Assert.assertEquals(results.get(StringUtils.fromString("fatal")).toString(), "true");
     }
 
     @Test(description = "Test default error var ref with rest underscore")
     public void testDefaultErrorRefBindingPattern() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultErrorRefBindingPattern");
-        Assert.assertEquals(returns[0].stringValue(), "the reason");
+        Object returns = BRunUtil.invoke(result, "testDefaultErrorRefBindingPattern");
+        Assert.assertEquals(returns.toString(), "the reason");
     }
 
     @Test(description = "Test simple indirect error ref pattern")
     public void testIndirectErrorRefBindingPattern() {
-        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorRefBindingPattern");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "msg");
-        Assert.assertNull(returns[1]);
+        Object arr = BRunUtil.invoke(result, "testIndirectErrorRefBindingPattern");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "msg");
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test(description = "Test error ref binding pattern when no error reason ref is given")
     public void testNoErrorReasonGiven() {
-        BValue[] returns = BRunUtil.invoke(result, "testNoErrorReasonGiven");
-        Assert.assertEquals(returns[0].stringValue(), "message");
+        Object returns = BRunUtil.invoke(result, "testNoErrorReasonGiven");
+        Assert.assertEquals(returns.toString(), "message");
     }
 
     @Test(description = "Test simple indirect error ref pattern with mandatory detail fields")
@@ -193,28 +199,28 @@ public class ErrorVariableReferenceTest {
 
     @Test(description = "Test error varref inside a tupple ref", enabled = false)
     public void testErrorDestructuringInATupleDestructuring() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorDestructuringInATupleDestructuring");
-        int i = 0;
-        Assert.assertEquals(returns[i++].stringValue(), "r2");
-        Assert.assertEquals(returns[i++].stringValue(), "msg");
+        Object arr = BRunUtil.invoke(result, "testErrorDestructuringInATupleDestructuring");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.get(0).toString(), "r2");
+        Assert.assertEquals(returns.get(1).toString(), "msg");
     }
 
     @Test(description = "Test indirect error varref inside a tupple ref", enabled = false)
     public void testIndirectErrorVarRefInTuppleRef() {
-        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorVarRefInTuppleRef");
-        int i = 0;
-        Assert.assertEquals(returns[i++].stringValue(), "Msg One");
-        Assert.assertEquals(returns[i++].stringValue(), "Detail Msg");
-        Assert.assertEquals(returns[i++].stringValue(), "1");
+        Object arr = BRunUtil.invoke(result, "testIndirectErrorVarRefInTuppleRef");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.get(0).toString(), "Msg One");
+        Assert.assertEquals(returns.get(1).toString(), "Detail Msg");
+        Assert.assertEquals(returns.get(2).toString(), "1");
     }
 
     @Test(description = "Test error ctor in tupple var ref statement", enabled = false)
     public void testErrorRefAndCtorInSameStatement() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorRefAndCtorInSameStatement");
-        int i = 0;
-        Assert.assertEquals(returns[i++].stringValue(), "r2");
-        Assert.assertEquals(returns[i++].stringValue(), "Detail Msg");
-        Assert.assertEquals(returns[i++].stringValue(), "1");
+        Object arr = BRunUtil.invoke(result, "testErrorRefAndCtorInSameStatement");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.get(0).toString(), "r2");
+        Assert.assertEquals(returns.get(1).toString(), "Detail Msg");
+        Assert.assertEquals(returns.get(2).toString(), "1");
     }
 
     @Test
@@ -228,18 +234,16 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'map<int>', found 'map<(string|error)>'", 31, 26);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found 'string?'", 32, 43);
-        BAssertUtil.validateError(resultNegative, ++i,
-                                  incompatibleTypes + "expected 'map<string>', found 'map<(string|error|boolean)>'",
+                incompatibleTypes + "expected 'map<string>', found 'map<(string|error|boolean)>'",
                 41, 25);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found '(string|boolean)?'", 42, 43);
+                incompatibleTypes + "expected 'string', found '(string|boolean)'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 22);
+                "cannot bind undefined error detail field 'message'", 43, 22);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 43);
+                "cannot bind undefined error detail field 'fatal'", 43, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 62);
+                "cannot bind undefined error detail field 'extra'", 43, 60);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
@@ -251,11 +255,11 @@ public class ErrorVariableReferenceTest {
 //        BAssertUtil.validateError(resultNegative, ++i,
 //                incompatibleTypes + "expected 'string', found 'boolean'", 94, 20);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "incompatible types: expected 'map', found 'map<(error|string|int)>'", 124, 35);
+                "incompatible types: expected 'map', found 'map<(error|string|int)>'", 124, 35);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 134, 19);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '(anydata|readonly)', found " +
-                "'ballerina/lang.value:0.0.0:Cloneable'", 134, 38);
+                "cannot bind undefined error detail field 'message'", 134, 19);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "cannot bind undefined error detail field 'other'", 134, 38);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
@@ -265,18 +269,92 @@ public class ErrorVariableReferenceTest {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_negative.bal");
         int i = 0;
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 's'", 20, 5);
         BAssertUtil.validateError(resultNegative, i++,
                 "variables in a binding pattern must be distinct; found duplicate variable 's'", 22, 24);
         BAssertUtil.validateError(resultNegative, i++,
                 "variables in a binding pattern must be distinct; found duplicate variable 's'", 22, 36);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'r'", 27, 21);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'message'", 27, 34);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'abc'", 27, 49);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'r'", 28, 11);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'message'", 28, 24);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'abc'", 28, 39);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'r2'", 30, 21);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'message2'", 30, 35);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'rest'", 30, 45);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'r2'", 31, 11);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'message2'", 31, 25);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'rest'", 31, 38);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'r3'", 34, 30);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'message3'", 34, 44);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'message3'", 35, 24);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'abc3'", 35, 40);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i);
+    }
+
+    @Test
+    public void testErrorDetailBindingNegative() {
+        CompileResult resultNegative =
+                BCompileUtil.compile("test-src/expressions/varref/error_binding_pattern_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 22, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 22, 65);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 23, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 23, 74);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 25, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 25, 62);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 26, 35);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 26, 71);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 28, 24);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 28, 60);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 29, 33);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 29, 69);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 33, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 33, 57);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 34, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 34, 66);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 36, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 36, 54);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 37, 35);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 37, 63);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 39, 24);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 39, 52);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 40, 33);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 40, 61);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'identifier'", 50, 14);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'identifier'", 51, 18);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 53, 14);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 54, 18);
+
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 }

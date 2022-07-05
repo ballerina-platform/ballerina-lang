@@ -30,7 +30,7 @@
     {
       "label": "TEST_STRING_CONST1",
       "kind": "Variable",
-      "detail": "HELLO WORLD",
+      "detail": "\"HELLO WORLD\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -44,7 +44,7 @@
     {
       "label": "ENUM1_FIELD1",
       "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
+      "detail": "\"ENUM1_FIELD1\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -246,6 +246,22 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "BC",
+      "insertText": "TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GLOBAL_VAR",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "BC",
+      "insertText": "GLOBAL_VAR",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

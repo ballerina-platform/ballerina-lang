@@ -18,18 +18,16 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BRefType;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -46,12 +44,18 @@ public class LangLibErrorTest {
         compileResult = BCompileUtil.compile("test-src/errorlib_test.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
+
     @Test
     public void testTypeTestingErrorUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTypeTestingErrorUnion");
-        assertEquals(returns[0].stringValue(), "GenericError");
-        assertEquals(returns[1].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[1].stringValue(), "{message:\"Test union of errors with type test\"}");
+        Object returns = BRunUtil.invoke(compileResult, "testTypeTestingErrorUnion");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0).toString(), "GenericError");
+        assertEquals(getType(result.get(1)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(result.get(1).toString(), "{\"message\":\"Test union of errors with type test\"}");
     }
 
     @Test
@@ -68,35 +72,34 @@ public class LangLibErrorTest {
 
     @Test
     public void testPassingErrorUnionToFunction() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPassingErrorUnionToFunction");
-        assertEquals(returns[0].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[0].stringValue(), "{message:\"Test passing error union to a function\"}");
+        Object returns = BRunUtil.invoke(compileResult, "testPassingErrorUnionToFunction");
+        assertEquals(getType(returns).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(returns.toString(), "{\"message\":\"Test passing error union to a function\"}");
     }
 
     @Test
     public void testGetErrorStackTrace() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getErrorStackTrace");
-        assertEquals(returns[0].getType().getTag(), TypeTags.OBJECT_TYPE_TAG);
-        BRefType<?>[] callStacks = ((BValueArray) ((BMap) returns[0]).get("callStack")).getValues();
-        assertEquals(callStacks[0].stringValue(), "{callableName:\"getError\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:45}");
-        assertEquals(callStacks[1].stringValue(), "{callableName:\"stack2\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:88}");
-        assertEquals(callStacks[2].stringValue(), "{callableName:\"stack1\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:84}");
-        assertEquals(callStacks[3].stringValue(), "{callableName:\"stack0\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:80}");
-        assertEquals(callStacks[4].stringValue(), "{callableName:\"getErrorStackTrace\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:92}");
+        Object returns = BRunUtil.invoke(compileResult, "getErrorStackTrace");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
+        String[] callStacks = ((BArray) returns).getStringArray();
+        assertEquals(callStacks[0], "callableName: getError  fileName: errorlib_test.bal lineNumber: 45");
+        assertEquals(callStacks[1], "callableName: stack2  fileName: errorlib_test.bal lineNumber: 88");
+        assertEquals(callStacks[2], "callableName: stack1  fileName: errorlib_test.bal lineNumber: 84");
+        assertEquals(callStacks[3], "callableName: stack0  fileName: errorlib_test.bal lineNumber: 80");
+        assertEquals(callStacks[4], "callableName: getErrorStackTrace  fileName: errorlib_test.bal lineNumber: 92");
     }
 
     @Test
     public void testErrorStackTrace() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorStackTrace");
-        assertEquals(returns[0].stringValue(), "5");
-        assertEquals(returns[1].stringValue(),
-                "[\"getError:errorlib_test.bal\",\"stack2:errorlib_test.bal\",\"stack1:errorlib_test.bal\"," +
-                        "\"stack0:errorlib_test.bal\",\"testErrorStackTrace:errorlib_test.bal\"]");
+        Object returns = BRunUtil.invoke(compileResult, "testErrorStackTrace");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0).toString(), "5");
+        assertEquals(result.get(1).toString(),
+                "[\"callableName: getError  fileName: errorlib_test.bal lineNumber: 45\"," +
+                        "\"callableName: stack2  fileName: errorlib_test.bal lineNumber: 88\"," +
+                        "\"callableName: stack1  fileName: errorlib_test.bal lineNumber: 84\"," +
+                        "\"callableName: stack0  fileName: errorlib_test.bal lineNumber: 80\"," +
+                        "\"callableName: testErrorStackTrace  fileName: errorlib_test.bal lineNumber: 97\"]");
     }
 
     @Test
@@ -107,5 +110,10 @@ public class LangLibErrorTest {
     @Test
     public void testRetriableTest() {
         BRunUtil.invoke(compileResult, "testRetriableTest");
+    }
+
+    @Test
+    public void testStacktraceStrRepresentation() {
+        BRunUtil.invoke(compileResult, "testStacktraceStrRepresentation");
     }
 }

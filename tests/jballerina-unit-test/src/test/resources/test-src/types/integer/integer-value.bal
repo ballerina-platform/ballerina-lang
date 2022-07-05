@@ -1,3 +1,4 @@
+import ballerina/test;
 function testIntegerValue () returns (int) {
     int b;
     b = 10;
@@ -91,4 +92,20 @@ function testIntegerParameter (int a) returns (int) {
     int b;
     b = a;
     return b;
+}
+
+public type IntervalDayToSecond record {|
+    int sign = +1;
+    int:Unsigned32 days?;
+    int:Unsigned32 hours?;
+    int:Unsigned32 minutes?;
+    decimal seconds?;
+|};
+
+function testIntSubtypeField() {
+    IntervalDayToSecond val = {days: 11, hours: 10, minutes: 9, seconds: 8.555};
+    test:assertEquals(val?.days, 11);
+    test:assertEquals(val?.hours, 10);
+    test:assertEquals(val?.minutes, 9);
+    test:assertEquals(val?.seconds, <decimal>8.555);
 }

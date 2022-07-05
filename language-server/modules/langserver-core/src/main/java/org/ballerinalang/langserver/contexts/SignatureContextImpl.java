@@ -96,21 +96,12 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
      */
     protected static class SignatureContextBuilder extends AbstractContextBuilder<SignatureContextBuilder> {
 
-        private SignatureHelpCapabilities capabilities;
+        private final SignatureHelpCapabilities capabilities;
         private Position position;
 
-        public SignatureContextBuilder(LanguageServerContext serverContext) {
+        public SignatureContextBuilder(LanguageServerContext serverContext, SignatureHelpCapabilities capabilities) {
             super(LSContextOperation.TXT_SIGNATURE, serverContext);
-        }
-
-        /**
-         * Setter for the client's signature help capabilities.
-         *
-         * @param capabilities signature capabilities to set
-         */
-        public SignatureContextBuilder withCapabilities(SignatureHelpCapabilities capabilities) {
             this.capabilities = capabilities;
-            return self();
         }
 
         /**

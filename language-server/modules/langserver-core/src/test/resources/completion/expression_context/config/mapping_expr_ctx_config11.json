@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "field1",
       "kind": "Field",
       "detail": "TestRecord2.field1",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -26,16 +26,16 @@
       "label": "field3",
       "kind": "Field",
       "detail": "TestRecord2.field3",
-      "sortText": "G",
-      "insertText": "field3: ${2:false}",
+      "sortText": "K",
+      "insertText": "field3: ${1:false}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "field2",
       "kind": "Field",
       "detail": "TestRecord2.field2",
-      "sortText": "G",
-      "insertText": "field2: \"${3}\"",
+      "sortText": "K",
+      "insertText": "field2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,7 +44,25 @@
       "detail": "TestRecord2",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "field1: 0,\nfield3: false,\nfield2: \"\"",
+      "insertText": "field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec",
+      "kind": "Variable",
+      "detail": "TestRecord2",
+      "sortText": "AB",
+      "filterText": "rec",
+      "insertText": "...rec",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec1",
+      "kind": "Variable",
+      "detail": "TestRecord1",
+      "sortText": "F",
+      "filterText": "rec1",
+      "insertText": "...rec1",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -18,12 +18,13 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,27 +43,35 @@ public class ForeachErrorBindingPatternsTests {
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_errors_negative.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+        negative = null;
+    }
+
     @Test
     public void testArrayWithErrors() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithErrors");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object returns = BRunUtil.invoke(program, "testArrayWithErrors");
+        BArray result = (BArray) returns;
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertEquals(result.get(0).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
-        Assert.assertEquals(returns[1].stringValue(),
+        Assert.assertEquals(result.get(1).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
-        Assert.assertEquals(returns[2].stringValue(),
+        Assert.assertEquals(result.get(2).toString(),
                 "Error One:Error Two:Error Three:Error One:Error Two:Error Three:");
     }
 
     @Test
     public void testMapWithErrors() {
-        BValue[] returns = BRunUtil.invoke(program, "testMapWithErrors");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object returns = BRunUtil.invoke(program, "testMapWithErrors");
+        BArray result = (BArray) returns;
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertEquals(result.get(0).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
-        Assert.assertEquals(returns[1].stringValue(),
+        Assert.assertEquals(result.get(1).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
-        Assert.assertEquals(returns[2].stringValue(),
+        Assert.assertEquals(result.get(2).toString(),
                 "Error One:Error Two:Error Three:Error One:Error Two:Error Three:");
     }
 
@@ -86,5 +95,13 @@ public class ForeachErrorBindingPatternsTests {
         BAssertUtil.validateError(negative, i++, "invalid error binding pattern with type 'ReasonError'",
                 131, 17);
         BAssertUtil.validateError(negative, i++, "undefined symbol 'otherVar'", 134, 17);
+    }
+
+    @Test
+    public void testForeachScopeWithErrorBinding() {
+        negative = BCompileUtil.compile("test-src/statements/foreach/foreach_errors_scope_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'c'", 23, 13);
+        Assert.assertEquals(negative.getErrorCount(), i);
     }
 }

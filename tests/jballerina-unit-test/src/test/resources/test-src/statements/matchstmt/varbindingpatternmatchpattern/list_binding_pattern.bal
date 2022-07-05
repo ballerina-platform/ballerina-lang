@@ -56,7 +56,7 @@ function testListBindingPattern2() {
 
 function listBindingPattern3(any v) returns string {
     match v {
-        [var [a, b], 5] | [var [a, b], 7] => {
+        [var [a, b], 5]|[var [a, b], 7] => {
             return "match2";
         }
     }
@@ -72,10 +72,10 @@ function testListBindingPattern3() {
 
 function listBindingPattern4(any v) returns string {
     match v {
-        [var [a], 5] | [var [a], 7] => {
+        [var [a], 5]|[var [a], 7] => {
             return "match1";
         }
-        [var [a], 2] | [3, var [a]] => {
+        [var [a], 2]|[3, var [a]] => {
             return "match2";
         }
     }
@@ -93,10 +93,10 @@ function testListBindingPattern4() {
 
 function listBindingPattern5([[int], int] v) returns int|string {
     match v {
-        [var [a], 5] | [var [a], 7] => {
+        [var [a], 5]|[var [a], 7] => {
             return a;
         }
-        [var [a], 2] | [var [a], 3] => {
+        [var [a], 2]|[var [a], 3] => {
             return a + 20;
         }
     }
@@ -114,7 +114,7 @@ function testListBindingPattern5() {
 
 function listBindingPattern6([[int, int], int]|[[boolean, boolean], boolean] v) returns int|boolean {
     match v {
-        [var [a, b], 5] | [var [a, b], false] => {
+        [var [a, b], 5]|[var [a, b], false] => {
             return a;
         }
     }
@@ -143,14 +143,14 @@ function listBindingPattern7(any v) returns string {
 }
 
 function testListBindingPattern7() {
-    assertEquals("match1" ,listBindingPattern7([1, "str", [true]]));
-    assertEquals("match2" ,listBindingPattern7([1, "str", [true, false]]));
-    assertEquals("No match" ,listBindingPattern7([1, "str"]));
+    assertEquals("match1", listBindingPattern7([1, "str", [true]]));
+    assertEquals("match2", listBindingPattern7([1, "str", [true, false]]));
+    assertEquals("No match", listBindingPattern7([1, "str"]));
 }
 
 function listBindingPattern8(any v) returns string {
     match v {
-        [1, 2, var [c, d, e], 3] | [1, 2, var [c, d, e]] => {
+        [1, 2, var [c, d, e], 3]|[1, 2, var [c, d, e]] => {
             return "match1";
         }
         [1, 3, var [c, d, e]] => {
@@ -163,10 +163,10 @@ function listBindingPattern8(any v) returns string {
 }
 
 function testListBindingPattern8() {
-    assertEquals("match1" ,listBindingPattern8([1, 2, [true, true, false], 3]));
-    assertEquals("match1" ,listBindingPattern8([1, 2, [true, true, false]]));
-    assertEquals("match2" ,listBindingPattern8([1, 3, [true, true, false]]));
-    assertEquals("No match" ,listBindingPattern8([1, 2, [true, false]]));
+    assertEquals("match1", listBindingPattern8([1, 2, [true, true, false], 3]));
+    assertEquals("match1", listBindingPattern8([1, 2, [true, true, false]]));
+    assertEquals("match2", listBindingPattern8([1, 3, [true, true, false]]));
+    assertEquals("No match", listBindingPattern8([1, 2, [true, false]]));
 }
 
 function listBindingPattern9(any v) returns string {
@@ -184,13 +184,13 @@ function listBindingPattern9(any v) returns string {
 }
 
 function testListBindingPattern9() {
-    assertEquals("match1" ,listBindingPattern9([1, 2]));
-    assertEquals("match1" ,listBindingPattern9([1, [2]]));
-    assertEquals("match2" ,listBindingPattern9([[1, 2]]));
-    assertEquals("match3" ,listBindingPattern9([[1, 2], 3, 4]));
+    assertEquals("match1", listBindingPattern9([1, 2]));
+    assertEquals("match1", listBindingPattern9([1, [2]]));
+    assertEquals("match2", listBindingPattern9([[1, 2]]));
+    assertEquals("match3", listBindingPattern9([[1, 2], 3, 4]));
 }
 
-function listBindingPattern10([string, int] | [float, boolean] | [float, string, boolean] | float a) returns string {
+function listBindingPattern10([string, int]|[float, boolean]|[float, string, boolean]|float a) returns string {
     match a {
         var [s, i] => {
             return "Matched with two vars : " + s.toString() + ", " + i.toString();
@@ -205,23 +205,23 @@ function listBindingPattern10([string, int] | [float, boolean] | [float, string,
 }
 
 function testListBindingPattern10() {
-    [string, int] | [float, boolean] | [float, string, boolean] | float a1 = 66.6;
-    [string, int] | [float, boolean] | [float, string, boolean] | float a2 = ["Hello", 12];
-    [string, int] | [float, boolean] | [float, string, boolean] | float a3 = [4.5, true];
-    [string, int] | [float, boolean] | [float, string, boolean] | float a4 = [6.7, "Test", false];
+    [string, int]|[float, boolean]|[float, string, boolean]|float a1 = 66.6;
+    [string, int]|[float, boolean]|[float, string, boolean]|float a2 = ["Hello", 12];
+    [string, int]|[float, boolean]|[float, string, boolean]|float a3 = [4.5, true];
+    [string, int]|[float, boolean]|[float, string, boolean]|float a4 = [6.7, "Test", false];
 
-    assertEquals("Matched with single var : 66.6" ,listBindingPattern10(a1));
-    assertEquals("Matched with two vars : Hello, 12" ,listBindingPattern10(a2));
-    assertEquals("Matched with two vars : 4.5, true" ,listBindingPattern10(a3));
-    assertEquals("Matched with three vars : 6.7, Test, false" ,listBindingPattern10(a4));
+    assertEquals("Matched with single var : 66.6", listBindingPattern10(a1));
+    assertEquals("Matched with two vars : Hello, 12", listBindingPattern10(a2));
+    assertEquals("Matched with two vars : 4.5, true", listBindingPattern10(a3));
+    assertEquals("Matched with three vars : 6.7, Test, false", listBindingPattern10(a4));
 }
 
-function listBindingPattern11([string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float a)
+function listBindingPattern11([string, int]|[float, [string, boolean]]|[float, [string, [boolean, int]]]|float a)
                                                                                                         returns string {
     match a {
         var [f, [s, [b, i]]] => {
             return "Matched with four vars : " + f.toString() + ", " + s.toString() + ", " + i.toString() + ", "
-             + b.toString();
+            + b.toString();
         }
         var [s, [i, b]] => {
             return "Matched with three vars : " + s.toString() + ", " + i.toString() + ", " + b.toString();
@@ -241,10 +241,10 @@ function testListBindingPattern11() {
     [float, [string, [boolean, int]]] a3 = [66.6, ["Test", [true, 456]]];
     [float, [string, boolean]] a4 = [5.6, ["Ballerina", false]];
 
-    assertEquals("Matched with single var : 66.6" ,listBindingPattern11(a1));
-    assertEquals("Matched with two vars : Hello, 34" ,listBindingPattern11(a2));
-    assertEquals("Matched with four vars : 66.6, Test, 456, true" ,listBindingPattern11(a3));
-    assertEquals("Matched with three vars : 5.6, Ballerina, false" ,listBindingPattern11(a4));
+    assertEquals("Matched with single var : 66.6", listBindingPattern11(a1));
+    assertEquals("Matched with two vars : Hello, 34", listBindingPattern11(a2));
+    assertEquals("Matched with four vars : 66.6, Test, 456, true", listBindingPattern11(a3));
+    assertEquals("Matched with three vars : 5.6, Ballerina, false", listBindingPattern11(a4));
 }
 
 function listBindingPattern12(any x) returns string {
@@ -268,12 +268,12 @@ function listBindingPattern12(any x) returns string {
 }
 
 function testListBindingPattern12() {
-    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a1 = ["Hello", 45];
-    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a2 = [4.5, true];
-    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a3 = [false, 4];
+    [string, int]|[float, boolean]|[boolean, int]|[int, boolean]|int|float a1 = ["Hello", 45];
+    [string, int]|[float, boolean]|[boolean, int]|[int, boolean]|int|float a2 = [4.5, true];
+    [string, int]|[float, boolean]|[boolean, int]|[int, boolean]|int|float a3 = [false, 4];
     [int, boolean] ib = [455, true];
-    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a4 = ib;
-    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | float a5 = 5.6;
+    [string, int]|[float, boolean]|[boolean, int]|[int, boolean]|int|float a4 = ib;
+    [string, int]|[float, boolean]|[boolean, int]|[int, boolean]|float a5 = 5.6;
 
     assertEquals("Matched with string : Hello added text with 45", listBindingPattern12(a1));
     assertEquals("Matched with float : 9.0 with true", listBindingPattern12(a2));
@@ -289,7 +289,7 @@ function listBindingPattern13(any x) returns string {
         }
         var [s, [i, f]] if s is float => {
             return "Matched with float : " + (s + 4.5).toString() + " with " + (checkpanic i).toString()
-                                                                                  + " and " + (checkpanic f).toString();
+                                                                                + " and " + (checkpanic f).toString();
         }
         var [[s, i], f] if i is int => {
             return "Matched with int : " + (checkpanic s).toString() + " with " + (i + 3456).toString()
@@ -303,21 +303,21 @@ function listBindingPattern13(any x) returns string {
 }
 
 function testListBindingPattern13() {
-        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float
+    [string, int, float]|[float, [boolean, int]]|[[boolean, int], float]|[int, boolean]|float
                                                                                         a1 = ["Hello", 45, 5.6];
-        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float
+    [string, int, float]|[float, [boolean, int]]|[[boolean, int], float]|[int, boolean]|float
                                                                                         a2 = [5.7, [true, 67]];
-        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float
+    [string, int, float]|[float, [boolean, int]]|[[boolean, int], float]|[int, boolean]|float
                                                                                         a3 = [[true, 67], 7.8];
-        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float
+    [string, int, float]|[float, [boolean, int]]|[[boolean, int], float]|[int, boolean]|float
                                                                                         a4 = [678, false];
-        [string, int, float] | [float, [boolean, int]] | [[boolean, int], float] | [int, boolean] | float a5 = 67.89;
+    [string, int, float]|[float, [boolean, int]]|[[boolean, int], float]|[int, boolean]|float a5 = 67.89;
 
-        assertEquals("Matched with string : Hello added text with 45" ,listBindingPattern13(a1));
-        assertEquals("Matched with float : 10.2 with true and 67" ,listBindingPattern13(a2));
-        assertEquals("Matched with int : true with 3523 and 7.8" ,listBindingPattern13(a3));
-        assertEquals("Matched with boolean : 678, false" ,listBindingPattern13(a4));
-        assertEquals("Default" ,listBindingPattern13(a5));
+    assertEquals("Matched with string : Hello added text with 45", listBindingPattern13(a1));
+    assertEquals("Matched with float : 10.2 with true and 67", listBindingPattern13(a2));
+    assertEquals("Matched with int : true with 3523 and 7.8", listBindingPattern13(a3));
+    assertEquals("Matched with boolean : 678, false", listBindingPattern13(a4));
+    assertEquals("Default", listBindingPattern13(a5));
 }
 
 type FooRec record {
@@ -360,31 +360,31 @@ function testListBindingPattern14() {
     FooRec fooRec1 = {s: "S", i: 23, f: 5.6};
     BarRec barRec1 = {b: 12, f: fooRec1};
 
-    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a1 = [fooRec1, barRec1];
-    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a2 = [fooRec1, 4.5];
-    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a3 = [barRec1, fooRec1];
-    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a4 = [barRec1, 543];
-    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a5 = [5.2, fooRec1];
-    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a6 = [15, barRec1];
-    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a7 = [65, 7.4];
-    [int|FooRec, float|BarRec] | [float|BarRec, int|FooRec] a8 = [3.6, 42];
+    [int|FooRec, float|BarRec]|[float|BarRec, int|FooRec] a1 = [fooRec1, barRec1];
+    [int|FooRec, float|BarRec]|[float|BarRec, int|FooRec] a2 = [fooRec1, 4.5];
+    [int|FooRec, float|BarRec]|[float|BarRec, int|FooRec] a3 = [barRec1, fooRec1];
+    [int|FooRec, float|BarRec]|[float|BarRec, int|FooRec] a4 = [barRec1, 543];
+    [int|FooRec, float|BarRec]|[float|BarRec, int|FooRec] a5 = [5.2, fooRec1];
+    [int|FooRec, float|BarRec]|[float|BarRec, int|FooRec] a6 = [15, barRec1];
+    [int|FooRec, float|BarRec]|[float|BarRec, int|FooRec] a7 = [65, 7.4];
+    [int|FooRec, float|BarRec]|[float|BarRec, int|FooRec] a8 = [3.6, 42];
 
     assertEquals("Matched with FooRec and BarRec : {\"s\":\"S\",\"i\":23,\"f\":5.6} , " +
                                 "{\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}}", listBindingPattern14(a1));
-    assertEquals("Matched with FooRec and float : {\"s\":\"S\",\"i\":23,\"f\":5.6} , 4.5" ,listBindingPattern14(a2));
+    assertEquals("Matched with FooRec and float : {\"s\":\"S\",\"i\":23,\"f\":5.6} , 4.5", listBindingPattern14(a2));
     assertEquals("Matched with BarRec and FooRec : {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}} , " +
-                                "{\"s\":\"S\",\"i\":23,\"f\":5.6}" ,listBindingPattern14(a3));
-    assertEquals("Matched with BarRec and int : {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}} , 543" ,
+                                "{\"s\":\"S\",\"i\":23,\"f\":5.6}", listBindingPattern14(a3));
+    assertEquals("Matched with BarRec and int : {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}} , 543",
                                 listBindingPattern14(a4));
-    assertEquals("Matched with float and FooRec : 5.2 , {\"s\":\"S\",\"i\":23,\"f\":5.6}" ,listBindingPattern14(a5));
-    assertEquals("Matched with int and BarRec : 15 , {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}}" ,
+    assertEquals("Matched with float and FooRec : 5.2 , {\"s\":\"S\",\"i\":23,\"f\":5.6}", listBindingPattern14(a5));
+    assertEquals("Matched with int and BarRec : 15 , {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,\"f\":5.6}}",
                                 listBindingPattern14(a6));
-    assertEquals("Default" ,listBindingPattern14(a7));
-    assertEquals("Default" ,listBindingPattern14(a8));
+    assertEquals("Default", listBindingPattern14(a7));
+    assertEquals("Default", listBindingPattern14(a8));
 }
 
 function listBindingPattern15() returns string {
-    [boolean, string] | [int, string, decimal] v = [1, "A", 1.1d];
+    [boolean, string]|[int, string, decimal] v = [1, "A", 1.1d];
     match v {
         var [i, ...s] => {
             return "i: " + i.toString() + " s: " + s.toString();
@@ -444,8 +444,8 @@ function listBindingPattern19(int[] v) returns int {
 }
 
 function testListBindingPattern19() {
-    assertEquals(3, listBindingPattern19([1,2]));
-    assertEquals(-1, listBindingPattern19([1,2,3]));
+    assertEquals(3, listBindingPattern19([1, 2]));
+    assertEquals(-1, listBindingPattern19([1, 2, 3]));
 }
 
 function listBindingPattern20(int[3] a) returns int {
@@ -501,34 +501,10 @@ function testListBindingPattern22() {
     assertEquals((), listBindingPattern22(1));
 }
 
-type IntInt [int, int];
-type IntString [int, string];
-type Expr IntString|IntInt;
-
-function listBindingPattern23(Expr v) returns anydata {
-    match v {
-        [1, 2] => {
-            IntInt d =  v;
-            return d;
-        }
-        [1, "s"] => {
-            IntString s = v;
-            return s;
-        }
-    }
-
-    return "No match";
-}
-
-function testListBindingPattern23() {
-    assertEquals([1, 2], listBindingPattern23([1, 2]));
-    assertEquals([1, "s"], listBindingPattern23([1, "s"]));
-}
-
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

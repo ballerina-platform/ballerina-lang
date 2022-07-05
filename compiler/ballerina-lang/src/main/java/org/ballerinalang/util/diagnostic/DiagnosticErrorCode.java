@@ -32,7 +32,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     UNDEFINED_MODULE("BCE2000", "undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("BCE2001", "cyclic.module.imports.detected"),
-    UNUSED_IMPORT_MODULE("BCE2002", "unused.import.module"),
+    UNUSED_MODULE_PREFIX("BCE2002", "unused.module.prefix"),
     MODULE_NOT_FOUND("BCE2003", "module.not.found"),
     REDECLARED_IMPORT_MODULE("BCE2004", "redeclared.import.module"),
     INVALID_MODULE_DECLARATION("BCE2005", "invalid.module.declaration"),
@@ -161,15 +161,25 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2118", "field.access.cannot.be.used.to.access.optional.fields"),
     UNDECLARED_FIELD_IN_RECORD("BCE2119", "undeclared.field.in.record"),
     INVALID_FIELD_ACCESS_IN_RECORD_TYPE("BCE2120", "invalid.field.access.in.record.type"),
-    UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.optional.fields.in.union.of.records"),
+    UNDECLARED_AND_NILABLE_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.nilable.fields.in.union.of.records"),
     UNDECLARED_FIELD_IN_UNION_OF_RECORDS("BCE2122", "undeclared.field.in.union.of.records"),
-    OPTIONAL_FIELD_IN_UNION_OF_RECORDS("BCE2123", "optional.field.in.union.of.records"),
+    NILABLE_FIELD_IN_UNION_OF_RECORDS("BCE2123", "nilable.field.in.union.of.records"),
     ALREADY_INITIALIZED_SYMBOL("BCE2124", "already.initialized.symbol"),
     ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
             "BCE2125", "array.length.greater.that.2147483637.not.yet.supported"),
     INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
     CANNOT_RESOLVE_CONST("BCE2127", "cannot.resolve.const"),
     ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
+    FLOAT_TOO_LARGE("BCE2129", "float.too.large"),
+    FLOAT_TOO_SMALL("BCE2130", "float.too.small"),
+    CONSTANT_CYCLIC_REFERENCE("BCE2131", "constant.cyclic.reference"),
+    INCOMPATIBLE_TYPES_LIST_SPREAD_OP("BCE2132", "incompatible.types.list.spread.op"),
+    INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED("BCE2133", "invalid.spread.operator.fixed.length.list.expected"),
+    INVALID_SPREAD_OP_FIXED_MEMBER_EXPECTED("BCE2134", "invalid.spread.operator.fixed.member.expected"),
+    CANNOT_INFER_TYPE_FROM_SPREAD_OP("BCE2135", "cannot.infer.type.from.spread.op"),
+    TUPLE_AND_EXPRESSION_SIZE_DOES_NOT_MATCH("BCE2136", "tuple.and.expression.size.does.not.match"),
+    CANNOT_SPECIFY_NAMED_ARG_FOR_FIELD_OF_INCLUDED_RECORD_WHEN_ARG_SPECIFIED_FOR_INCLUDED_RECORD("BCE2137",
+            "cannot.specify.named.argument.for.field.of.included.record.when.arg.specified.for.included.record"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -203,6 +213,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH("BCE2323", "max.one.commit.rollback.allowed.within.branch"),
     COMMIT_NOT_ALLOWED("BCE2324", "commit.not.allowed"),
     ROLLBACK_NOT_ALLOWED("BCE2325", "rollback.not.allowed"),
+    INCOMPATIBLE_TYPE_IN_SELECT_CLAUSE("BCE2326", "incompatible.type.in.select.clause"),
 
     // Service, endpoint related errors codes
     SERVICE_INVALID_OBJECT_TYPE("BCE2400", "service.invalid.object.type"),
@@ -296,7 +307,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("BCE2551", "cannot.update.readonly.value.of.type"),
     CANNOT_UPDATE_READONLY_RECORD_FIELD("BCE2552", "cannot.update.readonly.record.field"),
     CANNOT_UPDATE_FINAL_OBJECT_FIELD("BCE2553", "cannot.update.final.object.field"),
-    UNDERSCORE_NOT_ALLOWED("BCE2554", "underscore.not.allowed"),
+    UNSUPPORTED_MULTILEVEL_CLOSURES("BCE2554", "unsupported.multilevel.closures"),
+
     OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2555", "operation.does.not.support.member.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2556", "operation.does.not.support.field.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT(
@@ -319,7 +331,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     USAGE_OF_UNINITIALIZED_VARIABLE("BCE2570", "usage.of.uninitialized.variable"),
     UNINITIALIZED_VARIABLE("BCE2571", "uninitialized.variable"),
     CONTAINS_UNINITIALIZED_FIELDS("BCE2572", "uninitialized.object.fields"),
-    CONTAINS_UNINITIALIZED_VARIABLES("BCE2573", "uninitialized.variables"),
+    INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES("BCE2573",
+                                                       "invalid.function.call.with.uninitialized.variables"),
     INVALID_ANY_VAR_DEF("BCE2574", "invalid.any.var.def"),
     INVALID_RECORD_LITERAL("BCE2575", "invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("BCE2576", "invalid.field.in.record.binding.pattern"),
@@ -342,7 +355,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CLOSED_ARRAY_TYPE_NOT_INITIALIZED("BCE2592", "closed.array.type.not.initialized"),
     INVALID_LIST_MEMBER_ACCESS_EXPR("BCE2593", "invalid.list.member.access.expr"),
     INVALID_ARRAY_MEMBER_ACCESS_EXPR("BCE2594", "invalid.array.member.access.expr"),
-    CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("BCE2595", "closed.array.type.can.not.infer.size"),
+    CANNOT_INFER_SIZE_ARRAY_SIZE_FROM_THE_CONTEXT("BCE2595",
+            "length.of.the.array.cannot.be.inferred.from.the.context"),
     INVALID_SORT_FUNC_RETURN_TYPE("BCE2596", "invalid.key.func.return.type"),
     INVALID_SORT_ARRAY_MEMBER_TYPE("BCE2597", "invalid.sort.array.member.type"),
     // TODO Maryam remove list array tuple and use first only
@@ -381,8 +395,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_FIND_XML_NAMESPACE("BCE2627", "cannot.find.xml.namespace.prefix"),
     UNSUPPORTED_METHOD_INVOCATION_XML_NAV("BCE2628", "method.invocation.in.xml.navigation.expressions.not.supported"),
     DEPRECATED_XML_ATTRIBUTE_ACCESS("BCE2629", "deprecated.xml.attribute.access.expression"),
-    UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION("BCE2630", "member.access.within.xml.navigation.expression.not" +
-            ".supported"),
+    UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION("BCE2630",
+                                                "member.access.within.xml.navigation.expression.not.supported"),
 
     UNDEFINED_ANNOTATION("BCE2631", "undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("BCE2632", "annotation.not.allowed"),
@@ -401,15 +415,18 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OPERATOR_NOT_SUPPORTED("BCE2642", "operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("BCE2643", "operator.not.allowed.variable"),
     NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS("BCE2644",
-            "never.type.not.allowed.for.required.and.defaultable.params"),
+                                               "never.type.not.allowed.for.required.and.defaultable.params"),
     INVALID_CLIENT_REMOTE_METHOD_CALL("BCE2645", "invalid.client.remote.method.call"),
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
     NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
 
     CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
-            "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
+          "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
+    INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
+            "invalid.field.binding.pattern.with.non.required.field"),
+    INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -447,8 +464,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SAFE_NAVIGATION_NOT_REQUIRED("BCE3000", "safe.navigation.not.required"),
     OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS("BCE3001", "optional.field.access.not.required.on.lhs"),
 
-    // Checked expression related errors
-    CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE3030", "checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3032", "checked.expr.no.matching.error.return.in.encl.invokable"),
 
@@ -483,13 +498,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MISSING_REQUIRED_METHOD_NEXT("BCE3206", "missing.required.method.next"),
     ORDER_BY_NOT_SUPPORTED("BCE3207", "order.by.not.supported"),
     INVALID_NEXT_METHOD_RETURN_TYPE("BCE3208", "invalid.next.method.return.type"),
+    INVALID_UNBOUNDED_STREAM_CONSTRUCTOR_ITERATOR("BCE3209", "invalid.unbounded.stream.constructor.iterator"),
 
     // Table related codes
     TABLE_CONSTRAINT_INVALID_SUBTYPE("BCE3300", "invalid.table.constraint.subtype"),
     TABLE_KEY_SPECIFIER_MISMATCH("BCE3301", "table.key.specifier.mismatch"),
     KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("BCE3302", "key.specifier.size.mismatch.with.key.constraint"),
     KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("BCE3303", "key.specifier.mismatch.with.key.constraint"),
-    INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS("BCE3304", "invalid.key.constraint.provided.for.access"),
     MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE("BCE3305", "member.access.not.supported.keyless.table"),
     INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("BCE3306", "invalid.field.name.in.key.specifier"),
     MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("BCE3307", "multi.key.member.access.not.supported"),
@@ -501,10 +516,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3312", "key.constraint.not.supported.for.table.with.map.constraint"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY("BCE3313", "cannot.infer.member.type.for.table.due.ambiguity"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE("BCE3314", "cannot.infer.member.type.for.table"),
-    ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER(
-            "BCE3315", "on.conflict.only.works.with.tables.with.key.specifier"),
+    ON_CONFLICT_ONLY_WORKS_WITH_MAPS_OR_TABLES_WITH_KEY_SPECIFIER(
+            "BCE3315", "on.conflict.only.works.with.map.or.tables.with.key.specifier"),
     CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS("BCE3316", "cannot.update.table.using.member.access.lvexpr"),
     KEY_SPECIFIER_EMPTY_FOR_PROVIDED_KEY_CONSTRAINT("BCE3317", "key.specifier.empty.with.key.constraint"),
+    KEY_SPECIFIER_NOT_ALLOWED_FOR_TARGET_ANY("BCE3318", "key.specifier.not.allowed.for.target.any"),
 
 
     // Taint checking related codes
@@ -559,6 +575,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_TYPE_REFERENCE("BCE3712", "invalid.error.type.reference"),
     INVALID_REST_DETAIL_ARG("BCE3713",
             "invalid.error.constructor.rest.detail.arg.on.detail.type.with.individual.fields"),
+    CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD("BCE3714", "cannot.bind.undefined.error.detail.field"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("BCE3800", "incompatible.stamp.type"),
@@ -597,9 +614,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OVERLOADED_METHODS("BCE3915", "overloaded.method"),
     UNSUPPORTED_PRIMITIVE_TYPE("BCE3916", "unsupported.primitive.type.reason"),
     METHOD_SIGNATURE_DOES_NOT_MATCH("BCE3917", "method.signature.not.match"),
-    INVALID_DEPRECATION_DOCUMENTATION("BCE3918", "invalid.deprecation.documentation"),
-    DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("BCE3919", "deprecation.documentation.should.available"),
-    DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("BCE3920", "deprecated.parameters.documentation.not.allowed"),
     INVALID_ATTRIBUTE_REFERENCE("BCE3921", "invalid.attribute.reference"),
 
     ILLEGAL_FUNCTION_CHANGE_LIST_SIZE("BCE3922", "illegal.function.change.list.size"),
@@ -648,9 +662,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT(
             "BCE3952", "invalid.non.isolated.init.expression.as.object.default"),
 
-    INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("BCE3953", "invalid.async.invocation.in.isolated.function"),
-    INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("BCE3954", "invalid.worker.declaration.in.isolated.function"),
-    INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION("BCE3955", "invalid.fork.statement.in.isolated.function"),
+    INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION("BCE3953", "invalid.strand.annotation.in.isolated.function"),
+    INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION("BCE3954",
+            "invalid.async.invocation.of.non.isolated.function.in.isolated.function"),
+    INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGS_OF_ASYNC_INV_OF_ISOLATED_FUNC("BCE3955",
+            "invalid.access.of.non.isolated.expression.in.argument.of.async.invocation.of.isolated.function"),
 
     INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT(
             "BCE3956", "invalid.non.private.mutable.field.in.isolated.object"),
@@ -752,7 +768,16 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP("BCE4017", "invalid.assignment.to.narrowed.var.in.loop"),
 
     INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD("BCE4018", "invalid.non.isolated.call.in.match.guard"),
-    INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard")
+    INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard"),
+    ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE4020", "error.constructor.compatible.type.not.found"),
+    SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs"),
+    INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION("BCE4023", "invalid.assignment.to.narrowed.var.in.query.action"),
+    COMPOUND_ASSIGNMENT_NOT_ALLOWED_WITH_NULLABLE_OPERANDS("BCE4024",
+            "compound.assignment.not.allowed.with.nullable.operands"),
+
+    INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK_IN_RECORD_DEFAULT(
+            "BCE4025", "invalid.isolated.variable.access.outside.lock.in.record.default"),
+    BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION("BCE4026", "binary.op.incompatible.types.int.float.division")
     ;
 
     private String diagnosticId;

@@ -17,12 +17,9 @@
 */
 package org.ballerinalang.test.bala.functions;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -39,300 +36,328 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 public class FunctionSignatureInBalaTest {
 
-    private CompileResult result;
+    private CompileResult compileResult;
     private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        result = BCompileUtil.compile("test-src/bala/test_bala/functions/test_different_function_signatures.bal");
+        compileResult =
+                BCompileUtil.compile("test-src/bala/test_bala/functions/test_different_function_signatures.bal");
         resultNegative = BCompileUtil
                 .compile("test-src/bala/test_bala/functions/test_different_function_signatures_negative.bal");
     }
 
     @Test
     public void testInvokeFunctionInOrder1() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFunctionInOrder1");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionInOrder1");
+        BArray returns = (BArray) result;
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 20.0);
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 20.0);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "Alex");
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 30);
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 30L);
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Bob");
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Bob");
     }
 
     @Test
     public void testInvokeFunctionInOrder2() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFunctionInOrder2");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionInOrder2");
+        BArray returns = (BArray) result;
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 20.0);
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 20.0);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "Alex");
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 30);
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 30L);
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Bob");
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Bob");
     }
 
     @Test
     public void testInvokeFunctionWithoutRestArgs() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFunctionWithoutRestArgs");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionWithoutRestArgs");
+        BArray returns = (BArray) result;
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 20.0);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 20.0);
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 30);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "Alex");
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Bob");
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 30L);
 
-        Assert.assertTrue(returns[5] instanceof BValueArray);
-        Assert.assertEquals(returns[5].stringValue(), "[]");
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Bob");
+
+        Assert.assertTrue(returns.get(5) instanceof BArray);
+        Assert.assertEquals(returns.get(5).toString(), "[]");
     }
 
     @Test
     public void testInvokeFunctionWithoutSomeNamedArgs() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFunctionWithoutSomeNamedArgs");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionWithoutSomeNamedArgs");
+        BArray returns = (BArray) result;
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 20.0);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 20.0);
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 5);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "Alex");
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Doe");
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 5L);
 
-        Assert.assertTrue(returns[5] instanceof BValueArray);
-        Assert.assertEquals(returns[5].stringValue(), "[]");
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Doe");
+
+        Assert.assertTrue(returns.get(5) instanceof  BArray);
+        Assert.assertEquals(returns.get(5).toString(), "[]");
     }
 
     @Test
     public void testInvokeFunctionWithRequiredArgsOnly() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFunctionWithRequiredArgsOnly");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionWithRequiredArgsOnly");
+        BArray returns = (BArray) result;
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 20.0);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "John");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 20.0);
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 5);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "John");
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Doe");
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 5L);
 
-        Assert.assertTrue(returns[5] instanceof BValueArray);
-        Assert.assertEquals(returns[5].stringValue(), "[]");
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Doe");
+
+        Assert.assertTrue(returns.get(5) instanceof  BArray);
+        Assert.assertEquals(returns.get(5).toString(), "[]");
     }
 
     @Test
     public void testInvokeFunctionWithAnyFunctionTypeParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnyFunction");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(returns[1] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Object result = BRunUtil.invoke(compileResult, "testAnyFunction");
+        BArray returns = (BArray) result;
+
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test
     public void testInvokeFuncWithoutRestParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithoutRestParams");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithoutRestParams");
+        BArray returns = (BArray) result;
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 20.0);
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 20.0);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "John");
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "John");
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 30);
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 30L);
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Bob");
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Bob");
     }
 
     @Test
     public void testInvokeFuncWithOnlyNamedParams1() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyNamedParams1");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams1");
+        BArray returns = (BArray) result;
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 20.0);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 20.0);
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 30);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "Alex");
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Bob");
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 30L);
+
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Bob");
     }
 
     @Test
     public void testInvokeFuncWithOnlyNamedParams2() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyNamedParams2");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams2");
+        BArray returns = (BArray) result;
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.0);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 5L);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 6.0);
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 30);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "Alex");
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Bob");
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 30L);
+
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Bob");
     }
 
     @Test
     public void testInvokeFuncWithOnlyNamedParams3() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyNamedParams3");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams3");
+        BArray returns = (BArray) result;
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.0);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 5L);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "John");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 6.0);
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 7);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "John");
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Doe");
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 7L);
+
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Doe");
     }
 
     @Test
     public void testInvokeFuncWithOnlyRestParam1() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyRestParam1");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[]");
+        Object returns = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam1");
+        Assert.assertTrue(returns instanceof  BArray);
+        Assert.assertEquals(returns.toString(), "[]");
     }
 
     @Test
     public void testInvokeFuncWithOnlyRestParam2() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyRestParam2");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[10, 20, 30]");
+        Object returns = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam2");
+        Assert.assertTrue(returns instanceof  BArray);
+        Assert.assertEquals(returns.toString(), "[10,20,30]");
     }
 
     @Test
     public void testInvokeFuncWithOnlyRestParam3() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyRestParam3");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[10, 20, 30]");
+        Object returns = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam3");
+        Assert.assertTrue(returns instanceof  BArray);
+        Assert.assertEquals(returns.toString(), "[10,20,30]");
     }
 
     @Test
     public void testInvokeFuncWithAnyRestParam1() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithAnyRestParam1");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[10, 20, 30]");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithAnyRestParam1");
+        BArray returns = (BArray) result;
+
+        Assert.assertTrue(returns.get(0) instanceof  BArray);
+        Assert.assertEquals(returns.get(0).toString(), "[10,20,30]");
+        Assert.assertTrue(returns.get(1) instanceof BMap);
+        Assert.assertEquals(returns.get(1).toString(), "{\"name\":\"John\"}");
     }
 
     @Test
     public void funcInvocAsRestArgs() {
-        BValue[] returns = BRunUtil.invoke(result, "funcInvocAsRestArgs");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(compileResult, "funcInvocAsRestArgs");
+        BArray returns = (BArray) result;
 
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 20.0);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 20.0);
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 30);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "Alex");
 
-        Assert.assertTrue(returns[4] instanceof BString);
-        Assert.assertEquals(returns[4].stringValue(), "Bob");
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 30L);
+
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertEquals(returns.get(4).toString(), "Bob");
     }
 
     @Test
     public void testFuncWithUnionTypedDefaultParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testFuncWithUnionTypedDefaultParam");
-        Assert.assertEquals(returns[0].stringValue(), "John");
+        Object returns = BRunUtil.invoke(compileResult, "testFuncWithUnionTypedDefaultParam");
+        Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test
     public void testFuncWithNilDefaultParamExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testFuncWithNilDefaultParamExpr");
-        Assert.assertNull(returns[0]);
-        Assert.assertNull(returns[1]);
+        Object result = BRunUtil.invoke(compileResult, "testFuncWithNilDefaultParamExpr");
+        BArray returns = (BArray) result;
+        Assert.assertNull(returns.get(0));
+        Assert.assertNull(returns.get(1));
     }
 
     @Test
     public void testAttachedFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "testAttachedFunction");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 110);
+        Object result = BRunUtil.invoke(compileResult, "testAttachedFunction");
+        BArray returns = (BArray) result;
+        Assert.assertEquals(returns.get(0), 100L);
+        Assert.assertEquals(returns.get(1), 110L);
     }
 
     @Test(description = "Test object function with defaultableParam")
     public void defaultValueForObjectFunctionParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamInnerFunc");
+        Object result = BRunUtil.invoke(compileResult, "testDefaultableParamInnerFunc");
+        BArray returns = (BArray) result;
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
-        Assert.assertEquals(returns[1].stringValue(), "hello world");
+        Assert.assertEquals(returns.get(0), 60L);
+        Assert.assertEquals(returns.get(1).toString(), "hello world");
     }
 
     @Test(description = "Test object outer function with defaultable param")
     public void defaultValueForObjectOuterFunctionParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamOuterFunc");
+        Object result = BRunUtil.invoke(compileResult, "testDefaultableParamOuterFunc");
+        BArray returns = (BArray) result;
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
-        Assert.assertEquals(returns[1].stringValue(), "hello world");
+        Assert.assertEquals(returns.get(0), 50L);
+        Assert.assertEquals(returns.get(1).toString(), "hello world");
     }
 
     @Test
     public void testInvocationWithArgVarargMix() {
-        BRunUtil.invoke(result, "testInvocationWithArgVarargMix");
+        BRunUtil.invoke(compileResult, "testInvocationWithArgVarargMix");
     }
 
     @Test

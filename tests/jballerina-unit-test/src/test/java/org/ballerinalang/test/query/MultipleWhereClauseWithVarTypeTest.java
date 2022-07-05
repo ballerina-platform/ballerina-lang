@@ -18,8 +18,9 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -44,35 +45,33 @@ public class MultipleWhereClauseWithVarTypeTest {
 
     @Test(description = "Test multiple select clauses - simple variable definition statement ")
     public void testMultipleWhereClausesWithSimpleVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleWhereClausesWithSimpleVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleWhereClausesWithSimpleVariable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+        Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
+        BMap<String, Object> person2 = (BMap<String, Object>) returnValues.get(1);
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person1.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person1.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person2.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person2.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person2.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person2.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person2.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
     }
 
     @Test(description = "Test multiple where clauses - record variable definition statement")
     public void testMultipleWhereClausesWithRecordVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleWhereClausesWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleWhereClausesWithRecordVariable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person1.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person1.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
     }
 
     @AfterClass

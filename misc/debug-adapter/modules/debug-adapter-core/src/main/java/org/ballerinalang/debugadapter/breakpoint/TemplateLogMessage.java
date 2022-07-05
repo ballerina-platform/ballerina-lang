@@ -31,11 +31,13 @@ import java.util.regex.Pattern;
  */
 public class TemplateLogMessage extends LogMessage {
 
+    private final String rawLogMessage;
     private List<String> expressions;
     private List<String> interpolationResults;
 
     TemplateLogMessage(String message) {
         super(message);
+        this.rawLogMessage = message;
         extractInterpolations();
     }
 
@@ -57,7 +59,7 @@ public class TemplateLogMessage extends LogMessage {
     public void resolveInterpolations(List<String> evaluationResults) {
         this.interpolationResults = evaluationResults;
         Pattern pattern = Pattern.compile(INTERPOLATION_REGEX);
-        Matcher matcher = pattern.matcher(message);
+        Matcher matcher = pattern.matcher(rawLogMessage);
         AtomicInteger index = new AtomicInteger();
         this.message = matcher.replaceAll(matchResult -> evaluationResults.get(index.getAndIncrement()));
     }
@@ -67,7 +69,7 @@ public class TemplateLogMessage extends LogMessage {
      */
     private void extractInterpolations() {
         List<String> expressions = new ArrayList<>();
-        Matcher matcher = Pattern.compile(INTERPOLATION_REGEX).matcher(message);
+        Matcher matcher = Pattern.compile(INTERPOLATION_REGEX).matcher(rawLogMessage);
         while (matcher.find()) {
             String expression = matcher.group();
             // Removes '${' and '}' characters from the expression.

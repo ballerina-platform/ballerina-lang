@@ -73,3 +73,16 @@ enum E1 {
 public enum NodeType {
     A =
 }
+
+public enum CyclicRef1 {
+    CYCLIC1 = CYCLIC2,
+    CYCLIC2 = CYCLIC1
+}
+
+const string D = E;
+const string E = D;
+
+public enum CyclicRef2 {
+    D,
+    E
+}

@@ -17,6 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -26,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -33,9 +36,11 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 
@@ -54,11 +59,11 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private List<TypeSymbol> originalMemberTypes;
     private String signature;
 
-    public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BUnionType unionType) {
+    public BallerinaUnionTypeSymbol(CompilerContext context, BUnionType unionType) {
         super(context, TypeDescKind.UNION, unionType);
     }
 
-    public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BFiniteType finiteType) {
+    public BallerinaUnionTypeSymbol(CompilerContext context, BFiniteType finiteType) {
         super(context, TypeDescKind.UNION, finiteType);
     }
 
@@ -71,8 +76,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 TypesFactory typesFactory = TypesFactory.getInstance(this.context);
 
                 for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
-                    if (typesFactory.isTypeReference(memberType, memberType.tsymbol, false)
-                            || memberType.getKind() != TypeKind.FINITE) {
+                    if (memberType.tag == TypeTags.TYPEREFDESC || memberType.getKind() != TypeKind.FINITE) {
                         members.add(typesFactory.getTypeDescriptor(memberType));
                         continue;
                     }
@@ -80,13 +84,17 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                     BFiniteType finiteType = (BFiniteType) memberType;
                     for (BLangExpression value : finiteType.getValueSpace()) {
                         ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
-                        members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                        BFiniteType bFiniteType = new BFiniteType(value.getBType().tsymbol, Set.of(value));
+                        members.add(new BallerinaSingletonTypeSymbol(this.context, (BLangLiteral) value,
+                                                                     bFiniteType));
                     }
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
                     ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                    BFiniteType bFiniteType = new BFiniteType(value.getBType().tsymbol, Set.of(value));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, (BLangLiteral) value,
+                                                                 bFiniteType));
                 }
             }
 
@@ -110,7 +118,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
                     ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, (BLangLiteral) value,
+                                                                 value.getBType()));
                 }
             }
 
@@ -138,6 +147,16 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         return this.signature;
     }
 
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     private String getSignatureForUnion(BType type) {
         BUnionType unionType = (BUnionType) type;
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
@@ -162,6 +181,12 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             StringJoiner joiner = new StringJoiner("|");
             unionType.resolvingToString = true;
             for (TypeSymbol typeDescriptor : memberTypes) {
+                // If the member is a function and not the last element, add surrounding parenthesis
+                if (typeDescriptor.typeKind() == FUNCTION &&
+                        !memberTypes.get(memberTypes.size() - 1).equals(typeDescriptor)) {
+                    joiner.add("(" + typeDescriptor.signature() + ")");
+                    continue;
+                }
                 joiner.add(getSignatureForIntersectionType(typeDescriptor));
             }
             unionType.resolvingToString = false;

@@ -124,7 +124,7 @@ public class CliUtil {
     private static DecimalValue getDecimalValue(String argument, String parameterName) {
         try {
             return new DecimalValue(argument);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | BError e) {
             throw ErrorCreator.createError(
                     StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "decimal")));
         }

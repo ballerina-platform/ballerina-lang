@@ -18,7 +18,8 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.Location;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.identifier.Utils.decodeIdentifier;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TEST_PKG_POSTFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQModuleNameParts;
 
 /**
@@ -67,6 +68,11 @@ public class DebugSourceLocation {
 
             orgName = moduleParts[0];
             moduleName = decodeIdentifier(moduleParts[1]);
+            // need to remove the auto generated "$test" prefix from the package name when converting back class names
+            // into source paths.
+            if (moduleName.endsWith(TEST_PKG_POSTFIX) || (moduleName.contains(TEST_PKG_POSTFIX + "."))) {
+                moduleName = moduleName.replace(TEST_PKG_POSTFIX, "");
+            }
             moduleVersion = moduleParts[2];
             fileName = moduleParts[3];
 

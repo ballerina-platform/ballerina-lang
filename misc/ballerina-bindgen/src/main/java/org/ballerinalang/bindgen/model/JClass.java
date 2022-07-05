@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -145,11 +146,7 @@ public class JClass {
     }
 
     private void populateMethods(Class c) {
-        List<JMethod> tempList = new ArrayList<>();
-        for (Method method : getMethodsAsList(c)) {
-            tempList.add(new JMethod(method, env, prefix, currentClass, 0));
-        }
-        tempList.sort(Comparator.comparing(JMethod::getParamTypes));
+        List<JMethod> tempList = sortInheritedMethods(getMethodsAsList(c), new ArrayList<>(), c);
         for (JMethod method : tempList) {
             setMethodCount(method.getJavaMethodName());
             JMethod jMethod = new JMethod(method.getMethod(), env, prefix, currentClass,
@@ -163,6 +160,35 @@ public class JClass {
             methodList.add(jMethod);
         }
         methodList.sort(Comparator.comparing(JMethod::getMethodName));
+    }
+
+    private List<JMethod> sortInheritedMethods(List<Method> methods, List<JMethod> sortedMethods,
+                                               Class declaringClass) {
+        if (declaringClass == null) {
+            return sortedMethods;
+        }
+        List<Method> superClassMethods = getSuperClassMethods(declaringClass.getSuperclass(), new ArrayList<>());
+        List<JMethod> tempList = new ArrayList<>();
+        List<Method> tempMethodList = new ArrayList<>(methods);
+        for (Method method : tempMethodList) {
+            boolean isInherited = superClassMethods.stream().anyMatch(m-> method.getName().equals(m.getName())
+                    && Arrays.equals(method.getParameterTypes(), m.getParameterTypes()));
+            if (!isInherited) {
+                tempList.add(new JMethod(method, env, prefix, currentClass, 0));
+                methods.remove(method);
+            }
+        }
+        tempList.sort(Comparator.comparing(JMethod::getParamTypes));
+        sortedMethods.addAll(0, tempList);
+        return sortInheritedMethods(methods, sortedMethods, declaringClass.getSuperclass());
+    }
+
+    private List<Method> getSuperClassMethods(Class superClass, List<Method> methods) {
+        if (superClass == null) {
+            return methods;
+        }
+        methods.addAll(getMethodsAsList(superClass));
+        return getSuperClassMethods(superClass.getSuperclass(), methods);
     }
 
     private void populateFields(Field[] fields) {

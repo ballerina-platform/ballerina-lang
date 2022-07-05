@@ -1,14 +1,14 @@
-import ballerina/io;
-import ballerina/http;
+import ballerina/iox;
+import ballerina/httpx;
 import ballerina/log;
 import ballerina/test;
 
 // ** Service **
-service http:Service /foo on new http:Listener(9090) {
+service httpx:Service /foo on new httpx:Listener(9090) {
     // The `resource path` identifier associates the relative path to the service object's path. E.g., `bar`.
-    resource function post bar(http:Caller caller, http:Request req) {
+    resource function post bar(httpx:Caller caller, httpx:Request req) {
         var payload = req.getJsonPayload();
-        http:Response res = new;
+        httpx:Response res = new;
         if (payload is json) {
             res.setJsonPayload(<@untainted>payload);
         } else {
@@ -17,7 +17,7 @@ service http:Service /foo on new http:Listener(9090) {
         }
         var result = caller->respond(res);
         if (result is error) {
-            log:printError("Error in responding", err = result);
+            logx:printError("Error in responding", err = result);
         }
     }
 }
@@ -65,32 +65,32 @@ public function main() {
     string[] s = ["A", "B"];
 
     // 2. Same module level variable reference in the same file (declaration before the reference)
-    io:print(s.toString());
+    iox:print(s.toString());
 
     // 3. Same module level variable reference in the same file (declaration after the reference)
     if flag {
-        io:println(1);
+        iox:println(1);
     } else {
-        io:println(2);
+        iox:println(2);
     }
 
     // ** Enum **
     // 1. Same module level enum reference in the same file (declaration before the reference)
-    io:print(YELLOW);
+    iox:print(YELLOW);
 
     // 2. Same module level enum reference in the same file (declaration after the reference)
-    io:print(DOG);
+    iox:print(DOG);
 
     // ** Class **
     // 1. Same module level class reference in the same file (declaration before the reference)
     File file = check new File("test.txt", "Hello World");
-    io:println(file.contents);
+    iox:println(file.contents);
 
     // 2. Same module level class reference in the same file (declaration after the reference)
     MyClass x = new MyClass(1234);
     x.func();
     int n = x.n;
-    io:println(n);
+    iox:println(n);
 
     // ** Record **
     // 1. Define record
@@ -99,7 +99,7 @@ public function main() {
         y: 2
     };
     int a = recordObj.y;
-    io:println(a);
+    iox:println(a);
 
     // 2. Same module level record reference in the same file (declaration before the reference)
     Person[] persons = [
@@ -108,10 +108,10 @@ public function main() {
     ];
     var names1 = from var {first: f, last: l} in persons
         select {first: f, last: l};
-    io:println(names1);
+    iox:println(names1);
     var names2 = from var {first, last} in persons
         select {first, last};
-    io:println(names2);
+    iox:println(names2);
 
     // 3. Same module level record reference in the same file (declaration after the reference)
     final readonly & UniformTypeOps[] ops;
@@ -155,7 +155,7 @@ public function main() {
 
     // ** Function **
     // 1. Same module level function reference in the same file (declaration before the reference)
-    io:print(add(10, 20));
+    iox:print(add(10, 20));
 
     // 2. Same module level function reference in the same file (declaration after the reference)
     printLines(s);
@@ -165,12 +165,12 @@ public function main() {
     int p = st.length();
     int m = string:length(st);
 
-    io:println([10, 20, 30] is int[]);
+    iox:println([10, 20, 30] is int[]);
 }
 
 function printLines(string[] sv) {
     foreach var s in sv {
-        io:println(s);
+        iox:println(s);
     }
 }
 

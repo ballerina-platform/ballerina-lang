@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,21 +18,21 @@
       "label": "a",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "a",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "CONST1",
       "kind": "Variable",
-      "detail": "Test",
+      "detail": "\"Test\"",
       "documentation": {
         "right": {
           "kind": "markdown",
           "value": ""
         }
       },
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -40,7 +40,7 @@
       "label": "param2",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "param2",
       "insertTextFormat": "Snippet"
     },
@@ -48,7 +48,7 @@
       "label": "param1",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "param1",
       "insertTextFormat": "Snippet"
     },
@@ -56,8 +56,17 @@
       "label": "b",
       "kind": "Variable",
       "detail": "map<any>",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...b",
+      "kind": "Variable",
+      "detail": "map<any>",
+      "sortText": "AB",
+      "filterText": "b",
+      "insertText": "...b",
       "insertTextFormat": "Snippet"
     }
   ]

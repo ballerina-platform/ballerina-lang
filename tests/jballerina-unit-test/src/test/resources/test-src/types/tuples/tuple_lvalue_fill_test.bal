@@ -67,6 +67,49 @@ function testRecordsWithoutFillerValues2() {
     arr[2][1] = {name: "Pubudu"};
 }
 
+type Foo record {
+    int id;
+};
+
+type Bar record {
+    string name;
+};
+
+function myfunc1() returns Foo|[Foo[], Bar] {
+    Foo[] arr = [];
+    arr.push({id: 34});
+    Bar bar = {name: "ABC"};
+    return [arr, bar];
+}
+
+public function testTupleInUnionTypes() {
+    Foo|[Foo[], Bar] f = myfunc1();
+    if (f is [Foo[], Bar]) {
+        Foo[] x = f[0];
+        Foo y = x[0];
+        assert(y.id, 34);
+    } else {
+        panic error("f is not a tuple");
+    }
+}
+
+function myfunc2() returns [Foo[], Bar]? {
+    Foo[] arr = [];
+    arr.push({id: 34});
+    Bar bar = {name: "XYZ"};
+    return [arr, bar];
+}
+
+public function testNillableTupleType() {
+    [Foo[], Bar]? f = myfunc2();
+    if (f is [Foo[], Bar]) {
+        Foo[] x = f[0];
+        Foo y = x[0];
+        assert(y.id, 34);
+    } else {
+        panic error("f is not a tuple");
+    }
+}
 
 // Util functions
 

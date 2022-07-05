@@ -1,0 +1,293 @@
+[
+  {
+    "description": "Add isolated qualifier for a resource definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tisolated resource function get hello(string name){} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove isolated qualifier for a resource definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tisolated resource function get hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add transactional qualifier for a resource definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\ttransactional resource function get hello(string name){} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove transactional qualifier for a resource definition.\n",
+    "oldCode": "service /demo on new http:Listener(8080){\n\ttransactional resource function get hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add more than 1 qualifier for a resource definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tisolated transactional resource function get hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove more than 1 qualifier for a resource definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tisolated transactional resource function get hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify qualifier for a resource definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tisolated resource function get hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\ttransactional resource function get hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

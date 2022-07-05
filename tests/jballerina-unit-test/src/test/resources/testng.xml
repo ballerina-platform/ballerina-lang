@@ -88,9 +88,6 @@
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.runtime.api.*"/>
 
-            <!--https://github.com/ballerina-platform/ballerina-lang/issues/30443-->
-            <!--org.ballerinalang.test.serializer.json-->
-
             <package name="org.ballerinalang.test.services.*"/>
 
             <package name="org.ballerinalang.test.statements.arrays.*"/>
@@ -112,6 +109,7 @@
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.variabledef.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
+            <package name="org.ballerinalang.test.statements.checkingstatement.*"/>
 
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
@@ -145,6 +143,7 @@
             <package name="org.ballerinalang.test.types.table.*"/>
             <package name="org.ballerinalang.test.types.tuples.*"/>
             <package name="org.ballerinalang.test.types.typedesc.*"/>
+            <package name="org.ballerinalang.test.types.typereftype.*"/>
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.xml.*" />
@@ -152,6 +151,7 @@
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
+            <package name="org.ballerinalang.test.visibility"/>
         </packages>
 
         <classes>

@@ -127,8 +127,8 @@ public class MappingBindingPatternTest {
     }
 
     @Test
-    public void testTypeNarrowingInMatchStmt() {
-        BRunUtil.invoke(result, "testTypeNarrowingInMatchStmt");
+    public void testMappingBindingToRecordWithDefaultValue() {
+        BRunUtil.invoke(result, "testMappingBindingToRecordWithDefaultValue");
     }
 
     @Test

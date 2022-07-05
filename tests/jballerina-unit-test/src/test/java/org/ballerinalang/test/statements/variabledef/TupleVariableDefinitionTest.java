@@ -18,13 +18,8 @@
  */
 package org.ballerinalang.test.statements.variabledef;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -53,322 +48,350 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple basic variable definition")
     public void testBasic() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasic");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "Fooo");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 6.7);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasic");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "Fooo");
+        Assert.assertEquals(returns.get(1), 4L);
+        Assert.assertEquals(returns.get(2), 6.7);
     }
 
     @Test(description = "Test tuple basic recursive definition")
     public void testBasicRecursive1() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicRecursive1");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "Fooo");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 6.7);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicRecursive1");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "Fooo");
+        Assert.assertEquals(returns.get(1), 4L);
+        Assert.assertEquals(returns.get(2), 6.7);
     }
 
     @Test(description = "Test tuple basic recursive definition")
     public void testBasicRecursive2() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicRecursive2");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(returns[0].stringValue(), "Fooo");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 34);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 6.7);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicRecursive2");
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertEquals(returns.get(0).toString(), "Fooo");
+        Assert.assertEquals(returns.get(1), 34L);
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertEquals(returns.get(3), 6.7);
     }
 
     @Test(description = "Test tuple complex recursive definition")
     public void testComplexRecursive() {
-        BValue[] returns = BRunUtil.invoke(result, "testComplexRecursive");
-        Assert.assertEquals(returns.length, 6);
-        Assert.assertEquals(returns[0].stringValue(), "Bal");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertEquals(((BByte) returns[3]).byteValue(), 34);
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
-        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testComplexRecursive");
+        Assert.assertEquals(returns.size(), 6);
+        Assert.assertEquals(returns.get(0).toString(), "Bal");
+        Assert.assertEquals(returns.get(1), 3L);
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertEquals(returns.get(3), 34);
+        Assert.assertEquals(returns.get(4), 5.6);
+        Assert.assertEquals(returns.get(5), 45L);
     }
-
 
     @Test(description = "Test tuple recursive definition with expression on rhs")
     public void testRecursiveWithExpression() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecursiveWithExpression");
-        Assert.assertEquals(returns.length, 6);
-        Assert.assertEquals(returns[0].stringValue(), "Bal");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertEquals(((BByte) returns[3]).byteValue(), 34);
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
-        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveWithExpression");
+        Assert.assertEquals(returns.size(), 6);
+        Assert.assertEquals(returns.get(0).toString(), "Bal");
+        Assert.assertEquals(returns.get(1), 3L);
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertEquals(returns.get(3), 34);
+        Assert.assertEquals(returns.get(4), 5.6);
+        Assert.assertEquals(returns.get(5), 45L);
     }
 
     @Test(description = "Test tuple binding with records and objects 1")
     public void testTupleBindingWithRecordsAndObjects() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects1");
-        Assert.assertEquals(returns.length, 9);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects1");
+        Assert.assertEquals(returns.size(), 9);
         int i = -1;
-        Assert.assertEquals(returns[++i].stringValue(), "Test");
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 23);
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 34);
-        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
-        Assert.assertEquals(returns[++i].stringValue(), "Fooo");
-        Assert.assertEquals(((BFloat) returns[++i]).floatValue(), 3.7);
-        Assert.assertEquals(((BByte) returns[++i]).byteValue(), 23);
-        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
+        Assert.assertEquals(returns.get(++i).toString(), "Test");
+        Assert.assertEquals(returns.get(++i), 23L);
+        Assert.assertEquals(returns.get(++i), 34L);
+        Assert.assertTrue((Boolean) returns.get(++i));
+        Assert.assertEquals(returns.get(++i).toString(), "Fooo");
+        Assert.assertEquals(returns.get(++i), 3.7);
+        Assert.assertEquals(returns.get(++i), 23);
+        Assert.assertTrue((Boolean) returns.get(++i));
+        Assert.assertEquals(returns.get(++i), 56L);
     }
 
     @Test(description = "Test tuple binding with records and objects 2")
     public void testTupleBindingWithRecordsAndObjects2() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects2");
-        Assert.assertEquals(returns.length, 11);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects2");
+        Assert.assertEquals(returns.size(), 11);
         int i = -1;
-        Assert.assertEquals(returns[++i].stringValue(), "Test");
-        Assert.assertEquals(returns[++i].stringValue(), "Test");
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 23);
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 34);
-        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
-        Assert.assertEquals(returns[++i].stringValue(), "Fooo");
-        Assert.assertEquals(((BFloat) returns[++i]).floatValue(), 3.7);
-        Assert.assertEquals(((BByte) returns[++i]).byteValue(), 23);
-        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
+        Assert.assertEquals(returns.get(++i).toString(), "Test");
+        Assert.assertEquals(returns.get(++i).toString(), "Test");
+        Assert.assertEquals(returns.get(++i), 23L);
+        Assert.assertEquals(returns.get(++i), 34L);
+        Assert.assertTrue((Boolean) returns.get(++i));
+        Assert.assertEquals(returns.get(++i).toString(), "Fooo");
+        Assert.assertEquals(returns.get(++i), 3.7);
+        Assert.assertEquals(returns.get(++i), 23);
+        Assert.assertTrue((Boolean) returns.get(++i));
+        Assert.assertEquals(returns.get(++i), 56L);
+        Assert.assertEquals(returns.get(++i), 56L);
     }
 
     @Test(description = "Test tuple binding with records and objects")
     public void testRecordInsideTuple() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTuple");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "Peter Parker");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 12);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordInsideTuple");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "Peter Parker");
+        Assert.assertEquals(returns.get(1), 12L);
+        Assert.assertTrue((Boolean) returns.get(2));
     }
 
     @Test(description = "Test tuple var definition with var declaration 1")
     public void testTupleVarDefinition1() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDef1");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 123);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDef1");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "Ballerina");
+        Assert.assertEquals(returns.get(1), 123L);
+        Assert.assertTrue((Boolean) returns.get(2));
     }
-
 
     @Test(description = "Test tuple var definition with var declaration 2")
     public void testTupleVarDefinition2() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDef2");
-        Assert.assertEquals(returns.length, 9);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDef2");
+        Assert.assertEquals(returns.size(), 9);
         int i = -1;
-        Assert.assertEquals(returns[++i].stringValue(), "Test");
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 23);
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 34);
-        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
-        Assert.assertEquals(returns[++i].stringValue(), "Fooo");
-        Assert.assertEquals(((BFloat) returns[++i]).floatValue(), 3.7);
-        Assert.assertEquals(((BByte) returns[++i]).byteValue(), 23);
-        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
-        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
+        Assert.assertEquals(returns.get(++i).toString(), "Test");
+        Assert.assertEquals(returns.get(++i), 23L);
+        Assert.assertEquals(returns.get(++i), 34L);
+        Assert.assertTrue((Boolean) returns.get(++i));
+        Assert.assertEquals(returns.get(++i).toString(), "Fooo");
+        Assert.assertEquals(returns.get(++i), 3.7);
+        Assert.assertEquals(returns.get(++i), 23);
+        Assert.assertTrue((Boolean) returns.get(++i));
+        Assert.assertEquals(returns.get(++i), 56L);
+    }
+
+    @Test
+    public void testTupleVarDefinition3() {
+        BRunUtil.invoke(result, "testTupleVarDef3");
+    }
+
+    @Test
+    public void testTupleVarDefinition4() {
+        BRunUtil.invoke(result, "testTupleVarDef4");
     }
 
     @Test(description = "Test tuple var definition with array 1")
     public void testTupleVarDefWithArray1() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray1");
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefWithArray1");
+        Assert.assertEquals(returns.size(), 4);
         int i = -1;
-        Assert.assertEquals(returns[++i].stringValue(), "Ballerina");
-        BValue val1 = returns[++i];
-        Assert.assertEquals(val1.getClass(), BValueArray.class);
-        BValueArray intArray = ((BValueArray) val1);
-        Assert.assertEquals(intArray.getInt(0), 123);
-        Assert.assertEquals(intArray.getInt(1), 345);
-        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
-        BValue val2 = returns[++i];
-        Assert.assertEquals(val2.getClass(), BValueArray.class);
-        BValueArray floatArray = ((BValueArray) val2);
+        Assert.assertEquals(returns.get(++i).toString(), "Ballerina");
+        Object val1 = returns.get(++i);
+        Assert.assertTrue(val1 instanceof BArray);
+        BArray intArray = ((BArray) val1);
+        Assert.assertEquals(intArray.getInt(0), 123L);
+        Assert.assertEquals(intArray.getInt(1), 345L);
+        Assert.assertTrue((Boolean) returns.get(++i));
+        Object val2 = returns.get(++i);
+        Assert.assertTrue(val2 instanceof BArray);
+        BArray floatArray = ((BArray) val2);
         Assert.assertEquals(floatArray.getFloat(0), 2.3);
         Assert.assertEquals(floatArray.getFloat(1), 4.5);
     }
 
     @Test(description = "Test tuple var definition with array 2")
     public void testTupleVarDefWithArray2() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray2");
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefWithArray2");
+        Assert.assertEquals(returns.size(), 4);
         int i = -1;
-        BValue val1 = returns[++i];
-        Assert.assertEquals(val1.getClass(), BValueArray.class);
-        BValueArray stringArray = (BValueArray) val1;
+        Object val1 = returns.get(++i);
+        Assert.assertTrue(val1 instanceof BArray);
+        BArray stringArray = (BArray) val1;
         Assert.assertEquals(stringArray.getString(0), "A");
         Assert.assertEquals(stringArray.getString(1), "B");
 
-        BValue val2 = returns[++i];
-        Assert.assertEquals(val2.getClass(), BValueArray.class);
-        BValueArray intArray = ((BValueArray) val2);
-        Assert.assertEquals(intArray.getInt(0), 123);
-        Assert.assertEquals(intArray.getInt(1), 345);
+        Object val2 = returns.get(++i);
+        Assert.assertTrue(val2 instanceof BArray);
+        BArray intArray = ((BArray) val2);
+        Assert.assertEquals(intArray.getInt(0), 123L);
+        Assert.assertEquals(intArray.getInt(1), 345L);
 
-        BValue val3 = returns[++i];
-        Assert.assertEquals(val3.getClass(), BValueArray.class);
-        BValueArray bBooleanArray = (BValueArray) val3;
-        Assert.assertEquals(bBooleanArray.getBoolean(0), 1);
-        Assert.assertEquals(bBooleanArray.getBoolean(1), 0);
+        Object val3 = returns.get(++i);
+        Assert.assertTrue(val3 instanceof BArray);
+        BArray bBooleanArray = (BArray) val3;
+        Assert.assertTrue(bBooleanArray.getBoolean(0));
+        Assert.assertFalse(bBooleanArray.getBoolean(1));
 
-        BValue val4 = returns[++i];
-        Assert.assertEquals(val4.getClass(), BValueArray.class);
-        BValueArray floatArray = ((BValueArray) val4);
+        Object val4 = returns.get(++i);
+        Assert.assertTrue(val4 instanceof BArray);
+        BArray floatArray = ((BArray) val4);
         Assert.assertEquals(floatArray.getFloat(0), 2.3);
         Assert.assertEquals(floatArray.getFloat(1), 4.5);
     }
 
     @Test(description = "Test tuple var definition with array 3")
     public void testTupleVarDefWithArray3() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefWithArray3");
         validateArrayResults(returns);
     }
 
     @Test(description = "Test tuple var definition with array 4")
     public void testTupleVarDefWithArray4() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray4");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefWithArray4");
         validateArrayResults(returns);
     }
 
-    private void validateArrayResults(BValue[] returns) {
-        Assert.assertEquals(returns.length, 3);
+    private void validateArrayResults(BArray returns) {
+        Assert.assertEquals(returns.size(), 3);
         int i = -1;
-        BValue val1 = returns[++i];
-        BValueArray refValueArray1 = (BValueArray) val1;
-        BValueArray stringArray1 = (BValueArray) refValueArray1.getRefValue(0);
+        Object val1 = returns.get(++i);
+        BArray refValueArray1 = (BArray) val1;
+        BArray stringArray1 = (BArray) refValueArray1.getRefValue(0);
         Assert.assertEquals(stringArray1.getString(0), "A");
         Assert.assertEquals(stringArray1.getString(1), "B");
 
-        BValueArray stringArray2 = (BValueArray) refValueArray1.getRefValue(1);
+        BArray stringArray2 = (BArray) refValueArray1.getRefValue(1);
         Assert.assertEquals(stringArray2.getString(0), "C");
         Assert.assertEquals(stringArray2.getString(1), "D");
 
-        BValue val2 = returns[++i];
-        BValueArray refValueArray2 = (BValueArray) val2;
-        BValueArray intArray1 = ((BValueArray) refValueArray2.getRefValue(0));
-        Assert.assertEquals(intArray1.getInt(0), 123);
-        Assert.assertEquals(intArray1.getInt(1), 345);
+        Object val2 = returns.get(++i);
+        BArray refValueArray2 = (BArray) val2;
+        BArray intArray1 = ((BArray) refValueArray2.getRefValue(0));
+        Assert.assertEquals(intArray1.getInt(0), 123L);
+        Assert.assertEquals(intArray1.getInt(1), 345L);
 
-        BValueArray intArray2 = ((BValueArray) refValueArray2.getRefValue(1));
-        Assert.assertEquals(intArray2.getInt(0), 12);
-        Assert.assertEquals(intArray2.getInt(1), 34);
-        Assert.assertEquals(intArray2.getInt(2), 56);
+        BArray intArray2 = ((BArray) refValueArray2.getRefValue(1));
+        Assert.assertEquals(intArray2.getInt(0), 12L);
+        Assert.assertEquals(intArray2.getInt(1), 34L);
+        Assert.assertEquals(intArray2.getInt(2), 56L);
 
-        BValue val3 = returns[++i];
-        Assert.assertEquals(val3.getClass(), BValueArray.class);
-        BValueArray floatArray = ((BValueArray) val3);
+        Object val3 = returns.get(++i);
+        Assert.assertTrue(val3 instanceof BArray);
+        BArray floatArray = ((BArray) val3);
         Assert.assertEquals(floatArray.getFloat(0), 2.3);
         Assert.assertEquals(floatArray.getFloat(1), 4.5);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 1")
     public void testRecursiveExpressionWithVar1() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveExpressionWithVar1");
         validateRecursiveVarRefTestResults(returns);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 2")
     public void testRecursiveExpressionWithVar2() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveExpressionWithVar2");
         validateRecursiveVarRefTestResults(returns);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 3")
     public void testRecursiveExpressionWithVar3() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveExpressionWithVar3");
         validateRecursiveVarRefTestResults(returns);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 4")
     public void testRecursiveExpressionWithVar4() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar4");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveExpressionWithVar4");
         validateRecursiveVarRefTestResults(returns);
     }
 
-    private void validateRecursiveVarRefTestResults(BValue[] returns) {
-        Assert.assertEquals(returns.length, 6);
-        Assert.assertEquals(returns[0].stringValue(), "Bal");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 34);
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
-        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
+    private void validateRecursiveVarRefTestResults(BArray returns) {
+        Assert.assertEquals(returns.size(), 6);
+        Assert.assertEquals(returns.get(0).toString(), "Bal");
+        Assert.assertEquals(returns.get(1), 3L);
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertEquals(returns.get(3), 34L);
+        Assert.assertEquals(returns.get(4), 5.6);
+        Assert.assertEquals(returns.get(5), 45L);
     }
 
     @Test(description = "Test tuple definition with union type 1")
     public void testVarDefWithUnionType1() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType1");
         validateVarDefWithUnionResults(returns);
     }
 
     @Test(description = "Test tuple definition with union type 2")
     public void testVarDefWithUnionType2() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType2");
         validateVarDefWithUnionResults(returns);
     }
 
     @Test(description = "Test tuple definition with union type 3")
     public void testVarDefWithUnionType3() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType3");
         validateVarDefWithUnionResults(returns);
     }
 
-    private void validateVarDefWithUnionResults(BValue[] returns) {
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 34);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.7);
-        Assert.assertEquals(returns[2].stringValue(), "Test");
+    private void validateVarDefWithUnionResults(BArray returns) {
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0), 34L);
+        Assert.assertEquals(returns.get(1), 6.7);
+        Assert.assertEquals(returns.get(2).toString(), "Test");
     }
 
     @Test(description = "Test tuple definition with union type 4")
     public void testVarDefWithUnionType4() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType4");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType4");
         validateTupleVarDefWithUnitionComplexResults(returns);
     }
 
     @Test(description = "Test tuple definition with union type 5")
     public void testVarDefWithUnionType5() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType5");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType5");
         validateTupleVarDefWithUnitionComplexResults(returns);
     }
 
     @Test(description = "Test tuple definition with union type 6")
     public void testVarDefWithUnionType6() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType6");
-        Assert.assertEquals(returns.length, 2);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType6");
+        Assert.assertEquals(returns.size(), 2);
 
-        BString val1 = (BString) returns[0];
-        Assert.assertEquals(val1.stringValue(), "Test");
-        BInteger val2 = (BInteger) returns[1];
-        Assert.assertEquals(val2.intValue(), 23);
+        BString val1 = (BString) returns.get(0);
+        Assert.assertEquals(val1.toString(), "Test");
+        long val2 = (long) returns.get(1);
+        Assert.assertEquals(val2, 23L);
     }
 
     @Test(description = "Test tuple variable with ignore variable")
     public void testIgnoreVariable() {
-        BValue[] returns = BRunUtil.invoke(result, "testIgnoreVariable");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 23);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 24);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIgnoreVariable");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0), 23L);
+        Assert.assertEquals(returns.get(1), 24L);
     }
 
-    private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {
-        Assert.assertEquals(returns.length, 3);
+    @Test(description = "Test tuple variable with error BP")
+    public void testTupleVariableWithErrorBP() {
+        BRunUtil.invoke(result, "testTupleVariableWithErrorBP");
+    }
 
-        BValue val1 = returns[0];
-        BValueArray refValueArray1 = (BValueArray) val1;
-        Assert.assertEquals(refValueArray1.getRefValue(0).stringValue(), "Test");
-        Assert.assertEquals(((BInteger) refValueArray1.getRefValue(1)).intValue(), 23);
+    @Test
+    public void testTupleVarDeclWithTypeReferenceTypedExpr() {
+        BRunUtil.invoke(result, "testTupleVarDeclWithTypeReferenceTypedExpr");
+    }
 
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.5);
+    @Test
+    public void testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs() {
+        BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs");
+    }
 
-        BValue val2 = returns[2];
-        BValueArray refValueArray2 = (BValueArray) val2;
-        Assert.assertEquals(((BFloat) refValueArray2.getRefValue(0)).floatValue(), 5.7);
-        Assert.assertEquals(refValueArray2.getRefValue(1).stringValue(), "Foo");
+    @Test
+    public void testTupleVarDefWithRestBPContainsErrorBPWithRestBP() {
+        BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithRestBP");
+    }
+
+    private void validateTupleVarDefWithUnitionComplexResults(BArray returns) {
+        Assert.assertEquals(returns.size(), 3);
+
+        Object val1 = returns.get(0);
+        BArray refValueArray1 = (BArray) val1;
+        Assert.assertEquals(refValueArray1.getRefValue(0).toString(), "Test");
+        Assert.assertEquals((refValueArray1.getRefValue(1)), 23L);
+
+        Assert.assertEquals(returns.get(1), 4.5);
+
+        Object val2 = returns.get(2);
+        BArray refValueArray2 = (BArray) val2;
+        Assert.assertEquals((refValueArray2.getRefValue(0)), 5.7);
+        Assert.assertEquals(refValueArray2.getRefValue(1).toString(), "Foo");
     }
 
     @Test
@@ -378,13 +401,15 @@ public class TupleVariableDefinitionTest {
         String errorMsg2 = "invalid list binding pattern: expected an array or a tuple, but found ";
         String errorMsg3 = "tuple and expression size does not match";
         String errorMsg4 = "incompatible types: expected ";
+        String errorMsg5 = "invalid usage of list constructor: ";
 
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 26);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 5);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 5);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 5);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int'", 25, 34);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 48);
+        BAssertUtil.validateError(resultNegative, ++i,
+                errorMsg5 + "type 'NoFillerObject' does not have a filler value", 30, 48);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'string', found 'int'", 31, 42);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'int', found 'float'", 31, 45);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'float', found 'string'", 31, 50);
@@ -405,9 +430,15 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected '[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 101, 84);
         BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 106, 26);
+                "no new variables on left side", 106, 5);
         BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: " +
-                        "expected an array or a tuple, but found '(string|int)'", 110, 16);
+                "expected an array or a tuple, but found '(string|int)'", 110, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; member variable count mismatch " +
+                "with member type count", 120, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
+                "but found 'Ints'", 128, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
+                "but found 'IntsOrStrings'", 129, 5);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

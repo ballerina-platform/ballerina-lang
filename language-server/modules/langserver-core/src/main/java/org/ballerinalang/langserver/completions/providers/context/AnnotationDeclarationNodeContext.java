@@ -31,11 +31,11 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -65,9 +65,9 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         if (this.onTypeDescriptorContext(context, node)) {
             Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
                     && this.isValidTypeDescForAnnotations((TypeDefinitionSymbol) symbol);
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-                List<Symbol> filteredSymbols = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
+                List<Symbol> filteredSymbols = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate);
 
                 completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
             } else {
@@ -91,10 +91,12 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, AnnotationDeclarationNode node) {
-        Token token = node.annotationKeyword();
+        Token annotationKeyword = node.annotationKeyword();
+        Token semicolonToken = node.semicolonToken();
         int cursor = context.getCursorPositionInTree();
         
-        return !token.isMissing() && cursor >= token.textRange().endOffset();
+        return !annotationKeyword.isMissing() && cursor >= annotationKeyword.textRange().endOffset()
+                && (semicolonToken.isMissing() || cursor < semicolonToken.textRange().endOffset());
     }
 
     private boolean onTypeDescriptorContext(BallerinaCompletionContext context, AnnotationDeclarationNode node) {

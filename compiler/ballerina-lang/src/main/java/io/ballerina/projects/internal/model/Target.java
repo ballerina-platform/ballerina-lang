@@ -43,8 +43,8 @@ public class Target {
     private Path reportPath;
     private Path docPath;
 
-    public Target(Path sourceRoot) throws IOException {
-        this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+    public Target(Path targetPath) throws IOException {
+        this.targetPath = targetPath;
         this.cache = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME);
         this.balaCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
         this.jarCachePath = this.cache.resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
@@ -195,9 +195,9 @@ public class Target {
         }
         this.outputPath = outputPath;
     }
+
     /**
      * Clean any files that created from the build.
-     *
      */
     public void clean() throws IOException {
         // Remove from cache
@@ -207,5 +207,13 @@ public class Target {
         ProjectUtils.deleteDirectory(this.binPath);
         ProjectUtils.deleteDirectory(this.docPath);
         ProjectUtils.deleteDirectory(this.reportPath);
+    }
+
+    /**
+     * Clean cache files that created from the build.
+     */
+    public void cleanCache() throws IOException {
+        // Remove from cache
+        ProjectUtils.deleteDirectory(this.cache);
     }
 }

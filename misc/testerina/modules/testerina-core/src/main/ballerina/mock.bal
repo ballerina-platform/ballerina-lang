@@ -21,22 +21,27 @@ public const ANY = "__ANY__";
 
 # Represents the reason for the mock object related errors.
 public const INVALID_OBJECT_ERROR = "InvalidObjectError";
+# Represents an error where the object trying to be mocked is not valid.
 public type InvalidObjectError distinct error;
 
 # Represents the reason for the non-existing member function related errors.
 public const FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
+# Represents an error where the function to be mocked cannot be found.
 public type FunctionNotFoundError distinct error;
 
 # Represents the reason for the function signature related errors.
 public const FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
+# Represents an error where the mock function contains a signature mismatch with the function to be mocked.
 public type FunctionSignatureMismatchError distinct error;
 
 # Represents the reason for the object member field related errors.
 public const INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
+# Represents an error where object member field is invalid.
 public type InvalidMemberFieldError distinct error;
 
 # Represents the reason for function mocking related errors.
 public const FUNCTION_CALL_ERROR = "FunctionCallError";
+# Represents an error during function call for mocking.
 public type FunctionCallError distinct error;
 
 # Represents mocking related errors.

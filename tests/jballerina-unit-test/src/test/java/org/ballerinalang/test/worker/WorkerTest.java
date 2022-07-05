@@ -17,10 +17,9 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -34,13 +33,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
+
 /**
  * Basic worker related tests.
  */
 public class WorkerTest {
 
     private CompileResult result;
-    
+
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/workers.bal");
@@ -49,39 +50,39 @@ public class WorkerTest {
 
     @Test
     public void workerReturnTest() {
-        BValue[] returns = BRunUtil.invoke(result, "workerReturnTest", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BInteger ret = (BInteger) returns[0];
-        Assert.assertEquals(ret.intValue(), 52);
+        Object returns = BRunUtil.invoke(result, "workerReturnTest", new Object[0]);
+
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 52);
     }
 
     @Test
     public void workerSendToWorkerTest() {
-        BValue[] returns = BRunUtil.invoke(result, "workerSendToWorker", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BInteger ret = (BInteger) returns[0];
-        Assert.assertEquals(ret.intValue(), 41);
+        Object returns = BRunUtil.invoke(result, "workerSendToWorker", new Object[0]);
+
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 41);
     }
 
     @Test
     public void workerSendToDefault() {
-        BValue[] returns = BRunUtil.invoke(result, "workerSendToDefault", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BInteger ret = (BInteger) returns[0];
-        Assert.assertEquals(ret.intValue(), 51);
+        Object returns = BRunUtil.invoke(result, "workerSendToDefault", new Object[0]);
+
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 51);
     }
 
     @Test
     public void workerSendFromDefault() {
-        BValue[] returns = BRunUtil.invoke(result, "workerSendFromDefault", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BInteger ret = (BInteger) returns[0];
-        Assert.assertEquals(ret.intValue(), 51);
+        Object returns = BRunUtil.invoke(result, "workerSendFromDefault", new Object[0]);
+
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 51);
     }
 
-   @Test
+    @Test
     public void receiveWithTrap() {
-        BRunUtil.invoke(result, "receiveWithTrap", new BValue[0]);
+        BRunUtil.invoke(result, "receiveWithTrap", new Object[0]);
     }
 
     @Test()
@@ -91,12 +92,12 @@ public class WorkerTest {
 
     @Test
     public void receiveWithCheck() {
-        BRunUtil.invoke(result, "receiveWithCheck", new BValue[0]);
+        BRunUtil.invoke(result, "receiveWithCheck", new Object[0]);
     }
 
     @Test
     public void syncSendReceiveWithCheck() {
-        BRunUtil.invoke(result, "syncSendReceiveWithCheck", new BValue[0]);
+        BRunUtil.invoke(result, "syncSendReceiveWithCheck", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -134,7 +135,7 @@ public class WorkerTest {
         }
         Assert.assertNotNull(actualException);
         String expected = "error: error: err from panic\n" + "\tat " +
-                                    "workers:sendToDefaultWithPanicBeforeSendInDefault(workers.bal:";
+                "workers:sendToDefaultWithPanicBeforeSendInDefault(workers.bal:";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -161,7 +162,7 @@ public class WorkerTest {
         }
         Assert.assertNotNull(actualException);
         String expected = "error: error: err from panic\n" +
-                                "\tat workers:sendToDefaultWithPanicAfterSendInDefault(workers.bal:";
+                "\tat workers:sendToDefaultWithPanicAfterSendInDefault(workers.bal:";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -250,32 +251,32 @@ public class WorkerTest {
 
     @Test
     public void workerTestWithLambda() {
-        BValue[] returns = BRunUtil.invoke(result, "workerTestWithLambda");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
+        Object returns = BRunUtil.invoke(result, "workerTestWithLambda");
+
+        Assert.assertEquals(returns, 88L);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.future\\}FutureAlreadyCancelled.*")
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.future\\}FutureAlreadyCancelled.*")
     public void workerWithFutureTest1() {
-        BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object returns = BRunUtil.invoke(result, "workerWithFutureTest1");
+
+        Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void workerWithFutureTest2() {
-        BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+        Object returns = BRunUtil.invoke(result, "workerWithFutureTest2");
+
+        Assert.assertEquals(returns, 12L);
     }
 
     @Test
     public void workerWithFutureTest3() {
         try {
-            BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest3");
-            Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
+            Object returns = BRunUtil.invoke(result, "workerWithFutureTest3");
+
+            Assert.assertEquals(returns, 18L);
         } catch (BLangRuntimeException e) {
             Assert.assertTrue(e.getMessage().contains("error: {ballerina/lang.future}FutureAlreadyCancelled"));
         }
@@ -290,7 +291,7 @@ public class WorkerTest {
             String result = new String(tempOutStream.toByteArray());
             // we cannot guarantee an ordering between message sends
             Assert.assertTrue((result.contains("11 - 11") && result.contains("12 - 12")) ||
-                            (result.contains("11 - 12") && result.contains("12 - 11")), result);
+                    (result.contains("11 - 12") && result.contains("12 - 11")), result);
         } finally {
             System.setOut(defaultOut);
         }
@@ -298,10 +299,10 @@ public class WorkerTest {
 
     @Test
     public void testComplexTypeSend() {
-        BValue[] returns = BRunUtil.invoke(result, "testComplexType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getType().getName(), "Rec");
-        Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
+        Object returns = BRunUtil.invoke(result, "testComplexType");
+
+        Assert.assertEquals(getType(returns).getName(), "Rec");
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("k")), 10L);
     }
 
     @Test
@@ -316,12 +317,12 @@ public class WorkerTest {
 
     @Test
     public void waitInReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "waitInReturn");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap mapResult = (BMap) returns[0];
-        Assert.assertEquals(mapResult.get("w1").stringValue(), "w1");
-        Assert.assertEquals(mapResult.get("w2").stringValue(), "w2");
+        Object returns = BRunUtil.invoke(result, "waitInReturn");
+
+        Assert.assertTrue(returns instanceof BMap);
+        BMap mapResult = (BMap) returns;
+        Assert.assertEquals(mapResult.get(StringUtils.fromString("w1")).toString(), "w1");
+        Assert.assertEquals(mapResult.get(StringUtils.fromString("w2")).toString(), "w2");
     }
 
     @Test
@@ -331,22 +332,22 @@ public class WorkerTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithWorkerInsideLock() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");
+        Object returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithWorkerInsideLockWithDepth3() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLockWithDepth3");
+        Object returns = BRunUtil.invoke(result, "testPanicWorkerInsideLockWithDepth3");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithStartInsideLock() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicStartInsideLock");
+        Object returns = BRunUtil.invoke(result, "testPanicStartInsideLock");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithStartInsideLockWithDepth3() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicStartInsideLockWithDepth3");
+        Object returns = BRunUtil.invoke(result, "testPanicStartInsideLockWithDepth3");
     }
 
     @Test

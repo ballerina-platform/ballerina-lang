@@ -34,8 +34,10 @@ function constPattern1(string|int|boolean a) returns string {
         "HelloAgain" => {
             return "HelloAgain";
         }
+        _ => {
+            return "Default";
+        }
     }
-    return "Default";
 }
 
 function testConstPattern1() {
@@ -600,6 +602,28 @@ function testConstPattern18() {
     assertEquals("Default", result);
 }
 
+type A int[2] & readonly;
+
+function constPattern19(A x) returns int {
+    match x {
+        [1, 2] => {
+            return 1;
+        }
+        [-2, -7] => {
+            return 2;
+        }
+        _ => {
+            return 4;
+        }
+    }
+}
+
+public function testConstPattern19() {
+    assertEquals(1, constPattern19([1, 2]));
+    assertEquals(2, constPattern19([-2, -7]));
+    assertEquals(4, constPattern19([2, 4]));
+}
+
 function constPatternWithNegativeLiteral(any x) returns string {
     match x {
         -1 => {
@@ -623,6 +647,56 @@ function testConstPatternWithNegativeLiteral() {
     assertEquals("1", constPatternWithNegativeLiteral(1));
     assertEquals("other", constPatternWithNegativeLiteral(0));
     assertEquals("other", constPatternWithNegativeLiteral(-123.4));
+}
+
+function testConstPatternWithPredeclaredPrefix() {
+    assertEquals(0, constPatternWithPredeclaredPrefix1(int:MAX_VALUE));
+    assertEquals(1, constPatternWithPredeclaredPrefix1(int:MIN_VALUE));
+    assertEquals(2, constPatternWithPredeclaredPrefix1(2));
+
+    assertEquals(0, constPatternWithPredeclaredPrefix2([int:MIN_VALUE, int:MAX_VALUE]));
+    assertEquals(1, constPatternWithPredeclaredPrefix2([int:MAX_VALUE, int:MIN_VALUE]));
+
+    assertEquals(0, constPatternWithPredeclaredPrefix3({i: int:MIN_VALUE, j: int:MAX_VALUE}));
+    assertEquals(0, constPatternWithPredeclaredPrefix3({i: int:MIN_VALUE, j: int:MAX_VALUE, k: 2}));
+    assertEquals(1, constPatternWithPredeclaredPrefix3({i: int:MIN_VALUE}));
+    assertEquals(1, constPatternWithPredeclaredPrefix3({i: 2, j: 3}));
+}
+
+function constPatternWithPredeclaredPrefix1(int x) returns int {
+    match x {
+        int:MAX_VALUE => {
+            return 0;
+        }
+        int:MIN_VALUE => {
+            return 1;
+        }
+        _ => {
+            return 2;
+        }
+    }
+}
+
+function constPatternWithPredeclaredPrefix2(int[] x) returns int {
+    match x {
+        [int:MIN_VALUE, int:MAX_VALUE] => {
+            return 0;
+        }
+        _ => {
+            return 1;
+        }
+    }
+}
+
+function constPatternWithPredeclaredPrefix3(map<int> x) returns int {
+    match x {
+        {i: int:MIN_VALUE, j: int:MAX_VALUE} => {
+            return 0;
+        }
+        _ => {
+            return 1;
+        }
+    }
 }
 
 function assertEquals(anydata expected, anydata actual) {

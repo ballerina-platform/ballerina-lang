@@ -213,6 +213,9 @@ function getWithInvalidKey() returns boolean {
 }
 
 function testMap() returns boolean {
+    string expected = "[{\"name\":\"Chiran\",\"department\":\"HR\"}," +
+                      "{\"name\":\"Mohan\",\"department\":\"HR\"},{\"name\":\"Gima\",\"department\":\"HR\"}," +
+                      "{\"name\":\"Granier\",\"department\":\"HR\"}]";
     boolean testPassed = true;
     Person[] personList = getPersonList();
 
@@ -222,9 +225,19 @@ function testMap() returns boolean {
 
     Employee[] tableToList = empTab.toArray();
     testPassed = testPassed && tableToList.length() == 4;
-    testPassed = testPassed && empTab.toString() == "[{\"name\":\"Chiran\",\"department\":\"HR\"}," +
-        "{\"name\":\"Mohan\",\"department\":\"HR\"},{\"name\":\"Gima\",\"department\":\"HR\"}," +
-        "{\"name\":\"Granier\",\"department\":\"HR\"}]";
+    testPassed = testPassed && empTab.toString() == expected;
+
+    function (Person) returns Employee arrowExpr = (person) => {name: person.name, department : "HR"};
+
+    empTab = tab.'map(arrowExpr);
+    tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == expected;
+
+    empTab = tab.'map((person) => <Employee>{name: person.name, department : "HR"});
+    tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == expected;
 
     return testPassed;
 }
@@ -768,6 +781,372 @@ function testGetKeysFromUnionConstrained() returns any[] {
       { name: "Mark", department: "HR" }
     ];
     return tab.keys();
+}
+
+type KeylessPersonTable table<Person>;
+
+function testKeylessTableForeach() {
+    KeylessPersonTable personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertTrue(ageSum == 76);
+}
+
+function testKeylessReadOnlyTableForeach() {
+    KeylessPersonTable & readonly personTable = table [
+      { name: "Harry", age: 14 },
+      { name: "Hermione", age: 28 },
+      { name: "Ron", age: 11 },
+      { name: "Draco", age: 23 }
+    ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertTrue(ageSum == 76);
+}
+
+type R record {|
+    readonly int|float|decimal|boolean v;
+    int code;
+|};
+
+type Tab table<R> key(v);
+
+function testGetValue() {
+    Tab t = table [
+            {v: 0, code: 0},
+            {v: 1d, code: 1},
+            {v: false, code: 3},
+            {v: 2.0, code: 4}
+        ];
+
+    R r1 = {"v":1d,"code":1};
+    R r2 = {v: false, code: 3};
+
+    assertEquals(t[0f], ());
+    assertEquals(t[1d], r1);
+    assertEquals(t[false], r2);
+    assertEquals(t[2], ());
+}
+
+function testReduceForKeylessTables() {
+    KeylessPersonTable personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+    float avg = personTable.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / <float>tab.length();
+                           }, 0.0);
+    assertEquals(19.0, avg);
+}
+
+function testReduceForKeylessReadOnlyTables() {
+    KeylessPersonTable & readonly personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+    float avg = personTable.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / <float>tab.length();
+                           }, 0.0);
+    assertEquals(19.0, avg);
+}
+
+type CustomerEmptyKeyedTbl table<Customer> key();
+
+function testPutWithEmptyKeyedKeyLessTbl() {
+    CustomerEmptyKeyedTbl custTbl = table [
+            {id: 1, firstName: "Robert", lastName: "Downey"},
+            {id: 5, firstName: "Ryan", lastName: "Reynolds"}
+        ];
+    Customer customer = {id: 100, firstName: "Mark", lastName: "Ruffalo"};
+    custTbl.put(customer);
+
+    Customer[] tableToList = custTbl.toArray();
+    assertEquals(3, tableToList.length());
+    assertEquals(customer, tableToList[2]);
+}
+
+function testPutWithEmptyKeyedKeyLessTblAfterIteratorCreation() {
+    table<Customer> key() custTbl = table [
+            {id: 1, firstName: "Robert", lastName: "Downey"},
+            {id: 2, firstName: "Ryan", lastName: "Reynolds"}
+        ];
+
+    var itr = custTbl.iterator();
+    Customer customer = {id: 2, firstName: "Mark", lastName: "Ruffalo"};
+    custTbl.put(customer);
+
+    var value = trap itr.next();
+    assertTrue(value is error);
+    if value is error {
+        assertEquals("{ballerina}IteratorMutabilityError", value.message());
+        assertEquals("Table was mutated after the iterator was created", <string> checkpanic value.detail()["message"]);
+    }
+}
+
+function testAddWithEmptyKeyedKeyLessTbl() {
+    table<Customer> key() custTbl = table [
+            {id: 1, firstName: "Robert", lastName: "Downey"},
+            {id: 2, firstName: "Ryan", lastName: "Reynolds"}
+        ];
+    Customer customer = {id: 100, firstName: "Mark", lastName: "Ruffalo"};
+    custTbl.add(customer);
+
+    Customer[] tableToList = custTbl.toArray();
+    assertEquals(3, tableToList.length());
+    assertEquals(customer, tableToList[2]);
+}
+
+function testAddWithEmptyKeyedKeyLessTblAfterIteratorCreation() {
+    CustomerEmptyKeyedTbl custTbl = table [
+            {id: 1, firstName: "Robert", lastName: "Downey"},
+            {id: 2, firstName: "Ryan", lastName: "Reynolds"}
+        ];
+
+    var itr = custTbl.iterator();
+    Customer customer = {id: 2, firstName: "Mark", lastName: "Ruffalo"};
+    custTbl.add(customer);
+
+    var value = trap itr.next();
+    assertTrue(value is error);
+    if value is error {
+        assertEquals("{ballerina}IteratorMutabilityError", value.message());
+        assertEquals("Table was mutated after the iterator was created", <string> checkpanic value.detail()["message"]);
+    }
+}
+
+function testRemoveAllReturnedRecordsFromIteratorEmptyKeyedKeyLessTbl() {
+    CustomerEmptyKeyedTbl custTbl = table [
+            {id: 1, firstName: "Robert", lastName: "Downey"},
+            {id: 2, firstName: "Ryan", lastName: "Reynolds"}
+        ];
+
+    var itr = custTbl.iterator();
+    var value = itr.next();
+    assertEquals({id: 1, firstName: "Robert", lastName: "Downey"}, value["value"]);
+    value = itr.next();
+    assertEquals({id: 2, firstName: "Ryan", lastName: "Reynolds"}, value["value"]);
+
+    custTbl.removeAll();
+
+    var value2 = trap itr.next();
+    assertTrue(value2 is error);
+    if value2 is error {
+        assertEquals("{ballerina}IteratorMutabilityError", value2.message());
+        assertEquals("Table was mutated after the iterator was created", <string> checkpanic value2.detail()["message"]);
+    }
+}
+
+type EngineerEmptyKeyedTbl table<Engineer> key();
+
+type PersonEmptyKeyedTbl table<Person> key();
+
+function testAddInconsistentDataToEmptyKeyedKeyLessTbl() {
+    EngineerEmptyKeyedTbl engineerTbl = table [
+            {name: "Lisa", age: 22, intern: true},
+            {name: "Jonas", age: 21, intern: false}
+        ];
+
+    table<Person> key() personTbl = engineerTbl;
+
+    Person person = {name: "John", age: 23};
+    var value = trap personTbl.add(person);
+    assertTrue(value is error);
+    if value is error {
+        assertEquals("{ballerina/lang.table}InherentTypeViolation", value.message());
+        assertEquals("value type 'Person' inconsistent with the inherent table type 'table<Engineer>'", <string> checkpanic value.detail()["message"]);
+    }
+}
+
+function testAddInconsistentDataToEmptyKeyedKeyLessTbl2() {
+    table<Engineer> key() engineerTbl = table [
+            {name: "Lisa", age: 22, intern: true},
+            {name: "Jonas", age: 21, intern: false}
+        ];
+
+    PersonEmptyKeyedTbl personTbl = engineerTbl;
+
+    Student student = {name: "John", age: 20, studentId: 1};
+    var value = trap personTbl.add(student);
+    assertTrue(value is error);
+    if value is error {
+        assertEquals("{ballerina/lang.table}InherentTypeViolation", value.message());
+        assertEquals("value type 'Student' inconsistent with the inherent table type 'table<Engineer>'", <string>checkpanic value.detail()["message"]);
+    }
+}
+
+function testPutInconsistentDataToEmptyKeyedKeyLessTbl() {
+    EngineerEmptyKeyedTbl engineerTbl = table [
+            {name: "Lisa", age: 22, intern: true},
+            {name: "Jonas", age: 21, intern: false}
+        ];
+
+    table<Person> key() personTbl = engineerTbl;
+
+    Person person = {name: "John", age: 23};
+    var value = trap personTbl.put(person);
+    assertTrue(value is error);
+    if value is error {
+        assertEquals("{ballerina/lang.table}InherentTypeViolation", value.message());
+        assertEquals("value type 'Person' inconsistent with the inherent table type 'table<Engineer>'", <string> checkpanic value.detail()["message"]);
+    }
+}
+
+function testPutInconsistentDataToEmptyKeyedKeyLessTbl2() {
+    table<Engineer> key() engineerTbl = table [
+            {name: "Lisa", age: 22, intern: true},
+            {name: "Jonas", age: 21, intern: false}
+        ];
+
+    PersonEmptyKeyedTbl personTbl = engineerTbl;
+
+    Student student = {name: "John", age: 20, studentId: 1};
+    var value = trap personTbl.put(student);
+    assertTrue(value is error);
+    if value is error {
+        assertEquals("{ballerina/lang.table}InherentTypeViolation", value.message());
+        assertEquals("value type 'Student' inconsistent with the inherent table type 'table<Engineer>'", <string>checkpanic value.detail()["message"]);
+    }
+}
+
+function testAddValidDataToEmptyKeyedKeyLessTbl() {
+    EngineerEmptyKeyedTbl engineerTbl = table [
+            {name: "Lisa", age: 22, intern: true},
+            {name: "Jonas", age: 21, intern: false}
+        ];
+
+    PersonEmptyKeyedTbl personTbl = engineerTbl;
+
+    Engineer engineer = {name: "John", age: 23, intern: true};
+    personTbl.add(engineer);
+
+    Person[] tableToList = personTbl.toArray();
+
+    assertEquals(3, tableToList.length());
+    assertEquals(engineer, tableToList[2]);
+}
+
+function testPutValidDataToEmptyKeyedKeyLessTbl() {
+    EngineerEmptyKeyedTbl engineerTbl = table [
+            {name: "Lisa", age: 22, intern: true},
+            {name: "Jonas", age: 21, intern: false}
+        ];
+
+    PersonEmptyKeyedTbl personTbl = engineerTbl;
+
+    Engineer engineer = {name: "John", age: 23, intern: true};
+    personTbl.put(engineer);
+
+    Person[] tableToList = personTbl.toArray();
+
+    assertEquals(3, tableToList.length());
+    assertEquals(engineer, tableToList[2]);
+}
+
+function testEmptyKeyedKeyLessTblForeach() {
+    PersonEmptyKeyedTbl personTable = table [
+            {name: "Harry", age: 14},
+            {name: "Hermione", age: 28},
+            {name: "Ron", age: 11},
+            {name: "Draco", age: 23}
+        ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertEquals(76, ageSum);
+}
+
+function testEmptyKeyedKeyLessTblReadOnlyTableForeach() {
+    PersonEmptyKeyedTbl & readonly personTable = table [
+            {name: "Harry", age: 14},
+            {name: "Hermione", age: 28},
+            {name: "Ron", age: 11},
+            {name: "Draco", age: 23}
+        ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertEquals(76, ageSum);
+}
+
+function testReduceForEmptyKeyedKeyLessTbl() {
+    PersonEmptyKeyedTbl personTable = table [
+            {name: "Harry", age: 14},
+            {name: "Hermione", age: 28},
+            {name: "Ron", age: 11},
+            {name: "Draco", age: 23}
+        ];
+
+    float avg = personTable.reduce(function(float accum, Person val) returns float {
+        return accum + <float>val.age / <float>tab.length();
+    }, 0.0);
+    assertEquals(19.0, avg);
+}
+
+function testReduceForEmptyKeyedKeyLessReadOnlyTbl() {
+    PersonEmptyKeyedTbl & readonly personTable = table [
+            {name: "Harry", age: 14},
+            {name: "Hermione", age: 28},
+            {name: "Ron", age: 11},
+            {name: "Draco", age: 23}
+        ];
+
+    float avg = personTable.reduce(function(float accum, Person val) returns float {
+        return accum + <float>val.age / <float>tab.length();
+    }, 0.0);
+    assertEquals(19.0, avg);
+}
+
+type EmployeeEmptyKeyedTbl table<Employee> key();
+
+function testMapWithEmptyKeyedKeyLessTbl() {
+    PersonEmptyKeyedTbl personTable = table [
+            {name: "Harry", age: 14},
+            {name: "Hermione", age: 28},
+            {name: "Ron", age: 11},
+            {name: "Draco", age: 23}
+        ];
+
+    table<Employee> key() empTab = personTable.map(function (Person person) returns Employee {
+          return {name: person.name, department : "HR"};
+    });
+
+    EmployeeEmptyKeyedTbl employeeTbl = table [
+            {"name": "Harry", "department": "HR"},
+            {"name": "Hermione", "department": "HR"},
+            {"name": "Ron", "department": "HR"},
+            {"name": "Draco", "department": "HR"}
+        ];
+
+    assertEquals(employeeTbl, empTab);
+}
+
+function testLengthWithEmptyKeyedKeyLessTbl() {
+    PersonEmptyKeyedTbl personTable = table [
+            {name: "Harry", age: 14},
+            {name: "Hermione", age: 28},
+            {name: "Ron", age: 11},
+            {name: "Draco", age: 23}
+        ];
+    assertEquals(4, personTable.length());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

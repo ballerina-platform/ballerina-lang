@@ -15,6 +15,9 @@
 // under the License.
 
 type CountryCode "LK"|"USA"|"UK";
+type CustomRecord record {};
+type CustomRecord2 CustomRecord;
+type CustomRecord3 CustomRecord2;
 
 type Person record {
     string fname = "default";
@@ -32,4 +35,9 @@ type Address record {
 function testNonDefReqField() {
     Person p1 = {};
     Person p2;
+}
+
+function testUserDefinedRecordNonExistingField() {
+    CustomRecord3 x = {};
+    string name = x?.name;
 }

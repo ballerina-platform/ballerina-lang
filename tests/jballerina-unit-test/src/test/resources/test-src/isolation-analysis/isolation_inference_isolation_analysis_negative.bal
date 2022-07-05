@@ -17,5 +17,5 @@
 function hello() returns string => "hello";
 
 isolated function testFunctionCall() {
-    string str = hello();
+    string _ = hello();
 }

@@ -147,7 +147,10 @@ function errorTest() {
             error? res = wait w1;
             return res;
     };
-    validateError(inner(), "error3");
+
+    foreach int i in 0...10 {
+        validateError(inner(), "error3");
+    }
 }
 
 function panicTest() returns error? {

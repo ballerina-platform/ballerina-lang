@@ -244,3 +244,47 @@ type bar function(string, int) returns boolean;
 type Obj object {
     function(string, string) barObj;
 };
+
+function testObjectTypeSignature() {
+    client object {
+        int a;
+        int b;
+        *FooObj;
+
+        function testFunc();
+        remote function testRFunc();
+    } obj;
+}
+
+function testUnionTypeWithFunctionType() {
+    10|20|function () returns int aVar = 10;
+    (function () returns int)|string bVar = "10";
+    string|function () returns int cVar = "10";
+    10|(function () returns int)|20 dVar = 10;
+    3|function () returns int|string eVar = 3;
+    ReturnIntFunctionType?|string fVar = returnIntFunc;
+    (function () returns string)|function () returns int gVar = returnIntFunc;
+}
+
+function testFixedArrays() {
+    int[3] a;
+    string[1][2][3][4][5] b;
+    int[][2] c;
+    int[2][] d;
+    (int|string)[1][2] e;
+    (Bar & readonly)[1][2][3] f;
+}
+
+const string greeting = "Hello" + ;
+
+type FOO "foo1" | "foo2";
+FOO foo1;
+
+Thread thread;
+
+// utils
+type ReturnIntFunctionType function () returns int;
+
+function returnIntFunc() returns int {
+    return 1;
+}

@@ -61,7 +61,8 @@ public class SemanticTokensTest {
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonArray(DATA);
         JsonArray responseJsonArray =
                 JsonParser.parseString(response).getAsJsonObject().getAsJsonObject(RESULT).getAsJsonArray(DATA);
-        Assert.assertEquals(decodeIntArray(responseJsonArray), expectedJsonArray, "SemanticTokensTest fails with " +
+        JsonArray decoded = decodeIntArray(responseJsonArray);
+        Assert.assertEquals(decoded, expectedJsonArray, "SemanticTokensTest fails with " +
                 expected + "test case.");
     }
 
@@ -121,7 +122,9 @@ public class SemanticTokensTest {
                 {new String[]{"project", "main.bal"}, "default-module_expected.json"},
                 {new String[]{"project", "modules", "module1", "main.bal"}, "module_expected.json"},
                 {new String[]{"project", "tests", "test.bal"}, "tests_expected.json"},
-                {new String[]{"single-file", "main.bal"}, "single-file_expected.json"}
+                {new String[]{"single-file", "main.bal"}, "single-file_expected.json"},
+                {new String[]{"service", "main.bal"}, "service_expected.json"},
+                {new String[]{"single-file", "check.bal"}, "check_expected.json"}
         };
     }
 }

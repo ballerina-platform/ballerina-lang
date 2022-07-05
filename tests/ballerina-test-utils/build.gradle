@@ -21,9 +21,9 @@ apply plugin: 'com.github.johnrengelman.shadow'
 dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli')
+    implementation project(':identifier-util')
 
     implementation 'org.javassist:javassist'
     implementation 'io.netty:netty-codec-http'
@@ -77,7 +77,6 @@ shadowJar {
         exclude(dependency('org.testng:testng'))
         exclude(dependency('com.beust:jcommander'))
         exclude(dependency('io.netty:netty-transport-native-unix-common'))
-        exclude(project(':ballerina-core'))
         exclude(project(':ballerina-lang'))
         exclude(project(':ballerina-runtime'))
         exclude('META-INF/*.SF')

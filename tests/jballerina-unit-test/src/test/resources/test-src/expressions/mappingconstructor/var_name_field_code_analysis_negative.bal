@@ -23,6 +23,6 @@ function testDulpicateKeyWithVarNameField() {
     string s = "hello";
     int i = 1;
 
-    Foo f = {s, s, i, i: 2};
-    map<int> m = {i, j: 1, k: 2, "i": 3, i};
+    Foo _ = {s, s, i, i: 2};
+    map<int> _ = {i, j: 1, k: 2, "i": 3, i};
 }

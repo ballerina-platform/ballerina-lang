@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -44,11 +46,14 @@ import java.util.Set;
  */
 public class BLangConstant extends BLangVariable implements ConstantNode, TypeDefinition {
 
+    // BLangNodes
     public BLangIdentifier name;
-    public BConstantSymbol symbol;
-
     // Type definition associated with this constant.
     public BLangTypeDefinition associatedTypeDefinition;
+
+    // Semantic Data
+    public BConstantSymbol symbol;
+
 
     public BLangConstant() {
         this.annAttachments = new ArrayList<>();
@@ -105,6 +110,16 @@ public class BLangConstant extends BLangVariable implements ConstantNode, TypeDe
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

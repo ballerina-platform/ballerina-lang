@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,19 +34,25 @@ public class ModuleConfig {
     private final List<DocumentConfig> testSrcDocs;
     private final List<ModuleDescriptor> dependencies;
     private final DocumentConfig moduleMd;
+    private final List<ResourceConfig> resources;
+    private List<ResourceConfig> testResources;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,
                          List<DocumentConfig> srcDocs,
                          List<DocumentConfig> testSrcDocs,
                          DocumentConfig moduleMd,
-                         List<ModuleDescriptor> dependencies) {
+                         List<ModuleDescriptor> dependencies,
+                         List<ResourceConfig> resources,
+                         List<ResourceConfig> testResources) {
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
         this.dependencies = dependencies;
         this.moduleMd = moduleMd;
+        this.resources = resources;
+        this.testResources = testResources;
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -54,7 +61,20 @@ public class ModuleConfig {
                                     List<DocumentConfig> testSrcDocs,
                                     DocumentConfig moduleMd,
                                     List<ModuleDescriptor> dependencies) {
-        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
+        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies,
+                Collections.emptyList(), Collections.emptyList());
+    }
+
+    public static ModuleConfig from(ModuleId moduleId,
+                                    ModuleDescriptor moduleDescriptor,
+                                    List<DocumentConfig> srcDocs,
+                                    List<DocumentConfig> testSrcDocs,
+                                    DocumentConfig moduleMd,
+                                    List<ModuleDescriptor> dependencies,
+                                    List<ResourceConfig> resources,
+                                    List<ResourceConfig> testResources) {
+        return new ModuleConfig(
+                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources, testResources);
     }
 
     public ModuleId moduleId() {
@@ -83,5 +103,13 @@ public class ModuleConfig {
 
     public Optional<DocumentConfig> moduleMd() {
         return Optional.ofNullable(this.moduleMd);
+    }
+
+    public List<ResourceConfig> resources() {
+        return resources;
+    }
+
+    public List<ResourceConfig> testResources() {
+        return testResources;
     }
 }

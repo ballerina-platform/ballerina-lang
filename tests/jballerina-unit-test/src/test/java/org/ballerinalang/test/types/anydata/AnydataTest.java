@@ -18,16 +18,12 @@
 
 package org.ballerinalang.test.types.anydata;
 
-import org.ballerinalang.core.model.types.BArrayType;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BXML;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.types.BArrayType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -36,6 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -56,265 +53,228 @@ public class AnydataTest {
 
     @Test(description = "Test allowed literals for anydata")
     public void testAllowedLiterals() {
-        BValue[] returns = BRunUtil.invoke(result, "testLiteralValueAssignment");
-        assertEquals(((BInteger) returns[0]).intValue(), 10);
-        assertEquals(((BFloat) returns[1]).floatValue(), 23.45);
-        assertTrue(((BBoolean) returns[2]).booleanValue());
-        assertEquals(returns[3].stringValue(), "Hello World!");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testLiteralValueAssignment");
+        assertEquals(returns.get(0), 10L);
+        assertEquals(returns.get(1), 23.45);
+        assertTrue((Boolean) returns.get(2));
+        assertEquals(returns.get(3).toString(), "Hello World!");
     }
 
     @Test(description = "Test allowed types for anydata")
     public void testValueTypesAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testValueTypesAssignment");
-        assertEquals(((BInteger) returns[0]).intValue(), 10);
-        assertEquals(((BFloat) returns[1]).floatValue(), 23.45);
-        assertTrue(((BBoolean) returns[2]).booleanValue());
-        assertEquals(returns[3].stringValue(), "Hello World!");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testValueTypesAssignment");
+        assertEquals(returns.get(0), 10L);
+        assertEquals(returns.get(1), 23.45);
+        assertTrue((Boolean) returns.get(2));
+        assertEquals(returns.get(3).toString(), "Hello World!");
     }
 
     @Test(description = "Test record types assignment")
     public void testRecordAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordAssignment");
 
-        BMap foo = (BMap) returns[0];
-        assertEquals(foo.getType().getName(), "Foo");
-        assertEquals(((BInteger) foo.get("a")).intValue(), 20);
+        BMap foo = (BMap) returns.get(0);
+        assertEquals(getType(foo).getName(), "Foo");
+        assertEquals((foo.get(StringUtils.fromString("a"))), 20L);
 
-        BMap closedFoo = (BMap) returns[1];
-        assertEquals(closedFoo.getType().getName(), "ClosedFoo");
-        assertEquals(((BInteger) closedFoo.get("ca")).intValue(), 35);
+        BMap closedFoo = (BMap) returns.get(1);
+        assertEquals(getType(closedFoo).getName(), "ClosedFoo");
+        assertEquals((closedFoo.get(StringUtils.fromString("ca"))), 35L);
     }
 
     @Test(description = "Test cyclic record types assignment")
     public void testCyclicRecordAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testCyclicRecordAssignment");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap bMap = (BMap) returns[0];
-        Assert.assertEquals(bMap.get("name").stringValue(), "Child");
-        Assert.assertEquals(((BInteger) bMap.get("age")).intValue(), 25);
-        Assert.assertEquals(((BMap) bMap.get("parent")).get("name").stringValue(), "Parent");
+        Object returns = BRunUtil.invoke(result, "testCyclicRecordAssignment");
+        Assert.assertTrue(returns instanceof BMap<?, ?>);
+        BMap bMap = (BMap) returns;
+        Assert.assertEquals(bMap.get(StringUtils.fromString("name")).toString(), "Child");
+        Assert.assertEquals(bMap.get(StringUtils.fromString("age")), 25L);
+        Assert.assertEquals(
+                ((BMap) bMap.get(StringUtils.fromString("parent"))).get(StringUtils.fromString("name")).toString(),
+                "Parent");
     }
 
     @Test(description = "Test XML assignment")
     public void testXMLAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testXMLAssignment");
 
-        assertTrue(returns[0] instanceof BXML);
-        assertEquals(returns[0].stringValue(), "<book>The Lost World</book>");
+        assertTrue(returns.get(0) instanceof BXml);
+        assertEquals(returns.get(0).toString(), "<book>The Lost World</book>");
 
-        assertTrue(returns[1] instanceof BXML);
-        assertEquals(returns[1].stringValue(), "<book>Count of Monte Cristo</book>");
+        assertTrue(returns.get(1) instanceof BXml);
+        assertEquals(returns.get(1).toString(), "<book>Count of Monte Cristo</book>");
     }
 
     @Test(description = "Test JSON assignment")
     public void testJSONAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testJSONAssignment");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
-        assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-    }
-
-    @Test(description = "Test table assignment")
-    public void testTableAssignment() {
-        BRunUtil.invoke(result, "testTableAssignment");
-    }
-
-    @Test(description = "Test map assignment")
-    public void testMapAssignment() {
-        BRunUtil.invoke(result, "testMapAssignment");
-    }
-
-    @Test(description = "Test for maps constrained by anydata")
-    public void testConstrainedMaps() {
-        BRunUtil.invoke(result, "testConstrainedMaps");
-    }
-
-    @Test(description = "Test array assignment")
-    public void testArrayAssignment() {
-        BRunUtil.invoke(result, "testArrayAssignment");
+        Object returns = BRunUtil.invoke(result, "testJSONAssignment");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
+        assertEquals(returns.toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
     }
 
     @Test(description = "Test union assignment")
     public void testUnionAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnionAssignment");
-        assertEquals(returns[0].stringValue(), "hello world!");
-        assertEquals(((BInteger) returns[1]).intValue(), 123);
-        assertEquals(((BFloat) returns[2]).floatValue(), 23.45);
-        assertTrue(((BBoolean) returns[3]).booleanValue());
-        assertEquals(((BByte) returns[4]).intValue(), 255);
-    }
-
-    @Test(description = "Test union assignment for more complex types")
-    public void testUnionAssignment2() {
-        BRunUtil.invoke(result, "testUnionAssignment2");
-    }
-
-    @Test(description = "Test tuple assignment")
-    public void testTupleAssignment() {
-        BRunUtil.invoke(result, "testTupleAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testUnionAssignment");
+        assertEquals(returns.get(0).toString(), "hello world!");
+        assertEquals(returns.get(1), 123L);
+        assertEquals(returns.get(2), 23.45);
+        assertTrue((Boolean) returns.get(3));
+        assertEquals(returns.get(4), 255);
     }
 
     @Test(description = "Test nil assignment")
     public void testNilAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testNilAssignment");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNilAssignment");
+        assertNull(returns);
     }
 
     @Test(description = "Test finite type assignment")
     public void testFiniteTypeAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAssignment");
-        assertEquals(returns[0].stringValue(), "A");
-        assertEquals(returns[1].stringValue(), "Z");
-        assertEquals(((BInteger) returns[2]).intValue(), 123);
-        assertEquals(((BFloat) returns[3]).floatValue(), 23.45);
-        assertTrue(((BBoolean) returns[4]).booleanValue());
+        BArray returns = (BArray) BRunUtil.invoke(result, "testFiniteTypeAssignment");
+        assertEquals(returns.get(0).toString(), "A");
+        assertEquals(returns.get(1).toString(), "Z");
+        assertEquals(returns.get(2), 123L);
+        assertEquals(returns.get(3), 23.45);
+        assertTrue((Boolean) returns.get(4));
     }
 
     @Test(description = "Test anydata array")
     public void testAnydataArray() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataArray", new BValue[]{});
-        assertEquals(TypeTags.ANYDATA_TAG, ((BArrayType) returns[0].getType()).getElementType().getTag());
-        BValueArray adArr = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(result, "testAnydataArray", new Object[]{});
+        assertEquals(TypeTags.ANYDATA_TAG, ((BArrayType) getType(returns)).getElementType().getTag());
+        BArray adArr = (BArray) returns;
 
-        assertEquals(((BInteger) adArr.getRefValue(0)).intValue(), 1234);
-        assertEquals(((BFloat) adArr.getRefValue(1)).floatValue(), 23.45);
-        assertTrue(((BBoolean) adArr.getRefValue(2)).booleanValue());
-        assertEquals(adArr.getRefValue(3).stringValue(), "Hello World!");
-        assertEquals(((BByte) adArr.getRefValue(4)).byteValue(), 10);
-        assertEquals(adArr.getRefValue(5).stringValue(), "{a:15}");
-        assertEquals(adArr.getRefValue(6).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(adArr.getRefValue(7).stringValue(), "<book>The Lost World</book>");
+        assertEquals(adArr.getRefValue(0), 1234L);
+        assertEquals(adArr.getRefValue(1), 23.45);
+        assertTrue((Boolean) adArr.getRefValue(2));
+        assertEquals(adArr.getRefValue(3).toString(), "Hello World!");
+        assertEquals(adArr.getRefValue(4), 10);
+        assertEquals(adArr.getRefValue(5).toString(), "{\"a\":15}");
+        assertEquals(adArr.getRefValue(6).toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
+        assertEquals(adArr.getRefValue(7).toString(), "<book>The Lost World</book>");
     }
 
     @Test(description = "Test anydata to value type conversion")
     public void testAnydataToValueTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToValueTypes");
-        assertEquals(((BInteger) returns[0]).intValue(), 33);
-        assertEquals(((BFloat) returns[1]).floatValue(), 23.45);
-        assertTrue(((BBoolean) returns[2]).booleanValue());
-        assertEquals(returns[3].stringValue(), "Hello World!");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToValueTypes");
+        assertEquals(returns.get(0), 33L);
+        assertEquals(returns.get(1), 23.45);
+        assertTrue((Boolean) returns.get(2));
+        assertEquals(returns.get(3).toString(), "Hello World!");
     }
 
     @Test(description = "Test anydata to json conversion")
     public void testAnydataToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToJson");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
-        assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
+        Object returns = BRunUtil.invoke(result, "testAnydataToJson");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
+        assertEquals(returns.toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
     }
 
     @Test(description = "Test anydata to xml conversion")
     public void testAnydataToXml() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToXml");
-        assertEquals(returns[0].getType().getTag(), TypeTags.XML_TAG);
-        assertEquals(returns[0].stringValue(), "<book>The Lost World</book>");
+        Object returns = BRunUtil.invoke(result, "testAnydataToXml");
+        assertEquals(getType(returns).getTag(), TypeTags.XML_ELEMENT_TAG);
+        assertEquals(returns.toString(), "<book>The Lost World</book>");
     }
 
     @Test(description = "Test anydata to record conversion")
     public void testAnydataToRecord() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToRecord");
-        assertEquals(returns[0].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[0].stringValue(), "{a:15}");
-    }
-
-    @Test(description = "Test anydata to table conversion")
-    public void testAnydataToTable() {
-        BRunUtil.invoke(result, "testAnydataToTable");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToRecord");
+        assertEquals(getType(returns.get(0)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(returns.get(0).toString(), "{\"a\":15}");
     }
 
     @Test(description = "Test anydata to union conversion")
     public void testAnydataToUnion() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToUnion");
-        assertEquals(returns[0].getType().getTag(), TypeTags.INT_TAG);
-        assertEquals(returns[1].getType().getTag(), TypeTags.FLOAT_TAG);
-        assertEquals(returns[2].getType().getTag(), TypeTags.STRING_TAG);
-        assertEquals(returns[3].getType().getTag(), TypeTags.BOOLEAN_TAG);
-        assertEquals(returns[4].getType().getTag(), TypeTags.BYTE_TAG);
-        assertEquals(((BInteger) returns[0]).intValue(), 10);
-        assertEquals(((BFloat) returns[1]).floatValue(), 23.45);
-        assertEquals(returns[2].stringValue(), "hello world!");
-        assertTrue(((BBoolean) returns[3]).booleanValue());
-        assertEquals(((BByte) returns[4]).intValue(), 255);
-    }
-
-    @Test(description = "Test anydata to union conversion for complex types")
-    public void testAnydataToUnion2() {
-        BRunUtil.invoke(result, "testAnydataToUnion2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToUnion");
+        assertEquals(getType(returns.get(0)).getTag(), TypeTags.INT_TAG);
+        assertEquals(getType(returns.get(1)).getTag(), TypeTags.FLOAT_TAG);
+        assertEquals(getType(returns.get(2)).getTag(), TypeTags.STRING_TAG);
+        assertEquals(getType(returns.get(3)).getTag(), TypeTags.BOOLEAN_TAG);
+        assertEquals(getType(returns.get(4)).getTag(), TypeTags.BYTE_TAG);
+        assertEquals(returns.get(0), 10L);
+        assertEquals(returns.get(1), 23.45);
+        assertEquals(returns.get(2).toString(), "hello world!");
+        assertTrue((Boolean) returns.get(3));
+        assertEquals(returns.get(4), 255);
     }
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple");
-        assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(returns[0].getType().toString(), "[int,float,boolean,string,byte]");
-        assertEquals(returns[0].stringValue(), "[123, 23.45, true, \"hello world!\", 255]");
+        Object returns = BRunUtil.invoke(result, "testAnydataToTuple");
+        assertEquals(getType(returns).getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(getType(returns).toString(), "[int,float,boolean,string,byte]");
+        assertEquals(returns.toString(), "[123,23.45,true,\"hello world!\",255]");
     }
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple2() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple2");
-        assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(returns[0].getType().toString(), "[json,xml]");
-        assertEquals(returns[0].stringValue(), "[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
-                "Lost World</book>]");
-    }
-
-    @Test(description = "Test anydata to tuple conversion")
-    public void testAnydataToTuple3() {
-        BRunUtil.invokeFunction(result, "testAnydataToTuple3");
+        Object returns = BRunUtil.invoke(result, "testAnydataToTuple2");
+        assertEquals(getType(returns).getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(getType(returns).toString(),
+                "[json,xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>]");
+        assertEquals(returns.toString(), "[{\"name\":\"apple\",\"color\":\"red\",\"price\":40},`<book>The Lost " +
+                "World</book>`]");
     }
 
     @Test(description = "Test anydata to nil conversion")
     public void testAnydataToNil() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToNil");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testAnydataToNil");
+        assertNull(returns);
     }
 
     @Test(description = "Test anydata to finite type conversion")
     public void testAnydataToFiniteType() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToFiniteType");
-        assertEquals(returns[0].stringValue(), "A");
-        assertEquals(returns[1].stringValue(), "Z");
-        assertEquals(((BInteger) returns[2]).intValue(), 123);
-        assertEquals(((BFloat) returns[3]).floatValue(), 23.45);
-        assertTrue(((BBoolean) returns[4]).booleanValue());
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToFiniteType");
+        assertEquals(returns.get(0).toString(), "A");
+        assertEquals(returns.get(1).toString(), "Z");
+        assertEquals(returns.get(2), 123L);
+        assertEquals(returns.get(3), 23.45);
+        assertTrue((Boolean) returns.get(4));
     }
 
     @Test(description = "Test type testing on any")
     public void testTypeCheckingOnAny() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testTypeCheckingOnAny");
+        Object returns = BRunUtil.invoke(result, "testTypeCheckingOnAny");
 
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-        assertEquals(((BArrayType) returns[0].getType()).getElementType().getTag(), TypeTags.ANYDATA_TAG);
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
+        assertEquals(((BArrayType) getType(returns)).getElementType().getTag(), TypeTags.ANYDATA_TAG);
 
-        BValueArray rets = (BValueArray) returns[0];
-        assertEquals(((BInteger) rets.getRefValue(0)).intValue(), 10);
-        assertEquals(((BFloat) rets.getRefValue(1)).floatValue(), 23.45);
-        assertTrue(((BBoolean) rets.getRefValue(2)).booleanValue());
-        assertEquals(rets.getRefValue(3).stringValue(), "hello world!");
-        assertEquals(rets.getRefValue(4).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(rets.getRefValue(5).stringValue(), "<book>The Lost World</book>");
-        assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
-        assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
+        BArray rets = (BArray) returns;
+        assertEquals(rets.getRefValue(0), 10L);
+        assertEquals(rets.getRefValue(1), 23.45);
+        assertTrue((Boolean) rets.getRefValue(2));
+        assertEquals(rets.getRefValue(3).toString(), "hello world!");
+        assertEquals(rets.getRefValue(4).toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
+        assertEquals(rets.getRefValue(5).toString(), "<book>The Lost World</book>");
+        assertEquals(rets.getRefValue(6).toString(), "{\"a\":15}");
+        assertEquals(rets.getRefValue(7).toString(), "{\"ca\":15}");
     }
 
-    @Test
-    public void testRuntimeIsAnydata() {
-        BRunUtil.invokeFunction(result, "testRuntimeIsAnydata");
+    @Test(dataProvider = "getAnydataFuntion")
+    public void testAnydata(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test(dataProvider = "subtypeOfBasicTypesIsAnydata")
-    public void testSubtypeOfBasicTypesIsAnydata(String function) {
-        BRunUtil.invokeFunction(result, function);
-    }
-
-    @DataProvider(name = "subtypeOfBasicTypesIsAnydata")
-    public Object[][] subtypeOfBasicTypesIsAnydata() {
-        return new Object[][]{
-                {"testMapOfCharIsAnydata"},
-                {"testCharArrayIsAnydata"},
-                {"testMapOfIntSubtypeIsAnydata"},
-                {"testArrayOfIntSubtypeIsAnydata"},
-                {"testMapOfNeverTypeIsAnydata"}
+    @DataProvider(name = "getAnydataFuntion")
+    public Object[] getAnydataFuntion() {
+        return new String[]{
+                "testMapOfCharIsAnydata",
+                "testCharArrayIsAnydata",
+                "testMapOfIntSubtypeIsAnydata",
+                "testArrayOfIntSubtypeIsAnydata",
+                "testMapOfNeverTypeIsAnydata",
+                "testRuntimeIsAnydata",
+                "testAnydataToTuple3",
+                "testAnydataToUnion2",
+                "testAnydataToTable",
+                "testTupleAssignment",
+                "testUnionAssignment2",
+                "testTableAssignment",
+                "testMapAssignment",
+                "testConstrainedMaps",
+                "testArrayAssignment",
+                "testAnytoAnydataTypeCast"
         };
     }
 }

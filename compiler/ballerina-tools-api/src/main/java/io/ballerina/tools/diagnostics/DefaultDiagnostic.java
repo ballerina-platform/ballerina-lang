@@ -17,6 +17,9 @@
  */
 package io.ballerina.tools.diagnostics;
 
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -60,5 +63,18 @@ class DefaultDiagnostic extends Diagnostic {
     @Override
     public List<DiagnosticProperty<?>> properties() {
         return properties;
+    }
+
+    @Override
+    public String toString() {
+        LineRange lineRange = this.location.lineRange();
+        String filePath = lineRange.filePath();
+        LineRange oneBasedLineRange = LineRange.from(
+                filePath,
+                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+
+        return diagnosticInfo().severity().toString() + " ["
+                + filePath + ":" + oneBasedLineRange + "] " + message();
     }
 }

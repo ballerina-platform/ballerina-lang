@@ -38,8 +38,8 @@ public class CompilerPluginCodeActionExecutionTest extends AbstractCommandExecut
     }
 
     @Test(dataProvider = "create-function-data-provider")
-    public void testCreateFunction(String config, String source, String command) throws IOException {
-        performTest(config, source, command);
+    public void testCreateFunction(String config, String command) throws IOException {
+        performTest(config, command);
     }
 
     @DataProvider(name = "create-function-data-provider")
@@ -47,7 +47,10 @@ public class CompilerPluginCodeActionExecutionTest extends AbstractCommandExecut
         return new Object[][]{
                 {
                         "compiler_plugin_code_action_exec_config1.json",
-                        "package_plugin_user_with_codeactions_1/main.bal",
+                        "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR"
+                },
+                {
+                        "compiler_plugin_code_action_exec_config2.json",
                         "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR"
                 }
         };

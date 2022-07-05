@@ -1,25 +1,24 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -46,108 +45,104 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous object in a function parameter declaration")
     public void testAnonObjectAsFuncParam() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonObjectAsFuncParam");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectAsFuncParam");
 
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 24);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 24L);
     }
 
     @Test(description = "Test Anonymous object in a local variable declaration")
     public void testAnonObjectAsLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonObjectAsLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectAsLocalVar");
 
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 11);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 11L);
     }
 
     @Test(description = "Test Anonymous object in a package variable declaration")
     public void testAnonObjectAsPkgVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonObjectAsPkgVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectAsPkgVar");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "sameera:jayasoma:100");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "sameera:jayasoma:100");
     }
 
     @Test(description = "Test Anonymous object in a object field")
     public void testAnonObjectAsObjectField() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonObjectAsObjectField");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectAsObjectField");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "JAN:12 Gemba St APT 134:CA:sam");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "JAN:12 Gemba St APT 134:CA:sam");
     }
 
     @Test(description = "Test Anonymous object with function as global variable")
     public void testAnonObjectWithFunctionsAsGlobalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonObjectWithFunctionAsGlobalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectWithFunctionAsGlobalVar");
 
-        Assert.assertEquals(returns.length, 1);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "a hello");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "a hello");
     }
 
     @Test(description = "Test Anonymous object with function as local variable")
     public void testAnonObjectWithFunctionsAsLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonObjectWithFunctionAsLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectWithFunctionAsLocalVar");
 
-        Assert.assertEquals(returns.length, 1);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "a hello");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "a hello");
     }
 
     @Test(description = "Test Anonymous casted to normal object")
     public void testAnonObjectCastWithNormalObject() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEquivalencyBetweenAnonAndNormalObject");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectEquivalencyBetweenAnonAndNormalObject");
 
-        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns.size(), 3);
 
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
-        Assert.assertEquals(returns[1].stringValue(), "passed Name");
-        Assert.assertEquals(returns[2].stringValue(), "passed Name hello sample value");
+        Assert.assertEquals(returns.get(0), 5L);
+        Assert.assertEquals(returns.get(1).toString(), "passed Name");
+        Assert.assertEquals(returns.get(2).toString(), "passed Name hello sample value");
     }
 
     @Test(description = "Test Anonymous object with record literal")
     public void testAnonObjectWithRecordLiteral() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonObjectWithRecordLiteral");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAnonObjectWithRecordLiteral");
 
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
-        Assert.assertEquals(returns[1].stringValue(), "sanjiva");
+        Assert.assertEquals(returns.get(0), 8L);
+        Assert.assertEquals(returns.get(1).toString(), "sanjiva");
     }
 
     @Test(description = "Test object with anonymous record literal")
     public void testObjectWithAnonRecordLiteral() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithAnonRecordLiteral");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithAnonRecordLiteral");
 
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
-        Assert.assertEquals(returns[1].stringValue(), "sanjiva");
+        Assert.assertEquals(returns.get(0), 8L);
+        Assert.assertEquals(returns.get(1).toString(), "sanjiva");
     }
 
     @Test(description = "Test object with self reference")
     public void testObjectWithSelfReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithSelfReference");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithSelfReference");
 
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 98);
-        Assert.assertEquals(returns[1].stringValue(), "Tyler Jewell");
+        Assert.assertEquals(returns.get(0), 98L);
+        Assert.assertEquals(returns.get(1).toString(), "Tyler Jewell");
     }
 
     @Test(description = "Negative test to test un-defaultable anon object")
@@ -170,7 +165,8 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Code analyzer execution on Anonymous objects")
     public void testCodeAnalyzerRunningOnAnonymousObjectsForDeprecatedFunctionAnnotation() {
-        BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'Test()' is deprecated", 287, 25);
+        BAssertUtil.validateWarning(compileResult, 0, "unused variable 'obj'", 284, 5);
+        BAssertUtil.validateWarning(compileResult, 1, "usage of construct 'Test' is deprecated", 287, 25);
     }
 
     @AfterClass

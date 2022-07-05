@@ -17,12 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.nativeimpl.jvm.tests.JavaFieldAccessMutate;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -51,31 +47,29 @@ public class FieldAccessMutateTest {
 
     @Test(description = "Test static field access")
     public void testStaticFieldAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testStaticFieldAccess");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), JavaFieldAccessMutate.contractId);
+        Object returns = BRunUtil.invoke(result, "testStaticFieldAccess");
+        Assert.assertEquals(((HandleValue) returns).getValue(), JavaFieldAccessMutate.contractId);
     }
 
     @Test(description = "Test static field mutate")
     public void testStaticFieldMutate() {
-        BValue[] args = new BValue[1];
+        Object[] args = new Object[1];
         String argValue = "NewValue";
-        args[0] = new BString(argValue);
+        args[0] = StringUtils.fromString(argValue);
         BRunUtil.invoke(result, "testStaticFieldMutate", args);
         Assert.assertEquals(JavaFieldAccessMutate.contractId.getValue(), argValue);
     }
 
     @Test(description = "Test static field access")
     public void testStaticPrimitiveFieldAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testStaticPrimitiveFieldAccess");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), JavaFieldAccessMutate.age);
+        Object returns = BRunUtil.invoke(result, "testStaticPrimitiveFieldAccess");
+        Assert.assertEquals(returns, (long) JavaFieldAccessMutate.age);
     }
 
     @Test(description = "Test static field mutate")
     public void testStaticPrimitiveFieldMutate() {
-        BValue[] args = new BValue[1];
-        args[0] = new BInteger(345);
+        Object[] args = new Object[1];
+        args[0] = (345);
         BRunUtil.invoke(result, "testStaticPrimitiveFieldMutate", args);
         Assert.assertEquals(JavaFieldAccessMutate.aShort, 345);
     }
@@ -92,42 +86,40 @@ public class FieldAccessMutateTest {
 
     @Test(description = "Test instance field access")
     public void testInstanceFieldAccess() {
-        BValue[] args = new BValue[1];
+        Object[] args = new Object[1];
         Date createdAt = new Date();
         JavaFieldAccessMutate receiver = new JavaFieldAccessMutate(createdAt);
-        args[0] = new BHandleValue(receiver);
-        BValue[] returns = BRunUtil.invoke(result, "testInstanceFieldAccess", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), createdAt);
+        args[0] = new HandleValue(receiver);
+        Object returns = BRunUtil.invoke(result, "testInstanceFieldAccess", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(), createdAt);
     }
 
     @Test(description = "Test instance field mutate")
     public void testInstanceFieldMutate() {
-        BValue[] args = new BValue[2];
+        Object[] args = new Object[2];
         UUID uuid = UUID.randomUUID();
         JavaFieldAccessMutate receiver = new JavaFieldAccessMutate();
-        args[0] = new BHandleValue(receiver);
-        args[1] = new BHandleValue(uuid);
+        args[0] = new HandleValue(receiver);
+        args[1] = new HandleValue(uuid);
         BRunUtil.invoke(result, "testInstanceFieldMutate", args);
         Assert.assertEquals(receiver.uuid, uuid);
     }
 
     @Test(description = "Test instance field access")
     public void testInstancePrimitiveFieldAccess() {
-        BValue[] args = new BValue[1];
+        Object[] args = new Object[1];
         JavaFieldAccessMutate receiver = new JavaFieldAccessMutate();
-        args[0] = new BHandleValue(receiver);
-        BValue[] returns = BRunUtil.invoke(result, "testInstancePrimitiveFieldAccess", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        args[0] = new HandleValue(receiver);
+        Object returns = BRunUtil.invoke(result, "testInstancePrimitiveFieldAccess", args);
+        Assert.assertEquals(returns, false);
     }
 
     @Test(description = "Test instance field mutate")
     public void testInstancePrimitiveFieldMutate() {
-        BValue[] args = new BValue[2];
+        Object[] args = new Object[2];
         JavaFieldAccessMutate receiver = new JavaFieldAccessMutate();
-        args[0] = new BHandleValue(receiver);
-        args[1] = new BFloat(123.0f);
+        args[0] = new HandleValue(receiver);
+        args[1] = (123.0f);
         BRunUtil.invoke(result, "testInstancePrimitiveFieldMutate", args);
         Assert.assertEquals(receiver.lkr, 123.0f);
     }

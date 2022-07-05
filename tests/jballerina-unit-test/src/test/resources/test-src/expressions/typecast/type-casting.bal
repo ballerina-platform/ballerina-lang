@@ -951,7 +951,7 @@ function testCastOfReadonlyRecordNegative() {
     assertEquality(true, b is error);
     error err = <error> b;
     string errMsg = "incompatible types: '(Foo & readonly)' cannot be cast to 'Bar': " +
-    "\n\t\tfield 'arr' in record 'Bar' should be of type 'byte[]'";
+    "\n\t\tfield 'arr' in record 'Bar' should be of type 'byte[]', found '[1,2,300]'";
     assertEquality("{ballerina}TypeCastError", err.message());
     assertEquality(errMsg, <string> checkpanic err.detail()["message"]);
 }
@@ -975,6 +975,65 @@ function testCastOfTwoDimensionalIntArrayToByteArray() {
 
     assertEquality(true, c === b);
     assertEquality("[[1,2,3],[4,5,6]]", c.toString());
+}
+
+function testCastJsonToMapOfAnydata() {
+    json j1 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
+    map<anydata> m1 = <map<anydata>> j1;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", m1.toString());
+
+    json j2 = {a1: null, a2: 1, a3: 1.0, a4: 1d, a5: "a5", a6: false, a7: {a1: j1}};
+    map<anydata> m2 = <map<anydata>> j2;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", m2.toString());
+}
+
+function testCastMapOfJsonToMapOfAnydata() {
+    map<json> j1 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
+    map<anydata> m1 = <map<anydata>> j1;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", m1.toString());
+    anydata any1 = <map<anydata>> j1;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", any1.toString());
+
+    map<json> j2 = {a1: null, a2: 1, a3: 1.0, a4: 1d, a5: "a5", a6: false, a7: {a1: j1}};
+    map<anydata> m2 = <map<anydata>> j2;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", m2.toString());
+    anydata any2 = <map<anydata>> j2;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", any2.toString());
+
+    map<json>|json j3 = {a1: null, a2: 1, a3: 1.0, a4: 1d, a5: "a5", a6: false, a7: {a1: j1}};
+    map<anydata> m3 = <map<anydata>> j3;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", m2.toString());
+    anydata any3 = <map<anydata>> j3;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", any2.toString());
+
+}
+
+function testInvalidTypeCastMapOfJsonToMapOfBasicType() {
+    map<json> j1 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
+    map<int>|error m1 = trap (<map<int>> j1);
+    error expectedMsgM1 = error("{ballerina}TypeCastError\",message=\"incompatible types: 'map<json>' cannot be cast to 'map<int>'");
+    assertEquality(expectedMsgM1.toString(), m1 is error ? m1.toString() : m1.toString());
+
+    map<string>|error m2 = trap (<map<string>> j1);
+    error expectedMsgM2 = error("{ballerina}TypeCastError\",message=\"incompatible types: 'map<json>' cannot be cast to 'map<string>'");
+    assertEquality(expectedMsgM2.toString(), m2 is error ? m2.toString() : m2.toString());
+
+    json j2 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
+    map<int>|error m3 = trap (<map<int>> j2);
+    error expectedMsgM3 = error("{ballerina}TypeCastError\",message=\"incompatible types: 'map<json>' cannot be cast to 'map<int>'");
+    assertEquality(expectedMsgM3.toString(), m3 is error ? m3.toString() : m3.toString());
+}
+
+function testInvalidTypeCastJsonToMapOfAnydata() {
+    json j1 = [{a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true}];
+    map<anydata>|error m1 = trap (<map<anydata>> j1);
+    error expectedMsgM1 = error("{ballerina}TypeCastError\",message=\"incompatible types: 'json[]' cannot be cast to 'map<anydata>'");
+    assertEquality(expectedMsgM1.toString(), m1 is error ? m1.toString() : m1.toString());
+
+    json j2 = "json";
+    map<anydata>|error m3 = trap (<map<anydata>> j2);
+    error expectedMsgM3 = error("{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'map<anydata>'");
+    assertEquality(expectedMsgM3.toString(), m3 is error ? m3.toString() : m3.toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

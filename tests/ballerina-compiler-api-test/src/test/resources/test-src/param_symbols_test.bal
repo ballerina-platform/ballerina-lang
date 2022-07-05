@@ -68,3 +68,11 @@ function defFunc(boolean k) {
 function funcWithFuncParam(function (int) abc, function (boolean) pqr = defFunc, function (string)... xyz) {
 
 }
+
+function (int, int) returns int addFunc = (aVal, bVal) => aVal + bVal;
+
+function testVarFunc(string a = "a") {
+    function (string) returns string getName = (value) => value;
+}
+
+function (function (function (int) returns string) returns string) returns int funcOne = (funcParam) => 10;

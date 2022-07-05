@@ -18,10 +18,14 @@
 
 package io.ballerina.runtime.internal.util.exceptions;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -32,6 +36,7 @@ import java.util.ResourceBundle;
  */
 public class BLangExceptionHelper {
     private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
+    private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
 
     public static BError getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         BString errorMsg = StringUtils
@@ -40,14 +45,24 @@ public class BLangExceptionHelper {
     }
 
     public static BError getRuntimeException(BString reason, RuntimeErrors runtimeErrors, Object... params) {
-        BString errorDetail = StringUtils
-                .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.messageKey()), params));
+        MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
+        initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, StringUtils
+                .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.messageKey()), params)));
+        MapValueImpl<BString, Object> errorDetail = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return ErrorCreator.createError(reason, errorDetail);
     }
 
     public static BString getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
         return StringUtils.fromString(MessageFormat
                                               .format(messageBundle.getString(runtimeErrors.messageKey()), params));
+    }
+
+    public static BMap<BString, Object> getErrorDetails(RuntimeErrors runtimeErrors, Object... params) {
+        MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
+        initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
+                StringUtils.fromString(MessageFormat.format(messageBundle.getString(
+                        runtimeErrors.messageKey()), params)));
+        return new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
     }
 
     public static String getErrorMessage(String messageFormat, Object... params) {

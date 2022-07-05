@@ -27,6 +27,7 @@ under the License.
             <class name="io.ballerina.cli.cmd.BuildCommandTest" />
             <class name="io.ballerina.cli.cmd.CleanCommandTest" />
             <class name="io.ballerina.cli.cmd.DocCommandTest" />
+            <class name="io.ballerina.cli.cmd.GraphCommandTest" />
             <class name="io.ballerina.cli.cmd.InitCommandTest" />
             <class name="io.ballerina.cli.cmd.NewCommandTest" />
             <class name="io.ballerina.cli.cmd.PrintUtilsTest" />
@@ -37,6 +38,7 @@ under the License.
             <class name="io.ballerina.cli.cmd.ShellCommandTest" />
             <class name="io.ballerina.cli.cmd.TestCommandTest" />
             <class name="io.ballerina.cli.cmd.PackCommandTest" />
+            <class name="io.ballerina.cli.cmd.CommandUtilTest" />
         </classes>
     </test>
 </suite>

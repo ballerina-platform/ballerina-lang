@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/httpx;
 
 public function main() {
     worker w1 {

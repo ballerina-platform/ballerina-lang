@@ -124,12 +124,6 @@ function testMemberAccessMapConstraintTable() {
     map<any> mapObject = tab[13];
 }
 
-function testInferMemberType() {
-
-   var arr = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
-                            { id: "Hello" , name: "James" , address: "Clark" }];
-}
-
 function testVarTypeTableInfering() {
     var customerTable = table [];
     customerTable.put({id: 3, name: "Pope", age: 19, address: {no: 12, road: "Sea street"}});
@@ -235,3 +229,293 @@ type CustomerTableWithKTC table<CustomerDetail> key<Name>;
 
 CustomerTableWithKTC tbl4 = table key(firstname, lastname) [{name: {fname: "Sanjiva", lname: "Weerawarana"},
                 id: 13, address: "Sri Lanka"}];
+
+function variableNameFieldAsKeyField() {
+    int id = 1;
+
+    table<record {readonly int id; string name;}> key (id) _ = table [
+        {id, name: "Jo"},
+        {id: 1, name: "Amy"},
+        {id: 2, name: "Amy"},
+        {id, name: "Alex"}
+    ];
+}
+
+function testTableConstructorWithVar1() {
+    string s1 = "id";
+    string s2 = "employed";
+
+    var v1 = table [
+            {name: "Jo"},
+            {[s1] : 2},
+            {[s2] : false}
+        ];
+
+    table<record {|string name?;|}> _ = v1;
+
+    map<int> m = {name: 1, b: 2};
+
+    var v2 = table [
+        {name: "Jo"},
+        {...m}
+    ];
+
+    table<record {|string name?;|}> _ = v2;
+    table<record {|string|int name?;|}> _ = v2;
+}
+
+type FooUnion int|string;
+
+function testTableConstructorWithVar2() {
+    FooUnion f = 1;
+
+    var v1 = table [
+        {a: f},
+        {a: 1}
+    ];
+    int _ = v1;
+}
+
+type FooRec2 record {|
+    int i;
+    never j?;
+    never k?;
+    never...;
+|};
+
+function testTableConstructorWithVar3(FooRec2 f) {
+    var v1 = table [
+            {...f},
+            {i: 1, j: 2, l: ""}
+        ];
+    int _ = v1;
+}
+
+function testTableConstructorWithVar4() {
+    anydata|error f = 1;
+
+    var v1 = table [
+            {a: f},
+            {a: 1}
+        ];
+    int _ = v1;
+}
+
+function testTableConstructorWithVar5() {
+    any|error f = 1;
+
+    var v1 = table [
+            {a: f},
+            {a: 1}
+        ];
+    int _ = v1;
+}
+
+type Zero 0;
+
+type NaturalNums 1|2|3;
+
+type WholeNums Zero|NaturalNums;
+
+function testTableConstructorWithVar6() {
+    WholeNums f = 2;
+
+    var v1 = table [{a: f}];
+    int _ = v1;
+}
+
+type CustomerEmptyKeyedTbl table<Customer> key();
+
+function testInvalidMemberAccessWithEmptyKeyedKeylessTbl() {
+    table<Customer> key() tbl1 = table [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, firstName: "Anne", lastName: "Frank"}
+        ];
+    _ = tbl1[222];
+
+    CustomerEmptyKeyedTbl tbl2 = table [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, firstName: "Anne", lastName: "Frank"}
+        ];
+    _ = tbl2[222];
+
+    table<record {|string name?;|}> key() tbl3 = table [
+            {name: "John"},
+            {name: "Anne"}
+        ];
+    _ = tbl3["Anne"];
+
+    table<record {string name?;}> key() tbl4 = table [
+            {name: "John"},
+            {name: "Anne"}
+        ];
+    _ = tbl4["Anne"];
+
+    table<Customer> key() & readonly tbl5 = table [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, firstName: "Anne", lastName: "Frank"}
+        ];
+    _ = tbl5[222];
+
+    table<record {|string name?;|}> key() & readonly tbl6 = table [
+            {name: "John"},
+            {name: "Anne"}
+        ];
+    _ = tbl6["Anne"];
+
+    table<User|Customer> key() tbl7 = table key(id) [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, name: "Anne", address: "LA"}
+        ];
+    _ = tbl7["Anne"];
+}
+
+function testUpdatingMemberWithEmptyKeyedKeylessTbl() {
+    table<Customer> key() tbl1 = table [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, firstName: "Anne", lastName: "Frank"}
+        ];
+    tbl1[222] = {id: 222, firstName: "Melina", lastName: "Kodel"};
+
+    CustomerEmptyKeyedTbl tbl2 = table [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, firstName: "Anne", lastName: "Frank"}
+        ];
+    tbl2[222] = {id: 222, firstName: "Melina", lastName: "Kodel"};
+
+    table<record {|string name?;|}> key() tbl3 = table [
+            {name: "John"},
+            {name: "Anne"}
+        ];
+    tbl3["Anne"] = {name: "Annie"};
+
+    table<record {string name?;}> key() tbl4 = table [
+            {name: "John"},
+            {name: "Anne"}
+        ];
+    tbl4["Anne"] = {name: "Annie"};
+
+    table<Customer> key() & readonly tbl5 = table [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, firstName: "Anne", lastName: "Frank"}
+        ];
+    tbl5[222] = {id: 222, firstName: "Melina", lastName: "Kodel"};
+
+    table<record {|string name?;|}> key() & readonly tbl6 = table [
+            {name: "John"},
+            {name: "Anne"}
+        ];
+    tbl6["Anne"] = {name: "Annie"};
+
+    table<User|Customer> key() tbl7 = table key(id) [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, name: "Anne", address: "LA"}
+        ];
+    tbl7[111] = {id: 111, name: "Annie", address: "LA"};
+}
+
+function testIncompatibleTableTypesWithEmptyKeyedKeylessTbl() {
+    CustomerEmptyKeyedTbl tbl1 = table [
+            {id: 222, firstName: "John", lastName: "Reed"}
+        ];
+
+    table<record {|int id; string firstName; string lastName;|}> key() _ = tbl1;
+
+    CustomerTable _ = tbl1;
+}
+
+function testAssigningKeyedToEmptyKeyedTbl() {
+    table<Customer> key(id) tbl1 = table [
+            {id: 222, firstName: "John", lastName: "Reed"},
+            {id: 111, firstName: "Anne", lastName: "Frank"}
+        ];
+    CustomerEmptyKeyedTbl tbl2 = tbl1;
+    _ = tbl2[111];
+    tbl2[222] = {id: 222, firstName: "Melina", lastName: "Kodel"};
+}
+
+type Student record {|
+    readonly int id;
+    string firstName;
+|};
+
+function testIncompatibleTableTypeInAUnion() {
+    string lastName = "Jayawickrama";
+    table<Student>|int t = table key(id) [{id: 1, firstName: "Lochana", lastName}];
+}
+
+type Person1 record {
+    readonly int id;
+    string name;
+};
+
+function testMultipleKeys1() {
+    table<Person1> key(id) t1 = table [
+        {id: 1, name: "a"},
+        {id: 2, name: "a"}
+    ];
+
+    Person1? _ = t1[1, 2, 3]; // error
+}
+
+type Person2 record {
+    readonly int id;
+    readonly string name;
+};
+
+function testMultipleKeys2() {
+    table<Person2> key(id) t1 = table [
+        {id: 1, name: "a"},
+        {id: 2, name: "a"}
+    ];
+
+    Person2? _ = t1[1, "2", "3"]; // error
+
+    table<Person2> key(id) t2 = table [
+        {id: 1, name: "a"},
+        {id: 2, name: "a"}
+    ];
+
+    Person2? _ = t2[11, 12, 13, 14]; // error
+}
+
+function testMultipleKeys3() {
+    table<Person1> key <int> t1 = table key(id) [
+        {id: 1, name: "a"},
+        {id: 2, name: "a"}
+    ];
+
+    Person1? _ = t1[1, 2, 3]; // error
+}
+
+type FooRec record {
+    readonly int x;
+    int y;
+};
+
+FooRec spreadField1 = {x: 1002, y: 30};
+FooRec spreadField2 = {x: 1003, y: 25};
+
+table<FooRec> key(x) tb1 = table [
+    {x: 1001, y: 20},
+    {...spreadField1},
+    {...spreadField2}
+];
+
+table<FooRec> key(x) tb2 = table [
+    {...spreadField1},
+    {...spreadField2}
+];
+
+type BarRec record {
+    readonly int x;
+    readonly int y;
+    readonly string z;
+};
+
+int i = 1;
+BarRec spreadField3 = {x: 1003, y: 25, z: "a"};
+table<BarRec> key(x, y, z) tb3 = table [
+    {x: i, y: i, z: "a"},
+    {...spreadField3}
+];

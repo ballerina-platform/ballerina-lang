@@ -23,8 +23,10 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -41,8 +43,6 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvide
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
-import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -61,6 +61,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
+import static io.ballerina.runtime.test.TestUtils.getIntersectionType;
 import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM_UNION;
 
@@ -131,7 +132,10 @@ public class TomlProviderTest {
                 {new VariableKey(
                         ROOT_MODULE, "decimalArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(TYPE_DECIMAL), 0, false), true), decimalArrayGetFunction,
-                        expectedDecimalArray}
+                        expectedDecimalArray},
+                {new VariableKey(ROOT_MODULE, "intArrWithSize", new BIntersectionType(ROOT_MODULE, new BType[]{},
+                        TypeCreator.createArrayType(TYPE_INT, 2), 0, false), true), intArrayGetFunction,
+                        new long[]{123456, 987654321}}
         };
     }
 
@@ -610,7 +614,6 @@ public class TomlProviderTest {
 
     @DataProvider(name = "union-data-provider")
     public Object[][] unionDataProvider() {
-        ArrayType arrayType = TypeCreator.createArrayType(TYPE_INT, true);
         return new Object[][]{
                 // union variable with int value
                 {"intStringVar", TypeCreator.createUnionType(List.of(TYPE_INT, TYPE_FLOAT), true), 123456L},
@@ -634,13 +637,6 @@ public class TomlProviderTest {
                                                                 ValueCreator.createKeyFieldEntry(fromString("age"),
                                                                                                  14L),
                                                         })},
-                // union variable with array value
-                {"arrayUnionVar", TypeCreator.createUnionType(List.of(TYPE_INT, arrayType), true),
-                        new ArrayValueImpl(arrayType, 3, new ListInitialValueEntry.ExpressionEntry[]{
-                                new ListInitialValueEntry.ExpressionEntry(123L),
-                                new ListInitialValueEntry.ExpressionEntry(456L),
-                                new ListInitialValueEntry.ExpressionEntry(789L)
-                        })},
                 // anydata variable with float value
                 {"anyDataPrimitiveTypeVar", TYPE_ANYDATA, 9.87},
                 // anydata variable with map value
@@ -656,5 +652,100 @@ public class TomlProviderTest {
                 // Enum value given with toml
                 {"color", COLOR_ENUM_UNION, StringUtils.fromString("RED")},
         };
+    }
+
+
+    @Test(dataProvider = "finite-data-provider")
+    public void testTomlProviderFiniteType(String variableName, Type type, Object expectedValues) {
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, variableName, type, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("FiniteTypeConfig.toml"),
+                        configVarMap.keySet())));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Object value = configValueMap.get(finiteVar).getValue();
+        Assert.assertEquals(expectedValues, value);
+    }
+
+    @DataProvider(name = "finite-data-provider")
+    public Object[][] finiteDataProvider() {
+        String typeName = "Singleton";
+        BString strVal = fromString("test");
+        BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
+        FiniteType stringFinite = TypeCreator.createFiniteType(typeName, Set.of(strVal), 0);
+        FiniteType intFinite = TypeCreator.createFiniteType(typeName, Set.of(2L), 0);
+        FiniteType floatFinite = TypeCreator.createFiniteType(typeName, Set.of(2.2d), 0);
+        FiniteType decimalFinite = TypeCreator.createFiniteType(typeName, Set.of(decimalVal), 0);
+        FiniteType booleanFinite = TypeCreator.createFiniteType(typeName, Set.of(true), 0);
+        FiniteType unionFinite1 = TypeCreator.createFiniteType(typeName, Set.of(strVal, 1.34d, decimalVal), 0);
+        FiniteType unionFinite2 = TypeCreator.createFiniteType(typeName, Set.of(3.24d, decimalVal), 0);
+        FiniteType unionFinite3 = TypeCreator.createFiniteType(typeName, Set.of(3.23d, decimalVal, strVal), 0);
+        return new Object[][]{
+                {"stringSingleton", stringFinite, strVal},
+                {"intSingleton", intFinite, 2L},
+                {"floatSingleton", floatFinite, 2.2d},
+                {"decimalSingleton", decimalFinite, decimalVal},
+                {"booleanSingleton", booleanFinite, true},
+                {"unionVar1", unionFinite1, 1.34d},
+                {"unionVar2", unionFinite2, decimalVal},
+                {"unionVar3", unionFinite3, strVal},
+                {"stringSingleton2", getIntersectionType(ROOT_MODULE, stringFinite), strVal},
+                {"intSingleton2", getIntersectionType(ROOT_MODULE, intFinite), 2L},
+                {"floatSingleton2", getIntersectionType(ROOT_MODULE, floatFinite), 2.2d},
+                {"decimalSingleton2", getIntersectionType(ROOT_MODULE, decimalFinite), decimalVal},
+                {"booleanSingleton2", getIntersectionType(ROOT_MODULE, booleanFinite), true},
+                {"unionVar4", getIntersectionType(ROOT_MODULE, unionFinite1), 1.34d},
+                {"unionVar5", getIntersectionType(ROOT_MODULE, unionFinite2), decimalVal},
+                {"unionVar6", getIntersectionType(ROOT_MODULE, unionFinite3), strVal},
+        };
+    }
+
+    @Test
+    public void testAmbiguityWithOrgAndModuleStartWithSameName() {
+        Module root = new Module("user", "userPortal", "1");
+        Module usersModule = new Module("user", "userPortal.users", "1");
+
+        VariableKey[] rootVariableKeys = getSimpleVariableKeys(root);
+        VariableKey[] usersVariableKeys = getSimpleVariableKeys(usersModule);
+
+        Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(root, rootVariableKeys),
+                Map.entry(usersModule, usersVariableKeys));
+        Map<VariableKey, Object> expectedValues = Map.ofEntries(Map.entry(rootVariableKeys[0], 12L),
+                Map.entry(rootVariableKeys[1], fromString("Tom")),
+                Map.entry(usersVariableKeys[0], 21L),
+                Map.entry(usersVariableKeys[1], fromString("Paul")));
+        List<ConfigProvider> providers =
+                List.of(new TomlFileProvider(root, getConfigPath("ConfigClashingModule11.toml"),
+                        Set.of(root, usersModule)));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog, providers);
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+
+        for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
+            VariableKey key = keyEntry.getKey();
+            Object value = configValueMap.get(key).getValue();
+            Assert.assertNotNull(value, "value not found for variable : " + key.variable);
+            Assert.assertEquals(value, keyEntry.getValue());
+        }
+    }
+
+    @Test
+    public void testTupleDefaultableConfig() {
+        TupleType type = TypeCreator.createTupleType(List.of(TYPE_INT, TYPE_STRING), null, 0, true);
+        IntersectionType tupleType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey tupleVar = new VariableKey(ROOT_MODULE, "tupleVar", tupleType, false);
+        VariableKey intVar = new VariableKey(ROOT_MODULE, "intVar", TYPE_INT, false);
+
+        Map<Module, VariableKey[]> configVarMap =
+                Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tupleVar, intVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_First.toml"), configVarMap.keySet())));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+
+        Object value = configValueMap.get(intVar).getValue();
+        Assert.assertEquals(12L, value);
     }
 }

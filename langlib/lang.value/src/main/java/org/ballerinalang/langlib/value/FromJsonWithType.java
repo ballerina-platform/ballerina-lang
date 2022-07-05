@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
@@ -62,22 +63,29 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 2.0
  */
 public class FromJsonWithType {
-    private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
-    public static Object fromJsonWithType(Object v, BTypedesc t) {
-        Type describingType = t.getDescribingType();
+    private FromJsonWithType() {
+    }
+
+    public static Object fromJsonWithType(Object value, BTypedesc t) {
+        return convert(value, t.getDescribingType(), t);
+    }
+
+    public static Object convert(Object value, Type targetType) {
+        return convert(value, targetType, null);
+    }
+
+    public static Object convert(Object value, Type targetType, BTypedesc t) {
         try {
-            return convert(v, describingType, new ArrayList<>(), t);
+            return convert(value, targetType, new ArrayList<>(), t);
         } catch (BError e) {
             return e;
         } catch (BallerinaException e) {
-            return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                               StringUtils.fromString(e.getDetail()));
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
         }
     }
 
-    private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
-                                  BTypedesc t) {
+    private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues, BTypedesc t) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (value == null) {
@@ -85,7 +93,7 @@ public class FromJsonWithType {
                 return null;
             }
             throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
 
         Type sourceType = TypeChecker.getType(value);
@@ -102,11 +110,9 @@ public class FromJsonWithType {
                 null, new ArrayList<>(), errors);
         if (convertibleTypes.isEmpty()) {
             throw CloneUtils.createConversionError(value, targetType, errors);
-        } else if (convertibleTypes.size() > 1) {
-            throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
         }
 
-        Type matchingType = convertibleTypes.get(0);
+        Type matchingType = TypeUtils.getReferredType(convertibleTypes.get(0));
 
         Object newValue;
         switch (sourceType.getTag()) {
@@ -159,7 +165,7 @@ public class FromJsonWithType {
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                     count++;
                 }
-                return ValueCreator.createMapValue(targetType, initialValues);
+                return ValueCreator.createMapValue((MapType) targetType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
                 RecordType recordType = (RecordType) targetType;
                 Type restFieldType = recordType.getRestFieldType();
@@ -168,8 +174,7 @@ public class FromJsonWithType {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
                 if (t != null && t.getDescribingType() == targetType) {
-                    return convertToRecordWithTypeDesc(map, unresolvedValues, t, restFieldType,
-                                                       targetTypeField);
+                    return convertToRecordWithTypeDesc(map, unresolvedValues, t, restFieldType, targetTypeField);
                 } else {
                     return convertToRecord(map, unresolvedValues, t, recordType, restFieldType,
                                            targetTypeField);
@@ -259,11 +264,7 @@ public class FromJsonWithType {
                 BArray data = ValueCreator
                         .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
                 BArray fieldNames;
-                if (tableType.getFieldNames() != null) {
-                    fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-                } else {
-                    fieldNames = ValueCreator.createArrayValue(new BString[]{});
-                }
+                fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
                 return ValueCreator.createTableValue(tableType, data, fieldNames);
             case TypeTags.INTERSECTION_TAG:
                 return convertArray(array, ((IntersectionType) targetType).getEffectiveType(),

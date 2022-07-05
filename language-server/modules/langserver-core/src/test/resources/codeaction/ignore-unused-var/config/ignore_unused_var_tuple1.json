@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 1,
+    "character": 19
+  },
+  "source": "ignore_unused_var_tuple1.bal",
+  "expected": [
+    {
+      "title": "Ignore unused variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 24
+            }
+          },
+          "newText": "_"
+        }
+      ]
+    }
+  ]
+}

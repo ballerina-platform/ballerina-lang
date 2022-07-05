@@ -1,37 +1,28 @@
 {
-    "line": 34,
-    "character": 16,
-    "expected": [
+  "position": {
+    "line": 69,
+    "character": 21
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Add type cast to assignment",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 34,
-                            "character": 16
-                        },
-                        "end": {
-                            "line": 34,
-                            "character": 16
-                        }
-                    },
-                    "newText": "<int> ("
-                },
-                {
-                    "range": {
-                        "start": {
-                            "line": 34,
-                            "character": 31
-                        },
-                        "end": {
-                            "line": 34,
-                            "character": 31
-                        }
-                    },
-                    "newText": ")"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 69,
+              "character": 19
+            },
+            "end": {
+              "line": 69,
+              "character": 19
+            }
+          },
+          "newText": "<int[]>"
         }
-    ]
+      ]
+    }
+  ]
 }

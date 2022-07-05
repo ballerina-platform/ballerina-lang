@@ -16,9 +16,8 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -76,25 +75,26 @@ public class NegativeTypeTestExprTest {
                 "expression will always evaluate to 'false'", 120, 16);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 121, 9);
         BAssertUtil.validateHint(negativeResult, i++,
-                "expression will always evaluate to 'false'", 131, 18);
+                "expression will always evaluate to 'false'", 131, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 131, 33);
+                "unnecessary condition: expression will always evaluate to 'true'", 131, 32);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int[]' will not be matched to 'float[]'",
-                132, 18);
+                132, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "expression will always evaluate to 'false'", 133, 18);
+                "expression will always evaluate to 'false'", 133, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "expression will always evaluate to 'false'", 134, 18);
+                "expression will always evaluate to 'false'", 134, 17);
+        BAssertUtil.validateWarning(negativeResult, i++, "unused variable 'b4'", 135, 5);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 135, 18);
         BAssertUtil.validateHint(negativeResult, i++,
-                "expression will always evaluate to 'false'", 141, 18);
+                "expression will always evaluate to 'false'", 141, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '[int,string]' will not be matched to '[float,boolean]'", 142, 18);
+                "incompatible types: '[int,string]' will not be matched to '[float,boolean]'", 142, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "expression will always evaluate to 'false'", 143, 18);
+                "expression will always evaluate to 'false'", 143, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "expression will always evaluate to 'false'", 144, 18);
+                "expression will always evaluate to 'false'", 144, 17);
         BAssertUtil.validateHint(negativeResult, i++,
                 "expression will always evaluate to 'false'", 150, 18);
         BAssertUtil.validateHint(negativeResult, i++,
@@ -129,7 +129,7 @@ public class NegativeTypeTestExprTest {
                 "expression will always evaluate to 'false'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 247, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 10);
+                "incompatible types: 'FooBar' will not be matched to 'BazTwo'", 255, 10);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
                 262, 9);
@@ -151,215 +151,222 @@ public class NegativeTypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 280, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 281, 18);
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 281, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Bar' will not be matched to 'Baz'", 284, 18);
+                "incompatible types: 'Bar' will not be matched to 'Baz'", 284, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Bar' will not be matched to 'Quux'", 285, 18);
+                "incompatible types: 'Bar' will not be matched to 'Quux'", 285, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Qux' will not be matched to 'Baz'", 288, 18);
+                "incompatible types: 'Qux' will not be matched to 'Baz'", 288, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Qux' will not be matched to 'Quux'", 289, 18);
+                "incompatible types: 'Qux' will not be matched to 'Quux'", 289, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Quux' will not be matched to 'Bar'", 292, 18);
+                "incompatible types: 'Quux' will not be matched to 'Bar'", 292, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Quux' will not be matched to 'Qux'", 293, 18);
+                "incompatible types: 'Quux' will not be matched to 'Qux'", 293, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Quux' will not be matched to 'record {| int i; boolean b; |}'", 294, 18);
+                "incompatible types: 'Quux' will not be matched to 'record {| int i; boolean b; |}'", 294, 17);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'ClosedRecordWithIntField' will not be matched to " +
-                        "'record {| int i; string s; |}'", 297, 19);
+                        "'record {| int i; string s; |}'", 297, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'object { }[]' will not be matched to " +
                 "'anydata'", 330, 10);
+        BAssertUtil.validateWarning(negativeResult, i++, "unused variable 'p'", 331, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'anydata' will not be matched to 'object " +
                 "{ }[]'", 336, 10);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Record' will not be matched to " +
-                "'RecordWithIntFieldAndNeverRestField'", 358, 18);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: 'Record' will not be matched to " +
-                "'RecordWithIntFieldAndEffectivelyNeverRestField'", 359, 18);
-        Assert.assertEquals(negativeResult.getErrorCount(), 39);
+                "'RecordWithIntFieldAndNeverRestField'", 358, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Record' will not be matched to " +
+                "'RecordWithIntFieldAndEffectivelyNeverRestField'", 359, 17);
+        Assert.assertEquals(negativeResult.getErrorCount(), i - 30 - 2);
+        Assert.assertEquals(negativeResult.getHintCount(), 30);
+        Assert.assertEquals(negativeResult.getWarnCount(), 2);
     }
 
     @Test
     public void testValueTypeInUnion() {
-        BValue[] returns = BRunUtil.invoke(result, "testValueTypeInUnion");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "string");
+        Object returns = BRunUtil.invoke(result, "testValueTypeInUnion");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "string");
     }
 
     @Test
     public void testUnionTypeInUnion() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnionTypeInUnion");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "numeric");
+        Object returns = BRunUtil.invoke(result, "testUnionTypeInUnion");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "numeric");
     }
 
     @Test
     public void testNestedTypeCheck() {
-        BValue[] returns = BRunUtil.invoke(result, "testNestedTypeCheck");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "boolean");
-        Assert.assertEquals(returns[1].stringValue(), "int");
-        Assert.assertEquals(returns[2].stringValue(), "string");
+        Object arr = BRunUtil.invoke(result, "testNestedTypeCheck");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "boolean");
+        Assert.assertEquals(returns.get(1).toString(), "int");
+        Assert.assertEquals(returns.get(2).toString(), "string");
     }
 
     @Test
     public void testTypeInAny() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeInAny");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "string value: This is working");
+        Object returns = BRunUtil.invoke(result, "testTypeInAny");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "string value: This is working");
     }
 
     @Test
     public void testNilType() {
-        BValue[] returns = BRunUtil.invoke(result, "testNilType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "nil");
+        Object returns = BRunUtil.invoke(result, "testNilType");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "nil");
     }
 
     @Test
     public void testTypeChecksWithLogicalAnd() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeChecksWithLogicalAnd");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "string and boolean");
+        Object returns = BRunUtil.invoke(result, "testTypeChecksWithLogicalAnd");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "string and boolean");
     }
 
     @Test
     public void testTypeCheckInTernary() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeCheckInTernary");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "A string");
+        Object returns = BRunUtil.invoke(result, "testTypeCheckInTernary");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "A string");
     }
 
     @Test
     public void testSimpleRecordTypes_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleRecordTypes_1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "a is A1");
+        Object returns = BRunUtil.invoke(result, "testSimpleRecordTypes_1");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "a is A1");
     }
 
     @Test
     public void testSimpleRecordTypes_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleRecordTypes_2");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testSimpleRecordTypes_2");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test
     public void testSimpleRecordTypes_3() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleRecordTypes_3");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testSimpleRecordTypes_3");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test
     public void testRecordsWithFunctionType_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordsWithFunctionType_1");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "a is not a man");
-        Assert.assertEquals(returns[1].stringValue(), "Human: Piyal");
+        Object arr = BRunUtil.invoke(result, "testRecordsWithFunctionType_1");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "a is not a man");
+        Assert.assertEquals(returns.get(1).toString(), "Human: Piyal");
     }
 
     @Test
     public void testRecordsWithFunctionType_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordsWithFunctionType_2");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "Man: Piyal");
-        Assert.assertEquals(returns[1].stringValue(), "Human: Piyal");
+        Object arr = BRunUtil.invoke(result, "testRecordsWithFunctionType_2");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Man: Piyal");
+        Assert.assertEquals(returns.get(1).toString(), "Human: Piyal");
     }
 
     @Test
     public void testSealedRecordTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testSealedRecordTypes");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testSealedRecordTypes");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue((Boolean) returns.get(1));
     }
 
     @Test
     public void testObjectWithSameMembersButDifferentAlias() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithSameMembersButDifferentAlias");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "I am same as person: John");
-        Assert.assertEquals(returns[1].stringValue(), "I am a person: John");
-        Assert.assertEquals(returns[2].stringValue(), "I am same as person: Doe");
-        Assert.assertEquals(returns[3].stringValue(), "I am a person: Doe");
+        Object arr = BRunUtil.invoke(result, "testObjectWithSameMembersButDifferentAlias");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertTrue(returns.get(3) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "I am same as person: John");
+        Assert.assertEquals(returns.get(1).toString(), "I am a person: John");
+        Assert.assertEquals(returns.get(2).toString(), "I am same as person: Doe");
+        Assert.assertEquals(returns.get(3).toString(), "I am a person: Doe");
     }
 
     @Test
     public void testObjectWithUnorderedFields() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithUnorderedFields");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "I am a person in order: John");
-        Assert.assertEquals(returns[1].stringValue(), "I am a person not in order: John");
-        Assert.assertEquals(returns[2].stringValue(), "I am a person in order: Doe");
-        Assert.assertEquals(returns[3].stringValue(), "I am a person not in order: Doe");
+        Object arr = BRunUtil.invoke(result, "testObjectWithUnorderedFields");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertTrue(returns.get(3) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "I am a person in order: John");
+        Assert.assertEquals(returns.get(1).toString(), "I am a person not in order: John");
+        Assert.assertEquals(returns.get(2).toString(), "I am a person in order: Doe");
+        Assert.assertEquals(returns.get(3).toString(), "I am a person not in order: Doe");
     }
 
     @Test
     public void testPublicObjectEquivalency() {
-        BValue[] returns = BRunUtil.invoke(result, "testPublicObjectEquivalency");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "values: 5, foo");
-        Assert.assertEquals(returns[1].stringValue(), "values: 5, foo, 6.7");
-        Assert.assertEquals(returns[2].stringValue(), "n/a");
+        Object arr = BRunUtil.invoke(result, "testPublicObjectEquivalency");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "values: 5, foo");
+        Assert.assertEquals(returns.get(1).toString(), "values: 5, foo, 6.7");
+        Assert.assertEquals(returns.get(2).toString(), "n/a");
     }
 
     @Test
     public void testPrivateObjectEquivalency() {
-        BValue[] returns = BRunUtil.invoke(result, "testPrivateObjectEquivalency");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "values: 5, foo");
-        Assert.assertEquals(returns[1].stringValue(), "values: 5, foo, 6.7");
-        Assert.assertEquals(returns[2].stringValue(), "n/a");
+        Object arr = BRunUtil.invoke(result, "testPrivateObjectEquivalency");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "values: 5, foo");
+        Assert.assertEquals(returns.get(1).toString(), "values: 5, foo, 6.7");
+        Assert.assertEquals(returns.get(2).toString(), "n/a");
     }
 
     @Test
     public void testAnonymousObjectEquivalency() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnonymousObjectEquivalency");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "values: 5, foo, 6.7");
-        Assert.assertEquals(returns[1].stringValue(), "values: 5, foo, 6.7, true");
-        Assert.assertEquals(returns[2].stringValue(), "n/a");
+        Object arr = BRunUtil.invoke(result, "testAnonymousObjectEquivalency");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "values: 5, foo, 6.7");
+        Assert.assertEquals(returns.get(1).toString(), "values: 5, foo, 6.7, true");
+        Assert.assertEquals(returns.get(2).toString(), "n/a");
     }
 
     @Test
@@ -369,32 +376,34 @@ public class NegativeTypeTestExprTest {
 
     @Test
     public void testSimpleArrays() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleArrays");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertSame(returns[4].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testSimpleArrays");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertTrue(returns.get(3) instanceof Boolean);
+        Assert.assertTrue(returns.get(4) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
+        Assert.assertFalse((Boolean) returns.get(3));
+        Assert.assertFalse((Boolean) returns.get(4));
     }
 
     @Test
     public void testRecordArrays() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordArrays");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testRecordArrays");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertTrue(returns.get(3) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertTrue((Boolean) returns.get(3));
     }
 
     @Test
@@ -419,40 +428,41 @@ public class NegativeTypeTestExprTest {
 
     @Test
     public void testSimpleTuples() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleTuples");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertSame(returns[4].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testSimpleTuples");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertTrue(returns.get(3) instanceof Boolean);
+        Assert.assertTrue(returns.get(4) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue((Boolean) returns.get(1));
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertFalse((Boolean) returns.get(3));
+        Assert.assertFalse((Boolean) returns.get(4));
     }
 
     @Test
     public void testTupleWithAssignableTypes_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_1");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testTupleWithAssignableTypes_1");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(3) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertTrue((Boolean) returns.get(3));
     }
 
     @Test
     public void testTupleWithAssignableTypes_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_2");
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertFalse((Boolean) returns);
     }
 
     @Test
@@ -462,270 +472,285 @@ public class NegativeTypeTestExprTest {
 
     @Test
     public void testSimpleUnconstrainedMap_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleUnconstrainedMap_1");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testSimpleUnconstrainedMap_1");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertTrue((Boolean) returns.get(1));
     }
 
     @Test
     public void testSimpleUnconstrainedMap_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleUnconstrainedMap_2");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertSame(returns[4].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testSimpleUnconstrainedMap_2");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertTrue(returns.get(3) instanceof Boolean);
+        Assert.assertTrue(returns.get(4) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertTrue((Boolean) returns.get(3));
+        Assert.assertTrue((Boolean) returns.get(4));
     }
 
     @Test
     public void testSimpleConstrainedMap() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleConstrainedMap");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testSimpleConstrainedMap");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertTrue(returns.get(3) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
+        Assert.assertFalse((Boolean) returns.get(3));
     }
 
     @Test
     public void testJSONTypeCheck() {
-        BValue[] returns = BRunUtil.invoke(result, "testJSONTypeCheck");
-        Assert.assertEquals(returns.length, 7);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
-        Assert.assertSame(returns[4].getClass(), BString.class);
-        Assert.assertSame(returns[5].getClass(), BString.class);
-        Assert.assertSame(returns[6].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "json int");
-        Assert.assertEquals(returns[1].stringValue(), "json float");
-        Assert.assertEquals(returns[2].stringValue(), "json string: hello");
-        Assert.assertEquals(returns[3].stringValue(), "json boolean");
-        Assert.assertEquals(returns[4].stringValue(), "json array");
-        Assert.assertEquals(returns[5].stringValue(), "json object");
-        Assert.assertEquals(returns[6].stringValue(), "json null");
+        Object arr = BRunUtil.invoke(result, "testJSONTypeCheck");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 7);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertTrue(returns.get(3) instanceof BString);
+        Assert.assertTrue(returns.get(4) instanceof BString);
+        Assert.assertTrue(returns.get(5) instanceof BString);
+        Assert.assertTrue(returns.get(6) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "json int");
+        Assert.assertEquals(returns.get(1).toString(), "json float");
+        Assert.assertEquals(returns.get(2).toString(), "json string: hello");
+        Assert.assertEquals(returns.get(3).toString(), "json boolean");
+        Assert.assertEquals(returns.get(4).toString(), "json array");
+        Assert.assertEquals(returns.get(5).toString(), "json object");
+        Assert.assertEquals(returns.get(6).toString(), "json null");
     }
 
     @Test
     public void testJsonArrays() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonArrays");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testJsonArrays");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertTrue((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test
     public void testFiniteType() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteType");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testFiniteType");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertTrue((Boolean) returns.get(2));
     }
 
     @Test
     public void testFiniteTypeInTuple() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeInTuple");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testFiniteTypeInTuple");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertTrue(returns.get(3) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertTrue((Boolean) returns.get(2));
+        Assert.assertFalse((Boolean) returns.get(3));
     }
 
     @Test
     public void testFiniteTypeInTuplePoisoning() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeInTuplePoisoning");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "on");
-        Assert.assertEquals(returns[1].stringValue(), "on");
+        Object arr = BRunUtil.invoke(result, "testFiniteTypeInTuplePoisoning");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "on");
+        Assert.assertEquals(returns.get(1).toString(), "on");
     }
 
     @Test
     public void testFiniteType_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteType_1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "a is a fruit");
+        Object returns = BRunUtil.invoke(result, "testFiniteType_1");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "a is a fruit");
     }
 
     @Test
     public void testFiniteType_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteType_2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "a is an Apple");
+        Object returns = BRunUtil.invoke(result, "testFiniteType_2");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "a is an Apple");
     }
 
     @Test
     public void testFiniteTypeAsBroaderType_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_1");
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testFiniteTypeAsBroaderType_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_2");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_2");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test
     public void testUnionWithFiniteTypeAsFiniteTypeTrue() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeTrue");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeTrue");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test
     public void testUnionWithFiniteTypeAsFiniteTypeFalse() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeFalse");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeFalse");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(1));
     }
 
     @Test
     public void testFiniteTypeAsFiniteTypeTrue() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeTrue");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeTrue");
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testIntersectingUnionTrue() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntersectingUnionTrue");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testIntersectingUnionTrue");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(1));
     }
 
     @Test
     public void testIntersectingUnionFalse() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntersectingUnionFalse");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testIntersectingUnionFalse");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test
     public void testValueTypeAsFiniteTypeTrue() {
-        BValue[] returns = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeTrue");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeTrue");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(1));
     }
 
     @Test
     public void testValueTypeAsFiniteTypeFalse() {
-        BValue[] returns = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeFalse");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeFalse");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test
     public void testError_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testError_1");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testError_1");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(1));
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(2));
+        Assert.assertTrue(returns.get(3) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(3));
     }
 
     @Test
     public void testError_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testError_2");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testError_2");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertTrue(returns.get(2) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(2));
     }
 
     @Test
     public void testClosedArrayAsOpenArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayAsOpenArray");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testClosedArrayAsOpenArray");
+        Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testFunctions1() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctions1");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testFunctions1");
+        BArray returns = (BArray) arr;
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
+        Assert.assertTrue((Boolean) returns.get(3));
     }
 
     @Test
     public void testFunctions2() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctions2");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testFunctions2");
+        BArray returns = (BArray) arr;
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertTrue((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
+        Assert.assertTrue((Boolean) returns.get(3));
     }
 
     @Test
     public void testFuture() {
-        BValue[] returns = BRunUtil.invoke(result, "testFutureTrue");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testFutureTrue");
+        Assert.assertTrue((Boolean) returns);
         returns = BRunUtil.invoke(result, "testFutureFalse");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse((Boolean) returns);
     }
 
     @Test

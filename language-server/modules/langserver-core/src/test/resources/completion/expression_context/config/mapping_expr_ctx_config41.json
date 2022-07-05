@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,8 +18,16 @@
       "label": "rec3Field2",
       "kind": "Field",
       "detail": "Rec3.rec3Field2",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec3Field2: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec3Field2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "F",
+      "insertText": "rec3Field2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -28,15 +36,7 @@
       "detail": "Rec3",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "rec3Field2: 0",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec3Field2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "rec3Field2",
+      "insertText": "rec3Field2: ${1:0}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -18,27 +18,29 @@
 package org.ballerinalang.langserver.completion;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -47,58 +49,46 @@ import java.util.List;
 /**
  * Completion Test Interface.
  */
-public abstract class CompletionTest {
-
-    protected Endpoint serviceEndpoint;
+public abstract class CompletionTest extends AbstractLSTest {
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 
     private final String configDir = "config";
-    
-    private final Gson gson = new Gson();
 
-    @BeforeClass
-    public void init() {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
-    }
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
-        String configJsonPath = "completion" + File.separator + configPath
-                + File.separator + configDir + File.separator + config;
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        String response = getResponse(configJsonObject);
+        Path configJsonPath = FileUtils.RES_DIR.resolve("completion")
+                .resolve(configPath).resolve(configDir).resolve(config);
+        TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configJsonPath), TestConfig.class);
+        String response = getResponse(testConfig);
         JsonObject json = JsonParser.parseString(response).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() {
         }.getType();
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
         List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
-        List<CompletionItem> expectedList = getExpectedList(configJsonObject);
 
-        boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
+        boolean result = CompletionTestUtil.isSubList(testConfig.getItems(), responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
-            // updateConfig(configJsonPath, configJsonObject, resultList, expectedList, responseItemList);
-            Assert.fail("Failed Test for: " + configJsonPath);
+//            updateConfig(configJsonPath, testConfig, responseItemList);
+            Assert.fail(String.format("Failed test: '%s' (%s)", testConfig.getDescription(), configPath));
         }
     }
 
-    private String getResponse(JsonObject configJsonObject) throws IOException {
-        Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        Position position = new Position();
-        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-        position.setLine(positionObj.get("line").getAsInt());
-        position.setCharacter(positionObj.get("character").getAsInt());
-        JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
-        String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
-        return getResponse(sourcePath, position, triggerChar);
+    protected String getResponse(TestConfig testConfig) throws IOException {
+        Path sourcePath = testRoot.resolve(testConfig.source);
+        String triggerChar = testConfig.triggerCharacter == null ? "" : testConfig.triggerCharacter;
+        return getResponse(sourcePath, testConfig.position, triggerChar);
     }
 
     public String getResponse(Path sourcePath, Position position, String triggerChar) throws IOException {
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        Endpoint endpoint = getServiceEndpoint();
+        TestUtil.openDocument(endpoint, sourcePath);
         String responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
-                this.serviceEndpoint, triggerChar);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+                endpoint, triggerChar);
+        TestUtil.closeDocument(endpoint, sourcePath);
         return responseString;
     }
 
@@ -119,11 +109,6 @@ public abstract class CompletionTest {
     }
 
     public abstract String getTestResourceDir();
-
-    @AfterClass
-    public void cleanupLanguageServer() {
-        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
-    }
 
     protected Object[][] getConfigsList() {
         if (this.testSubset().length != 0) {
@@ -149,26 +134,22 @@ public abstract class CompletionTest {
     /**
      * Update the config JSON while preserving the order of the existing completion items.
      */
-    private void updateConfig(String configJsonPath, JsonObject configJsonObject, JsonArray resultList,
-                              List<CompletionItem> expectedItemList, List<CompletionItem> responseItemList)
+    private void updateConfig(Path configJsonPath, TestConfig testConfig, List<CompletionItem> responseItemList)
             throws IOException {
-        JsonObject obj = new JsonObject();
-        obj.add("position", configJsonObject.get("position"));
-        obj.add("source", configJsonObject.get("source"));
+        TestConfig updatedConfig = new TestConfig();
+        updatedConfig.setPosition(testConfig.getPosition());
+        updatedConfig.setSource(testConfig.getSource());
 
-        JsonArray results = new JsonArray();
-        JsonArray copyOfResultList = resultList.deepCopy();
-        JsonArray expectedList = configJsonObject.get("items").getAsJsonArray();
-        for (JsonElement expectedItem : expectedList) {
-            String expectedInsertText = expectedItem.getAsJsonObject().get("insertText").getAsString();
-            String expectedKind = expectedItem.getAsJsonObject().get("kind").getAsString();
-    
+        List<CompletionItem> results = new ArrayList<>();
+        List<CompletionItem> copyOfResultList = new ArrayList<>(responseItemList);
+        List<CompletionItem> expectedList = testConfig.getItems();
+        for (CompletionItem expectedItem : expectedList) {
             // Find this item in results
             int i = 0;
             for (; i < copyOfResultList.size(); i++) {
-                String actualInsertText = copyOfResultList.get(i).getAsJsonObject().get("insertText").getAsString();
-                String actualKind = copyOfResultList.get(i).getAsJsonObject().get("kind").getAsString();
-                if (expectedInsertText.equals(actualInsertText) && expectedKind.equals(actualKind)) {
+                String actualInsertText = copyOfResultList.get(i).getInsertText();
+                CompletionItemKind actualKind = copyOfResultList.get(i).getKind();
+                if (expectedItem.getInsertText().equals(actualInsertText) && expectedItem.getKind() == actualKind) {
                     break;
                 }
             }
@@ -181,19 +162,88 @@ public abstract class CompletionTest {
         }
 
         // Add the rest of the items
-        copyOfResultList.forEach(results::add);
+        results.addAll(copyOfResultList);
 
-        obj.add("items", results);
+        updatedConfig.setItems(results);
 
-        if (configJsonObject.get("triggerCharacter") != null) {
-            obj.add("triggerCharacter", configJsonObject.get("triggerCharacter"));
+        if (testConfig.triggerCharacter != null) {
+            updatedConfig.setTriggerCharacter(testConfig.getTriggerCharacter());
         }
-        String objStr = obj.toString().concat(System.lineSeparator());
-        java.nio.file.Files.write(FileUtils.RES_DIR.resolve(configJsonPath),
-                objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String objStr = gson.toJson(updatedConfig).concat(System.lineSeparator());
+        Files.write(configJsonPath, objStr.getBytes(StandardCharsets.UTF_8));
 
         //This will print nice comparable text in IDE
 //        Assert.assertEquals(responseItemList.toString(), expectedItemList.toString(),
 //                "Failed Test for: " + configJsonPath);
+    }
+
+    protected void preLoadAndInit() throws InterruptedException {
+
+        ServiceTemplateGenerator serviceTemplateGenerator =
+                ServiceTemplateGenerator.getInstance(getLanguageServer().getServerContext());
+        long initTime = System.currentTimeMillis();
+        while (!serviceTemplateGenerator.initialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
+            Thread.sleep(2000);
+        }
+        if (!serviceTemplateGenerator.initialized()) {
+            Assert.fail("Service template generator initialization failed!");
+        }
+    }
+
+    @Override
+    public boolean loadMockedPackages() {
+        return true;
+    }
+
+    /**
+     * Represents a test configuration.
+     */
+    protected static class TestConfig {
+
+        private Position position;
+        private String source;
+        private String description;
+        private List<CompletionItem> items;
+        private String triggerCharacter;
+
+        public Position getPosition() {
+            return position;
+        }
+
+        public void setPosition(Position position) {
+            this.position = position;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public void setSource(String source) {
+            this.source = source;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public List<CompletionItem> getItems() {
+            return items;
+        }
+
+        public void setItems(List<CompletionItem> items) {
+            this.items = items;
+        }
+
+        public String getTriggerCharacter() {
+            return triggerCharacter;
+        }
+
+        public void setTriggerCharacter(String triggerCharacter) {
+            this.triggerCharacter = triggerCharacter;
+        }
     }
 }

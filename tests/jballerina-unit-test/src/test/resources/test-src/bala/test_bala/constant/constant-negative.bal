@@ -81,3 +81,28 @@ function testStringTypeWithoutType() returns StringTypeWithoutType {
     StringTypeWithoutType t = "random text";
     return t;
 }
+
+function testInvalidValueForConstWithExprs() {
+    simple_literal:ACONST _ = 1; // error incompatible types: expected '123', found 'int'
+    simple_literal:BCONST _ = 2; // error incompatible types: expected '123', found 'int'
+    simple_literal:CCONST _ = 3; // error incompatible types: expected '-1', found 'int'
+}
+
+function testInvalidValueForInferredBroadTypeFromConsts() {
+    var a = simple_literal:ACONST;
+    var b = simple_literal:BCONST;
+    var c = simple_literal:ACONST;
+    a = 1; // OK, using the broad type.
+    b = 2; // OK, using the broad type.
+    c = 3; // OK, using the broad type.
+    a = "1"; // error incompatible types: expected 'int', found 'string'
+    b = "2"; // error incompatible types: expected 'int', found 'string'
+    c = "3"; // error incompatible types: expected 'int', found 'string'
+}
+
+function testInvalidValueForStructuresOfConstTypes() {
+    simple_literal:ACONST[] _ = [simple_literal:ACONST, simple_literal:BCONST, simple_literal:CCONST, 1]; // error
+    simple_literal:BCONST[] _ = [simple_literal:ACONST, simple_literal:BCONST, simple_literal:CCONST, 1, 123]; // error
+    (simple_literal:BCONST|simple_literal:CCONST)[] _ = [simple_literal:ACONST, 1, simple_literal:CCONST, 123, simple_literal:BCONST, -1]; // error
+    simple_literal:CCONST[] _ = [simple_literal:ACONST, simple_literal:BCONST, simple_literal:CCONST, -1, 1]; // error
+}

@@ -1,0 +1,15 @@
+[package]
+org = "pramjs"
+name = "conflictedJarsProject"
+version = "0.1.0"
+distribution = "2201.0.0"
+
+[[dependency]]
+org="pramodya"
+name="uberJarPackage"
+version="0.1.0"
+
+[[dependency]]
+org="pramodya"
+name="correctJarPackage"
+version="0.1.0"

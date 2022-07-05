@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -42,51 +42,51 @@ public class TupleDestructureTest {
 
     @Test(description = "Test positive tuple destructure scenarios")
     public void testTupleDestructure() {
-        BValue[] returns = BRunUtil.invoke(result, "tupleDestructureTest1", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "1");
-        Assert.assertEquals(returns[1].stringValue(), "a");
+        BArray returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest1", new Object[]{});
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "1");
+        Assert.assertEquals(returns.get(1).toString(), "a");
 
-        returns = BRunUtil.invoke(result, "tupleDestructureTest2", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "1");
-        Assert.assertEquals(returns[1].stringValue(), "[2, 3, 4]");
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest2", new Object[]{});
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "1");
+        Assert.assertEquals(returns.get(1).toString(), "[2,3,4]");
 
-        returns = BRunUtil.invoke(result, "tupleDestructureTest3", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "1");
-        Assert.assertEquals(returns[1].stringValue(), "[2, 3, 4]");
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest3", new Object[]{});
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "1");
+        Assert.assertEquals(returns.get(1).toString(), "[2,3,4]");
 
-        returns = BRunUtil.invoke(result, "tupleDestructureTest4", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3, 4]");
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest4", new Object[]{});
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertEquals(returns.toString(), "[1,2,3,4]");
 
-        returns = BRunUtil.invoke(result, "tupleDestructureTest5", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "1");
-        Assert.assertEquals(returns[1].stringValue(), "[2, 3, 4]");
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest5", new Object[]{});
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "1");
+        Assert.assertEquals(returns.get(1).toString(), "[2,3,4]");
 
-        returns = BRunUtil.invoke(result, "tupleDestructureTest6", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "1");
-        Assert.assertEquals(returns[1].stringValue(), "[\"a\", \"b\"]");
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest6", new Object[]{});
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "1");
+        Assert.assertEquals(returns.get(1).toString(), "[\"a\",\"b\"]");
 
-        returns = BRunUtil.invoke(result, "tupleDestructureTest7", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "1");
-        Assert.assertEquals(returns[1].stringValue(), "[\"a\", \"b\"]");
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest7", new Object[]{});
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "1");
+        Assert.assertEquals(returns.get(1).toString(), "[\"a\",\"b\"]");
 
-        returns = BRunUtil.invoke(result, "tupleDestructureTest8", new BValue[]{});
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "1");
-        Assert.assertEquals(returns[1].stringValue(), "a");
-        Assert.assertEquals(returns[2].stringValue(), "[\"b\"]");
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest8", new Object[]{});
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "1");
+        Assert.assertEquals(returns.get(1).toString(), "a");
+        Assert.assertEquals(returns.get(2).toString(), "[\"b\"]");
 
-        returns = BRunUtil.invoke(result, "tupleDestructureTest9", new BValue[]{});
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "true");
-        Assert.assertEquals(returns[1].stringValue(), "string value");
-        Assert.assertEquals(returns[2].stringValue(), "[25, 12.5]");
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest9", new Object[]{});
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "true");
+        Assert.assertEquals(returns.get(1).toString(), "string value");
+        Assert.assertEquals(returns.get(2).toString(), "[25,12.5]");
     }
 
     @Test(description = "Test positive tuple destructure scenarios")
@@ -100,6 +100,15 @@ public class TupleDestructureTest {
                 "string...]'", 38, 14);
         BAssertUtil.validateError(resultNegative, i, "incompatible types: expected '[int,int]', found '[int,int," +
                 "int]'", 46, 14);
+    }
+
+    @Test(description = "Test tuple destructure invalid syntax")
+    public void testTupleDestructureInvalidSyntax() {
+        CompileResult result = BCompileUtil.compile("test-src/types/tuples/tuple_destructure_invalid_syntax.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "invalid binding pattern", 18, 6);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '[other]', " +
+                "found 'string'", 18, 11);
     }
 
     @AfterClass

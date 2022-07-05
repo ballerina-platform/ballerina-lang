@@ -139,7 +139,7 @@ distinct class DistinctFooB {
     int i = 0;
 }
 
-function testObjectConstructorWithDistintExpectedType() {
+function testObjectConstructorWithDistinctExpectedType() {
     DistinctFoo distinctObject = object {
                                         int i;
                                         function init() {
@@ -149,7 +149,7 @@ function testObjectConstructorWithDistintExpectedType() {
     assertValueEquality(20, distinctObject.i);
 }
 
-function testObjectConstructorWithDistintTypeReference() {
+function testObjectConstructorWithDistinctTypeReference() {
     DistinctFooA distinctObject = object DistinctFooA {
                                             int i;
                                             function init() {
@@ -159,7 +159,7 @@ function testObjectConstructorWithDistintTypeReference() {
     assertValueEquality(30, distinctObject.i);
 }
 
-function testObjectConstructorWithDistintTypeReferenceVar() {
+function testObjectConstructorWithDistinctTypeReferenceVar() {
     var distinctObject = object DistinctFooB {
                                             int i;
                                             function init() {
@@ -313,6 +313,65 @@ function validateInvalidUpdateErrorForFieldB(Object ob) {
     error err2 = <error> res2;
     assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err2.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
+}
+
+type Bar readonly & object {
+    int i;
+};
+
+function testObjectConstructorWithReferredIntersectionType() {
+    Bar b = object {
+        int i = 1;
+        int j = 2;
+    };
+    assertTrue(b is readonly & object {int i; int j;});
+    assertValueEquality(1, b.i);
+}
+
+var obj1 = object {
+    function foo() returns boolean {
+        var intOrNil = self.bar();
+        return intOrNil is int;
+    }
+
+    function bar() returns int? {
+        return 2;
+    }
+};
+
+public type DistinctError distinct error;
+
+var obj2 = object {
+    function foo() returns boolean {
+        var err = self.bar();
+        return err is DistinctError;
+    }
+
+    function bar() returns DistinctError? {
+        return error("MSG");
+    }
+};
+
+var obj3 = object {
+    function foo() returns boolean {
+        var err1 = self.bar1();
+        var err2 = self.bar2();
+        return (err1 is DistinctError) && (err2 is DistinctError);
+    }
+
+    function bar1() returns DistinctError? {
+        return error("MSG1");
+    }
+
+    function bar2() returns DistinctError? {
+        return error("MSG2");
+    }
+};
+
+function testMultipleVarAssignments() {
+    assertTrue(obj1.foo());
+    assertTrue(obj2.foo());
+    assertTrue(obj3.foo());
 }
 
 // assertion helpers

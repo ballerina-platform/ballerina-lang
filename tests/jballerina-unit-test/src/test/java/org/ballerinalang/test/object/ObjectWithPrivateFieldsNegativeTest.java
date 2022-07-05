@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -34,10 +33,10 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testRuntimeObjEqNegative() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/object/RuntimeObjEgNegativeProject");
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
-                " 'pkg.org_foo:user' cannot be cast to 'pkg:userB'\"}");
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina}TypeCastError\",message=\"incompatible types: " +
+                "'pkg.org_foo:user' cannot be cast to 'pkg:userB'\")");
     }
 
     @Test(description = "Test private field access")
@@ -57,9 +56,9 @@ public class ObjectWithPrivateFieldsNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 5);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         int i = 0;
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.init'", 4, 24);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 12, 43);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.init'", 4, 23);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 31);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 12, 40);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 16, 47);
         BAssertUtil.validateError(compileResult, i, expectedErrMsg1 + "'PrivatePerson.init'", 20, 27);
     }

@@ -1,7 +1,11 @@
 [
   {
     "description": "Create a JSON object.",
-    "code": "json j = {name: \"apple\", color: \"red\", price: 100}; j.toJsonString()",
+    "code": "json j = {name: \"apple\", color: \"red\", price: 100};"
+  },
+  {
+    "description": "Create a JSON object - get value.",
+    "code": "j.toJsonString()",
     "expr": "\"{\"name\":\"apple\", \"color\":\"red\", \"price\":100}\""
   },
   {
@@ -15,22 +19,38 @@
   },
   {
     "description": "Create a JSON object. Keys can be defined with or without quotes.",
-    "code": "int age = 30; json p = {fname: \"John\", lname: \"Stallone\", \"age\": age}; p.toJsonString()",
+    "code": "int age = 30; json p = {fname: \"John\", lname: \"Stallone\", \"age\": age};"
+  },
+  {
+    "description": "Create a JSON object. Keys can be defined with or without quotes - get value.",
+    "code": "p.toJsonString()",
     "expr": "\"{\"fname\":\"John\", \"lname\":\"Stallone\", \"age\":30}\""
   },
   {
     "description": "Can add or change JSON object values using member access (i.e., the `[expr]` operator).",
-    "code": "map<json> mp = <map<json>>p; mp[\"age\"] = 31; p.toJsonString()",
+    "code": "map<json> mp = <map<json>>p; mp[\"age\"] = 31;"
+  },
+  {
+    "description": "Can add or change JSON object values using member access (i.e., the `[expr]` operator) - get value.",
+    "code": "p.toJsonString()",
     "expr": "\"{\"fname\":\"John\", \"lname\":\"Stallone\", \"age\":31}\""
   },
   {
     "description": "Create a nested JSON object.",
-    "code": "map<json> p2 = { fname: \"Peter\", lname: \"Stallone\", address: { line: \"20 Palm Grove\", city: \"Colombo 03\", country: \"Sri Lanka\" }  }; p2.toJsonString()",
+    "code": "map<json> p2 = { fname: \"Peter\", lname: \"Stallone\", address: { line: \"20 Palm Grove\", city: \"Colombo 03\", country: \"Sri Lanka\" }  }; "
+  },
+  {
+    "description": "Create a nested JSON object - get value.",
+    "code": "p2.toJsonString()",
     "expr": "\"{\"fname\":\"Peter\", \"lname\":\"Stallone\", \"address\":{\"line\":\"20 Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\"}}\""
   },
   {
     "description": "Member access expressions with `string` keys.",
-    "code": "json lastName = p2[\"lname\"]; lastName",
+    "code": "json lastName = p2[\"lname\"];"
+  },
+  {
+    "description": "Member access expressions with `string` keys - get value.",
+    "code": "lastName",
     "expr": "\"Stallone\""
   },
   {

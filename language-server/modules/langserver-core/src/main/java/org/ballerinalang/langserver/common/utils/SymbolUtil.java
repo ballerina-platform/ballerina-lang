@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -33,10 +34,22 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
+import org.ballerinalang.langserver.completions.CompletionSearchProvider;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 /**
  * Carries a set of utilities to check the types of the symbols.
@@ -44,6 +57,9 @@ import java.util.function.Predicate;
  * @since 2.0.0
  */
 public class SymbolUtil {
+
+    public static final String SELF_KW = "self";
+    
     private SymbolUtil() {
     }
 
@@ -362,5 +378,84 @@ public class SymbolUtil {
     public static boolean isOfType(Symbol symbol, TypeDescKind typeDescKind) {
         return symbol.kind() == SymbolKind.TYPE_DEFINITION
                 && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() == typeDescKind;
+    }
+
+    /**
+     * Check if the symbol is a class symbol with self as the name.
+     *
+     * @param symbol               Symbol
+     * @param context              PositionedOperationContext
+     * @param enclosedModuleMember ModuleMemberDeclarationNode
+     * @return {@link Boolean} whether the symbol is a self class symbol.
+     */
+    public static boolean isSelfClassSymbol(Symbol symbol, PositionedOperationContext context,
+                                            @Nonnull ModuleMemberDeclarationNode enclosedModuleMember) {
+        Optional<String> name = symbol.getName();
+        if (enclosedModuleMember.kind() != SyntaxKind.CLASS_DEFINITION || symbol.kind() != SymbolKind.VARIABLE
+                || name.isEmpty() || !name.get().equals(SELF_KW)) {
+            return false;
+        }
+
+        Optional<Symbol> memberSymbol = context.workspace().semanticModel(context.filePath())
+                .flatMap(semanticModel -> semanticModel.symbol(enclosedModuleMember));
+
+        if (memberSymbol.isEmpty() || memberSymbol.get().kind() != SymbolKind.CLASS) {
+            return false;
+        }
+        ClassSymbol classSymbol = (ClassSymbol) memberSymbol.get();
+        VariableSymbol selfSymbol = (VariableSymbol) symbol;
+        TypeSymbol varTypeSymbol = CommonUtil.getRawType(selfSymbol.typeDescriptor());
+
+        return classSymbol.equals(varTypeSymbol);
+    }
+
+    /**
+     * Check if the symbol is an object symbol with self as the name.
+     *
+     * @param symbol       Symbol
+     * @param nodeAtCursor Node
+     * @return {@link Boolean} whether the symbol is a self object symbol.
+     */
+    public static boolean isSelfObjectSymbol(Symbol symbol, Node nodeAtCursor) {
+        Node currentNode = nodeAtCursor;
+        while (currentNode != null && currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
+            currentNode = currentNode.parent();
+        }
+        return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                && symbol.getName().orElse("").equals(SELF_KW);
+    }
+
+    /**
+     * Filter symbols by prefix.
+     *
+     * @param symbolList           list of expected symbols.
+     * @param context              completion context.
+     * @param prefix               type prefix.
+     * @param moduleId             module id.
+     * @return {@link List} List of symbols.
+     */
+    public static List<Symbol> filterSymbolsByPrefix(List<Symbol> symbolList,
+                                                     BallerinaCompletionContext context,
+                                                     String prefix,
+                                                     ModuleID moduleId) {
+        if (prefix.isEmpty()) {
+            return Collections.emptyList();
+        }
+        CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
+                .getInstance(context.languageServercontext());
+        if (!completionSearchProvider.checkModuleIndexed(moduleId)) {
+            completionSearchProvider.indexModule(moduleId, symbolList.stream().map(symbol -> symbol.getName().get())
+                    .collect(Collectors.toList()));
+        }
+
+        List<String> stringList = completionSearchProvider.getSuggestions(prefix);
+
+        Map<String, Symbol> symbolMap = new HashMap<>();
+        for (Symbol symbol : symbolList) {
+            symbolMap.put(symbol.getName().get(), symbol);
+        }
+        return symbolMap.entrySet().stream().filter(stringSymbolEntry -> stringList.contains(stringSymbolEntry.getKey()
+                        .toLowerCase()))
+                .map(Map.Entry::getValue).collect(Collectors.toList());
     }
 }

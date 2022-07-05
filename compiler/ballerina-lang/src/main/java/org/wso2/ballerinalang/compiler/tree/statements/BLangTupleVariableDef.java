@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 
@@ -30,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
  */
 public class BLangTupleVariableDef extends BLangStatement implements VariableDefinitionNode {
 
+    // BLangNodes
     public BLangTupleVariable var;
 
     @Override
@@ -40,6 +43,16 @@ public class BLangTupleVariableDef extends BLangStatement implements VariableDef
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

@@ -37,22 +37,36 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
-                {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
-                {"undefinedFunctionCodeAction3.json", "createUndefinedFunction2.bal"},
-                {"undefinedFunctionCodeActionInRecord.json", "createUndefinedFunctionInRecord.bal"},
-                {"undefinedFunctionCodeActionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
-                {"undefinedFunctionCodeActionInLet.json", "createUndefinedFunctionInLet.bal"},
-                {"undefinedFunctionCodeActionInLet2.json", "createUndefinedFunctionInLet.bal"},
-                {"createFunctionCodeActionWithStrands.json", "createFunctionCodeActionWithStrands.bal"},
+                {"undefinedFunctionCodeAction.json"},
+                {"undefinedFunctionCodeAction2.json"},
+                {"undefinedFunctionCodeAction3.json"},
+                {"undefinedFunctionCodeAction4.json"},
+                {"undefinedFunctionCodeAction5.json"},
+                {"undefinedFunctionCodeActionInRecord.json"},
+                {"undefinedFunctionCodeActionInRecord2.json"},
+                {"undefinedFunctionCodeActionInLet.json"},
+                {"undefinedFunctionCodeActionInLet2.json"},
+                {"createFunctionCodeActionWithStrands.json"},
+                {"createFunctionInErrorConstructor.json"},
+                {"undefinedFunctionCodeActionInObjectField1.json"},
+                {"undefinedFunctionCodeActionInRecordField1.json"},
+                {"undefinedFunctionInConditionalExpression1.json"},
+                {"undefinedFunctionInConditionalExpression2.json"},
+                {"undefinedFunctionInConditionalExpression3.json"},
+                {"undefinedFunctionInCheckExpression1.json"},
+                {"undefinedFunctionInCheckExpression2.json"},
+                {"undefinedFunctionInCheckpanicExpression1.json"},
+                {"undefinedFunctionInCheckpanicExpression2.json"},
+                {"undefinedFunctionInPanicStatement.json"},
+
         };
     }
 }

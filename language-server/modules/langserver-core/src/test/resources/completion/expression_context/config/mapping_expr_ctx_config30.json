@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,24 +18,24 @@
       "label": "address",
       "kind": "Field",
       "detail": "Person.address",
-      "sortText": "G",
-      "insertText": "address: {\n\tstreet: \"${1}\",\n\tcity: \"${2}\",\n\tpostalCode: \"${3}\"\n}",
+      "sortText": "K",
+      "insertText": "address: {street: ${1:\"\"}, city: ${2:\"\"}, postalCode: ${3:\"\"}}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "name",
       "kind": "Field",
       "detail": "Person.name",
-      "sortText": "G",
-      "insertText": "name: \"${2}\"",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "age",
       "kind": "Field",
       "detail": "Person.age",
-      "sortText": "G",
-      "insertText": "age: ${3:0}",
+      "sortText": "K",
+      "insertText": "age: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,7 +44,7 @@
       "detail": "Person",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "address: {street: \"\", city: \"\", postalCode: \"\"},\nname: \"\",\nage: 0",
+      "insertText": "address: {street: ${1:\"\"}, city: ${2:\"\"}, postalCode: ${3:\"\"}},\nname: ${2:\"\"},\nage: ${3:0}",
       "insertTextFormat": "Snippet"
     }
   ]

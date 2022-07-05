@@ -18,16 +18,16 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -46,94 +46,88 @@ public class QueryActionTest {
 
     @Test(description = "Test simple query action statement")
     public void testSimpleQueryAction() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryAction");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleQueryAction");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
+        BMap<String, Object> person2 = (BMap<String, Object>) returnValues.get(1);
+        BMap<String, Object> person3 = (BMap<String, Object>) returnValues.get(2);
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person3.get("lastName").stringValue(), "David");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person2.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person3.get(StringUtils.fromString("lastName")).toString(), "David");
     }
 
     @Test(description = "Test simple query action - record variable definition")
     public void testSimpleQueryActionWithRecordVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryActionWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleQueryActionWithRecordVariable");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
+        BMap<String, Object> person2 = (BMap<String, Object>) returnValues.get(1);
+        BMap<String, Object> person3 = (BMap<String, Object>) returnValues.get(2);
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person3.get("lastName").stringValue(), "David");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person2.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person3.get(StringUtils.fromString("lastName")).toString(), "David");
     }
 
     @Test(description = "Test simple query action - record variable definition")
     public void testSimpleSelectQueryWithRecordVariableV2() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV2");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
+        BMap<String, Object> person2 = (BMap<String, Object>) returnValues.get(1);
+        BMap<String, Object> person3 = (BMap<String, Object>) returnValues.get(2);
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person3.get("lastName").stringValue(), "David");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person2.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person3.get(StringUtils.fromString("lastName")).toString(), "David");
     }
 
     @Test(description = "Test simple query action statement v2")
     public void testSimpleQueryAction2() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryAction2");
+        Object returnValues = BRunUtil.invoke(result, "testSimpleQueryAction2");
         Assert.assertNotNull(returnValues);
 
-        BInteger countValue = (BInteger) returnValues[0];
-        Assert.assertEquals(countValue.intValue(), 6);
+        long countValue = (long) returnValues;
+        Assert.assertEquals(countValue, 6);
     }
 
     @Test(description = "Test simple query action with let clause")
     public void testSimpleSelectQueryWithLetClause() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        BMap<String, BValue> person = (BMap<String, BValue>) returnValues[0];
+        BMap<String, Object> person = (BMap<String, Object>) returnValues.get(0);
 
-        Assert.assertEquals(person.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person.get(StringUtils.fromString("firstName")).toString(), "Alex");
     }
 
     @Test(description = "Test simple query action with where clause")
     public void testSimpleSelectQueryWithWhereClause() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        BMap<String, BValue> person = (BMap<String, BValue>) returnValues[0];
+        BMap<String, Object> person = (BMap<String, Object>) returnValues.get(0);
 
-        Assert.assertEquals(person.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person.get(StringUtils.fromString("firstName")).toString(), "Alex");
     }
 
     @Test(description = "Test simple query action with multiple from clauses")
     public void testSimpleSelectQueryWithMultipleFromClauses() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithMultipleFromClauses");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithMultipleFromClauses");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
-        BMap<String, BValue> employee = (BMap<String, BValue>) returnValues[0];
+        BMap<String, Object> employee = (BMap<String, Object>) returnValues.get(0);
 
-        Assert.assertEquals(employee.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(employee.get("deptAccess").stringValue(), "Human Resource");
+        Assert.assertEquals(employee.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(employee.get(StringUtils.fromString("deptAccess")).toString(), "Human Resource");
     }
 
     @Test(description = "Test query expression iterating over xml<xml:Element> in from clause in query action")
     public void testQueryExpressionIteratingOverXMLInFromInQueryAction() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromInQueryAction");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromInQueryAction");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(((BFloat) returnValues[0]).floatValue(), 149.93);
+        Assert.assertEquals((returnValues), 149.93);
     }
 
     @Test(description = "Test type test in where clause")
@@ -144,6 +138,54 @@ public class QueryActionTest {
     @Test(description = "Test type test in variable defined in let clause")
     public void testTypeNarrowingVarDefinedWithLet() {
         BRunUtil.invoke(result, "testTypeNarrowingVarDefinedWithLet");
+    }
+
+    @Test
+    public void testWildcardBindingPatternInQueryAction1() {
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction1");
+    }
+
+    @Test
+    public void testWildcardBindingPatternInQueryAction2() {
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction2");
+    }
+
+    @Test
+    public void testQueryActionWithAsyncCalls() {
+        BRunUtil.invoke(result, "testQueryActionWithAsyncCalls");
+    }
+
+    @Test
+    public void testQueryExpWithinQueryAction() {
+        BRunUtil.invoke(result, "testQueryExpWithinQueryAction");
+    }
+
+    @Test
+    public void testErrorHandlingWithinQueryAction() {
+        BRunUtil.invoke(result, "testErrorHandlingWithinQueryAction");
+    }
+
+    @Test
+    public void testReturnStmtWithinQueryAction() {
+        BRunUtil.invoke(result, "testReturnStmtWithinQueryAction");
+    }
+
+    @Test
+    public void testQueryActionWithDoClauseContainsCheck() {
+        BRunUtil.invoke(result, "testQueryActionWithDoClauseContainsCheck");
+    }
+
+    @Test(dataProvider = "dataToTestQueryActionWithVar")
+    public void testQueryActionWithVar(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestQueryActionWithVar() {
+        return new Object[]{
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction",
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction2"
+        };
     }
 
     @AfterClass

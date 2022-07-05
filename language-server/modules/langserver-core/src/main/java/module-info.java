@@ -7,8 +7,10 @@ module io.ballerina.language.server.core {
     uses org.ballerinalang.langserver.commons.registration.BallerinaServerCapability;
     uses org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter;
     uses org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter;
+    uses org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
+    uses org.ballerinalang.langserver.eventsync.EventPublisher;
     exports org.ballerinalang.langserver;
-    exports org.ballerinalang.langserver.util.references;
+    exports org.ballerinalang.langserver.references;
     exports org.ballerinalang.langserver.common.utils;
     exports org.ballerinalang.langserver.common.constants;
     exports org.ballerinalang.langserver.codeaction.providers;
@@ -17,6 +19,7 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.config;
     exports org.ballerinalang.langserver.telemetry;
     exports org.ballerinalang.langserver.util to io.ballerina.language.server.simulator;
+    requires io.ballerina.diagram.util;
     requires io.ballerina.formatter.core;
     requires org.eclipse.lsp4j;
     requires io.ballerina.language.server.commons;
@@ -32,6 +35,6 @@ module io.ballerina.language.server.core {
     requires io.ballerina.tools.api;
     requires com.google.common;
     requires com.google.gson;
-    requires io.ballerina.diagram.util;
     requires io.ballerina.syntaxapicallsgen;
+    requires io.ballerina.central.client;
 }

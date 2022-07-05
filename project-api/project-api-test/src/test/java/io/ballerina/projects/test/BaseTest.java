@@ -17,10 +17,12 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -35,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 
 /**
@@ -85,21 +88,41 @@ public class BaseTest {
 
     protected void cacheDependencyToLocalRepository(Path dependency) throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
+        BaseTest.this.cacheDependencyToCentralRepository(dependencyProject, LOCAL_REPOSITORY_NAME);
+    }
+
+    protected void cacheDependencyToCentralRepository(Path dependency) throws IOException {
+        BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
+        cacheDependencyToCentralRepository(dependencyProject, CENTRAL_REPOSITORY_CACHE_NAME);
+    }
+
+    protected void cacheDependencyToCentralRepository(Path dependency, ProjectEnvironmentBuilder environmentBuilder)
+            throws IOException {
+        BuildProject dependencyProject = TestUtils.loadBuildProject(environmentBuilder, dependency,
+                BuildOptions.builder().setOffline(true).build());
+        cacheDependencyToCentralRepository(dependencyProject, CENTRAL_REPOSITORY_CACHE_NAME);
+    }
+
+    private void cacheDependencyToCentralRepository(BuildProject dependencyProject, String centralRepositoryCacheName)
+            throws IOException {
         Package currentPackage = dependencyProject.currentPackage();
         PackageCompilation compilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
 
-        Path localRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(LOCAL_REPOSITORY_NAME).resolve(ProjectConstants.BALA_DIR_NAME);
-        Path localRepoBalaCache = localRepoPath
+        Path centralRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(centralRepositoryCacheName).resolve(ProjectConstants.BALA_DIR_NAME);
+        Path centralRepoBalaCache = centralRepoPath
                 .resolve(currentPackage.packageOrg().value())
                 .resolve(currentPackage.packageName().value())
                 .resolve(currentPackage.packageVersion().value().toString())
                 .resolve(jBallerinaBackend.targetPlatform().code());
-        Files.createDirectories(localRepoBalaCache);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
-        Path balaPath = Files.list(localRepoBalaCache).findAny().orElseThrow();
-        ProjectUtils.extractBala(balaPath, localRepoBalaCache);
+        if (Files.exists(centralRepoBalaCache)) {
+            ProjectUtils.deleteDirectory(centralRepoBalaCache);
+        }
+        Files.createDirectories(centralRepoBalaCache);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
+        Path balaPath = Files.list(centralRepoBalaCache).findAny().orElseThrow();
+        ProjectUtils.extractBala(balaPath, centralRepoBalaCache);
         try {
             Files.delete(balaPath);
         } catch (IOException e) {

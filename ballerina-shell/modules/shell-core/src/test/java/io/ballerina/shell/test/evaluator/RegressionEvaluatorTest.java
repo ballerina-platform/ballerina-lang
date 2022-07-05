@@ -27,18 +27,11 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class RegressionEvaluatorTest extends AbstractEvaluatorTest {
-    private static final String FUNCTION_NAME_EVALUATOR_TESTCASE = "testcases/evaluator/regression.function.name.json";
     private static final String SAME_IMPORT_EVALUATOR_TESTCASE = "testcases/evaluator/regression.same.import.json";
     private static final String IMPORT_USED_FN_TESTCASE = "testcases/evaluator/regression.import.used.fn.json";
     private static final String PANIC_SAVE_STATE_TESTCASE = "testcases/evaluator/regression.panic.save.state.json";
     private static final String QUALIFIERS_TESTCASE = "testcases/evaluator/regression.qualifiers.json";
     private static final String IMPORT_CYCLIC_TYPE_TESTCASE = "testcases/evaluator/regression.cyclic.type.json";
-
-    @Test
-    public void testEvaluateFunctionName() throws BallerinaShellException {
-        // If a type is defined, the name cannot be used by a variable and vice versa.
-        testEvaluate(FUNCTION_NAME_EVALUATOR_TESTCASE);
-    }
 
     @Test
     public void testEvaluateSameImport() throws BallerinaShellException {

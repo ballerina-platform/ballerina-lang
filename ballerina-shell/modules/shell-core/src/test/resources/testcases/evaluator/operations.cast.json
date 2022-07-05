@@ -9,27 +9,47 @@
   },
   {
     "description": "Cas employee to person.",
-    "code": "Person person = <Person>employee; person.name",
+    "code": "Person person = <Person>employee;"
+  },
+  {
+    "description": "Cas employee to person - get value.",
+    "code": "person.name",
     "expr": "\"Jane Doe\""
   },
   {
     "description": "Recast back to employee.",
-    "code": "Employee employeeTwo = <Employee>person; employeeTwo.name",
+    "code": "Employee employeeTwo = <Employee>person;"
+  },
+  {
+    "description": "Recast back to employee - get value.",
+    "code": "employeeTwo.name",
     "expr": "\"Jane Doe\""
   },
   {
     "description": "Cast anydata to int.",
-    "code": "anydata value = 100; int i = <int>value; i",
+    "code": "anydata value = 100; int i = <int>value;"
+  },
+  {
+    "description": "Cast anydata to int - get value.",
+    "code": "i",
     "expr": "100"
   },
   {
     "description": "Cast anydata to float.",
-    "code": "float f = <float>value; f",
+    "code": "float f = <float>value;"
+  },
+  {
+    "description": "Cast anydata to float - get value.",
+    "code": "f",
     "expr": "100.0"
   },
   {
     "description": "Cast anydata to a union.",
-    "code": "float|boolean u = <float|boolean>value; u",
+    "code": "float|boolean u = <float|boolean>value;"
+  },
+  {
+    "description": "Cast anydata to a union - get value.",
+    "code": "u",
     "expr": "100.0"
   },
   {

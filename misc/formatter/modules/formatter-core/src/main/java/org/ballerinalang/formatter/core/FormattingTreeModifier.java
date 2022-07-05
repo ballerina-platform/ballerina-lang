@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
@@ -181,6 +182,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
@@ -962,8 +964,8 @@ public class FormattingTreeModifier extends TreeModifier {
     public OnFailClauseNode transform(OnFailClauseNode onFailClauseNode) {
         Token onKeyword = formatToken(onFailClauseNode.onKeyword(), 1, 0);
         Token failKeyword = formatToken(onFailClauseNode.failKeyword(), 1, 0);
-        TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor(), 1, 0);
-        IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName(), 1, 0);
+        TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor().orElse(null), 1, 0);
+        IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName().orElse(null), 1, 0);
         BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
 
@@ -2282,6 +2284,16 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public SpreadMemberNode transform(SpreadMemberNode spreadMemberNode) {
+        Token ellipsis = formatToken(spreadMemberNode.ellipsis(), 0, 0);
+        ExpressionNode valueExpr = formatNode(spreadMemberNode.expression(), env.trailingWS, env.trailingNL);
+        return spreadMemberNode.modify()
+                .withEllipsis(ellipsis)
+                .withExpression(valueExpr)
+                .apply();
+    }
+
+    @Override
     public NamedArgumentNode transform(NamedArgumentNode namedArgumentNode) {
         SimpleNameReferenceNode argumentName = formatNode(namedArgumentNode.argumentName(), 1, 0);
         Token equalsToken = formatToken(namedArgumentNode.equalsToken(), 1, 0);
@@ -3376,16 +3388,24 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         TypeDescriptorNode memberTypeDesc = formatNode(arrayTypeDescriptorNode.memberTypeDesc(), 0, 0);
-        Token openBracket = formatToken(arrayTypeDescriptorNode.openBracket(), 0, 0);
-        Node arrayLength = formatNode(arrayTypeDescriptorNode.arrayLength().orElse(null), 0, 0);
-        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), env.trailingWS, env.trailingNL);
+        NodeList<ArrayDimensionNode> dimensions = formatNodeList(arrayTypeDescriptorNode.dimensions(), 0, 
+                0, env.trailingWS, env.trailingNL);
         return arrayTypeDescriptorNode.modify()
+                .withMemberTypeDesc(memberTypeDesc)
+                .withDimensions(dimensions)
+                .apply();
+    }
+    
+    @Override
+    public ArrayDimensionNode transform(ArrayDimensionNode arrayDimensionNode) {
+        Token openBracket = formatToken(arrayDimensionNode.openBracket(), 0, 0);
+        Node arrayLength = formatNode(arrayDimensionNode.arrayLength().orElse(null), 0, 0);
+        Token closeBracket = formatToken(arrayDimensionNode.closeBracket(), env.trailingWS, env.trailingNL);
+        return arrayDimensionNode.modify()
                 .withOpenBracket(openBracket)
                 .withArrayLength(arrayLength)
                 .withCloseBracket(closeBracket)
-                .withMemberTypeDesc(memberTypeDesc)
                 .apply();
-
     }
 
     @Override

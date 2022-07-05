@@ -18,6 +18,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
@@ -44,7 +46,7 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
     protected BallerinaEnumSymbol(String name, List<ConstantSymbol> members, List<Qualifier> qualifiers,
                                   List<AnnotationSymbol> annots, TypeSymbol typeDescriptor, BSymbol bSymbol,
                                   CompilerContext context) {
-        super(name, qualifiers, typeDescriptor, bSymbol, context);
+        super(name, qualifiers, annots, typeDescriptor, bSymbol, context);
         this.members = Collections.unmodifiableList(members);
         this.annots = annots;
     }
@@ -62,6 +64,16 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
     @Override
     public SymbolKind kind() {
         return SymbolKind.ENUM;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     /**

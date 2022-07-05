@@ -160,12 +160,51 @@ function testGetContent() returns [string, string] {
     return [pi.getContent(), comment.getContent()];
 }
 
-function testCreateElement() returns [xml, xml, xml] {
-    xml t = xml `hello world`;
-    'xml:Element r1 = 'xml:createElement("elem", t);
-    'xml:Element r2 = 'xml:createElement("elem");
+type attributesMap map<string>;
 
-    return [r1, r1.getChildren(), r2.getChildren()];
+function testCreateElement() {
+    xml children1 = xml `<foo>hello</foo><foo>world</foo>`;
+    xml:Text children2 = xml `hello`;
+    xml:Comment children3 = xml `<!--Comment1-->`;
+    xml:Element children4 = xml `<foo>hello world</foo>`;
+    xml:ProcessingInstruction children5 = xml `<?foo?>`;
+
+    map<string> attributes1 = {
+        "href" : "https://ballerina.io"
+    };
+
+    map<string> attributes2 = {
+        "href" : "https://ballerina.io",
+        "src" : "test.jpg"
+    };
+
+    attributesMap attributes3 = {"href":"https://ballerina.io"};
+
+    xml:Element r1 = 'xml:createElement("elem", attributes1, children1);
+    xml:Element r2 = 'xml:createElement("elem", attributes2, children1);
+    xml:Element r3 = 'xml:createElement("elem");
+    xml:Element r4 = 'xml:createElement("elem", attributes1);
+    xml:Element r5 = 'xml:createElement("elem", {}, children1);
+    xml:Element r6 = 'xml:createElement("elem", {}, xml ``);
+    xml:Element r7 = 'xml:createElement("elem", {"href" : "https://ballerina.io"}, xml `hello world`);
+    xml:Element r8 = 'xml:createElement("elem", attributes1, children5);
+    xml:Element r9 = 'xml:createElement("elem", attributes1, children2);
+    xml:Element r11 = 'xml:createElement("elem", attributes1, children3);
+    xml:Element r12 = 'xml:createElement("elem", attributes1, children4);
+    xml:Element r10 = 'xml:createElement("elem", attributes3, children1);
+
+    assertEquals(r1.toString(), "<elem href=\"https://ballerina.io\"><foo>hello</foo><foo>world</foo></elem>");
+    assertEquals(r2.toString(), "<elem href=\"https://ballerina.io\" src=\"test.jpg\"><foo>hello</foo><foo>world</foo></elem>");
+    assertEquals(r3.toString(), "<elem/>");
+    assertEquals(r4.toString(), "<elem href=\"https://ballerina.io\"/>");
+    assertEquals(r5.toString(), "<elem><foo>hello</foo><foo>world</foo></elem>");
+    assertEquals(r6.toString(), "<elem/>");
+    assertEquals(r7.toString(), "<elem href=\"https://ballerina.io\">hello world</elem>");
+    assertEquals(r8.toString(), "<elem href=\"https://ballerina.io\"><?foo?></elem>");
+    assertEquals(r9.toString(), "<elem href=\"https://ballerina.io\">hello</elem>");
+    assertEquals(r10.toString(), "<elem href=\"https://ballerina.io\"><foo>hello</foo><foo>world</foo></elem>");
+    assertEquals(r11.toString(), "<elem href=\"https://ballerina.io\"><!--Comment1--></elem>");
+    assertEquals(r12.toString(), "<elem href=\"https://ballerina.io\"><foo>hello world</foo></elem>");
 }
 
 function testCreateProcessingInstruction() returns xml {
@@ -392,6 +431,29 @@ function testXMLCycleDueToChildrenOfChildren() returns xml|error {
 
 function setChildren('xml:Element fc, 'xml:Element subRoot) returns error? {
     return trap fc.setChildren(subRoot);
+}
+
+function testSetChildrenFunction() {
+    string url = "https://ballerina.io";
+    xml:Element xml1 = xml `<ele href="${url}"><foo>temp</foo></ele>`;
+    xml:setChildren(xml1, "Ballerina");
+    assertEquals(xml1.toString(), "<ele href=\"https://ballerina.io\">Ballerina</ele>");
+
+    xml1 = xml `<ele href="${url}"><foo>${url}</foo></ele>`;
+    xml:setChildren(xml1, "Ballerina");
+    assertEquals(xml1.toString(), "<ele href=\"https://ballerina.io\">Ballerina</ele>");
+
+    xml1 = xml `<ele href="${url}"><foo>temp value</foo></ele>`;
+    xml:setChildren(xml1, url);
+    assertEquals(xml1.toString(), "<ele href=\"https://ballerina.io\">https://ballerina.io</ele>");
+
+    xml1 = xml `<ele><foo>temp value</foo></ele>`;
+    xml:setChildren(xml1, string `this is ${url}`);
+    assertEquals(xml1.toString(), "<ele>this is https://ballerina.io</ele>");
+
+    xml1 = xml `<ele href="${url}"></ele>`;
+    xml:setChildren(xml1, "Ballerina");
+    assertEquals(xml1.toString(), "<ele href=\"https://ballerina.io\">Ballerina</ele>");
 }
 
 function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|error] {
@@ -928,4 +990,22 @@ function testXmlIteratorNextInvocations() {
     test:assertFalse(itrNextNextNext is record {| 'xml:Element|'xml:Text|'xml:ProcessingInstruction value; |});
     test:assertFalse(itrNextNextNext is record {| 'xml:Element|'xml:Text value; |});
     test:assertFalse(itrNextNextNext is record {| 'xml:Text value; |});
+}
+
+function testNamespaces() {
+    map<string> attributes1 = {"{http://www.w3.org/2000/xmlns/}ns0":"http://sample.com/test","status":"online"};
+    xml:Element element1 = xml:createElement("{http://sample.com/test}bookStore", attributes1, xml ``);
+    assertEquals(element1.toString(), "<ns0:bookStore xmlns:ns0=\"http://sample.com/test\" status=\"online\"/>");
+
+    map<string> attributes2 = {"{http://www.w3.org/2000/xmlns/}xml":"http://sample.com/test","status":"online"};
+    xml:Element element2 = xml:createElement("{http://sample.com/test}bookStore", attributes2, xml ``);
+    assertEquals(element2.toString(), "<bookStore xmlns=\"http://sample.com/test\" status=\"online\"/>");
+
+    map<string> attributes3 = {"{http://www.w3.org/XML/1998/namespace}ns0":"http://sample.com/test","status":"online"};
+    xml:Element element3 = xml:createElement("{http://sample.com/test}bookStore", attributes3, xml ``);
+    assertEquals(element3.toString(), "<bookStore xmlns=\"http://sample.com/test\" xml:ns0=\"http://sample.com/test\" status=\"online\"/>");
+
+    map<string> attributes4 = {"status":"online"};
+    xml:Element element4 = xml:createElement("{http://sample.com/test}bookStore", attributes4, xml ``);
+    assertEquals(element4.toString(), "<bookStore xmlns=\"http://sample.com/test\" status=\"online\"/>");
 }

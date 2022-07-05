@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -51,12 +48,11 @@ public class OperatorPrecedenceTest {
 
     private void addSubPrecedence(int a, int b, int c) {
         long expected = a - b + c;
-        BValue[] args = { new BInteger(a), new BInteger(b), new BInteger(c) };
+        Object[] args = { (a), (b), (c) };
 
-        BValue[] returns = BRunUtil.invoke(result, "addSubPrecedence", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "addSubPrecedence", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actual = (long) returns;
 
         Assert.assertEquals(actual, expected);
     }
@@ -75,14 +71,13 @@ public class OperatorPrecedenceTest {
 
     private void addSubMultPrecedence(int a, int b, int c, int d, int e, int f) {
         long expected = a * b - c + d * e - f;
-        BValue[] args = {
-                new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
+        Object[] args = {
+                (a), (b), (c), (d), (e), (f)
         };
 
-        BValue[] returns = BRunUtil.invoke(result, "addSubMultPrecedence", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "addSubMultPrecedence", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actual = (long) returns;
         Assert.assertEquals(actual, expected);
     }
 
@@ -101,14 +96,13 @@ public class OperatorPrecedenceTest {
 
     private void multDivisionPrecedence(int a, int b, int c, int d, int e, int f) {
         long expected = a * b / c * d * e / f;
-        BValue[] args = {
-                new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
+        Object[] args = {
+                (a), (b), (c), (d), (e), (f)
         };
 
-        BValue[] returns = BRunUtil.invoke(result, "multDivisionPrecedence", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "multDivisionPrecedence", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actual = (long) returns;
         Assert.assertEquals(actual, expected);
     }
 
@@ -123,14 +117,13 @@ public class OperatorPrecedenceTest {
 
     private void addMultPrecedence(int a, int b, int c, int d, int e, int f) {
         long expected = a * b * c + d * e + f;
-        BValue[] args = {
-                new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
+        Object[] args = {
+                (a), (b), (c), (d), (e), (f)
         };
 
-        BValue[] returns = BRunUtil.invoke(result, "addMultPrecedence", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "addMultPrecedence", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actual = (long) returns;
         Assert.assertEquals(actual, expected);
     }
 
@@ -144,14 +137,13 @@ public class OperatorPrecedenceTest {
 
     private void addDivisionPrecedence(int a, int b, int c, int d, int e, int f) {
         long expected = a / b / c + d / e + f;
-        BValue[] args = {
-                new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
+        Object[] args = {
+                (a), (b), (c), (d), (e), (f)
         };
 
-        BValue[] returns = BRunUtil.invoke(result, "addDivisionPrecedence", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "addDivisionPrecedence", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actual = (long) returns;
         Assert.assertEquals(actual, expected);
     }
 
@@ -171,14 +163,13 @@ public class OperatorPrecedenceTest {
     private void comparatorPrecedence(int a, int b, int c, int d, int e, int f) {
         boolean expected = (a > b) && (c < d) || (e > f);
 
-        BValue[] args = {
-                new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
+        Object[] args = {
+                (a), (b), (c), (d), (e), (f)
         };
 
-        BValue[] returns = BRunUtil.invoke(result, "comparatorPrecedence", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actual = ((BBoolean) returns[0]).booleanValue();
+        Object returns = BRunUtil.invoke(result, "comparatorPrecedence", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        boolean actual = (boolean) returns;
         Assert.assertEquals(actual, expected);
     }
 
@@ -192,11 +183,11 @@ public class OperatorPrecedenceTest {
 
         long expectedResult = a - b + c - d;
 
-        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
+        Object[] args = {(a), (b), (c), (d)};
 
-        BValue[] returns = BRunUtil.invoke(result, "intAdditionAndSubtractionPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "intAdditionAndSubtractionPrecedence", args);
 
-        long actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult, "The results of addition and " +
                 "subtraction operation differ");
@@ -215,11 +206,11 @@ public class OperatorPrecedenceTest {
         int z = a + b * c * d - a * b;
 
         long expectedResult = x + y - z;
-        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
+        Object[] args = {(a), (b), (c), (d)};
 
-        BValue[] returns = BRunUtil.invoke(result, "intMultiplicationPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "intMultiplicationPrecedence", args);
 
-        long actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult, "The results of multiplication operation differ");
     }
@@ -238,11 +229,11 @@ public class OperatorPrecedenceTest {
 
         long expectedResult = x - y + z;
 
-        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
+        Object[] args = {(a), (b), (c), (d)};
 
-        BValue[] returns = BRunUtil.invoke(result, "intDivisionPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "intDivisionPrecedence", args);
 
-        long actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult, "The results of division operation differ");
     }
@@ -262,11 +253,11 @@ public class OperatorPrecedenceTest {
 
         long expectedResult = x + y + z;
 
-        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
+        Object[] args = {(a), (b), (c), (d)};
 
-        BValue[] returns = BRunUtil.invoke(result, "intMultiplicationAndDivisionPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "intMultiplicationAndDivisionPrecedence", args);
 
-        long actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult, "The results of multiplication and " +
                 "division operation differ");

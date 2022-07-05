@@ -17,13 +17,13 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.util.Arrays;
 
@@ -98,16 +98,13 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return TypeTags.FUNCTION_POINTER_TAG;
     }
 
-    private static String getTypeListAsString(Parameter[] parameters) {
-        StringBuffer br = new StringBuffer();
-        int i = 0;
+    private static void addParamListToString(Parameter[] parameters, StringBuilder stringRep) {
+        String prefix = "";
         for (Parameter parameter : parameters) {
-            br.append(parameter.type.getName());
-            if (++i < parameters.length) {
-                br.append(",");
-            }
+            stringRep.append(prefix);
+            prefix = ",";
+            stringRep.append(parameter.type.toString());
         }
-        return br.toString();
     }
 
     @Override
@@ -164,27 +161,38 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     @Override
     public String toString() {
-        String stringRep;
+        StringBuilder stringRep = new StringBuilder();
+
+        if (SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL)) {
+            stringRep.append("transactional ");
+        }
+        if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
+            stringRep.append("isolated ");
+        }
 
         if (SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION)) {
-            stringRep = "function";
+            stringRep.append("function");
         } else {
-            stringRep = "function (" + (parameters != null ? getTypeListAsString(parameters) : "") + ")" +
-                    (retType != null ? " returns (" + retType + ")" : "");
+            stringRep.append("function (");
+            if (parameters != null) {
+                addParamListToString(parameters, stringRep);
+            }
+            if (restType instanceof BArrayType) {
+                stringRep.append(",");
+                stringRep.append(((BArrayType) restType).getElementType().toString());
+                stringRep.append("...");
+            }
+            stringRep.append(")");
+            if (retType != null) {
+                stringRep.append(" returns (").append(retType).append(")");
+            }
         }
-
-        if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
-            stringRep = "isolated ".concat(stringRep);
-        }
-        if (SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL)) {
-            "transactional ".concat(stringRep);
-        }
-        return stringRep;
+        return stringRep.toString();
     }
 
     @Override
     public String getAnnotationKey() {
-        return IdentifierUtils.decodeIdentifier(this.typeName);
+        return Utils.decodeIdentifier(this.typeName);
     }
 
     @Override

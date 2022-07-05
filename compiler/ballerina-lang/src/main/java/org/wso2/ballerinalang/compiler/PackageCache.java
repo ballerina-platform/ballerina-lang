@@ -82,6 +82,17 @@ public class PackageCache {
         packageSymbolMap.remove(packageElements[0]);
     }
 
+    public void flush() {
+        packageMap.clear();
+        for (String idStr : packageSymbolMap.keySet()) {
+            PackageID pkgID = getSymbol(idStr).pkgID;
+            if (PackageID.isLangLibPackageID(pkgID)) {
+                continue;
+            }
+            packageSymbolMap.remove(pkgID);
+        }
+    }
+
     public static String getCacheID(PackageID packageID) {
         String bvmAlias = packageID.toString();
         if (packageID.sourceFileName != null) {

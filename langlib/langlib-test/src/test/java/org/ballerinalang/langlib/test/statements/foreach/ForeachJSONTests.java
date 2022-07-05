@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,29 +40,31 @@ public class ForeachJSONTests {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach-json.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+    }
+
     @Test
     public void testJSONObject() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONObject");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testJSONObject");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
     public void testJSONArray() {
         String result = "{\"subject\":\"maths\", \"marks\":75} {\"subject\":\"English\", \"marks\":85} ";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONArray");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testJSONArray");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
     public void testArrayOfJSON() {
         String result = "0:{\"subject\":\"maths\", \"marks\":75} 1:{\"subject\":\"English\", \"marks\":85} ";
-        BValue[] returns = BRunUtil.invoke(program, "testArrayOfJSON");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testArrayOfJSON");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -70,9 +72,8 @@ public class ForeachJSONTests {
     public void testJSONString() {
         String result = "{ballerina}ConversionError {\"message\":\"'string' value "
                 + "cannot be converted to 'map<json>'\"}";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONString");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testJSONString");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test(expectedExceptions =  BLangRuntimeException.class,
@@ -80,9 +81,8 @@ public class ForeachJSONTests {
     public void testJSONNumber() {
         String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot"
                 + " be converted to 'map<json>'\"}";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONNumber");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testJSONNumber");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -90,13 +90,12 @@ public class ForeachJSONTests {
     public void testJSONBoolean() {
         String result = "{ballerina}ConversionError {\"message\":\"'boolean' value " 
                 + "cannot be converted to 'map<json>'\"}";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONBoolean");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testJSONBoolean");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'city'" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"key 'city'" +
                     " not found in JSON mapping\"\\}\n" +
                     "\tat foreach-json:testJSONNull\\(foreach-json.bal:79\\)")
     public void testJSONNull() {
@@ -106,26 +105,23 @@ public class ForeachJSONTests {
     @Test(enabled = false)
     public void testJSONToStructCast() {
         String result = "a-h1 b-h2 ";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONToStructCast");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testJSONToStructCast");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test()
     public void testAddWhileIteration() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ";
-        BValue[] returns = BRunUtil.invoke(program, "testAddWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result + "\"smith\" ");
+        Object returns = BRunUtil.invoke(program, "testAddWhileIteration");
+        Assert.assertEquals(returns.toString(), result + "\"smith\" ");
     }
 
     @Test()
     public void testDeleteWhileIteration() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] \"bob\" 10 true ";
-        BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
+        Assert.assertEquals(returns.toString(), result);
     }
 }

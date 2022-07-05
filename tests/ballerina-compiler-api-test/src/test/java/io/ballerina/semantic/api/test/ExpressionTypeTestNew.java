@@ -97,7 +97,7 @@ public class ExpressionTypeTestNew {
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 15, 19, 42);
+        TypeSymbol type = getExprType(19, 15, 19, 44);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
@@ -267,7 +267,8 @@ public class ExpressionTypeTestNew {
         return new Object[][]{
                 {72, 12, 15, INT},
                 {73, 12, 23, INT},
-                {73, 17, 23, INT},
+                {73, 12, 19, INT},
+                {73, 17, 23, null},
                 {74, 12, 23, INT},
                 {75, 16, 22, BOOLEAN},
                 {76, 17, 22, STRING},
@@ -309,7 +310,7 @@ public class ExpressionTypeTestNew {
 
     @Test
     public void testInferredRecordTypeForInvalidExprs() {
-        assertType(97, 5, 97, 20, RECORD);
+        assertType(97, 4, 97, 20, RECORD);
     }
 
     @Test
@@ -317,7 +318,17 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(101, 4, 101, 21);
         assertEquals(type.typeKind(), FUTURE);
         assertEquals(((FutureTypeSymbol) type).typeParameter().get().typeKind(), NIL);
-//        assertType(101, 10, 101, 21, NIL); TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33016
+        assertType(101, 10, 101, 21, NIL);
+    }
+
+    @Test
+    public void testFutureResultType() {
+        TypeSymbol type = getExprType(350, 31, 350, 38);
+        assertEquals(type.typeKind(), FUTURE);
+        Optional<TypeSymbol> typeParameter = ((FutureTypeSymbol) type).typeParameter();
+        assertTrue(typeParameter.isPresent());
+        assertEquals(typeParameter.get().typeKind(), INT);
+        assertType(354, 17, 354, 24, INT);
     }
 
     @Test(dataProvider = "CallExprPosProvider")
@@ -439,9 +450,7 @@ public class ExpressionTypeTestNew {
 
         assertEquals(type.userSpecifiedMemberTypes().get(0).typeKind(), TYPE_REFERENCE);
         assertEquals(type.userSpecifiedMemberTypes().get(1).typeKind(), NIL);
-
-//        TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33017
-//        assertType(198, 19, 198, 25, TYPEDESC);
+        assertType(198, 19, 198, 25, TYPEDESC);
     }
 
     @Test(dataProvider = "ErrorCtrPos")
@@ -479,7 +488,7 @@ public class ExpressionTypeTestNew {
                 {209, 16, 209, 68, FUNCTION},
                 {209, 46, 209, 68, STRING},
                 {211, 14, 213, 5, FUNCTION},
-                {211, 27, 213, 5, FUNCTION},
+                {211, 27, 213, 5, null},
                 {211, 51, 211, 52, INT},
                 {216, 42, 216, 61, FUNCTION},
                 {216, 43, 216, 44, null},
@@ -497,7 +506,7 @@ public class ExpressionTypeTestNew {
         return new Object[][]{
                 {220, 12, 220, 88, INT},
                 {220, 24, 220, 26, INT},
-//                {220, 37, 220, 42, STRING}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32999
+                {220, 37, 220, 42, STRING},
                 {220, 70, 220, 78, STRING},
                 {220, 83, 220, 88, INT},
         };
@@ -564,9 +573,8 @@ public class ExpressionTypeTestNew {
                 {273, 9, 273, 13, XML},
                 {274, 9, 274, 15, XML},
                 {275, 9, 275, 25, XML},
-                // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33015
-//                {276, 9, 276, 25, XML},
-//                {276, 23, 276, 24, INT},
+                {276, 9, 276, 25, XML},
+                {276, 23, 276, 24, INT},
                 {277, 9, 277, 33, XML},
                 // Group expr
                 {282, 12, 282, 34, INT},

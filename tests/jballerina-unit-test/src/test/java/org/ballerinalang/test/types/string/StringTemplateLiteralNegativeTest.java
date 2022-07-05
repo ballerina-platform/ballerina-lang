@@ -59,9 +59,9 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 5, 12);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 5, 13);
         BAssertUtil.validateError(resultNegative, index++, "invalid escape sequence '\\l'", 10, 24);
+        BAssertUtil.validateError(resultNegative, index++, "invalid record binding pattern with type 'other'", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "unknown type 'He\\llo'", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "invalid record binding pattern with type 'other'", 10, 33);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '$'", 10, 33);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 39);
         BAssertUtil.validateError(resultNegative, index++,

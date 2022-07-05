@@ -18,11 +18,9 @@
  */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -53,168 +51,154 @@ public class ArrowExprTest {
 
     @Test(description = "Test arrow expression that takes one input parameter")
     public void testArrowExprWithOneParam() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithOneParam");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 24);
+        Object returns = BRunUtil.invoke(basic, "testArrowExprWithOneParam");
+        Assert.assertEquals(returns, 24L);
     }
 
     @Test(description = "Test arrow expression that takes two input parameter")
     public void testArrowExprWithTwoParams() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithTwoParams");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "12John");
+        Object returns = BRunUtil.invoke(basic, "testArrowExprWithTwoParams");
+        Assert.assertEquals(returns.toString(), "12John");
     }
 
     @Test(description = "Test arrow expression inferring type from return signature")
     public void testReturnArrowExpr() {
-        BValue[] returns = BRunUtil.invoke(basic, "testReturnArrowExpr");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "10Adam");
+        Object returns = BRunUtil.invoke(basic, "testReturnArrowExpr");
+        Assert.assertEquals(returns.toString(), "10Adam");
     }
 
     @Test(description = "Test arrow expression that returns a tuple")
     public void testArrowExprReturnTuple() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprReturnTuple");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "12John");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 12);
+        Object arr = BRunUtil.invoke(basic, "testArrowExprReturnTuple");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "12John");
+        Assert.assertEquals(returns.get(1), 12L);
     }
 
     @Test(description = "Test arrow expression that returns a union")
     public void testArrowExprReturnUnion() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprReturnUnion");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "12John");
+        Object returns = BRunUtil.invoke(basic, "testArrowExprReturnUnion");
+        Assert.assertEquals(returns.toString(), "12John");
     }
 
     @Test(description = "Test arrow expression with boolean type input")
     public void testBooleanParamType() {
-        BValue[] returns = BRunUtil.invoke(basic, "testBooleanParamType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(basic, "testBooleanParamType");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test arrow expression accessing a closure variable")
     public void testClosure() {
-        BValue[] returns = BRunUtil.invoke(basic, "testClosure");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 35);
+        Object returns = BRunUtil.invoke(basic, "testClosure");
+        Assert.assertEquals(returns, 35L);
     }
 
     @Test(description = "Test arrow expression accessing a closure variable with casting to float")
     public void testClosureWithCasting() {
-        BValue[] returns = BRunUtil.invoke(basic, "testClosureWithCasting");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 45.0);
+        Object returns = BRunUtil.invoke(basic, "testClosureWithCasting");
+        Assert.assertEquals(returns, 45.0);
 
     }
 
     @Test(description = "Test arrow expression with input parameter and return type record")
     public void testRecordTypeWithArrowExpr() {
-        BValue[] returns = BRunUtil.invoke(basic, "testRecordTypeWithArrowExpr");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BMap) returns[0]).getMap().get("name").toString(), "John");
-        Assert.assertEquals(((BMap) returns[0]).getMap().get("age").toString(), "12");
+        Object returns = BRunUtil.invoke(basic, "testRecordTypeWithArrowExpr");
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "John");
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("age")).toString(), "12");
     }
 
     @Test(description = "Test arrow expression that takes one nillable input parameter")
     public void testNillableParameter() {
-        BValue[] returns = BRunUtil.invoke(basic, "testNillableParameter");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "John");
+        Object returns = BRunUtil.invoke(basic, "testNillableParameter");
+        Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test(description = "Test arrow expression that takes tuple as an input parameter")
     public void testTupleInput() {
-        BValue[] returns = BRunUtil.invoke(basic, "testTupleInput");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].toString(), "Doe");
-        Assert.assertEquals(returns[1].toString(), "Peter");
+        Object arr = BRunUtil.invoke(basic, "testTupleInput");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "Doe");
+        Assert.assertEquals(returns.get(1).toString(), "Peter");
     }
 
     @Test(description = "Test arrow expression accessing a closure in an enclosing lambda")
     public void twoLevelTestWithEndingArrowExpr() {
-        BValue[] returns = BRunUtil.invoke(basic, "twoLevelTest");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 36);
+        Object returns = BRunUtil.invoke(basic, "twoLevelTest");
+        Assert.assertEquals(returns, 36L);
     }
 
     @Test(description = "Test arrow expression accessing a closure in enclosing lambdas upto 3 levels")
     public void threeLevelTestWithEndingArrowExpr() {
-        BValue[] returns = BRunUtil.invoke(basic, "threeLevelTest");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Object returns = BRunUtil.invoke(basic, "threeLevelTest");
+        Assert.assertEquals(returns, 50L);
     }
 
     @Test(description = "Test arrow expression inside an arrow expression")
     public void testNestedArrowExpression() {
-        BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression");
-        Assert.assertEquals(returns[0].stringValue(), "John18");
+        Object returns = BRunUtil.invoke(basic, "testNestedArrowExpression");
+        Assert.assertEquals(returns.toString(), "John18");
     }
 
     @Test(description = "Test arrow expression chaining with 3 degrees")
     public void testNestedArrowExpression2() {
-        BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression2");
-        Assert.assertEquals(returns[0].stringValue(), "DoReMe");
+        Object returns = BRunUtil.invoke(basic, "testNestedArrowExpression2");
+        Assert.assertEquals(returns.toString(), "DoReMe");
     }
 
     @Test(description = "Test arrow expression chaining with 4 degrees")
     public void testNestedArrowExpression3() {
-        BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression3");
-        Assert.assertEquals(returns[0].stringValue(), "DoReMeFa");
+        Object returns = BRunUtil.invoke(basic, "testNestedArrowExpression3");
+        Assert.assertEquals(returns.toString(), "DoReMeFa");
     }
 
     @Test(description = "Test arrow expression chaining with 4 degrees including lambda")
     public void testNestedArrowExpression4() {
-        BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression4");
-        Assert.assertEquals(returns[0].stringValue(), "DoReMeFa");
+        Object returns = BRunUtil.invoke(basic, "testNestedArrowExpression4");
+        Assert.assertEquals(returns.toString(), "DoReMeFa");
     }
 
     @Test(description = "Test arrow expression inside a record")
     public void testArrowExprInRecord() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprInRecord");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Object returns = BRunUtil.invoke(basic, "testArrowExprInRecord");
+        Assert.assertEquals(returns, 50L);
     }
 
     @Test(description = "Test arrow expression inside an object")
     public void testArrowExprInObject() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprInObject");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+        Object returns = BRunUtil.invoke(basic, "testArrowExprInObject");
+        Assert.assertEquals(returns, 60L);
     }
 
     @Test(description = "Test arrow expression with no arguments")
     public void testArrowExprWithNoArguments() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithNoArguments");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((returns[0]).stringValue(), "Some Text Global Text");
+        Object returns = BRunUtil.invoke(basic, "testArrowExprWithNoArguments");
+        Assert.assertEquals((returns).toString(), "Some Text Global Text");
     }
 
     @Test(description = "Test arrow expression with no arguments and string template")
     public void testArrowExprWithNoArgumentsAndStrTemplate() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithNoArgumentsAndStrTemplate");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((returns[0]).stringValue(), "Some Text Global Text");
+        Object returns = BRunUtil.invoke(basic, "testArrowExprWithNoArgumentsAndStrTemplate");
+        Assert.assertEquals((returns).toString(), "Some Text Global Text");
     }
 
     @Test(description = "Test arrow expression with no arguments and closure var")
     public void testArrowExprWithNoArgumentsAndClosure() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithNoArgumentsAndClosure");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((returns[0]).stringValue(), "Some Text Global Text Closure Text");
+        Object returns = BRunUtil.invoke(basic, "testArrowExprWithNoArgumentsAndClosure");
+        Assert.assertEquals((returns).toString(), "Some Text Global Text Closure Text");
     }
 
     @Test(description = "Test arrow expression wrapped in braces")
     public void testArrowExprInBracedExpr() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprInBracedExpr");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((returns[0]).stringValue(), "Some Text");
+        Object returns = BRunUtil.invoke(basic, "testArrowExprInBracedExpr");
+        Assert.assertEquals((returns).toString(), "Some Text");
     }
 
     @Test(description = "Test arrow expression with nil return")
     public void testArrowExprWithNoReturn() {
-        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithNoReturn");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 120);
+        Object returns = BRunUtil.invoke(basic, "testArrowExprWithNoReturn");
+        Assert.assertEquals(returns, 120L);
     }
 
     @Test(description = "Test compile time errors for arrow expression")
@@ -250,8 +234,10 @@ public class ArrowExprTest {
     @Test(description = "Test compile time errors for arrow expression")
     public void testNegativeArrowExpr() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resultNegative, 0, "variable 'i' is not initialized", 20, 54);
-        BAssertUtil.validateError(resultNegative, 1, "variable 'm' is not initialized", 20, 58);
+        Assert.assertEquals(resultNegative.getWarnCount(), 1);
+        BAssertUtil.validateWarning(resultNegative, 0, "unused variable 'addFunc1'", 20, 5);
+        BAssertUtil.validateError(resultNegative, 1, "variable 'i' is not initialized", 20, 54);
+        BAssertUtil.validateError(resultNegative, 2, "variable 'm' is not initialized", 20, 58);
     }
 
     @Test(description = "Test compile time errors for arrow expression with type narrowing scenario")

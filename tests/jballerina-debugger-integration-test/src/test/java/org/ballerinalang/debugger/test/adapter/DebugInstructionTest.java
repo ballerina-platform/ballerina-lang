@@ -44,6 +44,7 @@ public class DebugInstructionTest extends BaseTestCase {
     public void setup() {
     }
 
+    // Need to be enabled after fixing #35084
     @Test(description = "Tests the behaviour when stepping over on a return statement")
     public void stepOverOnReturnStatementTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-1";
@@ -60,6 +61,7 @@ public class DebugInstructionTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 33));
     }
 
+    // Need to be enabled after fixing #35084
     @Test(description = "Tests whether the debugger honors the breakpoints in-between step overs")
     public void breakpointInBetweenStepOverTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-1";
@@ -81,7 +83,8 @@ public class DebugInstructionTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
     }
 
-    @Test(enabled = false, description = "Object related debug instruction test")
+    // Need to be enabled after fixing #35084
+    @Test(description = "Object related debug instruction test")
     public void objectDebugInstructionTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-1";
         String testModuleFileName = "main.bal";
@@ -107,22 +110,6 @@ public class DebugInstructionTest extends BaseTestCase {
         // Tests STEP_OVER behaviour inside object init() method.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
-
-        // Todo - Enable after https://github.com/ballerina-platform/ballerina-lang/issues/32730 is fixed from the
-        //  runtime
-        // Tests STEP_OVER behaviour on the last line of object init() method.
-        // Expected behaviour would be having a debug hit in object creation line.
-        // debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
-        // debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        // Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath,
-        // 33));
-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
-
-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 34));
 
         // Tests STEP_IN instruction on object method.
@@ -136,7 +123,7 @@ public class DebugInstructionTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
     }
 
-    @Test(description = "Tests whether the debugger honors pause requests")
+    @Test(enabled = false, description = "Tests whether the debugger honors pause requests")
     public void debugPauseTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-2";
         String testModuleFileName = "main.bal";
@@ -166,7 +153,7 @@ public class DebugInstructionTest extends BaseTestCase {
         // At this point, 'pause' command should suspend the program at the infinite while loop. (can be either
         // condition line or the statement body)
         debugTestRunner.pauseProgram(activeThreads[0].getId());
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        debugHitInfo = debugTestRunner.waitForDebugHit(15000);
         Assert.assertTrue(debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 20))
                 || debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 21)));
     }

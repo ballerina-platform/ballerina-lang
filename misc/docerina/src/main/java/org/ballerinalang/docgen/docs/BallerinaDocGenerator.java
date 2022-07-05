@@ -137,6 +137,7 @@ public class BallerinaDocGenerator {
                                     moduleMeta.summary = module.summary;
                                     moduleMeta.orgName = module.orgName;
                                     moduleMeta.version = module.version;
+                                    moduleMeta.isDefaultModule = module.isDefaultModule;
                                     if (module.id.startsWith("lang.")) {
                                         centralLib.langLibs.add(moduleMeta);
                                         moduleLib.langLibs.add(module);
@@ -330,7 +331,8 @@ public class BallerinaDocGenerator {
 
         for (Module module: allModules) {
             if (module.summary != null) {
-                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version, module.summary));
+                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version, module.summary,
+                        module.isDefaultModule));
             }
 
             module.functions.forEach((function) ->
@@ -418,7 +420,7 @@ public class BallerinaDocGenerator {
             // we cannot remove the module.getCompilation() here since the semantic model is accessed
             // after the code gen phase here. package.getCompilation() throws an IllegalStateException
             ModuleDoc moduleDoc = new ModuleDoc(moduleMdText, resources,
-                    syntaxTreeMap, module.getCompilation().getSemanticModel());
+                    syntaxTreeMap, module.getCompilation().getSemanticModel(), module.isDefaultModule());
             moduleDocMap.put(moduleName, moduleDoc);
         }
         return moduleDocMap;
@@ -471,6 +473,7 @@ public class BallerinaDocGenerator {
                     moduleVersion;
             module.summary = moduleDoc.getValue().summary;
             module.description = moduleDoc.getValue().description;
+            module.isDefaultModule = moduleDoc.getValue().isDefault;
 
             // collect module's doc resources
             module.resources.addAll(moduleDoc.getValue().resources);
@@ -502,6 +505,7 @@ public class BallerinaDocGenerator {
                 moduleMeta.orgName = module.orgName;
                 moduleMeta.summary = module.summary;
                 moduleMeta.version = module.version;
+                moduleMeta.isDefaultModule = module.isDefaultModule;
                 relatedModules.add(moduleMeta);
             }
 

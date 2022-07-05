@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,34 +43,34 @@ public class GlobalQueryTest {
 
     @Test(description = "Test module level simple join clause with record variable")
     public void testGlobalQuery1() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalQuery1");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testGlobalQuery1");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test module level simple join clause with function in an equals")
     public void testGlobalQuery2() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalQuery2");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testGlobalQuery2");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test module level multiple join clauses with inner queries")
     public void testGlobalQuery3() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalQuery3");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testGlobalQuery3");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test module level let clause")
     public void testGlobalQuery4() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalQuery4");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testGlobalQuery4");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test nested query-expr as a collection of a query-expr")
     public void testGlobalQuery5() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalQuery5");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testGlobalQuery5");
+        Assert.assertTrue((Boolean) values);
     }
-    
+
     @Test(description = "Test negative scenarios for module level queries")
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);

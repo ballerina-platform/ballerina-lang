@@ -18,10 +18,8 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -47,9 +45,9 @@ public class ArrayMutabilityTest {
 
     @Test
     public void testValidArrayAssignment() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testValidArrayAssignment");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue(), "Expected value of true but found false");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 100, "Expected value of 100");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "testValidArrayAssignment");
+        Assert.assertTrue((Boolean) returnValues.get(0), "Expected value of true but found false");
+        Assert.assertEquals(returnValues.get(1), 100L, "Expected value of 100");
     }
 
     @Test(description = "Check if correct type is saved in covariant array with record type",
@@ -129,8 +127,8 @@ public class ArrayMutabilityTest {
 
     @Test
     public void testUnionOfArrays() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testUnionOfArrays");
-        Assert.assertEquals((returnValues[0]).stringValue(), "BOOL");
+        Object returnValues = BRunUtil.invoke(compileResult, "testUnionOfArrays");
+        Assert.assertEquals((returnValues).toString(), "BOOL");
     }
 
     @Test(description = "Test mutation of boolean array assigned to a union",

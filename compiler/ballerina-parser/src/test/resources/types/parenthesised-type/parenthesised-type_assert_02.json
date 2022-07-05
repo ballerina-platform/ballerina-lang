@@ -642,33 +642,43 @@
                   "kind": "ARRAY_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "ARRAY_TYPE_DESC",
+                      "kind": "INT_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INT_TYPE_DESC",
-                          "children": [
-                            {
-                              "kind": "INT_KEYWORD"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                          "kind": "CLOSE_BRACKET_TOKEN"
+                          "kind": "INT_KEYWORD"
                         }
                       ]
                     },
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "trailingMinutiae": [
+                      "kind": "LIST",
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "ARRAY_DIMENSION",
+                          "children": [
+                            {
+                              "kind": "OPEN_BRACKET_TOKEN"
+                            },
+                            {
+                              "kind": "CLOSE_BRACKET_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ARRAY_DIMENSION",
+                          "children": [
+                            {
+                              "kind": "OPEN_BRACKET_TOKEN"
+                            },
+                            {
+                              "kind": "CLOSE_BRACKET_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1041,19 +1051,29 @@
                           ]
                         },
                         {
-                          "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                          "kind": "NUMERIC_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                              "value": "1"
+                              "kind": "ARRAY_DIMENSION",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "NUMERIC_LITERAL",
+                                  "children": [
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                      "value": "1"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
                             }
                           ]
-                        },
-                        {
-                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
                     },
@@ -2349,33 +2369,43 @@
                                   "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "ARRAY_TYPE_DESC",
+                                      "kind": "INT_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "INT_TYPE_DESC",
-                                          "children": [
-                                            {
-                                              "kind": "INT_KEYWORD"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "INT_KEYWORD"
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "OPEN_BRACKET_TOKEN"
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACKET_TOKEN",
-                                      "trailingMinutiae": [
+                                      "kind": "LIST",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "ARRAY_DIMENSION",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "ARRAY_DIMENSION",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -2752,19 +2782,29 @@
                                           ]
                                         },
                                         {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "NUMERIC_LITERAL",
+                                          "kind": "LIST",
                                           "children": [
                                             {
-                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                              "value": "1"
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "NUMERIC_LITERAL",
+                                                  "children": [
+                                                    {
+                                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                                      "value": "1"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                              ]
                                             }
                                           ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
                                         }
                                       ]
                                     },

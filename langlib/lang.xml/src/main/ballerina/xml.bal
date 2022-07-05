@@ -65,6 +65,7 @@ public isolated function length(xml x) returns int = @java:Method {
 # all uses in the declaration must refer to same type.
 @typeParam
 type ItemType Element|Comment|ProcessingInstruction|Text;
+
 # A type parameter that is a subtype of `xml`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
@@ -92,7 +93,7 @@ public isolated function iterator(xml<ItemType> x) returns object {
 # + x - the xml sequence
 # + i - the index
 # + return - the item with index parameter `i` in parameter `x`
-public isolated function get(xml<ItemType> x, int i) returns xml = @java:Method {
+public isolated function get(xml<ItemType> x, int i) returns ItemType = @java:Method {
     'class: "org.ballerinalang.langlib.xml.Get",
     name: "get"
 } external;
@@ -215,10 +216,14 @@ public isolated function getContent(ProcessingInstruction|Comment x) returns str
 # Creates a new xml element item.
 #
 # + name - the name of the new element
+# + attributes - the attributes of the new element
 # + children - the children of the new element
-# + return - an xml sequence consisting of only a new xml element with parameter `name` as the name,
-#   no attributes, and parameter `children` as the children
-public isolated function createElement(string name, xml children = concat())
+# + return - an xml sequence consisting of only a new xml element with name `name`,
+#   attributes `attributes`, and children `children`
+# The element's attribute map is a newly created map, into which any attributes specified
+# by the `attributes` map are copied.
+
+public isolated function createElement(string name, map<string> attributes = {}, xml children = xml``)
     returns Element = @java:Method {
         'class: "org.ballerinalang.langlib.xml.CreateElement",
         name: "createElement"
@@ -329,8 +334,8 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 # Each item is represented as a singleton value.
 #
 # + x - the xml value
-# + func - a function to apply to each child or parameter `item`
-# + return - new xml value containing result of applying function `func` to each child or parameter `item`
+# + func - a function to apply to each child or `item`
+# + return - new xml value containing result of applying parameter `func` to each child or `item`
 public isolated function 'map(xml<ItemType> x, @isolatedParam function(ItemType item) returns XmlType func)
     returns xml<XmlType> = @java:Method {
         'class: "org.ballerinalang.langlib.xml.Map",

@@ -9,7 +9,11 @@
   },
   {
     "description": "Define variables - john.",
-    "code": "Person john = {fname: \"John\", gender: \"male\"}; john",
+    "code": "Person john = {fname: \"John\", gender: \"male\"};"
+  },
+  {
+    "description": "Define variables - john.",
+    "code": "john",
     "expr": "{\"fname\":\"John\",\"lname\":\"\",\"gender\":\"male\"}"
   },
   {
@@ -18,12 +22,20 @@
   },
   {
     "description": "Set value and access optional field.",
-    "code": "john.age = 25; john?.age",
+    "code": "john.age = 25;"
+  },
+  {
+    "description": "Set value and access optional field - get value.",
+    "code": "john?.age",
     "expr": "25"
   },
   {
     "description": "Define variables - jane.",
-    "code": "Person jane = {fname: \"Jane\", lname: \"Doe\", gender: \"female\"}; jane",
+    "code": "Person jane = {fname: \"Jane\", lname: \"Doe\", gender: \"female\"};"
+  },
+  {
+    "description": "Define variables - jane - get value.",
+    "code": "jane",
     "expr": "{\"fname\":\"Jane\",\"lname\":\"Doe\",\"gender\":\"female\"}"
   },
   {

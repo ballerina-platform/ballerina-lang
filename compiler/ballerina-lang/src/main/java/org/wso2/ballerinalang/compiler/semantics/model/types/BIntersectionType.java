@@ -93,6 +93,10 @@ public class BIntersectionType extends BType implements IntersectionType {
         return visitor.visit(this, t);
     }
 
+    public void setConstituentTypes(LinkedHashSet<BType> constituentTypes) {
+        this.constituentTypes =  toFlatTypeSet(constituentTypes);
+    }
+
     @Override
     public String toString() {
         Name name = this.tsymbol.name;
@@ -131,11 +135,6 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     public BType getEffectiveType() {
         return this.effectiveType;
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return Symbols.isFlagOn(this.flags, Flags.READONLY) ? this : null;
     }
 
     @Override

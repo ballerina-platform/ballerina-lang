@@ -1,27 +1,26 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.statements.arrays.arraysofarrays;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -44,52 +43,52 @@ public class ArraysOfArraysTest {
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testValueAssignmentAndRetrieval() {
-//        BValue[] args = new BValue[]{new BInteger(1), new BInteger(2)};
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "valueAssignmentAndRetrieval", args);
-        Assert.assertEquals(returns[0].stringValue(), "3");
+//        Object[] args = new Object[]{(1), (2)};
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "valueAssignmentAndRetrieval", args);
+        Assert.assertEquals(returns.toString(), "3");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testArrayInitializationAndRetrieval() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "arrayInitializationAndRetrieval", args);
-        Assert.assertEquals(returns[0].stringValue(), "1");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "arrayInitializationAndRetrieval", args);
+        Assert.assertEquals(returns.toString(), "1");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testArrayToArrayAssignment() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "arrayToArrayAssignment", args);
-        Assert.assertEquals(returns[0].stringValue(), "9");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "arrayToArrayAssignment", args);
+        Assert.assertEquals(returns.toString(), "9");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testThreeDarrayTest() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "threeDarray", args);
-        Assert.assertEquals(returns[0].stringValue(), "2");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "threeDarray", args);
+        Assert.assertEquals(returns.toString(), "2");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testThreeDarrayValueAccess() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "threeDarrayValueAccess", args);
-        Assert.assertEquals(returns[0].stringValue(), "99");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "threeDarrayValueAccess", args);
+        Assert.assertEquals(returns.toString(), "99");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testThreeDarrayStringValueAccess() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "threeDarrayStringValueAccess", args);
-        Assert.assertEquals(returns[0].stringValue(), "string");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "threeDarrayStringValueAccess", args);
+        Assert.assertEquals(returns.toString(), "string");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testTwoDarrayFunctionCalltest() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "twoDarrayFunctionCalltest", args);
-        Assert.assertEquals(returns[0].stringValue(), "4");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "twoDarrayFunctionCalltest", args);
+        Assert.assertEquals(returns.toString(), "4");
     }
 
     @Test(description = "Test setting incorrect type")
@@ -102,70 +101,72 @@ public class ArraysOfArraysTest {
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testTwoDarrayStruct() {
-//        BValue[] returns = BLangFunctions.invokeNew(programFile, "twoDarrayStructTest");
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "twoDarrayStructTest", args);
-        Assert.assertEquals(returns[0].stringValue(), "2");
+//        Object returns = BLangFunctions.invokeNew(programFile, "twoDarrayStructTest");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "twoDarrayStructTest", args);
+        Assert.assertEquals(returns.toString(), "2");
     }
 
     @Test(description = "Test Nested array initializations")
     public void testVNestedArrayInit() {
-//        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedArrayInit");
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "nestedArrayInit", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 6);
+//        Object returns = BLangFunctions.invokeNew(programFile, "nestedArrayInit");
+        Object[] args = new Object[0];
+        BArray returns = (BArray) BRunUtil.invoke(result, "nestedArrayInit", args);
+        Assert.assertEquals(returns.get(0), 12L);
+        Assert.assertEquals(returns.get(1), 6L);
     }
 
     @Test(description = "Test nested string array iteration")
     public void testStringArrayIterator() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "testStringArrayIterator", args);
-        Assert.assertEquals((returns[0]).stringValue(), "BBBBBB");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "testStringArrayIterator", args);
+        Assert.assertEquals((returns).toString(), "BBBBBB");
     }
 
     @Test(description = "Test nested string array iteration")
     public void testIntArrayIterator() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "testIntArrayIterator", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 45);
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "testIntArrayIterator", args);
+        Assert.assertEquals(returns, 45L);
     }
 
     @Test(description = "Test nested string array iteration")
     public void testFloatArrayIterator() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "testFloatArrayIterator", args);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 27.1);
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "testFloatArrayIterator", args);
+        Assert.assertEquals(returns, 27.1);
     }
 
     @Test(description = "Test nested string array iteration")
     public void testBlobArrayIterator() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "testByteArrayIterator", args);
-        assertJBytesWithBBytes(hexStringToByteArray("aa"), (BValueArray) returns[0]);
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "testByteArrayIterator", args);
+        assertJBytesWithBBytes(hexStringToByteArray("aa"), (BArray) returns);
     }
 
     @Test(description = "Test nested string array iteration")
     public void testRefArrayIterator() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "testRefArrayIterator", args);
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("name").stringValue(), "ballerina");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "testRefArrayIterator", args);
+        Assert.assertEquals(((BMap<String, Object>) returns).get(StringUtils.fromString("name")).toString(),
+                "ballerina");
     }
 
     @Test(description = "Test multi-dimension array unions")
     public void testArrayUnion() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "testArrayUnion", args);
-        Assert.assertEquals(((BValueArray) (((BValueArray) returns[0]).getRefValue(0))).getBoolean(0), 0);
-        Assert.assertEquals(((BValueArray) (((BValueArray) returns[1]).getRefValue(0))).getString(0), "scope1");
+        Object[] args = new Object[0];
+        BArray returns = (BArray) BRunUtil.invoke(result, "testArrayUnion", args);
+        Assert.assertFalse(((BArray) (((BArray) returns.get(0)).getRefValue(0))).getBoolean(0));
+        Assert.assertEquals(((BArray) (((BArray) returns.get(1)).getRefValue(0))).getString(0), "scope1");
     }
 
     @Test(description = "Test multi-dimension array unions with objects")
     public void testObjectArrayUnion() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "testObjectArrayUnion", args);
-        Assert.assertEquals(((BMap) (((BValueArray) returns[0]).getRefValue(0))).get("fooId1").stringValue(), "Foo1");
-        Assert.assertEquals(((BMap) (((BValueArray) returns[0]).getRefValue(0))).get("fooId2").stringValue(), "Foo2");
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "testObjectArrayUnion", args);
+        BObject bMap = (BObject) ((BArray) (((BArray) returns).getRefValue(0))).get(0);
+        Assert.assertEquals(bMap.get(StringUtils.fromString("fooId1")).toString(), "Foo1");
+        Assert.assertEquals(bMap.get(StringUtils.fromString("fooId2")).toString(), "Foo2");
     }
 
     private static byte[] hexStringToByteArray(String str) {
@@ -177,7 +178,7 @@ public class ArraysOfArraysTest {
         return data;
     }
 
-    private void assertJBytesWithBBytes(byte[] jBytes, BValueArray bBytes) {
+    private void assertJBytesWithBBytes(byte[] jBytes, BArray bBytes) {
         for (int i = 0; i < jBytes.length; i++) {
             Assert.assertEquals(bBytes.getByte(i), jBytes[i], "Invalid byte value returned.");
         }

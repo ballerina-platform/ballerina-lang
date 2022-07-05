@@ -79,3 +79,10 @@ class MockListener {
         return ();
     }
 }
+
+final int testModuleVar2 = 10;
+
+@varAnnotation
+final int testModuleVar1 = 10;
+
+annotation varAnnotation;

@@ -9,7 +9,11 @@
   },
   {
     "description": "Create XML element.",
-    "code": "xmllib:Element x1 = <xmllib:Element> xml `<ns0:book ns0:status=\"available\" count=\"5\"/>`; x1",
+    "code": "xmllib:Element x1 = <xmllib:Element> xml `<ns0:book ns0:status=\"available\" count=\"5\"/>`;"
+  },
+  {
+    "description": "Create XML element - get value.",
+    "code": "x1",
     "expr": "xml`<ns0:book xmlns:ns0=\"http://ballerina.com/aa\" ns0:status=\"available\" count=\"5\"/>`"
   },
   {
@@ -29,7 +33,11 @@
   },
   {
     "description": "Get all attributes.",
-    "code": " map<string> attributeMap = x1.getAttributes(); attributeMap",
+    "code": " map<string> attributeMap = x1.getAttributes();"
+  },
+  {
+    "description": "Get all attributes - get value.",
+    "code": "attributeMap",
     "expr": "{\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://ballerina.com/aa\",\"{http://ballerina.com/aa}status\":\"available\",\"count\":\"5\"}"
   },
   {
@@ -39,7 +47,11 @@
   },
   {
     "description": "Update attribute.",
-    "code": "attributeMap[ns0:status] = \"Not Available\"; x1.ns0:status",
+    "code": "attributeMap[ns0:status] = \"Not Available\"; "
+  },
+  {
+    "description": "Update attribute - get value.",
+    "code": "x1.ns0:status",
     "expr": "\"Not Available\""
   }
 ]

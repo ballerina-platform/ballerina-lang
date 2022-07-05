@@ -68,16 +68,17 @@ public class Filter {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
+        Object[] keys = m.getKeys();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                         () -> new Object[]{parentStrand,
-                                                                 m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                         result -> {
-                                                             if ((Boolean) result) {
-                                                                 Object key = m.getKeys()[index.get()];
-                                                                 Object value = m.get(key);
-                                                                 newMap.put((BString) key, value);
-                                                             }
-                                                         }, () -> newMap, Scheduler.getStrand().scheduler);
+                () -> new Object[]{parentStrand,
+                        m.get(keys[index.incrementAndGet()]), true},
+                result -> {
+                    if ((Boolean) result) {
+                        Object key = keys[index.get()];
+                        Object value = m.get(key);
+                        newMap.put((BString) key, value);
+                    }
+                }, () -> newMap, Scheduler.getStrand().scheduler);
         return newMap;
     }
 }

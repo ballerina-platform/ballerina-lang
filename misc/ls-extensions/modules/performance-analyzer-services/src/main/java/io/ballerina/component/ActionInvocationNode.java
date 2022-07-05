@@ -27,12 +27,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ActionInvocationNode extends Node {
 
-    private final int endPointRef;
+    private final String endPointRef;
     private final String name;
     private final String path;
     private final String pos;
 
-    public ActionInvocationNode(Integer endPointRef, String name, String path, String pos) {
+    public ActionInvocationNode(String endPointRef, String name, String path, String pos) {
 
         this.endPointRef = endPointRef;
         this.name = name;
@@ -40,7 +40,7 @@ public class ActionInvocationNode extends Node {
         this.pos = pos;
     }
 
-    public int getEndPointRef() {
+    public String getEndPointRef() {
 
         return endPointRef;
     }

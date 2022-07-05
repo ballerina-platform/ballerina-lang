@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.testng.Assert.assertEquals;
@@ -50,95 +50,107 @@ public class LangLibIntTest {
         compileResult = BCompileUtil.compile("test-src/intlib_test.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
+
     @Test(dataProvider = "MaxNumList")
-    public void testMax(BInteger n, BValueArray ns, long expectedMax) {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMax", new BValue[]{n, ns});
-        assertEquals(((BInteger) returns[0]).intValue(), expectedMax);
+    public void testMax(long n, BArray ns, long expectedMax) {
+        Object returns = BRunUtil.invoke(compileResult, "testMax", new Object[]{n, ns});
+        assertEquals(returns, expectedMax);
     }
 
     @Test(dataProvider = "MinNumList")
-    public void testMin(BInteger n, BValueArray ns, long expectedMin) {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMin", new BValue[]{n, ns});
-        assertEquals(((BInteger) returns[0]).intValue(), expectedMin);
+    public void testMin(long n, BArray ns, long expectedMin) {
+        Object returns = BRunUtil.invoke(compileResult, "testMin", new Object[]{n, ns});
+        assertEquals(returns, expectedMin);
     }
 
     @Test
     public void testFromString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFromString");
-        assertEquals(((BInteger) returns[0]).intValue(), 123);
-        assertEquals(returns[1].getType().getTag(), TypeTags.ERROR_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testFromString");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0), 123L);
+        assertEquals(getType(result.get(1)).getTag(), TypeTags.ERROR_TAG);
 
-        BError err = (BError) returns[1];
-        assertEquals(err.getReason(), getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER)
-                .getValue());
+        BError err = (BError) result.get(1);
+        assertEquals(err.getErrorMessage().getValue(),
+                getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER).getValue());
         assertEquals(err.getDetails().toString(), "{\"message\":\"'string' value '12invalid34' " +
                 "cannot be converted to 'int'\"}");
     }
 
     @Test
     public void testSum() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSum");
-        assertEquals(((BInteger) returns[0]).intValue(), 110);
+        Object returns = BRunUtil.invoke(compileResult, "testSum");
+        assertEquals(returns, 110L);
     }
 
     @Test
     public void testAbs() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAbs");
-        assertEquals(((BInteger) returns[0]).intValue(), 123);
-        assertEquals(((BInteger) returns[1]).intValue(), 234);
+        Object returns = BRunUtil.invoke(compileResult, "testAbs");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0), 123L);
+        assertEquals(result.get(1), 234L);
     }
 
     @Test
     public void testToHexString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToHexString");
-        assertEquals(returns[0].stringValue(), "75bcd15");
-        // TODO: 7/6/19 Verify the representation of negative numbers
-//        assertEquals(returns[1].stringValue(), "ffffffffffffcfc7");
+        Object returns = BRunUtil.invoke(compileResult, "testToHexString");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0).toString(), "75bcd15");
+        assertEquals(result.get(1).toString(), "-3039");
+        assertEquals(result.get(2).toString(), "-2dfd5533a");
     }
 
     @Test
     public void testFromHexString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFromHexString");
-        assertEquals(((BInteger) returns[0]).intValue(), 11259205);
-        assertEquals(returns[1].getType().getTag(), TypeTags.ERROR_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testFromHexString");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0), 11259205L);
+        assertEquals(getType(result.get(1)).getTag(), TypeTags.ERROR_TAG);
 
-        BError err = (BError) returns[1];
-        assertEquals(err.getReason(), getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER)
-                .getValue());
+        BError err = (BError) result.get(1);
+        assertEquals(err.getErrorMessage().getValue(),
+                getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER).getValue());
         assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\"\"}");
     }
 
     @DataProvider(name = "MaxNumList")
     public Object[][] getMaxNumList() {
         return new Object[][]{
-                {new BInteger(54), new BValueArray(new long[]{23, 34}), 54},
-                {new BInteger(23), new BValueArray(new long[]{34, 47}), 47},
-                {new BInteger(-1), new BValueArray(new long[]{-20, -4}), -1},
+                {54, ValueCreator.createArrayValue(new long[]{23, 34}), 54},
+                {23, ValueCreator.createArrayValue(new long[]{34, 47}), 47},
+                {-1, ValueCreator.createArrayValue(new long[]{-20, -4}), -1},
         };
     }
 
     @DataProvider(name = "MinNumList")
     public Object[][] getMinNumList() {
         return new Object[][]{
-                {new BInteger(54), new BValueArray(new long[]{23, 34}), 23},
-                {new BInteger(23), new BValueArray(new long[]{34, 47}), 23},
-                {new BInteger(-1), new BValueArray(new long[]{-20, -4}), -20},
+                {54, ValueCreator.createArrayValue(new long[]{23, 34}), 23},
+                {23, ValueCreator.createArrayValue(new long[]{34, 47}), 23},
+                {-1, ValueCreator.createArrayValue(new long[]{-20, -4}), -20},
         };
     }
 
     @Test
     public void testChainedIntFunctions() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testChainedIntFunctions");
-        assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Object returns = BRunUtil.invoke(compileResult, "testChainedIntFunctions");
+        assertEquals(returns, 1L);
     }
 
-    @Test
-    public void testLangLibCallOnIntSubTypes() {
-        BRunUtil.invoke(compileResult, "testLangLibCallOnIntSubTypes");
+    @Test(dataProvider = "functionProvider")
+    public void testIntFunctions(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
     }
 
-    @Test
-    public void testLangLibCallOnFiniteType() {
-        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    @DataProvider
+    public Object[] functionProvider() {
+        return new String[] {"testToHexStringNonPositives", "testLangLibCallOnIntSubTypes",
+                "testLangLibCallOnFiniteType", "testIntOverflow", "testIntOverflowWithSum",
+                "testIntNonOverflowWithSum"};
     }
+
 }

@@ -60,7 +60,7 @@ isolated class IsolatedClassWithImportedIsolatedObjectFields {
 }
 
 function testNewingIsolatedClassWithImportedIsolatedObjectFields() {
-    IsolatedClassWithImportedIsolatedObjectFields x = new (new IsolatedClassWithIsolatedTypeInclusion());
+    IsolatedClassWithImportedIsolatedObjectFields _ = new (new IsolatedClassWithIsolatedTypeInclusion());
 }
 
 isolated function assertEquality(any|error expected, any|error actual) {

@@ -35,4 +35,9 @@ const byte byteConst = 2;
 @constDecl
 const boolean boolConst = true;
 
+const int A = constValue + intConst;
+const map<string> B = {foo: strConst, bar: "BAR"};
+const map<map<int>> C = {foo: {a: intConst, b: 100}};
+const D = ;
+
 annotation constDecl;

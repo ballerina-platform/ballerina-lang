@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 7,
+    "character": 35
+  },
+  "source": "convert_to_readonly_clone_source7.bal",
+  "expected": [
+    {
+      "title": "Convert to Readonly Clone",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 31
+            },
+            "end": {
+              "line": 7,
+              "character": 40
+            }
+          },
+          "newText": "(testXml/*).cloneReadOnly()"
+        }
+      ]
+    }
+  ]
+}

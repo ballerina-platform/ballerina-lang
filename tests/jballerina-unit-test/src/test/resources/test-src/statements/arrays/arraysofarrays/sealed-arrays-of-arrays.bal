@@ -16,7 +16,7 @@
 
 function initTwoDimensionalSealedArray() returns [int, int, int, int] {
     string[3][4] x1 = [["00", "01", "02", "03"], ["10", "11", "12", "13"], ["20", "21", "22", "23"]];
-    float[*][*] x2 = [[1.0, 2.1, 3.2], [4.3, 5.4, 6.5]];
+    float[*][3] x2 = [[1.0, 2.1, 3.2], [4.3, 5.4, 6.5]];
 
     return [x1.length(), x1[0].length(), x2.length(), x2[0].length()];
 }
@@ -27,7 +27,7 @@ function initThreeDimensionalSealedArray() returns [int, int, int, int, int, int
     [false, true, false, true, false], [false, true, false,true, false], [false, true, false, true, false]],
     [[false, true, false, true, false], [false, true, false, true, false], [false, true, false,true, false],
     [false, true, false, true, false]]];
-    int[*][*][*] x2 = [[[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 2, 3], [4, 5, 6], [7, 8, 9]]];
+    int[*][3][3] x2 = [[[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 2, 3], [4, 5, 6], [7, 8, 9]]];
 
     return [x1.length(), x1[0].length(), x1[0][0].length(), x2.length(), x2[0].length(), x2[0][0].length()];
 }

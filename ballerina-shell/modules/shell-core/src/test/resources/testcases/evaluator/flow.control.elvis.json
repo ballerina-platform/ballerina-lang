@@ -5,17 +5,29 @@
   },
   {
     "description": "Alternative type check.",
-    "code": "string name = input is () ? \"John Doe\" : <string>input; name",
+    "code": "string name = input is () ? \"John Doe\" : <string>input;"
+  },
+  {
+    "description": "Alternative type check - get value.",
+    "code": "name",
     "expr": "\"John Doe\""
   },
   {
     "description": "Elvis with null.",
-    "code": "name = input ?: \"John Doe\"; name",
+    "code": "name = input ?: \"John Doe\";"
+  },
+  {
+    "description": "Elvis with null - get value.",
+    "code": "name",
     "expr": "\"John Doe\""
   },
   {
     "description": "Elvis with value.",
-    "code": "input = \"Bill Lambert\"; name = input ?: \"John Doe\"; name",
+    "code": "input = \"Bill Lambert\"; name = input ?: \"John Doe\""
+  },
+  {
+    "description": "Elvis with value - get value.",
+    "code": "name",
     "expr": "\"Bill Lambert\""
   }
 ]

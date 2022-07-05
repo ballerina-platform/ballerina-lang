@@ -1,0 +1,77 @@
+{
+  "position": {
+    "line": 36,
+    "character": 27
+  },
+  "source": "action_node_context/source/remote_action_source7.bal",
+  "items": [
+    {
+      "label": "findByName(string name)",
+      "kind": "Function",
+      "detail": "Product",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `Product`   \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "findByName",
+      "insertText": "findByName(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "listAll()",
+      "kind": "Function",
+      "detail": "Product[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Product[]`   \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "listAll",
+      "insertText": "listAll()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "countByName(string name)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "countByName",
+      "insertText": "countByName(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getVersion()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "getVersion",
+      "insertText": "getVersion()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

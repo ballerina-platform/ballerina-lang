@@ -673,7 +673,7 @@ function testImmutableRecordWithDefaultValues() {
     assertEquality(q2.id, 2);
 }
 
-class MyOwner {
+readonly class MyOwner {
     final int id = 238475;
 
     function getId() returns int {
@@ -681,7 +681,7 @@ class MyOwner {
     }
 }
 
-class MyController {
+readonly class MyController {
     final Owner & readonly owner;
     final readonly & Printer printer;
 
@@ -704,7 +704,7 @@ type Owner object {
     function getId() returns int;
 };
 
-class MyPrinter {
+readonly class MyPrinter {
     final int id;
 
     function init(int id) {
@@ -829,7 +829,7 @@ type IdentifierAbstractObj object {
     function getId() returns string;
 };
 
-class IdentifierObj {
+readonly class IdentifierObj {
     final string id;
 
     function init() {
@@ -1043,6 +1043,111 @@ function testFunctionWithReturnTypeAnyToReadonly() {
 }
 
 function foo() returns readonly => 1;
+
+function testReadOnlyIntersectionWithNever() {
+    error? a = trap panicFn();
+
+    assertTrue(a is error);
+    assertEquality("err!", (<error> a).message());
+
+    record { never i?; int j; } & readonly b = {j: 1, "k": "str"};
+    assertEquality(2, b.length());
+    assertEquality(1, b.j);
+    assertEquality("str", b["k"]);
+    assertFalse(b.hasKey("i"));
+
+    record { never i?; int j; } c = {j: 21};
+    record {} d = c.cloneReadOnly();
+    assertEquality(1, d.length());
+    assertEquality(21, d["j"]);
+    assertFalse(d.hasKey("i"));
+}
+
+function panicFn() returns never & readonly {
+    panic error("err!");
+}
+
+type Grault record {
+    int|never x;
+};
+
+function testReadOnlyIntersectionWithNeverExplicitlyInType() {
+    Grault & readonly a = {x: 2};
+    assertEquality(1, a.length());
+    assertEquality(2, a.x);
+    assertTrue(a.hasKey("x"));
+}
+
+type R1 record {
+    stream<int> a?;
+};
+
+function testReadOnlyIntersectionWithRecordThatHasAnOptionalNeverReadOnlyField() {
+    R1 & readonly a = {"b": 1};
+    assertEquality(1, a.length());
+    assertFalse(a.hasKey("a"));
+    assertTrue(a.hasKey("b"));
+
+    any b = a;
+    assertFalse(b is record {| never a?; |});
+    assertTrue(b is record {| never a?; int b; |});
+    assertTrue(b is record { never a?; });
+
+    record { never a?; } _ = a;
+}
+
+type R2 record {|
+    int a;
+    stream<int>...;
+|};
+
+function testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField() {
+    R2 & readonly a = {a: 1};
+    assertEquality(1, a.length());
+    assertTrue(a.hasKey("a"));
+
+    any b = a;
+    assertFalse(b is record {| never a?; |});
+    assertTrue(b is record {| int a?; int b?; |});
+    assertTrue(b is record {| int a?; |});
+    assertTrue(b is record {| int a?; never...; |});
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/33785
+    // record {| int a; |} _ = a;
+
+    record {| int a; never...; |} _ = a;
+    record { int a; } _ = a;
+}
+
+type ImmutableXmlElement xml:Element & readonly;
+
+function testTypeDefinitionForReadOnlyIntersectionWithBuiltinType() {
+    ImmutableXmlElement a = xml `<foo>hello</foo>`;
+    xml:Element b = a;
+
+    assertTrue(b is readonly & xml:Element);
+    assertTrue(b is ImmutableXmlElement);
+
+    error? c = trap b.setChildren(xml `text`);
+    assertTrue(c is error);
+
+    error d = <error> c;
+    assertEquality("{ballerina/lang.xml}XMLOperationError", d.message());
+    assertEquality("Failed to set children to xml element: modification not allowed on readonly value",
+                   <string> checkpanic d.detail()["message"]);
+}
+
+function testIsReadonlyWithInBuiltUnionType() returns error? {
+    json j = {a: 1};
+    string s = j.toJsonString();
+    json & readonly x = check s.fromJsonStringWithType();
+    assertTrue(x is readonly);
+
+    anydata k = {b: 2};
+    string t = k.toJsonString();
+    anydata & readonly y = check t.fromJsonStringWithType();
+    assertTrue(y is readonly);
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 91,
+    "character": 41
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 91,
+              "character": 38
+            },
+            "end": {
+              "line": 91,
+              "character": 38
+            }
+          },
+          "newText": "\u003cdecimal\u003e"
+        }
+      ]
+    }
+  ]
+}

@@ -37,19 +37,20 @@ public class ImplementFunctionsTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"implementFuncObj1.json", "implementFuncObj.bal"},
-                {"implementFuncObj2.json", "implementFuncObj.bal"},
-                {"implementFuncObj3.json", "implementFuncObj.bal"},
-                {"implementFunctionInService1.json", "implementFunctionInService.bal"},
-                {"implementFuncInObjConstructorExpr1.json", "implementFuncInObjConstructorExpr1.bal"},
+                {"implementFuncObj1.json"},
+                {"implementFuncObj2.json"},
+                {"implementFuncObj3.json"},
+                {"implementFunctionInService1.json"},
+                {"implementFuncInObjConstructorExpr1.json"},
+                {"implementFuncInObjConstructorExpr2.json"},
         };
     }
 }

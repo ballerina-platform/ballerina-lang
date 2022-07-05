@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.RecordVariableNode;
-import org.ballerinalang.model.tree.VariableNode;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -45,8 +44,9 @@ import java.util.stream.Collectors;
  */
 public class BLangRecordVariable extends BLangVariable implements RecordVariableNode {
 
+    // BLangNodes
     public List<BLangRecordVariableKeyValue> variableList;
-    public VariableNode restParam;
+    public BLangVariable restParam;
 
     public BLangRecordVariable() {
         this.annAttachments = new ArrayList<>();
@@ -60,7 +60,7 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     }
 
     @Override
-    public VariableNode getRestParam() {
+    public BLangVariable getRestParam() {
         return restParam;
     }
 
@@ -72,6 +72,16 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
@@ -91,7 +101,7 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
      *
      * @since 0.985.0
      */
-    public static class BLangRecordVariableKeyValue implements BLangRecordVariableKeyValueNode {
+    public static class BLangRecordVariableKeyValue extends BLangNodeEntry implements BLangRecordVariableKeyValueNode {
 
         public BLangIdentifier key;
         public BLangVariable valueBindingPattern;
@@ -109,6 +119,16 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
         @Override
         public String toString() {
             return key + ": " + valueBindingPattern;
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 }

@@ -20,9 +20,9 @@ function funcReturnNilExplicit() returns () {
 }
 
 function funcReturnNilOrError(int a) returns ()|error {
-    var f = function(int a) returns ()|error {
+    var f = function(int a1) returns ()|error {
                 string s = "test";
-                if (a > 20) {
+                if (a1 > 20) {
                     error e = error("dummy error message");
                     return e;
                 }
@@ -46,9 +46,9 @@ function funcReturnNilOrError(int a) returns ()|error {
 }
 
 function funcReturnOptionallyError(int a) returns error? {
-    var f = function(int a) returns error? {
+    var f = function(int a1) returns error? {
                 string s = "test";
-                if (a > 20) {
+                if (a1 > 20) {
                     error e = error("dummy error message");
                     return e;
                 }

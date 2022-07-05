@@ -28,7 +28,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -87,7 +87,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         this.fileUri = fileUri;
         this.workspaceManager = wsManager;
         this.languageServerContext = serverContext;
-        Optional<Path> optFilePath = CommonUtil.getPathFromURI(this.fileUri);
+        Optional<Path> optFilePath = PathUtil.getPathFromURI(this.fileUri);
         if (optFilePath.isEmpty()) {
             throw new RuntimeException("Invalid file uri: " + this.fileUri);
         }

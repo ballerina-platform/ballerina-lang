@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "createUndefinedFunctionInRecord.bal",
   "expected": {
     "result": {
       "edit": {

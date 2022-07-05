@@ -99,6 +99,21 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         testFile("query-expr/query_expr_source_67.bal", "query-expr/query_expr_assert_67.json");
     }
 
+    @Test
+    public void testQueryInsideOtherExprs() {
+        testFile("query-expr/query_expr_source_70.bal", "query-expr/query_expr_assert_70.json");
+    }
+
+    @Test
+    public void testQueryActionOrExprWithAsyncSendAction() {
+        testFile("query-expr/query_expr_source_72.bal", "query-expr/query_expr_assert_72.json");
+        testFile("query-expr/query_expr_source_73.bal", "query-expr/query_expr_assert_73.json");
+        testFile("query-expr/query_expr_source_74.bal", "query-expr/query_expr_assert_74.json");
+        testFile("query-expr/query_expr_source_75.bal", "query-expr/query_expr_assert_75.json");
+        testFile("query-expr/query_expr_source_76.bal", "query-expr/query_expr_assert_76.json");
+        testFile("query-expr/query_expr_source_77.bal", "query-expr/query_expr_assert_77.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -250,5 +265,20 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testSelectClauseStartRecovery() {
         testFile("query-expr/query_expr_source_69.bal", "query-expr/query_expr_assert_69.json");
+    }
+
+    @Test
+    public void testQueryActionOrExprWithClientRemoteMethodCallAction() {
+        testFile("query-expr/query_expr_source_71.bal", "query-expr/query_expr_assert_71.json");
+    }
+
+    @Test
+    public void testQueryActionOrExprWithAsyncSendActionInJoinClause() {
+        testFile("query-expr/query_expr_source_78.bal", "query-expr/query_expr_assert_78.json");
+    }
+
+    @Test
+    public void testQueryWithMapKeyword() {
+        test("map from int a in b select e", "query-expr/query_expr_assert_79.json");
     }
 }

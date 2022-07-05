@@ -24,7 +24,6 @@ import io.ballerina.cli.task.CreateDocsTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -64,11 +63,21 @@ public class DocCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
+    }
+
+    DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish, Path targetDir) {
+        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
@@ -93,8 +102,8 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private boolean experimentalFlag;
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
 
     public void execute() {
         if (this.helpFlag) {
@@ -200,12 +209,19 @@ public class DocCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(false)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .testReport(false)
-                .observabilityIncluded(false)
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
+                .setCodeCoverage(false)
+                .setOffline(offline)
+                .setTestReport(false)
+                .setObservabilityIncluded(false)
                 .build();
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 }

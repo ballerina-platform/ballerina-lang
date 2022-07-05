@@ -16,8 +16,6 @@
 
 package org.ballerinalang.test.types.var;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -41,9 +39,8 @@ public class VarIgnoreTest {
 
     @Test(description = "Test long value assignment")
     public void testIntegerValue() {
-        BValue[] returns = BRunUtil.invoke(result, "m", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+        Object returns = BRunUtil.invoke(result, "m", new Object[]{});
+        Assert.assertEquals(returns, 3L);
     }
 
     @Test(description = "Test var ignore negative cases.")

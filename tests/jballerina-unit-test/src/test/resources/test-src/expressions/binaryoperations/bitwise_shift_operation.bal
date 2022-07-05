@@ -161,8 +161,239 @@ function testBitwiseUnsignedRightShiftOp() {
     assertEqual(a6 >>> a4, 0x3);
 }
 
-function assertEqual(int actual, int expected) {
-    if (actual != expected) {
-        panic error(string `Assertion error: expected ${expected} found ${actual}`);
+function testBitWiseOperationsForNullable() {
+    int? a1 = 62;
+    int? a2 = 63;
+    int? a3 = 64;
+    int? a4 = -32;
+    int:Unsigned32? a5 = 15;
+    int? a6 = 2;
+
+    int? a = 128;
+    int:Signed8? b = 7;
+    int:Signed8? c = -120;
+    int:Unsigned8? d = 5;
+    int:Signed16? e = 8;
+    int:Signed16? f = -32750;
+    int:Unsigned16? g = 3;
+    int:Signed32? h = 9;
+    int:Signed32? i = -2147483641;
+    int:Unsigned32? j = 17;
+
+    assertEqual(1 << a1, 0x4000000000000000);
+    assertEqual(1 << a2, -0x8000000000000000);
+    assertEqual(1 << a3, 0x1);
+    assertEqual(1 >> a1, 0x0);
+    assertEqual(1 >> a2, 0x0);
+    assertEqual(1 >> a3, 0x1);
+    assertEqual(a4 >>> 2, 0x3ffffffffffffff8);
+    assertEqual(a5 >>> a6, 0x3);
+
+    assertEqual(a << b, 16384);
+    assertEqual(a << c, 32768);
+
+    assertEqual(a << d, 4096);
+
+    assertEqual(a << e, 32768);
+    assertEqual(a << f, 33554432);
+
+    assertEqual(a << g, 1024);
+
+    assertEqual(a << h, 65536);
+    assertEqual(a << i, 16384);
+
+    assertEqual(a << j, 16777216);
+
+    assertEqual(11 << b, 1408);
+}
+
+int intVal = 10;
+
+function testNoShortCircuitingInBitwiseLeftShiftWithNullable() {
+    int? result = foo() << bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 18);
+
+    result = foo() << 12;
+    assertEqual(result, ());
+    assertEqual(intVal, 20);
+
+    result = 12 << bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 26);
+
+    int? x = 12;
+    result = foo() << x;
+    assertEqual(result, ());
+    assertEqual(intVal, 28);
+
+    result = x << bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 34);
+
+    result = x << bam();
+    assertEqual(result, 384);
+    assertEqual(intVal, 44);
+
+    result = bam() << x;
+    assertEqual(result, 20480);
+    assertEqual(intVal, 54);
+
+    result = foo() << bam();
+    assertEqual(result, ());
+    assertEqual(intVal, 66);
+
+    result = bam() << bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 82);
+}
+
+function testNoShortCircuitingInBitwiseLeftShiftWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x << bam();
+    assertEqual(result, 320);
+    assertEqual(intVal, 20);
+
+    result = bam() << 12;
+    assertEqual(result, 20480);
+    assertEqual(intVal, 30);
+}
+
+function testNoShortCircuitingInBitwiseSignedRightShiftWithNullable() {
+    intVal = 10;
+
+    int? result = foo() >> bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 18);
+
+    result = foo() >> 12;
+    assertEqual(result, ());
+    assertEqual(intVal, 20);
+
+    result = 12 >> bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 26);
+
+    int? x = 12;
+    result = foo() >> x;
+    assertEqual(result, ());
+    assertEqual(intVal, 28);
+
+    result = x >> bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 34);
+
+    result = x >> bam();
+    assertEqual(result, 0);
+    assertEqual(intVal, 44);
+
+    result = bam() >> x;
+    assertEqual(result, 0);
+    assertEqual(intVal, 54);
+
+    result = foo() >> bam();
+    assertEqual(result, ());
+    assertEqual(intVal, 66);
+
+    result = bam() >> bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 82);
+}
+
+function testNoShortCircuitingInBitwiseSignedRightShiftWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x >> bam();
+    assertEqual(result, 0);
+    assertEqual(intVal, 20);
+
+    result = bam() >> 12;
+    assertEqual(result, 0);
+    assertEqual(intVal, 30);
+}
+
+function testNoShortCircuitingInBitwiseUnsignedRightShiftWithNullable() {
+    intVal = 10;
+
+    int? result = foo() >>> bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 18);
+
+    result = foo() >>> 12;
+    assertEqual(result, ());
+    assertEqual(intVal, 20);
+
+    result = 12 >>> bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 26);
+
+    int? x = 12;
+    result = foo() >>> x;
+    assertEqual(result, ());
+    assertEqual(intVal, 28);
+
+    result = x >>> bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 34);
+
+    result = x >>> bam();
+    assertEqual(result, 0);
+    assertEqual(intVal, 44);
+
+    result = bam() >>> x;
+    assertEqual(result, 0);
+    assertEqual(intVal, 54);
+
+    result = foo() >>> bam();
+    assertEqual(result, ());
+    assertEqual(intVal, 66);
+
+    result = bam() >>> bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 82);
+}
+
+function testNoShortCircuitingInBitwiseUnsignedRightShiftWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x >>> bam();
+    assertEqual(result, 0);
+    assertEqual(intVal, 20);
+
+    result = bam() >>> 12;
+    assertEqual(result, 0);
+    assertEqual(intVal, 30);
+}
+
+function foo() returns int? {
+    intVal += 2;
+    return ();
+}
+
+function bar() returns int? {
+    intVal += 6;
+    return ();
+}
+
+function bam() returns int {
+    intVal += 10;
+    return 5;
+}
+
+function assertEqual(any actual, any expected) {
+    if actual is anydata && expected is anydata && actual == expected {
+        return;
     }
+
+    if actual === expected {
+        return;
+    }
+
+    string actualValAsString = actual.toString();
+    string expectedValAsString = expected.toString();
+    panic error(string `Assertion error: expected ${expectedValAsString} found ${actualValAsString}`);
 }

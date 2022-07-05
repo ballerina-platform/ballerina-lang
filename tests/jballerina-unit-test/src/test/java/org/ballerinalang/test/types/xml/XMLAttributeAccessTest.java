@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -43,21 +42,36 @@ public class XMLAttributeAccessTest {
 
     @Test
     public void testBasicAttributeAccessSyntax() {
-        BValue[] result = BRunUtil.invoke(compileResult, "getElementAttrBasic");
-        Assert.assertEquals(result[0].stringValue(), "attr-val");
+        BRunUtil.invoke(compileResult, "getElementAttrBasic");
+    }
+
+    @Test
+    public void testBasicOptionalAttributeAccessSyntax() {
+        BRunUtil.invoke(compileResult, "getOptionalElementAttrBasic");
+    }
+
+    @Test
+    public void testUserDefinedAttributeAccessSyntax() {
+        BRunUtil.invoke(compileResult, "getUserDefinedTypeElementAttrBasic");
+    }
+
+    @Test
+    public void testUserDefinedOptionalAttributeAccessSyntax() {
+        BRunUtil.invoke(compileResult, "getUserDefinedTypeOptionalElementAttrBasic");
     }
 
     @Test
     public void testAttributeAccessSyntaxWithNS() {
-        BValue[] result = BRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
-        Assert.assertEquals(result[0].stringValue(), "attr-with-ns-val");
+        Object result = BRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
+        Assert.assertEquals(result.toString(), "attr-with-ns-val");
     }
 
     @Test
     public void testGetAttrOfASequence() {
-        BValue[] result = BRunUtil.invoke(compileResult, "getAttrOfASequence");
-        Assert.assertEquals(result[0].stringValue(),
-                "{ballerina/lang.xml}XMLOperationError {\"message\":\"Invalid xml attribute access on xml sequence\"}");
+        Object result = BRunUtil.invoke(compileResult, "getAttrOfASequence");
+        Assert.assertEquals(result.toString(),
+                "error(\"{ballerina/lang.xml}XMLOperationError\",message=\"invalid xml attribute access on xml " +
+                        "sequence\")");
     }
 
     @Test
@@ -70,33 +84,38 @@ public class XMLAttributeAccessTest {
 
     @Test
     public void testXMLAsMapContent() {
-        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAsMapContent");
-        Assert.assertEquals(result[0].stringValue(), "val");
-        Assert.assertEquals(result[1].stringValue(), "val");
-        Assert.assertEquals(result[2].stringValue(), "true");
+        BArray result = (BArray) BRunUtil.invoke(lexCompileRes, "testXMLAsMapContent");
+        Assert.assertEquals(result.get(0).toString(), "val");
+        Assert.assertEquals(result.get(1).toString(), "val");
+        Assert.assertEquals(result.get(2).toString(), "true");
     }
 
     @Test
     public void testXMLAttributeWithNSPrefix() {
-        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
-        Assert.assertEquals(result[0].stringValue(), "preserve");
-        Assert.assertEquals(result[1].stringValue(), "preserve");
-        Assert.assertEquals(result[2].stringValue(), "{lang.map}InvalidKey {\"key\":\"b\"}");
+        BArray result = (BArray) BRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
+        Assert.assertEquals(result.get(0).toString(), "preserve");
+        Assert.assertEquals(result.get(1).toString(), "preserve");
+        Assert.assertEquals(result.get(2).toString(), "error(\"{lang.map}InvalidKey\",key=\"b\")");
     }
 
     @Test
     public void testXMLASMapContentInvalidKey() {
-        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
-        Assert.assertEquals(result[0].stringValue(), "{lang.map}InvalidKey {\"key\":\"b\"}");
+        Object result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
+        Assert.assertEquals(result.toString(), "error(\"{lang.map}InvalidKey\",key=\"b\")");
     }
 
     @Test
     public void testXMLDirectAttributeAccess() {
-        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLDirectAttributeAccess");
-        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
+        BArray result = (BArray) BRunUtil.invoke(lexCompileRes, "testXMLDirectAttributeAccess");
+        Assert.assertTrue((Boolean) result.get(0));
+        Assert.assertTrue((Boolean) result.get(1));
+        Assert.assertTrue((Boolean) result.get(2));
+        Assert.assertTrue((Boolean) result.get(3));
+    }
+
+    @Test
+    public void testXMLAfterRemoveAttribute() {
+        BRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
     }
 
 }

@@ -39,12 +39,11 @@ function testCheckInObjectFieldInitializer1() {
     error f = <error> e.cause();
     assertEquality("{ballerina/lang.int}NumberParsingError", f.message());
     assertEquality("'string' value 'invalid' cannot be converted to 'int'", <string> checkpanic f.detail()["message"]);
-    error:CallStackElement[] callStack = f.stackTrace().callStack;
+    error:StackFrame[] callStack = f.stackTrace();
     int callStackLength = callStack.length();
-    assertEquality({"callableName": "testCheckInObjectFieldInitializer1",
-                    "fileName": "object_field_initializer_with_check.bal", "lineNumber": 34},
-                    callStack[2]);
-    assertEquality(51, callStack[1].lineNumber);
+    assertEquality("callableName: testCheckInObjectFieldInitializer1  " +
+        "fileName: object_field_initializer_with_check.bal lineNumber: 34", callStack[2].toString());
+    assertEquality("callableName: f2  fileName: object_field_initializer_with_check.bal lineNumber: 50", callStack[1].toString());
 }
 
 function f2() returns MyError|object { function a; int b; int c; } {
@@ -83,9 +82,10 @@ function testCheckInObjectFieldInitializer2() {
     error e = <error> d;
     assertEquality("{ballerina/lang.int}NumberParsingError", e.message());
     assertEquality("'string' value 'invalid' cannot be converted to 'int'", <string> checkpanic e.detail()["message"]);
-    error:CallStackElement[] callStack = e.stackTrace().callStack;
+    error:StackFrame[] callStack = e.stackTrace();
     int callStackLength = callStack.length();
-    assertEquality(128, callStack[callStackLength - 2].lineNumber);
+    assertEquality("callableName: fromString moduleName: ballerina.lang.int.0 fileName: int.bal lineNumber: 128",
+        callStack[callStackLength - 2].toString());
 }
 
 class Bar {

@@ -18,14 +18,11 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -51,93 +48,97 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test functions arguments with function calls as default value")
     public void testFunctionCallAsDefaultExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionCallAsDefaultExpr");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
-        Assert.assertTrue(returns[2] instanceof BValueArray);
+        Object arr = BRunUtil.invoke(result, "testFunctionCallAsDefaultExpr");
+        BArray returns = (BArray) arr;
+        Assert.assertTrue(returns.get(0) instanceof  BArray);
+        Assert.assertTrue(returns.get(1) instanceof  BArray);
+        Assert.assertTrue(returns.get(2) instanceof  BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 100);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "default");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 1.1);
-        Assert.assertTrue(((BBoolean) bValueArray.getRefValue(3)).booleanValue());
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0), 100L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "default");
+        Assert.assertEquals(bValueArray.getRefValue(2), 1.1);
+        Assert.assertTrue((Boolean) bValueArray.getRefValue(3));
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 200);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "given");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 4.4);
-        Assert.assertFalse(((BBoolean) bValueArray.getRefValue(3)).booleanValue());
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0), 200L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "given");
+        Assert.assertEquals(bValueArray.getRefValue(2), 4.4);
+        Assert.assertFalse((Boolean) bValueArray.getRefValue(3));
 
-        bValueArray = (BValueArray) returns[2];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 500);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "default");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 5.5);
-        Assert.assertTrue(((BBoolean) bValueArray.getRefValue(3)).booleanValue());
+        bValueArray = (BArray) returns.get(2);
+        Assert.assertEquals(bValueArray.getRefValue(0), 500L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "default");
+        Assert.assertEquals(bValueArray.getRefValue(2), 5.5);
+        Assert.assertTrue((Boolean) bValueArray.getRefValue(3));
     }
 
     @Test(description = "Test functions arguments with record literal as default value")
     public void testRecordAsDefaultExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordAsDefaultExpr");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertTrue(returns[1] instanceof BMap);
-        Assert.assertTrue(returns[2] instanceof BMap);
-        Assert.assertTrue(returns[3] instanceof BMap);
+        Object arr = BRunUtil.invoke(result, "testRecordAsDefaultExpr");
+        BArray returns = (BArray) arr;
+        Assert.assertTrue(returns.get(0) instanceof BMap);
+        Assert.assertTrue(returns.get(1) instanceof BMap);
+        Assert.assertTrue(returns.get(2) instanceof BMap);
+        Assert.assertTrue(returns.get(3) instanceof BMap);
 
-        BMap bMap = (BMap) returns[0];
-        Assert.assertEquals(bMap.get("a").stringValue(), "default");
-        Assert.assertEquals(((BInteger) bMap.get("b")).intValue(), 50);
-        Assert.assertFalse(((BBoolean) bMap.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) bMap.get("d")).floatValue(), 11.1);
+        BMap bMap = (BMap) returns.get(0);
+        Assert.assertEquals(bMap.get(StringUtils.fromString("a")).toString(), "default");
+        Assert.assertEquals(bMap.get(StringUtils.fromString("b")), 50L);
+        Assert.assertFalse((Boolean) bMap.get(StringUtils.fromString("c")));
+        Assert.assertEquals(bMap.get(StringUtils.fromString("d")), 11.1);
 
-        bMap = (BMap) returns[1];
-        Assert.assertEquals(bMap.get("a").stringValue(), "f2");
-        Assert.assertEquals(((BInteger) bMap.get("b")).intValue(), 200);
-        Assert.assertFalse(((BBoolean) bMap.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) bMap.get("d")).floatValue(), 44.4);
+        bMap = (BMap) returns.get(1);
+        Assert.assertEquals(bMap.get(StringUtils.fromString("a")).toString(), "f2");
+        Assert.assertEquals(bMap.get(StringUtils.fromString("b")), 200L);
+        Assert.assertFalse((Boolean) bMap.get(StringUtils.fromString("c")));
+        Assert.assertEquals(bMap.get(StringUtils.fromString("d")), 44.4);
 
-        bMap = (BMap) returns[2];
-        Assert.assertEquals(bMap.get("a").stringValue(), "f1");
-        Assert.assertEquals(((BInteger) bMap.get("b")).intValue(), 100);
-        Assert.assertTrue(((BBoolean) bMap.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) bMap.get("d")).floatValue(), 22.2);
+        bMap = (BMap) returns.get(2);
+        Assert.assertEquals(bMap.get(StringUtils.fromString("a")).toString(), "f1");
+        Assert.assertEquals(bMap.get(StringUtils.fromString("b")), 100L);
+        Assert.assertTrue((Boolean) bMap.get(StringUtils.fromString("c")));
+        Assert.assertEquals(bMap.get(StringUtils.fromString("d")), 22.2);
 
-        bMap = (BMap) returns[3];
-        Assert.assertEquals(bMap.get("a").stringValue(), "default2");
-        Assert.assertEquals(((BInteger) bMap.get("b")).intValue(), 150);
-        Assert.assertTrue(((BBoolean) bMap.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) bMap.get("d")).floatValue(), 33.3);
+        bMap = (BMap) returns.get(3);
+        Assert.assertEquals(bMap.get(StringUtils.fromString("a")).toString(), "default2");
+        Assert.assertEquals(bMap.get(StringUtils.fromString("b")), 150L);
+        Assert.assertTrue((Boolean) bMap.get(StringUtils.fromString("c")));
+        Assert.assertEquals(bMap.get(StringUtils.fromString("d")), 33.3);
     }
 
     @Test(description = "Test function pointer arguments")
     public void testDefaultExprInFunctionPointers() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultExprInFunctionPointers");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 200);
-        Assert.assertEquals(returns[1].stringValue(), "given");
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 4.4);
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testDefaultExprInFunctionPointers");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.get(0), 200L);
+        Assert.assertEquals(returns.get(1).toString(), "given");
+        Assert.assertEquals(returns.get(2), 4.4);
+        Assert.assertFalse((Boolean) returns.get(3));
     }
 
     @Test(description = "Test functions arguments with combined expressions for default values")
     public void testCombinedExprAsDefaultValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testCombinedExprAsDefaultValue");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
-        Assert.assertTrue(returns[2] instanceof BValueArray);
+        Object arr = BRunUtil.invoke(result, "testCombinedExprAsDefaultValue");
+        BArray returns = (BArray) arr;
+        Assert.assertTrue(returns.get(0) instanceof  BArray);
+        Assert.assertTrue(returns.get(1) instanceof  BArray);
+        Assert.assertTrue(returns.get(2) instanceof  BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 205);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "defdefault");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 101.1);
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0), 205L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefault");
+        Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 50);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "defdefault");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 101.1);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0), 50L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefault");
+        Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        bValueArray = (BValueArray) returns[2];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 205);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "givendefault");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 9.9);
+        bValueArray = (BArray) returns.get(2);
+        Assert.assertEquals(bValueArray.getRefValue(0), 205L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "givendefault");
+        Assert.assertEquals(bValueArray.getRefValue(2), 9.9);
     }
 
     @Test(description = "Test functions arguments with error as default values")
@@ -147,46 +148,48 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test functions arguments with error as default values")
     public void testDefaultValueWithTernary() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultValueWithTernary");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
-        Assert.assertTrue(returns[2] instanceof BValueArray);
+        Object arr = BRunUtil.invoke(result, "testDefaultValueWithTernary");
+        BArray returns = (BArray) arr;
+        Assert.assertTrue(returns.get(0) instanceof  BArray);
+        Assert.assertTrue(returns.get(1) instanceof  BArray);
+        Assert.assertTrue(returns.get(2) instanceof  BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(0)).floatValue(), 1.1);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "string");
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0), 1.1);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "string");
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(0)).floatValue(), 2.2);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "empty");
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0), 2.2);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "empty");
 
-        bValueArray = (BValueArray) returns[2];
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(0)).floatValue(), 3.3);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "given");
+        bValueArray = (BArray) returns.get(2);
+        Assert.assertEquals(bValueArray.getRefValue(0), 3.3);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "given");
     }
 
     @Test(description = "Test functions arguments default value panicing",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: Panic!.*")
     public void testPanicWithinDefaultExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicWithinDefaultExpr");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Object returns = BRunUtil.invoke(result, "testPanicWithinDefaultExpr");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 0L);
     }
 
     @Test(description = "Test functions arguments object type as default value")
     public void testDefaultObject() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultObject");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
+        Object arr = BRunUtil.invoke(result, "testDefaultObject");
+        BArray returns = (BArray) arr;
+        Assert.assertTrue(returns.get(0) instanceof  BArray);
+        Assert.assertTrue(returns.get(1) instanceof  BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "default");
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(1)).intValue(), 100);
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0).toString(), "default");
+        Assert.assertEquals(bValueArray.getRefValue(1), 100L);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "given");
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(1)).intValue(), 200);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0).toString(), "given");
+        Assert.assertEquals(bValueArray.getRefValue(1), 200L);
     }
 
     @Test(dataProvider = "functionsWithDefaultByteValues")
@@ -204,33 +207,33 @@ public class FunctionsWithDefaultableArguments {
 
     @Test
     public void testFuncWithAsyncDefaultParamExpression() {
-        BValue[] returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "hellohelloworldhellosamplevalue");
+        Object returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "hellohelloworldhellosamplevalue");
     }
 
     @Test
     public void testUsingParamValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testUsingParamValues");
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object returns = BRunUtil.invoke(result, "testUsingParamValues");
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "hellohelloasyncworldworldasyncsamplevalue");
+        Assert.assertEquals(returns.toString(), "hellohelloasyncworldworldasyncsamplevalue");
     }
 
     @Test
     public void testAttachedAsyncDefaultParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testAttachedAsyncDefaultParam");
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object returns = BRunUtil.invoke(result, "testAttachedAsyncDefaultParam");
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "hellohelloworldhellosamplevalue");
+        Assert.assertEquals(returns.toString(), "hellohelloworldhellosamplevalue");
     }
 
     @Test
     public void testUsingParamValuesInAttachedFunc() {
-        BValue[] returns = BRunUtil.invoke(result, "testUsingParamValuesInAttachedFunc");
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object returns = BRunUtil.invoke(result, "testUsingParamValuesInAttachedFunc");
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "hellohelloasyncworldworldasyncsamplevalue");
+        Assert.assertEquals(returns.toString(), "hellohelloasyncworldworldasyncsamplevalue");
     }
 
     @AfterClass

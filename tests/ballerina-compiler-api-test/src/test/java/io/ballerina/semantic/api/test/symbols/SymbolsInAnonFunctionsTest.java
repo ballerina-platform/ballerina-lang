@@ -74,8 +74,8 @@ public class SymbolsInAnonFunctionsTest {
                 {20, 55, PARAMETER, "z"},
                 {21, 12, VARIABLE, "total"},
                 {21, 20, PARAMETER, "x"},
-//                {25, 43, PARAMETER, "a"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32810
-//                {25, 56, PARAMETER, "b"},
+                {25, 43, PARAMETER, "a"},
+                {25, 56, PARAMETER, "b"},
                 {25, 60, VARIABLE, "c"},
         };
     }

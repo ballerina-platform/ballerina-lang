@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import com.google.common.collect.Lists;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
@@ -29,6 +31,7 @@ import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -184,13 +187,13 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     private ArrayList<LSCompletionItem> orgNameContextCompletions(BallerinaCompletionContext ctx) {
         List<String> orgNames = new ArrayList<>();
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Package> pkgList = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
-
+        List<LSPackageLoader.PackageInfo> pkgList = 
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         pkgList.forEach(pkg -> {
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
             if (orgName.equals(Names.BALLERINA_INTERNAL_ORG.getValue())
-                    || CommonUtil.matchingImportedModule(ctx, pkg).isPresent()) {
+                    || ModuleUtil.matchingImportedModule(ctx, pkg).isPresent()) {
                 // Avoid suggesting the ballerinai org name
                 return;
             }
@@ -223,7 +226,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 
         Package currentPackage = currentProject.get().currentPackage();
         String currentPackageName = CommonUtil.escapeReservedKeyword(currentPackage.packageName().value());
-        
+
         completionItems.add(getImportCompletion(ctx, currentPackageName, currentPackageName + "."));
         Optional<Module> currentModule = ctx.currentModule();
         for (Module module : currentPackage.modules()) {
@@ -236,7 +239,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     .collect(Collectors.joining("."));
             String qualifiedModuleName = module.moduleName().packageName().value()
                     + Names.DOT + moduleNamePart;
-            if (CommonUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
+            if (ModuleUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
                 continue;
             }
             String label = currentPackageName + "." + moduleNamePart;
@@ -268,11 +271,11 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     + module.moduleName().moduleNamePart();
             if (module.isDefaultModule()
                     || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))
-                    || CommonUtil.matchingImportedModule(context, "", qualifiedModuleName).isPresent()) {
+                    || ModuleUtil.matchingImportedModule(context, "", qualifiedModuleName).isPresent()) {
                 return;
             }
 
-            List<String> moduleNameParts = Arrays.asList(module.moduleName().moduleNamePart().split("\\."));
+            List<String> moduleNameParts = Lists.newArrayList(module.moduleName().moduleNamePart().split("\\."));
             moduleName.forEach(token -> moduleNameParts.remove(token.text()));
             String label = module.moduleName().moduleNamePart();
             String insertText = moduleNameParts.stream()
@@ -290,12 +293,13 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
-        List<Package> packageList = LSPackageLoader.getInstance(serverContext).getDistributionRepoPackages();
+        List<LSPackageLoader.PackageInfo> packageList = 
+                LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
         packageList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
-                    && CommonUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
+                    && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
                 if (orgName.equals(Names.BALLERINA_ORG.value)
                         && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
                     insertText = getLangLibModuleNameInsertText(packageName);
@@ -356,6 +360,17 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 && module.isPresent() && (moduleNameComponents.size() >= 2 || node.moduleName().separatorSize() != 0)
                 && node.orgName().isEmpty()
                 && moduleNameComponents.get(moduleNameComponents.size() - 1).textRange().endOffset() <= cursor;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ImportDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token semicolon = node.semicolon();
+        if (semicolon.isMissing()) {
+            return true;
+        }
+
+        return cursor < semicolon.textRange().endOffset();
     }
 
     private enum ContextScope {

@@ -25,14 +25,12 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -44,18 +42,21 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     public static final String DEFAULT_WORKER_NAME = "function";
 
+    // BLangNodes
     public BLangIdentifier name;
-    public BLangIdentifier defaultWorkerName;
+    public List<BLangAnnotationAttachment> annAttachments;
+    public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangSimpleVariable> requiredParams;
+    public BLangSimpleVariable restParam;
     public BLangType returnTypeNode;
     public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
     public BLangFunctionBody body;
-    public Set<Flag> flagSet;
-    public List<BLangAnnotationAttachment> annAttachments;
-    public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public List<BLangWorker> workers;
-    public BLangSimpleVariable restParam;
+    public BLangIdentifier defaultWorkerName;
 
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
+
+    // Semantic Data
     public BInvokableSymbol symbol;
     /**
      * clonedEnv is used for function parameter variable scoping.
@@ -72,7 +73,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.annAttachments = new ArrayList<>();
         this.returnTypeAnnAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.workers = new ArrayList<>();
         this.defaultWorkerName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         this.defaultWorkerName.value = DEFAULT_WORKER_NAME;
     }
@@ -163,16 +163,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public void addWorker(WorkerNode worker) {
-        this.workers.add((BLangWorker) worker);
-    }
-
-    @Override
-    public List<BLangWorker> getWorkers() {
-        return workers;
-    }
-
-    @Override
     public SimpleVariableNode getRestParameters() {
         return restParam;
     }
@@ -185,8 +175,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public String toString() {
         return this.flagSet + " " + this.getName() + " (" + this.requiredParams +
-                ") (" + this.returnTypeNode + ") Body: {" + this.body + "}"
-                + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
+                ") (" + this.returnTypeNode + ") Body: {" + this.body + "}";
     }
 
 }

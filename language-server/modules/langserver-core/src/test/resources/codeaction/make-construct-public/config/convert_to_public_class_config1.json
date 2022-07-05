@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 3,
+    "character": 33
+  },
+  "source": "publicCodeAction/modules/module1/convert_to_public_class_source1.bal",
+  "expected": [
+    {
+      "title": "Convert 'Test' to public",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "public "
+        }
+      ]
+    }
+  ]
+}

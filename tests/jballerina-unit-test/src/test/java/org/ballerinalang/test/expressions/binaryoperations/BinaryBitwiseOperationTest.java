@@ -54,9 +54,41 @@ public class BinaryBitwiseOperationTest {
         };
     }
 
+    @Test(description = "Test binary bitwise operations for nullable values")
+    public void testBinaryBitwiseOperationsForNullable() {
+        BRunUtil.invoke(result, "testBinaryBitwiseOperationsForNullable");
+    }
+
+    @Test(description = "Test binary bitwise OR operations for user defined types")
+    public void testBinaryBitWiseOrOperationForUserDefinedTypes() {
+        BRunUtil.invoke(result, "testBinaryBitWiseOrOperationForUserDefinedTypes");
+    }
+
+    @Test(description = "Test binary bitwise XOR operations for user defined values")
+    public void testBinaryBitwiseXOROperationForUserDefinedTypes() {
+        BRunUtil.invoke(result, "testBinaryBitwiseXOROperationForUserDefinedTypes");
+    }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInBinaryBitwiseOp")
+    public void testShortCircuitingInBinaryBitwiseOp(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInBinaryBitwiseOp() {
+        return new Object[]{
+                "testNoShortCircuitingInBitwiseAndWithNullable",
+                "testNoShortCircuitingInBitwiseAndWithNonNullable",
+                "testNoShortCircuitingInBitwiseOrWithNullable",
+                "testNoShortCircuitingInBitwiseOrWithNonNullable",
+                "testNoShortCircuitingInBitwiseXorWithNullable",
+                "testNoShortCircuitingInBitwiseXorWithNonNullable"
+        };
+    }
+
     @Test(description = "Test binary bitwise operations negative scenarios")
     public void testBinaryBitwiseOperationsNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 15);
+        Assert.assertEquals(negativeResult.getErrorCount(), 21);
         int index = 0;
         BAssertUtil.validateError(negativeResult, index++, "operator '&' not defined for 'float' and 'int'",
                 26, 14);
@@ -86,7 +118,19 @@ public class BinaryBitwiseOperationTest {
                 53, 15);
         BAssertUtil.validateError(negativeResult, index++, "operator '^' not defined for 'int' and 'B'",
                 55, 15);
-        BAssertUtil.validateError(negativeResult, index, "operator '^' not defined for 'int' and 'float'",
+        BAssertUtil.validateError(negativeResult, index++, "operator '^' not defined for 'int' and 'float'",
                 57, 15);
+        BAssertUtil.validateError(negativeResult, index++, "operator '&' not defined for 'float?' and 'int?'",
+                62, 16);
+        BAssertUtil.validateError(negativeResult, index++, "operator '|' not defined for 'float?' and 'int?'",
+                63, 16);
+        BAssertUtil.validateError(negativeResult, index++, "operator '^' not defined for 'float?' and 'int?'",
+                64, 16);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'int:Unsigned8?', found " +
+                        "'int:Unsigned16?'", 68, 26);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'byte?', found " +
+                "'int:Unsigned16?'", 72, 17);
+        BAssertUtil.validateError(negativeResult, index, "incompatible types: expected 'byte?', found " +
+                "'int:Unsigned32?'", 75, 17);
     }
 }

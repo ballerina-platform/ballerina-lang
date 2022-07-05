@@ -33,13 +33,13 @@ import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -103,9 +103,9 @@ public class ErrorConstructorExpressionNodeContext extends
                                                            ErrorConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
+            return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
 
         completionItems.addAll(this.expressionCompletions(ctx));
@@ -116,9 +116,9 @@ public class ErrorConstructorExpressionNodeContext extends
 
     private List<LSCompletionItem> getErrorTypeRefCompletions(BallerinaCompletionContext ctx) {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(ctx, qNameRef,
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(ctx, qNameRef,
                     SymbolUtil.isOfType(TypeDescKind.ERROR));
 
             return this.getCompletionItemList(moduleContent, ctx);
@@ -207,12 +207,15 @@ public class ErrorConstructorExpressionNodeContext extends
             return completionItems;
         }
         ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> detailedTypeDesc = node.apply(resolver);
-        if (detailedTypeDesc.isEmpty() || detailedTypeDesc.get().typeKind() != TypeDescKind.RECORD) {
+        Optional<TypeSymbol> detailTypeDesc = node.apply(resolver);
+        if (detailTypeDesc.isEmpty()) {
             return completionItems;
         }
-
-        Map<String, RecordFieldSymbol> fields = ((RecordTypeSymbol) detailedTypeDesc.get()).fieldDescriptors();
+        TypeSymbol rawType = CommonUtil.getRawType(detailTypeDesc.get());
+        if (rawType.typeKind() != TypeDescKind.RECORD) {
+            return completionItems;
+        }
+        Map<String, RecordFieldSymbol> fields = ((RecordTypeSymbol) rawType).fieldDescriptors();
         if (fields.isEmpty()) {
             return completionItems;
         }
@@ -221,12 +224,11 @@ public class ErrorConstructorExpressionNodeContext extends
 
         fields.entrySet().forEach(field -> {
             Optional<String> fieldName = field.getValue().getName();
-            TypeSymbol fieldType = field.getValue().typeDescriptor();
-            String defaultValue = CommonUtil.getDefaultValueForType(fieldType).orElse("\"\"");
             if (fieldName.isEmpty() || fieldName.get().isEmpty() || existingNamedArgs.contains(fieldName.get())) {
                 return;
             }
-            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), defaultValue);
+            TypeSymbol fieldType = field.getValue().typeDescriptor();
+            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), fieldType);
             completionItems.add(new NamedArgCompletionItem(context, completionItem, Either.forRight(field.getValue())));
         });
 

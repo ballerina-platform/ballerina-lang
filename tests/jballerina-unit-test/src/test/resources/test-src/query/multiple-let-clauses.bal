@@ -187,9 +187,15 @@ function foo() returns [string, string] {
   return ["Mark", "Mark"];
 }
 
-function bar() returns error {
+function bar() returns FooError {
     return error("", msg = "asdasd");
 }
+
+type Foo record {
+    string msg;
+};
+
+type FooError error<Foo>;
 
 //---------------------------------------------------------------------------------------------------------
 const ASSERTION_ERROR_REASON = "AssertionError";

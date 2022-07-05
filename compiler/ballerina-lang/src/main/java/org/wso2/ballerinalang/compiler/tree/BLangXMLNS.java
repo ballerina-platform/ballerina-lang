@@ -29,8 +29,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
 
+    // BLangNodes
     public BLangExpression namespaceURI;
     public BLangIdentifier prefix;
+
+    // Semantic Data
     public BSymbol symbol;
 
     @Override
@@ -46,6 +49,16 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
@@ -67,7 +80,7 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     public String toString() {
         return "BLangXMLNS: " + prefix + "[" +  namespaceURI + "]";
     }
-    
+
     /**
      * @since 0.94
      */
@@ -77,8 +90,18 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
     }
-    
+
     /**
      * @since 0.94
      */
@@ -87,6 +110,16 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 }

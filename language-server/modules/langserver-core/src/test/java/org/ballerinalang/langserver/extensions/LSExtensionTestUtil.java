@@ -18,9 +18,9 @@ package org.ballerinalang.langserver.extensions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListRequest;
+import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorResponse;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorsResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByRangeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest;
@@ -28,8 +28,11 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSynta
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
@@ -52,6 +55,7 @@ public class LSExtensionTestUtil {
     private static final String SYNTAX_API_QUOTE = "ballerinaDocument/syntaxApiCalls";
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
+    private static final String GET_SYMBOL = "ballerinaSymbol/getSymbol";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -141,25 +145,49 @@ public class LSExtensionTestUtil {
         return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result");
     }
 
-    public static BallerinaConnectorsResponse getConnectors(Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(GET_CONNECTORS, null);
-        return GSON.fromJson(getResult(result), BallerinaConnectorsResponse.class);
+    public static BallerinaConnectorListResponse getConnectors(BallerinaConnectorListRequest request,
+                                                               Endpoint serviceEndpoint) {
+        CompletableFuture result = serviceEndpoint.request(GET_CONNECTORS, request);
+        return GSON.fromJson(getResult(result), BallerinaConnectorListResponse.class);
     }
 
-    public static BallerinaConnectorResponse getConnector(String org, String module, String version, String name,
-                                                          String displayName, Boolean beta,
-                                                          Endpoint serviceEndpoint) {
-        BallerinaConnectorRequest ballerinaConnectorRequest = new BallerinaConnectorRequest(org, module, version,
-                name, displayName, beta);
-        CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, ballerinaConnectorRequest);
-        return GSON.fromJson(getResult(result), BallerinaConnectorResponse.class);
+    public static JsonObject getConnectorById(String id, Endpoint serviceEndpoint) {
+        BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(id);
+        CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
+        return getResult(result);
     }
+
+    public static JsonObject getConnectorByFqn(String org, String packageName, String module, String version,
+                                          String name, Endpoint serviceEndpoint) {
+        BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(org, packageName, module,
+                version, name);
+        CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
+        return getResult(result);
+    }
+
 
     public static Path createTempFile(Path filePath) throws IOException {
         Path tempFilePath = FileUtils.BUILD_DIR.resolve("tmp")
                 .resolve(UUID.randomUUID() + ".bal");
         Files.copy(filePath, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
         return tempFilePath;
+    }
+
+    /**
+     * Get the ballerinaDocument/getSymbol response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @param position        Position of the function to get documentation
+     * @return {@link String}   Response as String
+     */
+    public static SymbolInfoResponse getSymbolDocumentation(String filePath, Position position,
+                                                            Endpoint serviceEndpoint) {
+        SymbolInfoRequest symbolInfoRequest = new SymbolInfoRequest();
+        symbolInfoRequest.setPosition(position);
+        symbolInfoRequest.setTextDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture result = serviceEndpoint.request(GET_SYMBOL, symbolInfoRequest);
+        return GSON.fromJson(getResult(result), SymbolInfoResponse.class);
     }
 
 }

@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,19 +42,18 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test two int multiply expression")
     public void testIntMultiplyExpr() {
-        BValue[] args = { new BInteger(4611686018427387904L), new BInteger(-2L) };
-        BValue[] returns = BRunUtil.invoke(result, "intMultiply", args);
+        Object[] args = { (4611686018427387904L), (-2L) };
+        Object returns = BRunUtil.invoke(result, "intMultiply", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = -9223372036854775808L;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test two int multiply overflow expression", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByMultiplication() {
         BRunUtil.invoke(result, "overflowByMultiplication");
@@ -65,13 +61,12 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test two float multiply expression")
     public void testFloatMultiplyExpr() {
-        BValue[] args = { new BFloat(40.0f), new BFloat(40.0f) };
-        BValue[] returns = BRunUtil.invoke(result, "floatMultiply", args);
+        Object[] args = { (40.0f), (40.0f) };
+        Object returns = BRunUtil.invoke(result, "floatMultiply", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actual = ((BFloat) returns[0]).floatValue();
+        double actual = (double) returns;
         double expected = 1600.0f;
         Assert.assertEquals(actual, expected);
     }
@@ -96,19 +91,68 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testMultiplyStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
-        BAssertUtil.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
-        BAssertUtil.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);
-        BAssertUtil.validateError(resultNegative, 2, "operator '*' not defined for 'C' and 'string'", 28, 14);
-        BAssertUtil.validateError(resultNegative, 3, "operator '*' not defined for 'C' and '(float|int)'", 29, 14);
-        BAssertUtil.validateError(resultNegative, 4, "operator '*' not defined for 'string' and " +
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'json' and 'json'", 8, 10);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'string'", 14, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'string' and " +
                 "'(string|string:Char)'", 30, 17);
-        BAssertUtil.validateError(resultNegative, 5, "operator '*' not defined for 'float' and 'decimal'", 37, 14);
-        BAssertUtil.validateError(resultNegative, 6, "operator '*' not defined for 'float' and 'decimal'", 38, 14);
-        BAssertUtil.validateError(resultNegative, 7, "operator '*' not defined for 'float' and 'int'", 39, 14);
-        BAssertUtil.validateError(resultNegative, 8, "operator '*' not defined for 'decimal' and 'int'", 40, 14);
-        BAssertUtil.validateError(resultNegative, 9, "operator '*' not defined for 'int' and 'float'", 41, 18);
-        BAssertUtil.validateError(resultNegative, 10, "operator '*' not defined for 'C' and 'float'", 45, 14);
-        BAssertUtil.validateError(resultNegative, 11, "operator '*' not defined for 'C' and 'float'", 46, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 37, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 38, 14);
+    }
+
+    @Test(description = "Test multiplication of nullable values")
+    public void testMultiplyNullable() {
+        BRunUtil.invoke(result, "testMultiplyNullable");
+    }
+
+    @Test(dataProvider = "dataToTestMultiplyFloatInt", description = "Test multiplication float with int")
+    public void testMultiplyFloatInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestMultiplyFloatInt() {
+        return new Object[]{
+                "testMultiplyFloatInt",
+                "testMultiplyFloatIntSubTypes",
+                "testMultiplyFloatIntWithNullableOperands",
+                "testMultiplyFloatIntSubTypeWithNullableOperands",
+                "testResultTypeOfMultiplyFloatIntByInfering",
+                "testResultTypeOfMultiplyFloatIntForNilableOperandsByInfering",
+                "testMultiplyFloatIntToInfinityAndNaN"
+        };
+    }
+
+    @Test(dataProvider = "dataToTestMultiplyDecimalInt", description = "Test multiplication decimal with int")
+    public void testMultiplyDecimalInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestMultiplyDecimalInt() {
+        return new Object[]{
+                "testMultiplyDecimalInt",
+                "testMultiplyDecimalIntSubTypes",
+                "testMultiplyDecimalIntWithNullableOperands",
+                "testMultiplyDecimalIntSubTypeWithNullableOperands",
+                "testResultTypeOfMultiplyDecimalIntByInfering",
+                "testResultTypeOfMultiplyDecimalIntForNilableOperandsByInfering",
+        };
+    }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInMultiplication")
+    public void testShortCircuitingInMultiplication(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInMultiplication() {
+        return new Object[]{
+                "testNoShortCircuitingInMultiplicationWithNullable",
+                "testNoShortCircuitingInMultiplicationWithNonNullable"
+        };
     }
 }

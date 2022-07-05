@@ -665,6 +665,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public void visit(STArrayDimensionNode arrayDimensionNode) {
+        visitSyntaxNode(arrayDimensionNode);
+    }
+
     public void visit(STTransactionStatementNode transactionStatementNode) {
         visitSyntaxNode(transactionStatementNode);
     }
@@ -811,6 +815,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
+    }
+
+    public void visit(STSpreadMemberNode spreadMemberNode) {
+        visitSyntaxNode(spreadMemberNode);
     }
 
     // STNodeList

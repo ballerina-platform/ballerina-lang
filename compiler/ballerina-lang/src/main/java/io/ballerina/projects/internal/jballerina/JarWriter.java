@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal.jballerina;
 
+import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 
 import java.io.ByteArrayOutputStream;
@@ -35,9 +36,10 @@ import java.util.jar.Manifest;
  */
 public class JarWriter {
 
-    public static ByteArrayOutputStream write(CompiledJarFile compiledJarFile) throws IOException {
+    public static ByteArrayOutputStream write(CompiledJarFile compiledJarFile, Map<String, byte[]> resources)
+            throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        writeJar(compiledJarFile, byteArrayOutputStream);
+        writeJar(compiledJarFile, byteArrayOutputStream, resources);
         return byteArrayOutputStream;
     }
 
@@ -50,7 +52,8 @@ public class JarWriter {
         return manifest;
     }
 
-    private static void writeJar(CompiledJarFile compiledJarFile, OutputStream outputStream) throws IOException {
+    private static void writeJar(CompiledJarFile compiledJarFile, OutputStream outputStream,
+                                 Map<String, byte[]> resources) throws IOException {
         Manifest manifest = getManifest(compiledJarFile);
         try (JarOutputStream target = new JarOutputStream(outputStream, manifest)) {
             Map<String, byte[]> jarEntries = compiledJarFile.getJarEntries();
@@ -59,6 +62,14 @@ public class JarWriter {
                 JarEntry entry = new JarEntry(keyVal.getKey());
                 target.putNextEntry(entry);
                 target.write(entryContent);
+                target.closeEntry();
+            }
+
+            // Copy resources
+            for (Map.Entry<String, byte[]> entry : resources.entrySet()) {
+                JarArchiveEntry e = new JarArchiveEntry(entry.getKey());
+                target.putNextEntry(e);
+                target.write(entry.getValue());
                 target.closeEntry();
             }
         }

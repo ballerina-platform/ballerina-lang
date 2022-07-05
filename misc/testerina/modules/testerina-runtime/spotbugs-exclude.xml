@@ -24,6 +24,9 @@
         <Class name="org.ballerinalang.test.runtime.util.CodeCoverageUtils"/>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.test.runtime.util.TesterinaUtils"/>
+    </Match>
+    <Match>
         <Package name="org.ballerinalang.test.runtime.entity"/>
     </Match>
 </FindBugsFilter>

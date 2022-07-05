@@ -36,7 +36,8 @@ public class TypeTags {
     public static final int ANYDATA_TAG = NULL_TAG + 1;
     public static final int RECORD_TYPE_TAG = ANYDATA_TAG + 1;
     public static final int TYPEDESC_TAG = RECORD_TYPE_TAG + 1;
-    public static final int STREAM_TAG = TYPEDESC_TAG + 1;
+    public static final int TYPEREFDESC = TYPEDESC_TAG + 1;
+    public static final int STREAM_TAG = TYPEREFDESC + 1;
     public static final int MAP_TAG = STREAM_TAG + 1;
     public static final int INVOKABLE_TAG = MAP_TAG + 1;
     public static final int ANY_TAG = INVOKABLE_TAG + 1;

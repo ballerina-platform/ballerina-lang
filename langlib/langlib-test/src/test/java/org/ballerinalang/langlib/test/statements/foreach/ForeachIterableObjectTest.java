@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,11 +43,17 @@ public class ForeachIterableObjectTest {
         negativeResult = BCompileUtil.compile("test-src/statements/foreach/foreach-iterable-object-negative.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+        negativeResult = null;
+    }
+
     @Test
     public void testIterableObject() {
-        BValue[] returns = BRunUtil.invoke(program, "testIterableObject");
+        Object returns = BRunUtil.invoke(program, "testIterableObject");
 
-        BValueArray arr = (BValueArray) returns[0];
+        BArray arr = (BArray) returns;
         Assert.assertEquals(arr.size(), 7);
         int i = 0;
         Assert.assertEquals(arr.getInt(i++), 12);
@@ -83,6 +89,11 @@ public class ForeachIterableObjectTest {
     @Test
     public void testIterableIterator() {
         BRunUtil.invoke(program, "testIterableIterator");
+    }
+
+    @Test
+    public void testNextIsNotInvokedTwiseBeforeInvokingBody() {
+        BRunUtil.invoke(program, "testNextIsNotInvokedTwiseBeforeInvokingBody");
     }
 
     @Test

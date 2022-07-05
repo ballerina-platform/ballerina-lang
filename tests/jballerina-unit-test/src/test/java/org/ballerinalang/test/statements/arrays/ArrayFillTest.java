@@ -18,20 +18,14 @@
 
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.types.BRecordType;
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.util.Flags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -41,7 +35,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
+import static java.math.BigDecimal.ZERO;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
@@ -67,41 +64,39 @@ public class ArrayFillTest {
 
     @Test
     public void testNilArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index), null};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testNilArrayFill", args);
-        BValueArray nilArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index), null};
+        Object returns = BRunUtil.invoke(compileResult, "testNilArrayFill", args);
+        BArray nilArr = (BArray) returns;
         assertEquals(nilArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(nilArr.getBValue(i));
+            assertNull(nilArr.get(i));
         }
 
-        assertNull(nilArr.getBValue(index));
+        assertNull(nilArr.get(index));
     }
 
     @Test
     public void testBooleanArrayFill() {
         final boolean value = true;
-        final int bFALSE = 0;
-        final int bTRUE = 1;
-        BValue[] args = new BValue[]{new BInteger(index), new BBoolean(value)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanArrayFill", args);
-        BValueArray booleanArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index), (value)};
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanArrayFill", args);
+        BArray booleanArr = (BArray) returns;
         assertEquals(booleanArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(booleanArr.getBoolean(i), bFALSE);
+            assertFalse(booleanArr.getBoolean(i));
         }
 
-        assertEquals(booleanArr.getBoolean(index), bTRUE);
+        assertTrue(booleanArr.getBoolean(index));
     }
 
     @Test
     public void testIntArrayFill() {
         final long value = 100;
-        BValue[] args = new BValue[]{new BInteger(index), new BInteger(value)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntArrayFill", args);
-        BValueArray intArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index), (value)};
+        Object returns = BRunUtil.invoke(compileResult, "testIntArrayFill", args);
+        BArray intArr = (BArray) returns;
         assertEquals(intArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
@@ -114,9 +109,9 @@ public class ArrayFillTest {
     @Test
     public void testFloatArrayFill() {
         final double value = 23.45;
-        BValue[] args = new BValue[]{new BInteger(index), new BFloat(value)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatArrayFill", args);
-        BValueArray floatArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index), (value)};
+        Object returns = BRunUtil.invoke(compileResult, "testFloatArrayFill", args);
+        BArray floatArr = (BArray) returns;
         assertEquals(floatArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
@@ -129,24 +124,24 @@ public class ArrayFillTest {
     @Test
     public void testDecimalArrayFill() {
         final BigDecimal value = new BigDecimal("23.45");
-        BValue[] args = new BValue[]{new BInteger(index), new BDecimal(value)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testDecimalArrayFill", args);
-        BValueArray decimalArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index), ValueCreator.createDecimalValue(value)};
+        Object returns = BRunUtil.invoke(compileResult, "testDecimalArrayFill", args);
+        BArray decimalArr = (BArray) returns;
         assertEquals(decimalArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(((BDecimal) decimalArr.getBValue(i)).decimalValue(), BigDecimal.ZERO);
+            assertEquals(decimalArr.get(i), ValueCreator.createDecimalValue(ZERO));
         }
 
-        assertEquals(((BDecimal) decimalArr.getBValue(index)).decimalValue(), value);
+        assertEquals(decimalArr.get(index), ValueCreator.createDecimalValue(value));
     }
 
     @Test
     public void testStringArrayFill() {
         final String value = "Hello World!";
-        BValue[] args = new BValue[]{new BInteger(index), new BString(value)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testStringArrayFill", args);
-        BValueArray stringArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index), StringUtils.fromString(value)};
+        Object returns = BRunUtil.invoke(compileResult, "testStringArrayFill", args);
+        BArray stringArr = (BArray) returns;
         assertEquals(stringArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
@@ -158,296 +153,296 @@ public class ArrayFillTest {
 
     @Test
     public void testArrayOfArraysFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayOfArraysFill", args);
-        BValueArray arr2d = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testArrayOfArraysFill", args);
+        BArray arr2d = (BArray) returns;
         assertEquals(arr2d.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            BValueArray arr = (BValueArray) arr2d.getBValue(i);
-            assertEquals(arr.stringValue(), "[]");
+            BArray arr = (BArray) arr2d.get(i);
+            assertEquals(arr.toString(), "[]");
         }
 
-        BValueArray arr = (BValueArray) arr2d.getBValue(index);
-        assertEquals(arr.stringValue(), "[{name:\"John\", age:25}, {name:\"John\", age:25}]");
+        BArray arr = (BArray) arr2d.get(index);
+        assertEquals(arr.toString(), "[{\"name\":\"John\",\"age\":25},{\"name\":\"John\",\"age\":25}]");
     }
 
     @Test
     public void testTupleArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testTupleArrayFill", args);
-        BValueArray tupleArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testTupleArrayFill", args);
+        BArray tupleArr = (BArray) returns;
         assertEquals(tupleArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            BValueArray tuple = (BValueArray) tupleArr.getBValue(i);
-            assertEquals(tuple.getBValue(0).stringValue(), "");
-            assertEquals(((BInteger) tuple.getBValue(1)).intValue(), 0);
+            BArray tuple = (BArray) tupleArr.get(i);
+            assertEquals(tuple.get(0).toString(), "");
+            assertEquals((tuple.get(1)), 0L);
         }
 
-        BValueArray tuple = (BValueArray) tupleArr.getBValue(index);
-        assertEquals(tuple.getBValue(0).stringValue(), "Hello World!");
-        assertEquals(((BInteger) tuple.getBValue(1)).intValue(), 100);
+        BArray tuple = (BArray) tupleArr.get(index);
+        assertEquals(tuple.get(0).toString(), "Hello World!");
+        assertEquals((tuple.get(1)), 100L);
     }
 
     @Test
     public void testTupleSealedArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testTupleSealedArrayFill", args);
-        BValueArray tupleArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testTupleSealedArrayFill", args);
+        BArray tupleArr = (BArray) returns;
         assertEquals(tupleArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            BValueArray tuple = (BValueArray) tupleArr.getBValue(i);
-            assertEquals(tuple.getBValue(0).stringValue(), "");
-            assertEquals(((BInteger) tuple.getBValue(1)).intValue(), 0);
+            BArray tuple = (BArray) tupleArr.get(i);
+            assertEquals(tuple.get(0).toString(), "");
+            assertEquals((tuple.get(1)), 0L);
         }
 
-        BValueArray tuple = (BValueArray) tupleArr.getBValue(index);
-        assertEquals(tuple.getBValue(0).stringValue(), "Hello World!");
-        assertEquals(((BInteger) tuple.getBValue(1)).intValue(), 100);
+        BArray tuple = (BArray) tupleArr.get(index);
+        assertEquals(tuple.get(0).toString(), "Hello World!");
+        assertEquals((tuple.get(1)), 100L);
     }
 
     @Test
     public void testMapArrayFill() {
-        BMap<String, BValue> emptyMap = new BMap<>(BTypes.typeMap);
-        BMap<String, BValue> map = new BMap<>(BTypes.typeMap);
-        map.put("1", new BInteger(1));
-        BValue[] args = new BValue[]{new BInteger(index), map};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testMapArrayFill", args);
-        BValueArray mapArr = (BValueArray) returns[0];
+        BMap emptyMap = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
+        BMap map = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
+        map.put("1", 1);
+        Object[] args = new Object[]{(index), map};
+        Object returns = BRunUtil.invoke(compileResult, "testMapArrayFill", args);
+        BArray mapArr = (BArray) returns;
         assertEquals(mapArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            validateMapValue((BMap<String, BValue>) mapArr.getBValue(i), emptyMap);
+            validateMapValue((BMap<String, Object>) mapArr.get(i), emptyMap);
         }
 
-        validateMapValue((BMap<String, BValue>) mapArr.getBValue(index), map);
+        validateMapValue((BMap<String, Object>) mapArr.get(index), map);
     }
 
     @Test
     public void testTableArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
+        Object[] args = new Object[]{(index)};
         BRunUtil.invoke(compileResult, "testTableArrayFill", args);
     }
 
     @Test
     public void testXMLArrayFill() {
         final String value = "<name>Pubudu</name>";
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testXMLArrayFill", args);
-        BValueArray xmlArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testXMLArrayFill", args);
+        BArray xmlArr = (BArray) returns;
         assertEquals(xmlArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(xmlArr.getBValue(i).stringValue(), "");
+            assertEquals(xmlArr.get(i).toString(), "");
         }
 
-        assertEquals(xmlArr.getBValue(index).stringValue(), value);
+        assertEquals(xmlArr.get(index).toString(), value);
     }
 
     @Test
     public void testUnionArrayFill1() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUnionArrayFill1", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testUnionArrayFill1", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(unionArr.getBValue(i));
+            assertNull(unionArr.get(i));
         }
 
-        assertEquals(unionArr.getBValue(index).stringValue(), "Hello World!");
+        assertEquals(unionArr.get(index).toString(), "Hello World!");
     }
 
     @Test
     public void testUnionArrayFill2() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUnionArrayFill2", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testUnionArrayFill2", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(unionArr.getBValue(i).stringValue(), "");
+            assertEquals(unionArr.get(i).toString(), "");
         }
 
-        assertEquals(unionArr.getBValue(index).stringValue(), "Hello World!");
+        assertEquals(unionArr.get(index).toString(), "Hello World!");
     }
 
     @Test
     public void testUnionArrayFill3() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUnionArrayFill3", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testUnionArrayFill3", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(unionArr.getBValue(i));
+            assertNull(unionArr.get(i));
         }
 
-        assertEquals(unionArr.getBValue(index).stringValue(), "{name:\"John\", age:25}");
+        assertEquals(unionArr.get(index).toString(), "{\"name\":\"John\",\"age\":25}");
     }
 
     @Test
     public void testUnionArrayFill4() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUnionArrayFill4", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testUnionArrayFill4", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(((BInteger) unionArr.getBValue(i)).intValue(), 0);
+            assertEquals(unionArr.get(i), 0L);
         }
 
-        assertEquals(((BInteger) unionArr.getBValue(index)).intValue(), 1);
+        assertEquals(unionArr.get(index), 1L);
     }
 
     @Test
     public void testFiniteTypeArrayFill1() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill1", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testFiniteTypeArrayFill1", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(((BInteger) unionArr.getBValue(i)).intValue(), 0);
+            assertEquals(unionArr.get(i), 0L);
         }
 
-        assertEquals(((BInteger) unionArr.getBValue(index)).intValue(), 5);
+        assertEquals(unionArr.get(index), 5L);
     }
 
     @Test
     public void testFiniteTypeArrayFill2() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill2", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testFiniteTypeArrayFill2", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(((BFloat) unionArr.getBValue(i)).floatValue(), 0.0);
+            assertEquals((unionArr.get(i)), 0.0);
         }
 
-        assertEquals(((BFloat) unionArr.getBValue(index)).floatValue(), 1.2);
+        assertEquals((unionArr.get(index)), 1.2);
     }
 
     @Test
     public void testFiniteTypeArrayFill3() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill3", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testFiniteTypeArrayFill3", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertFalse(((BBoolean) unionArr.getBValue(i)).booleanValue());
+            assertFalse((Boolean) unionArr.get(i));
         }
 
-        assertTrue(((BBoolean) unionArr.getBValue(index)).booleanValue());
+        assertTrue((Boolean) unionArr.get(index));
     }
 
     @Test
     public void testFiniteTypeArrayFill4() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill4", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testFiniteTypeArrayFill4", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(unionArr.getBValue(i));
+            assertNull(unionArr.get(i));
         }
 
-        assertTrue(((BBoolean) unionArr.getBValue(index)).booleanValue());
+        assertTrue((Boolean) unionArr.get(index));
     }
 
     @Test
     public void testFiniteTypeArrayFill5() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill5", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testFiniteTypeArrayFill5", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(((BDecimal) unionArr.getBValue(i)).decimalValue(), new BigDecimal("0.0"));
+            assertEquals((unionArr.get(i)), ValueCreator.createDecimalValue("0.0"));
         }
 
-        assertEquals(((BDecimal) unionArr.getBValue(index)).decimalValue(), new BigDecimal("1.2"));
+        assertEquals((unionArr.get(index)), ValueCreator.createDecimalValue("1.2"));
     }
 
     @Test
     public void testOptionalTypeArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testOptionalTypeArrayFill", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testOptionalTypeArrayFill", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(unionArr.getBValue(i));
+            assertNull(unionArr.get(i));
         }
 
-        assertEquals(unionArr.getBValue(index).stringValue(), "Hello World!");
+        assertEquals(unionArr.get(index).toString(), "Hello World!");
     }
 
     @Test
     public void testAnyArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testAnyArrayFill", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testAnyArrayFill", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(unionArr.getBValue(i));
+            assertNull(unionArr.get(i));
         }
 
-        assertEquals(unionArr.getBValue(index).stringValue(), "{name:\"John\", age:25}");
+        assertEquals(unionArr.get(index).toString(), "{\"name\":\"John\",\"age\":25}");
     }
 
     @Test
     public void testAnySealedArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testAnySealedArrayFill", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testAnySealedArrayFill", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(unionArr.getBValue(i));
+            assertNull(unionArr.get(i));
         }
 
-        assertEquals(unionArr.getBValue(index).stringValue(), "{name:\"John\", age:25}");
+        assertEquals(unionArr.get(index).toString(), "{\"name\":\"John\",\"age\":25}");
     }
 
     @Test
     public void testAnydataArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testAnydataArrayFill", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testAnydataArrayFill", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(unionArr.getBValue(i));
+            assertNull(unionArr.get(i));
         }
 
-        assertEquals(unionArr.getBValue(index).stringValue(), "{name:\"John\", age:25}");
+        assertEquals(unionArr.get(index).toString(), "{\"name\":\"John\",\"age\":25}");
     }
 
     @Test
     public void testAnydataSealedArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testAnydataSealedArrayFill", args);
-        BValueArray unionArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testAnydataSealedArrayFill", args);
+        BArray unionArr = (BArray) returns;
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(unionArr.getBValue(i));
+            assertNull(unionArr.get(i));
         }
 
-        assertEquals(unionArr.getBValue(index).stringValue(), "{name:\"John\", age:25}");
+        assertEquals(unionArr.get(index).toString(), "{\"name\":\"John\",\"age\":25}");
     }
 
     @Test
     public void testByteArrayFill() {
         final byte value = 100;
-        BValue[] args = new BValue[]{new BInteger(index), new BByte(value)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteArrayFill", args);
-        BValueArray byteArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index), (value)};
+        Object returns = BRunUtil.invoke(compileResult, "testByteArrayFill", args);
+        BArray byteArr = (BArray) returns;
         assertEquals(byteArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
@@ -459,171 +454,173 @@ public class ArrayFillTest {
 
     @Test
     public void testJSONArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJSONArrayFill", args);
-        BValueArray jsonArr = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testJSONArrayFill", args);
+        BArray jsonArr = (BArray) returns;
         assertEquals(jsonArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertNull(jsonArr.getBValue(i));
+            assertNull(jsonArr.get(i));
         }
 
-        assertEquals(jsonArr.getBValue(index).stringValue(), "{\"name\":\"John\", \"age\":25}");
+        assertEquals(jsonArr.get(index).toString(), "{\"name\":\"John\",\"age\":25}");
     }
 
     @Test
     public void testSingletonTypeArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSingletonTypeArrayFill", args);
-        BValueArray singletonArray = (BValueArray) returns[0];
+        Object[] args = new Object[]{(index)};
+        Object returns = BRunUtil.invoke(compileResult, "testSingletonTypeArrayFill", args);
+        BArray singletonArray = (BArray) returns;
         assertEquals(singletonArray.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(singletonArray.getRefValue(i).stringValue(), "1");
+            assertEquals(singletonArray.getRefValue(i).toString(), "1");
         }
 
-        assertEquals(singletonArray.getBValue(index).stringValue(), "1");
+        assertEquals(singletonArray.get(index).toString(), "1");
     }
 
     @Test
     public void testSingletonTypeArrayFill1() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSingletonTypeArrayFill1");
-        BValueArray singletonArray = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testSingletonTypeArrayFill1");
+        BArray singletonArray = (BArray) returns;
         assertEquals(singletonArray.size(), 2);
-        assertEquals(singletonArray.getRefValue(0).stringValue(), "true");
-        assertEquals(singletonArray.getRefValue(1).stringValue(), "true");
+        assertEquals(singletonArray.getRefValue(0).toString(), "true");
+        assertEquals(singletonArray.getRefValue(1).toString(), "true");
     }
 
     @Test
     public void testSingletonTypeArrayStaticFill() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSingletonTypeArrayStaticFill");
-        BValueArray singletonArray = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testSingletonTypeArrayStaticFill");
+        BArray singletonArray = (BArray) returns;
         assertEquals(singletonArray.size(), 2);
-        assertEquals(singletonArray.getRefValue(0).stringValue(), "true");
-        assertEquals(singletonArray.getRefValue(1).stringValue(), "true");
+        assertEquals(singletonArray.getRefValue(0).toString(), "true");
+        assertEquals(singletonArray.getRefValue(1).toString(), "true");
     }
 
     @Test
     public void testSequentialArrayInsertion() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSequentialArrayInsertion");
-        BValueArray resultArray = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testSequentialArrayInsertion");
+        BArray resultArray = (BArray) returns;
         assertEquals(resultArray.size(), 5);
     }
 
     @Test
     public void testTwoDimensionalArrayFill() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testTwoDimensionalArrayFill");
-        BValueArray resultArray = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testTwoDimensionalArrayFill");
+        BArray resultArray = (BArray) returns;
         assertEquals(resultArray.size(), 2);
-        assertEquals(resultArray.getRefValue(0).stringValue(), "[]");
-        assertEquals(resultArray.getRefValue(1).stringValue(), "[1, 3]");
+        assertEquals(resultArray.getRefValue(0).toString(), "[]");
+        assertEquals(resultArray.getRefValue(1).toString(), "[1,3]");
     }
 
     @Test
     public void testArrayFillWithObjs() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayFillWithObjs");
-        BValueArray resultArray = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testArrayFillWithObjs");
+        BArray resultArray = (BArray) returns;
         assertEquals(resultArray.size(), 3);
     }
 
     @Test
     public void testFiniteTypesInUnionArrayFill() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill");
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-        Assert.assertEquals(((BValueArray) returns[0]).getValues()[5].value().toString(), "1.2");
+        Object returns = BRunUtil.invoke(compileResult, "testFiniteTypeArrayFill");
+        Assert.assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
+        Assert.assertEquals(((BArray) returns).getValues()[5].toString(), "1.2");
+    }
+
+    @Test
+    public void testFiniteTypeUnionArrayFill() {
+        BRunUtil.invoke(compileResult, "testFiniteTypeUnionArrayFill");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithObjWithInitParam() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithObjWithInitParam");
+        BRunUtil.invoke(negativeCompileResult, "testArrayFillWithObjWithInitParam");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithIntFiniteTypes() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithIntFiniteTypes");
+        BRunUtil.invoke(negativeCompileResult, "testArrayFillWithIntFiniteTypes");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithFloatFiniteTypes() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithFloatFiniteTypes");
+        BRunUtil.invoke(negativeCompileResult, "testArrayFillWithFloatFiniteTypes");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithStringFiniteTypes() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithStringFiniteTypes");
+        BRunUtil.invoke(negativeCompileResult, "testArrayFillWithStringFiniteTypes");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithTypedesc() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithTypedesc");
+        BRunUtil.invoke(negativeCompileResult, "testArrayFillWithTypedesc");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testNonSequentialArrayInsertion() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testNonSequentialArrayInsertion");
+        BRunUtil.invoke(negativeCompileResult, "testNonSequentialArrayInsertion");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testIllegalArrayInsertion() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testIllegalArrayInsertion");
+        BRunUtil.invoke(negativeCompileResult, "testIllegalArrayInsertion");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testIllegalTwoDimensionalArrayInsertion() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testIllegalTwoDimensionalArrayInsertion");
+        BRunUtil.invoke(negativeCompileResult, "testIllegalTwoDimensionalArrayInsertion");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testRecordTypeWithRequiredFieldsArrayFill() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testRecordTypeWithRequiredFieldsArrayFill");
+        BRunUtil.invoke(negativeCompileResult, "testRecordTypeWithRequiredFieldsArrayFill");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testFiniteTypeArrayFillNegative() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testFiniteTypeArrayFill");
+        BRunUtil.invoke(negativeCompileResult, "testFiniteTypeArrayFill");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testFiniteTypeArrayFillNegative2() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testFiniteTypeArrayFill2");
+        BRunUtil.invoke(negativeCompileResult, "testFiniteTypeArrayFill2");
     }
 
-    private void validateMapValue(BMap<String, BValue> actual, BMap<String, BValue> expected) {
+    private void validateMapValue(BMap<String, Object> actual, BMap<String, Object> expected) {
         assertEquals(actual.size(), expected.size());
 
-        expected.getMap().forEach((key, value) -> {
-            assertEquals(((BInteger) actual.get(key)).intValue(), ((BInteger) value).intValue());
-        });
+        for (Map.Entry<String, Object> entry : expected.entrySet()) {
+            assertEquals(actual.get(entry.getKey()), entry.getValue());
+        }
     }
 
-    private BMap<String, BValue> getImplicitInitRecordValue(BRecordType recordType) {
-        BMap<String, BValue> record = new BMap<>(recordType);
-        recordType.getFields().entrySet().stream()
-                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
-                .forEach(entry -> record.put(entry.getKey(), entry.getValue().fieldType.getZeroValue()));
-        return record;
+    @Test
+    public void testXMLSubtypesArrayFill() {
+        BRunUtil.invoke(compileResult, "testXMLSubtypesArrayFill");
     }
 
     @AfterClass

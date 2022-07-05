@@ -21,10 +21,12 @@ package org.ballerinalang.langlib.decimal;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BDecimal;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 
 /**
- * Native implementation of lang.decimal:round(decimal).
+ * Native implementation of lang.decimal:round(decimal, int).
  *
  * @since 1.0
  */
@@ -36,7 +38,25 @@ import java.math.RoundingMode;
 //)
 public class Round {
 
-    public static BDecimal round(BDecimal x) {
-        return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.HALF_EVEN));
+    public static BDecimal round(BDecimal x, long fractionDigits) {
+
+        BigDecimal value = x.value();
+        int scale = value.scale();
+        if (fractionDigits > 0) {
+            // scale is larger than current scale no change and will only add trailing zeros
+            if (fractionDigits >= scale) {
+                return x;
+            }
+        } else if (fractionDigits < 0) {
+            int precision = value.precision();
+            // negative scale is smaller than number of digits in integer-part result will be zero
+            if (Math.abs(fractionDigits) > (precision - scale)) {
+                BigDecimal scaledDecimal = new BigDecimal(0, MathContext.DECIMAL128);
+                return ValueCreator.createDecimalValue(scaledDecimal);
+            }
+        }
+        int toIntExact = Math.toIntExact(fractionDigits); // Now no under/overflow due to previous conditions
+        BigDecimal scaledDecimal = value.setScale(toIntExact, RoundingMode.HALF_EVEN);
+        return ValueCreator.createDecimalValue(scaledDecimal);
     }
 }

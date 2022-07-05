@@ -314,6 +314,98 @@ function foo2() returns string:Char|object{} {
     return "A";
 }
 
+const A = 1.0f;
+const B = 2.0d;
+
+type Decimals A|B|2;
+
+function testUnionWithDecimalFiniteTypes() {
+    Decimals value = 2.0d;
+    assertEquality(true, value is decimal);
+    assertEquality(4.3d, <decimal>value + 2.3d);
+}
+
+type UnionTypeWithArray1 int|UnionTypeWithArray1[];
+type intArray int[];
+type UnionTypeWithArray3 UnionTypeWithArray1|string|intArray;
+
+function testRecursiveUnionTypeWithArray() {
+    UnionTypeWithArray1 a = [1, 2, 3];
+    assertEquality(true, a == [1, 2, 3]);
+
+    UnionTypeWithArray3 b = [[1, 2, 3]];
+    assertEquality(true, b == [[1, 2, 3]]);
+}
+
+type UnionTypeWithMap1 int|map<UnionTypeWithMap1>;
+type UnionTypeWithMap2 int|map<UnionTypeWithMap2>|UnionTypeWithMap1;
+
+function testRecuriveUnionTypeWithMap() {
+    UnionTypeWithMap1 a = {"one":1, "two":2};
+    assertEquality(true, a == {"one":1, "two":2});
+    UnionTypeWithMap2 b =  {"one":{"one":1, "two":2}};
+    assertEquality(true, b == {"one":{"one":1, "two":2}});
+}
+
+type UnionTypeWithMapAndArray int|UnionTypeWithMapAndArray[]|map<UnionTypeWithMapAndArray>;
+
+function testRecursiveUnionTypeWithArrayAndMap() {
+    UnionTypeWithMapAndArray a = {"one":1, "two":2};
+    assertEquality(true, a == {"one":1, "two":2});
+
+    UnionTypeWithMapAndArray b = [1, 2, 3];
+    assertEquality(true, b == [1, 2, 3]);
+
+    UnionTypeWithMapAndArray c = {"one" : [1,2,3]};
+    assertEquality(true, c == {"one" : [1,2,3]});
+
+    UnionTypeWithMapAndArray d = [{"one":1, "two":2}];
+    assertEquality(true, d ==[{"one":1, "two":2}]);
+}
+
+type UnionTypeWithRecord int|record {UnionTypeWithRecord u;};
+
+function testRecursiveUnionTypeWithRecord() {
+    UnionTypeWithRecord a = {u: 5};
+    assertEquality(true, a == {u: 5});
+    UnionTypeWithRecord b = {u: {u:5}};
+    assertEquality(true, b == {u: {u:5}});
+}
+
+type UnionTypeWithTuple1 int|[UnionTypeWithTuple1];
+type UnionTypeWithTuple2 int|[UnionTypeWithTuple2, UnionTypeWithTuple1];
+type UnionTypeWithTuple3 int|[UnionTypeWithTuple3...];
+
+function testRecursiveUnionTypeWithTuple() {
+    UnionTypeWithTuple1 a = [5];
+    assertEquality(true, a == [5]);
+    UnionTypeWithTuple2 b = [4, [5]];
+    assertEquality(true, b == [4, [5]]);
+    UnionTypeWithTuple3 c = [4, 5, 6, 7];
+    assertEquality(true, c == [4, 5, 6, 7]);
+}
+
+type UnionTypeWithTable int|table<map<UnionTypeWithTable>>;
+
+function testRecursiveUnionWithTable() {
+    UnionTypeWithTable a = 1;
+    UnionTypeWithTable b = 2;
+    UnionTypeWithTable tb = table [
+            {
+                one: a
+            },
+            {
+                one: b
+            }
+    ];
+    assertEquality("[{\"one\":1},{\"one\":2}]", (<table<map<UnionTypeWithTable>>> tb).toString());
+}
+
+function testParenthesisedSingletonUnionType() {
+    (true|false?) b = true;
+    assertEquality(true, b);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

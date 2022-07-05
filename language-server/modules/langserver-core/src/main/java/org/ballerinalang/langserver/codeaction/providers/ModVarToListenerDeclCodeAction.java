@@ -28,13 +28,16 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -56,14 +59,18 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Module var to listener declaration";
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT.diagnosticId()
+                .equals(diagnostic.diagnosticInfo().code()) && positionDetails.matchedNode() != null && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         Node matchedNode = positionDetails.matchedNode();
-        if (!(DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT.diagnosticId()
-                .equals(diagnostic.diagnosticInfo().code())) || matchedNode == null) {
-            return Collections.emptyList();
-        }
         Optional<Pair<CaptureBindingPatternNode, String>> nodeUriPair =
                 findCaptureBindingPattern(matchedNode, context);
         if (nodeUriPair.isEmpty() || nodeUriPair.get().getLeft().parent().kind() != SyntaxKind.TYPED_BINDING_PATTERN) {
@@ -73,14 +80,13 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
                 (TypedBindingPatternNode) nodeUriPair.get().getLeft().parent();
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> textEdits = new ArrayList<>();
-        Position pos = CommonUtil.toRange(typedBindingPatternNode.lineRange()).getStart();
+        Position pos = PositionUtil.toRange(typedBindingPatternNode.lineRange()).getStart();
         Position insertPos = new Position(pos.getLine(), pos.getCharacter());
         textEdits.add(new TextEdit(new Range(insertPos, insertPos),
                 SyntaxKind.LISTENER_KEYWORD.stringValue().trim() + " "));
         String commandTitle = String.format(CommandConstants.CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION,
                 matchedNode.toSourceCode().trim());
-        actions.add(createQuickFixCodeAction(commandTitle, textEdits,
-                nodeUriPair.get().getRight()));
+        actions.add(createCodeAction(commandTitle, textEdits, nodeUriPair.get().getRight(), CodeActionKind.QuickFix));
         return actions;
     }
 

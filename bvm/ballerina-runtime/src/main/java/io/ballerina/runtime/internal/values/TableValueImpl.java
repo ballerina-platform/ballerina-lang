@@ -40,8 +40,11 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -108,7 +111,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.indexToKeyMap = new LinkedHashMap<>();
         this.fieldNames = type.getFieldNames();
         this.keyValues = new LinkedHashMap<>();
-        if (type.getFieldNames() != null) {
+        if (type.getFieldNames().length > 0) {
             this.valueHolder = new KeyHashValueHolder();
         } else {
             this.valueHolder = new ValueHolder();
@@ -125,6 +128,18 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         addData(data);
         if (type.isReadOnly()) {
             this.typedesc = createSingletonTypedesc(this);
+        }
+    }
+
+    // TODO: Might be unnecessary after fixing issue lang/#36721
+    public TableValueImpl(TableType type, ArrayValue fieldNames) {
+        this(type);
+        this.fieldNames = fieldNames.getStringArray();
+
+        if (this.fieldNames.length > 0) {
+            this.valueHolder = new KeyHashValueHolder();
+        } else {
+            this.valueHolder = new ValueHolder();
         }
     }
 
@@ -262,7 +277,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
         return this.get(key);
     }
@@ -271,7 +286,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         handleFrozenTableValue();
         if (!containsKey(key)) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
         return this.remove(key);
     }
@@ -302,7 +317,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         Object value = expectedType.getZeroValue();
@@ -312,7 +327,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public K[] getKeys() {
-        return (K[]) keys.values().toArray(new Object[]{});
+        Object[] keyArr = new Object[keys.size()];
+        int i = 0;
+        for (K key : keys.values()) {
+            keyArr[i] = key;
+            i++;
+        }
+        return (K[]) keyArr;
     }
 
     @Override
@@ -383,11 +404,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, List<V>>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         StringJoiner keyJoiner = new StringJoiner(",");
-        if (type.getFieldNames() != null) {
-            String[] keysList = type.getFieldNames();
-            for (int i = 0; i < keysList.length; i++) {
-                keyJoiner.add(keysList[i]);
-            }
+        String[] keysList = type.getFieldNames();
+        for (int i = 0; i < keysList.length; i++) {
+            keyJoiner.add(keysList[i]);
         }
         while (itr.hasNext()) {
             Map.Entry<Long, List<V>> struct = itr.next();
@@ -414,6 +433,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
                 return getTableConstraintField(effectiveType, fieldName);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                Type refType = ((BTypeReferenceType) constraintType).getReferredType();
+                return getTableConstraintField(refType, fieldName);
             case TypeTags.UNION_TAG:
                 HashSet<Type> possibleTypes = new HashSet<>();
                 for (Type memberType : ((BUnionType) constraintType).getMemberTypes()) {
@@ -486,12 +508,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V getData(K key) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         public V putData(K key, V data) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         public V putData(V data) {
@@ -513,7 +535,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V remove(K key) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         public boolean containsKey(K key) {
@@ -546,7 +568,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             if (containsKey((K) key)) {
                 throw ErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
-                                               StringUtils.fromString("A value " + "found for key '" + key + "'"));
+                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.TABLE_HAS_A_VALUE_FOR_KEY, key));
             }
 
             if (nextKeySupported && (keys.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
@@ -577,14 +599,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             if (entryList == null) {
                 return null;
             }
-            if (entryList.size() > 1) {
-                for (Map.Entry<K, V> entry: entryList) {
-                    if (TypeChecker.isEqual(key, entry.getKey())) {
-                        return entry.getValue();
-                    }
+            for (Map.Entry<K, V> entry: entryList) {
+                if (TypeChecker.isEqual(key, entry.getKey())) {
+                    return entry.getValue();
                 }
             }
-            return entryList.get(0).getValue();
+            return null;
         }
 
         public V putData(K key, V data) {
@@ -597,8 +617,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
-                throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, StringUtils.fromString("The key '" +
-                        key + "' not found in value " + data));
+                throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_IN_VALUE, key, data));
             }
 
             return putData(key, data, newData, entry, hash);

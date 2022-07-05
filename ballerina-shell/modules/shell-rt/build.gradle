@@ -22,7 +22,6 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 description = 'Ballerina - Ballerina Shell Runtime Dependencies'
 
 group = 'io.ballerina'
-version = '0.0.1-SNAPSHOT'
 
 dependencies {
     testImplementation('org.testng:testng')

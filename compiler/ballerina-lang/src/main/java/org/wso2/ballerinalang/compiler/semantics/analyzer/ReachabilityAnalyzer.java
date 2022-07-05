@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -40,18 +41,27 @@ import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -88,9 +98,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -102,29 +112,16 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  *
  * @since 2.0.0
  */
-public class ReachabilityAnalyzer extends BLangNodeVisitor {
+public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAnalyzer.AnalyzerData> {
     private static final CompilerContext.Key<ReachabilityAnalyzer> REACHABILITY_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
+    private final TypeNarrower typeNarrower;
     private final Types types;
     private final BLangDiagnosticLog dlog;
     private final Names names;
-    private boolean statementReturnsPanicsOrFails;
-    private boolean breakAsLastStatement;
-    private boolean continueAsLastStatement;
-    private boolean errorThrown;
-    private boolean unreachableBlock;
-    private boolean breakStmtFound;
-    private boolean hasLastPatternInStatement;
-    private boolean failureHandled;
-    private int loopCount;
-    private SymbolEnv env;
-    private BType booleanConstCondition;
-
-    private final Stack<SymbolEnv> loopEnvs = new Stack<>();
-    private final Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new Stack<>();
 
     private ReachabilityAnalyzer(CompilerContext context) {
         context.put(REACHABILITY_ANALYZER_KEY, this);
@@ -133,6 +130,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.typeNarrower = TypeNarrower.getInstance(context);
     }
 
     public static ReachabilityAnalyzer getInstance(CompilerContext context) {
@@ -144,352 +142,425 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     }
 
     void analyzeReachability(BLangNode node, SymbolEnv env) {
-        SymbolEnv prevEnv = this.env;
-        this.env = env;
-        node.accept(this);
-        this.env = prevEnv;
+        final AnalyzerData data = new AnalyzerData();
+        data.env = env;
+        analyzeReachability(node, data);
     }
 
-    @Override
-    public void visit(BLangBlockStmt blockNode) {
-        final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        BType prevBoolConst = this.booleanConstCondition;
-        for (BLangStatement stmt : blockNode.stmts) {
-            analyzeReachability(stmt, blockEnv);
+    private void analyzeReachability(BLangNode node, AnalyzerData data) {
+        SymbolEnv prevEnv = data.env;
+        visitNode(node, data);
+        data.env = prevEnv;
+    }
+
+    private void analyzeReachabilityInExpressionIfApplicable(BLangExpression expr, AnalyzerData data) {
+        if (expr == null) {
+            return;
         }
-        this.booleanConstCondition = prevBoolConst;
-        resetUnreachableBlock();
+        NodeKind exprKind = expr.getKind();
+        switch (exprKind) {
+            case DO_ACTION:
+                analyzeReachability(expr, data);
+                return;
+            case CHECK_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangCheckedExpr) expr).expr, data);
+                return;
+            case CHECK_PANIC_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangCheckPanickedExpr) expr).expr, data);
+                return;
+            case TRAP_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangTrapExpr) expr).expr, data);
+                return;
+            case TYPE_CONVERSION_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangTypeConversionExpr) expr).expr, data);
+                return;
+            case GROUP_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangGroupExpr) expr).expression, data);
+        }
     }
 
     @Override
-    public void visit(BLangLock lockNode) {
-        boolean failureHandled = this.failureHandled;
-        checkStatementExecutionValidity(lockNode);
-        if (!this.failureHandled) {
-            this.failureHandled = lockNode.onFailClause != null;
+    public void analyzeNode(BLangNode node, AnalyzerData data) {
+        // Ignore
+    }
+
+    @Override
+    public void visit(BLangPackage pkgNode, AnalyzerData data) {
+        // Ignore
+    }
+
+    @Override
+    public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
+        final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, data.env);
+        BType prevBoolConst = data.booleanConstCondition;
+        for (BLangStatement stmt : blockNode.stmts) {
+            data.env = blockEnv;
+            analyzeReachability(stmt, data);
+        }
+        data.booleanConstCondition = prevBoolConst;
+        resetUnreachableBlock(data);
+        resetSkipFurtherAnalysisInUnreachableBlock(data);
+    }
+
+    @Override
+    public void visit(BLangLock lockNode, AnalyzerData data) {
+        boolean failureHandled = data.failureHandled;
+        checkStatementExecutionValidity(lockNode, data);
+        if (!data.failureHandled) {
+            data.failureHandled = lockNode.onFailClause != null;
         }
         for (BLangStatement stmt : lockNode.body.stmts) {
-            analyzeReachability(stmt, env);
+            analyzeReachability(stmt, data);
         }
-        this.failureHandled = failureHandled;
-        analyzeOnFailClause(lockNode.onFailClause);
+        data.failureHandled = failureHandled;
+        analyzeOnFailClause(lockNode.onFailClause, data);
     }
 
     @Override
-    public void visit(BLangSimpleVariableDef varDefNode) {
-        checkStatementExecutionValidity(varDefNode);
+    public void visit(BLangSimpleVariableDef varDefNode, AnalyzerData data) {
+        checkStatementExecutionValidity(varDefNode, data);
+
+        BLangExpression expr = varDefNode.var.expr;
+        analyzeReachabilityInExpressionIfApplicable(expr, data);
     }
 
     @Override
-    public void visit(BLangAssignment assignNode) {
-        checkStatementExecutionValidity(assignNode);
-        validateAssignmentToNarrowedVariable(assignNode.varRef, assignNode.pos, env);
+    public void visit(BLangAssignment assignNode, AnalyzerData data) {
+        checkStatementExecutionValidity(assignNode, data);
+        analyzeReachabilityInExpressionIfApplicable(assignNode.expr, data);
+        validateAssignmentToNarrowedVariable(assignNode.varRef, assignNode.pos, data);
     }
 
     @Override
-    public void visit(BLangCompoundAssignment compoundAssignment) {
-        checkStatementExecutionValidity(compoundAssignment);
-        validateAssignmentToNarrowedVariable(compoundAssignment.varRef, compoundAssignment.pos, env);
+    public void visit(BLangCompoundAssignment compoundAssignment, AnalyzerData data) {
+        checkStatementExecutionValidity(compoundAssignment, data);
+        validateAssignmentToNarrowedVariable(compoundAssignment.varRef, compoundAssignment.pos, data);
     }
 
     @Override
-    public void visit(BLangContinue continueNode) {
-        checkStatementExecutionValidity(continueNode);
-        this.continueAsLastStatement = this.loopCount > 0;
+    public void visit(BLangContinue continueNode, AnalyzerData data) {
+        checkStatementExecutionValidity(continueNode, data);
+        data.continueAsLastStatement = data.loopCount > 0;
     }
 
     @Override
-    public void visit(BLangBreak breakNode) {
-        checkStatementExecutionValidity(breakNode);
-        this.breakAsLastStatement = this.loopCount > 0;
-        this.breakStmtFound = true;
+    public void visit(BLangBreak breakNode, AnalyzerData data) {
+        checkStatementExecutionValidity(breakNode, data);
+        data.breakAsLastStatement = data.loopCount > 0;
+        data.breakStmtFound = true;
     }
 
     @Override
-    public void visit(BLangReturn returnStmt) {
-        checkStatementExecutionValidity(returnStmt);
-        this.statementReturnsPanicsOrFails = true;
+    public void visit(BLangReturn returnStmt, AnalyzerData data) {
+        checkStatementExecutionValidity(returnStmt, data);
+        analyzeReachabilityInExpressionIfApplicable(returnStmt.expr, data);
+        data.statementReturnsPanicsOrFails = true;
+        data.returnedWithinQuery = true;
     }
 
     @Override
-    public void visit(BLangPanic panicNode) {
-        checkStatementExecutionValidity(panicNode);
-        this.statementReturnsPanicsOrFails = true;
+    public void visit(BLangPanic panicNode, AnalyzerData data) {
+        data.statementReturnsPanicsOrFails = true;
     }
 
     @Override
-    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-        checkStatementExecutionValidity(xmlnsStmtNode);
+    public void visit(BLangXMLNSStatement xmlnsStmtNode, AnalyzerData data) {
+        checkStatementExecutionValidity(xmlnsStmtNode, data);
     }
 
     @Override
-    public void visit(BLangExpressionStmt exprStmtNode) {
-        checkStatementExecutionValidity(exprStmtNode);
-        if (exprStmtNode.expr.getKind() == NodeKind.INVOCATION &&
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmtNode.expr.getBType())) {
-            this.statementReturnsPanicsOrFails = true;
+    public void visit(BLangExpressionStmt exprStmtNode, AnalyzerData data) {
+        checkStatementExecutionValidity(exprStmtNode, data);
+        BLangExpression expr = exprStmtNode.expr;
+        analyzeReachabilityInExpressionIfApplicable(expr, data);
+        if (expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {
+            data.statementReturnsPanicsOrFails = true;
         }
     }
 
     @Override
-    public void visit(BLangIf ifStmt) {
-        checkStatementExecutionValidity(ifStmt);
+    public void visit(BLangIf ifStmt, AnalyzerData data) {
+        checkStatementExecutionValidity(ifStmt, data);
 
-        this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
-                env.enclInvokable));
-        this.unreachableBlock = this.unreachableBlock || this.booleanConstCondition == symTable.falseType;
-        analyzeReachability(ifStmt.body, env);
-        resetUnreachableBlock();
+        data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                data.env.enclInvokable));
+        data.unreachableBlock = data.unreachableBlock || data.booleanConstCondition == symTable.falseType;
+        analyzeReachability(ifStmt.body, data);
 
-        boolean allBranchesTerminate = this.breakAsLastStatement || this.statementReturnsPanicsOrFails;
-        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate);
+        boolean allBranchesTerminate = data.breakAsLastStatement || data.statementReturnsPanicsOrFails;
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate,
+                data.continueAsLastStatement, data.potentiallyInvalidAssignmentInLoopsInfo);
 
-        boolean ifStmtReturnsPanicsOrFails = this.statementReturnsPanicsOrFails;
-        boolean currentErrorThrown = this.errorThrown;
-        boolean ifStmtBreakAsLastStatement = this.breakAsLastStatement;
-        boolean ifStmtContinueAsLastStatement = this.continueAsLastStatement;
-
-        if (booleanConstCondition != symTable.trueType) {
-            resetStatementReturnsPanicsOrFails();
-            resetErrorThrown();
-            resetLastStatement();
-        }
+        boolean ifStmtReturnsPanicsOrFails = data.statementReturnsPanicsOrFails;
+        boolean currentErrorThrown = data.errorThrown;
+        boolean ifStmtBreakAsLastStatement = data.breakAsLastStatement;
+        boolean ifStmtContinueAsLastStatement = data.continueAsLastStatement;
 
         BLangStatement elseStmt = ifStmt.elseStmt;
-        if (elseStmt != null) {
-            this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
-                    env.enclInvokable));
 
-            this.unreachableBlock = this.unreachableBlock || (this.booleanConstCondition == symTable.trueType &&
+        if (data.booleanConstCondition != symTable.trueType || (elseStmt != null &&
+                elseStmt.getKind() == NodeKind.IF)) {
+            resetStatementReturnsPanicsOrFails(data);
+            resetErrorThrown(data);
+            resetLastStatement(data);
+        }
+
+        if (elseStmt != null) {
+            data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                    data.env.enclInvokable));
+
+            data.unreachableBlock = data.unreachableBlock || (data.booleanConstCondition == symTable.trueType &&
                     elseStmt.getKind() != NodeKind.IF);
-            analyzeReachability(elseStmt, env);
-            resetUnreachableBlock();
+            analyzeReachability(elseStmt, data);
+            resetUnreachableBlock(data);
+            resetSkipFurtherAnalysisInUnreachableBlock(data);
 
             handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                    this.breakAsLastStatement || this.statementReturnsPanicsOrFails);
+                    data.breakAsLastStatement || data.statementReturnsPanicsOrFails,
+                    data.continueAsLastStatement, data.potentiallyInvalidAssignmentInLoopsInfo);
 
-            if (booleanConstCondition == symTable.semanticError) {
-                this.statementReturnsPanicsOrFails = ifStmtReturnsPanicsOrFails && this.statementReturnsPanicsOrFails;
-                this.errorThrown = currentErrorThrown && this.errorThrown;
-                this.breakAsLastStatement = ifStmtBreakAsLastStatement && this.breakAsLastStatement;
-                this.continueAsLastStatement = ifStmtContinueAsLastStatement && this.continueAsLastStatement;
+            if (data.booleanConstCondition == symTable.trueType) {
+                resetErrorThrown(data);
+            }
+
+            if (data.booleanConstCondition == symTable.semanticError) {
+                data.statementReturnsPanicsOrFails = ifStmtReturnsPanicsOrFails && data.statementReturnsPanicsOrFails;
+                data.errorThrown = currentErrorThrown && data.errorThrown;
+                data.breakAsLastStatement = ifStmtBreakAsLastStatement && data.breakAsLastStatement;
+                data.continueAsLastStatement = ifStmtContinueAsLastStatement && data.continueAsLastStatement;
             }
         }
     }
 
     @Override
-    public void visit(BLangDo doNode) {
-        boolean failureHandled = this.failureHandled;
-        checkStatementExecutionValidity(doNode);
-        if (!this.failureHandled) {
-            this.failureHandled = doNode.onFailClause != null;
+    public void visit(BLangDo doNode, AnalyzerData data) {
+        boolean failureHandled = data.failureHandled;
+        checkStatementExecutionValidity(doNode, data);
+        if (!data.failureHandled) {
+            data.failureHandled = doNode.onFailClause != null;
         }
-        analyzeReachability(doNode.body, env);
-        this.failureHandled = failureHandled;
-        analyzeOnFailClause(doNode.onFailClause);
+        analyzeReachability(doNode.body, data);
+        data.failureHandled = failureHandled;
+        analyzeOnFailClause(doNode.onFailClause, data);
     }
 
     @Override
-    public void visit(BLangErrorDestructure errorDestructureStmt) {
-        checkStatementExecutionValidity(errorDestructureStmt);
-        validateAssignmentToNarrowedVariables(getVarRefs(errorDestructureStmt.varRef), errorDestructureStmt.pos, env);
+    public void visit(BLangErrorDestructure errorDestructureStmt, AnalyzerData data) {
+        checkStatementExecutionValidity(errorDestructureStmt, data);
+        analyzeReachabilityInExpressionIfApplicable(errorDestructureStmt.expr, data);
+        validateAssignmentToNarrowedVariables(getVarRefs(errorDestructureStmt.varRef), errorDestructureStmt.pos, data);
     }
 
     @Override
-    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+    public void visit(BLangErrorVariableDef errorVariableDef, AnalyzerData data) {
+        checkStatementExecutionValidity(errorVariableDef, data);
+        BLangExpression expr = errorVariableDef.errorVariable.expr;
+        analyzeReachabilityInExpressionIfApplicable(expr, data);
     }
 
     @Override
-    public void visit(BLangFail failNode) {
-        checkStatementExecutionValidity(failNode);
-        this.errorThrown = true;
-        if (!this.failureHandled) {
-            this.statementReturnsPanicsOrFails = true;
+    public void visit(BLangFail failNode, AnalyzerData data) {
+        checkStatementExecutionValidity(failNode, data);
+        data.errorThrown = data.booleanConstCondition == symTable.semanticError;
+        if (!data.failureHandled) {
+            data.statementReturnsPanicsOrFails = true;
         }
+        data.returnedWithinQuery = true;
     }
 
     @Override
-    public void visit(BLangForeach foreach) {
-        SymbolEnv foreachEnv = SymbolEnv.createLoopEnv(foreach, env);
-        this.loopEnvs.add(foreachEnv);
+    public void visit(BLangForeach foreach, AnalyzerData data) {
+        SymbolEnv foreachEnv = SymbolEnv.createLoopEnv(foreach, data.env);
+        data.loopAndDoClauseEnvs.add(foreachEnv);
 
-        this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
-                env.enclInvokable));
+        data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                data.env.enclInvokable));
 
-        boolean prevStatementReturnsPanicsOrFails = this.statementReturnsPanicsOrFails;
-        boolean prevBreakAsLastStatement = this.breakAsLastStatement;
-        boolean prevContinueAsLastStatement = this.continueAsLastStatement;
-        boolean prevBreakStmtFound = this.breakStmtFound;
-        boolean failureHandled = this.failureHandled;
+        boolean prevStatementReturnsPanicsOrFails = data.statementReturnsPanicsOrFails;
+        boolean prevBreakAsLastStatement = data.breakAsLastStatement;
+        boolean prevContinueAsLastStatement = data.continueAsLastStatement;
+        boolean prevBreakStmtFound = data.breakStmtFound;
+        boolean failureHandled = data.failureHandled;
 
-        checkStatementExecutionValidity(foreach);
+        checkStatementExecutionValidity(foreach, data);
 
-        if (!this.failureHandled) {
-            this.failureHandled = foreach.onFailClause != null;
+        if (!data.failureHandled) {
+            data.failureHandled = foreach.onFailClause != null;
         }
 
-        this.breakStmtFound = false;
-        this.loopCount++;
-        analyzeReachability(foreach.body, foreachEnv);
+        data.breakStmtFound = false;
+        incrementLoopCount(data);
+        data.env = foreachEnv;
+        analyzeReachability(foreach.body, data);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                this.breakAsLastStatement || this.statementReturnsPanicsOrFails, true);
+                data.breakAsLastStatement || data.statementReturnsPanicsOrFails, true,
+                data.potentiallyInvalidAssignmentInLoopsInfo);
 
-        this.loopCount--;
-        this.failureHandled = failureHandled;
-        this.continueAsLastStatement = prevContinueAsLastStatement;
-        this.breakAsLastStatement = prevBreakAsLastStatement;
-        this.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
-        this.breakStmtFound = prevBreakStmtFound;
+        decrementLoopCount(data);
+        data.failureHandled = failureHandled;
+        data.continueAsLastStatement = prevContinueAsLastStatement;
+        data.breakAsLastStatement = prevBreakAsLastStatement;
+        data.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
+        data.breakStmtFound = prevBreakStmtFound;
 
-        analyzeOnFailClause(foreach.onFailClause);
+        analyzeOnFailClause(foreach.onFailClause, data);
 
-        this.loopEnvs.pop();
+        data.loopAndDoClauseEnvs.pop();
     }
 
     @Override
-    public void visit(BLangForkJoin forkJoin) {
+    public void visit(BLangForkJoin forkJoin, AnalyzerData data) {
     }
 
     @Override
-    public void visit(BLangMatchStatement matchStatement) {
-        if (!this.failureHandled) {
-            this.failureHandled = matchStatement.onFailClause != null;
+    public void visit(BLangMatchStatement matchStatement, AnalyzerData data) {
+        checkStatementExecutionValidity(matchStatement, data);
+        analyzeReachabilityInExpressionIfApplicable(matchStatement.expr, data);
+        if (!data.failureHandled) {
+            data.failureHandled = matchStatement.onFailClause != null;
         }
-        boolean currentErrorThrown = this.errorThrown;
-        boolean hasLastPatternInStatement = this.hasLastPatternInStatement;
-        this.hasLastPatternInStatement = false;
+        boolean currentErrorThrown = data.errorThrown;
+        boolean hasLastPatternInStatement = data.hasLastPatternInStatement;
+        data.hasLastPatternInStatement = false;
         boolean allClausesReturns = true;
         boolean allClausesBreak = true;
         boolean allClausesContinue = true;
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         for (BLangMatchClause matchClause : matchClauses) {
-            resetErrorThrown();
-            this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
-                    env.enclInvokable));
-            analyzeReachability(matchClause, this.env);
+            resetErrorThrown(data);
+            data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                    data.env.enclInvokable));
+            analyzeReachability(matchClause, data);
             handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                    this.breakAsLastStatement || this.statementReturnsPanicsOrFails);
-            allClausesReturns &= this.statementReturnsPanicsOrFails;
-            allClausesBreak &= this.breakAsLastStatement;
-            allClausesContinue &= this.continueAsLastStatement;
-            this.resetStatementReturnsPanicsOrFails();
-            this.resetLastStatement();
+                    data.breakAsLastStatement || data.statementReturnsPanicsOrFails,
+                    data.continueAsLastStatement, data.potentiallyInvalidAssignmentInLoopsInfo);
+            allClausesReturns &= data.statementReturnsPanicsOrFails;
+            allClausesBreak &= data.breakAsLastStatement;
+            allClausesContinue &= data.continueAsLastStatement;
+            this.resetStatementReturnsPanicsOrFails(data);
+            this.resetLastStatement(data);
         }
-        this.statementReturnsPanicsOrFails = allClausesReturns && this.hasLastPatternInStatement;
-        this.breakAsLastStatement = allClausesBreak && this.hasLastPatternInStatement;
-        this.continueAsLastStatement = allClausesContinue && this.hasLastPatternInStatement;
-        this.errorThrown = currentErrorThrown;
-        analyzeOnFailClause(matchStatement.onFailClause);
-        this.hasLastPatternInStatement = hasLastPatternInStatement;
+        data.statementReturnsPanicsOrFails = allClausesReturns && data.hasLastPatternInStatement;
+        data.breakAsLastStatement = allClausesBreak && data.hasLastPatternInStatement;
+        data.continueAsLastStatement = allClausesContinue && data.hasLastPatternInStatement;
+        data.errorThrown = currentErrorThrown;
+        analyzeOnFailClause(matchStatement.onFailClause, data);
+        data.hasLastPatternInStatement = hasLastPatternInStatement;
     }
 
     @Override
-    public void visit(BLangMatchClause matchClause) {
+    public void visit(BLangMatchClause matchClause, AnalyzerData data) {
         boolean hasLastPatternInClause = false;
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
         for (BLangMatchPattern matchPattern : matchPatterns) {
-            if (this.hasLastPatternInStatement || (hasLastPatternInClause && matchClause.matchGuard == null)) {
+            if (data.hasLastPatternInStatement || (hasLastPatternInClause && matchClause.matchGuard == null)) {
                 dlog.warning(matchPattern.pos, DiagnosticWarningCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             hasLastPatternInClause = hasLastPatternInClause || matchPattern.isLastPattern;
         }
-        analyzeReachability(matchClause.blockStmt, env);
-        this.hasLastPatternInStatement = this.hasLastPatternInStatement ||
+        analyzeReachability(matchClause.blockStmt, data);
+        data.hasLastPatternInStatement = data.hasLastPatternInStatement ||
                 (matchClause.matchGuard == null && hasLastPatternInClause);
     }
 
     @Override
-    public void visit(BLangRecordDestructure recordDestructureStmt) {
-        checkStatementExecutionValidity(recordDestructureStmt);
-        validateAssignmentToNarrowedVariables(getVarRefs(recordDestructureStmt.varRef), recordDestructureStmt.pos, env);
+    public void visit(BLangRecordDestructure recordDestructureStmt, AnalyzerData data) {
+        checkStatementExecutionValidity(recordDestructureStmt, data);
+        validateAssignmentToNarrowedVariables(getVarRefs(recordDestructureStmt.varRef), recordDestructureStmt.pos,
+                data);
     }
 
     @Override
-    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+    public void visit(BLangRecordVariableDef recordVariableDef, AnalyzerData data) {
+        checkStatementExecutionValidity(recordVariableDef, data);
     }
 
     @Override
-    public void visit(BLangRollback rollbackNode) {
-        checkStatementExecutionValidity(rollbackNode);
+    public void visit(BLangRollback rollbackNode, AnalyzerData data) {
+        checkStatementExecutionValidity(rollbackNode, data);
     }
 
     @Override
-    public void visit(BLangTransaction transactionNode) {
-        checkStatementExecutionValidity(transactionNode);
-        boolean failureHandled = this.failureHandled;
-        if (!this.failureHandled) {
-            this.failureHandled = transactionNode.onFailClause != null;
+    public void visit(BLangTransaction transactionNode, AnalyzerData data) {
+        checkStatementExecutionValidity(transactionNode, data);
+        boolean failureHandled = data.failureHandled;
+        if (!data.failureHandled) {
+            data.failureHandled = transactionNode.onFailClause != null;
         }
-        analyzeReachability(transactionNode.transactionBody, env);
-        this.failureHandled = failureHandled;
-        analyzeOnFailClause(transactionNode.onFailClause);
+        analyzeReachability(transactionNode.transactionBody, data);
+        data.failureHandled = failureHandled;
+        analyzeOnFailClause(transactionNode.onFailClause, data);
     }
 
-    private void analyzeOnFailClause(BLangOnFailClause onFailClause) {
+    private void analyzeOnFailClause(BLangOnFailClause onFailClause, AnalyzerData data) {
         if (onFailClause == null) {
             return;
         }
-        boolean currentStatementReturns = this.statementReturnsPanicsOrFails;
-        this.booleanConstCondition = symTable.semanticError;
-        resetStatementReturnsPanicsOrFails();
-        resetLastStatement();
-        analyzeReachability(onFailClause, env);
-        this.statementReturnsPanicsOrFails = currentStatementReturns;
+        boolean currentStatementReturns = data.statementReturnsPanicsOrFails;
+        data.booleanConstCondition = symTable.semanticError;
+        resetStatementReturnsPanicsOrFails(data);
+        resetLastStatement(data);
+        resetUnreachableBlock(data);
+        analyzeReachability(onFailClause, data);
+        data.statementReturnsPanicsOrFails = currentStatementReturns;
     }
 
     @Override
-    public void visit(BLangRetry retryNode) {
-        boolean failureHandled = this.failureHandled;
-        checkStatementExecutionValidity(retryNode);
-        if (!this.failureHandled) {
-            this.failureHandled = retryNode.onFailClause != null;
+    public void visit(BLangRetry retryNode, AnalyzerData data) {
+        boolean failureHandled = data.failureHandled;
+        checkStatementExecutionValidity(retryNode, data);
+        if (!data.failureHandled) {
+            data.failureHandled = retryNode.onFailClause != null;
         }
-        analyzeReachability(retryNode.retryBody, this.env);
-        this.failureHandled = failureHandled;
-        resetLastStatement();
-        resetErrorThrown();
-        analyzeOnFailClause(retryNode.onFailClause);
+        analyzeReachability(retryNode.retryBody, data);
+        data.failureHandled = failureHandled;
+        resetLastStatement(data);
+        resetErrorThrown(data);
+        analyzeOnFailClause(retryNode.onFailClause, data);
     }
 
     @Override
-    public void visit(BLangRetryTransaction retryTransaction) {
-        analyzeReachability(retryTransaction.transaction, env);
+    public void visit(BLangRetryTransaction retryTransaction, AnalyzerData data) {
+        analyzeReachability(retryTransaction.transaction, data);
     }
 
     @Override
-    public void visit(BLangOnFailClause onFailClause) {
-        resetLastStatement();
-        resetErrorThrown();
-        analyzeReachability(onFailClause.body, env);
-        resetErrorThrown();
+    public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
+        resetLastStatement(data);
+        resetErrorThrown(data);
+        analyzeReachability(onFailClause.body, data);
+        resetErrorThrown(data);
     }
 
     @Override
-    public void visit(BLangFunction funcNode) {
-        resetFunction();
+    public void visit(BLangFunction funcNode, AnalyzerData data) {
+        resetFunction(data);
         if (funcNode.flagSet.contains(Flag.NATIVE)) {
             return;
         }
         if (funcNode.body != null) {
-            analyzeReachability(funcNode.body, env);
+            analyzeReachability(funcNode.body, data);
             boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
                     (funcNode.symbol.type.getReturnType());
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn &&
-                    !this.statementReturnsPanicsOrFails) {
+                    !data.statementReturnsPanicsOrFails) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
-            } else if (isNeverReturn && !this.statementReturnsPanicsOrFails) {
+            } else if (isNeverReturn && !data.statementReturnsPanicsOrFails) {
                 this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
         }
 
-        if (funcNode.returnTypeNode.getBType().tag == TypeTags.UNION) {
-            LinkedHashSet<BType> memberTypes = ((BUnionType) funcNode.returnTypeNode.getBType()).getMemberTypes();
-            if (memberTypes.contains(symTable.nilType) && !this.statementReturnsPanicsOrFails) {
+        BType returnType = Types.getReferredType(funcNode.returnTypeNode.getBType());
+        if (!funcNode.interfaceFunction && returnType.tag == TypeTags.UNION) {
+            if (types.getAllTypes(returnType, true).contains(symTable.nilType) &&
+                    !types.isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType) &&
+                    !data.statementReturnsPanicsOrFails) {
                 this.dlog.warning(funcNode.returnTypeNode.pos,
                         DiagnosticWarningCode.FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE);
             }
@@ -505,174 +576,232 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        boolean prevStatementReturnsPanicsOrFails = this.statementReturnsPanicsOrFails;
-        boolean prevBreakAsLastStatement = this.breakAsLastStatement;
-        boolean prevContinueAsLastStatement = this.continueAsLastStatement;
+    public void visit(BLangLambdaFunction bLangLambdaFunction, AnalyzerData data) {
+        boolean prevStatementReturnsPanicsOrFails = data.statementReturnsPanicsOrFails;
+        boolean prevBreakAsLastStatement = data.breakAsLastStatement;
+        boolean prevContinueAsLastStatement = data.continueAsLastStatement;
         if (bLangLambdaFunction.parent.getKind() == NodeKind.VARIABLE &&
-              (((BLangSimpleVariable) bLangLambdaFunction.parent).name.value).startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
+                (((BLangSimpleVariable) bLangLambdaFunction.parent).name.value).startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
             BLangFunction function = bLangLambdaFunction.function;
-            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, env);
-            analyzeReachability(function, invokableEnv);
+            data.env = SymbolEnv.createFunctionEnv(function, function.symbol.scope, data.env);
+            analyzeReachability(function, data);
         }
-        this.continueAsLastStatement = prevContinueAsLastStatement;
-        this.breakAsLastStatement = prevBreakAsLastStatement;
-        this.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
+        data.continueAsLastStatement = prevContinueAsLastStatement;
+        data.breakAsLastStatement = prevBreakAsLastStatement;
+        data.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
     }
 
     @Override
-    public void visit(BLangExternalFunctionBody body) {
+    public void visit(BLangExternalFunctionBody body, AnalyzerData data) {
     }
 
-    public void visit(BLangResourceFunction resourceFunction) {
-        visit((BLangFunction) resourceFunction);
-    }
-
-    @Override
-    public void visit(BLangTupleDestructure tupleDestructureStmt) {
-        checkStatementExecutionValidity(tupleDestructureStmt);
-        validateAssignmentToNarrowedVariables(getVarRefs(tupleDestructureStmt.varRef), tupleDestructureStmt.pos, env);
+    public void visit(BLangResourceFunction resourceFunction, AnalyzerData data) {
+        visit((BLangFunction) resourceFunction, data);
     }
 
     @Override
-    public void visit(BLangTupleVariableDef tupleVariableDef) {
+    public void visit(BLangTupleDestructure tupleDestructureStmt, AnalyzerData data) {
+        checkStatementExecutionValidity(tupleDestructureStmt, data);
+        validateAssignmentToNarrowedVariables(getVarRefs(tupleDestructureStmt.varRef), tupleDestructureStmt.pos, data);
     }
 
     @Override
-    public void visit(BLangWhile whileNode) {
-        SymbolEnv whileEnv = SymbolEnv.createLoopEnv(whileNode, env);
-        this.loopEnvs.add(whileEnv);
+    public void visit(BLangTupleVariableDef tupleVariableDef, AnalyzerData data) {
+        checkStatementExecutionValidity(tupleVariableDef, data);
+    }
 
-        this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
-                env.enclInvokable));
+    @Override
+    public void visit(BLangWhile whileNode, AnalyzerData data) {
+        SymbolEnv whileEnv = SymbolEnv.createLoopEnv(whileNode, data.env);
+        data.loopAndDoClauseEnvs.add(whileEnv);
 
-        boolean prevStatementReturnsPanicsOrFails = this.statementReturnsPanicsOrFails;
-        boolean prevBreakAsLastStatement = this.breakAsLastStatement;
-        boolean prevContinueAsLastStatement = this.continueAsLastStatement;
-        boolean prevBreakStmtFound = this.breakStmtFound;
-        boolean failureHandled = this.failureHandled;
+        data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                data.env.enclInvokable));
 
-        checkStatementExecutionValidity(whileNode);
+        boolean prevStatementReturnsPanicsOrFails = data.statementReturnsPanicsOrFails;
+        boolean prevBreakAsLastStatement = data.breakAsLastStatement;
+        boolean prevContinueAsLastStatement = data.continueAsLastStatement;
+        boolean prevBreakStmtFound = data.breakStmtFound;
+        boolean failureHandled = data.failureHandled;
 
-        if (!this.failureHandled) {
-            this.failureHandled = whileNode.onFailClause != null;
+        checkStatementExecutionValidity(whileNode, data);
+
+        if (!data.failureHandled) {
+            data.failureHandled = whileNode.onFailClause != null;
         }
 
-        this.loopCount++;
-        this.breakStmtFound = false;
-        this.unreachableBlock = this.unreachableBlock || booleanConstCondition == symTable.falseType;
-        analyzeReachability(whileNode.body, whileEnv);
-        resetUnreachableBlock();
+        incrementLoopCount(data);
+        data.breakStmtFound = false;
+        data.unreachableBlock = data.unreachableBlock || data.booleanConstCondition == symTable.falseType;
+        data.env = whileEnv;
+        analyzeReachability(whileNode.body, data);
+        resetUnreachableBlock(data);
+        resetSkipFurtherAnalysisInUnreachableBlock(data);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                this.breakAsLastStatement || this.statementReturnsPanicsOrFails, true);
+                data.breakAsLastStatement || data.statementReturnsPanicsOrFails, true,
+                data.potentiallyInvalidAssignmentInLoopsInfo);
 
-        this.loopCount--;
-        this.failureHandled = failureHandled;
-        if (booleanConstCondition != symTable.trueType || this.breakStmtFound) {
-            this.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
-            this.continueAsLastStatement = prevContinueAsLastStatement;
-            this.breakAsLastStatement = prevBreakAsLastStatement;
+        decrementLoopCount(data);
+        data.failureHandled = failureHandled;
+        if (data.booleanConstCondition != symTable.trueType || data.breakStmtFound) {
+            data.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
+            data.continueAsLastStatement = prevContinueAsLastStatement;
+            data.breakAsLastStatement = prevBreakAsLastStatement;
+        } else {
+            data.statementReturnsPanicsOrFails = true;
         }
-        this.breakStmtFound = prevBreakStmtFound;
+        data.breakStmtFound = prevBreakStmtFound;
 
-        analyzeOnFailClause(whileNode.onFailClause);
+        analyzeOnFailClause(whileNode.onFailClause, data);
 
-        this.loopEnvs.pop();
+        data.loopAndDoClauseEnvs.pop();
     }
 
     @Override
-    public void visit(BLangBlockFunctionBody body) {
-        final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
+    public void visit(BLangBlockFunctionBody body, AnalyzerData data) {
+        final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, data.env);
         for (BLangStatement stmt : body.stmts) {
-            analyzeReachability(stmt, blockEnv);
+            data.env = blockEnv;
+            analyzeReachability(stmt, data);
         }
     }
 
     @Override
-    public void visit(BLangExprFunctionBody body) {
-        this.statementReturnsPanicsOrFails = true;
-        resetLastStatement();
+    public void visit(BLangExprFunctionBody body, AnalyzerData data) {
+        data.statementReturnsPanicsOrFails = true;
+        resetLastStatement(data);
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        checkStatementExecutionValidity(workerSendNode);
+    public void visit(BLangQueryAction queryAction, AnalyzerData data) {
+        boolean prevReturnedWithinQuery = data.returnedWithinQuery;
+        data.returnedWithinQuery = false;
+        for (BLangNode queryClause : queryAction.queryClauseList) {
+            if (queryClause.getKind() == NodeKind.WHERE) {
+                BLangWhereClause whereClause = (BLangWhereClause) queryClause;
+                data.unreachableBlock = ConditionResolver.checkConstCondition(types, symTable,
+                        whereClause.expression) == symTable.falseType;
+                if (data.unreachableBlock) {
+                    break;
+                }
+            }
+        }
+        analyzeReachability(queryAction.getDoClause(), data);
+        queryAction.returnsWithinDoClause = data.returnedWithinQuery;
+        data.returnedWithinQuery = prevReturnedWithinQuery;
     }
 
     @Override
-    public void visit(BLangLetExpression letExpression) {
+    public void visit(BLangDoClause doClause, AnalyzerData data) {
+        SymbolEnv doEnv = doClause.env;
+        data.loopAndDoClauseEnvs.add(doEnv);
+
+        data.loopAndDoClauseCount++;
+        data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                data.env.enclInvokable));
+
+        BLangBlockStmt body = doClause.body;
+        data.env = doEnv;
+        analyzeReachability(body, data);
+
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+                data.statementReturnsPanicsOrFails, true,
+                DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION,
+                data.potentiallyInvalidAssignmentInLoopsInfo);
+        data.loopAndDoClauseCount--;
+        data.loopAndDoClauseEnvs.pop();
+        resetStatementReturnsPanicsOrFails(data);
+        resetLastStatement(data);
+    }
+
+    @Override
+    public void visit(BLangWorkerSend workerSendNode, AnalyzerData data) {
+        checkStatementExecutionValidity(workerSendNode, data);
+    }
+
+    @Override
+    public void visit(BLangLetExpression letExpression, AnalyzerData data) {
         // This is to support when let expressions are used in return statements
         // Since variable declarations are visited after return node, this stops false positive unreachable code error
-        boolean returnStateBefore = this.statementReturnsPanicsOrFails;
-        this.statementReturnsPanicsOrFails = false;
+        boolean returnStateBefore = data.statementReturnsPanicsOrFails;
+        data.statementReturnsPanicsOrFails = false;
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
-            analyzeReachability((BLangNode) letVariable.definitionNode, env);
+            analyzeReachability((BLangNode) letVariable.definitionNode, data);
         }
-        this.statementReturnsPanicsOrFails = returnStateBefore;
+        data.statementReturnsPanicsOrFails = returnStateBefore;
     }
 
-    private void checkStatementExecutionValidity(BLangStatement statement) {
-        checkUnreachableCode(statement.pos);
-        checkConditionInWhileOrIf(statement);
+    private void checkStatementExecutionValidity(BLangStatement statement, AnalyzerData data) {
+        if (data.skipFurtherAnalysisInUnreachableBlock) {
+            return;
+        }
+        checkUnreachableCode(statement.pos, data);
+        checkConditionInWhileOrIf(statement, data);
     }
 
-    private void checkConditionInWhileOrIf(BLangStatement statement) {
+    private void checkConditionInWhileOrIf(BLangStatement statement, AnalyzerData data) {
         switch (statement.getKind()) {
             case WHILE:
-                this.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
+                data.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
                         ((BLangWhile) statement).expr);
                 break;
             case IF:
-                this.unreachableBlock = statement.parent != null && statement.parent.getKind() == NodeKind.IF
-                        && booleanConstCondition == symTable.trueType;
-                this.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
+                data.unreachableBlock = statement.parent != null && statement.parent.getKind() == NodeKind.IF
+                        && data.booleanConstCondition == symTable.trueType;
+                data.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
                         ((BLangIf) statement).expr);
                 break;
         }
     }
 
-    private void checkUnreachableCode(Location pos) {
-        if (statementReturnsPanicsOrFails) {
+    private void checkUnreachableCode(Location pos, AnalyzerData data) {
+        if (data.statementReturnsPanicsOrFails) {
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
-            resetStatementReturnsPanicsOrFails();
-        } else if (errorThrown) {
+            resetStatementReturnsPanicsOrFails(data);
+        } else if (data.errorThrown) {
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
-            resetErrorThrown();
-        } else if (this.breakAsLastStatement || this.continueAsLastStatement) {
+            resetErrorThrown(data);
+        } else if (data.breakAsLastStatement || data.continueAsLastStatement) {
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
-            resetLastStatement();
-        } else if (unreachableBlock) {
+            resetLastStatement(data);
+        } else if (data.unreachableBlock) {
+            data.skipFurtherAnalysisInUnreachableBlock = true;
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
-            resetUnreachableBlock();
+            resetUnreachableBlock(data);
         }
     }
 
-    private void resetStatementReturnsPanicsOrFails() {
-        this.statementReturnsPanicsOrFails = false;
+    private void resetStatementReturnsPanicsOrFails(AnalyzerData data) {
+        data.statementReturnsPanicsOrFails = false;
     }
 
-    private void resetLastStatement() {
-        this.breakAsLastStatement = false;
-        this.continueAsLastStatement = false;
+    private void resetLastStatement(AnalyzerData data) {
+        data.breakAsLastStatement = false;
+        data.continueAsLastStatement = false;
     }
 
-    private void resetErrorThrown() {
-        this.errorThrown = false;
+    private void resetErrorThrown(AnalyzerData data) {
+        data.errorThrown = false;
     }
 
-    private void resetUnreachableBlock() {
-        this.unreachableBlock = false;
+    private void resetUnreachableBlock(AnalyzerData data) {
+        data.unreachableBlock = false;
     }
 
-    private void resetFunction() {
-        resetStatementReturnsPanicsOrFails();
-        resetErrorThrown();
-        resetLastStatement();
-        this.booleanConstCondition = symTable.semanticError;
+    private void resetFunction(AnalyzerData data) {
+        resetStatementReturnsPanicsOrFails(data);
+        resetErrorThrown(data);
+        resetLastStatement(data);
+        data.booleanConstCondition = symTable.semanticError;
     }
 
-    private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location, SymbolEnv env) {
+    private void resetSkipFurtherAnalysisInUnreachableBlock(AnalyzerData data) {
+        data.skipFurtherAnalysisInUnreachableBlock = false;
+    }
+
+    private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location,
+                                                       AnalyzerData data) {
         for (BLangExpression expr : exprs) {
             if (expr == null) {
                 continue;
@@ -680,21 +809,21 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
             switch (expr.getKind()) {
                 case SIMPLE_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariable(expr, location, env);
+                    validateAssignmentToNarrowedVariable(expr, location, data);
                     continue;
                 case RECORD_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangRecordVarRef) expr), location, env);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangRecordVarRef) expr), location, data);
                     continue;
                 case TUPLE_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangTupleVarRef) expr), location, env);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangTupleVarRef) expr), location, data);
                     continue;
                 case ERROR_VARIABLE_REF:
-                    validateAssignmentToNarrowedVariables(getVarRefs((BLangErrorVarRef) expr), location, env);
+                    validateAssignmentToNarrowedVariables(getVarRefs((BLangErrorVarRef) expr), location, data);
             }
         }
     }
 
-    private void validateAssignmentToNarrowedVariable(BLangExpression expr, Location location, SymbolEnv env) {
+    private void validateAssignmentToNarrowedVariable(BLangExpression expr, Location location, AnalyzerData data) {
         if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
@@ -705,16 +834,21 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (this.loopCount == 0) {
+        if (data.loopAndDoClauseCount == 0) {
             return;
         }
 
-        validateAssignmentToNarrowedVariable(names.fromIdNode(varRef.variableName), location, env);
+        validateAssignmentToNarrowedVariable(varRef, location, data);
     }
 
-    private void validateAssignmentToNarrowedVariable(Name name, Location location, SymbolEnv env) {
-        SymbolEnv loopEnv = this.loopEnvs.peek();
-        SymbolEnv currentEnv = env;
+    private void validateAssignmentToNarrowedVariable(BLangSimpleVarRef varRef, Location location, AnalyzerData data) {
+        if (Symbols.isFlagOn(varRef.symbol.flags, Flags.FINAL)) {
+            return;
+        }
+
+        Name name = names.fromIdNode(varRef.variableName);
+        SymbolEnv loopEnv = data.loopAndDoClauseEnvs.peek();
+        SymbolEnv currentEnv = data.env;
 
         while (currentEnv != null) {
             BSymbol foundSym = symResolver.lookupSymbolInMainSpace(currentEnv, name);
@@ -725,29 +859,46 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
 
             if (currentEnv == loopEnv) {
+                BLangNode loopNode = loopEnv.node;
+                if (loopNode.getKind() == NodeKind.WHILE &&
+                        ((BLangWhile) loopNode).expr.narrowedTypeInfo.containsKey(
+                                typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol))) {
+                    // A while loop may narrow an already narrowed variable, so checking specifically if the loop
+                    // itself narrows the variable too.
+                    return;
+                }
+
                 break;
             }
 
             currentEnv = currentEnv.enclEnv;
         }
 
-        this.potentiallyInvalidAssignmentInLoopsInfo.peek().locations.add(location);
+        data.potentiallyInvalidAssignmentInLoopsInfo.peek().locations.add(location);
     }
 
-    private void handleInvalidAssignmentToTypeNarrowedVariableInLoop(List<Location> locations) {
+    private void handleInvalidAssignmentToTypeNarrowedVariableInLoop(List<Location> locations,
+                                                                     DiagnosticErrorCode errorCode) {
         for (Location location : locations) {
-            dlog.error(location, DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP);
+            dlog.error(location, errorCode);
         }
     }
 
-    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates) {
-        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(branchTerminates, false);
+    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+            boolean branchTerminates, boolean isLoopBodyOrBranchWithContinueAsLastStmt,
+            Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo) {
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+                branchTerminates, isLoopBodyOrBranchWithContinueAsLastStmt,
+                DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP,
+                potentiallyInvalidAssignmentInLoopsInfo);
     }
 
-    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates,
-                                                                                  boolean isLoop) {
+    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+            boolean branchTerminates, boolean isLoopBodyOrBranchWithContinueAsLastStmt, DiagnosticErrorCode errorCode,
+            Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo) {
+
         PotentiallyInvalidAssignmentInfo
-                currentBranchInfo = this.potentiallyInvalidAssignmentInLoopsInfo.pop();
+                currentBranchInfo = potentiallyInvalidAssignmentInLoopsInfo.pop();
 
         if (branchTerminates) {
             return;
@@ -755,16 +906,16 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
         List<Location> currentBranchLocations = currentBranchInfo.locations;
 
-        if (isLoop) {
-            handleInvalidAssignmentToTypeNarrowedVariableInLoop(currentBranchLocations);
+        if (isLoopBodyOrBranchWithContinueAsLastStmt) {
+            handleInvalidAssignmentToTypeNarrowedVariableInLoop(currentBranchLocations, errorCode);
             return;
         }
 
-        if (currentBranchLocations.isEmpty() || this.potentiallyInvalidAssignmentInLoopsInfo.empty()) {
+        if (currentBranchLocations.isEmpty() || potentiallyInvalidAssignmentInLoopsInfo.empty()) {
             return;
         }
 
-        PotentiallyInvalidAssignmentInfo prevInfo = this.potentiallyInvalidAssignmentInLoopsInfo.peek();
+        PotentiallyInvalidAssignmentInfo prevInfo = potentiallyInvalidAssignmentInLoopsInfo.peek();
 
         if (prevInfo.enclInvokable != currentBranchInfo.enclInvokable) {
             return;
@@ -776,7 +927,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     private List<BLangExpression> getVarRefs(BLangRecordVarRef varRef) {
         List<BLangExpression> varRefs = varRef.recordRefFields.stream()
                 .map(e -> e.variableReference).collect(Collectors.toList());
-        varRefs.add((BLangExpression) varRef.restParam);
+        varRefs.add(varRef.restParam);
         return varRefs;
     }
 
@@ -795,10 +946,19 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     private List<BLangExpression> getVarRefs(BLangTupleVarRef varRef) {
         List<BLangExpression> varRefs = new ArrayList<>(varRef.expressions);
-        varRefs.add((BLangExpression) varRef.restParam);
+        varRefs.add(varRef.restParam);
         return varRefs;
     }
 
+    private void incrementLoopCount(AnalyzerData data) {
+        data.loopCount++;
+        data.loopAndDoClauseCount++;
+    }
+
+    private void decrementLoopCount(AnalyzerData data) {
+        data.loopCount--;
+        data.loopAndDoClauseCount--;
+    }
 
     private static class PotentiallyInvalidAssignmentInfo {
         List<Location> locations;
@@ -809,5 +969,28 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             this.locations = locations;
             this.enclInvokable = enclInvokable;
         }
+    }
+
+    /**
+     * @since 2.0.0
+     */
+    public static class AnalyzerData {
+        SymbolEnv env;
+        boolean statementReturnsPanicsOrFails;
+        boolean breakAsLastStatement;
+        boolean continueAsLastStatement;
+        boolean errorThrown;
+        boolean unreachableBlock;
+        boolean breakStmtFound;
+        boolean hasLastPatternInStatement;
+        boolean failureHandled;
+        boolean returnedWithinQuery;
+        boolean skipFurtherAnalysisInUnreachableBlock;
+        int loopCount;
+        int loopAndDoClauseCount;
+        BType booleanConstCondition;
+
+        Stack<SymbolEnv> loopAndDoClauseEnvs = new Stack<>();
+        Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new Stack<>();
     }
 }

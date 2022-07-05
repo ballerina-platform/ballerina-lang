@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.endpoint;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.BRunUtil.ExitDetails;
@@ -42,7 +42,7 @@ public class ServiceTest {
         Assert.assertTrue(output.errorOutput.contains("error: startError"));
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testServiceWithTransactionalKeyword() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_transactional_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 3);
@@ -62,21 +62,21 @@ public class ServiceTest {
     @Test
     public void testMultipleServiceTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_multiple.bal");
-        final BValue[] result = BRunUtil.invoke(compileResult, "test1");
-        Assert.assertEquals(result.length, 2, "expected two return type");
-        Assert.assertNotNull(result[0]);
-        Assert.assertNotNull(result[1]);
-        Assert.assertEquals(result[0].stringValue(), "2");
-        Assert.assertEquals(result[1].stringValue(), "0");
+        final Object resultArr = BRunUtil.invoke(compileResult, "test1");
+        BArray result = (BArray) resultArr;
+        Assert.assertEquals(result.size(), 2, "expected two return type");
+        Assert.assertNotNull(result.get(0));
+        Assert.assertNotNull(result.get(1));
+        Assert.assertEquals(result.get(0).toString(), "2");
+        Assert.assertEquals(result.get(1).toString(), "0");
     }
 
     @Test
     public void testUsingListenerFromDepModule() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestListenerProject");
-        final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
-        Assert.assertEquals(result.length, 1, "expected one return type");
-        Assert.assertNotNull(result[0]);
-        Assert.assertEquals(result[0].stringValue(), "2_1");
+        final Object result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.toString(), "2_1");
     }
 
     @Test

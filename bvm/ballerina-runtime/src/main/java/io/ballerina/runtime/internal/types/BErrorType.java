@@ -17,12 +17,12 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.Optional;
@@ -86,7 +86,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     @Override
     public String getAnnotationKey() {
-        return IdentifierUtils.decodeIdentifier(typeName);
+        return Utils.decodeIdentifier(typeName);
     }
 
     public Type getDetailType() {

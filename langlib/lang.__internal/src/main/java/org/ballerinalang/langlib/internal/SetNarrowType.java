@@ -46,7 +46,7 @@ public class SetNarrowType {
                                                  SymbolFlags.PUBLIC + SymbolFlags.REQUIRED));
         }});
 
-        BMap<BString, Object> newRecord = ValueCreator.createMapValue(newRecordType);
+        BMap<BString, Object> newRecord = ValueCreator.createRecordValue(newRecordType);
         newRecord.put(StringUtils.fromString("value"), value.get(StringUtils.fromString("value")));
         return newRecord;
     }

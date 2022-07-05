@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "distinct_foo"
+version = "1.0.0"

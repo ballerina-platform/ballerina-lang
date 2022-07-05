@@ -60,6 +60,11 @@ public class AnnotationRefsTest extends FindAllReferencesTest {
                                 location(76, 29, 31),
                                 location(77, 29, 31))
                 },
+                {86, 8, location(85, 18, 20),
+                        List.of(location(86, 8, 10),
+                                location(85, 18, 20),
+                                location(87, 17, 19))
+                },
         };
     }
 

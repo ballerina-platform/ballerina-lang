@@ -18,9 +18,8 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -45,56 +44,56 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testMatchStatementBasics1() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new Object[]{});
 
-        BString bString = (BString) returns[0];
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : S, 23, 5.6");
+        BString bString = (BString) returns;
+
+        Assert.assertEquals(bString.toString(), "Matched Values : S, 23, 5.6");
     }
 
     @Test(description = "Test basics of structured pattern match statement 2")
     public void testMatchStatementBasics2() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new Object[]{});
 
-        BString bString = (BString) returns[0];
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : S, 23, 5.6, 12");
+        BString bString = (BString) returns;
+
+        Assert.assertEquals(bString.toString(), "Matched Values : S, 23, 5.6, 12");
     }
 
     @Test(description = "Test basics of structured pattern match statement 3")
     public void testMatchStatementBasics3() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic3", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic3", new Object[]{});
 
-        BString bString = (BString) returns[0];
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : 12, {\"s\":\"S\",\"i\":23,\"f\":5.6}");
+        BString bString = (BString) returns;
+
+        Assert.assertEquals(bString.toString(), "Matched Values : 12, {\"s\":\"S\",\"i\":23,\"f\":5.6}");
     }
 
     @Test(description = "Test basics of structured pattern match statement 4")
     public void testMatchStatementBasics4() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic4", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic4", new Object[]{});
 
-        BString bString = (BString) returns[0];
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,"
+        BString bString = (BString) returns;
+
+        Assert.assertEquals(bString.toString(), "Matched Values : {\"b\":12,\"f\":{\"s\":\"S\",\"i\":23,"
                 + "\"f\":5.6}}");
     }
 
     @Test(description = "Test basics of structured pattern match statement 5")
     public void testMatchStatementBasics5() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasics5", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasics5", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Matched with ";
@@ -106,11 +105,11 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match statement complex 1")
     public void testStructuredMatchPatternComplex1() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternComplex1", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternComplex1", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Matched with ";
@@ -121,11 +120,11 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern runtime matching")
     public void testRuntimeCheck() {
-        BValue[] returns = BRunUtil.invoke(result, "testRuntimeCheck", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = BRunUtil.invoke(result, "testRuntimeCheck", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Matched with ";
@@ -139,11 +138,11 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with type guard 1")
     public void testStructuredMatchPatternWithTypeGuard1() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard1", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard1", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "string : Hello added text with 45");
@@ -155,11 +154,11 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with type guard 2")
     public void testStructuredMatchPatternWithTypeGuard2() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard2", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard2", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Matched with ";
@@ -170,11 +169,11 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with type guard 3")
     public void testStructuredMatchPatternWithTypeGuard3() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard3", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard3", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Matched with ";
@@ -185,11 +184,11 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with type guard 4")
     public void testStructuredMatchPatternWithTypeGuard4() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Matched with ";
@@ -200,11 +199,11 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern with closed record")
     public void testClosedRecord() {
-        BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = BRunUtil.invoke(result, "testClosedRecord", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Matched with ";
@@ -214,10 +213,10 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with empty record")
     public void testStructuredMatchPatternWithEmptyRecord() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyRecord", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-        BValueArray results = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyRecord", new Object[]{});
+
+        Assert.assertTrue(returns instanceof BArray);
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Matched with ";

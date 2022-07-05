@@ -17,10 +17,10 @@
 const constLength = 2;
 
 function arraySizeTest() {
-    int[constLength] a = [1,2];
+    int[constLength] _ = [1,2];
     int[2][constLength] f = [[1,2],[1,2]];
     int[constLength][2] k = [[1,2],[1,2]];
-    int[2][constLength][2] p = [[[1,2],[1,2]],[[1,2],[1,2]]];
+    int[2][constLength][2] _ = [[[1,2],[1,2]],[[1,2],[1,2]]];
     int[0x2] q = [1, 2];
     int[0x00012345678] r;
     int[2] s = q;

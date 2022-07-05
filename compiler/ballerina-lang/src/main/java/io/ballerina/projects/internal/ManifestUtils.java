@@ -50,7 +50,7 @@ public class ManifestUtils {
                 oneBasedLineRange.filePath() + ":" + oneBasedLineRange + "] " + diagnostic.message();
     }
 
-    static String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
+    public static String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
         if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
             TomlValueNode value = keyValueNode.value();

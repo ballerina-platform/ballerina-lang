@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -44,18 +42,16 @@ public class HandleRefersNullTest {
 
     @Test(description = "Test java:createNull method in ballerinax/java")
     public void testCreateNullHandle() {
-        BValue[] returns = BRunUtil.invoke(result, "testCreateNullHandle");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(((BHandleValue) returns[0]).getValue());
+        Object returns = BRunUtil.invoke(result, "testCreateNullHandle");
+        Assert.assertNull(((HandleValue) returns).getValue());
     }
 
     @Test(description = "Test java:isNull method in ballerinax/java")
     public void testIsNull() {
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(null);
-        BValue[] returns = BRunUtil.invoke(result, "testIsNull", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(null);
+        Object returns = BRunUtil.invoke(result, "testIsNull", args);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @AfterClass

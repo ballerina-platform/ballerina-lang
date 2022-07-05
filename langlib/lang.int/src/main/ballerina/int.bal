@@ -101,7 +101,7 @@ public isolated function sum(int... ns) returns int = @java:Method {
 #
 # + n - first int value
 # + ns - other int values
-# + return - maximum value of value of parameter `x` and all of parameter `xs`
+# + return - maximum value of value of parameter `n` and all of parameter `ns`
 public isolated function max(int n, int... ns) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.integer.Max",
     name: "max"
@@ -121,7 +121,7 @@ public isolated function min(int n, int... ns) returns int = @java:Method {
 #
 # Returns error if parameter `s` is not the decimal representation of an integer.
 # The first character may be `+` or `-`.
-# This is the inverse of function `value:toString` applied to an `int`.
+# This is the inverse of function ``value:toString`` applied to an `int`.
 #
 # + s - string representation of a integer value
 # + return - int representation of the argument or error

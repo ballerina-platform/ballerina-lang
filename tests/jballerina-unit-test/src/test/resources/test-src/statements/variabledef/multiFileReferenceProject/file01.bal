@@ -42,6 +42,6 @@ public function getEmployee() returns Employee {
 }
 
 public function main1() {
-    var e = getEmployee();
-    var e2 = getEmployee2();
+    var _ = getEmployee();
+    var _ = getEmployee2();
 }

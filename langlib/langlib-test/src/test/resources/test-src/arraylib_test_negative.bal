@@ -198,3 +198,72 @@ function testLastIndexOf() {
     function (int) returns (int) d;
     int? i3 = sd.indexOf(d);
 }
+
+function func1(int val) returns boolean {
+    return val > 2;
+}
+
+function testSomeNegative1() {
+    _ = [1, 2].som(func1); // error
+}
+
+function func2(int val) returns int {
+    return val + 1;
+}
+
+function testSomeNegative2() {
+    _ = [1, 2].some(func2); // error
+}
+
+function testSomeNegative3() {
+    int _ = [1, 2].some(func1); // error
+}
+
+function testSomeNegative4() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.some(func1); // error
+}
+
+function testSomeNegative5() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.some(val => val > 5); // error
+}
+
+function testEveryNegative1() {
+    _ = [1, 2].ever(func1); // error
+}
+
+function testEveryNegative2() {
+    _ = [1, 2].every(func2); // error
+}
+
+function testEveryNegative3() {
+    int _ = [1, 2].every(func1); // error
+}
+
+function testEveryNegative4() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.every(func1); // error
+}
+
+function testEveryNegative5() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.every(val => val > 5); // error
+}
+
+type T string|int;
+
+function testArrSortWithNamedArgs1() {
+    [string, T][] arr = [["a", "100"], ["b", "100"], ["d", "10"], ["c", "100"], ["e", "100"]];
+    [string, T][] sortedArr = arr.sort(direction = array:DESCENDING);
+    sortedArr = array:sort(arr, direction = array:DESCENDING);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = isolated function([string, T] e) returns [string, T] {
+        return e;
+    });
+    sortedArr = arr.sort(key = isolated function([string, T] e) returns [string, T] {
+        return e;
+    });
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = ());
+}

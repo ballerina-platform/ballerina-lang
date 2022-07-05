@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 27,
+    "character": 28
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source63.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cl",
+      "kind": "Variable",
+      "detail": "Client",
+      "sortText": "AB",
+      "insertText": "cl",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

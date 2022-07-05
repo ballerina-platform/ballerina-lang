@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -33,8 +31,7 @@ public class PackageInitWorkerTest {
     @Test
     public void testPackageInitWorkerTest() {
         CompileResult result = BCompileUtil.compile("test-src/workers/package-init-worker.bal");
-        BValue[] vals = BRunUtil.invoke(result, "test", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 1);
+        Object vals = BRunUtil.invoke(result, "test", new Object[0]);
+        Assert.assertEquals(vals, 1L);
     }
 }

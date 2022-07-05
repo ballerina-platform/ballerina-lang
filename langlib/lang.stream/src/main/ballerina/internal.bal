@@ -45,7 +45,6 @@ class FilterSupport {
                 }
             }
         }
-        return ();
     }
 }
 

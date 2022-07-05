@@ -18,16 +18,19 @@
 
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -45,67 +48,42 @@ public class ArrayLValueFillTest {
     }
 
     @Test
-    public void testSimpleBasic2DArrays() {
-        BRunUtil.invoke(compileResult, "testSimpleBasic2DArrays");
-    }
-
-    @Test
-    public void testRecordArrays() {
-        BRunUtil.invoke(compileResult, "testRecordArrays");
-    }
-
-    @Test
-    public void test2DRecordArrays() {
-        BRunUtil.invoke(compileResult, "test2DRecordArrays");
-    }
-
-    @Test
     public void testObjectArrays() {
-        BValueArray arr = (BValueArray) BRunUtil.invokeFunction(compileResult, "testObjectArrays")[0];
+        BArray arr = (BArray) BRunUtil.invoke(compileResult, "testObjectArrays");
         assertEquals(arr.size(), 2);
 
-        BMap person = (BMap) arr.getRefValue(0);
-        assertEquals(person.getType().getName(), "PersonObj");
-        assertEquals(person.get("name").stringValue(), "John Doe");
+        BObject person = (BObject) arr.getRefValue(0);
+        assertEquals(getType(person).getName(), "PersonObj");
+        assertEquals(person.get(StringUtils.fromString("name")).toString(), "John Doe");
 
-        person = (BMap) arr.getRefValue(1);
-        assertEquals(person.getType().getName(), "PersonObj");
-        assertEquals(person.get("name").stringValue(), "Pubudu");
+        person = (BObject) arr.getRefValue(1);
+        assertEquals(getType(person).getName(), "PersonObj");
+        assertEquals(person.get(StringUtils.fromString("name")).toString(), "Pubudu");
     }
 
     @Test
     public void test2DObjectArrays() {
-        BValueArray arr = (BValueArray) BRunUtil.invokeFunction(compileResult, "test2DObjectArrays")[0];
+        BArray arr = (BArray) BRunUtil.invoke(compileResult, "test2DObjectArrays");
 
         assertEquals(arr.size(), 3);
-        assertEquals(arr.getRefValue(0).size(), 0);
-        assertEquals(arr.getRefValue(1).size(), 0);
-        assertEquals(arr.getRefValue(2).size(), 2);
+        assertEquals(((BArray) arr.getRefValue(0)).size(), 0);
+        assertEquals(((BArray) arr.getRefValue(1)).size(), 0);
+        assertEquals(((BArray) arr.getRefValue(2)).size(), 2);
 
-        BValueArray peopleArr = (BValueArray) arr.getRefValue(2);
+        BArray peopleArr = (BArray) arr.getRefValue(2);
         for (int i = 0; i < peopleArr.size(); i++) {
-            BMap person = (BMap) peopleArr.getRefValue(i);
-            assertEquals(person.getType().getName(), "PersonObj");
-            assertEquals(person.get("name").stringValue(), "John Doe");
+            BObject person = (BObject) peopleArr.getRefValue(i);
+            assertEquals(getType(person).getName(), "PersonObj");
+            assertEquals(person.get(StringUtils.fromString("name")).toString(), "John Doe");
         }
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/20983
-    @Test(enabled = false)
-    public void test2DObjectArrays2() {
-        BValueArray arr = (BValueArray) BRunUtil.invokeFunction(compileResult, "test2DObjectArrays2")[0];
-
-        assertEquals(arr.size(), 3);
-        assertEquals(arr.getRefValue(0).size(), 0);
-        assertEquals(arr.getRefValue(1).size(), 0);
-        assertEquals(arr.getRefValue(2).size(), 2);
-
-        BValueArray peopleArr = (BValueArray) arr.getRefValue(2);
-        for (int i = 0; i < peopleArr.size(); i++) {
-            BMap person = (BMap) peopleArr.getRefValue(i);
-            assertEquals(person.getType().getName(), "PersonObj");
-            assertEquals(person.get("name").stringValue(), "John Doe");
-        }
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
+                    "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
+                    "filler values.*")
+    public void testObjectArrays2() {
+        BRunUtil.invoke(compileResult, "testObjectArrays2");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -132,36 +110,6 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
     }
 
-    @Test
-    public void testArraysInRecordFields() {
-        BRunUtil.invoke(compileResult, "testArraysInRecordFields");
-    }
-
-    @Test
-    public void testArraysInObjectFields() {
-        BRunUtil.invoke(compileResult, "testArraysInObjectFields");
-    }
-
-    @Test
-    public void testArraysInUnionTypes() {
-        BRunUtil.invoke(compileResult, "testArraysInUnionTypes");
-    }
-
-    @Test
-    public void testArraysOfTuples() {
-        BRunUtil.invoke(compileResult, "testArraysOfTuples");
-    }
-
-    @Test
-    public void test2DArrayInATuple() {
-        BRunUtil.invoke(compileResult, "test2DArrayInATuple");
-    }
-
-    @Test
-    public void testFiniteTyped2DArrays() {
-        BRunUtil.invoke(compileResult, "testFiniteTyped2DArrays");
-    }
-
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
@@ -170,9 +118,27 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testNoDefFiniteTyped2DArrays");
     }
 
-    @Test
-    public void testMapArrayAsAnLValue() {
-        BRunUtil.invoke(compileResult, "testMapArrayAsAnLValue");
+    @Test(dataProvider = "arrayFillerValueTestFunctions")
+    public void testArrayFillerValues(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider(name = "arrayFillerValueTestFunctions")
+    public Object[] arrayFillerValueTestFunctions() {
+        return new String[]{
+                "testSimpleBasic2DArrays",
+                "testRecordArrays",
+                "test2DRecordArrays",
+                "testArraysInRecordFields",
+                "testArraysInObjectFields",
+                "testArraysInUnionTypes",
+                "testArraysOfTuples",
+                "test2DArrayInATuple",
+                "testFiniteTyped2DArrays",
+                "testMapArrayAsAnLValue",
+                "testMDArrayFillerValues",
+                "test2DObjectArrays2"
+        };
     }
 
     @AfterClass

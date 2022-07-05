@@ -16,8 +16,8 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,75 +43,74 @@ public class WaitForAnyActionsTest {
 
     @Test
     public void waitTest1() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest1", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "waitTest1", new Object[0]);
+
         // TODO: 11/21/18 Since we are dealing with threads we can't ensure which will be returned first, so atm we
         // check if either values are returned. Need to fix this in a proper way
-        Assert.assertTrue(Arrays.asList("7", "22").contains(vals[0].stringValue()));
+        Assert.assertTrue(Arrays.asList("7", "22").contains(vals.toString()));
     }
 
     @Test
     public void waitTest2() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest2", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("82", "22", "2").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest2", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("82", "22", "2").contains(vals.toString()));
     }
 
     @Test
     public void waitTest3() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest3", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("hello foo", "hello bar").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest3", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("hello foo", "hello bar").contains(vals.toString()));
     }
 
     @Test
     public void waitTest4() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest4", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("30", "hello bar", "true").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest4", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("30", "hello bar", "true").contains(vals.toString()));
     }
 
     @Test
     public void waitTest5() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest5", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("{\"line1\":\"No. 20\", \"line2\":\"Palm Grove\", \"city\":\"Colombo 03\"}",
-                                        "{\"fname\": \"foo\", \"lname\": \"bar\"}").contains(vals[0].stringValue()));
+        BMap vals = (BMap) BRunUtil.invoke(result, "waitTest5", new Object[0]);
+        Assert.assertTrue(Arrays.asList("{\"line1\":\"No. 20\",\"line2\":\"Palm Grove\",\"city\":\"Colombo 03\"}",
+                "{\"fname\":\"foo\",\"lname\":\"bar\"}").contains(vals.toString()));
     }
 
     @Test
     public void waitTest6() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest6", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("176", "150", "hello foo").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest6", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("176", "150", "hello foo").contains(vals.toString()));
     }
 
     @Test
     public void waitTest7() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest7", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("4", "22", "true", "hello foo").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest7", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("4", "22", "true", "hello foo").contains(vals.toString()));
     }
 
     @Test
     public void waitTest8() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest8", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("hello xyz", "28").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest8", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("hello xyz", "28").contains(vals.toString()));
     }
 
     @Test
     public void waitTest9() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest9", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("hello xyz", "99").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest9", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("hello xyz", "99").contains(vals.toString()));
     }
 
     @Test
     public void waitTest10() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest10", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("77", "hello foo", "hello bar", "hello xyz").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest10", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("77", "hello foo", "hello bar", "hello xyz").contains(vals.toString()));
     }
 
     @Test()
@@ -119,98 +118,98 @@ public class WaitForAnyActionsTest {
         // in this case it returns result of wait f1|f2|f3; where f1 and f2 panics. So the panic also one of
         // possible results here
         try {
-            BValue[] vals = BRunUtil.invoke(result, "waitTest11", new BValue[0]);
-            Assert.assertEquals(vals.length, 1);
-            Assert.assertEquals(vals[0].stringValue(), "hello foo");
+            Object vals = BRunUtil.invoke(result, "waitTest11", new Object[0]);
+
+            Assert.assertEquals(vals.toString(), "hello foo");
         } catch (RuntimeException e) {
             Assert.assertTrue(e.getMessage().contains("err from panic"));
         }
     }
 
-    @Test (expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest12() {
-        BRunUtil.invoke(result, "waitTest12", new BValue[0]);
+        BRunUtil.invoke(result, "waitTest12", new Object[0]);
     }
 
     @Test
     public void waitTest13() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest13", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals("0", vals[0].stringValue());
+        Object vals = BRunUtil.invoke(result, "waitTest13", new Object[0]);
+
+        Assert.assertEquals("0", vals.toString());
     }
 
     @Test
     public void waitTest14() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest14", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("150", "7").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest14", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("150", "7").contains(vals.toString()));
     }
 
     @Test
     public void waitTest15() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest15", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("150", "7", "60", "299").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest15", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("150", "7", "60", "299").contains(vals.toString()));
     }
 
     @Test
     public void waitTest16() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest16", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "waitTest16", new Object[0]);
+
         Assert.assertTrue(Arrays.asList("150", "hello foo", "7", "60", "12", "hello bar").
-                contains(vals[0].stringValue()));
+                contains(vals.toString()));
     }
 
     @Test
     public void waitTest17() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest17", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("10", "20", "30").contains(vals[0].stringValue()));
+        Object vals = BRunUtil.invoke(result, "waitTest17", new Object[0]);
+
+        Assert.assertTrue(Arrays.asList("10", "20", "30").contains(vals.toString()));
     }
 
     @Test
     public void waitTest18() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest18", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals("65", vals[0].stringValue());
+        Object vals = BRunUtil.invoke(result, "waitTest18", new Object[0]);
+
+        Assert.assertEquals("65", vals.toString());
     }
 
     @Test
     public void waitTest19() {
-        BRunUtil.invoke(result, "waitTest19", new BValue[0]);
+        BRunUtil.invoke(result, "waitTest19", new Object[0]);
     }
 
     @Test
     public void waitTest20() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest20", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals("hello moo", vals[0].stringValue());
+        Object vals = BRunUtil.invoke(result, "waitTest20", new Object[0]);
+
+        Assert.assertEquals("hello moo", vals.toString());
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: A hazardous error occurred!!! Panic!!.*")
     public void waitTest21() {
-        BRunUtil.invoke(result, "waitTest21", new BValue[0]);
+        BRunUtil.invoke(result, "waitTest21", new Object[0]);
     }
 
     @Test
     public void waitTest22() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest22", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals("hello foo", vals[0].stringValue());
+        Object vals = BRunUtil.invoke(result, "waitTest22", new Object[0]);
+
+        Assert.assertEquals("hello foo", vals.toString());
     }
 
     @Test
     public void waitTest23() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest23", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertNull(vals[0]);
+        Object vals = BRunUtil.invoke(result, "waitTest23", new Object[0]);
+
+        Assert.assertNull(vals);
     }
 
     @Test
     public void waitTest24() {
-        BRunUtil.invoke(result, "waitTest24", new BValue[0]);
+        BRunUtil.invoke(result, "waitTest24", new Object[0]);
     }
 
     @AfterClass

@@ -293,6 +293,40 @@ public function recursiveTupleArrayCloneTest() {
    assertTrue(x is readonly & RTuple[]);
 }
 
+type RestTypeTuple [int, RestTypeTuple...];
+
+function testRecursiveTupleWithRestType() {
+   RestTypeTuple a = [1];
+   RestTypeTuple b = [2, a, a, a];
+   RestTypeTuple c = [3, a, b];
+
+   assertTrue(a[0] is int);
+   assertTrue(b[1] is RestTypeTuple);
+   assertTrue(c[2] is RestTypeTuple);
+}
+
+public type Type string|Union|Tuple;
+
+public type Union ["|", Type...];
+
+public type Tuple ["tuple", Type, Type...]; 
+
+type SubtypeRelation record {|
+    Type subtype;
+    Type superType;
+|};
+
+function testUnionWithCyclicTuplesHashCode() {
+    Tuple tup1 = ["tuple", "never", "int"];
+    Tuple tup2 = ["tuple", "never", ["|", "int", "string"]];
+
+    Type subtype = ["|", "int", tup1];
+    Type superType = ["|", ["|", "int", "float"], tup2];
+    SubtypeRelation p = {subtype: subtype, superType: superType};
+    assert(p.toJsonString(), "{\"subtype\":[\"|\", \"int\", [\"tuple\", \"never\", \"int\"]], " +
+    "\"superType\":[\"|\", [\"|\", \"int\", \"float\"], [\"tuple\", \"never\", [\"|\", \"int\", \"string\"]]]}"); 
+}
+
 function assertTrue(anydata actual) {
     assert(true, actual);
 }

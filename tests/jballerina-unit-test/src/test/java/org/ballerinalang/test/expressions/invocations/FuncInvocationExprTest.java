@@ -1,25 +1,22 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.expressions.invocations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -50,35 +47,32 @@ public class FuncInvocationExprTest {
 
     @Test
     public void invokeFunctionWithParams() {
-        BValue[] args = new BValue[]{new BInteger(1), new BInteger(2)};
-        BValue[] values = BRunUtil.invoke(funcInvocationExpResult, "add", args);
-        Assert.assertEquals(values.length, 1);
-        Assert.assertTrue(values[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) values[0]).intValue(), 3);
+        Object[] args = new Object[]{(1), (2)};
+        Object values = BRunUtil.invoke(funcInvocationExpResult, "add", args);
+        Assert.assertTrue(values instanceof Long);
+        Assert.assertEquals((values), 3L);
     }
 
     @Test(description = "Test local function invocation expression")
     public void testFuncInvocationExpr() {
-        BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult, "testFuncInvocation", args);
+        Object[] args = {(100), (5), (1)};
+        Object returns = BRunUtil.invoke(funcInvocationExpResult, "testFuncInvocation", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 116;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test recursive function invocation")
     public void testFuncInvocationExprRecursive() {
-        BValue[] args = {new BInteger(7)};
-        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult, "sum", args);
+        Object[] args = {(7)};
+        Object returns = BRunUtil.invoke(funcInvocationExpResult, "sum", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 28;
         Assert.assertEquals(actual, expected);
 
@@ -86,52 +80,48 @@ public class FuncInvocationExprTest {
 
     @Test(description = "Test local function invocation expression advanced")
     public void testFuncInvocationExprAdvanced() {
-        BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult, "funcInvocationWithinFuncInvocation", args);
+        Object[] args = {(100), (5), (1)};
+        Object returns = BRunUtil.invoke(funcInvocationExpResult, "funcInvocationWithinFuncInvocation", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 322;
         Assert.assertEquals(actual, expected);
     }
 
     @Test
     public void testReturnFuncInvocationWithinFuncInvocation() {
-        BValue[] args = {new BInteger(2), new BInteger(3)};
-        BValue[] returns =
+        Object[] args = {(2), (3)};
+        Object returns =
                 BRunUtil.invoke(funcInvocationExpResult, "testReturnFuncInvocationWithinFuncInvocation", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 8;
         Assert.assertEquals(actual, expected);
     }
 
     @Test
     public void testReturnNativeFuncInvocationWithinNativeFuncInvocation() {
-        BValue[] args = {new BFloat(2)};
-        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult,
-                                             "testReturnNativeFuncInvocationWithinNativeFuncInvocation", args);
+        Object[] args = {(2)};
+        Object returns = BRunUtil.invoke(funcInvocationExpResult,
+                "testReturnNativeFuncInvocationWithinNativeFuncInvocation", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actual = ((BFloat) returns[0]).floatValue();
+        double actual = (double) returns;
         double expected = 2;
         Assert.assertEquals(actual, expected);
     }
 
     @Test
     public void testNativeInvocation() {
-        BValue[] args = {new BFloat(2), new BFloat(2)};
-        BValue[] returns = BRunUtil.invoke(funcInvocationExpResult, "getPowerOfN", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        double actual = ((BFloat) returns[0]).floatValue();
+        Object[] args = {(2), (2)};
+        Object returns = BRunUtil.invoke(funcInvocationExpResult, "getPowerOfN", args);
+        Assert.assertSame(returns.getClass(), Double.class);
+        double actual = (double) returns;
         double expected = 4;
         Assert.assertEquals(actual, expected);
     }
@@ -151,7 +141,8 @@ public class FuncInvocationExprTest {
                 {"testMethodInvocationWithArgVarargMixWithDefaultableParam"},
                 {"testMethodVarargEvaluationCount"},
                 {"testVarargForParamsOfDifferentKinds"},
-                {"testArrayVarArg"}
+                {"testArrayVarArg"},
+                {"testTypeRefTypedRestArg"}
         };
     }
 
@@ -169,42 +160,42 @@ public class FuncInvocationExprTest {
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean', found 'string'", 26, 30);
         validateError(funcInvocationNegative, i++, "variable assignment is required", 28, 5);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([int,boolean...]|record {| int i; |})', " +
-                              "found '[float,string...]'", 28, 12);
+                "incompatible types: expected '([int,boolean...]|record {| int i; |})', " +
+                        "found '[float,string...]'", 28, 12);
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 31, 9);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([float,boolean...]|record {| float f?; |})', " +
-                              "found '[int,boolean,boolean]'", 31, 15);
+                "incompatible types: expected '([float,boolean...]|record {| float f?; |})', " +
+                        "found '[int,boolean,boolean]'", 31, 15);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([string,float,boolean...]|record {| string s; float f?; |})', " +
-                              "found '[float,string...]'", 33, 12);
+                "incompatible types: expected '([string,float,boolean...]|record {| string s; float f?; |})', " +
+                        "found '[float,string...]'", 33, 12);
         validateError(funcInvocationNegative, i++, "rest argument not allowed after named arguments", 39, 20);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([float,boolean...]|record {| float f?; |})', found 'boolean[]'",
-                      41, 23);
+                "incompatible types: expected '([float,boolean...]|record {| float f?; |})', found 'boolean[]'",
+                41, 23);
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean', found 'float'", 47, 20);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([int,int,int...]|record {| int i; int j; |})', found 'int[1]'",
-                      59, 24);
+                "incompatible types: expected '([int,int,int...]|record {| int i; int j; |})', found 'int[1]'",
+                59, 24);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([int,int,int...]|record {| int i; int j; |})', found '" +
-                              "(int|string)[3]'", 62, 24);
+                "incompatible types: expected '([int,int,int...]|record {| int i; int j; |})', found '" +
+                        "(int|string)[3]'", 62, 24);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found '" +
-                              "(int|string)[3]'", 63, 40);
+                "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found '" +
+                        "(int|string)[3]'", 63, 40);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([int]|record {| int i; |})', found 'int[5]'", 66, 25);
+                "incompatible types: expected '([int]|record {| int i; |})', found 'int[5]'", 66, 25);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found " +
-                              "'int[5]'", 69, 40);
+                "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found " +
+                        "'int[5]'", 69, 40);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found " +
-                              "'int[]'", 70, 40);
+                "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found " +
+                        "'int[]'", 70, 40);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected 'int[]', found '(int|string)[3]'", 73, 29);
+                "incompatible types: expected 'int[]', found '(int|string)[3]'", 73, 29);
         validateError(funcInvocationNegative, i++,
-                      "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
-        Assert.assertEquals(i,  funcInvocationNegative.getErrorCount());
+                "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
+        Assert.assertEquals(i, funcInvocationNegative.getErrorCount());
     }
 
     @Test
@@ -218,20 +209,20 @@ public class FuncInvocationExprTest {
         validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean', found 'string'", 27, 32);
         validateError(methodInvocationNegative, i++, "variable assignment is required", 29, 5);
         validateError(methodInvocationNegative, i++,
-                      "incompatible types: expected '([int,boolean...]|record {| int i; |})', " +
-                              "found '[float,string...]'", 29, 14);
+                "incompatible types: expected '([int,boolean...]|record {| int i; |})', " +
+                        "found '[float,string...]'", 29, 14);
         validateError(methodInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 32, 12);
         validateError(methodInvocationNegative, i++,
-                      "incompatible types: expected '([float,boolean...]|record {| float f?; |})', " +
-                              "found '[int,boolean,boolean]'", 32, 18);
+                "incompatible types: expected '([float,boolean...]|record {| float f?; |})', " +
+                        "found '[int,boolean,boolean]'", 32, 18);
         validateError(methodInvocationNegative, i++,
-                      "incompatible types: expected '([string,float,boolean...]|record {| string s; float f?; |})', " +
-                              "found '[float,string...]'", 34, 15);
+                "incompatible types: expected '([string,float,boolean...]|record {| string s; float f?; |})', " +
+                        "found '[float,string...]'", 34, 15);
         validateError(methodInvocationNegative, i++, "rest argument not allowed after named arguments", 42, 22);
         validateError(methodInvocationNegative, i++,
-                      "incompatible types: expected '([float,boolean...]|record {| float f?; |})', found 'boolean[]'",
-                      44, 26);
+                "incompatible types: expected '([float,boolean...]|record {| float f?; |})', found 'boolean[]'",
+                44, 26);
         validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean', found 'float'", 50, 22);
-        Assert.assertEquals(i,  methodInvocationNegative.getErrorCount());
+        Assert.assertEquals(i, methodInvocationNegative.getErrorCount());
     }
 }

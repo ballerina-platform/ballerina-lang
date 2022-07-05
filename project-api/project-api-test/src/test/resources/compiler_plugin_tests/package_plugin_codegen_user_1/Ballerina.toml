@@ -1,0 +1,4 @@
+[package]
+org = "samjs"
+name = "package_plugin_codegen_user_1"
+version = "0.1.0"

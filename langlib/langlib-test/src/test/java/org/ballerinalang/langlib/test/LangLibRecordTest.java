@@ -18,19 +18,19 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.types.BMapType;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -54,45 +55,50 @@ public class LangLibRecordTest {
         compileResult = BCompileUtil.compile("test-src/recordlib_test.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
+
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Object returns = BRunUtil.invoke(compileResult, "testLength");
+        assertEquals(returns, 2L);
     }
 
     @Test
     public void testGet() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGet", new BValue[]{new BString("name")});
-        assertEquals(returns[0].stringValue(), "John Doe");
+        Object returns = BRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("name")});
+        assertEquals(returns.toString(), "John Doe");
 
-        returns = BRunUtil.invoke(compileResult, "testGet", new BValue[]{new BString("age")});
-        assertEquals(((BInteger) returns[0]).intValue(), 25);
+        returns = BRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("age")});
+        assertEquals(returns, 25L);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
     public void testGetNonExistentKey() {
-        BRunUtil.invoke(compileResult, "testGet", new BValue[]{new BString("NonExistent")});
+        BRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("NonExistent")});
     }
 
     @Test
     public void testEntries() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEntries");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testEntries");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 2);
-        assertEquals(map.get("name").stringValue(), "[\"name\", \"John Doe\"]");
-        assertEquals(map.get("age").stringValue(), "[\"age\", 25]");
+        assertEquals(map.get(StringUtils.fromString("name")).toString(), "[\"name\",\"John Doe\"]");
+        assertEquals(map.get(StringUtils.fromString("age")).toString(), "[\"age\",25]");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*OperationNotSupported \\{\"message\":\"failed .*")
     public void testRemove() {
-        BRunUtil.invoke(compileResult, "testRemove", new BValue[]{new BString("name")});
+        BRunUtil.invoke(compileResult, "testRemove", new Object[]{StringUtils.fromString("name")});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -104,24 +110,26 @@ public class LangLibRecordTest {
 
     @Test(dataProvider = "mapKeyProvider")
     public void testHasKey(BString key, boolean expected) {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey", new BValue[]{key});
-        assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+        Object returns = BRunUtil.invoke(compileResult, "testHasKey", new Object[]{key});
+        assertEquals(returns, expected);
     }
 
     @Test
     public void testHasKey2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey2");
-        assertFalse(((BBoolean) returns[0]).booleanValue());
-        assertTrue(((BBoolean) returns[1]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testHasKey2");
+        BArray arr = (BArray) returns;
+        assertFalse(arr.getBoolean(0));
+        assertTrue(arr.getBoolean(1));
     }
 
     @Test
     public void testKeys() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testKeys");
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testKeys");
+        Type arrType = getType(returns);
+        assertEquals(arrType.getTag(), TypeTags.ARRAY_TAG);
 
-        BValueArray arr = (BValueArray) returns[0];
-        assertEquals(arr.elementType.getTag(), TypeTags.STRING_TAG);
+        BArray arr = (BArray) returns;
+        assertEquals(((BArrayType) arrType).getElementType().getTag(), TypeTags.STRING_TAG);
         assertEquals(arr.size(), 2);
 
         List<String> keys = Arrays.asList(arr.getStringArray());
@@ -131,46 +139,46 @@ public class LangLibRecordTest {
 
     @Test
     public void testMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
-        assertEquals(((BInteger) map.get("name")).intValue(), 8);
-        assertEquals(((BInteger) map.get("age")).intValue(), 25);
+        assertEquals(map.get(StringUtils.fromString("name")), 8L);
+        assertEquals(map.get(StringUtils.fromString("age")), 25L);
     }
 
     @Test
     public void testForEach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
-        assertEquals(returns[0].stringValue(), "John Doe25");
+        Object returns = BRunUtil.invoke(compileResult, "testForEach");
+        assertEquals(returns.toString(), "John Doe25");
     }
 
     @Test
     public void testFilter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFilter");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testFilter");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
-        assertEquals(((BInteger) map.get("physics")).intValue(), 75);
-        assertEquals(((BInteger) map.get("ict")).intValue(), 85);
+        assertEquals(map.get(StringUtils.fromString("physics")), 75L);
+        assertEquals(map.get(StringUtils.fromString("ict")), 85L);
     }
 
     @Test
     public void testReduce() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(((BFloat) returns[0]).floatValue(), 61.25);
+        Object returns = BRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 61.25d);
     }
 
     @DataProvider(name = "mapKeyProvider")
     public Object[][] getMapKeys() {
         return new Object[][]{
-                {new BString("name"), true},
-                {new BString("age"), true},
-                {new BString("invalid"), false}
+                {StringUtils.fromString("name"), true},
+                {StringUtils.fromString("age"), true},
+                {StringUtils.fromString("invalid"), false}
         };
     }
 

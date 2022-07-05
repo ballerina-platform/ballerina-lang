@@ -166,8 +166,8 @@ public class ServiceSemanticAPITest {
     public Object[][] getLookupPos() {
         List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass");
         return new Object[][]{
-                {68, 26, concatSymbols(moduleSymbols, "magic")},
-//                {70, 59, concatSymbols(moduleSymbols, "magic", "createError")} // TODO: Fix #27314
+                {68, 26, moduleSymbols},
+                {70, 59, concatSymbols(moduleSymbols, "self", "magic", "createError")}
         };
     }
 

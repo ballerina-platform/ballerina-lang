@@ -37,35 +37,60 @@ public class TypeCastTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Override
     @Test(dataProvider = "negative-test-data-provider")
-    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.negativeTest(config, source);
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"typeCast1.json", "typeCast.bal"},
-                {"typeCast2.json", "typeCast.bal"},
-                {"typeCast3.json", "typeCast.bal"},
-                {"typeCast4.json", "typeCast.bal"},
-                //{"typeCast5.json", "typeCast.bal"},
-                {"typeCast6.json", "typeCast.bal"},
-                {"nilTypeCast.json", "typeCast.bal"},
-                {"type_cast_function_param_config1.json", "type_cast_function_param_config1.bal"},
+                {"typeCast1.json"},
+                {"typeCast2.json"},
+                {"typeCast3.json"},
+                {"typeCast4.json"},
+                {"typeCast5.json"},
+//                {"typeCast6.json", "typeCast.bal"}, Not supported by the subtype of API.
+                {"typeCast7.json"},
+                {"typeCast8.json"},
+                {"typeCast9.json"},
+                {"typeCast10.json"},
+                {"typeCast11.json"},
+                {"typeCast12.json"},
+                {"typeCast13.json"},
+                {"typeCast14.json"},
+                {"nilTypeCast.json"},
+                {"type_cast_function_param_config1.json"},
+                {"typeCast11.json"},
+                {"typeCastInMemberAccess1.json"},
+
+                {"type_cast_in_binary_operation1.json"},
+                {"type_cast_in_binary_operation2.json"},
+                {"type_cast_in_binary_operation3.json"},
+                {"type_cast_in_binary_operation4.json"},
+                {"type_cast_in_binary_operation5.json"},
+                {"type_cast_in_binary_operation6.json"},
+                {"type_cast_in_binary_operation7.json"},
+                {"type_cast_in_binary_operation8.json"},
+                {"type_cast_in_binary_operation9.json"}
+
         };
     }
 
     @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeDataProvider() {
         return new Object[][]{
-                {"typeCastNegative1.json", "typeCast2.bal"},
+                {"typeCastNegative1.json"},
+                {"typeCastNegative2.json"},
+                {"typeCastNegative3.json"},
+                {"typeCastNegative4.json"},
+                {"typeCastNegative5.json"},
         };
     }
 }

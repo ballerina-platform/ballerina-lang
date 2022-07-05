@@ -20,12 +20,14 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
@@ -56,20 +58,26 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
     }
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        return super.validate(diagnostic, positionDetails, context);
+    }
+
+    @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
 
-        if (posDetails.matchedTopLevelNode().kind() != SyntaxKind.CLASS_DEFINITION
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.MODULE_VAR_DECL
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.LOCAL_VAR_DECL
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
+        if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.CLASS_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.MODULE_VAR_DECL
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.LOCAL_VAR_DECL
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
             return Collections.emptyList();
         }
 
         List<Diagnostic> diags = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> CommonUtil
-                        .isWithinRange(context.cursorPosition(), CommonUtil.toRange(diag.location().lineRange()))
+                .filter(diag -> PositionUtil
+                        .isWithinRange(context.cursorPosition(), PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .filter(diagnostic -> DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()))
                 .collect(Collectors.toList());
@@ -86,8 +94,8 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
             edits.addAll(getDiagBasedTextEdits(diagnostic, positionDetails, context));
         });
 
-        String commandTitle = "Implement all";
-        CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
+        CodeAction quickFixCodeAction = createCodeAction(CommandConstants.IMPLEMENT_ALL, edits, context.fileUri(),
+                CodeActionKind.QuickFix);
         quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(diags));
         return Collections.singletonList(quickFixCodeAction);
     }

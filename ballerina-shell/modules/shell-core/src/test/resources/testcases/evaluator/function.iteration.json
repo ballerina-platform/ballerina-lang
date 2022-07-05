@@ -1,7 +1,11 @@
 [
   {
     "description": "Define a map named words.",
-    "code": "map<string> words = { a: \"ant\", b: \"bear\", c: \"cat\", d: \"dear\", e: \"elephant\" }; words.length()",
+    "code": "map<string> words = { a: \"ant\", b: \"bear\", c: \"cat\", d: \"dear\", e: \"elephant\" };"
+  },
+  {
+    "description": "Define a map named words - get value.",
+    "code": "words.length()",
     "expr": "5"
   },
   {
@@ -24,7 +28,11 @@
   },
   {
     "description": "Filter should filter items meeting a condition.",
-    "code": "int[] positive = numbers.filter(function (int i) returns boolean { return i >= 0; }); positive",
+    "code": "int[] positive = numbers.filter(function (int i) returns boolean { return i >= 0; })"
+  },
+  {
+    "description": "Filter should filter items meeting a condition - get value.",
+    "code": "positive",
     "expr": "[2,7,12]"
   },
   {

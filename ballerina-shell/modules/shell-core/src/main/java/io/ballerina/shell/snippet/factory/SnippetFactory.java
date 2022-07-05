@@ -79,7 +79,8 @@ public abstract class SnippetFactory extends DiagnosticReporter {
                 return snippet;
             }
         }
-        addErrorDiagnostic("Could not identify the expression due to syntax errors.");
+
+        addErrorDiagnostic("Compilation aborted due to invalid input.");
         throw new SnippetException();
     }
 

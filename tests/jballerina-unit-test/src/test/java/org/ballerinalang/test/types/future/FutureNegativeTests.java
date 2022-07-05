@@ -17,8 +17,8 @@
 
 package org.ballerinalang.test.types.future;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -76,16 +76,16 @@ public class FutureNegativeTests {
     @Test
     public void testStrand() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/future/strand_error.bal");
-        BValue[] result = BRunUtil.invoke(compileResult, "testStrand");
-        var mapResult = (BMap<String, BMap<String, BValue>>) result[0];
+        Object result = BRunUtil.invoke(compileResult, "testStrand");
+        var mapResult = (BMap<String, BMap<String, Object>>) result;
         Set<String> set = new HashSet<>();
-        set.add(mapResult.get("f1").get("f0").stringValue());
-        set.add(mapResult.get("f1").get("f00").stringValue());
-        set.add(mapResult.get("f2").get("f0").stringValue());
-        set.add(mapResult.get("f2").get("f00").stringValue());
+        set.add(mapResult.get(StringUtils.fromString("f1")).get(StringUtils.fromString("f0")).toString());
+        set.add(mapResult.get(StringUtils.fromString("f1")).get(StringUtils.fromString("f00")).toString());
+        set.add(mapResult.get(StringUtils.fromString("f2")).get(StringUtils.fromString("f0")).toString());
+        set.add(mapResult.get(StringUtils.fromString("f2")).get(StringUtils.fromString("f00")).toString());
         Assert.assertEquals(set.size(), 2);
         Assert.assertTrue(set.contains("3"));
-        Assert.assertTrue(set.contains("multiple waits on the same future is not allowed {}"));
+        Assert.assertTrue(set.contains("error(\"multiple waits on the same future is not allowed\")"));
     }
 
     @AfterClass

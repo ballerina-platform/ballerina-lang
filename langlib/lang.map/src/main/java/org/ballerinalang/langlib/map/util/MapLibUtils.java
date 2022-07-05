@@ -26,9 +26,10 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,9 +96,8 @@ public class MapLibUtils {
 
     private static BError createOpNotSupportedErrorForRecord(Type type, String field) {
         return ErrorCreator.createError(getModulePrefixedReason(
-                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), StringUtils.fromString(
-                String.format("failed to remove field: '%s' is a required field in '%s'", field,
-                              type.getQualifiedName())));
+                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BLangExceptionHelper.getErrorDetails(
+                        RuntimeErrors.FIELD_REMOVAL_NOT_ALLOWED, field, type.getQualifiedName()));
     }
 
     public static void validateRequiredFieldForRecord(BMap m, String k) {

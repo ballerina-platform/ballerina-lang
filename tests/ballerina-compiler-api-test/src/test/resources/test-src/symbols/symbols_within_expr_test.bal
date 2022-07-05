@@ -48,8 +48,8 @@ function testStructuralConstructors() {
 
     var tbl2 = table key(id) [
         {id: 1001, name: "John Doe"},
-        {id: 1002, name: "Jane Doe"}
-        //{...m}
+        {id: 1002, name: "Jane Doe"},
+        {...m2}
     ];
 }
 

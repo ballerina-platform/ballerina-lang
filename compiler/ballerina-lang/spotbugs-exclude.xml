@@ -44,6 +44,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.types" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.values" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
     </Match>
     <Match>
@@ -98,6 +101,10 @@
     <Match>
         <Package name="io.ballerina.compiler.api.impl.symbols" />
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE, EQ_DOESNT_OVERRIDE_EQUALS" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.compiler.api.Types" />
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Match>
     <Match>
         <Class name = "org.ballerinalang.toml.model.Library"/>
@@ -169,6 +176,10 @@
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIROperand"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.CompilerPhaseRunner"/>
@@ -348,6 +359,18 @@
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.CodeGeneratorManager$SourceGeneratorTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager$SourceModifierTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.SyntaxNodeAnalysisTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.directory.BuildProject"/>
         <Method name="createBuildFile"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
@@ -356,5 +379,30 @@
         <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
         <Method name="getBooleanFromBuildOptionsTableNode"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+    </Match>
+    <Match>
+        <Class name = "org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType"/>
+        <Method name="getReferredType"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject" />
+        <Method name="writePackageTableArrayWithPackageName"/>
+        <Bug pattern="DM_DEFAULT_ENCODING" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject" />
+        <Method name="writePackageNameInsideExistingEmptyPackageTable"/>
+        <Bug pattern="DM_DEFAULT_ENCODING" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject" />
+        <Method name="writePackageNameInsideExistingPackageTable"/>
+        <Bug pattern="DM_DEFAULT_ENCODING" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.ManifestUtils" />
+        <Method name="getStringFromTomlTableNode"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
 </FindBugsFilter>

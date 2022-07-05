@@ -1,8 +1,8 @@
-function getTDesc() returns typedesc<function()> {
-    typedesc<function()> td = typeof testFunction;
+function getTDesc() returns typedesc<function ()> {
+    typedesc<function ()> td = typeof testFunction;
 
     td.@a
-    
+
     return td;
 }
 
@@ -11,7 +11,7 @@ function testFunction() {
 }
 
 type AnnotationType record {
-    string foo;  
+    string foo;
     int bar?;
 };
 

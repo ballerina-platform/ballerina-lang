@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.expressions.invocations;
 
-import org.ballerinalang.core.model.values.BValueType;
+import io.ballerina.runtime.api.types.ObjectType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -49,7 +49,7 @@ public class PackageInitTest {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
             CompileResult result = BCompileUtil.compile("test-src/packagetest/initOrder");
-            BRunUtil.invoke(result, "getA1", new BValueType[0]);
+            BRunUtil.invoke(result, "getA1", new ObjectType[0]);
             int count = countOccurences(outputStream.toString().replace("\r", ""), "PackageA");
             Assert.assertEquals(count, 1);
         } finally {

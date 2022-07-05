@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.test.javainterop.varargs;
 
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.values.ArrayValue;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -50,109 +48,105 @@ public class JavaVarargsTest {
 
     @Test
     public void testIntVarargs_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntVarargs_1");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 6);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+        Object val = BRunUtil.invoke(result, "testIntVarargs_1");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0), 10L);
+        Assert.assertEquals(returns.get(1), 6L);
+        Assert.assertEquals(returns.get(2), 0L);
     }
 
     @Test
     public void testIntVarargs_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntVarargs_2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Object returns = BRunUtil.invoke(result, "testIntVarargs_2");
+        Assert.assertEquals(returns, 5L);
     }
 
     @Test
     public void testIntVarargs_3() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntVarargs_3");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 6);
+        Object val = BRunUtil.invoke(result, "testIntVarargs_3");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0), 9L);
+        Assert.assertEquals(returns.get(1), 6L);
     }
 
     @Test
     public void testIntVarargs_4() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntVarargs_4");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+        Object returns = BRunUtil.invoke(result, "testIntVarargs_4");
+        Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testLongVarargs() {
-        BValue[] returns = BRunUtil.invoke(result, "testLongVarargs");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 6);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+        Object val = BRunUtil.invoke(result, "testLongVarargs");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0), 10L);
+        Assert.assertEquals(returns.get(1), 6L);
+        Assert.assertEquals(returns.get(2), 0L);
     }
 
     @Test
     public void testGetSumOfIntArrays() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetSumOfIntArrays");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object returns = BRunUtil.invoke(result, "testGetSumOfIntArrays");
+        Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testGetSumOfIntArraysWithAnnot() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetSumOfIntArraysWithAnnot");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object returns = BRunUtil.invoke(result, "testGetSumOfIntArraysWithAnnot");
+        Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testJavaListVarargs() {
-        BValue[] returns = BRunUtil.invoke(result, "testJavaListVarargs");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue().toString(),
+        Object returns = BRunUtil.invoke(result, "testJavaListVarargs");
+        Assert.assertEquals(((HandleValue) returns).getValue().toString(),
                 "[apples, arranges, grapes, pineapple, mangoes]");
     }
 
     @Test
     public void testPrimitiveVarargsWithGenerics() {
-        BValue[] returns = BRunUtil.invoke(result, "testPrimitiveVarargsWithGenerics");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue().toString(), "[3, 6, 9]");
+        Object returns = BRunUtil.invoke(result, "testPrimitiveVarargsWithGenerics");
+        Assert.assertEquals(((HandleValue) returns).getValue().toString(), "[3, 6, 9]");
     }
 
     @Test
     public void testPasingValueTypeToJavaObject() {
-        BValue[] returns = BRunUtil.invoke(result, "testPasingValueTypeToJavaObject");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object returns = BRunUtil.invoke(result, "testPasingValueTypeToJavaObject");
+        Assert.assertEquals(returns, 4L);
     }
 
     @Test
     public void testJavaGenericReturnType() {
-        BValue[] returns = BRunUtil.invoke(result, "testJavaGenericReturnType");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 3.25);
-        Assert.assertEquals(((BHandleValue) returns[2]).getValue(), "apples");
+        Object val = BRunUtil.invoke(result, "testJavaGenericReturnType");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0), 8L);
+        Assert.assertEquals(returns.get(1), 3.25);
+        Assert.assertEquals(((HandleValue) returns.get(2)).getValue(), "apples");
     }
 
     @Test
     public void testRefTypeVarArg() {
-        BValue[] returns = BRunUtil.invoke(result, "testRefTypeVarArg");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "[7, 2, 8]");
-        Assert.assertEquals(returns[1].stringValue(), "[error(\"error one\"), error(\"error two\")]");
+        Object val = BRunUtil.invoke(result, "testRefTypeVarArg");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "[7, 2, 8]");
+        Assert.assertEquals(returns.get(1).toString(), "[error(\"error one\"), error(\"error two\")]");
     }
 
     @Test
     public void testIntArrayTypeVararg() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntArrayTypeVararg");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[[7,2], [8]]");
+        Object returns = BRunUtil.invoke(result, "testIntArrayTypeVararg");
+        Assert.assertEquals(returns.toString(), "[[7,2], [8]]");
     }
 
     @Test
     public void testRefArrayTypeVararg() {
-        BValue[] returns = BRunUtil.invoke(result, "testRefArrayTypeVararg");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[[error(\"error one\")], [error(\"error two\")]]");
+        Object returns = BRunUtil.invoke(result, "testRefArrayTypeVararg");
+        Assert.assertEquals(returns.toString(), "[[error(\"error one\")], [error(\"error two\")]]");
     }
 
     // Java methods for interop

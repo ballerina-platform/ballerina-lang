@@ -44,7 +44,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
 
     @Override
     public boolean isSingleton() {
-        return false;
+        return true;
     }
 
     @Override

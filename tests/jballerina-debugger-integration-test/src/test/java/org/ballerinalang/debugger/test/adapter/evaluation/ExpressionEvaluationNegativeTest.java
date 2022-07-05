@@ -26,15 +26,13 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.CUSTOM_ERROR;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
-import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_CLASS;
-import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_FUNCTION;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.UNSUPPORTED_EXPRESSION;
 
 /**
- * Test implementation for debug expression evaluation negative scenarios.
+ * Common expression evaluation negative test scenarios for Ballerina packages and single file projects.
  */
-public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
+public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
@@ -42,19 +40,19 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void literalEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void listConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void mappingConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -69,7 +67,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void xmlTemplateEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -89,10 +87,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, "new Location()", String.format(CUSTOM_ERROR.getString(),
                 "missing required parameter 'city'."));
 
-        // Accessing non-public classes
-        debugTestRunner.assertEvaluationError(context, "new other:Location(\"New York\",\"USA\")",
-                String.format(NON_PUBLIC_OR_UNDEFINED_CLASS.getString(), "Location", "other"));
-
         // Using undefined import
         debugTestRunner.assertEvaluationError(context, "new foo:Location(\"New York\",\"USA\")",
                 String.format(IMPORT_RESOLVING_ERROR.getString(), "foo"));
@@ -101,17 +95,17 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "other:constant", String.format(CUSTOM_ERROR.getString(),
-                "undefined/non-public constant 'constant' in module 'other'"));
-        debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(CUSTOM_ERROR.getString(),
-                "undefined/non-public constant 'MAX' in module 'int'"));
+        // undefined constant evaluation
+        debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
+                .getString(), "int", "MAX"));
+
+        // undefined module evaluation
         debugTestRunner.assertEvaluationError(context, "foo:constant", String.format(IMPORT_RESOLVING_ERROR.getString(),
                 "foo"));
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void fieldAccessEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -203,14 +197,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, "printDetails(\"Hi\", 20, ...stringArrayVar, 20);",
                 EvaluationExceptionKind.PREFIX + "Syntax errors found: " + System.lineSeparator() +
                         "arguments not allowed after rest argument");
-
-        // qualified functions (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "other:addition(2,6)",
-                String.format(NON_PUBLIC_OR_UNDEFINED_FUNCTION.getString(), "addition", "other"));
-        debugTestRunner.assertEvaluationError(context, "other:foo(-6)",
-                String.format(NON_PUBLIC_OR_UNDEFINED_FUNCTION.getString(), "foo", "other"));
-        debugTestRunner.assertEvaluationError(context, "foo:addition(2,6)", String.format(IMPORT_RESOLVING_ERROR
-                .getString(), "foo"));
     }
 
     @Override
@@ -273,13 +259,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, String.format("<boolean|string>%s", ANY_VAR),
                 "{ballerina}TypeCastError");
 
-        // qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "<other:Location> location",
-                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other:Location"));
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -295,9 +278,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "operator '~' not defined for 'string'");
         debugTestRunner.assertEvaluationError(context, String.format("!%s", STRING_VAR),
                 "operator '!' not defined for 'string'");
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "-other:constant", EvaluationExceptionKind.PREFIX +
-                "undefined/non-public constant 'constant' in module 'other'");
     }
 
     @Override
@@ -358,17 +338,16 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Test
     public void typeTestEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertEvaluationError(context, String.format("%s is NotDefinedClass", OBJECT_VAR),
-                String.format(CUSTOM_ERROR.getString(), "Failed to resolve type: 'NotDefinedClass'"));
+                String.format(CUSTOM_ERROR.getString(), "compilation error(s) found while creating executables for " +
+                        "evaluation: " + System.lineSeparator() + "unknown type 'NotDefinedClass'"));
 
         // qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "location is other:Location",
-                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other:Location"));
         debugTestRunner.assertEvaluationError(context, "location is foo:Place",
                 String.format(IMPORT_RESOLVING_ERROR.getString(), "foo"));
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void equalityEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -399,19 +378,19 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void conditionalExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void checkingExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void trapExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -457,9 +436,11 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 , "Failed to evaluate." + System.lineSeparator() +
                         "Reason: compilation error(s) found while creating executables for evaluation: " +
                         System.lineSeparator() +
-                        "field name 'id' used in key specifier is not found in table constraint type 'map'" +
+                        "field name 'id' used in key specifier is not found in table constraint type" +
+                                                      " 'map<(any|error)>'" +
                         System.lineSeparator() +
-                        "field name 'name' used in key specifier is not found in table constraint type 'map'");
+                        "field name 'name' used in key specifier is not found in table constraint type" +
+                                                      " 'map<(any|error)>'");
 
         // on conflict clauses usages with non-table returns
         debugTestRunner.assertEvaluationError(context, "from var customer in conflictedCustomerList" +
@@ -472,7 +453,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "Failed to evaluate." + System.lineSeparator() +
                         "Reason: compilation error(s) found while creating executables for evaluation: " +
                         System.lineSeparator() +
-                        "on conflict can only be used with queries which produce tables with key specifiers");
+                        "on conflict can only be used with queries which produce maps or tables with key specifiers");
     }
 
     @Override

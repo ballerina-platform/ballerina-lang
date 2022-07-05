@@ -2,20 +2,16 @@ NAME
        ballerina-format - Format the Ballerina source files
 
 SYNOPSIS
-       bal format 
-       bal format [-d | --dry-run] <ballerina-file-path> 
-       bal format [-d | --dry-run] <module-name>
+       bal format [OPTIONS] [<package>|<module>|<source-file>]
 
 
 DESCRIPTION
-       Format the Ballerina source files according to the Ballerina style guide defined at 
-       https://github.com/ballerina-platform/ballerina-lang/tree/master/docs/style_guide.
+       Formats the Ballerina source files. Formatting can be performed on a
+       Ballerina package, module, or source file.
 
-       Formatting can be performed on a Ballerina package, on a Ballerina module, or
-       on a Ballerina source file.
-
-       The formatted content will be written to the original files. By using the `dry run`
-       option, you will be able to check which files will be formatted after the execution.
+       The formatted content will be written to the original files. By using the
+       `dry run` option, you will be able to check which files will be formatted
+       after the execution.
 
        If the Ballerina sources contain syntax errors, they will be notified and
        formatting will not be proceeded until they are fixed.
@@ -28,14 +24,14 @@ OPTIONS
 
 
 EXAMPLES
-       Format a Ballerina package.
-          $ bal format
+       Format the current package.
+           $ bal format
 
-       Format a Ballerina module.
-          $ bal format hello
+       Format the module 'core' in the current package.
+           $ bal format core
 
        Format a Ballerina file.
-          $ bal format helloworld.bal
+           $ bal format app.bal
 
        Perform a dry run to see which files will be formatted.
-          $ bal format -d
+           $ bal format -d

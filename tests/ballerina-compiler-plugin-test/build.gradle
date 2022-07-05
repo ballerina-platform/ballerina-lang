@@ -23,19 +23,18 @@ configurations {
 }
 
 dependencies {
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-runtime')
     testCompile 'org.testng:testng'
-    testCompile 'com.h2database:h2'
 
     testRuntime project(':ballerina-lang:annotations')
     testRuntime project(':ballerina-lang:array')
     testRuntime project(':ballerina-lang:decimal')
     testRuntime project(':ballerina-lang:error')
     testRuntime project(':ballerina-lang:floatingpoint')
+    testRuntime project(':ballerina-lang:function')
     testRuntime project(':ballerina-lang:future')
     testRuntime project(':ballerina-lang:integer')
     testRuntime project(':ballerina-lang:map')

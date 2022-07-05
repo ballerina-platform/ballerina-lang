@@ -18,12 +18,11 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -48,224 +47,261 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object function method with default values")
     public void testObjectInitWithDefaultValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectInitWithDefaultValues");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectInitWithDefaultValues");
+        Assert.assertTrue(returns.get(0) instanceof BArray);
+        Assert.assertTrue(returns.get(1) instanceof BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "default");
-        Assert.assertTrue(((BBoolean) bValueArray.getRefValue(1)).booleanValue());
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(2)).intValue(), 100);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(3)).floatValue(), 1.1);
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0).toString(), "default");
+        Assert.assertTrue((Boolean) bValueArray.getRefValue(1));
+        Assert.assertEquals(bValueArray.getRefValue(2), 100L);
+        Assert.assertEquals(bValueArray.getRefValue(3), 1.1);
 
-        BMap<String, BValue> record = (BMap) bValueArray.getRefValue(4);
-        Assert.assertEquals(record.get("a").stringValue(), "default");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 50);
-        Assert.assertFalse(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 11.1);
+        BMap<String, Object> record = (BMap) bValueArray.getRefValue(4);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 50L);
+        Assert.assertFalse((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 11.1);
 
-        BMap<String, BValue> object = (BMap) bValueArray.getRefValue(5);
-        Assert.assertEquals(object.get("a").stringValue(), "def");
-        Assert.assertEquals(((BInteger) object.get("b")).intValue(), 200);
+        ObjectValue object = (ObjectValue) bValueArray.getRefValue(5);
+        Assert.assertEquals(object.get(StringUtils.fromString("a")).toString(), "def");
+        Assert.assertEquals(object.get(StringUtils.fromString("b")), 200L);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "given");
-        Assert.assertFalse(((BBoolean) bValueArray.getRefValue(1)).booleanValue());
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(2)).intValue(), 99);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(3)).floatValue(), 1.1);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0).toString(), "given");
+        Assert.assertFalse((Boolean) bValueArray.getRefValue(1));
+        Assert.assertEquals(bValueArray.getRefValue(2), 99L);
+        Assert.assertEquals(bValueArray.getRefValue(3), 1.1);
 
         record = (BMap) bValueArray.getRefValue(4);
-        Assert.assertEquals(record.get("a").stringValue(), "given2");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 49);
-        Assert.assertTrue(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 10.9);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 49L);
+        Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 10.9);
 
-        object = (BMap) bValueArray.getRefValue(5);
-        Assert.assertEquals(object.get("a").stringValue(), "def2");
-        Assert.assertEquals(((BInteger) object.get("b")).intValue(), 199);
+        object = (ObjectValue) bValueArray.getRefValue(5);
+        Assert.assertEquals(object.get(StringUtils.fromString("a")).toString(), "def2");
+        Assert.assertEquals(object.get(StringUtils.fromString("b")), 199L);
 
     }
 
     @Test(description = "Test object init function with default values 2")
     public void testObjectInitWithDefaultValues2() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectInitWithDefaultValues2");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectInitWithDefaultValues2");
+        Assert.assertTrue(returns.get(0) instanceof BArray);
+        Assert.assertTrue(returns.get(1) instanceof BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 205);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "defdefault");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 101.1);
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0), 205L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefault");
+        Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        BMap<String, BValue> record = (BMap) bValueArray.getRefValue(3);
-        Assert.assertEquals(record.get("a").stringValue(), "default2");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 150);
-        Assert.assertTrue(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 33.3);
+        BMap<String, Object> record = (BMap) bValueArray.getRefValue(3);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default2");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 150L);
+        Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 33.3);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 10);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "defdefault");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 101.1);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0), 10L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefault");
+        Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
         record = (BMap) bValueArray.getRefValue(3);
-        Assert.assertEquals(record.get("a").stringValue(), "given");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 49);
-        Assert.assertFalse(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 10.9);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 49L);
+        Assert.assertFalse((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 10.9);
 
     }
 
     @Test(description = "Test object attached functions with default values")
     public void testObjectAttachedFunction1() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectAttachedFunction1");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectAttachedFunction1");
+        Assert.assertTrue(returns.get(0) instanceof BArray);
+        Assert.assertTrue(returns.get(1) instanceof BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "global");
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(1)).intValue(), 200);
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0).toString(), "global");
+        Assert.assertEquals(bValueArray.getRefValue(1), 200L);
 
-        BMap<String, BValue> record = (BMap) bValueArray.getRefValue(2);
-        Assert.assertEquals(record.get("a").stringValue(), "default");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 50);
-        Assert.assertFalse(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 11.1);
+        BMap<String, Object> record = (BMap) bValueArray.getRefValue(2);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 50L);
+        Assert.assertFalse((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 11.1);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "given");
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(1)).intValue(), 200);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0).toString(), "given");
+        Assert.assertEquals(bValueArray.getRefValue(1), 200L);
 
         record = (BMap) bValueArray.getRefValue(2);
-        Assert.assertEquals(record.get("a").stringValue(), "given2");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 140);
-        Assert.assertTrue(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 22.2);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 140L);
+        Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 22.2);
     }
 
     @Test(description = "Test object attached functions with default values 2")
     public void testObjectAttachedFunction2() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectAttachedFunction2");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectAttachedFunction2");
+        Assert.assertTrue(returns.get(0) instanceof BArray);
+        Assert.assertTrue(returns.get(1) instanceof BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 210);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "defdefaultglobal");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 101.1);
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0), 210L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefaultglobal");
+        Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        BMap<String, BValue> record = (BMap) bValueArray.getRefValue(3);
-        Assert.assertEquals(record.get("a").stringValue(), "default2");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 150);
-        Assert.assertTrue(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 33.3);
+        BMap<String, Object> record = (BMap) bValueArray.getRefValue(3);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default2");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 150L);
+        Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 33.3);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 210);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "given");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 101.1);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0), 210L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "given");
+        Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
         record = (BMap) bValueArray.getRefValue(3);
-        Assert.assertEquals(record.get("a").stringValue(), "given2");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 140);
-        Assert.assertTrue(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 22.2);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 140L);
+        Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 22.2);
     }
 
     @Test(description = "Test object attached functions with default values 3")
     public void testObjectAttachedFunction3() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectAttachedFunction3");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectAttachedFunction3");
+        Assert.assertTrue(returns.get(0) instanceof BArray);
+        Assert.assertTrue(returns.get(1) instanceof BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "global");
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(1)).intValue(), 200);
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0).toString(), "global");
+        Assert.assertEquals(bValueArray.getRefValue(1), 200L);
 
-        BMap<String, BValue> record = (BMap) bValueArray.getRefValue(2);
-        Assert.assertEquals(record.get("a").stringValue(), "default");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 50);
-        Assert.assertFalse(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 11.1);
+        BMap<String, Object> record = (BMap) bValueArray.getRefValue(2);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 50L);
+        Assert.assertFalse((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 11.1);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "given");
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(1)).intValue(), 200);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0).toString(), "given");
+        Assert.assertEquals(bValueArray.getRefValue(1), 200L);
 
         record = (BMap) bValueArray.getRefValue(2);
-        Assert.assertEquals(record.get("a").stringValue(), "given2");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 140);
-        Assert.assertTrue(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 22.2);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 140L);
+        Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 22.2);
     }
 
     @Test(description = "Test object attached functions with default values 4")
     public void testObjectAttachedFunction4() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectAttachedFunction4");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectAttachedFunction4");
+        Assert.assertTrue(returns.get(0) instanceof BArray);
+        Assert.assertTrue(returns.get(1) instanceof BArray);
 
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 210);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "defdefaultglobal");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 101.1);
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0), 210L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "defdefaultglobal");
+        Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
-        BMap<String, BValue> record = (BMap) bValueArray.getRefValue(3);
-        Assert.assertEquals(record.get("a").stringValue(), "default2");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 150);
-        Assert.assertTrue(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 33.3);
+        BMap<String, Object> record = (BMap) bValueArray.getRefValue(3);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "default2");
+        Assert.assertEquals((record.get(StringUtils.fromString("b"))), 150L);
+        Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals((record.get(StringUtils.fromString("d"))), 33.3);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 210);
-        Assert.assertEquals(bValueArray.getRefValue(1).stringValue(), "given");
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(2)).floatValue(), 101.1);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0), 210L);
+        Assert.assertEquals(bValueArray.getRefValue(1).toString(), "given");
+        Assert.assertEquals(bValueArray.getRefValue(2), 101.1);
 
         record = (BMap) bValueArray.getRefValue(3);
-        Assert.assertEquals(record.get("a").stringValue(), "given2");
-        Assert.assertEquals(((BInteger) record.get("b")).intValue(), 140);
-        Assert.assertTrue(((BBoolean) record.get("c")).booleanValue());
-        Assert.assertEquals(((BFloat) record.get("d")).floatValue(), 22.2);
+        Assert.assertEquals(record.get(StringUtils.fromString("a")).toString(), "given2");
+        Assert.assertEquals(record.get(StringUtils.fromString("b")), 140L);
+        Assert.assertTrue((Boolean) record.get(StringUtils.fromString("c")));
+        Assert.assertEquals(record.get(StringUtils.fromString("d")), 22.2);
     }
 
     @Test(description = "Test object casting 1")
     public void testObjectCasting1() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectCasting1");
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 200);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 2.2);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectCasting1");
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0), 200L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 2.2);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 40);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 2.2);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0), 40L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 2.2);
 
-        bValueArray = (BValueArray) returns[2];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 40);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 22.2);
+        bValueArray = (BArray) returns.get(2);
+        Assert.assertEquals(bValueArray.getRefValue(0), 40L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 22.2);
 
-        bValueArray = (BValueArray) returns[3];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 200);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 22.2);
+        bValueArray = (BArray) returns.get(3);
+        Assert.assertEquals(bValueArray.getRefValue(0), 200L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 22.2);
     }
 
     @Test(description = "Test object casting 2")
     public void testObjectCasting12() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectCasting2");
-        BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 400);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 4.4);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectCasting2");
+        BArray bValueArray = (BArray) returns.get(0);
+        Assert.assertEquals(bValueArray.getRefValue(0), 400L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 4.4);
 
-        bValueArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 80);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 4.4);
+        bValueArray = (BArray) returns.get(1);
+        Assert.assertEquals(bValueArray.getRefValue(0), 80L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 4.4);
 
-        bValueArray = (BValueArray) returns[2];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 80);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 44.4);
+        bValueArray = (BArray) returns.get(2);
+        Assert.assertEquals(bValueArray.getRefValue(0), 80L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 44.4);
 
-        bValueArray = (BValueArray) returns[3];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 400);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 44.4);
+        bValueArray = (BArray) returns.get(3);
+        Assert.assertEquals(bValueArray.getRefValue(0), 400L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 44.4);
+    }
+
+    @Test(description = "Negative tests for functions with defaultable parameters")
+    public void testFunctionsWithDefaultableParametersNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/object/object_functions_with_default_parameters_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 20, 36);
+        BAssertUtil.validateError(result, i++, "self referenced variable 'i'", 28, 33);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 37, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 's'", 37, 53);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 51, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 's'", 51, 53);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'u'", 51, 74);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 59, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 71, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 75, 37);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 85, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 88, 37);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 97, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 101, 37);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 106, 45);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 117, 29);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 122, 29);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 123, 29);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 58);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 84);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test(description = "Test an object constructor when value of default parameter is a local variable. " +
+            "Currently fails at BIR generation (#35359)", enabled = false)
+    public void testReferLocalVarInObjConstructor() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/object/object_functions_with_default_parameters_rt_failure.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
     }
 
     @AfterClass

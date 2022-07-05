@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 45,
+    "character": 33
+  },
+  "source": {
+    "file": "hover_for_api_docs.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Converts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n---  \n  \n### Parameters  \n  \n`any` ***v*** : the value to be converted to a string  \n  \n---  \n  \n### Return  \n`string` : a string resulting from the conversion  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina\\/lang.value\\/0.0.0\\/functions#toBalString)"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

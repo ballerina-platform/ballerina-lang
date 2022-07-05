@@ -346,3 +346,15 @@ function panics() returns int {
 
 xmlns "foo" as ns;
 xmlns "bar" as k;
+
+public function testFutureRes() {
+    future<int> futureResult = fooFn();
+}
+
+function fooFn() returns future<int> {
+    return start barFn();
+}
+
+function barFn() returns int {
+    return 10;
+}

@@ -50,7 +50,7 @@ public class BAnydataType extends BUnionType implements AnydataType {
     }
 
     public BAnydataType(BUnionType unionType, String typeName, boolean readonly) {
-        super(unionType, typeName);
+        super(unionType, typeName, readonly);
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(unionType, TypeConstants.READONLY_ANYDATA_TNAME, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},

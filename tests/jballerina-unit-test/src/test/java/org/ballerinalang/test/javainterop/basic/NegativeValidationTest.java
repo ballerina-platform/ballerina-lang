@@ -161,9 +161,10 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
                         "'acceptIntReturnIntThrowsCheckedException' which throws checked exception found in class " +
-                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': expected 'int|error', found 'int''",
                 "method_sig_not_match1.bal", 3, 1);
     }
 
@@ -176,9 +177,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
                         "'acceptRecordAndRecordReturnWhichThrowsCheckedException' which throws checked exception " +
-                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'Employee|error', found 'Employee''",
                 "method_sig_not_match2.bal", 7, 1);
     }
 
@@ -191,9 +194,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
                         "'acceptIntUnionReturnWhichThrowsCheckedException' which throws checked exception found in " +
-                        "class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected '(int|string|float|boolean)|error', found '(int|string|float|boolean)''",
                 "method_sig_not_match3.bal", 3, 1);
     }
 
@@ -206,9 +211,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
                         "'acceptRefTypesAndReturnMapWhichThrowsCheckedException' which throws checked exception " +
-                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'map|error', found 'map''",
                 "method_sig_not_match4.bal", 14, 1);
     }
 
@@ -221,9 +228,11 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
                         "'acceptStringErrorReturnWhichThrowsCheckedException' which throws checked exception found " +
-                        "in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'error', found '()''",
                 "method_sig_not_match5.bal", 3, 1);
     }
 
@@ -236,14 +245,47 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
                         "'getArrayValueFromMapWhichThrowsCheckedException' which throws checked exception found in " +
-                        "class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'int[]|error', found 'int[]''",
                 "method_sig_not_match6.bal", 3, 1);
     }
 
     @Test
     public void testMethodSignatureNotMatch7() {
+
+        String path = "test-src/javainterop/negative/method_sig_not_match15.bal";
+
+        CompileResult compileResult = BCompileUtil.compile(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
+                        "'acceptIntErrorUnionReturnWhichThrowsCheckedException' which throws checked exception " +
+                        "found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'int|error', found 'int''",
+                "method_sig_not_match15.bal", 3, 1);
+    }
+
+    @Test
+    public void testMethodSignatureNotMatch8() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/javainterop/negative/distinct_error");
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateError(compileResult, 0,
+        "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                "'Incompatible ballerina return type for Java method " +
+                "'returnDistinctErrorUnionWhichThrowsCheckedException' which throws checked exception " +
+                "found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                "expected 'int|error', found '(int|testorg/distinct_error.errors:1.0.0:DistinctError)''",
+                21, 1);
+    }
+
+    @Test
+    public void testMethodSignatureNotMatch9() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
 
@@ -257,7 +299,7 @@ public class NegativeValidationTest {
     }
 
     @Test
-    public void testMethodSignatureNotMatch8() {
+    public void testMethodSignatureNotMatch10() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
 
@@ -271,7 +313,7 @@ public class NegativeValidationTest {
     }
 
     @Test
-    public void testMethodSignatureNotMatch9() {
+    public void testMethodSignatureNotMatch11() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match9.bal";
 
@@ -287,7 +329,7 @@ public class NegativeValidationTest {
     }
 
     @Test
-    public void testMethodSignatureNotMatch10() {
+    public void testMethodSignatureNotMatch12() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match10.bal";
 
@@ -423,8 +465,9 @@ public class NegativeValidationTest {
     public void testInstanceFieldGetWithoutOneParameter() {
         String path = "test-src/javainterop/negative/fieldget_error1.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INVALID NUMBER OF PARAMETERS "
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateWarning(compileResult, 0, "unused variable 'ans'", 4, 5);
+        BAssertUtil.validateError(compileResult, 1, "{ballerina/jballerina.java}INVALID NUMBER OF PARAMETERS "
                 + "'One parameter is required to get the value of the instance field 'isEmpty' in class " +
                 "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
     }
@@ -433,8 +476,9 @@ public class NegativeValidationTest {
     public void testNoHandleTypeParameterForInstanceFieldGet() {
         String path = "test-src/javainterop/negative/fieldget_error2.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}" +
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateWarning(compileResult, 0, "unused variable 'ans'", 4, 5);
+        BAssertUtil.validateError(compileResult, 1, "{ballerina/jballerina.java}" +
                 "INVALID PARAMETER TYPE 'The parameter needs to be of the handle type to get the value of the instance "
                 + "field 'isEmpty' in class 'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
     }
@@ -453,8 +497,9 @@ public class NegativeValidationTest {
     public void testStaticFieldGetWithAnyParameter() {
         String path = "test-src/javainterop/negative/fieldget_error3.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INVALID NUMBER OF PARAMETERS "
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateWarning(compileResult, 0, "unused variable 'ans'", 4, 5);
+        BAssertUtil.validateError(compileResult, 1, "{ballerina/jballerina.java}INVALID NUMBER OF PARAMETERS "
                 + "'No parameter is required to get the value of the static field 'isAvailable' in class " +
                 "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
     }

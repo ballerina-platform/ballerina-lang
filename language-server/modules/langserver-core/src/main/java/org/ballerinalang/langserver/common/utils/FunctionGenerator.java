@@ -30,8 +30,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePrefix;
-
 /**
  * Function generator utilities.
  */
@@ -41,15 +39,15 @@ public class FunctionGenerator {
             Pattern.compile("([\\w]+)\\/([\\w.]+):([^:]+):([\\w]+)[\\|]?");
 
     /**
-     * Returns signature of the return type.
+     * Returns signature of the provided type.
      *
      * @param importsAcceptor imports acceptor
      * @param typeDescriptor  {@link BLangNode}
      * @param context         {@link DocumentServiceContext}
      * @return return type signature
      */
-    public static String generateTypeDefinition(ImportsAcceptor importsAcceptor,
-                                                TypeSymbol typeDescriptor, DocumentServiceContext context) {
+    public static String generateTypeSignature(ImportsAcceptor importsAcceptor,
+                                               TypeSymbol typeDescriptor, DocumentServiceContext context) {
         return processModuleIDsInText(importsAcceptor, typeDescriptor.signature(), context);
     }
 
@@ -80,7 +78,7 @@ public class FunctionGenerator {
             newText.append(text, nextStart, matcher.start(1));
             // Append module prefix(empty when in same module) and identify imports
             ModuleID moduleID = CodeActionModuleId.from(matcher.group(1), matcher.group(2), matcher.group(3));
-            newText.append(getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
+            newText.append(ModuleUtil.getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
             // Update next-start position
             nextStart = matcher.end(3) + 1;
         }
@@ -100,28 +98,11 @@ public class FunctionGenerator {
      * @param args               Function parameters
      * @param returnTypeDescKind {@link TypeDescKind} of the return type
      * @return Created function
-     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol)
+     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol, boolean)
      */
     public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
                                           List<String> args, TypeDescKind returnTypeDescKind) {
-        String returnType = null;
-        if (returnTypeDescKind != TypeDescKind.COMPILATION_ERROR) {
-            returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeDescKind.getName());
-        }
-
-        String returnsClause = "";
-        String returnStmt = "";
-        if (returnType != null) {
-            // returns clause
-            returnsClause = "returns " + returnType;
-            // return statement
-            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForTypeDescKind(returnTypeDescKind);
-            if (defaultReturnValue.isPresent()) {
-                returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
-            }
-        }
-
-        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart);
+        return generateFunction(context, newLineAtStart, functionName, args, returnTypeDescKind, false);
     }
 
     /**
@@ -136,6 +117,57 @@ public class FunctionGenerator {
      */
     public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
                                           List<String> args, TypeSymbol returnTypeSymbol) {
+        return generateFunction(context, newLineAtStart, functionName, args, returnTypeSymbol, false);
+    }
+
+    /**
+     * Generate a function once function name, arguments and return type descriptor kind is provided.
+     *
+     * @param context            Document service context
+     * @param newLineAtStart     Whether to add a new line at the end of the function.
+     * @param functionName       Name of the function
+     * @param args               Function parameters
+     * @param returnTypeDescKind {@link TypeDescKind} of the return type
+     * @param isolated           Whether the created function should be prefixed with isolated qualifier
+     * @return Created function
+     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol, boolean)
+     */
+    public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
+                                          List<String> args, TypeDescKind returnTypeDescKind, boolean isolated) {
+        String returnType = null;
+        if (returnTypeDescKind != TypeDescKind.COMPILATION_ERROR) {
+            returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeDescKind.getName());
+        }
+
+        String returnsClause = "";
+        String returnStmt = "";
+        if (returnType != null) {
+            // returns clause
+            returnsClause = "returns " + returnType;
+            // return statement
+            Optional<String> defaultReturnValue = DefaultValueGenerationUtil
+                    .getDefaultValueForTypeDescKind(returnTypeDescKind);
+            if (defaultReturnValue.isPresent()) {
+                returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
+            }
+        }
+
+        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart, isolated);
+    }
+
+    /**
+     * Generates a function with the provided parameters.
+     *
+     * @param context          Document service context
+     * @param newLineAtEnd     Whether to add an additional newline at the end of the function.
+     * @param functionName     Name of the created function
+     * @param args             Function arguments as a string list
+     * @param returnTypeSymbol return type of the function
+     * @param isolated         Whether the created function should be prefixed with isolated qualifier
+     * @return Created function as a string
+     */
+    public static String generateFunction(DocumentServiceContext context, boolean newLineAtEnd, String functionName,
+                                          List<String> args, TypeSymbol returnTypeSymbol, boolean isolated) {
         String returnType = null;
         if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
             returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.signature());
@@ -147,27 +179,28 @@ public class FunctionGenerator {
             // returns clause
             returnsClause = "returns " + returnType;
             // return statement
-            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+            Optional<String> defaultReturnValue = DefaultValueGenerationUtil.getDefaultValueForType(returnTypeSymbol);
             if (defaultReturnValue.isPresent()) {
                 returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
             }
         }
 
-        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart);
+        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtEnd, isolated);
     }
 
     /**
      * Generate a function provided the function name, args, return clause and return statement.
      *
-     * @param functionName   Function name
-     * @param args           Function parameters
-     * @param returnsClause  Returns clause
-     * @param returnStmt     Return statement
-     * @param newLineAtStart Whether to add a new line at the start of the function
+     * @param functionName  Function name
+     * @param args          Function parameters
+     * @param returnsClause Returns clause
+     * @param returnStmt    Return statement
+     * @param newLineAtEnd  Whether to add a new line at the end of the function
+     * @param isolated      Whether the created function should be prefixed with isolated qualifier
      * @return Created function
      */
     private static String generateFunction(String functionName, List<String> args, String returnsClause,
-                                           String returnStmt, boolean newLineAtStart) {
+                                           String returnStmt, boolean newLineAtEnd, boolean isolated) {
         // padding
         int padding = 4;
         String paddingStr = StringUtils.repeat(" ", padding);
@@ -181,14 +214,14 @@ public class FunctionGenerator {
         }
 
         StringBuilder fnBuilder = new StringBuilder();
-
-        if (newLineAtStart) {
-            fnBuilder.append(CommonUtil.LINE_SEPARATOR);
-        }
         if (!functionName.isEmpty()) {
-            fnBuilder.append(CommonUtil.LINE_SEPARATOR);
+            fnBuilder.append(CommonUtil.LINE_SEPARATOR).append(CommonUtil.LINE_SEPARATOR);
         }
-        
+
+        if (isolated) {
+            fnBuilder.append("isolated ");
+        }
+
         fnBuilder.append("function").append(" ").append(functionName)
                 .append(CommonKeys.OPEN_PARENTHESES_KEY)
                 .append(String.join(", ", args))
@@ -203,7 +236,7 @@ public class FunctionGenerator {
                 .append(body)
                 .append(CommonKeys.CLOSE_BRACE_KEY);
 
-        if (!functionName.isEmpty()) {
+        if (!functionName.isEmpty() && newLineAtEnd) {
             fnBuilder.append(CommonUtil.LINE_SEPARATOR);
         }
 

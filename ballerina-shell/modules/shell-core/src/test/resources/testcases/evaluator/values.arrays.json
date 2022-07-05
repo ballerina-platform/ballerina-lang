@@ -5,12 +5,20 @@
   },
   {
     "description": "Creates an `int` array of length 0.",
-    "code": "int[] a = []; a",
+    "code": "int[] a = [];"
+  },
+  {
+    "description": "Creates an `int` array of length 0 - get value.",
+    "code": "a",
     "expr": "[]"
   },
   {
     "description": "Creates an array specifying an array literal.",
-    "code": "int[] b = [1, 2, 3, 4, 5, 6, 7, 8]; b",
+    "code": "int[] b = [1, 2, 3, 4, 5, 6, 7, 8];"
+  },
+  {
+    "description": "Creates an array specifying an array literal - get value.",
+    "code": "b",
     "expr": "[1,2,3,4,5,6,7,8]"
   },
   {
@@ -25,37 +33,61 @@
   },
   {
     "description": "An array can be sorted using `.sort()`.",
-    "code": "int[] sortedArray = b.sort(array:DESCENDING, isolated function (int value) returns string[] { if (value < 5) {return [\"A\",value.toString()]; } else { return [\"B\",value.toString()]; } }); sortedArray",
+    "code": "int[] sortedArray = b.sort(array:DESCENDING, isolated function (int value) returns string[] { if (value < 5) {return [\"A\",value.toString()]; } else { return [\"B\",value.toString()]; } });"
+  },
+  {
+    "description": "An array can be sorted using `.sort()` - get value.",
+    "code": "sortedArray",
     "expr": "[7,6,5,4,3,2,1]"
   },
   {
     "description": "Arrays support several inbuilt functions: reverse(). ",
-    "code": "b.reverse()",
+    "code": "sortedArray.reverse()",
     "expr": "[1,2,3,4,5,6,7]"
   },
   {
     "description": "Unless size is specified, arrays are unbound of length.",
-    "code": "b[999] = 23; b[999]",
+    "code": "b[999] = 23;"
+  },
+  {
+    "description": "Unless size is specified, arrays are unbound of length - get value.",
+    "code": "b[999]",
     "expr": "23"
   },
   {
     "description": " Initializes a two dimensional `int` array.",
-    "code": "int[][] iarray = [[1, 2, 3], [10, 20, 30], [5, 6, 7]]; iarray.length()",
+    "code": "int[][] iarray = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];"
+  },
+  {
+    "description": " Initializes a two dimensional `int` array - get value.",
+    "code": "iarray.length()",
     "expr": "3"
   },
   {
     "description": "Adds a new array as the first element.",
-    "code": "iarray[0] = [9]; iarray[0][0]",
+    "code": "iarray[0] = [9];"
+  },
+  {
+    "description": "Adds a new array as the first element - get value.",
+    "code": "iarray[0][0]",
     "expr": "9"
   },
   {
     "description": "Creates an `int` array with the fixed length of five.",
-    "code": "int[5] e = [1, 2, 3, 4, 5]; e.length()",
+    "code": "int[5] e = [1, 2, 3, 4, 5];"
+  },
+  {
+    "description": "Creates an `int` array with the fixed length of five - get value.",
+    "code": "e.length()",
     "expr": "5"
   },
   {
     "description": "Infers the array size.",
-    "code": "int[*] g = [1, 2, 3, 4]; g.length()",
+    "code": "int[*] g = [1, 2, 3, 4];"
+  },
+  {
+    "description": "Infers the array size - get value.",
+    "code": "g.length()",
     "expr": "4"
   }
 ]

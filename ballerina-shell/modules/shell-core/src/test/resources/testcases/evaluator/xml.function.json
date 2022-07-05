@@ -9,12 +9,20 @@
   },
   {
     "description": "Get the name of XML element.",
-    "code": "xmllib:Element bookNameElem = <xmllib:Element> bookName; bookNameElem.getName()",
+    "code": "xmllib:Element bookNameElem = <xmllib:Element> bookName;"
+  },
+  {
+    "description": "Get the name of XML element - get value.",
+    "code": "bookNameElem.getName()",
     "expr": "\"name\""
   },
   {
     "description": "Concat XML and Strings.",
-    "code": "xml concat = xmllib:concat(someText, bookName, bookComment); concat",
+    "code": "xml concat = xmllib:concat(someText, bookName, bookComment);"
+  },
+  {
+    "description": "Concat XML and Strings - get value.",
+    "code": "concat",
     "expr": "xml`Hello, World!<name>Book1</name><!--some comment-->`"
   },
   {
@@ -29,22 +37,38 @@
   },
   {
     "description": "Get subsequence of XML sequence.",
-    "code": "xml x = content.slice(2, 3); x",
+    "code": "xml x = content.slice(2, 3);"
+  },
+  {
+    "description": "Get subsequence of XML sequence - get value.",
+    "code": "x",
     "expr": "xml`<!--some comment-->`"
   },
   {
     "description": "Get all elements in the XML.",
-    "code": "x = content.elements(); x",
+    "code": "x = content.elements();"
+  },
+  {
+    "description": "Get all elements in the XML - get value.",
+    "code": "x",
     "expr": "xml`<name>Book1</name>`"
   },
   {
     "description": "Set child elements of XML element.",
-    "code": "book.setChildren(content); book",
+    "code": "book.setChildren(content);"
+  },
+  {
+    "description": "Set child elements of XML element - get value.",
+    "code": "book",
     "expr": "xml`<book>Hello, World!<name>Book1</name><!--some comment--></book>`"
   },
   {
     "description": "Strip insignificant parts.",
-    "code": "x = content.strip(); x",
+    "code": "x = content.strip();"
+  },
+  {
+    "description": "Strip insignificant parts - get value.",
+    "code": "x",
     "expr": "xml`Hello, World!<name>Book1</name>`"
   }
 ]

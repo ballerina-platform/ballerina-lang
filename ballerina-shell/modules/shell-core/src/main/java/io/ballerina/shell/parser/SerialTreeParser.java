@@ -24,9 +24,9 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.parser.trials.EmptyExpressionTrial;
+import io.ballerina.shell.parser.trials.ExpressionListTrial;
 import io.ballerina.shell.parser.trials.ExpressionTrial;
 import io.ballerina.shell.parser.trials.GetErrorMessageTrial;
-import io.ballerina.shell.parser.trials.ImportDeclarationTrial;
 import io.ballerina.shell.parser.trials.InvalidMethodException;
 import io.ballerina.shell.parser.trials.ModuleMemberTrial;
 import io.ballerina.shell.parser.trials.ModulePartTrial;
@@ -34,6 +34,7 @@ import io.ballerina.shell.parser.trials.ParserRejectedException;
 import io.ballerina.shell.parser.trials.ParserTrialFailedException;
 import io.ballerina.shell.parser.trials.StatementTrial;
 import io.ballerina.shell.parser.trials.TreeParserTrial;
+import io.ballerina.shell.parser.trials.WorkerDeclarationTrial;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,17 +57,18 @@ public class SerialTreeParser extends TrialTreeParser {
     public SerialTreeParser(long timeOutDurationMs) {
         super(timeOutDurationMs);
         this.nodeParserTrials = List.of(
-                new ImportDeclarationTrial(this),
                 new ModuleMemberTrial(this),
                 new ExpressionTrial(this),
+                new ExpressionListTrial(this),
                 new StatementTrial(this),
+                new WorkerDeclarationTrial(this),
                 new EmptyExpressionTrial(this),
                 new GetErrorMessageTrial(this)
         );
     }
 
     @Override
-    public Node parse(String source) throws TreeParserException {
+    public Collection<Node> parse(String source) throws TreeParserException {
         String errorMessage = "";
         for (TreeParserTrial trial : nodeParserTrials) {
             try {
@@ -85,7 +87,7 @@ public class SerialTreeParser extends TrialTreeParser {
             }
         }
         if (source.startsWith(COMMAND_PREFIX)) {
-            errorMessage = "Can not find the command: " + source.substring(0, source.length() - 1).trim();
+            errorMessage = "Can not find the command: " + source.trim();
             addErrorDiagnostic(errorMessage);
             addErrorDiagnostic("Please use \"/help\" command to view available commands.");
         } else {
@@ -99,11 +101,14 @@ public class SerialTreeParser extends TrialTreeParser {
     public Collection<Node> parseDeclarations(String source) throws TreeParserException {
         try {
             ModulePartTrial modulePartTrial = new ModulePartTrial(this);
-            ModulePartNode modulePartNode = (ModulePartNode) modulePartTrial.parse(source);
+            Collection<Node> nodes = modulePartTrial.parse(source);
             List<Node> declarationNodes = new ArrayList<>();
-            modulePartNode.imports().forEach(declarationNodes::add);
-            modulePartNode.members().stream().filter(this::isModuleDeclarationAllowed)
-                    .forEach(declarationNodes::add);
+            for (Node node:nodes) {
+                ModulePartNode modulePartNode = (ModulePartNode) node;
+                modulePartNode.imports().forEach(declarationNodes::add);
+                modulePartNode.members().stream().filter(this::isModuleDeclarationAllowed)
+                        .forEach(declarationNodes::add);
+            }
             return declarationNodes;
         } catch (ParserTrialFailedException e) {
             addErrorDiagnostic(e.getMessage());

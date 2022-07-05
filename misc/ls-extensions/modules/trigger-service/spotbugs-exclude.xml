@@ -1,0 +1,8 @@
+<FindBugsFilter>
+    <Match>
+        <Package name="io.ballerina.trigger.*"/>
+    </Match>
+    <Match>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+</FindBugsFilter>

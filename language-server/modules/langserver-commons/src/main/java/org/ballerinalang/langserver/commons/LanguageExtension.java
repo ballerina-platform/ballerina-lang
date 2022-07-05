@@ -19,6 +19,9 @@ package org.ballerinalang.langserver.commons;
 
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Represents the language extension SPI to cater the multi-language support in the language server.
  *
@@ -48,8 +51,8 @@ public interface LanguageExtension<I, O, C extends DocumentServiceContext> {
     /**
      * Execute the operation and output the result.
      *
-     * @param inputParams input params for the operation
-     * @param context language server operation context
+     * @param inputParams   input params for the operation
+     * @param context       language server operation context
      * @param serverContext language server context
      * @return {@link O} output of the operation
      * @throws Throwable while executing. Here we throw the Throwable rather than a narrower exception since the
@@ -60,17 +63,33 @@ public interface LanguageExtension<I, O, C extends DocumentServiceContext> {
     /**
      * Execute the operation and output the result.
      *
-     * @param inputParams input params for the operation
-     * @param context language server operation context
+     * @param inputParams   input params for the operation
+     * @param context       language server operation context
      * @param serverContext language server context
      * @return {@link O} output of the operation
      * @throws Throwable while executing. Here we throw the Throwable rather than a narrower exception since the
      *                   executor has to handle the exceptions accordingly.
      */
     default O execute(I inputParams,
-              C context,
-              LanguageServerContext serverContext,
-              CancelChecker cancelChecker) throws Throwable {
+                      C context,
+                      LanguageServerContext serverContext,
+                      CancelChecker cancelChecker) throws Throwable {
         return execute(inputParams, context, serverContext);
+    }
+
+    /**
+     * The list of custom uri schemes which can handled by the extension
+     * The extension is supposed to analyze the input parameters if needed.
+     * By default, the extension will return an empty list and only the requests with file scheme will be delegated
+     *
+     * @param inputParams   input params for the operation
+     * @param context       language server operation context
+     * @param serverContext language server context
+     * @return {@link List}
+     */
+    default List<String> handledCustomURISchemes(I inputParams,
+                                         C context,
+                                         LanguageServerContext serverContext) {
+        return Collections.emptyList();
     }
 }

@@ -1,0 +1,98 @@
+[
+  {
+    "source": "int a = 10;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["a"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function multiply(int m, int n) returns int { return m * n;}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["multiply"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "multiply(a,5)",
+    "result": {
+      "shellValue": {
+        "value":"50",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "multiply(15,5)",
+    "result": {
+      "shellValue": {
+        "value":"75",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function manipulatedMultiply(int m, int n) returns int { int d = m*2;return d * n;}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["manipulatedMultiply"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "manipulatedMultiply(2,4)",
+    "result": {
+      "shellValue": {
+        "value":"16",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "_ = manipulatedMultiply(2,4)",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "multiply(\"2\",4)",
+    "result": {
+      "errors":["Invocation of the snippet failed."],
+      "diagnostics":["error: incompatible types: expected \u0027int\u0027, found \u0027string\u0027\n\tmultiply(\"2\",4)\n\t         ^-^","Compilation aborted due to errors."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "notDefined()",
+    "result": {
+      "errors":["Invocation of the snippet failed."],
+      "diagnostics":["error: undefined function \u0027notDefined\u0027\n\tnotDefined()\n\t^----------^","Compilation aborted due to errors."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

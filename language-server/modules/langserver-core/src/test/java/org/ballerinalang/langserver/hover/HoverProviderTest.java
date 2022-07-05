@@ -32,17 +32,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Test hover feature in language server.
  */
 public class HoverProviderTest {
+
     protected Endpoint serviceEndpoint;
     protected Path configRoot;
     protected Path sourceRoot;
-    private final JsonParser parser = new JsonParser();
 
     @BeforeClass
     public void loadLangServer() throws IOException {
@@ -69,14 +68,15 @@ public class HoverProviderTest {
 //            obj.add("position", configJson.get("position"));
 //            obj.add("source", configJson.get("source"));
 //            obj.add("expected", parser.parse(response));
+//            String objStr = obj.toString().concat(System.lineSeparator());
 //            java.nio.file.Files.write(FileUtils.RES_DIR.resolve("hover").resolve("configs").resolve(config),
-//                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+//                                      objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             Assert.fail("Failed Test for: " + config);
         }
     }
 
     public String getResponse(Path sourcePath, Position position) {
-        return parser.parse(TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint))
+        return JsonParser.parseString(TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint))
                 .getAsJsonObject().toString();
     }
 
@@ -105,7 +105,7 @@ public class HoverProviderTest {
     }
 
     private List<String> skipList() {
-        return new ArrayList<>();
+        return List.of("hover_for_api_docs_enum.json");
     }
 
     private Position getPosition(JsonObject config) {

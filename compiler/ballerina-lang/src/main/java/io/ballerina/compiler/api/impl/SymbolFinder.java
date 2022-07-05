@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentableNode;
@@ -88,12 +89,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -120,7 +119,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -204,7 +202,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -378,7 +375,8 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (annAttachmentNode.annotationSymbol != null
-                && setEnclosingNode(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos)) {
+                && (setEnclosingNode(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos) ||
+                        annAttachmentNode.annotationSymbol.getOrigin().equals(SymbolOrigin.BUILTIN))) {
             return;
         }
 
@@ -406,12 +404,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        lookupNode(lockStmtNode.body);
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        lookupNode(unLockNode.body);
     }
 
     @Override
@@ -435,6 +431,7 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangRetry retryNode) {
         lookupNode(retryNode.retryBody);
         lookupNode(retryNode.retrySpec);
+        lookupNode(retryNode.onFailClause);
     }
 
     @Override
@@ -646,6 +643,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode((BLangNode) foreach.variableDefinitionNode);
         lookupNode(foreach.collection);
         lookupNode(foreach.body);
+        lookupNode(foreach.onFailClause);
     }
 
     @Override
@@ -664,7 +662,7 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangJoinClause joinClause) {
         lookupNode(joinClause.collection);
         lookupNode((BLangNode) joinClause.variableDefinitionNode);
-        lookupNode((BLangNode) joinClause.onClause);
+        lookupNode(joinClause.onClause);
     }
 
     @Override
@@ -727,16 +725,19 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangWhile whileNode) {
         lookupNode(whileNode.expr);
         lookupNode(whileNode.body);
+        lookupNode(whileNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         lookupNode(lockNode.body);
+        lookupNode(lockNode.onFailClause);
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
         lookupNode(transactionNode.transactionBody);
+        lookupNode(transactionNode.onFailClause);
     }
 
     @Override
@@ -809,7 +810,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         lookupNodes(varRefExpr.expressions);
-        lookupNode((BLangNode) varRefExpr.restParam);
+        lookupNode(varRefExpr.restParam);
     }
 
     @Override
@@ -818,7 +819,7 @@ class SymbolFinder extends BaseVisitor {
             lookupNode(recordRefField.getBindingPattern());
         }
 
-        lookupNode((BLangExpression) varRefExpr.restParam);
+        lookupNode(varRefExpr.restParam);
     }
 
     @Override
@@ -872,7 +873,7 @@ class SymbolFinder extends BaseVisitor {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
         if ((invocationExpr.symbol != null && setEnclosingNode(invocationExpr.symbol.owner,
-                                                               invocationExpr.pkgAlias.pos))
+                invocationExpr.pkgAlias.pos))
                 || setEnclosingNode(invocationExpr.symbol, invocationExpr.name.pos)) {
             return;
         }
@@ -893,11 +894,12 @@ class SymbolFinder extends BaseVisitor {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
         if ((actionInvocationExpr.symbol != null && setEnclosingNode(actionInvocationExpr.symbol.owner,
-                                                                     actionInvocationExpr.pkgAlias.pos))
+                actionInvocationExpr.pkgAlias.pos))
                 || setEnclosingNode(actionInvocationExpr.symbol, actionInvocationExpr.name.pos)) {
             return;
         }
 
+        lookupNodes(actionInvocationExpr.annAttachments);
         lookupNodes(actionInvocationExpr.requiredArgs);
         lookupNodes(actionInvocationExpr.restArgs);
         lookupNode(actionInvocationExpr.expr);
@@ -949,6 +951,11 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         lookupNodes(listConstructorExpr.exprs);
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        lookupNode(spreadOpExpr.expr);
     }
 
     @Override
@@ -1055,12 +1062,6 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        lookupNode(intRangeExpression.startExpr);
-        lookupNode(intRangeExpression.endExpr);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
         lookupNode(bLangVarArgsExpression.expr);
     }
@@ -1130,11 +1131,6 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        super.visit(tableMultiKeyExpr);
-    }
-
-    @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
         super.visit(transactionalExpr);
     }
@@ -1152,7 +1148,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangArrayType arrayType) {
         lookupNode(arrayType.elemtype);
-        lookupNodes(Arrays.asList(arrayType.sizes));
+        lookupNodes(arrayType.sizes);
     }
 
     @Override
@@ -1165,7 +1161,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(constrainedType.constraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = ((BLangNode) constrainedType).getBType().tsymbol;
+            this.symbolAtCursor = constrainedType.getBType().tsymbol;
         }
     }
 
@@ -1185,7 +1181,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
 
-        if (this.symbolAtCursor == null) {
+        if (this.symbolAtCursor == null && tableType.tableType != null) {
             this.symbolAtCursor = tableType.tableType.tsymbol;
         }
     }
@@ -1471,6 +1467,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         lookupNodes(bLangTupleVariable.annAttachments);
+        lookupNode(bLangTupleVariable.typeNode);
         lookupNodes(bLangTupleVariable.memberVariables);
         lookupNode(bLangTupleVariable.restVariable);
         lookupNode(bLangTupleVariable.expr);
@@ -1483,11 +1480,15 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
+        lookupNodes(bLangRecordVariable.annAttachments);
+        lookupNode(bLangRecordVariable.typeNode);
+
         for (BLangRecordVariable.BLangRecordVariableKeyValue var : bLangRecordVariable.variableList) {
             lookupNode(var.valueBindingPattern);
         }
-        lookupNode((BLangNode) bLangRecordVariable.restParam);
-        lookupNodes(bLangRecordVariable.annAttachments);
+
+        lookupNode(bLangRecordVariable.restParam);
+        lookupNode(bLangRecordVariable.expr);
     }
 
     @Override
@@ -1497,6 +1498,8 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
+        lookupNodes(bLangErrorVariable.annAttachments);
+        lookupNode(bLangErrorVariable.typeNode);
         lookupNode(bLangErrorVariable.message);
 
         for (BLangErrorVariable.BLangErrorDetailEntry detail : bLangErrorVariable.detail) {
@@ -1507,6 +1510,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(bLangErrorVariable.cause);
         lookupNode(bLangErrorVariable.reasonMatchConst);
         lookupNode(bLangErrorVariable.restDetail);
+        lookupNode(bLangErrorVariable.expr);
     }
 
     @Override
@@ -1530,12 +1534,9 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        super.visit(waitForAllExpr);
-    }
-
-    @Override
-    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        super.visit(waitLiteral);
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.getKeyValuePairs()) {
+            lookupNode(keyValuePair);
+        }
     }
 
     @Override
@@ -1565,7 +1566,11 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        super.visit(waitKeyValue);
+        if (waitKeyValue.keyExpr == null && setEnclosingNode(waitKeyValue.keySymbol, waitKeyValue.key.pos)) {
+            return;
+        }
+
+        lookupNode(waitKeyValue.valueExpr != null ? waitKeyValue.valueExpr : waitKeyValue.keyExpr);
     }
 
     @Override
@@ -1610,7 +1615,7 @@ class SymbolFinder extends BaseVisitor {
     }
 
     private boolean isWithinNodeMetaData(TopLevelNode node) {
-        if (node instanceof  AnnotatableNode) {
+        if (node instanceof AnnotatableNode) {
 
             List<AnnotationAttachmentNode> nodes =
                     (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();

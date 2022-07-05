@@ -45,6 +45,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,6 +63,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
@@ -104,13 +106,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl(Type type) {
         super();
-        this.type = type;
+        this.type = getReferredType(type);
         this.typedesc = getTypedescValue(type, this);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
-        this.type = type;
+        this.type = getReferredType(type);
         populateInitialValues(initialValues);
         if (!type.isReadOnly()) {
             this.typedesc = new TypedescValueImpl(type);
@@ -167,8 +169,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                    .fromString("cannot find key '" + key + "'"));
+            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
         return this.get(key);
     }
@@ -197,8 +199,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             } else {
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
-                    throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                            .fromString("cannot find key '" + key + "'"));
+                    throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
+                            BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
                 }
                 expectedType = recordType.restFieldType;
             }
@@ -208,8 +210,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                    .fromString("cannot find key '" + key + "'"));
+            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         Object value = expectedType.getZeroValue();
@@ -388,7 +390,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @SuppressWarnings("unchecked")
     public K[] getKeys() {
         Set<K> keys = super.keySet();
-        return (K[]) (keys.toArray(new BString[keys.size()]));
+        BString[] keyArr = new BString[keys.size()];
+        int i = 0;
+        for (K key : keys) {
+            keyArr[i] = (BString) key;
+            i++;
+        }
+        return (K[]) keyArr;
     }
 
     /**

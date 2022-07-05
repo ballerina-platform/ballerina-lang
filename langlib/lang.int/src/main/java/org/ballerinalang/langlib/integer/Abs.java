@@ -18,6 +18,14 @@
 
 package org.ballerinalang.langlib.integer;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+
 /**
  * Native implementation of lang.int:abs(int).
  *
@@ -32,6 +40,11 @@ package org.ballerinalang.langlib.integer;
 public class Abs {
 
     public static long abs(long n) {
+        if (n <= Long.MIN_VALUE) {
+            throw ErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB,
+                            BallerinaErrorReasons.NUMBER_OVERFLOW_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.INT_RANGE_OVERFLOW_ERROR));
+        }
         return Math.abs(n);
     }
 }

@@ -62,3 +62,16 @@ function testFillerValueCyclicTuple() {
     L b = [1];
     T c = ["nil"];
 }
+
+type CT record {
+    ET i;
+};
+
+type DT CT;
+type ET DT;
+
+function testCyclicTypeDef() {
+      CT t = {
+            i : 2
+        };
+}

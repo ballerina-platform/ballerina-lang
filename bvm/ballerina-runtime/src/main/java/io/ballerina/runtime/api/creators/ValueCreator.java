@@ -21,6 +21,8 @@ package io.ballerina.runtime.api.creators;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -47,6 +49,7 @@ import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.JsonDataSource;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -460,7 +463,18 @@ public class ValueCreator {
     }
 
     /**
-     * Create attribute map with an XML.
+     * Create XML qualified name with qualified name string and namespace prefix.
+     *
+     * @param qNameStr Qualified name string
+     * @param prefix   Namespace prefix
+     * @return XML qualified name
+     */
+    public static BXmlQName createXmlQName(BString qNameStr, String prefix) {
+        return new XmlQName(qNameStr.getValue(), prefix);
+    }
+
+    /**
+     * Create XML qualified name with local name, uri and namespace prefix.
      *
      * @param localName Local part of the qualified name
      * @param uri       Namespace URI
@@ -472,7 +486,7 @@ public class ValueCreator {
     }
 
     /**
-     * Create attribute map with an XML.
+     * Create XML qualified name with local name, uri and namespace prefix.
      *
      * @param localName Local part of the qualified name
      * @param uri       Namespace URI
@@ -484,7 +498,7 @@ public class ValueCreator {
     }
 
     /**
-     * Create attribute map with a qualified name string.
+     * Create XML qualified name with a qualified name string.
      *
      * @param qNameStr qualified name string
      * @return XML qualified name
@@ -494,7 +508,7 @@ public class ValueCreator {
     }
 
     /**
-     * Create attribute map with a qualified name string.
+     * Create XML qualified name with a qualified name string.
      *
      * @param qNameStr qualified name string
      * @return XML qualified name
@@ -669,8 +683,20 @@ public class ValueCreator {
      *
      * @param mapType map type.
      * @return map value
+     * @deprecated use {@link #createMapValue(MapType)} instead
      */
+    @Deprecated
     public static BMap<BString, Object> createMapValue(Type mapType) {
+        return new MapValueImpl<>(mapType);
+    }
+
+    /**
+     * Create a runtime map value with given map type.
+     *
+     * @param mapType map type.
+     * @return map value
+     */
+    public static BMap<BString, Object> createMapValue(MapType mapType) {
         return new MapValueImpl<>(mapType);
     }
 
@@ -680,8 +706,21 @@ public class ValueCreator {
      * @param mapType   map type.
      * @param keyValues initial map values to be populated.
      * @return map value
+     * @deprecated use {@link #createMapValue(MapType, BMapInitialValueEntry[])} instead
      */
+    @Deprecated
     public static BMap<BString, Object> createMapValue(Type mapType, BMapInitialValueEntry[] keyValues) {
+        return new MapValueImpl<>(mapType, keyValues);
+    }
+
+    /**
+     * Create a runtime map value with given initial values and given map type.
+     *
+     * @param mapType   map type.
+     * @param keyValues initial map values to be populated.
+     * @return map value
+     */
+    public static BMap<BString, Object> createMapValue(MapType mapType, BMapInitialValueEntry[] keyValues) {
         return new MapValueImpl<>(mapType, keyValues);
     }
 
@@ -717,6 +756,39 @@ public class ValueCreator {
     }
 
     /**
+     * Create a runtime record value with given record type.
+     *
+     * <p>This method is used to create a {@link BMap} from the given java
+     * instance of record type which can only be used inside java native code.
+     * If the recordType is defined in the Ballerina code and the created map
+     * value needs to be used in Ballerina, please use createRecordValue APIs
+     * with packageId and recordTypeName to create a {@link BMap}.
+     *
+     * @param recordType record type.
+     * @return record value
+     */
+    public static BMap<BString, Object> createRecordValue(RecordType recordType) {
+        return new MapValueImpl<>(recordType);
+    }
+
+    /**
+     * Create a runtime record value with given initial values and given record type.
+     *
+     * <p>This method is used to create a {@link BMap} from the given java
+     * instance of record type which can only be used inside java native code.
+     * If the recordType is defined in the Ballerina code and the created map
+     * value needs to be used in Ballerina, please use createRecordValue APIs
+     * with packageId and recordTypeName to create a {@link BMap}.
+     *
+     * @param recordType   record type.
+     * @param keyValues initial map values to be populated.
+     * @return record value
+     */
+    public static BMap<BString, Object> createRecordValue(RecordType recordType, BMapInitialValueEntry[] keyValues) {
+        return new MapValueImpl<>(recordType, keyValues);
+    }
+
+    /**
      * Create a record value using the given package id and record type name.
      *
      * @param packageId      the package id that the record type resides.
@@ -740,6 +812,8 @@ public class ValueCreator {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
+
+        valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
 
@@ -755,6 +829,7 @@ public class ValueCreator {
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
                                                                   Map<String, Object> valueMap) {
+        valueMap = RuntimeUtils.validateBMapValues(valueMap);
         MapValueImpl<BString, Object> bmap = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
                 packageId, recordTypeName, valueMap);
         bmap.freezeDirect();
@@ -769,6 +844,7 @@ public class ValueCreator {
      * @return value of the record.
      */
     public static BMap<BString, Object> createRecordValue(BMap<BString, Object> record, Object... values) {
+        record = RuntimeUtils.validateBMapValues(record);
         return ValueUtils.createRecordValue(record, values);
     }
 

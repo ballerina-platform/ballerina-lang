@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.JoinClauseNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -66,6 +67,13 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
             completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
+        } else if (onMissingJoinKeyword(context)) {
+            /* Covers the following
+            (1) [intermediate-clause] outer <cursor>
+            (2) [intermediate-clause] outer j<cursor>
+             */
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_JOIN.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()));
         }
         this.sort(context, node, completionItems);
 
@@ -76,5 +84,14 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
         NonTerminalNode nextIntermediate = context.getNodeAtCursor().parent();
         return !nextIntermediate.isMissing() && nextIntermediate.kind() == SyntaxKind.WHERE_CLAUSE
                 && ((WhereClauseNode) nextIntermediate).whereKeyword().isMissing();
+    }
+    
+    private boolean onMissingJoinKeyword(BallerinaCompletionContext context) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
+                ? nodeAtCursor.parent().parent() : nodeAtCursor;
+        
+        return !evalNode.isMissing() && evalNode.kind() == SyntaxKind.JOIN_CLAUSE 
+                && ((JoinClauseNode) evalNode).joinKeyword().isMissing();
     }
 }

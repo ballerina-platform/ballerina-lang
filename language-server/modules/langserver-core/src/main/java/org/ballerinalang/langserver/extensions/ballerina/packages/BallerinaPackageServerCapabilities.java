@@ -28,6 +28,8 @@ public class BallerinaPackageServerCapabilities extends BallerinaServerCapabilit
 
     private boolean components;
 
+    private boolean configSchema;
+
     public boolean isMetadata() {
         return metadata;
     }
@@ -42,6 +44,14 @@ public class BallerinaPackageServerCapabilities extends BallerinaServerCapabilit
 
     public void setComponents(boolean components) {
         this.components = components;
+    }
+
+    public boolean isConfigSchema() {
+        return this.configSchema;
+    }
+
+    public void setConfigSchema(boolean configSchema) {
+        this.configSchema = configSchema;
     }
 
     public BallerinaPackageServerCapabilities() {

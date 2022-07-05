@@ -23,7 +23,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -42,11 +43,13 @@ import java.util.Set;
  */
 public class BLangArrowFunction extends BLangExpression implements ArrowFunctionNode {
 
+    // BLangNodes
     public List<BLangSimpleVariable> params = new ArrayList<>();
-    public BType funcType;
     public IdentifierNode functionName;
-    public BLangInvokableNode function;
     public BLangExprFunctionBody body;
+
+    // Semantic Data
+    public BType funcType;
 
     // Used to track uninitialized closure variables in DataFlowAnalyzer.
     public Set<ClosureVarSymbol> closureVarSymbols = new LinkedHashSet<>();
@@ -69,6 +72,16 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

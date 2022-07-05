@@ -224,3 +224,22 @@ public function testNestedMemberAccessOnIntersectionTypesNegative() {
     Corge & readonly q2 = {i: 1, baz: {a: "hello", i: 2}};
     string v2 = q2["baz"]["i"];
 }
+
+function testListMemberAccessWithIntBuiltInSubTypeKeyExprNegative() {
+    int[] a = [];
+    byte b = 0;
+    byte _ = a[b]; // error: incompatible types: expected 'byte', found 'int'
+
+    int:Signed32 c = 0;
+    int:Signed32 _ = a[c]; // error: incompatible types: expected 'int:Signed32', found 'int'
+}
+
+function testRecordMemberAccessWithStringCharKeyExprNegative() {
+    record {|
+        int a;
+        int b;
+        int cd;
+    |} r = {a: 1, b: 2, cd: 3};
+    string:Char a = "a";
+    int _ = r[a]; // error: incompatible types: expected 'int', found 'int?'
+}

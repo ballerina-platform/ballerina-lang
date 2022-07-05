@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +42,11 @@ public class PackageManifest {
     private final List<String> keywords;
     private final String repository;
     private final List<String> exportedModules;
+    private final List<String> includes;
     private final String ballerinaVersion;
+    private final String visibility;
+    private boolean template;
+    private final String icon;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
@@ -63,8 +68,11 @@ public class PackageManifest {
         this.authors = Collections.emptyList();
         this.keywords = Collections.emptyList();
         this.exportedModules = Collections.emptyList();
+        this.includes = Collections.emptyList();
         this.repository = "";
         this.ballerinaVersion = "";
+        this.visibility = "";
+        this.icon = "";
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -77,8 +85,12 @@ public class PackageManifest {
                             List<String> authors,
                             List<String> keywords,
                             List<String> exportedModules,
+                            List<String> includes,
                             String repository,
-                            String ballerinaVersion) {
+                            String ballerinaVersion,
+                            String visibility,
+                            boolean template,
+                            String icon) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
@@ -89,8 +101,12 @@ public class PackageManifest {
         this.authors = authors;
         this.keywords = keywords;
         this.exportedModules = getExport(packageDesc, exportedModules);
+        this.includes = includes;
         this.repository = repository;
         this.ballerinaVersion = ballerinaVersion;
+        this.visibility = visibility;
+        this.template = template;
+        this.icon = icon;
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
@@ -116,10 +132,14 @@ public class PackageManifest {
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
+                                       List<String> include,
                                        String repository,
-                                       String ballerinaVersion) {
+                                       String ballerinaVersion,
+                                       String visibility,
+                                       boolean template,
+                                       String icon) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, repository, ballerinaVersion);
+                license, authors, keywords, export, include, repository, ballerinaVersion, visibility, template, icon);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -130,11 +150,14 @@ public class PackageManifest {
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
+                                       List<String> include,
                                        String repository,
-                                       String ballerinaVersion) {
+                                       String ballerinaVersion,
+                                       String visibility,
+                                       boolean template) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                export, repository, ballerinaVersion);
+                export, include, repository, ballerinaVersion, visibility, template, "");
     }
 
     public PackageName name() {
@@ -182,6 +205,10 @@ public class PackageManifest {
         return exportedModules;
     }
 
+    public List<String> includes() {
+        return includes;
+    }
+
     public String repository() {
         return repository;
     }
@@ -194,8 +221,20 @@ public class PackageManifest {
         return ballerinaVersion;
     }
 
+    public String visibility() {
+        return visibility;
+    }
+
+    public String icon() {
+        return icon;
+    }
+
     public DiagnosticResult diagnostics() {
         return diagnostics;
+    }
+
+    public boolean template() {
+        return template;
     }
 
     /**
@@ -244,11 +283,13 @@ public class PackageManifest {
         private final PackageOrg packageOrg;
         private final PackageVersion version;
         private final String repository;
+        private final Location location;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.version = version;
+            this.location = null;
             this.repository = null;
         }
 
@@ -258,6 +299,16 @@ public class PackageManifest {
             this.packageOrg = packageOrg;
             this.version = version;
             this.repository = repository;
+            this.location = null;
+        }
+
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
+                          String repository, Location location) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.version = version;
+            this.repository = repository;
+            this.location = location;
         }
 
         public PackageName name() {
@@ -274,6 +325,10 @@ public class PackageManifest {
 
         public String repository() {
             return repository;
+        }
+
+        public Optional<Location> location() {
+            return Optional.ofNullable(location);
         }
     }
 

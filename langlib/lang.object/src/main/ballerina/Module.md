@@ -1,3 +1,3 @@
-## Module Overview
+## Module overview
 
-The `lang.object` module corresponds to basic type object.
+The `lang.object` module corresponds to the `object` basic type.

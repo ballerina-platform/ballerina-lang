@@ -114,6 +114,74 @@ function filterCommonLabels(Data[] dataList) returns Data[] {
     return newData;
 }
 
+type IntOrStr int|string;
+
+type IntStrOrBoolean IntOrStr|boolean;
+
+function testTypeNarrowing() returns error? {
+    IntOrStr[] data1 = [1, 2, 3, 4, "5"];
+
+    int[] res1 = from IntOrStr i in data1
+        where i is int
+        select i * 2;
+    int[] expectedRes1 = [2, 4, 6, 8];
+    assertEquality(expectedRes1, res1);
+
+    string[] res2 = from IntOrStr i in data1
+        where i !is int
+        select i;
+    string[] expectedRes2 = ["5"];
+    assertEquality(expectedRes2, res2);
+
+    int[] res3 = [];
+    int[] expectedRes3 = [1, 2, 3, 4];
+    check from IntOrStr i in data1
+        where i is int
+        do {
+            res3.push(i);
+        };
+    assertEquality(expectedRes3, res3);
+
+    string[] res4 = [];
+    string[] expectedRes4 = ["5"];
+    check from IntOrStr i in data1
+        where i !is int
+        do {
+            res4.push(i);
+        };
+    assertEquality(expectedRes4, res4);
+
+    //     Should be enabled once issue #33709 is fixed
+    //       IntStrOrBoolean[] data2 = [1,2, true, "4", 5];
+    //
+    //       int[][] _ = from IntStrOrBoolean i in data
+    //                where i !is boolean
+    //                select from int ii in 1...3
+    //                where i is int
+    //                select i * ii;
+
+    //    Should be enabled once issue #35264 is fixed
+    //    IntOrStr[] data = [1, "2"];
+    //    check from var item in data
+    //        where item is int
+    //        do {
+    //            item = "2";
+    //            assertEquality("2", item);
+    //        };
+
+    (int|string)[] arr = [1, 2, 3, 4];
+    int[] evenNums = [];
+    check from int|string item in arr
+        where item is int && item % 2 == 0
+        let int evenNum = item
+        do {
+            evenNums.push(evenNum);
+        };
+    int[] expectedEvenNums = [2, 4];
+    assertEquality(expectedEvenNums, evenNums);
+}
+
+
 //---------------------------------------------------------------------------------------------------------
 const ASSERTION_ERROR_REASON = "AssertionError";
 

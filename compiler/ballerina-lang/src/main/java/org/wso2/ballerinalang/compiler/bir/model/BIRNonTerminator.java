@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -214,7 +215,21 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            return new BIROperand[]{rhsOp};
+            BIROperand[] operands = new BIROperand[2 * (initialValues.size()) + 1];
+            int i = 0;
+            operands[i++] = rhsOp;
+            for (BIRMappingConstructorEntry mappingEntry : initialValues) {
+                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry) {
+                    BIRMappingConstructorKeyValueEntry entry = (BIRMappingConstructorKeyValueEntry) mappingEntry;
+                    operands[i++] = entry.keyOp;
+                    operands[i++] = entry.valueOp;
+                } else {
+                    BIRMappingConstructorSpreadFieldEntry entry = (BIRMappingConstructorSpreadFieldEntry) mappingEntry;
+                    operands[i++] = entry.exprOp;
+                }
+            }
+            operands = Arrays.copyOf(operands, i);
+            return operands;
         }
     }
 
@@ -271,10 +286,10 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewArray extends BIRNonTerminator {
         public BIROperand sizeOp;
         public BType type;
-        public List<BIROperand> values;
+        public List<BIRListConstructorEntry> values;
 
         public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand sizeOp,
-                        List<BIROperand> values) {
+                        List<BIRListConstructorEntry> values) {
             super(location, InstructionKind.NEW_ARRAY);
             this.type = type;
             this.lhsOp = lhsOp;
@@ -292,8 +307,8 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             BIROperand[] operands = new BIROperand[values.size() + 1];
             int i = 0;
             operands[i++] = sizeOp;
-            for (BIROperand operand : values) {
-                operands[i++] = operand;
+            for (BIRListConstructorEntry listValueEntry : values) {
+                operands[i++] = listValueEntry.exprOp;
             }
             return operands;
         }
@@ -715,6 +730,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public String strandName;
         public Name funcName;
         public PackageID pkgId;
+        public PackageID boundMethodPkgId;
         public List<BIRVariableDcl> params;
         public List<BIROperand> closureMaps;
         public BType type;
@@ -731,6 +747,13 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.params = params;
             this.closureMaps = closureMaps;
             this.type = type;
+        }
+
+        public FPLoad(Location location, PackageID pkgId, PackageID boundMethodPkgId, Name funcName, BIROperand lhsOp,
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
+                      SchedulerPolicy schedulerPolicy) {
+            this(location, pkgId, funcName, lhsOp, params, closureMaps, type, strandName, schedulerPolicy);
+            this.boundMethodPkgId = boundMethodPkgId;
         }
 
         @Override

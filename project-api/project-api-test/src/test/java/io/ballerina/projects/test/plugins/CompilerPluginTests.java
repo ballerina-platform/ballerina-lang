@@ -17,15 +17,27 @@
  */
 package io.ballerina.projects.test.plugins;
 
+import io.ballerina.projects.CodeGeneratorResult;
+import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.Resource;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.test.TestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -66,6 +78,14 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/package_comp_plugin_lifecycle_listener");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_with_codeactions");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_codegen_init_function");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_code_modify_add_function");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_diagnostic_init_function");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/defns");
     }
 
     @Test
@@ -139,10 +159,10 @@ public class CompilerPluginTests {
         Package currentPackage = loadPackage("package_test_inbuilt_plugin");
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 3,
                 "Unexpected number of compilation diagnostics");
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
-        Assert.assertEquals(diagnosticResult.warningCount(), 1);
+        Assert.assertEquals(diagnosticResult.warningCount(), 2);
 
         Path logFilePath = Paths.get("build/logs/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
@@ -192,6 +212,220 @@ public class CompilerPluginTests {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected diagnostics exists");
     }
 
+    @Test
+    public void testCompilerPluginWithNoCodeGenerators() {
+        Package currentPackage = loadPackage("package_plugin_user_1");
+
+        // Check the document count in the current package
+        Assert.assertEquals(1, currentPackage.getDefaultModule().documentIds().size());
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Running the code generation
+        CodeGeneratorResult codeGeneratorResult = currentPackage.runCodeGeneratorPlugins();
+
+        // Compiling the new package
+        Package newPackage = codeGeneratorResult.updatedPackage().orElse(null);
+        Assert.assertNull(newPackage, "Should be null, because there exist no code generators");
+    }
+
+    @Test
+    public void testCompilerPluginCodegenBasic() {
+        Package currentPackage = loadPackage("package_plugin_codegen_user_1");
+        // Check the document count in the current package
+        Assert.assertEquals(1, currentPackage.getDefaultModule().documentIds().size());
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Check direct package dependencies
+        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
+                "Unexpected number of dependencies");
+
+        // Running the code generation
+        CodeGeneratorResult codeGeneratorResult = currentPackage.runCodeGeneratorPlugins();
+
+        // Compiling the new package
+        Project project = currentPackage.project();
+        Package newPackage = codeGeneratorResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code generators");
+        Assert.assertSame(newPackage.project(), project);
+        Assert.assertSame(newPackage, project.currentPackage());
+
+        // The code generator produce 4 files.
+        // 3 files for three functions, one file importing another package and main.bal.
+        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 5);
+        // The code generator produce 4 test files.
+        // 3 files for three functions and one file importing another package.
+        Assert.assertEquals(newPackage.getDefaultModule().testDocumentIds().size(), 4);
+        PackageCompilation compilation = newPackage.getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 9, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies
+        // Code generator produces a file that has an import.
+        // This import causes the dependencies count to be updated to 2.
+        Assert.assertEquals(newPackage.packageDependencies().size(), 2,
+                "Unexpected number of dependencies");
+
+        // Check resources
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.isDefaultModule()) {
+                Assert.assertEquals(module.resourceIds().size(), 0);
+                continue;
+            }
+            Assert.assertEquals(module.resourceIds().size(), 1);
+            Resource resource = module.resource(module.resourceIds().stream().findFirst().orElseThrow());
+            Assert.assertEquals(resource.name(), "openapi-spec.yaml");
+            Assert.assertEquals(resource.content(), "".getBytes());
+            Assert.assertEquals(resource.module(), module);
+        }
+
+        // Check test resources
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.isDefaultModule()) {
+                Assert.assertEquals(module.testResourceIds().size(), 0);
+                continue;
+            }
+            Assert.assertEquals(module.testResourceIds().size(), 1);
+            Resource testResource = module.resource(module.testResourceIds().stream().findFirst().orElseThrow());
+            Assert.assertEquals(testResource.name(), "sample.json");
+            Assert.assertEquals(testResource.content(), "".getBytes());
+            Assert.assertEquals(testResource.module(), module);
+        }
+    }
+
+    @Test(description = "Test basic package code modify using code modifier plugin")
+    public void testCompilerPluginCodeModifyBasic() {
+        Package currentPackage = loadPackage("package_plugin_code_modify_user_1");
+        // Check the document count in the current package
+        Assert.assertEquals(currentPackage.getDefaultModule().documentIds().size(), 2);
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Check direct package dependencies
+        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
+                "Unexpected number of dependencies");
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+
+        // Compiling the new package
+        Project project = currentPackage.project();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
+        Assert.assertSame(newPackage.project(), project);
+        Assert.assertSame(newPackage, project.currentPackage());
+
+        // Modified source files
+        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 2);
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificFunction = "public function newFunctionByCodeModifier"
+                    + document.name().replace(".bal", "").replace("/", "_")
+                    + "(string params) returns error? {\n}";
+            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+        }
+
+        // Modified test source files
+        Assert.assertEquals(newPackage.getDefaultModule().testDocumentIds().size(), 1);
+        for (DocumentId documentId : newPackage.getDefaultModule().testDocumentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificFunction = "public function newFunctionByCodeModifier"
+                    + document.name().replace(".bal", "").replace("/", "_")
+                    + "(string params) returns error? {\n}";
+            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+        }
+
+        PackageCompilation compilation = newPackage.getCompilation();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 8, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies count is 1
+        Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
+    }
+
+    @Test(description = "Test basic single bal file code modify using code modifier plugin")
+    public void testCompilerPluginSingleBalFileCodeModifyBasic() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("single_bal_plugin_code_modify_user_1").resolve("main.bal");
+        SingleFileProject singleFileProject = TestUtils.loadSingleFileProject(projectDirPath);
+        Package currentPackage = singleFileProject.currentPackage();
+
+        // Check the document count in the current package
+        Assert.assertEquals(currentPackage.getDefaultModule().documentIds().size(), 1);
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Check direct package dependencies
+        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
+                "Unexpected number of dependencies");
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+
+        // Compiling the new package
+        Project project = currentPackage.project();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
+        Assert.assertSame(newPackage.project(), project);
+        Assert.assertSame(newPackage, project.currentPackage());
+
+        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 1);
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificFunction = "public function newFunctionByCodeModifier"
+                    + document.name().replace(".bal", "")
+                    + "(string params) returns error? {\n}";
+            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+        }
+
+        PackageCompilation compilation = newPackage.getCompilation();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies count is 1
+        Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
+    }
+
+    @Test
+    public void testCodeAnalyzerCompilerPluginForTestSources() {
+        Package currentPackage = loadPackage("package_plugin_diagnostic_user_1");
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 5,
+                "Unexpected number of compilation diagnostics");
+
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [main.bal:(3:8,3:16)] main");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [main.bal:(6:1,6:9)] foo");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [main.bal:(9:1,9:9)] bar");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [tests/test.bal:(3:1,3:9)] testFoo");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [tests/test.bal:(6:1,6:9)] testYee");
+    }
+
     public void assertDiagnostics(Package currentPackage) {
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
@@ -210,6 +444,28 @@ public class CompilerPluginTests {
         // Check direct package dependencies
         Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
                 "Unexpected number of dependencies");
+    }
+
+    @Test
+    public void testImmutableTypeDefsWithRepeatedCompilationWithCodeModifierPlugin() {
+        Package currentPackage = loadPackage("immutable_type_definition_with_code_modifier_test/usage");
+        currentPackage.getCompilation();
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
+
+        PackageCompilation packageCompilation = newPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
+
+        try {
+            BRunUtil.runInit(compileResult);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("error while invoking init method");
+        }
+
+        Object mainResult = BRunUtil.invoke(compileResult, "main");
+        Assert.assertNull(mainResult);
     }
 
     private Package loadPackage(String path) {

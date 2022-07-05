@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 99,
+    "character": 39
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 99,
+              "character": 37
+            },
+            "end": {
+              "line": 99,
+              "character": 37
+            }
+          },
+          "newText": "\u003cint\u003e"
+        }
+      ]
+    }
+  ]
+}

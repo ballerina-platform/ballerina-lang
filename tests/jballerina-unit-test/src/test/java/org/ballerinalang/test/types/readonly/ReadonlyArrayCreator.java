@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.types.readonly;
 
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -51,5 +53,9 @@ public class ReadonlyArrayCreator {
     public static BArray createStringArray() {
         BString[] numbers = {StringUtils.fromString("a"), StringUtils.fromString("b"), StringUtils.fromString("c")};
         return ValueCreator.createReadonlyArrayValue(numbers);
+    }
+
+    public static BArray createArrayOfMaps(BMap map) {
+        return ValueCreator.createArrayValue(TypeCreator.createArrayType(map.getType(), 0, true));
     }
 }

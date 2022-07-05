@@ -50,11 +50,15 @@ public class BasicForkNegativeTest {
         int index = 0;
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 20, 24);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 21, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'm'", 29, 13);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 32, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 's'", 41, 13);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 41, 24);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'm'", 46, 13);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 52, 5);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'k'", 53, 5);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 53, 16);
-        Assert.assertEquals(result.getErrorCount(), index);
+        Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
     @AfterClass

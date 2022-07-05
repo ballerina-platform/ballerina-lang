@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "fixedDiscount": {
+      "type": "integer",
+      "description": "Fixed dicount value in LKR"
+    },
+    "discountPercentage": {
+      "type": "number",
+      "description": "Discount as a percentage"
+    },
+    "testMode": {
+      "type": "boolean",
+      "description": "Flag to enable test mode"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "discountPercentage"
+  ]
+}

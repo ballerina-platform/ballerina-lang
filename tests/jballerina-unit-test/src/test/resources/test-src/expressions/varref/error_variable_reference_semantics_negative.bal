@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <record {| string message?; error cause?; string detail?; string extra?; |}>;
-type SMA error <record {| string message?; error cause?; string|boolean fatal?; string|boolean detail?; string|boolean extra?; |}>;
+type SMS error <record {| string message; error cause?; string detail; string extra?; |}>;
+type SMA error <record {| string message; error cause?; string|boolean fatal; string|boolean detail?; string|boolean extra?; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
     SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
@@ -26,21 +26,21 @@ function testBasicErrorVariableWithMapDetails() {
     string reason12;
     string? message12;
     string detail12; // expected 'string', found 'string?'
-    string? extra12;
+
 
     error (reason11, ... detail11) = err1;
-    error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
+    error (reason12, message = message12, detail = detail12) = err1;
 
     string reason21;
     map<string> detail21; // expected 'map<string>', found 'map<any>'
     string reason22;
     any message22;
-    string detail22; // expected 'string', found 'any'
+    string fatal22; // expected 'string', found '(string|boolean)'
     any extra22;
 
     error (reason21, ...detail21) = err2;
-    error (reason22, message = message22, detail = detail22, extra = extra22) = err2;
-    error (reason22, message = message22, detail = detail22, extra = extra22) = error("reason", a = detail11["a"]);
+    error (reason22, message = message22, fatal = fatal22) = err2;
+    error (reason22, message = message22, fatal = fatal22, extra = extra22) = error("reason", a = detail11["a"]);
 }
 
 type Foo record {

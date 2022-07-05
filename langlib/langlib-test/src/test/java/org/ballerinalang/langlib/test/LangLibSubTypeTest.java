@@ -72,7 +72,7 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testTypeTest");
         BRunUtil.invoke(compileResult, "testList");
         BRunUtil.invoke(compileResult, "testMapping");
-//        BRunUtil.invoke(compileResult, "testConstReference");
+//        JvmRunUtil.invoke(compileResult, "testConstReference");
         BRunUtil.invoke(compileResult, "testLeftShift");
         BRunUtil.invoke(compileResult, "testRightShift");
         BRunUtil.invoke(compileResult, "testUnsignedRightShift");
@@ -128,10 +128,13 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + FOUND_INT, 57, 24);
         BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 58, 14);
         // testTypeAlias
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 65, 16);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 67, 17);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 69, 17);
-        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + FOUND_SIGNED_32, 72, 24);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 65, 16);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 67, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 69, 17);
+        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + " found 'NewInt'", 72, 24);
 
         // TODO : Fix this, Issue : #21542
 //        // Consts
@@ -221,8 +224,8 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 275, 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 276, 17);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 277, 22);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 278, 23);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 279, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_32, 278, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_32, 279, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 280, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 281, 22);
 
@@ -231,25 +234,25 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 297, 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 298, 17);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_16, 299, 22);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 300, 23);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 301, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_32, 300, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_32, 301, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 302, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 303, 22);
 
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned32', found '-1|2'", 312,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned32', found 'X'", 312,
                 24);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8[]', found '-1|2[]'", 315,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8[]', found 'X[]'", 315,
                 25);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8[]', found '-1|1|128[]'",
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8[]', found 'Y[]'",
                 318, 23);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found '-1|1|foo'", 321,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found 'Z'", 321,
                 21);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(string:Char|int:Signed8)', found " +
-                        "'-1|1|foo'", 322, 33);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected '(float|string:Char|int:Signed8)[]', " +
-                        "found '-1|1|foo[]'", 325, 43);
+                        "'Z'", 322, 33);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected " +
+                "'(float|string:Char|int:Signed8)[]', found 'Z[]'", 325, 43);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(float|string|int:Unsigned8)[]', " +
-                "found '-1|1|foo[]'", 326, 40);
+                "found 'Z[]'", 326, 40);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found " +
                 "'InvalidIntType'", 337, 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found " +
@@ -258,11 +261,319 @@ public class LangLibSubTypeTest {
                 "'InvalidIntType'", 340, 17);
         BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type " +
                 "'(int:Signed32|int:Signed16|string)'", 341, 17);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found '1|2|3|R'", 343, 25);
-        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type '1|2|3|R'", 344, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', " +
+                "found 'InvalidIntFiniteType'", 343, 25);
+        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in " +
+                "type 'InvalidIntFiniteType'", 344, 17);
+
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed16', found 'int'", 348, 23);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed16', found 'int'", 349, 23);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found 'int'", 350, 22);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found 'int'", 351, 22);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 352, 25);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 353, 25);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 354, 24);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 355, 24);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed16)', " +
+                "found 'int'", 367, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed16)', " +
+                "found 'int'", 368, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Signed8)', " +
+                "found 'int'", 369, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Signed8)', " +
+                "found 'int'", 370, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed16)', " +
+                "found 'int'", 372, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed16)', " +
+                "found 'int'", 373, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Signed8)', " +
+                "found 'int'", 374, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Signed8)', " +
+                "found 'int'", 375, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed32)', " +
+                "found 'int'", 377, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed32)', " +
+                "found 'int'", 378, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Signed8)', " +
+                "found 'int'", 379, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Signed8)', " +
+                "found 'int'", 380, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed32)', " +
+                "found 'int'", 382, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed32)', " +
+                "found 'int'", 383, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Signed8)', " +
+                "found 'int'", 384, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Signed8)', " +
+                "found 'int'", 385, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned8)', " +
+                "found 'int'", 387, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned8)', " +
+                "found 'int'", 388, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed8)', " +
+                "found 'int'", 389, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed8)', " +
+                "found 'int'", 390, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned8)', " +
+                "found 'int'", 392, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned8)', " +
+                "found 'int'", 393, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed8)', " +
+                "found 'int'", 394, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed8)', " +
+                "found 'int'", 395, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|byte)', found 'int'",
+                397, 26);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|byte)', found 'int'",
+                398, 26);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed8)', found 'int'",
+                399, 26);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed8)', found 'int'",
+                400, 26);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|byte)', found 'int'",
+                402, 26);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|byte)', found 'int'",
+                403, 26);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed8)', found 'int'",
+                404, 26);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed8)', found 'int'",
+                405, 26);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned16)', " +
+                "found 'int'", 407, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned16)', " +
+                "found 'int'", 408, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed8)', " +
+                "found 'int'", 409, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed8)', " +
+                "found 'int'", 410, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned16)', " +
+                "found 'int'", 412, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned16)', " +
+                "found 'int'", 413, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed8)', " +
+                "found 'int'", 414, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed8)', " +
+                "found 'int'", 415, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned32)', " +
+                "found 'int'", 417, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned32)', " +
+                "found 'int'", 418, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed8)', " +
+                "found 'int'", 419, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed8)', " +
+                "found 'int'", 420, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned32)', " +
+                "found 'int'", 422, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Unsigned32)', " +
+                "found 'int'", 423, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed8)', " +
+                "found 'int'", 424, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed8)', " +
+                "found 'int'", 425, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Signed32)', " +
+                "found 'int'", 427, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Signed32)', " +
+                "found 'int'", 428, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Signed16)', " +
+                "found 'int'", 429, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Signed16)', " +
+                "found 'int'", 430, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Signed32)', " +
+                "found 'int'", 432, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Signed32)', " +
+                "found 'int'", 433, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Signed16)', " +
+                "found 'int'", 434, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Signed16)', " +
+                "found 'int'", 435, 35);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned8)', " +
+                "found 'int'", 437, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned8)', " +
+                "found 'int'", 438, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed16)', " +
+                "found 'int'", 439, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed16)', " +
+                "found 'int'", 440, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned8)', " +
+                "found 'int'", 442, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned8)', " +
+                "found 'int'", 443, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed16)', " +
+                "found 'int'", 444, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed16)', " +
+                "found 'int'", 445, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|byte)', found 'int'",
+                447, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|byte)', found 'int'",
+                448, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed16)', found 'int'",
+                449, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed16)', found 'int'",
+                450, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|byte)', found 'int'",
+                452, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|byte)', found 'int'",
+                453, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed16)', found 'int'",
+                454, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed16)', found 'int'",
+                455, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned16)', " +
+                "found 'int'", 457, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned16)', " +
+                "found 'int'", 458, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed16)', " +
+                "found 'int'", 459, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed16)', " +
+                "found 'int'", 460, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned16)', " +
+                "found 'int'", 462, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned16)', " +
+                "found 'int'", 463, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed16)', " +
+                "found 'int'", 464, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed16)', " +
+                "found 'int'", 465, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned32)', " +
+                "found 'int'", 467, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned32)', " +
+                "found 'int'", 468, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed16)', " +
+                "found 'int'", 469, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed16)', " +
+                "found 'int'", 470, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned32)', " +
+                "found 'int'", 472, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed16|int:Unsigned32)', " +
+                "found 'int'", 473, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed16)', " +
+                "found 'int'", 474, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed16)', " +
+                "found 'int'", 475, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned8)', " +
+                "found 'int'", 477, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned8)', " +
+                "found 'int'", 478, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed32)', " +
+                "found 'int'", 479, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed32)', " +
+                "found 'int'", 480, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned8)', " +
+                "found 'int'", 482, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned8)', " +
+                "found 'int'", 483, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed32)', " +
+                "found 'int'", 484, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Signed32)', " +
+                "found 'int'", 485, 36);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|byte)', found 'int'",
+                487, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|byte)', found 'int'",
+                488, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed32)', found 'int'",
+                489, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed32)', found 'int'",
+                490, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|byte)', found 'int'",
+                492, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|byte)', found 'int'",
+                493, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed32)', found 'int'",
+                494, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Signed32)', found 'int'",
+                495, 27);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned16)', " +
+                "found 'int'", 497, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned16)', " +
+                "found 'int'", 498, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed32)', " +
+                "found 'int'", 499, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed32)', " +
+                "found 'int'", 500, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned16)', " +
+                "found 'int'", 502, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned16)', " +
+                "found 'int'", 503, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed32)', " +
+                "found 'int'", 504, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Signed32)', " +
+                "found 'int'", 505, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned32)', " +
+                "found 'int'", 507, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned32)', " +
+                "found 'int'", 508, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed32)', " +
+                "found 'int'", 509, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed32)', " +
+                "found 'int'", 510, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned32)', " +
+                "found 'int'", 512, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed32|int:Unsigned32)', " +
+                "found 'int'", 513, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed32)', " +
+                "found 'int'", 514, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Signed32)', " +
+                "found 'int'", 515, 37);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Unsigned16)', " +
+                "found 'int'", 517, 38);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Unsigned16)', " +
+                "found 'int'", 518, 38);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Unsigned8)', " +
+                "found 'int'", 519, 38);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Unsigned8)', " +
+                "found 'int'", 520, 38);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Unsigned32)', " +
+                "found 'int'", 522, 38);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|int:Unsigned32)', " +
+                "found 'int'", 523, 38);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Unsigned8)', " +
+                "found 'int'", 524, 38);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Unsigned8)', " +
+                "found 'int'", 525, 38);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Unsigned16)', found 'int'",
+                527, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Unsigned16)', found 'int'",
+                528, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|byte)', found 'int'",
+                529, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|byte)', found 'int'",
+                530, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Unsigned32)', found 'int'",
+                532, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(byte|int:Unsigned32)', found 'int'",
+                533, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|byte)', found 'int'",
+                534, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|byte)', found 'int'",
+                535, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Unsigned32)', " +
+                "found 'int'", 537, 39);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned16|int:Unsigned32)', " +
+                "found 'int'", 538, 39);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Unsigned16)', " +
+                "found 'int'", 539, 39);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned32|int:Unsigned16)', " +
+                "found 'int'", 540, 39);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType1', found 'int'", 542, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType1', found 'int'", 543, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType1', found 'int'", 544, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType1', found 'int'", 545, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType2', found 'int'", 547, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType2', found 'int'", 548, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType3', found 'int'", 550, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType3', found 'int'", 551, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType3', found 'int'", 552, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType3', found 'int'", 553, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType4', found 'int'", 555, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType4', found 'int'", 556, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType4', found 'int'", 557, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'IntType4', found 'int'", 558, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected " +
+                "'(int:Signed8|int:Signed32|int:Unsigned32)', found 'int'", 560, 49);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected " +
+                "'(int:Unsigned32|int:Unsigned8|int:Signed16)', found 'int'", 561, 51);
 
         Assert.assertEquals(result.getErrorCount(), err);
-
     }
 
     @Test
@@ -279,16 +590,18 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 39, 28);
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 43, 19);
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 48, 13);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char', found 'ab|b'", 56, 21);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'ab|b[]'", 59,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char', found 'X'", 56, 21);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'X[]'", 59,
                 23);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found '-1|e|f[]'", 62,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'Y[]'", 62,
                 23);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|string:Char)[]', found" +
-                " '-1|e|f[]'", 63, 39);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'ABC|D|3.0f'", 74, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|string:Char)[]', " +
+                "found 'Y[]'", 63, 39);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', " +
+                "found 'StringFiniteType'", 74, 29);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'StringType'", 75, 29);
-        BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in type 'ABC|D|3.0f'", 77, 14);
+        BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in " +
+                "type 'StringFiniteType'", 77, 14);
         BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in type 'StringType'", 78, 14);
         Assert.assertEquals(result.getErrorCount(), err);
     }

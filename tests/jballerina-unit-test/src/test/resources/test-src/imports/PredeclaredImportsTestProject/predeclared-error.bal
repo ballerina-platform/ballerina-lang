@@ -14,6 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testErrorStackTrace('error:CallStackElement elem) returns string {
-    return elem.callableName + ":" + elem.fileName;
+function testErrorStackTrace('error:StackFrame elem) returns string {
+    return elem.toString();
 }

@@ -1,0 +1,5 @@
+xmlns "abc" as ns;
+public function main() {
+    xml _ = xml `<x ns
+    : abc="" >abc</x>`;
+}

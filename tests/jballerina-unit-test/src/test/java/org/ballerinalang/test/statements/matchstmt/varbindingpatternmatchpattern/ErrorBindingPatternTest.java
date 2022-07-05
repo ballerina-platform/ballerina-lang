@@ -20,7 +20,9 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -31,6 +33,13 @@ import org.testng.annotations.Test;
 public class ErrorBindingPatternTest {
     private CompileResult result, restPatternResult, resultNegative;
     private String patternNotMatched = "pattern will not be matched";
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        restPatternResult = null;
+        resultNegative = null;
+    }
 
     @BeforeClass
     public void setup() {
@@ -43,75 +52,56 @@ public class ErrorBindingPatternTest {
     }
 
     @Test
-    public void testErrorBindingPattern1() {
-        BRunUtil.invoke(result, "testErrorBindingPattern1");
+    public void testNegativeSemantics() {
+        CompileResult buildError = BCompileUtil.compile(
+                "test-src/statements/matchstmt/varbindingpatternmatchpattern/error_type_ref_negative.bal");
+        int i = -1;
+        BAssertUtil.validateError(buildError, ++i, "unknown type 'myError'", 18, 17);
+        BAssertUtil.validateError(buildError, ++i, "unknown type 'myError'", 22, 15);
+        Assert.assertEquals(buildError.getErrorCount(), i + 1);
     }
 
-    @Test
-    public void testErrorBindingPattern2() {
-        BRunUtil.invoke(result, "testErrorBindingPattern2");
+    @DataProvider
+    public Object[] dataToTestErrorBindingPatterns() {
+        return new Object[]{
+                "testErrorBindingPattern1",
+                "testErrorBindingPattern2",
+                "testErrorBindingPattern3",
+                "testErrorBindingPattern4",
+                "testErrorBindingPattern5",
+                "testErrorBindingPattern6",
+                "testErrorBindingPattern7",
+                "testErrorBindingPattern8",
+                "testErrorBindingPattern9",
+                "testErrorBindingPattern10",
+                "testErrorBindingPattern15",
+        };
     }
 
-    @Test
-    public void testErrorBindingPattern3() {
-        BRunUtil.invoke(result, "testErrorBindingPattern3");
+    @Test(dataProvider = "dataToTestErrorBindingPatterns")
+    public void testErrorBindingPatternsWithRestMatchPatterns(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void testErrorBindingPattern4() {
-        BRunUtil.invoke(result, "testErrorBindingPattern4");
+    @DataProvider
+    public Object[] dataToTestErrorBindingPatternsWithRestMatchPatterns() {
+        return new Object[]{
+                "testErrorBindingPattern1",
+                "testErrorBindingPattern2",
+                "testErrorBindingPattern3",
+        };
     }
 
-    @Test
-    public void testErrorBindingPattern5() {
-        BRunUtil.invoke(result, "testErrorBindingPattern5");
-    }
-
-    @Test
-    public void testErrorBindingPattern6() {
-        BRunUtil.invoke(result, "testErrorBindingPattern6");
-    }
-
-    @Test
-    public void testErrorBindingPattern7() {
-        BRunUtil.invoke(result, "testErrorBindingPattern7");
-    }
-
-    @Test
-    public void testErrorBindingPattern8() {
-        BRunUtil.invoke(result, "testErrorBindingPattern8");
-    }
-
-    @Test
-    public void testErrorBindingPattern9() {
-        BRunUtil.invoke(result, "testErrorBindingPattern9");
-    }
-
-    @Test
-    public void testErrorBindingPattern10() {
-        BRunUtil.invoke(result, "testErrorBindingPattern10");
-    }
-
-    @Test
-    public void testErrorBindingPatternWithRestBindingPattern1() {
-        BRunUtil.invoke(restPatternResult, "testErrorBindingPattern1");
-    }
-
-    @Test
-    public void testErrorBindingPatternWithRestBindingPattern2() {
-        BRunUtil.invoke(restPatternResult, "testErrorBindingPattern2");
-    }
-
-    @Test
-    public void testErrorBindingPatternWithRestBindingPattern3() {
-        BRunUtil.invoke(restPatternResult, "testErrorBindingPattern3");
+    @Test(dataProvider = "dataToTestErrorBindingPatternsWithRestMatchPatterns")
+    public void testErrorBindingPatternWithRestMatchPatterns(String functionName) {
+        BRunUtil.invoke(restPatternResult, functionName);
     }
 
     @Test
     public void testErrorBindingPatternNegative() {
         int i = 0;
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 23, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 28, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 20, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 25, 9);
 
         Assert.assertEquals(resultNegative.getWarnCount(), i);
     }

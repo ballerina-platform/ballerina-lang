@@ -19,7 +19,7 @@ function workerMessagePassingAfterWait() {
         5 -> function;
     }
     wait w;
-    int i = <- w;
+    int _ = <- w;
 }
 
 function workerWaitsForWorker() {
@@ -30,7 +30,7 @@ function workerWaitsForWorker() {
 
     worker w1 {
         wait w;
-        int j = <- w;
+        int _ = <- w;
     }
 }
 
@@ -58,7 +58,7 @@ public function forkTest() {
             }
             worker wij {
                 wait wii;
-                int i = <- wii;
+                int _ = <- wii;
             }
         }
     }

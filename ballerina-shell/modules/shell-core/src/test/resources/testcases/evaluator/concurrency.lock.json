@@ -1,7 +1,11 @@
 [
   {
     "description": "Define stock keeper.",
-    "code": "class StockKeeper { int requestCount = 0; int amount = 0; public function add(int n) { lock {  self.amount += n; }  self.requestCount += 1; } }; StockKeeper stockKeeper = new;"
+    "code": "class StockKeeper { int requestCount = 0; int amount = 0; public function add(int n) { lock {  self.amount += n; }  self.requestCount += 1; } }"
+  },
+  {
+    "description": "Define stock keeper.",
+    "code": "StockKeeper stockKeeper = new;"
   },
   {
     "description": "Start workers and wait function definition.",

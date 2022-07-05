@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.test.types.handle;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -40,6 +39,7 @@ import java.util.UUID;
  * @since 1.0.0
  */
 public class OpaqueHandleTypeTest {
+
     private CompileResult result;
 
     @BeforeClass
@@ -49,183 +49,180 @@ public class OpaqueHandleTypeTest {
 
     @Test(description = "Test a function that returns a value of handle")
     public void testHandleReturnFromFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "getHandle");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "getHandle");
+        Assert.assertNull(returns);
     }
 
     @Test(description = "Test a function that accepts and returns a handle value")
     public void testHandleValueAsAParameter() {
         UUID uuidValue = UUID.randomUUID();
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(uuidValue);
-        BValue[] returns = BRunUtil.invoke(result, "getHandleValueAsAParameter", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), uuidValue);
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(uuidValue);
+        Object returns = BRunUtil.invoke(result, "getHandleValueAsAParameter", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(), uuidValue);
     }
 
     @Test(description = "Test a function that accepts any and returns a handle")
     public void testAcceptHandleValueWithAny() {
         String strValue = "any string value";
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(strValue);
-        BValue[] returns = BRunUtil.invoke(result, "acceptHandleValueWithAny", args);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), strValue);
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(strValue);
+        Object returns = BRunUtil.invoke(result, "acceptHandleValueWithAny", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(), strValue);
     }
 
     @Test(description = "Test the equality of two handle values")
     public void testHandleValueEquility() {
         UUID uuidValue1 = UUID.randomUUID();
-        BValue[] args1 = new BValue[2];
-        args1[0] = new BHandleValue(uuidValue1);
-        args1[1] = new BHandleValue(uuidValue1);
-        BValue[] returns1 = BRunUtil.invoke(result, "testHandleValueEquality", args1);
-        Assert.assertTrue(((BBoolean) returns1[0]).booleanValue());
+        Object[] args1 = new Object[2];
+        args1[0] = new HandleValue(uuidValue1);
+        args1[1] = new HandleValue(uuidValue1);
+        Object returns1 = BRunUtil.invoke(result, "testHandleValueEquality", args1);
+        Assert.assertTrue((Boolean) returns1);
 
         UUID uuidValue2 = UUID.randomUUID();
-        BValue[] args2 = new BValue[2];
-        args2[0] = new BHandleValue(uuidValue1);
-        args2[1] = new BHandleValue(uuidValue2);
-        BValue[] returns2 = BRunUtil.invoke(result, "testHandleValueEquality", args2);
-        Assert.assertFalse(((BBoolean) returns2[0]).booleanValue());
+        Object[] args2 = new Object[2];
+        args2[0] = new HandleValue(uuidValue1);
+        args2[1] = new HandleValue(uuidValue2);
+        Object returns2 = BRunUtil.invoke(result, "testHandleValueEquality", args2);
+        Assert.assertFalse((Boolean) returns2);
     }
 
     @Test(description = "Test the inequality of two handle values")
     public void testHandleValueInequality() {
         UUID uuidValue1 = UUID.randomUUID();
-        BValue[] args1 = new BValue[2];
-        args1[0] = new BHandleValue(uuidValue1);
-        args1[1] = new BHandleValue(uuidValue1);
-        BValue[] returns1 = BRunUtil.invoke(result, "testHandleValueInequality", args1);
-        Assert.assertFalse(((BBoolean) returns1[0]).booleanValue());
+        Object[] args1 = new Object[2];
+        args1[0] = new HandleValue(uuidValue1);
+        args1[1] = new HandleValue(uuidValue1);
+        Object returns1 = BRunUtil.invoke(result, "testHandleValueInequality", args1);
+        Assert.assertFalse((Boolean) returns1);
 
         UUID uuidValue2 = UUID.randomUUID();
-        BValue[] args2 = new BValue[2];
-        args2[0] = new BHandleValue(uuidValue1);
-        args2[1] = new BHandleValue(uuidValue2);
-        BValue[] returns2 = BRunUtil.invoke(result, "testHandleValueInequality", args2);
-        Assert.assertTrue(((BBoolean) returns2[0]).booleanValue());
+        Object[] args2 = new Object[2];
+        args2[0] = new HandleValue(uuidValue1);
+        args2[1] = new HandleValue(uuidValue2);
+        Object returns2 = BRunUtil.invoke(result, "testHandleValueInequality", args2);
+        Assert.assertTrue((Boolean) returns2);
     }
 
     @Test(description = "Test a function that works with module-level handle variable")
     public void testModuleLevelHandleVariableAccess() {
         String strValue = "any string value";
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(strValue);
-        BValue[] returns = BRunUtil.invoke(result, "setAndGetModuleLevelHandleValue", args);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), strValue);
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(strValue);
+        Object returns = BRunUtil.invoke(result, "setAndGetModuleLevelHandleValue", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(), strValue);
     }
 
     @Test(description = "Test a union types that include the handle type")
     public void testUnionsWithHandleType() {
         String strValue = "String handle value";
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(strValue);
-        BValue[] returns = BRunUtil.invoke(result, "testUnionsWithHandleType", args);
-        Assert.assertEquals(returns[0].stringValue(), "handle");
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(strValue);
+        Object returns = BRunUtil.invoke(result, "testUnionsWithHandleType", args);
+        Assert.assertEquals(returns.toString(), "handle");
 
-        args = new BValue[1];
-        args[0] = new BString("String handle value");
+        args = new Object[1];
+        args[0] = StringUtils.fromString("String handle value");
         returns = BRunUtil.invoke(result, "testUnionsWithHandleType", args);
-        Assert.assertEquals(returns[0].stringValue(), "string");
+        Assert.assertEquals(returns.toString(), "string");
 
-        args = new BValue[1];
-        args[0] = new BInteger(10);
+        args = new Object[1];
+        args[0] = (10);
         returns = BRunUtil.invoke(result, "testUnionsWithHandleType", args);
-        Assert.assertEquals(returns[0].stringValue(), "int");
+        Assert.assertEquals(returns.toString(), "int");
     }
 
     @Test(description = "Test array access of handle values")
     public void testArrayAccessOfHandleValues() {
-        BValueArray bValueArray = new BValueArray(BTypes.typeHandle);
-        bValueArray.add(0, new BHandleValue(UUID.randomUUID()));
-        bValueArray.add(1, new BHandleValue(UUID.randomUUID()));
-        bValueArray.add(2, new BHandleValue(UUID.randomUUID()));
-        bValueArray.add(3, new BHandleValue(UUID.randomUUID()));
-        bValueArray.add(4, new BHandleValue(UUID.randomUUID()));
+        BArray bValueArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_HANDLE));
+        bValueArray.add(0, new HandleValue(UUID.randomUUID()));
+        bValueArray.add(1, new HandleValue(UUID.randomUUID()));
+        bValueArray.add(2, new HandleValue(UUID.randomUUID()));
+        bValueArray.add(3, new HandleValue(UUID.randomUUID()));
+        bValueArray.add(4, new HandleValue(UUID.randomUUID()));
 
         int testIndex = 2;
-        Object testValue = ((BHandleValue) bValueArray.getRefValue(testIndex)).getValue();
-        BValue[] args = new BValue[2];
+        Object testValue = ((HandleValue) bValueArray.getRefValue(testIndex)).getValue();
+        Object[] args = new Object[2];
         args[0] = bValueArray;
-        args[1] = new BInteger(testIndex); // index
-        BValue[] returns = BRunUtil.invoke(result, "testArrayAccessOfHandleValues", args);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), testValue);
+        args[1] = (testIndex); // index
+        Object returns = BRunUtil.invoke(result, "testArrayAccessOfHandleValues", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(), testValue);
     }
 
     @Test(description = "Test array store of handle values")
     public void testArrayStoreOfHandleValues() {
-        BValueArray bValueArray = new BValueArray(BTypes.typeHandle);
-        bValueArray.add(0, new BHandleValue(UUID.randomUUID()));
-        bValueArray.add(1, new BHandleValue(UUID.randomUUID()));
-        bValueArray.add(2, new BHandleValue(UUID.randomUUID()));
-        bValueArray.add(3, new BHandleValue(UUID.randomUUID()));
-        bValueArray.add(4, new BHandleValue(UUID.randomUUID()));
+        BArray bValueArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_HANDLE));
+        bValueArray.add(0, new HandleValue(UUID.randomUUID()));
+        bValueArray.add(1, new HandleValue(UUID.randomUUID()));
+        bValueArray.add(2, new HandleValue(UUID.randomUUID()));
+        bValueArray.add(3, new HandleValue(UUID.randomUUID()));
+        bValueArray.add(4, new HandleValue(UUID.randomUUID()));
 
         int testIndex = 3;
-        BHandleValue testValue = new BHandleValue(UUID.randomUUID());
-        BValue[] args = new BValue[3];
+        HandleValue testValue = new HandleValue(UUID.randomUUID());
+        Object[] args = new Object[3];
         args[0] = bValueArray;
-        args[1] = new BInteger(testIndex); // index
+        args[1] = (testIndex); // index
         args[2] = testValue;
-        BValue[] returns = BRunUtil.invoke(result, "testArrayStoreOfHandleValues", args);
-        Assert.assertEquals(((BHandleValue) returns[testIndex]).getValue(), testValue.getValue());
+        BArray returns = (BArray) BRunUtil.invoke(result, "testArrayStoreOfHandleValues", args);
+        Assert.assertEquals(((HandleValue) returns.get(testIndex)).getValue(), testValue.getValue());
     }
 
     @Test(description = "Test creation of a handle array")
     public void testCreateArrayOfHandleValues() {
         int testIndex = 3;
-        BValue[] args = new BValue[5];
-        args[0] = new BHandleValue(UUID.randomUUID());
-        args[1] = new BHandleValue(UUID.randomUUID());
-        args[2] = new BHandleValue(UUID.randomUUID());
-        args[3] = new BHandleValue(UUID.randomUUID());
-        args[4] = new BInteger(testIndex);
-        BValue[] returns = BRunUtil.invoke(result, "testCreateArrayOfHandleValues", args);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(),
-                ((BHandleValue) args[testIndex]).getValue());
+        Object[] args = new Object[5];
+        args[0] = new HandleValue(UUID.randomUUID());
+        args[1] = new HandleValue(UUID.randomUUID());
+        args[2] = new HandleValue(UUID.randomUUID());
+        args[3] = new HandleValue(UUID.randomUUID());
+        args[4] = (testIndex);
+        Object returns = BRunUtil.invoke(result, "testCreateArrayOfHandleValues", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(), ((HandleValue) args[testIndex]).getValue());
     }
 
     @Test(description = "Test creation of a handle map")
     public void testCreateMapOfHandleValues() {
-        BValue[] args = new BValue[4];
-        args[0] = new BHandleValue(UUID.randomUUID());
-        args[1] = new BHandleValue(UUID.randomUUID());
-        args[2] = new BHandleValue(UUID.randomUUID());
-        args[3] = new BHandleValue(UUID.randomUUID());
-        BValue[] returns = BRunUtil.invoke(result, "testCreateMapOfHandleValues", args);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(),
-                ((BHandleValue) args[1]).getValue());
+        Object[] args = new Object[4];
+        args[0] = new HandleValue(UUID.randomUUID());
+        args[1] = new HandleValue(UUID.randomUUID());
+        args[2] = new HandleValue(UUID.randomUUID());
+        args[3] = new HandleValue(UUID.randomUUID());
+        Object returns = BRunUtil.invoke(result, "testCreateMapOfHandleValues", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(),
+                ((HandleValue) args[1]).getValue());
     }
 
     @Test(description = "Test creation of a record")
     public void testCreateRecordOfHandleValues() {
-        BValue[] args = new BValue[2];
-        args[0] = new BHandleValue(UUID.randomUUID());
-        args[1] = new BHandleValue(UUID.randomUUID());
-        BValue[] returns = BRunUtil.invoke(result, "testCreateRecordWithHandleValues", args);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(),
-                ((BHandleValue) args[1]).getValue());
+        Object[] args = new Object[2];
+        args[0] = new HandleValue(UUID.randomUUID());
+        args[1] = new HandleValue(UUID.randomUUID());
+        Object returns = BRunUtil.invoke(result, "testCreateRecordWithHandleValues", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(),
+                ((HandleValue) args[1]).getValue());
     }
 
     @Test(description = "Test creation of a tuple with handle values")
     public void testCreateTuplesWithHandleValues() {
-        BValue[] args = new BValue[2];
-        args[0] = new BHandleValue(UUID.randomUUID());
-        args[1] = new BHandleValue(UUID.randomUUID());
-        BValue[] returns = BRunUtil.invoke(result, "testCreateTuplesWithHandleValues", args);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(),
-                ((BHandleValue) args[0]).getValue());
+        Object[] args = new Object[2];
+        args[0] = new HandleValue(UUID.randomUUID());
+        args[1] = new HandleValue(UUID.randomUUID());
+        Object returns = BRunUtil.invoke(result, "testCreateTuplesWithHandleValues", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(),
+                ((HandleValue) args[0]).getValue());
     }
 
     @Test(description = "Test creation of an object with handle values")
     public void testCreateObjectWithHandleValues() {
-        BValue[] args = new BValue[2];
-        args[0] = new BHandleValue(UUID.randomUUID());
-        args[1] = new BHandleValue(UUID.randomUUID());
-        BValue[] returns = BRunUtil.invoke(result, "testCreateObjectWithHandleValues", args);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(),
-                ((BHandleValue) args[1]).getValue());
+        Object[] args = new Object[2];
+        args[0] = new HandleValue(UUID.randomUUID());
+        args[1] = new HandleValue(UUID.randomUUID());
+        Object returns = BRunUtil.invoke(result, "testCreateObjectWithHandleValues", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(),
+                ((HandleValue) args[1]).getValue());
     }
 
     @AfterClass

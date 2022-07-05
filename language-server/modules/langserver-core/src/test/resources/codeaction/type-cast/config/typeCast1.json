@@ -1,24 +1,28 @@
 {
-    "line": 1,
-    "character": 12,
-    "expected": [
+  "position": {
+    "line": 59,
+    "character": 15
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Add type cast to assignment",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 1,
-                            "character": 12
-                        },
-                        "end": {
-                            "line": 1,
-                            "character": 12
-                        }
-                    },
-                    "newText": "\u003cint\u003e "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 59,
+              "character": 15
+            },
+            "end": {
+              "line": 59,
+              "character": 15
+            }
+          },
+          "newText": "\u003cstring\u003e"
         }
-    ]
+      ]
+    }
+  ]
 }

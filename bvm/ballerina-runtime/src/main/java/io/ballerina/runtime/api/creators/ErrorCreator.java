@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
@@ -52,6 +53,18 @@ public class ErrorCreator {
     }
 
     /**
+     * Create an error with given reason and details.
+     *
+     * @param message  error message
+     * @param details error details
+     * @return new error
+     */
+    public static BError createError(BString message, BMap<BString, Object> details) {
+        details = RuntimeUtils.validateErrorDetails(details);
+        return new ErrorValue(message, details);
+    }
+
+    /**
      * Create an error with given message and details.
      *
      * @param message error message
@@ -67,7 +80,7 @@ public class ErrorCreator {
             initialValues = new MappingInitialValueEntry[0];
         }
         MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
-        return new ErrorValue(message, detailMap);
+        return createError(message, detailMap);
     }
 
     /**
@@ -93,6 +106,8 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Type type, BString message, BError cause, BMap<BString, Object> details) {
+        details = RuntimeUtils.validateErrorDetails(details);
+        ((BErrorType) type).setDetailType(TypeChecker.getType(details));
         return new ErrorValue(type, message, cause, details);
     }
 
@@ -100,7 +115,7 @@ public class ErrorCreator {
      * Create an error with given type, reason and details.
      *
      * @param type    error type
-     * @param message  error message
+     * @param message error message
      * @param details error details
      * @return new error
      */
@@ -113,18 +128,7 @@ public class ErrorCreator {
             initialValues = new MappingInitialValueEntry[0];
         }
         MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
-        return new ErrorValue(type, message, null, detailMap);
-    }
-
-    /**
-     * Create an error with given reason and details.
-     *
-     * @param message  error message
-     * @param details error details
-     * @return new error
-     */
-    public static BError createError(BString message, BMap<BString, Object> details) {
-        return new ErrorValue(message, details);
+        return createError(type, message, null, detailMap);
     }
 
     /**
@@ -141,7 +145,7 @@ public class ErrorCreator {
     }
 
     /**
-     * Create a error value with given error type defined in the given module.
+     * Create an error value with given error type defined in the given module.
      *
      * @param module        module name
      * @param errorTypeName error type name
@@ -152,13 +156,24 @@ public class ErrorCreator {
      * @throws BError if given error type is not defined in the ballerina module.
      */
     public static BError createError(Module module, String errorTypeName,
-                                     BString message, BError cause, Object details) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
-        return valueCreator.createErrorValue(errorTypeName, message, cause, details);
+                                     BString message, BError cause, BMap<BString, Object> details) {
+        details = RuntimeUtils.validateErrorDetails(details);
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
+        try {
+            return valueCreator.createErrorValue(errorTypeName, message, cause, details);
+        } catch (BError e) {
+            // If error type definition not found, get it from test module.
+            String testLookupKey = ValueCreator.getLookupKey(module, true);
+            if (ValueCreator.containsValueCreator(testLookupKey)) {
+                return ValueCreator.getValueCreator(testLookupKey).createErrorValue(errorTypeName, message,
+                        cause, details);
+            }
+            throw e;
+        }
     }
 
     /**
-     * Create an distinct error with given typeID, typeIdPkg and reason.
+     * Create a distinct error with given typeID, typeIdPkg and reason.
      *
      * @param typeIdName type id
      * @param typeIdPkg  type id module
@@ -173,7 +188,7 @@ public class ErrorCreator {
     }
 
     /**
-     * Create an distinct error with given typeID, typeIdPkg and reason.
+     * Create a distinct error with given typeID, typeIdPkg and reason.
      *
      * @param typeIdName type id
      * @param typeIdPkg  type id module
@@ -185,12 +200,13 @@ public class ErrorCreator {
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,
                                              BMap<BString, Object> details) {
+        details = RuntimeUtils.validateErrorDetails(details);
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker
                 .getType(details)), message, null, details, typeIdName, typeIdPkg);
     }
 
     /**
-     * Create an distinct error with given typeID, typeIdPkg and reason.
+     * Create a distinct error with given typeID, typeIdPkg and reason.
      *
      * @param typeIdName type id
      * @param typeIdPkg  type id module

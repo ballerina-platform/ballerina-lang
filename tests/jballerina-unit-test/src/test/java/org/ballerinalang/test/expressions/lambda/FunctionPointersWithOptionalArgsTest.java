@@ -17,8 +17,7 @@
 */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -53,17 +52,18 @@ public class FunctionPointersWithOptionalArgsTest {
 
     @Test
     public void testFunctionPointerAssignmentWithNamedParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionPointerAssignmentWithNamedParams");
+        Object arr = BRunUtil.invoke(result, "testFunctionPointerAssignmentWithNamedParams");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertEquals(returns.get(0), 1L);
 
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(1), 2L);
 
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertEquals(returns.get(2).toString(), "Alex");
     }
 
     @AfterClass

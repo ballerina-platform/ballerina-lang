@@ -26,8 +26,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  * @since 0.970.0
  */
 public abstract class BLangAccessExpression extends BLangValueExpression {
+
+    // BLangNodes
     public BLangExpression expr;
+
+    // Parser Flags and Data
     public boolean optionalFieldAccess = false;
+
+    // Semantic Data
     public boolean errorSafeNavigation = false;
     public boolean nilSafeNavigation = false;
     public BType originalType;

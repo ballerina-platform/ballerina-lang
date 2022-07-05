@@ -21,11 +21,11 @@ const constLength = 2;
 int[constLength] a = [1, 2];
 
 function arraySizeReferenceInDifferentScopeTest() {
-    int[constLength] e = [1, 2];
+    int[constLength] _ = [1, 2];
 
     function () anonFunction =
                 function () {
-                   int[constLength] i = [1, 2];
+                   int[constLength] _ = [1, 2];
                 };
 
     anonFunction();
@@ -33,6 +33,6 @@ function arraySizeReferenceInDifferentScopeTest() {
     int x = 10;
 
     if (x == 10) {
-        int[constLength] m = [1, 2];
+        int[constLength] _ = [1, 2];
     }
 }

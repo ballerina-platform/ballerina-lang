@@ -28,14 +28,14 @@ type Person record {|
     string name;
     boolean married;
     Age age;
-    [string, int] extra?;
+    [string, int] extra;
 |};
 
 type Person2 record {|
     string name;
     boolean married;
     ClosedAge age;
-    [string, int] extra?;
+    [string, int] extra;
 |};
 
 function testUndefinedSymbol() {
@@ -102,14 +102,14 @@ function testInvalidTypes() {
     Person age;
     map<any|error> theMap;
 
-    Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}};
+    Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}, extra: ["extra", 12]};
     {name: fName, age, married, ...theMap} = p; // incompatible types of age field
 
     {name: fName, name: lName} = p; // multiple matching patterns
 }
 
 function testUnknownFields() {
-    Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}};
+    Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}, extra: ["extra", 12]};
     any name;
     any married;
     any age;
@@ -197,4 +197,48 @@ function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
     map<anydata> m = {};
     {name: m["var1"], yearAndAge: [m["var2"], _]} = ch3;
     return [m["var1"], m["var2"]];
+}
+
+type Employee record {
+    string name;
+    int id;
+    int age?;
+};
+
+type EmployeeOne record {
+    string name;
+    record { int id; int age; } details?;
+};
+
+function testOptionalFieldsInRecordBindingPattern(){
+   Employee e = {name: "Jo", id: 1234};
+
+   string eName;
+   int eId;
+   int eAge;
+
+   {name: eName, id: eId, age: eAge} = e;
+
+   string name;
+   int id;
+   int age;
+
+   {name, id:id, age} = e;
+
+   EmployeeOne e1 = {name: "Jo", details: {
+          id: 5,
+          age: 32
+  }};
+
+  string nameOne;
+  int idOne;
+  int ageOne;
+
+  {name: nameOne, details:{id: idOne, age: ageOne}} = e1;
+}
+
+function testMappingBindingPatternWithMap() {
+    map<string> stringMap = {"a":"Foo"};
+    string? foo;
+    {a: foo} = stringMap;
 }

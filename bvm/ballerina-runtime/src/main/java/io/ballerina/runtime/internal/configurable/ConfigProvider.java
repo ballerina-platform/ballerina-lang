@@ -57,6 +57,10 @@ public interface ConfigProvider {
 
     Optional<ConfigValue> getAsUnionAndMark(Module module, VariableKey key);
 
+    Optional<ConfigValue> getAsFiniteAndMark(Module module, VariableKey key);
+
     Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key);
+
+    Optional<ConfigValue> getAsTupleAndMark(Module module, VariableKey key);
 
 }

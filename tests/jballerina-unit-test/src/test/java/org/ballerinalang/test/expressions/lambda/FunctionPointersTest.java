@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -50,39 +50,36 @@ public class FunctionPointersTest {
 
     @Test
     public void testFunctionPointerAsVariable() {
-        invokeFunctionPointerProgram(fpProgram, "test1", 3);
+      invokeFunctionPointerProgram(fpProgram, "test1", 3);
     }
 
     @Test
     public void testFunctionPointerAsLambda() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "test2");
+        Object returns = BRunUtil.invoke(fpProgram, "test2");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "sum is 3");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "sum is 3");
     }
 
     @Test
     public void testFunctionPointerAsParameter() {
-        invokeFunctionPointerProgram(fpProgram, "test3", 4);
+      invokeFunctionPointerProgram(fpProgram, "test3", 4);
     }
 
     @Test
     public void testLambdaAsReturnParameter() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "test4");
+        Object returns = BRunUtil.invoke(fpProgram, "test4");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "hello world.");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "hello world.");
     }
 
     @Test
     public void testFunctionPointerAsReturnParameter() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "test5");
+        Object returns = BRunUtil.invoke(fpProgram, "test5");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test5 string1.0");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "test5 string1.0");
     }
 
     @Test
@@ -93,107 +90,101 @@ public class FunctionPointersTest {
 
     @Test
     public void testNestedFunctionPointersAsParameters() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "test6");
+        Object returns = BRunUtil.invoke(fpProgram, "test6");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test6 test6 1.0");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "test6 test6 1.0");
     }
 
     @Test
     public void testFuncWithArrayParams() {
-        invokeFunctionPointerProgram(fpProgram, "testFuncWithArrayParams", 0);
+      invokeFunctionPointerProgram(fpProgram, "testFuncWithArrayParams", 0);
     }
 
     @Test
     public void testInTypeGuard() {
-        invokeFunctionPointerProgram(fpProgram, "testInTypeGuard", 0);
+      invokeFunctionPointerProgram(fpProgram, "testInTypeGuard", 0);
     }
 
     @Test
     public void testPrivateFunctionPointerTest1() {
-        invokeFunctionPointerProgram(privateFPProgram, "test1", 3);
+      invokeFunctionPointerProgram(privateFPProgram, "test1", 3);
     }
 
     @Test
     public void testPrivateFunctionPointerTest2() {
-        invokeFunctionPointerProgram(privateFPProgram, "test2", 3);
+      invokeFunctionPointerProgram(privateFPProgram, "test2", 3);
     }
 
     @Test
     public void testInvokingLambdasWithSameName() {
-        BValue[] returns = BRunUtil.invoke(privateFPProgram, "getCombinedString");
+        Object returns = BRunUtil.invoke(privateFPProgram, "getCombinedString");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "foo bar");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "foo bar");
     }
 
-    private void invokeFunctionPointerProgram(CompileResult programToRun, String functionName, int valueToAssert) {
-        BValue[] returns = BRunUtil.invoke(programToRun, functionName);
+    private void invokeFunctionPointerProgram(CompileResult programToRun, String functionName, long valueToAssert) {
+        Object returns = BRunUtil.invoke(programToRun, functionName);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), valueToAssert);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, valueToAssert);
     }
 
     @Test
     public void testGlobalFP() {
-        BValue[] returns;
+        Object returns;
         // testing function pointer.
         returns = BRunUtil.invoke(globalProgram, "test1");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test1");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "test1");
     }
 
     @Test
     public void testGlobalFPAsLambda() {
-        BValue[] returns;
+        Object returns;
         // lambda.
         returns = BRunUtil.invoke(globalProgram, "test2");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test2true");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "test2true");
     }
 
     @Test
     public void testGlobalFPAssignment() {
-        BValue[] returns;
+        Object arr;
         // assign function pointer and invoke.
-        returns = BRunUtil.invoke(globalProgram, "test3");
+        arr = BRunUtil.invoke(globalProgram, "test3");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test3");
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[1].stringValue(), "test3");
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[2].stringValue(), "3test");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertEquals(returns.get(0).toString(), "test3");
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(1).toString(), "test3");
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertEquals(returns.get(2).toString(), "3test");
     }
 
     @Test
     public void testGlobalFPWithLocalFP() {
-        BValue[] returns;
+        Object returns;
         // Check global and local variable.
         returns = BRunUtil.invoke(globalProgram, "test5");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "falsetest5");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "falsetest5");
     }
 
     @Test
     public void testGlobalFPByAssigningLocalFP() {
-        BValue[] returns;
+        Object returns;
         // assign local ref to global and invoke.
         returns = BRunUtil.invoke(globalProgram, "test6");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "truetest6");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "truetest6");
     }
 
     @Test(description = "Test global function type defs with closures")
@@ -203,13 +194,14 @@ public class FunctionPointersTest {
 
     @Test
     public void testStructFP() {
-        BValue[] returns = BRunUtil.invoke(structProgram, "test1");
+        Object arr = BRunUtil.invoke(structProgram, "test1");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "bob white");
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[1].stringValue(), "smith, tom");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertEquals(returns.get(0).toString(), "bob white");
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(1).toString(), "smith, tom");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
@@ -219,11 +211,10 @@ public class FunctionPointersTest {
 
     @Test
     public void testFPWithStruct() {
-        BValue[] returns = BRunUtil.invoke(structProgram, "test3");
+        Object returns = BRunUtil.invoke(structProgram, "test3");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "white, bob");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "white, bob");
     }
 
     @Test
@@ -239,35 +230,35 @@ public class FunctionPointersTest {
     @Test
     public void testFunctionPointerNative() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-native.bal");
-        BValue[] returns = BRunUtil.invoke(result, "test1");
+        Object returns = BRunUtil.invoke(result, "test1");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "foobar");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "foobar");
     }
 
     @Test
     public void testFunctionPointerAsFuncParam() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerAsFuncParam");
-        Assert.assertNotNull(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 13);
+        Object arr = BRunUtil.invoke(fpProgram, "testFunctionPointerAsFuncParam");
+        BArray returns = (BArray) arr;
+        Assert.assertNotNull(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 13L);
 
-        Assert.assertNotNull(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "Total: 6 USD");
+        Assert.assertNotNull(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "Total: 6 USD");
     }
 
     @Test
     public void testAnyToFuncPointerConversion_1() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_1");
-        Assert.assertNotNull(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Object returns = BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_1");
+        Assert.assertNotNull(returns instanceof Long);
+        Assert.assertEquals(returns, 5L);
     }
 
     @Test
     public void testFuncPointerConversion() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFuncPointerConversion");
-        Assert.assertNotNull(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
+        Object returns = BRunUtil.invoke(fpProgram, "testFuncPointerConversion");
+        Assert.assertNotNull(returns instanceof Long);
+        Assert.assertEquals(returns, 40L);
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
@@ -282,53 +273,66 @@ public class FunctionPointersTest {
     @Test(description = "Test assigning a function pointer to any and casting it back")
     public void testAnyToFunctionPointer() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/fp2any.bal");
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "test1", args);
+        Object[] args = new Object[0];
+        Object returns = BRunUtil.invoke(result, "test1", args);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test1");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "test1");
     }
 
     @Test
     public void testFunctionPointerWithAClosure() {
-        BValue[] returns = BRunUtil.invoke(closureFPProgram, "testArrayFunctionInfer");
-        Assert.assertEquals(returns[0].stringValue(), "abccde");
+        Object returns = BRunUtil.invoke(closureFPProgram, "testArrayFunctionInfer");
+        Assert.assertEquals(returns.toString(), "abccde");
     }
 
     @Test
     public void testInvoke() {
-        BValue[] returns = BRunUtil.invoke(closureFPProgram, "invokeApplyFunction");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+        Object returns = BRunUtil.invoke(closureFPProgram, "invokeApplyFunction");
+        Assert.assertEquals(returns, 6L);
     }
 
     @Test(description = "Test function pointers with subtyping")
     public void testSubTypingWithAny() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testSubTypingWithAny");
-        Assert.assertEquals(returns[0].stringValue(), "12");
+        Object returns = BRunUtil.invoke(fpProgram, "testSubTypingWithAny");
+        Assert.assertEquals(returns.toString(), "12");
     }
 
     @Test(description = "Test global function pointers defined using var")
     public void testGlobalFunctionPointerVar() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testGlobalFunctionPointerVar");
-        Assert.assertEquals(returns[0].stringValue(), "f1");
+        Object returns = BRunUtil.invoke(fpProgram, "testGlobalFunctionPointerVar");
+        Assert.assertEquals(returns.toString(), "f1");
     }
 
     @Test(description = "Test global function pointers that are defined with type")
     public void testGlobalFunctionPointerTyped() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testGlobalFunctionPointerTyped");
-        Assert.assertEquals(returns[0].stringValue(), "f2");
+        Object returns = BRunUtil.invoke(fpProgram, "testGlobalFunctionPointerTyped");
+        Assert.assertEquals(returns.toString(), "f2");
     }
 
     @Test(description = "Test passing a no-return function pointer as a nil-returning function pointer")
     public void testVoidFunctionAsUnionReturnFunction() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testVoidFunctionAsUnionReturnFunction");
-        Assert.assertEquals(returns[0].stringValue(), "value - updated through lambda");
+        Object returns = BRunUtil.invoke(fpProgram, "testVoidFunctionAsUnionReturnFunction");
+        Assert.assertEquals(returns.toString(), "value - updated through lambda");
     }
 
     @Test(description = "Test function pointers defaultable params")
     public void testDefaultParams() {
         BRunUtil.invoke(fpProgram, "testDefaultParams");
+    }
+
+    @Test(description = "Test compile time errors for redeclared symbols")
+    public void testRedeclaredSymbolsNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/expressions/lambda/fps_hiding_block_scope_symbols.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 3, 26);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 11, 55);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'z'", 11, 58);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 34, 13);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 42, 32);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 47, 32);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @AfterClass

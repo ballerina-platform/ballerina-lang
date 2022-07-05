@@ -33,11 +33,13 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
-import static io.ballerina.runtime.api.utils.IdentifierUtils.encodeNonFunctionIdentifier;
 
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 //    todo that, we would have to move PackageContext class into an internal package.
@@ -65,7 +67,7 @@ public class JarResolver {
     // TODO These method names are too long. Refactor them soon
     public Collection<JarLibrary> getJarFilePathsRequiredForExecution() {
         // 1) Add this root package related jar files
-        List<JarLibrary> jarFiles = new ArrayList<>();
+        Set<JarLibrary> jarFiles = new HashSet<>();
         addCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
 
@@ -116,7 +118,7 @@ public class JarResolver {
     }
 
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
-            List<JarLibrary> libraryPaths) {
+            Set<JarLibrary> libraryPaths) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
@@ -127,19 +129,25 @@ public class JarResolver {
 
     private void addPlatformLibraryPaths(PackageContext packageContext,
                                          PlatformLibraryScope scope,
-                                         List<JarLibrary> libraryPaths) {
+                                         Set<JarLibrary> libraryPaths) {
         // Add all the jar library dependencies of current package (packageId)
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
+
+        List<String> fileNames = new ArrayList();
+        libraryPaths.stream().forEach(e -> fileNames.add(e.path().toFile().getName()));
+
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-            libraryPaths.add(new JarLibrary(otherJarDependency.path(), scope, getPackageName(packageContext)));
+            if (!fileNames.contains(otherJarDependency.path().toFile().getName())) {
+                libraryPaths.add(new JarLibrary(otherJarDependency.path(), scope, getPackageName(packageContext)));
+            }
         }
     }
 
 
     public Collection<JarLibrary> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         // 1) Get all the jars excepts for test scope package and platform-specific dependencies
-        List<JarLibrary> allJarFileForTestExec = new ArrayList<>(getJarFilePathsRequiredForExecution());
+        Set<JarLibrary> allJarFileForTestExec = new HashSet<>(getJarFilePathsRequiredForExecution());
 
         // 2) Replace given modules thin jar with it's test-thin jar
         if (!rootPackageContext.packageManifest().org().anonymous()) {
@@ -150,10 +158,6 @@ public class JarResolver {
             allJarFileForTestExec.add(new JarLibrary(generatedTestJar.path(),
                                                      PlatformLibraryScope.DEFAULT,
                                                      getPackageName(rootPackageContext)));
-
-            // Remove the generated jar without test code.
-            PlatformLibrary generatedJar = jBalBackend.codeGeneratedLibrary(rootPackageId, moduleName);
-            allJarFileForTestExec.removeIf(jarFile -> jarFile.path().toString().equals(generatedJar.path().toString()));
         }
 
         // 3) Add platform-specific libraries with test scope defined in the root package's Ballerina.toml

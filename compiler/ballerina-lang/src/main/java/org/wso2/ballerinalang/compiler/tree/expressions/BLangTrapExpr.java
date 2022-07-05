@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TrapExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -29,6 +31,7 @@ public class BLangTrapExpr extends BLangExpression implements TrapExpressionNode
 
     private static final String TRAP_KEYWORD = "trap";
 
+    // BLangNodes
     public BLangExpression expr;
 
     @Override
@@ -42,8 +45,18 @@ public class BLangTrapExpr extends BLangExpression implements TrapExpressionNode
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public String toString() {
-        return TRAP_KEYWORD + " " + String.valueOf(expr);
+        return TRAP_KEYWORD + " " + expr;
     }
 
     @Override

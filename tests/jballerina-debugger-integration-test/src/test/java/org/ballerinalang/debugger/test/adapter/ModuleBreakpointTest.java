@@ -29,6 +29,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
+
 import static org.ballerinalang.debugger.test.utils.DebugTestRunner.DebugResumeKind;
 
 /**
@@ -45,11 +47,28 @@ public class ModuleBreakpointTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
-    public void testMultipleBreakpointsInSameFile() throws BallerinaTestException {
+    @Test(description = "Test to verify breakpoint hits within the default module of Ballerina packages")
+    public void testMultipleBreakpointsInDefaultModule() throws BallerinaTestException {
 
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 19));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 33));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
+
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo2 = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo2.getLeft(), debugTestRunner.testBreakpoints.get(1));
+    }
+
+    @Test(description = "Test to verify breakpoint hits within non-default modules of Ballerina packages")
+    public void testMultipleBreakpointsInNonDefaultModules() throws BallerinaTestException {
+
+        Path otherModuleFilePath = debugTestRunner.testProjectPath.resolve("modules").resolve("math")
+                .resolve("add.bal");
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(otherModuleFilePath, 22));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(otherModuleFilePath, 31));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);

@@ -16,20 +16,16 @@
 package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.Documentable;
-import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
-import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -52,22 +48,16 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.SignatureContext;
-import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.ParameterInformation;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
-import org.eclipse.lsp4j.SignatureInformationCapabilities;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -77,7 +67,6 @@ import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 
@@ -154,9 +143,7 @@ public class SignatureHelpUtil {
         }
 
         // Search function invocation symbol
-        List<SignatureInformation> signatures = new ArrayList<>();
-        Optional<SignatureInformation> signatureInfo = SignatureHelpUtil.getSignatureInformation(context);
-        signatureInfo.ifPresent(signatures::add);
+        List<SignatureInformation> signatures = new ArrayList<>(SignatureHelpUtil.getSignatureInformation(context));
         SignatureHelp signatureHelp = new SignatureHelp();
         signatureHelp.setActiveParameter(activeParamIndex);
         signatureHelp.setActiveSignature(0);
@@ -170,286 +157,14 @@ public class SignatureHelpUtil {
      * @param context Lang Server Signature Help Context
      * @return {@link SignatureInformation}     Signature information for the invocation node.
      */
-    private static Optional<SignatureInformation> getSignatureInformation(SignatureContext context) {
+    private static List<SignatureInformation> getSignatureInformation(SignatureContext context) {
+
         Optional<? extends Symbol> invokableSymbol = getFunctionSymbol(context);
         if (invokableSymbol.isEmpty()) {
-            return Optional.empty();
-        }
-        List<ParameterInformation> parameterInformationList = new ArrayList<>();
-        SignatureInformation signatureInformation = new SignatureInformation();
-        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(invokableSymbol.get(), context);
-
-        // Override label for 'new' constructor
-        Optional<String> functionName = invokableSymbol.get().getName();
-        Optional<NonTerminalNode> nodeAtCursor = context.getNodeAtCursor();
-        if (functionName.isEmpty() || nodeAtCursor.isEmpty()) {
-            // Should not come to this point
-            return Optional.empty();
-        }
-        StringBuilder labelBuilder = new StringBuilder();
-        SyntaxKind syntaxKind = nodeAtCursor.get().kind();
-        if (functionName.get().equals(Names.USER_DEFINED_INIT_SUFFIX.getValue())
-                && (syntaxKind == SyntaxKind.IMPLICIT_NEW_EXPRESSION
-                || syntaxKind == SyntaxKind.EXPLICIT_NEW_EXPRESSION)) {
-            labelBuilder.append(SyntaxKind.NEW_KEYWORD.stringValue());
-        } else {
-            labelBuilder.append(functionName.get());
+            return Collections.emptyList();
         }
 
-        labelBuilder.append("(");
-        // Join the function parameters to generate the function's signature
-        List<ParameterInfoModel> parameterInfoModels = signatureInfoModel.getParameterInfoModels();
-        for (int i = 0; i < parameterInfoModels.size(); i++) {
-            ParameterInfoModel paramModel = parameterInfoModels.get(i);
-            int labelOffset = labelBuilder.toString().length();
-            labelBuilder.append(paramModel.parameter.getType());
-            ParameterInformation paramInfo = new ParameterInformation();
-            paramInfo.setDocumentation(getParameterDocumentation(paramModel));
-            int paramStart = labelOffset;
-            int paramEnd = labelOffset + paramModel.parameter.getType().length();
-            if (paramModel.parameter.getName().isPresent()) {
-                paramStart = paramEnd + 1;
-                paramEnd += (paramModel.parameter.getName().get() + " ").length();
-                labelBuilder.append(" ").append(paramModel.parameter.getName().get());
-            }
-            if (i < parameterInfoModels.size() - 1) {
-                labelBuilder.append(", ");
-            }
-            paramInfo.setLabel(Tuple.two(paramStart, paramEnd));
-
-            parameterInformationList.add(paramInfo);
-        }
-        labelBuilder.append(")");
-        signatureInformation.setLabel(labelBuilder.toString());
-        signatureInformation.setParameters(parameterInformationList);
-        signatureInformation.setDocumentation(signatureInfoModel.signatureDescription);
-
-        return Optional.of(signatureInformation);
-    }
-
-    /**
-     * Get the required signature information filled model.
-     *
-     * @param symbol  Invokable symbol
-     * @param context Lang Server Signature Help Context
-     * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
-     */
-    private static SignatureInfoModel getSignatureInfoModel(Symbol symbol, SignatureContext context) {
-        Map<String, String> paramToDesc = new HashMap<>();
-        SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
-        List<ParameterInfoModel> paramModels = new ArrayList<>();
-        Optional<Documentation> documentation =
-                symbol instanceof Documentable ? ((Documentable) symbol).documentation() : Optional.empty();
-        List<Parameter> parameters = new ArrayList<>();
-        // TODO: Handle the error constructor in the next phase
-        // Handle error constructors
-//        if (functionSymbol.kind() == SymbolKind.ERROR_CONSTRUCTOR) {
-//            documentation = functionSymbol.type.tsymbol.markdownDocumentation;
-//            if (functionSymbol.type instanceof BErrorType) {
-//                BErrorType bErrorType = (BErrorType) functionSymbol.type;
-//                boolean isDirectErrorConstructor = functionSymbol.type.tsymbol.kind == null;
-//                if (isDirectErrorConstructor) {
-//                    // If it is direct error constructor, `reason` is mandatory
-//                }
-//                // todo: need to support error detail map case
-//                if (bErrorType.detailType instanceof BRecordType) {
-//                    BRecordType bRecordType = (BRecordType) bErrorType.detailType;
-//                    bRecordType.fields.values().forEach(p -> {
-//                        BVarSymbol symbol = p.symbol;
-//                        parameters.add(
-//                                new Parameter(symbol.name.getValue(), symbol.type, Symbols.isOptional(symbol),
-//                                false));
-//                    });
-//                    BType restFieldType = bRecordType.restFieldType;
-//                    if (restFieldType != null) {
-//                        parameters.add(new Parameter(restFieldType.name.getValue(), restFieldType, false, true));
-//                    }
-//                }
-//            }
-//        }
-        // Check for documentations of the function and parameters
-        if (documentation.isPresent()) {
-            if (documentation.get().description().isPresent()) {
-                signatureInfoModel.setSignatureDescription(documentation.get().description().get().trim(), context);
-            }
-            documentation.get().parameterMap().forEach(paramToDesc::put);
-        }
-
-        signatureInfoModel.setParameterInfoModels(paramModels);
-        Optional<FunctionTypeSymbol> functionType = getFunctionType(symbol);
-
-        if (functionType.isEmpty()) {
-            return signatureInfoModel;
-        }
-
-        FunctionTypeSymbol fnType = functionType.get();
-
-        // Add parameters and rest params
-        List<ParameterSymbol> parameterSymbols = fnType.params().orElse(new ArrayList<>());
-        parameters.addAll(parameterSymbols.stream()
-                                  .map(param -> new Parameter(param, false, false, context))
-                                  .collect(Collectors.toList()));
-        Optional<ParameterSymbol> restParam = fnType.restParam();
-        restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
-        boolean skipFirstParam = symbol.kind() == METHOD
-                && CommonUtil.isLangLib(symbol.getModule().get().id());
-        // Create a list of param info models
-        for (int i = 0; i < parameters.size(); i++) {
-            if (i == 0 && skipFirstParam) {
-                // If langlib, skip first param
-                continue;
-            }
-            Parameter param = parameters.get(i);
-            String desc = "";
-            if (param.getName().isPresent() && paramToDesc.containsKey(param.getName().get())) {
-                desc = paramToDesc.get(param.getName().get());
-            }
-            paramModels.add(new ParameterInfoModel(param, desc, context));
-        }
-
-        return signatureInfoModel;
-    }
-
-    private static MarkupContent getParameterDocumentation(ParameterInfoModel paramInfo) {
-        MarkupContent paramDocumentation = new MarkupContent();
-        paramDocumentation.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
-        String type = paramInfo.parameter.getType();
-        StringBuilder markupContent = new StringBuilder();
-
-        markupContent.append("**Parameter**")
-                .append(CommonUtil.MD_LINE_SEPARATOR)
-                .append("**")
-                .append((!type.isEmpty()) ? "`" + type + "`" : "");
-        if (paramInfo.parameter.getName().isPresent()) {
-            markupContent.append(paramInfo.parameter.getName().get());
-        }
-        markupContent.append("**");
-        if (!paramInfo.description.isBlank()) {
-            markupContent.append(": ").append(paramInfo.description);
-        }
-        paramDocumentation.setValue(markupContent.toString());
-
-        return paramDocumentation;
-    }
-
-    private static Optional<FunctionTypeSymbol> getFunctionType(Symbol symbol) {
-        TypeSymbol type;
-
-        switch (symbol.kind()) {
-            case FUNCTION:
-            case METHOD:
-                return Optional.of(((FunctionSymbol) symbol).typeDescriptor());
-            case VARIABLE:
-                type = ((VariableSymbol) symbol).typeDescriptor();
-                break;
-            case PARAMETER:
-                type = ((ParameterSymbol) symbol).typeDescriptor();
-                break;
-            default:
-                return Optional.empty();
-        }
-
-        if (type.typeKind() == TypeDescKind.FUNCTION) {
-            return Optional.of((FunctionTypeSymbol) type);
-        }
-
-        return Optional.empty();
-    }
-
-    /**
-     * Parameter model to hold the parameter information meta data.
-     */
-    private static class Parameter {
-
-        private final boolean isRestArg;
-        private final boolean isOptional;
-        private final ParameterSymbol parameterSymbol;
-        private final SignatureContext signatureContext;
-
-        public Parameter(ParameterSymbol parameterSymbol,
-                         boolean isOptional,
-                         boolean isRestArg,
-                         SignatureContext signatureContext) {
-            this.parameterSymbol = parameterSymbol;
-            this.isOptional = isOptional;
-            this.isRestArg = isRestArg;
-            this.signatureContext = signatureContext;
-        }
-
-        public Optional<String> getName() {
-            return (parameterSymbol.getName().isPresent() && this.isOptional)
-                    ? Optional.of(parameterSymbol.getName().get() + "?") : parameterSymbol.getName();
-        }
-
-        public String getType() {
-            String type = CommonUtil.getModifiedTypeName(this.signatureContext, parameterSymbol.typeDescriptor());
-            if (this.isRestArg && !"".equals(type)) {
-                // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
-                if (type.contains("[]")) {
-                    type = type.substring(0, type.length() - 2);
-                }
-                type += "...";
-            }
-
-            return type;
-        }
-
-    }
-
-    /**
-     * Parameter information model to hold the parameter information meta data.
-     */
-    private static class ParameterInfoModel {
-
-        private final String description;
-        private final Parameter parameter;
-
-        public ParameterInfoModel(Parameter parameter, String desc, SignatureContext signatureContext) {
-            this.parameter = parameter;
-            this.description = desc;
-        }
-
-        @Override
-        public String toString() {
-            return this.parameter.getType()
-                    + (parameter.getName().isPresent() ? (" " + parameter.getName().get()) : "");
-        }
-    }
-
-    /**
-     * Signature information model to collect the info required for the signature.
-     */
-    private static class SignatureInfoModel {
-
-        private List<ParameterInfoModel> parameterInfoModels;
-
-        private Either<String, MarkupContent> signatureDescription;
-
-        List<ParameterInfoModel> getParameterInfoModels() {
-            return parameterInfoModels;
-        }
-
-        void setParameterInfoModels(List<ParameterInfoModel> parameterInfoModels) {
-            this.parameterInfoModels = parameterInfoModels;
-        }
-
-        void setSignatureDescription(String signatureDescription, SignatureContext signatureContext) {
-            SignatureInformationCapabilities capabilities = signatureContext.capabilities().getSignatureInformation();
-            List<String> documentationFormat = capabilities != null ? capabilities.getDocumentationFormat()
-                    : new ArrayList<>();
-            if (documentationFormat != null
-                    && !documentationFormat.isEmpty()
-                    && documentationFormat.get(0).equals(CommonUtil.MARKDOWN_MARKUP_KIND)) {
-                MarkupContent signatureMarkupContent = new MarkupContent();
-                signatureMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
-                signatureMarkupContent.setValue(
-                        "**Description**" + CommonUtil.MD_LINE_SEPARATOR + signatureDescription);
-                this.signatureDescription = Either.forRight(signatureMarkupContent);
-            } else {
-                this.signatureDescription = Either.forLeft(
-                        "Description" + CommonUtil.LINE_SEPARATOR + signatureDescription);
-            }
-        }
+        return new SignatureInfoModelBuilder(invokableSymbol.get(), context).build();
     }
 
     /**
@@ -497,28 +212,39 @@ public class SignatureHelpUtil {
         }
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor().get();
         if (nodeAtCursor.kind() == SyntaxKind.FUNCTION_CALL) {
-            NameReferenceNode nameReferenceNode = ((FunctionCallExpressionNode) nodeAtCursor).functionName();
-            String funcName;
-            Predicate<Symbol> symbolPredicate =
-                    symbol -> symbol.kind() == FUNCTION || symbol.kind() == VARIABLE || symbol.kind() == PARAMETER;
-            List<Symbol> filteredContent;
-            if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameReferenceNode;
-                funcName = (qNameRef).identifier().text();
-                filteredContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
-                                                                      symbolPredicate
-                                                                              .and(symbol -> symbol.getName().orElse("")
-                                                                                      .equals(funcName)));
-            } else {
-                funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
-                List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-                filteredContent = visibleSymbols.stream()
-                        .filter(symbolPredicate.and(symbol -> symbol.getName().get().equals(funcName)))
-                        .collect(Collectors.toList());
-            }
-
-            return filteredContent.stream().findAny();
+            return getFunctionSymbol((FunctionCallExpressionNode) nodeAtCursor, context);
         }
+        return getFunctionSymbol(nodeAtCursor, context);
+
+    }
+
+    private static Optional<? extends Symbol> getFunctionSymbol(FunctionCallExpressionNode node,
+                                                                SignatureContext context) {
+        NameReferenceNode nameReferenceNode = node.functionName();
+        String funcName;
+        Predicate<Symbol> symbolPredicate =
+                symbol -> symbol.kind() == FUNCTION || symbol.kind() == VARIABLE || symbol.kind() == PARAMETER;
+        List<Symbol> filteredContent;
+        if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameReferenceNode;
+            funcName = (qNameRef).identifier().text();
+            filteredContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef,
+                    symbolPredicate
+                            .and(symbol -> symbol.getName().orElse("")
+                                    .equals(funcName)));
+        } else {
+            funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+            filteredContent = visibleSymbols.stream()
+                    .filter(symbolPredicate.and(symbol -> symbol.getName().isPresent()
+                            && symbol.getName().get().equals(funcName)))
+                    .collect(Collectors.toList());
+        }
+
+        return filteredContent.stream().findAny();
+    }
+
+    private static Optional<? extends Symbol> getFunctionSymbol(Node nodeAtCursor, SignatureContext context) {
         Optional<? extends TypeSymbol> typeDesc;
         String methodName;
         if (nodeAtCursor.kind() == SyntaxKind.METHOD_CALL) {
@@ -538,7 +264,6 @@ public class SignatureHelpUtil {
         } else {
             return Optional.empty();
         }
-
         if (typeDesc.isEmpty()) {
             return Optional.empty();
         }
@@ -672,6 +397,12 @@ public class SignatureHelpUtil {
         }
         if (rawType.kind() == CLASS && ((ClassSymbol) rawType).initMethod().isPresent()) {
             functionSymbols.add(((ClassSymbol) rawType).initMethod().get());
+        }
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            ((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream()
+                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
+                    .findFirst().ifPresent(objectMember ->
+                    functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 

@@ -16,13 +16,8 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -52,331 +47,285 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "equalBooleanValues")
     public void testBooleanRefEqualityPositive(boolean i, boolean j) {
-        BValue[] args = {new BBoolean(i), new BBoolean(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {(i), (j)};
+        Object returns = BRunUtil.invoke(result, "testBooleanRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected booleans to be identified as reference equal");
     }
 
     @Test(dataProvider = "unequalBooleanValues")
     public void testBooleanRefEqualityNegative(boolean i, boolean j) {
-        BValue[] args = {new BBoolean(i), new BBoolean(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {(i), (j)};
+        Object returns = BRunUtil.invoke(result, "testBooleanRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected booleans to be identified as not reference equal");
     }
 
     @Test(dataProvider = "equalIntValues")
     public void testIntRefEqualityPositive(int i, int j) {
-        BValue[] args = {new BInteger(i), new BInteger(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testIntRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected ints to be identified as reference equal");
+        Object[] args = {(i), (j)};
+        Object returns = BRunUtil.invoke(result, "testIntRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns, "Expected ints to be identified as reference equal");
     }
 
     @Test(dataProvider = "unequalIntValues")
     public void testIntRefEqualityNegative(int i, int j) {
-        BValue[] args = {new BInteger(i), new BInteger(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testIntRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {(i), (j)};
+        Object returns = BRunUtil.invoke(result, "testIntRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected ints to be identified as not reference equal");
     }
 
     @Test(dataProvider = "equalByteValues")
     public void testByteRefEqualityPositive(int i, int j) {
-        BValue[] args = {new BByte(i), new BByte(i)};
-        BValue[] returns = BRunUtil.invoke(result, "testByteRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {(i), (i)};
+        Object returns = BRunUtil.invoke(result, "testByteRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected bytes to be identified as reference equal");
     }
 
     @Test(dataProvider = "unequalByteValues")
     public void testByteRefEqualityNegative(int i, int j) {
-        BValue[] args = {new BByte(i), new BByte(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testByteRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {(i), (j)};
+        Object returns = BRunUtil.invoke(result, "testByteRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected bytes to be identified as not reference equal");
     }
 
     @Test(dataProvider = "equalFloatValues")
     public void testFloatRefEqualityPositive(double i, double j) {
-        BValue[] args = {new BFloat(i), new BFloat(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testFloatRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {(i), (j)};
+        Object returns = BRunUtil.invoke(result, "testFloatRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected floats to be identified as reference equal");
     }
 
     @Test(dataProvider = "unequalFloatValues")
     public void testFloatRefEqualityNegative(double i, double j) {
-        BValue[] args = {new BFloat(i), new BFloat(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testFloatRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {(i), (j)};
+        Object returns = BRunUtil.invoke(result, "testFloatRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected floats to be identified as not reference equal");
     }
 
 
     @Test(dataProvider = "equalStringValues")
     public void testStringRefEqualityPositive(String i, String j) {
-        BValue[] args = {new BString(i), new BString(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testStringRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {StringUtils.fromString(i), StringUtils.fromString(j)};
+        Object returns = BRunUtil.invoke(result, "testStringRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected strings to be identified as reference equal");
     }
 
     @Test(dataProvider = "unequalStringValues")
     public void testStringRefEqualityNegative(String i, String j) {
-        BValue[] args = {new BString(i), new BString(j)};
-        BValue[] returns = BRunUtil.invoke(result, "testStringRefEquality", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {StringUtils.fromString(i), StringUtils.fromString(j)};
+        Object returns = BRunUtil.invoke(result, "testStringRefEquality", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected strings to be identified as not reference equal");
     }
 
     @Test
     public void testRefEqualityToNilPositive() {
-        BValue[] args = {null};
-        BValue[] returns = BRunUtil.invoke(result, "testRefEqualityToNil", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object[] args = {null};
+        Object returns = BRunUtil.invoke(result, "testRefEqualityToNil", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected nil values to be identified as reference equal");
     }
 
-    @Test(dataProvider = "nonNilBValues")
-    public void testRefEqualityToNilNegative(BValue b) {
-        BValue[] returns = BRunUtil.invoke(result, "testRefEqualityToNil", new BValue[]{b});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+    @Test(dataProvider = "nonNilObjects")
+    public void testRefEqualityToNilNegative(Object b) {
+        Object returns = BRunUtil.invoke(result, "testRefEqualityToNil", new Object[]{b});
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected value to be identified as not reference equal to nil");
     }
 
     @Test
     public void testOpenRecordsRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testOpenRecordRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testOpenRecordRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected open records to be identified as reference equal");
     }
 
     @Test
     public void testOpenRecordsRefEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testOpenRecordRefEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testOpenRecordRefEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                           "Expected open records to be identified as not reference equal");
     }
 
     @Test
     public void testClosedRecordRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testClosedRecordRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testClosedRecordRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected closed records to be identified as reference equal");
     }
 
     @Test
     public void testClosedRecordRefEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testClosedRecordRefEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testClosedRecordRefEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected closed records to be identified as not reference equal");
     }
 
     @Test
     public void testArrayRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testArrayRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected array values to be identified as reference equal");
     }
 
     @Test
     public void testArrayRefEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayRefEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testArrayRefEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected array values to be identified as not reference equal");
     }
 
     @Test
     public void checkMapRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkMapRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "checkMapRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected map values to be identified as reference equal");
     }
 
     @Test
     public void checkMapRefEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkMapRefEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "checkMapRefEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected map values to be identified as not reference equal");
     }
 
     @Test
     public void checkTupleRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkTupleRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "checkTupleRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected tuple values to be identified as reference equal");
     }
 
     @Test
     public void checkTupleRefEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkTupleRefEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "checkTupleRefEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected tuple values to be identified as not reference equal");
     }
 
     @Test
     public void checkJsonRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "checkJsonRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "checkJsonRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected json values to be identified as reference equal");
     }
 
     @Test
     public void checkJsonRefEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "checkJsonRefEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "checkJsonRefEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected json values to be identified as not reference equal");
     }
 
     @Test
     public void testIntByteRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntByteRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testIntByteRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected int and byte values to be identified as reference equal");
     }
 
     @Test
     public void testIntByteEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntByteEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testIntByteEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected int and byte values to be identified as not reference equal");
     }
 
     @Test
     public void testXmlRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testXmlRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testXmlRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected xml values to be identified as reference equal");
     }
 
     @Test
     public void testXmlRefEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testXmlRefEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testXmlRefEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected xml values to be identified as not reference equal");
     }
 
     @Test
     public void testObjectRefEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectRefEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testObjectRefEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected objects to be identified as reference equal");
     }
 
     @Test
     public void testObjectRefEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectRefEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testObjectRefEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected objects to be identified as not reference equal");
     }
 
     @Test
     public void testValueTypeAndRefTypeEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testValueTypeAndRefTypeEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testValueTypeAndRefTypeEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected values to be identified as reference equal");
     }
 
     @Test
     public void testValueTypeAndRefTypeEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testValueTypeAndRefTypeEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testValueTypeAndRefTypeEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected values to be identified as not reference equal");
     }
 
     @Test
     public void testValueTypesAsRefTypesEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityPositive", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityPositive", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns,
                           "Expected values to be identified as reference equal");
     }
 
     @Test
     public void testValueTypesAsRefTypesEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+        Object returns = BRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityNegative", new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns,
                            "Expected values to be identified as not reference equal");
-    }
-
-    @Test
-    public void testXMLSequenceRefEquality() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEquality");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testXMLSequenceRefEqualityFalse() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityFalse");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -389,28 +338,25 @@ public class RefEqualAndNotEqualOperationsTest {
         BRunUtil.invoke(result, "testIntersectingUnionRefEquality");
     }
 
-    @Test
-    public void testXMLSequenceRefEqualityDifferentLength() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityDifferentLength");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    @Test(dataProvider = "functionsWithXmlExactEqualityChecks")
+    public void testXmlExactEquality(String function) {
+        BRunUtil.invoke(result, function);
     }
 
-    @Test
-    public void testXMLSequenceRefEqualityIncludingString() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityIncludingString");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testXMLSequenceRefEqualityIncludingDifferentString() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityIncludingDifferentString");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testEmptyXMLSequencesRefEquality() {
-        BValue[] returns = BRunUtil.invoke(result, "testEmptyXMLSequencesRefEquality");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    @DataProvider
+    public Object[] functionsWithXmlExactEqualityChecks() {
+        return new String[] {
+                "testXmlElementRefEquality",
+                "testXmlCommentRefEquality",
+                "testXmlProcessingInstructionRefEquality",
+                "testXMLSequenceRefEquality",
+                "testXMLSequenceRefEqualityFalse",
+                "testXMLSequenceRefEqualityDifferentLength",
+                "testXMLSequenceRefEqualityIncludingString",
+                "testXMLSequenceRefEqualityIncludingDifferentString",
+                "testEmptyXMLSequencesRefEquality",
+                "testXmlTextRefEquality"
+        };
     }
 
     @Test(description = "Test reference equal with errors")
@@ -531,15 +477,15 @@ public class RefEqualAndNotEqualOperationsTest {
         };
     }
 
-    @DataProvider(name = "nonNilBValues")
-    public Object[][] nonNilBValues() {
+    @DataProvider(name = "nonNilObjects")
+    public Object[][] nonNilObjects() {
         return new Object[][]{
-                {new BBoolean(true)},
-                {new BBoolean(false)},
-                {new BInteger(5)},
-                {new BFloat(5.0)},
-                {new BString("Hi from Ballerina!")},
-                {new BMap<String, BInteger>()}
+                {(true)},
+                {(false)},
+                {(5)},
+                {(5.0)},
+                {StringUtils.fromString("Hi from Ballerina!")},
+                {ValueCreator.createMapValue()}
         };
     }
 }

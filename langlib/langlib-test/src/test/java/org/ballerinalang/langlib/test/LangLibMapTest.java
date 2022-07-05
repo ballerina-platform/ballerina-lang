@@ -18,28 +18,27 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.types.BMapType;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -57,78 +56,84 @@ public class LangLibMapTest {
         compileResult = BCompileUtil.compile("test-src/maplib_test.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
+
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        assertEquals(((BInteger) returns[0]).intValue(), 3);
+        Object returns = BRunUtil.invoke(compileResult, "testLength");
+        assertEquals(returns, 3L);
     }
 
     @Test
     public void testGet() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGet", new BValue[]{new BString("lk")});
-        assertEquals(returns[0].stringValue(), "Sri Lanka");
+        Object returns = BRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("lk")});
+        assertEquals(returns.toString(), "Sri Lanka");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
     public void testGetNonExistentKey() {
-        BRunUtil.invoke(compileResult, "testGet", new BValue[]{new BString("NonExistent")});
+        BRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("NonExistent")});
     }
 
     @Test
     public void testEntries() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEntries");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testEntries");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 3);
-        assertEquals(map.get("lk").stringValue(), "[\"lk\", \"Sri Lanka\"]");
-        assertEquals(map.get("us").stringValue(), "[\"us\", \"USA\"]");
-        assertEquals(map.get("uk").stringValue(), "[\"uk\", \"United Kingdom\"]");
+        assertEquals(map.get(StringUtils.fromString("lk")).toString(), "[\"lk\",\"Sri Lanka\"]");
+        assertEquals(map.get(StringUtils.fromString("us")).toString(), "[\"us\",\"USA\"]");
+        assertEquals(map.get(StringUtils.fromString("uk")).toString(), "[\"uk\",\"United Kingdom\"]");
     }
 
     @Test
     public void testRemove() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", new BValue[]{new BString("uk")});
-        assertEquals(returns[0].stringValue(), "United Kingdom");
-        assertEquals(returns[1].getType().getTag(), TypeTags.MAP_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testRemove", new Object[]{StringUtils.fromString("uk")});
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0).toString(), "United Kingdom");
+        assertEquals(getType(result.get(1)).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[1];
+        BMap map = (BMap) result.get(1);
         assertEquals(map.size(), 2);
-        assertEquals(map.get("lk").stringValue(), "Sri Lanka");
-        assertEquals(map.get("us").stringValue(), "USA");
+        assertEquals(map.get(StringUtils.fromString("lk")).toString(), "Sri Lanka");
+        assertEquals(map.get(StringUtils.fromString("us")).toString(), "USA");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
     public void testRemoveNonExistentKey() {
-        BRunUtil.invoke(compileResult, "testRemove", new BValue[]{new BString("NonExistent")});
+        BRunUtil.invoke(compileResult, "testRemove", new Object[]{StringUtils.fromString("NonExistent")});
     }
 
     @Test
     public void testRemoveAll() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAll");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
-        assertEquals(returns[0].stringValue(), "{}");
-        assertEquals(returns[0].size(), 0);
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveAll");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
+        assertEquals(returns.toString(), "{}");
+        assertEquals(((BMap) returns).size(), 0);
     }
 
     @Test(dataProvider = "mapKeyProvider")
     public void testHasKey(BString key, boolean expected) {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey", new BValue[]{key});
-        assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+        Object returns = BRunUtil.invoke(compileResult, "testHasKey", new Object[]{key});
+        assertEquals(returns, expected);
     }
 
     @Test
     public void testKeys() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testKeys");
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testKeys");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BValueArray arr = (BValueArray) returns[0];
-        assertEquals(arr.elementType.getTag(), TypeTags.STRING_TAG);
+        BArray arr = (BArray) returns;
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.STRING_TAG);
         assertEquals(arr.size(), 3);
 
         List<String> keys = Arrays.asList(arr.getStringArray());
@@ -139,56 +144,57 @@ public class LangLibMapTest {
 
     @Test
     public void testMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.FLOAT_TAG);
         assertEquals(map.size(), 3);
-        assertEquals(((BFloat) map.get("1")).floatValue(), 5.5);
-        assertEquals(((BFloat) map.get("2")).floatValue(), 11.0);
-        assertEquals(((BFloat) map.get("3")).floatValue(), 16.5);
+        assertEquals(map.get(StringUtils.fromString("1")), 5.5d);
+        assertEquals(map.get(StringUtils.fromString("2")), 11.0d);
+        assertEquals(map.get(StringUtils.fromString("3")), 16.5d);
     }
 
     @Test
     public void testForEach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
-        assertEquals(returns[0].stringValue(), "Sri LankaUSAUnited Kingdom");
+        Object returns = BRunUtil.invoke(compileResult, "testForEach");
+        assertEquals(returns.toString(), "Sri LankaUSAUnited Kingdom");
     }
 
     @Test
     public void testFilter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFilter");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testFilter");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.DECIMAL_TAG);
         assertEquals(map.size(), 2);
-        assertEquals(((BDecimal) map.get("1")).decimalValue(), new BigDecimal("12.34"));
-        assertEquals(((BDecimal) map.get("4")).decimalValue(), new BigDecimal("21.2"));
+        assertEquals(map.get(StringUtils.fromString("1")), ValueCreator.createDecimalValue("12.34"));
+        assertEquals(map.get(StringUtils.fromString("4")), ValueCreator.createDecimalValue("21.2"));
     }
 
     @Test
     public void testReduce() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(((BFloat) returns[0]).floatValue(), 80.5);
+        Object returns = BRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 80.5d);
     }
 
     @Test
     public void testAsyncFpArgsWithMaps() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithMaps");
-        assertTrue(results[0] instanceof BInteger);
-        assertTrue(results[1] instanceof BMap);
-        assertEquals(((BInteger) results[0]).intValue(), 118);
-        assertEquals(((BInteger) ((BMap) results[1]).get("b")).intValue(), 36);
-        assertEquals(((BInteger) ((BMap) results[1]).get("c")).intValue(), 78);
+        Object results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithMaps");
+        BArray arr = (BArray) results;
+        assertTrue(arr.get(0) instanceof Long);
+        assertTrue(arr.get(1) instanceof BMap);
+        assertEquals(arr.get(0), 118L);
+        assertEquals(((BMap) arr.get(1)).get(StringUtils.fromString("b")), 36L);
+        assertEquals(((BMap) arr.get(1)).get(StringUtils.fromString("c")), 78L);
     }
 
     @DataProvider(name = "mapKeyProvider")
     public Object[][] getMapKeys() {
         return new Object[][]{
-                {new BString("lk"), true},
-                {new BString("invalid"), false}
+                {StringUtils.fromString("lk"), true},
+                {StringUtils.fromString("invalid"), false}
         };
     }
 

@@ -128,3 +128,28 @@ function foo() {
 
     };
 }
+
+type Bar readonly & object {
+    any i;
+};
+
+stream<int> s = new;
+
+function testObjectConstructorWithReferredIntersectionType() {
+    Bar b = object {
+        any i = s;
+        int j;
+
+        function init() {
+            self.j = 1;
+        }
+    };
+}
+
+annotation s1 on class;
+annotation map<int> s2 on class;
+
+function testMissingObjConstructorDiagnosticWithAnnots() {
+    var f1 = @s1
+    var f3 = @s1 @s2 {}
+}

@@ -19,6 +19,8 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 
+import java.util.Optional;
+
 /**
  * This class holds position details for the node-based code actions.
  *
@@ -30,6 +32,7 @@ public interface NodeBasedPositionDetails {
      *
      * @return {@link NonTerminalNode}
      */
+    @Deprecated(forRemoval = true)
     NonTerminalNode matchedTopLevelNode();
 
     /**
@@ -40,9 +43,32 @@ public interface NodeBasedPositionDetails {
     NonTerminalNode matchedStatementNode();
 
     /**
+     * Get the syntax tree node for which we should suggest code actions for under the current context.
+     *
+     * @return Node for which we are going to provide code actions
+     */
+    NonTerminalNode matchedCodeActionNode();
+
+    /**
      * Returns matched type of scoped node for the current position.
      *
      * @return {@link NonTerminalNode}
      */
     TypeSymbol matchedTopLevelTypeSymbol();
+
+    /**
+     * Get the matched documentable node at the cursor.
+     *
+     * @return {@link Optional}
+     */
+    Optional<NonTerminalNode> matchedDocumentableNode();
+
+    /**
+     * Get the documentable node which is enclosing the cursor.
+     * This method is not the same as {@link #matchedDocumentableNode()} because in some cases, the cursor can be
+     * within a function body/ record type definition body rather than within the signature of the node.
+     *
+     * @return {@link Optional}
+     */
+    Optional<NonTerminalNode> enclosingDocumentableNode();
 }

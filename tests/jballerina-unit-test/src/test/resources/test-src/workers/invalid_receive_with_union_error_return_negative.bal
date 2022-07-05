@@ -46,7 +46,7 @@ public function main() {
         int i = 2;
         TrxError? success = i ->> w1;
         success = i ->> w1;
-        () k = i ->> w1;
+        () _ = i ->> w1;
         return true;
     }
 }

@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,16 +18,16 @@
       "label": "name",
       "kind": "Field",
       "detail": "Employee.name",
-      "sortText": "G",
-      "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${2}\"\n}",
+      "sortText": "K",
+      "insertText": "name: {first: ${1:\"\"}, last: ${2:\"\"}}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "salary",
       "kind": "Field",
       "detail": "Employee.salary",
-      "sortText": "G",
-      "insertText": "salary: ${2:0}",
+      "sortText": "K",
+      "insertText": "salary: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,16 @@
       "detail": "Employee",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "name: {first: \"\", last: \"\"},\nsalary: 0",
+      "insertText": "name: {first: ${1:\"\"}, last: ${2:\"\"}},\nsalary: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...testFunction()",
+      "kind": "Function",
+      "detail": "Employee",
+      "sortText": "AC",
+      "filterText": "testFunction",
+      "insertText": "...testFunction()",
       "insertTextFormat": "Snippet"
     }
   ]

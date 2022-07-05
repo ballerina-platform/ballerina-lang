@@ -51,3 +51,18 @@ function booleanSubtypeUnion(anydata d1, anydata d2) returns BooleanSubtype {
     BooleanSubtype v2 = <BooleanSubtype>d2;
     return v1.value == v2.value ? v1 : true;
 }
+
+type Foo record {|
+    int 'f1;
+    string '\'f2;
+    int 'sm\u{1F600}iley1;
+    string sm\u{1F600}iley2;
+|}
+
+type Bar object {
+    int 'order;
+}
+
+class Baz {
+    string 'int;
+}

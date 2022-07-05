@@ -59,6 +59,7 @@ public class BIROptimizer {
     private final LHSTempVarOptimizer lhsTempVarOptimizer;
     private final BIRLockOptimizer lockOptimizer;
 //    private final BirVariableOptimizer variableOptimizer;
+    private final BIRBasicBlockOptimizer bbOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -75,6 +76,7 @@ public class BIROptimizer {
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
         this.lockOptimizer = new BIRLockOptimizer();
 //        this.variableOptimizer = new BirVariableOptimizer();
+        this.bbOptimizer = new BIRBasicBlockOptimizer();
     }
 
     public void optimizePackage(BIRPackage pkg) {
@@ -87,6 +89,9 @@ public class BIROptimizer {
         // Optimize lock statements
         this.lockOptimizer.optimizeNode(pkg);
 //        variableOptimizer.optimizeNode(pkg);
+
+        // Optimize BB - unnecessary goto removal
+        bbOptimizer.optimizeNode(pkg, null);
     }
 
     /**
@@ -288,7 +293,7 @@ public class BIROptimizer {
             // First we need to get the filter and order visited temp var list collected through LhsVarOptimizer.
             List<BIROperand> orderedTempVars = filterTempVars(tempVarsList);
             // Replace with reusable vars.
-            replaceVarsWithReusableVars(localVars, orderedTempVars, replaceableVarSet);
+            replaceVarsWithReusableVars(localVars, orderedTempVars, replaceableVarSet, tempVarsList);
         }
 
         private List<BIROperand> filterTempVars(List<BIROperand> tempVarsList) {
@@ -319,11 +324,10 @@ public class BIROptimizer {
         }
 
         private void replaceVarsWithReusableVars(List<BIRVariableDcl> localVars, List<BIROperand> orderedTempVars,
-                                                 Set<BIRVariableDcl> replaceableVarSet) {
+                                                 Set<BIRVariableDcl> replaceableVarSet, List<BIROperand> tempVarsList) {
 
             Map<BIRVariableDcl, BIRVariableDcl> removableVarVsReplacementVarMap = new HashMap<>();
             Map<BType, Set<BIRVariableDcl>> typeVsReusableVarsMap = new HashMap<>();
-            Map<BIROperand, BIRVariableDcl> removableOpsMap = new HashMap<>();
             Set<BIRVariableDcl> firstLoadedSet = new HashSet<>();
             for (BIROperand birOperand : orderedTempVars) {
                 BIRVariableDcl variableDcl = birOperand.variableDcl;
@@ -338,7 +342,6 @@ public class BIROptimizer {
                     // We always get oldest reusable var.
                     BIRVariableDcl reusableVar = reusableList.iterator().next();
                     removableVarVsReplacementVarMap.put(variableDcl, reusableVar);
-                    removableOpsMap.put(birOperand, reusableVar);
                     reusableList.remove(reusableVar);
                     reusableList.remove(variableDcl);
                     replaceableVarSet.add(reusableVar);
@@ -349,7 +352,6 @@ public class BIROptimizer {
                 // Same var can be used by multiple operands. We need to collect all and then replace them with
                 // variable declarations.
                 if (reusableVar != null) {
-                    removableOpsMap.put(birOperand, reusableVar);
                     // Now previous reusable var can be reused.
                     reusableList.add(reusableVar);
                     continue;
@@ -358,7 +360,12 @@ public class BIROptimizer {
                 reusableList.add(variableDcl);
             }
             // Replace vars with removable vars.
-            removableOpsMap.forEach((birOperand, birVariableDcl) -> birOperand.variableDcl = birVariableDcl);
+            for (BIROperand tempVarOperand : tempVarsList) {
+                BIRVariableDcl replacedVar = removableVarVsReplacementVarMap.get(tempVarOperand.variableDcl);
+                if (replacedVar != null) {
+                    tempVarOperand.variableDcl = replacedVar;
+                }
+            }
             localVars.removeAll(removableVarVsReplacementVarMap.keySet());
         }
 
@@ -525,8 +532,8 @@ public class BIROptimizer {
             this.optimizeNode(birNewArray.lhsOp, this.env);
             this.optimizeNode(birNewArray.sizeOp, this.env);
 
-            for (BIROperand value : birNewArray.values) {
-                this.optimizeNode(value, this.env);
+            for (BIRNode.BIRListConstructorEntry listValueEntry : birNewArray.values) {
+                this.optimizeNode(listValueEntry.exprOp, this.env);
             }
         }
 
@@ -673,6 +680,8 @@ public class BIROptimizer {
         private final List<BIRVariableDcl> multipleBBUsedTempVars = new ArrayList<>();
 
         public BIRBasicBlock currentBB;
+
+        public BIRBasicBlock nextBB;
 
         public boolean isTerminator;
 

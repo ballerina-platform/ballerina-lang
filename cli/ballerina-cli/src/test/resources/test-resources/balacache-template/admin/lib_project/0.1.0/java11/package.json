@@ -1,0 +1,21 @@
+{
+  "organization": "admin",
+  "name": "lib_project",
+  "version": "0.1.0",
+  "export": [
+    "lib_project"
+  ],
+  "ballerina_version": "slbeta4",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2021R1",
+  "platform": "java11",
+  "platformDependencies": [
+    {
+      "path": "platform/java11/snakeyaml-1.9.jar",
+      "artifactId": "snakeyaml",
+      "groupId": "org.yaml",
+      "version": "1.9"
+    }
+  ],
+  "template": true
+}

@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class QueryExprWithAnonFunctionExprs {
+
     private CompileResult result;
 
     @BeforeClass

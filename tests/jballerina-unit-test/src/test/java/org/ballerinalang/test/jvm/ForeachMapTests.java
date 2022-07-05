@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -53,28 +52,28 @@ public class ForeachMapTests {
     public void testMapWithArityOne() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append("_").append(":").append(value).append(" "));
-        BValue[] returns = BRunUtil.invoke(program, "testMapWithArityOne");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), sb.toString());
+        Object returns = BRunUtil.invoke(program, "testMapWithArityOne");
+
+        Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testMapWithArityTwo() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append(key).append(":").append(value).append(" "));
-        BValue[] returns = BRunUtil.invoke(program, "testMapWithArityTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), sb.toString());
+        Object returns = BRunUtil.invoke(program, "testMapWithArityTwo");
+
+        Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testAddWhileIteration() {
         String result = "a:1A a:1A b:2B c:3C aa:1A1A \n" +
-                        "b:2B a:1A b:2B c:3C aa:1A1A bb:2B2B \n" +
-                        "c:3C a:1A b:2B c:3C aa:1A1A bb:2B2B cc:3C3C \n";
-        BValue[] returns = BRunUtil.invoke(program, "testAddWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+                "b:2B a:1A b:2B c:3C aa:1A1A bb:2B2B \n" +
+                "c:3C a:1A b:2B c:3C aa:1A1A bb:2B2B cc:3C3C \n";
+        Object returns = BRunUtil.invoke(program, "testAddWhileIteration");
+
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @AfterClass

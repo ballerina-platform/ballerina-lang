@@ -1,9 +1,13 @@
 {
-  "line": 3,
-  "character": 4,
+  "position": {
+    "line": 3,
+    "character": 4
+  },
+  "source": "testproject/main.bal",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country country = "
+          "newText": "module2:Country country \u003d "
         },
         {
           "range": {
@@ -29,12 +33,13 @@
               "character": 0
             }
           },
-          "newText": "import lstest/testproject.module2;\n"
+          "newText": "import testproject.module2;\n"
         }
       ]
     },
     {
       "title": "Ignore return value",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -47,7 +52,7 @@
               "character": 4
             }
           },
-          "newText": "_ = "
+          "newText": "_ \u003d "
         }
       ]
     }

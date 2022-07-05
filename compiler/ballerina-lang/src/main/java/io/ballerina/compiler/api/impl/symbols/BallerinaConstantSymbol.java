@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -24,10 +26,17 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.StringJoiner;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
@@ -40,7 +49,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
  */
 public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements ConstantSymbol {
 
-    private final Object constValue;
+    private final String constValue;
     private TypeSymbol broaderType;
 
     private BallerinaConstantSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
@@ -48,7 +57,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
                                     BSymbol bSymbol, CompilerContext context) {
         super(name, isFlagOn(bSymbol.flags, Flags.ENUM_MEMBER) ? ENUM_MEMBER : CONSTANT, qualifiers, annots,
               typeDescriptor, bSymbol, context);
-        this.constValue = constValue;
+        this.constValue = stringValueOf((BLangConstantValue) constValue);
         this.broaderType = broaderType;
     }
 
@@ -59,7 +68,18 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
      */
     @Override
     public Object constValue() {
-        return constValue;
+        // explicitly returning null here since this will be deprecated and this anyways used to return null always
+        // since the corresponding internal API for this wasn't implemented before.
+        return null;
+    }
+
+    @Override
+    public Optional<String> resolvedValue() {
+        if (this.constValue == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(this.constValue);
     }
 
     @Override
@@ -90,6 +110,56 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
     @Override
     public boolean subtypeOf(TypeSymbol targetType) {
         return this.typeDescriptor().subtypeOf(targetType);
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    private String stringValueOf(BLangConstantValue value) {
+        if (value == null) {
+            return null;
+        }
+
+        if (value.value instanceof BLangConstantValue) {
+            return stringValueOf((BLangConstantValue) value.value);
+        }
+
+        if (value.value instanceof HashMap) {
+            StringJoiner joiner = new StringJoiner(", ", "{", "}");
+            Map map = (Map) value.value;
+
+            map.forEach((k, v) -> {
+                StringBuilder builder = new StringBuilder();
+                builder.append(k).append(": ");
+
+                if (v instanceof BLangConstantValue) {
+                    builder.append(stringValueOf((BLangConstantValue) v));
+                } else {
+                    builder.append(toStringVal(v, value.type));
+                }
+
+                joiner.add(builder.toString());
+            });
+
+            return joiner.toString();
+        }
+
+        return toStringVal(value.value, value.type);
+    }
+
+    private String toStringVal(Object obj, BType valType) {
+        if (obj instanceof String && TypeTags.isStringTypeTag(valType.tag)) {
+            return String.format("\"%s\"", obj);
+        }
+
+        return String.valueOf(obj);
     }
 
     /**

@@ -22,6 +22,7 @@ import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.InlineTableNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
@@ -79,6 +80,13 @@ public class TomlTableNode extends TopLevelNode {
     public TomlTableNode(KeyValueNode keyValueNode, TomlKeyNode key, boolean generated, TomlNodeLocation location,
                          Map<String, TopLevelNode> entries) {
         super(keyValueNode, key, TomlType.TABLE, location);
+        this.entries = entries;
+        this.generated = generated;
+    }
+
+    public TomlTableNode(InlineTableNode tableNode, TomlKeyNode key, boolean generated, TomlNodeLocation location,
+                         Map<String, TopLevelNode> entries) {
+        super(tableNode, key, TomlType.TABLE, location);
         this.entries = entries;
         this.generated = generated;
     }

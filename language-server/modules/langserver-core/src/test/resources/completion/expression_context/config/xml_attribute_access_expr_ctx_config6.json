@@ -8,14 +8,14 @@
     {
       "label": "TEST_STRING_CONST1",
       "kind": "Variable",
-      "detail": "HELLO WORLD",
+      "detail": "\"HELLO WORLD\"",
       "documentation": {
         "right": {
           "kind": "markdown",
           "value": ""
         }
       },
-      "sortText": "BG",
+      "sortText": "CG",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     }

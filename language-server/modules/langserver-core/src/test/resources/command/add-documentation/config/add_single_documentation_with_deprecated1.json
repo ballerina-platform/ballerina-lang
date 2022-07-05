@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "add_single_documentation_with_deprecated1.bal",
   "expected": {
     "result": {
       "edit": {
@@ -28,7 +29,7 @@
                     "character": 0
                   }
                 },
-                "newText": "# Description\n# # Deprecated\n# Deprecated Description  \n"
+                "newText": "# Description\n# # Deprecated\n# Deprecated Description\n"
               }
             ]
           }

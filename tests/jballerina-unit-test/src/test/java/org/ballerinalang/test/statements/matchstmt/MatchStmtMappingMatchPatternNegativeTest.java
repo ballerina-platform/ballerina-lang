@@ -51,8 +51,11 @@ public class MatchStmtMappingMatchPatternNegativeTest {
         BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 36, 9);
         BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 43, 9);
         BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 46, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'a'", 60, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 60, 28);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'a'", 62, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 64, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'a'", 64, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 66, 26);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 68, 24);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 72, 9);
@@ -61,11 +64,31 @@ public class MatchStmtMappingMatchPatternNegativeTest {
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 76, 9);
         BAssertUtil.validateHint(warningResult, i++, "unnecessary condition: expression will always evaluate to " +
                 "'true'", 76, 30);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'a'", 83, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'b'", 83, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 84, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'c'", 84, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'd'", 84, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'a'", 90, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'b'", 90, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 91, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'c'", 91, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'd'", 91, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'a'", 97, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'b'", 97, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 98, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'a'", 98, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'b'", 98, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'c'", 98, 9);
         BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 110, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'a'", 110, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'rest'", 110, 9);
         BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 117, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'rest'", 117, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'x'", 117, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'id'", 119, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'name'", 119, 9);
+        BAssertUtil.validateWarning(warningResult, i++, "unused variable 'rest'", 119, 9);
         Assert.assertEquals(warningResult.getWarnCount(), i - 2);
         Assert.assertEquals(warningResult.getHintCount(), 2);
     }
@@ -91,6 +114,30 @@ public class MatchStmtMappingMatchPatternNegativeTest {
                 64, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
                 "found 'record {| int i?; never...; |}'", 67, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '()', found 'string'", 94, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 95, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'decimal'", 96,
+                24);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testMappingMatchPatternNegativeSyntax() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/statements/matchstmt/mapping_match_pattern_syntax_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++,  "missing field match pattern member", 18, 17);
+        BAssertUtil.validateError(negativeResult, i++,
+                "variable '$missingNode$_1' should be declared as constant", 18, 17);
+        BAssertUtil.validateError(negativeResult, i++,  "invalid token ','", 21, 26);
+        BAssertUtil.validateError(negativeResult, i++,  "invalid token ','", 24, 18);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 27, 20);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 27, 29);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 27, 36);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 30, 29);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 30, 39);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 30, 46);
+        BAssertUtil.validateError(negativeResult, i++,  "invalid token ','", 33, 10);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

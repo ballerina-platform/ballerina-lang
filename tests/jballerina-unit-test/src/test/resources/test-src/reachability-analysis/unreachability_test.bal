@@ -16,87 +16,87 @@
 
 function testUnreachableCodeWithWhile1() {
     while false {
-        int a = 1; // unreachable code
-        string b = "ABC";
+        int _ = 1; // unreachable code
+        string _ = "ABC";
     }
-    int|string c = 25;
+    int|string _ = 25;
 }
 
 function testUnreachableCodeWithWhile2() {
     while false {
         foo(); // unreachable code
         string b = "ABC";
-        string c = b + "D";
+        string _ = b + "D";
     }
-    int|string c = 25;
+    int|string _ = 25;
 }
 
 function testUnreachableCodeWithIf1() {
     if false {
-        int a = 1; // unreachable code
-        string b = "ABC";
+        int _ = 1; // unreachable code
+        string _ = "ABC";
     }
-    int|string c = 25;
+    int|string _ = 25;
 }
 
 function testUnreachableCodeWithIf2() {
     if false {
-        string b = "ABC"; // unreachable code
+        string _ = "ABC"; // unreachable code
         foo();
-        int a = 1;
+        int _ = 1;
     }
-    int|string c = 25;
+    int|string _ = 25;
 }
 
 function testUnreachableCodeWithIf3() {
     if true {
-        string b = "ABC";
+        string _ = "ABC";
         return;
     }
-    int|string c = 25; // unreachable code
+    int|string _ = 25; // unreachable code
 }
 
 function testUnreachableCodeWithIfElse1() {
     if false {
-        int a = 1; // unreachable code
-        string b = "ABC";
+        int _ = 1; // unreachable code
+        string _ = "ABC";
     } else {
-        string d = "XYZ";
-        int e = 26;
+        string _ = "XYZ";
+        int _ = 26;
     }
-    int|string c = 25;
+    int|string _ = 25;
 }
 
 function testUnreachableCodeWithIfElse2() {
     if true {
-        int a = 1;
-        string b = "ABC";
+        int _ = 1;
+        string _ = "ABC";
     } else {
-        string d = "XYZ"; // unreachable code
-        int e = 26;
+        string _ = "XYZ"; // unreachable code
+        int _ = 26;
     }
-    int|string c = 25;
+    int|string _ = 25;
 }
 
 function testUnreachableCodeWithIf4() {
     if true {
-        int a = 1;
-        string b = "ABC";
+        int _ = 1;
+        string _ = "ABC";
         return;
     }
-    int|string c = 25; // unreachable code
-    int d = 10;
+    int|string _ = 25; // unreachable code
+    int _ = 10;
 }
 
 function testUnreachableCodeWithIf5() {
     if true {
-        int a = 1;
-        string b = "ABC";
+        int _ = 1;
+        string _ = "ABC";
         return;
         foo(); // unreachable code
     }
-    int|string c = 25;
-    int d = 10;
+    int|string _ = 25;
+    int _ = 10;
 }
 
 function foo() {
@@ -161,7 +161,7 @@ function testUnreachableCodeWithIfElse6(E e) returns int {
     if e is Y {
         return 2;
     }
-    int a = 12;
+    int _ = 12;
     // must return a result
 }
 
@@ -171,7 +171,7 @@ function testUnreachableCodeWithIfElse7(E e) returns int {
     } else if e is Y {
         return 2;
     }
-    int a = 12;
+    int _ = 12;
     // must return a result
 }
 
@@ -183,7 +183,7 @@ function testUnreachableCodeWithWhileHavingBreakAndContinue1() {
         } else {
             a = 1; // unreachable code
         }
-        int i = a;
+        int _ = a;
     }
 
     int b;
@@ -193,7 +193,7 @@ function testUnreachableCodeWithWhileHavingBreakAndContinue1() {
         } else {
             b = 1; // unreachable code
         }
-        int i = b;
+        int _ = b;
     }
 }
 
@@ -263,7 +263,7 @@ function testUnreachableCodeWithFail() returns error? {
                 } else if v is () { // always true
                     continue;
                 }
-                string x = "A"; // unreachable code
+                string _ = "A"; // unreachable code
             }
             if a is int { // always true
                 if true {
@@ -272,7 +272,7 @@ function testUnreachableCodeWithFail() returns error? {
             }
         }
     }
-    string w = "A";
+    string _ = "A";
 }
 
 function testUnreachableCodeWithFail2() returns error {
@@ -281,17 +281,17 @@ function testUnreachableCodeWithFail2() returns error {
         if a is int {
             fail getError();
         }
-        string b = a;
+        string _ = a;
         if a is string { // always true
             panic error("Error");
         }
     }
-    string x = "ABC"; // unreachable code
+    string _ = "ABC"; // unreachable code
 }
 
 function testUnreachableCodeWithCallStmtFuncReturningNever() {
     impossible();
-    string x = "ABC"; // unreachable code
+    string _ = "ABC"; // unreachable code
 }
 
 function testUnreachableCodeWithWhile6() {
@@ -303,15 +303,15 @@ function testUnreachableCodeWithWhile6() {
             str += "a is int -> ";
             panic getError();
         }
-        string b = a;
+        string _ = a;
         if a is string { // always true
             str += "a is string";
             impossible();
         }
-        string x = "ABC"; // unreachable code
+        string _ = "ABC"; // unreachable code
         i += 1;
     }
-    string y = "ABC";
+    string _ = "ABC";
 }
 
 function getError() returns error {
@@ -323,7 +323,7 @@ function testConstTrueConditionWihLogicalAndInIfElse() {
     if true && true {
         return;
     } else {
-        int a = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
 }
 
@@ -331,63 +331,63 @@ function testConstTrueConditionWihLogicalAndInIf() {
     if true && true {
         return;
     }
-    int a = 10; // unreachable code
+    int _ = 10; // unreachable code
 }
 
 function testConstTrueConditionWihLogicalAndInIfElse2() {
     if true && true {
-        int a = 10;
+        int _ = 10;
     } else {
-        int b = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
-    int c = 10;
+    int _ = 10;
 }
 
 function testConstTrueConditionWihLogicalAndInIfElse3() {
     if true {
-        int a = 10;
+        int _ = 10;
     } else if true && true {
-        int b = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
-    int c = 10;
+    int _ = 10;
 }
 
 function testConstFalseConditionWihLogicalAndInIfElse1() {
     if false && false {
-        int a = 10; // unreachable code
+        int _ = 10; // unreachable code
     } else {
-        int b = 10;
+        int _ = 10;
     }
-    int c = 10;
+    int _ = 10;
 }
 
 function testConstTrueConditionWihLogicalAndInWhile1() {
     while true && true {
         if true && true {
-            int a = 12;
+            int _ = 12;
         } else if true {
-            int a = 10; // unreachable code
+            int _ = 10; // unreachable code
         }
     }
-    int b = 10;
+    int _ = 10;
 }
 
 function testConstFalseConditionWihTypeTestInIfElse1() {
     int a = 10;
     if a !is int {
-        int b = 10; // unreachable code
+        int _ = 10; // unreachable code
     } else {
-        int c = 10;
+        int _ = 10;
     }
-    int d = 10;
+    int _ = 10;
 }
 
 function testConstFalseConditionWihTypeTestInWhile1() {
     int a = 10;
     while a !is int {
-        int b = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
-    int c = 10;
+    int _ = 10;
 }
 
 function impossible() returns never {
@@ -400,7 +400,7 @@ function testConstFalseWithIf() {
     } else {
         int a = 20;
     }
-    int|string c = 25;
+    int|string _ = 25;
 }
 
 function testUnreachabilitywithIfElse(E e) returns int {
@@ -418,17 +418,17 @@ function testUnreachabilitywithIfElse(E e) returns int {
 
 function testConstFalseWithWhile() {
     while false {
-        int a = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
-    int|string c = 25;
+    int|string _ = 25;
 }
 
 function testUnreachableCodeWithWhileConstTrue() {
     while true {
-        string a = "A";
+        string _ = "A";
         return;
     }
-    int b = 12; // unreachable code
+    int _ = 12; // unreachable code
 }
 
 function testUnreachableCodeWithWhileConstTrue2() returns int {
@@ -478,7 +478,7 @@ function testUnreachableCodeWithWhileConstTrue4(string p) returns string {
             str += "a is int";
             break;
         }
-        string b = a;
+        string _ = a;
         if a is string { // always true
             str += "a is string";
             panic error("Error");
@@ -496,14 +496,14 @@ function testUnreachableCodeWithConstRef1() {
     if TRUE {
         return;
     }
-    int x = 1; // unreachable code
+    int _ = 1; // unreachable code
 }
 
 function testUnreachableCodeWithConstRef2() {
     if FALSE {
         return; // unreachable code
     }
-    int x = 1;
+    int _ = 1;
 }
 
 function testUnreachableCodeWithConstRef3() {
@@ -517,7 +517,7 @@ function testUnreachableCodeWithConstRef4() {
     while FALSE {
         return; // unreachable code
     }
-    int x = 1;
+    int _ = 1;
 }
 
 type TRUE1 true;
@@ -530,7 +530,7 @@ function testUnreachableCodeWithConstRef5() {
         return;
     }
 
-    int x = 1; // unreachable code
+    int _ = 1; // unreachable code
 }
 
 function testUnreachableCodeWithConstRef6() {
@@ -540,7 +540,7 @@ function testUnreachableCodeWithConstRef6() {
         return; // unreachable code
     }
 
-    int x = 1;
+    int _ = 1;
 }
 
 function testUnreachableCodeWithConstRef7() {
@@ -550,7 +550,7 @@ function testUnreachableCodeWithConstRef7() {
         return;
     }
 
-    int x = 1; // unreachable code
+    int _ = 1; // unreachable code
 }
 
 function testUnreachableCodeWithConstRef8() {
@@ -560,116 +560,116 @@ function testUnreachableCodeWithConstRef8() {
         return; // unreachable code
     }
 
-    int x = 1;
+    int _ = 1;
 }
 
 function testUnreachableCodeWithUnaryCondition() {
     if !true {
-        int a = 1; // unreachable code
+        int _ = 1; // unreachable code
     } else {
-        int a = 2;
+        int _ = 2;
     }
 }
 
 function testUnreachableCodeWithUnaryCondition2() {
     while !true {
-        int a = 1; // unreachable code
+        int _ = 1; // unreachable code
     }
-    int b = 2;
+    int _ = 2;
 }
 
 function testUnreachableCodeWithBinaryCondition() {
     int x = 1;
     if true || x < 2 {
-        int a = 1;
+        int _ = 1;
     } else {
-        int a = 1; // unreachable code
+        int _ = 1; // unreachable code
     }
 }
 
 function testUnreachableCodeWithBinaryCondition2() {
     int x = 1;
     if x < 2 || true {
-        int a = 1;
+        int _ = 1;
     } else {
-        int a = 1; // unreachable code
+        int _ = 1; // unreachable code
     }
 }
 
 function testUnreachableCodeWithBinaryCondition3() {
     int x = 1;
     if true || true {
-        int a = 1;
+        int _ = 1;
     } else {
-        int a = 1; // unreachable code
+        int _ = 1; // unreachable code
     }
 }
 
 function testUnreachableCodeWithBinaryCondition4() {
-    int x = 1;
+    int _ = 1;
     if false || false {
-        int a = 1; // unreachable code
+        int _ = 1; // unreachable code
     } else {
-        int a = 1;
+        int _ = 1;
     }
 }
 
 function testUnreachableCodeWithUnaryCondition3() {
     if !false {
-        int a = 1;
+        int _ = 1;
     } else {
-        int a = 2; // unreachable code
+        int _ = 2; // unreachable code
     }
 }
 
 function testUnreachableCodeWithUnaryCondition4() {
     while !false {
-        int a = 1;
+        int _ = 1;
         return;
     }
-    int b = 2; // unreachable code
+    int _ = 2; // unreachable code
 }
 
 function testUnreachableCodeWithUnaryCondition6() {
     if true == true {
         return;
     }
-    int a = 10; // unreachable code
+    int _ = 10; // unreachable code
 }
 
 function testUnreachableCodeWithUnaryCondition7() {
     if !true == true {
-        int a = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
-    int b = 10;
+    int _ = 10;
 }
 
 function testUnreachableCodeWithUnaryCondition8() {
     if false == true {
-        int a = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
-    int b = 10;
+    int _ = 10;
 }
 
 function testUnreachableCodeWithUnaryCondition9() {
     while true == true {
         return;
     }
-    int a = 10; // unreachable code
+    int _ = 10; // unreachable code
 }
 
 function testUnreachableCodeWithUnaryCondition10() {
     while !true == true {
-        int a = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
-    int b = 10;
+    int _ = 10;
 }
 
 function testUnreachableCodeWithUnaryCondition11() {
     while false == true {
-        int a = 10; // unreachable code
+        int _ = 10; // unreachable code
     }
-    int b = 10;
+    int _ = 10;
 }
 
 function testReachableCodeWithBinaryCondition12() returns int {
@@ -687,7 +687,7 @@ function testReachableCodeWithBinaryCondition13() {
     if b == 10 {
         return;
     }
-    int c = 10; // unreachable code
+    int _ = 10; // unreachable code
 }
 
 function testReachableCodeWithBinaryCondition14() {
@@ -701,7 +701,7 @@ function testReachableCodeWithBinaryCondition14() {
         return;
     }
 
-    int c = 10; // unreachable code
+    int _ = 10; // unreachable code
 }
 
 function testReachableCodeWithBinaryCondition15() {
@@ -711,13 +711,13 @@ function testReachableCodeWithBinaryCondition15() {
         return;
     }
 
-    10 a = b;
+    10 _ = b;
 
     if b != 20 {
         return;
     }
 
-    int c = 10; // unreachable code
+    int _ = 10; // unreachable code
 }
 
 type Type1 10|20;
@@ -738,7 +738,7 @@ function testReachableCodeWithBinaryCondition17() {
     if b == 10 {
         return;
     }
-    int c = 10; // unreachable code
+    int _ = 10; // unreachable code
 }
 
 function testReachableCodeWithBinaryCondition18() {
@@ -752,7 +752,7 @@ function testReachableCodeWithBinaryCondition18() {
         return;
     }
 
-    int c = 10; // unreachable code
+    int _ = 10; // unreachable code
 }
 
 function testReachableCodeWithBinaryCondition19() {
@@ -762,11 +762,730 @@ function testReachableCodeWithBinaryCondition19() {
         return;
     }
 
-    10 a = b;
+    10 _ = b;
 
     if b != 20 {
         return;
     }
 
-    int c = 10; // unreachable code
+    int _ = 10; // unreachable code
+}
+
+function testUnreachabilityWithIfElseStmts1(E e) {
+    if e is X {
+        int _ = 10;
+    } else if e is Y {
+        int _ = 20;
+    } else if e is Z {
+        int _ = 30;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts2(E e) {
+    if e is X {
+        int _ = 10;
+    } else if e is Y {
+        int _ = 20;
+    } else if e is Z {
+        int _ = 30;
+    } else if e is Y {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts3(int|string|float e) {
+    if e is int {
+        int _ = 10;
+    } else if e is string {
+        int _ = 20;
+    } else if e is float {
+        int _ = 30;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts4(int|string|float e) {
+    if e is int {
+        int _ = 10;
+    } else if e is string {
+        int _ = 20;
+    } else if e is float {
+        int _ = 30;
+    } else if e is int {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts5() {
+    10|20 e = 10;
+    if e == 10 {
+        int _ = 10;
+    } else if e == 20 {
+        int _ = 20;
+    } else {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachabilityWithIfElseStmts6() {
+    10|20 e = 10;
+    if e == 10 {
+        int _ = 10;
+    } else if e == 20 {
+        int _ = 20;
+    } else if e == 10 {
+        never _ = e; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing1() {
+    int|string|boolean i = 1;
+
+    if i is int|string {
+        panic error("Error");
+    }
+    if i is boolean {
+        return;
+    }
+    int _ = i; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing2() {
+    int|string a = 1;
+    if a is int|string {
+        a = 2;
+        return;
+    }
+
+    string _ = a; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing3() {
+    10 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    string _ = b; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing4() {
+    Type2 b = 10;
+
+    if b == 10 {
+        return;
+    }
+
+    string _ = b; // unreachable code
+}
+
+function testUnreachableCodeWithTypeNarrowing5() {
+    int|string x = 5;
+    if x is int|string {
+
+    } else {
+        never _ = x; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing6() {
+    int|string|float a = 10;
+    if a is int {
+        int _ = 10;
+    } else if a is string {
+        int _ = 20;
+    } else if a is float {
+        int _ = 30;
+    } else if a is string {
+        never _ = a; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing7() {
+    int|string|float a = 10;
+    if a is int {
+        int _ = 10;
+    } else if a is string {
+        int _ = 20;
+    } else if a is float {
+        int _ = 30;
+    } else if a is string {
+        never _ = a;
+    } else if a is float {
+        never _ = a; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithTypeNarrowing8() {
+    int|string|float a = 10;
+    if a is int {
+        int _ = 10;
+    } else if a is string {
+        int _ = 20;
+    } else if a is float {
+        int _ = 30;
+    } else {
+        never _ = a; // unreachable code
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing9() {
+    int? a = 10;
+    string b = "A";
+    if b == "" || a == 0 {
+        int? _ = a;
+    } else if a is int || a is () {
+        int? _ = a;
+    } else if a is () {
+        never _ = a; // unreachable code
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing10() {
+    10|20 a = 10;
+    if a == 10 || a == 20 {
+        int _ = a;
+    } else if a is 20 {
+        never _ = a; // unreachable code
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing11() {
+    10 a = 10;
+    20 b = 20;
+    if a == 10 && b == 20 {
+        int _ = a;
+    } else if a is 20 {
+        never _ = a;
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing12() {
+    10 a = 10;
+    20 b = 20;
+    if a == 10 && b == 20 {
+        int _ = a;
+    } else {
+        never _ = a;
+    }
+}
+
+public function testUnreachableCodeWithTypeNarrowing13() {
+    10|20 a = 10;
+    if a == 10 || a == 20 {
+        int _ = a;
+    } else {
+        never _ = a; // unreachable code
+    }
+}
+
+function testUnreachableCodeWithNonTerminatingLoop1() {
+    int a = 10;
+    while true {
+        if a == 10 {
+            return;
+        }
+    }
+    foo(); // unreachable code
+}
+
+function testUnreachableCodeWithNonTerminatingLoop2() {
+    int a = 10;
+    while true {
+        if a == 10 {
+            continue;
+        }
+    }
+    int _ = a; // unreachable code
+}
+
+function testReturnValueWithTerminatingLoop1() returns boolean? {
+    int a = 10;
+    while true {
+        if a == 10 {
+            break;
+        }
+    }
+    int _ = a;
+}
+
+function testReturnValueWithTerminatingLoop2() returns boolean? {
+    int a = 10;
+    while true {
+        if a == 10 {
+            break;
+        }
+        return true;
+    }
+    int _ = a;
+}
+
+function testUnreachableStmt(any a) {
+    while true {
+        return;
+    }
+    match a { // unreachable code
+        1 => {
+        }
+    }
+}
+
+function testUnreachableStatementInQueryAction() {
+    error? n = from int i in 0 ... 2
+    do {
+        return;
+        int _ = 1; // unreachable
+    };
+
+    _ = n is error; // reachable
+}
+
+function testUnreachableStatementInQueryAction2() returns error? {
+    from var item in 1 ... 5
+    where false
+    do {
+        int _ = 10; // unreachable code
+    };
+}
+
+function testUnreachableStatementInQueryAction3() returns error? {
+    from var item in 1 ... 5
+    where false
+    do {
+        int _ = 10; // unreachable code
+    };
+}
+
+function testUnreachableStatementInQueryAction4() returns error? {
+    error? a = from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction5() returns error? {
+    error? a = trap from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction6() returns error? {
+    error? a = <error?> from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction7() returns error? {
+    return from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction8() returns error? {
+    return from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction9() returns error? {
+    return from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction10() returns error? {
+    return trap from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction11() returns error? {
+    return <error?> from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction12() returns error? {
+    error? a = (from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        });
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction13() returns error? {
+    return (trap from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        });
+}
+
+function testUnreachableStatementInQueryAction14() returns error? {
+    error? a;
+    a = (from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        });
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction15() {
+    match from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        } {
+        () => {
+        }
+    }
+}
+
+function testUnreachableStatementInQueryAction16() returns error? {
+    match from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        } {
+        () => {
+        }
+    }
+}
+
+function testUnreachableStatementInQueryAction17() {
+    match (from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        }) {
+        () => {
+        }
+    }
+}
+
+function testUnreachableStatementInQueryAction18() returns error? {
+    error? a = from var item in 1 ... 5
+        where false
+        where item < 2
+        do {
+            int _ = 10; // unreachable code
+        };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction19() returns error? {
+    return trap (from var item in 1 ... 5
+        where false
+        where item < 2
+        do {
+            int _ = 10; // unreachable code
+        });
+}
+
+function testUnreachableStatementInQueryAction20() returns error? {
+    error? a = ();
+    from var item in 1 ... 5
+    where item < 2
+    do {
+        a = (from var value in 1 ... 5
+            where false
+            where value < 2
+            do {
+                int _ = 10; // unreachable code
+            });
+    };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction21() {
+    from var item in 1 ... 5
+    where false
+    do {
+        int _ = 1; // unreachable code
+    };
+}
+
+function testUnreachableTupleVarDef() {
+    [int, string] arr = [1, "A"];
+    while false {
+        var [a, b] = arr; // unreachable code
+    }
+}
+
+type Record record {|
+    int a;
+    string b;
+|};
+
+function testUnreachableRecordVarDef() {
+    Record rec = {a: 1, b: "A"};
+    while false {
+        var {a: val1, b: val2} = rec; // unreachable code
+    }
+}
+
+function testUnreachableStatementInQueryAction23() {
+    error? x = from var item in 1 ... 5
+        where false
+        do {
+            error? y = from var item2 in 1 ...2 // unreachable code
+            where true
+            do {
+                int _ = 1;
+                int _ = 1;
+            };
+        };
+}
+
+function testUnreachableStatementInQueryAction24() {
+    error? x = from var item in 1 ... 5
+        where true
+        do {
+            error? y = from var item2 in 1 ...2
+            where false
+            do {
+                int _ = 1; // unreachable code
+                int _ = 1;
+            };
+        };
+}
+
+function testLoggingExpectedUnreachableErrors1() {
+    if true {
+        return;
+    } else if true {
+        int _ = 10; // unreachable code
+    }
+}
+
+function testLoggingExpectedUnreachableErrors2() returns error? {
+    if true {
+        fail error("fail msg");
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors3() returns error? {
+    if true {
+        return;
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors4() {
+    if true {
+        panic error("fail msg");
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors5() {
+    while false {
+        continue; // unreachable code
+        int _ = 10;
+        string _ = "A";
+    }
+}
+
+function testLoggingExpectedUnreachableErrors6() {
+    while false {
+        return; // unreachable code
+        int _ = 10;
+        string _ = "A";
+    }
+}
+
+function testLoggingExpectedUnreachableErrors7() returns error? {
+    while true {
+        fail error("fail msg");
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors8() {
+    while true {
+        panic error("fail msg");
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors9() {
+    while true {
+        return;
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors10() {
+    int a = 10;
+    string b = "A";
+    if a is int {
+        return;
+    } else if b is string {
+        int _ = 10; // unreachable code
+    }
+}
+
+function testLoggingExpectedUnreachableErrors11() returns error? {
+    int i = 0;
+    while i > 10 {
+        fail error("Error");
+        i = i + 1; // unreachable code
+    }
+    i = 7; // unreachable code
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors12() returns error? {
+    while true {
+        fail error("Error");
+        int _ = 10; // unreachable code
+    }
+    int _ = 10; // unreachable code
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors13() returns error? {
+    while false {
+        fail error("Error"); // unreachable code
+        int _ = 10;
+    }
+    int _ = 10;
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors14() {
+    int i = 0;
+    while i > 10 {
+        panic error("Error");
+        i = i + 1; // unreachable code
+    }
+    return;
+    i = 7; // unreachable code
+}
+
+function testLoggingExpectedUnreachableErrors15() {
+    while true {
+        panic error("Error");
+        int _ = 10; // unreachable code
+    }
+    return; // unreachable code
+    //int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors16() {
+    while false {
+        panic error("Error");
+        int _ = 10; // unreachable code
+    }
+    panic error("error");
+    int _ = 10; // unreachable code
+}
+
+function testUnreachableStatementInQueryAction25() {
+    from var item in 1 ... 5
+    where true
+    do {
+        while true {
+            int _ = 3;
+        }
+        int _ = 2; // unreachable code
+    };
+}
+
+function testUnreachableStatementInQueryAction26() returns error? {
+    string m;
+    from var item in 1 ... 5
+    where true
+    do {
+        m = "Error";
+        while m is string {
+            int _ = 3;
+        }
+        int _ = 2; // unreachable code
+    };
+}
+
+function testUnreachableStatementInQueryAction27() returns error? {
+    from var item in 1 ... 5
+    where true
+    do {
+        if true {
+            return;
+        }
+        int _ = 2; // unreachable code
+    };
+}
+
+function testUnreachableStatementInQueryAction28() returns error? {
+    from var item in 1 ... 5
+    where false
+    do {
+        panic error("Panic!");
+        int _ = 2; // unreachable code
+    };
+}
+
+function testUnreachableStatementInQueryAction29() returns error? {
+    from var item in 1 ... 5
+    where true
+    do {
+        while true {
+            int _ = 3;
+        }
+        panic error("Panic!");
+        int _ = 2; // unreachable code
+    };
+}
+
+function testUnreachableStatementInQueryAction30() returns error? {
+    from var item in 1 ... 5
+    where true
+    do {
+        if true {
+            return;
+        }
+        panic error("Panic!");
+        int _ = 2; // unreachable code
+    };
 }

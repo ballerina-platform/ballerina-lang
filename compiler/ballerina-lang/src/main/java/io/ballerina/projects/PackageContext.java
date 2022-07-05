@@ -58,7 +58,7 @@ class PackageContext {
     private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
     private Set<PackageDependency> packageDependencies;
-    private DependencyGraph<ModuleId> moduleDependencyGraph;
+    private DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
     private PackageResolution packageResolution;
     private PackageCompilation packageCompilation;
 
@@ -200,7 +200,7 @@ class PackageContext {
         throw new IllegalStateException("Default module not found. This is a bug in the Project API");
     }
 
-    DependencyGraph<ModuleId> moduleDependencyGraph() {
+    DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
         return moduleDependencyGraph;
     }
 
@@ -211,25 +211,29 @@ class PackageContext {
 
     PackageCompilation getPackageCompilation() {
         if (packageCompilation == null) {
-            packageCompilation = PackageCompilation.from(this);
+            packageCompilation = PackageCompilation.from(this, this.compilationOptions());
         }
         return packageCompilation;
     }
 
     PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
-        CompilationOptions options = new CompilationOptionsBuilder()
-                .offline(this.compilationOptions.offlineBuild())
-                .experimental(this.compilationOptions.experimental())
-                .observabilityIncluded(this.compilationOptions.observabilityIncluded())
-                .dumpBir(this.compilationOptions.dumpBir())
-                .cloud(this.compilationOptions.getCloud())
-                .dumpBirFile(this.compilationOptions.dumpBirFile())
-                .dumpGraph(this.compilationOptions.dumpGraph())
-                .dumpRawGraphs(this.compilationOptions.dumpRawGraphs())
-                .listConflictedClasses(this.compilationOptions.listConflictedClasses())
+        CompilationOptions options = CompilationOptions.builder()
+                .setOffline(this.compilationOptions.offlineBuild())
+                .setObservabilityIncluded(this.compilationOptions.observabilityIncluded())
+                .setDumpBir(this.compilationOptions.dumpBir())
+                .setCloud(this.compilationOptions.getCloud())
+                .setDumpBirFile(this.compilationOptions.dumpBirFile())
+                .setDumpGraph(this.compilationOptions.dumpGraph())
+                .setDumpRawGraphs(this.compilationOptions.dumpRawGraphs())
+                .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
+                .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
         return PackageCompilation.from(this, mergedOptions);
+    }
+
+    PackageCompilation cachedCompilation() {
+        return packageCompilation;
     }
 
     PackageResolution getResolution() {
@@ -240,7 +244,8 @@ class PackageContext {
     }
 
     PackageResolution getResolution(CompilationOptions compilationOptions) {
-        return PackageResolution.from(this, compilationOptions);
+        packageResolution = PackageResolution.from(this, compilationOptions);
+        return packageResolution;
     }
 
     Collection<PackageDependency> packageDependencies() {
@@ -260,10 +265,10 @@ class PackageContext {
         // TODO Figure out a way to handle concurrent modifications
 
         // This dependency graph should only contain modules in this package.
-        DependencyGraphBuilder<ModuleId> moduleDepGraphBuilder = DependencyGraphBuilder.getBuilder();
+        DependencyGraphBuilder<ModuleDescriptor> moduleDepGraphBuilder = DependencyGraphBuilder.getBuilder();
         Set<PackageDependency> packageDependencies = new HashSet<>();
         for (ModuleContext moduleContext : this.moduleContextMap.values()) {
-            moduleDepGraphBuilder.add(moduleContext.moduleId());
+            moduleDepGraphBuilder.add(moduleContext.descriptor());
             resolveModuleDependencies(moduleContext, dependencyResolution,
                     moduleDepGraphBuilder, packageDependencies);
         }
@@ -274,18 +279,31 @@ class PackageContext {
 
     private void resolveModuleDependencies(ModuleContext moduleContext,
                                            DependencyResolution dependencyResolution,
-                                           DependencyGraphBuilder<ModuleId> moduleDepGraphBuilder,
+                                           DependencyGraphBuilder<ModuleDescriptor> moduleDepGraphBuilder,
                                            Set<PackageDependency> packageDependencies) {
         moduleContext.resolveDependencies(dependencyResolution);
         for (ModuleDependency moduleDependency : moduleContext.dependencies()) {
             // Check whether this dependency is in this package
             if (moduleDependency.packageDependency().packageId() == this.packageId()) {
                 // Module dependency graph contains only the modules in this package
-                moduleDepGraphBuilder.addDependency(moduleContext.moduleId(), moduleDependency.moduleId());
+                moduleDepGraphBuilder.addDependency(moduleContext.descriptor(), moduleDependency.descriptor());
             } else {
                 // Capture the package dependency if it is different from this package
                 packageDependencies.add(moduleDependency.packageDependency());
             }
         }
+    }
+
+    PackageContext duplicate(Project project) {
+        Map<ModuleId, ModuleContext> duplicatedModuleContextMap = new HashMap<>();
+        for (ModuleId moduleId : this.moduleIds) {
+            ModuleContext moduleContext = this.moduleContext(moduleId);
+            duplicatedModuleContextMap.put(moduleId, moduleContext.duplicate(project));
+        }
+
+        return new PackageContext(project, this.packageId, this.packageManifest,
+                this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
+                this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
+                this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph);
     }
 }

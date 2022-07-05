@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -39,6 +40,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
@@ -240,7 +243,7 @@ public class DebuggerRuntime {
         }
 
         ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
-        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue(PredefinedTypes.TYPE_ERROR_DETAIL,
+        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue((MapType) PredefinedTypes.TYPE_ERROR_DETAIL,
                 errorDetailEntries.toArray(errorDetailEntries.toArray(new BMapInitialValueEntry[0])));
         return ErrorCreator.createError(bErrorType, (StringValue) message, (ErrorValue) cause, errorDetailsMap);
     }
@@ -410,9 +413,10 @@ public class DebuggerRuntime {
             // Initialize a new scheduler
             Scheduler scheduler = new Scheduler(1, false);
             // Initialize configurations
+            TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
             invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
                     CONFIGURE_INIT_METHOD_NAME, new Class[]{String[].class, Path[].class, String.class},
-                    new Object[]{new String[]{}, new Path[]{}, null});
+                    new Object[]{new String[]{}, configurationDetails.paths, configurationDetails.configContent});
             // Initialize the module
             invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_INIT_METHOD_NAME, new Object[1]);

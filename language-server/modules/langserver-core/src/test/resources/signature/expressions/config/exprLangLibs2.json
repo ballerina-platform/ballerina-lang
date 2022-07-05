@@ -1,0 +1,55 @@
+{
+  "position": {
+    "line": 420,
+    "character": 40
+  },
+  "source": "expressions/expressions.bal",
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "substring(int startIndex, int endIndex)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "**Description**  \nReturns a substring of a string."
+            }
+          },
+          "parameters": [
+            {
+              "label": {
+                "right": {
+                  "first": 14,
+                  "second": 24
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`int`startIndex**: the starting index, inclusive"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 30,
+                  "second": 38
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`int`endIndex**: the ending index, exclusive"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 1
+    },
+    "jsonrpc": "2.0"
+  }
+}

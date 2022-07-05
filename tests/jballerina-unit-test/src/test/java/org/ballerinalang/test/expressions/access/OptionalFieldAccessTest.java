@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -79,8 +77,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
     public void testRecordOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "recordOptionalFieldAccessFunctions")
@@ -115,8 +113,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "laxOptionalFieldAccessFunctions")
     public void testLaxOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "laxOptionalFieldAccessFunctions")
@@ -142,8 +140,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "optionalFieldAccessOnInvocationFunctions")
     public void testOptionalFieldAccessOnInvocation(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "optionalFieldAccessOnInvocationFunctions")

@@ -43,7 +43,6 @@ import java.util.stream.Stream;
  */
 public class BUnionType extends BType implements UnionType {
 
-    public BIntersectionType immutableType;
     public boolean resolvingToString = false;
 
     private BIntersectionType intersectionType = null;
@@ -64,7 +63,7 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
-    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
+    public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         this(tsymbol, memberTypes, memberTypes, nullable, readonly);
     }
 
@@ -192,7 +191,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         for (BType memBType : toFlatTypeSet(types)) {
-            if (memBType.tag != TypeTags.NEVER) {
+            if (getReferredType(memBType).tag != TypeTags.NEVER) {
                 memberTypes.add(memBType);
             }
 
@@ -402,9 +401,21 @@ public class BUnionType extends BType implements UnionType {
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
-                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) ?
-                        ((BUnionType) type).memberTypes.stream() : Stream.of(type))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .flatMap(type -> {
+                    BType refType = getReferredType(type);
+                    if (refType.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
+                        return ((BUnionType) refType).memberTypes.stream();
+                    }
+                    return Stream.of(type);
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private static BType getReferredType(BType type) {
+        BType constraint = type;
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+        }
+        return constraint;
     }
 
     private static boolean isTypeParamAvailable(BType type) {
@@ -412,11 +423,6 @@ public class BUnionType extends BType implements UnionType {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
     }
 
     private String getQualifiedName(String pkg, String name) {

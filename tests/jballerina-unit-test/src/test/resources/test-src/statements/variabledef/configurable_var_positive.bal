@@ -59,3 +59,5 @@ configurable Parent p = ?;
 type CyclicUnion int|CyclicUnion[];
 
 configurable CyclicUnion unionVar = ?;
+
+configurable [int, string, float, decimal, anydata] a = ?;

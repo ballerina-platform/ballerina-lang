@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class MatchStmtErrorMatchPatternTest {
-    private CompileResult result, restPatternResult, resultNegative;
+    private CompileResult result, restPatternResult, resultNegative, moduleResult;
     private String patternNotMatched = "pattern will not be matched";
     private String unreachablePattern = "unreachable pattern";
 
@@ -40,6 +40,7 @@ public class MatchStmtErrorMatchPatternTest {
         result = BCompileUtil.compile("test-src/statements/matchstmt/error_match_pattern.bal");
         restPatternResult = BCompileUtil.compile("test-src/statements/matchstmt" +
                 "/error_match_pattern_with_rest_match_pattern.bal");
+        moduleResult = BCompileUtil.compile("test-src/statements/matchstmt/error-match-project");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/error_match_pattern_negative.bal");
     }
 
@@ -139,6 +140,11 @@ public class MatchStmtErrorMatchPatternTest {
     }
 
     @Test
+    public void testErrorMatchWithQualifiedReference() {
+        BRunUtil.invoke(moduleResult, "testErrorMatchWithQualifiedReference");
+    }
+
+    @Test
     public void testErrorMatchPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         //Assert.assertEquals(resultNegative.getWarnCount(), 10);
@@ -151,6 +157,8 @@ public class MatchStmtErrorMatchPatternTest {
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 42, 20);
         BAssertUtil.validateError(resultNegative, i++, "all match patterns should contain the same set of variables",
                 43, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'a'", 43, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'b'", 43, 9);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 43, 24);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 44, 42);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 45, 49);
@@ -162,5 +170,6 @@ public class MatchStmtErrorMatchPatternTest {
         result = null;
         restPatternResult = null;
         resultNegative = null;
+        moduleResult = null;
     }
 }

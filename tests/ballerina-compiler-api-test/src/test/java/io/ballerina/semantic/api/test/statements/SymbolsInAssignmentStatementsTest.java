@@ -86,8 +86,8 @@ public class SymbolsInAssignmentStatementsTest {
                 // Destructuring assignment
                 {60, 27, "intVal", TypeDescKind.INT},
                 {60, 49, "otherVal", TypeDescKind.ARRAY},
-                {61, 18, "valName", TypeDescKind.STRING},
-                {61, 32, "valAge", TypeDescKind.INT},
+                {61, 20, "valName", TypeDescKind.STRING},
+                {61, 34, "valAge", TypeDescKind.INT},
         };
     }
 

@@ -14,6 +14,6 @@ dependency = [
 ]
 
 [build-options]
-observabilityIncluded = true
+observabilityIncluded = false
 offline = true
 skipTests = false

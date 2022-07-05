@@ -20,11 +20,11 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.ArrayList;
@@ -41,30 +41,30 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getPackageIDStr
  */
 public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
-    public BTypeSymbol attachedType;
+    public BType attachedType;
     public Set<AttachPoint> points;
     public int maskedPoints;
-    private List<BAnnotationSymbol> annots;
+    private List<BAnnotationAttachmentSymbol> annotationAttachments;
 
     public BAnnotationSymbol(Name name, Name originalName, long flags, Set<AttachPoint> points, PackageID pkgID,
                              BType type, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(ANNOTATION, flags, name, originalName, pkgID, type, owner, pos, origin);
         this.points = points;
         this.maskedPoints = getMaskedPoints(points);
-        this.annots = new ArrayList<>();
+        this.annotationAttachments = new ArrayList<>();
     }
 
     @Override
-    public void addAnnotation(AnnotationSymbol symbol) {
+    public void addAnnotation(AnnotationAttachmentSymbol symbol) {
         if (symbol == null) {
             return;
         }
-        this.annots.add((BAnnotationSymbol) symbol);
+        this.annotationAttachments.add((BAnnotationAttachmentSymbol) symbol);
     }
 
     @Override
-    public List<? extends AnnotationSymbol> getAnnotations() {
-        return this.annots;
+    public List<? extends AnnotationAttachmentSymbol> getAnnotations() {
+        return this.annotationAttachments;
     }
 
     @Override
@@ -76,15 +76,6 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public String bvmAlias() {
         String pkg = getPackageIDStringWithMajorVersion(pkgID);
         return !pkg.equals(".") ? pkg + ":" + this.name : this.name.toString();
-    }
-
-    @Override
-    public BAnnotationSymbol createLabelSymbol() {
-        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, points, Names.EMPTY, Names.EMPTY,
-                                                                pkgID, type, owner, pos, origin);
-        copy.attachedType = attachedType;
-        copy.isLabel = true;
-        return copy;
     }
 
     private int getMaskedPoints(Set<AttachPoint> attachPoints) {

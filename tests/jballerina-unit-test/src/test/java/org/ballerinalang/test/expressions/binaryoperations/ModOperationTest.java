@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -60,24 +57,22 @@ public class ModOperationTest {
     }
 
     private void intMod(int val1, int val2, long expected) {
-        BValue[] args = { new BInteger(val1), new BInteger(val2) };
-        BValue[] returns = BRunUtil.invoke(result, "intMod", args);
+        Object[] args = { (val1), (val2) };
+        Object returns = BRunUtil.invoke(result, "intMod", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         Assert.assertEquals(actual, expected);
     }
 
     private void floatMod(float val1, float val2, double expected) {
-        BValue[] args = { new BFloat(val1), new BFloat(val2) };
-        BValue[] returns = BRunUtil.invoke(result, "floatMod", args);
+        Object[] args = { (val1), (val2) };
+        Object returns = BRunUtil.invoke(result, "floatMod", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actual = ((BFloat) returns[0]).floatValue();
+        double actual = (double) returns;
         Assert.assertEquals(actual, expected);
     }
 
@@ -85,13 +80,13 @@ public class ModOperationTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero \\{\"message\":\" / " +
                     "by zero\"\\}.*")
     public void testIntModZero() {
-        BRunUtil.invoke(result, "intMod", new BValue[]{new BInteger(2000), new BInteger(0)});
+        BRunUtil.invoke(result, "intMod", new Object[]{(2000), (0)});
     }
 
     @Test
     public void testFloatModZero() {
-        BValue[] returns = BRunUtil.invoke(result, "floatMod", new BValue[]{new BFloat(200.1), new BFloat(0.0)});
-        Assert.assertEquals(returns[0].stringValue(), "NaN");
+        Object returns = BRunUtil.invoke(result, "floatMod", new Object[]{(200.1), (0.0)});
+        Assert.assertEquals(returns.toString(), "NaN");
     }
 
     @Test(dataProvider = "dataToTestModWithTypes", description = "Test mod with types")
@@ -109,17 +104,72 @@ public class ModOperationTest {
 
     @Test(description = "Test mod operation negative scenarios")
     public void testModStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
-        BAssertUtil.validateError(resultNegative, 0, "operator '%' not defined for 'C' and 'string'", 28, 14);
-        BAssertUtil.validateError(resultNegative, 1, "operator '%' not defined for 'C' and '(float|int)'", 29, 14);
-        BAssertUtil.validateError(resultNegative, 2, "operator '%' not defined for 'string' and " +
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'string' and " +
                 "'(string|string:Char)'", 30, 17);
-        BAssertUtil.validateError(resultNegative, 3, "operator '%' not defined for 'float' and 'decimal'", 37, 14);
-        BAssertUtil.validateError(resultNegative, 4, "operator '%' not defined for 'float' and 'decimal'", 38, 14);
-        BAssertUtil.validateError(resultNegative, 5, "operator '%' not defined for 'float' and 'int'", 39, 14);
-        BAssertUtil.validateError(resultNegative, 6, "operator '%' not defined for 'decimal' and 'int'", 40, 14);
-        BAssertUtil.validateError(resultNegative, 7, "operator '%' not defined for 'int' and 'float'", 41, 18);
-        BAssertUtil.validateError(resultNegative, 8, "operator '%' not defined for 'C' and 'float'", 45, 14);
-        BAssertUtil.validateError(resultNegative, 9, "operator '%' not defined for 'C' and 'float'", 46, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'float' and 'decimal'", 37, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'float' and 'decimal'", 38, 14);
+        BAssertUtil.validateError(resultNegative, i++, 
+                "operator '%' not defined for 'int'(dividend) and 'float'(divisor)", 39, 18);
+        BAssertUtil.validateError(resultNegative, i++, 
+                "operator '%' not defined for 'int'(dividend) and 'decimal'(divisor)", 40, 18);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'C' and 'float'", 44, 14);
+        BAssertUtil.validateError(resultNegative, i, "operator '%' not defined for 'C' and 'float'", 45, 14);
+    }
+
+    @Test(description = "Test mod of nullable values")
+    public void testModNullable() {
+        BRunUtil.invoke(result, "testModNullable");
+    }
+
+
+    @Test(dataProvider = "dataToTestModFloatInt", description = "Test float modulo by int")
+    public void testModFloatInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestModFloatInt() {
+        return new Object[]{
+                "testModFloatInt",
+                "testModFloatIntSubTypes",
+                "testModFloatIntWithNullableOperands",
+                "testModFloatIntSubTypeWithNullableOperands",
+                "testResultTypeOfModFloatIntByInfering",
+                "testResultTypeOfModFloatIntForNilableOperandsByInfering",
+        };
+    }
+
+    @Test(dataProvider = "dataToTestModDecimalInt", description = "Test decimal modulo by int")
+    public void testModDecimalInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestModDecimalInt() {
+        return new Object[]{
+                "testModDecimalInt",
+                "testModDecimalIntSubTypes",
+                "testModDecimalIntWithNullableOperands",
+                "testModDecimalIntSubTypeWithNullableOperands",
+                "testResultTypeOfModDecimalIntByInfering",
+                "testResultTypeOfModDecimalIntForNilableOperandsByInfering",
+        };
+    }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInMod")
+    public void testShortCircuitingInMod(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInMod() {
+        return new Object[]{
+                "testNoShortCircuitingInModWithNullable",
+                "testNoShortCircuitingInModWithNonNullable"
+        };
     }
 }

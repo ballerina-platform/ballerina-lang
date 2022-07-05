@@ -18,11 +18,8 @@
 
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.debugger.test.BaseTestCase;
-import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.debugger.test.utils.DebugTestRunner;
-import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.annotations.AfterMethod;
@@ -100,19 +97,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
         }
     }
 
-    protected void prepareForEvaluation() throws BallerinaTestException {
-        String testProjectName = "evaluation-tests";
-        String testModuleFileName = "main.bal";
-        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
-
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 352));
-        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-        this.context = debugHitInfo.getRight();
-
-        // Enable to see all the assertion failures at once.
-        // debugTestRunner.setAssertionMode(DebugTestRunner.AssertionMode.SOFT_ASSERT);
-    }
+    protected abstract void prepareForEvaluation() throws BallerinaTestException;
 
     // 1. literal expressions
     public abstract void literalEvaluationTest() throws BallerinaTestException;

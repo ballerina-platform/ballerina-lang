@@ -27,7 +27,7 @@ function test() returns error? {
     checkpanic bar(name, val);
 
     dog.eat();
-    dog.bark(val, j = name);
+    dog.bark(val, j = "Snowy");
     dog.bark(val, name, ...ints);
     check dog.walk();
     checkpanic dog.walk();
@@ -38,6 +38,11 @@ function foo(string name, int age, any... other) {
 
 function bar(string name, int age) returns error {
     return error("error");
+}
+
+function testErrorConstructor() {
+    string msg = "Op failed";
+    error err1 = error(msg, a = "foo");
 }
 
 class Dog {

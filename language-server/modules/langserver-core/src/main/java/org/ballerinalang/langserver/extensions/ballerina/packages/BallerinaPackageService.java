@@ -18,16 +18,19 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.ConfigReader;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.configschema.ConfigSchemaBuilder;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -38,6 +41,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
 /**
  * Implementation of Ballerina package extension for Language Server.
  *
@@ -62,7 +66,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             PackageMetadataResponse metadata = new PackageMetadataResponse();
             try {
-                Optional<Path> filePath = CommonUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
+                Optional<Path> filePath = PathUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
                     return metadata;
                 }
@@ -93,7 +97,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
             TextDocumentIdentifier[] documentIdentifiers = request.getDocumentIdentifiers();
             try {
                 Arrays.stream(documentIdentifiers).iterator().forEachRemaining(documentIdentifier -> {
-                    CommonUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
+                    PathUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
                         Optional<Project> project = this.workspaceManager.project(path);
                         project.ifPresent(value -> jsonPackages.add(getPackageComponents(value)));
                     });
@@ -102,6 +106,34 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaPackage/components' failed!";
                 this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null, (Position) null);
+            }
+            return response;
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<PackageConfigSchemaResponse> configSchema(PackageConfigSchemaRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            PackageConfigSchemaResponse response = new PackageConfigSchemaResponse();
+            try {
+                Optional<Path> filePath = PathUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
+                if (filePath.isEmpty()) {
+                    throw new UserErrorException("File path not found.");
+                }
+                Optional<Project> project = this.workspaceManager.project(filePath.get());
+                if (project.isEmpty()) {
+                    throw new UserErrorException("Project not found.");
+                }
+                this.workspaceManager.waitAndGetPackageCompilation(filePath.get())
+                        .ifPresent(compilation -> {
+                            Package currentPackage = project.get().currentPackage();
+                            response.setConfigSchema(new ConfigSchemaBuilder().getConfigSchemaContent(
+                                    ConfigReader.getConfigVariables(currentPackage)));
+                        });
+            } catch (Exception e) {
+                String msg = "Operation 'ballerinaPackage/configSchema' failed!";
+                this.clientLogger.logError(PackageContext.PACKAGE_CONFIG_SCHEMA, msg, e,
+                    request.getDocumentIdentifier(), (Position) null);
             }
             return response;
         });

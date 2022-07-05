@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -38,6 +37,7 @@ import org.testng.annotations.Test;
  * @since 0.8.0
  */
 public class MapAccessExprTest {
+
     private CompileResult compileResult, resultNegative, resultSemanticsNegative;
 
     @BeforeClass
@@ -49,44 +49,41 @@ public class MapAccessExprTest {
 
     @Test(description = "Test map access expression")
     public void testMapAccessExpr() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "mapAccessTest", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compileResult, "mapAccessTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 105;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test map access through var keyword")
     public void testAccessThroughVar() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessThroughVar", args);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(compileResult, "testAccessThroughVar", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertTrue(returns instanceof BString);
 
         String expectedStr = "x:a, y:b, z:c, ";
-        String actualStr = returns[0].stringValue();
+        String actualStr = returns.toString();
         Assert.assertEquals(actualStr, expectedStr);
     }
 
     @Test(description = "Test map return value")
     public void testArrayReturnValueTest() {
-        BValue[] args = {new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "mapReturnTest", args);
+        Object[] args = {StringUtils.fromString("Chanaka"), StringUtils.fromString("Fernando")};
+        Object returns = BRunUtil.invoke(compileResult, "mapReturnTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertTrue(returns instanceof  BMap);
 
-        BMap mapValue = (BMap) returns[0];
+        BMap mapValue = (BMap) returns;
         Assert.assertEquals(mapValue.size(), 3);
 
-        Assert.assertEquals(mapValue.get("fname").stringValue(), "Chanaka");
-        Assert.assertEquals(mapValue.get("lname").stringValue(), "Fernando");
-        Assert.assertEquals(mapValue.get("ChanakaFernando").stringValue(), "ChanakaFernando");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("fname")).toString(), "Chanaka");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("lname")).toString(), "Fernando");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("ChanakaFernando")).toString(), "ChanakaFernando");
 
     }
 
@@ -100,61 +97,57 @@ public class MapAccessExprTest {
 
     @Test(description = "Test array access expression as the index of a map")
     public void testArrayAccessAsIndexOfMapt() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayAccessAsIndexOfMapt", args);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(compileResult, "testArrayAccessAsIndexOfMapt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "Supun");
+        Assert.assertEquals(returns.toString(), "Supun");
     }
 
     @Test(description = "Test map clear.")
     public void testMapRemoveAll() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapRemoveAll", args);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(compileResult, "testMapRemoveAll", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        Assert.assertEquals(((BInteger) returns[0]).value(), new Long(0));
+        Assert.assertEquals(returns, new Long(0));
     }
 
     @Test(description = "Test map has key positive.")
     public void testHasKeyPositive() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKeyPositive", args);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(compileResult, "testHasKeyPositive", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns.getClass(), Boolean.class);
 
-        Assert.assertEquals(((BBoolean) returns[0]).value(), Boolean.TRUE);
+        Assert.assertEquals(returns, Boolean.TRUE);
     }
 
     @Test(description = "Test map has key negative.")
     public void testHasKeyNegative() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKeyNegative", args);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(compileResult, "testHasKeyNegative", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns.getClass(), Boolean.class);
 
-        Assert.assertEquals(((BBoolean) returns[0]).value(), Boolean.FALSE);
+        Assert.assertEquals(returns, Boolean.FALSE);
     }
 
     @Test(description = "Test get map values.")
     public void testGetMapValues() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetMapValues", args);
+        Object[] args = {};
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testGetMapValues", args);
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "Supun");
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), "Colombo");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Supun");
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "Colombo");
     }
 
-    @Test(description = "Map access negative scenarios", groups = { "disableOnOldParser" })
+    @Test(description = "Map access negative scenarios", groups = {"disableOnOldParser"})
     public void testNegativeSemantics() {
         Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 4);
         int index = 0;
@@ -173,23 +166,23 @@ public class MapAccessExprTest {
 
         // uninitialized map access
         BAssertUtil.validateError(resultNegative, index++, "variable 'ints' is not initialized", 9, 5);
-        BAssertUtil.validateError(resultNegative, index++, "variable 'ints' is not initialized", 11, 41);
+        BAssertUtil.validateError(resultNegative, index++, "variable 'ints' is not initialized", 11, 40);
         BAssertUtil.validateError(resultNegative, index, "variable 'm4' is not initialized", 34, 12);
     }
 
     @Test(description = "Test map remove key positive.")
     public void testMapRemovePositive() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapRemovePositive", args);
+        Object[] args = {};
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMapRemovePositive", args);
 
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertSame(returns.get(0).getClass(), Boolean.class);
+        Assert.assertSame(returns.get(1).getClass(), Boolean.class);
+        Assert.assertSame(returns.get(2).getClass(), Boolean.class);
 
-        Assert.assertEquals(((BBoolean) returns[0]).value(), Boolean.TRUE);
-        Assert.assertEquals(((BBoolean) returns[1]).value(), Boolean.TRUE);
-        Assert.assertEquals(((BBoolean) returns[2]).value(), Boolean.FALSE);
+        Assert.assertEquals(returns.get(0), Boolean.TRUE);
+        Assert.assertEquals(returns.get(1), Boolean.TRUE);
+        Assert.assertEquals(returns.get(2), Boolean.FALSE);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -201,33 +194,33 @@ public class MapAccessExprTest {
 
     @Test(description = "Test removeIfHasKey if key exists.")
     public void testRemoveIfHasKeyPositive1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive1");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive1");
+        Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test removeIfHasKey if key does not exist.")
     public void testRemoveIfHasKeyNegative1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative1");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative1");
+        Assert.assertFalse((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test removeIfHasKey if key exists.")
     public void testRemoveIfHasKeyPositive2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive2");
+        Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test removeIfHasKey if key does not exist.")
     public void testRemoveIfHasKeyNegative2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative2");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative2");
+        Assert.assertFalse((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test to check toString for map of maps.")
     public void testMapToString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToString");
-        BString value = (BString) returns[0];
-        Assert.assertEquals(value.stringValue(), "typedesc map<map<json>>");
+        Object returns = BRunUtil.invoke(compileResult, "testMapToString");
+        BString value = (BString) returns;
+        Assert.assertEquals(value.toString(), "typedesc map<map<json>>");
     }
 
     @AfterClass

@@ -27,12 +27,13 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        RuleContext ruleContext = RuleContext.OTHER;
         if (onSuggestionsAfterQualifiers(context, node)) {
             /*
              * Covers the following
@@ -64,17 +66,18 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
             /*
             Covers the completions when the cursor is within the parameter context
              */
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-                List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context,
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+                List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context,
                         ((QualifiedNameReferenceNode) nodeAtCursor));
                 completionItems.addAll(this.getCompletionItemList(typesInModule, context));
             } else {
                 completionItems.addAll(this.getTypeDescContextItems(context));
             }
+            ruleContext = RuleContext.PARAMETER_CTX;
         } else if (this.withinReturnKWContext(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
         }
-        this.sort(context, node, completionItems);
+        this.sort(context, node, completionItems, ruleContext);
 
         return completionItems;
     }
@@ -131,5 +134,23 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     public boolean onPreValidation(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
         return !node.functionKeyword().isMissing() &&
                 context.getCursorPositionInTree() > node.functionKeyword().textRange().startOffset();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, FunctionTypeDescriptorNode node,
+                     List<LSCompletionItem> completionItems, Object... metaData) {
+        if (metaData.length == 1 && metaData[0] instanceof RuleContext && metaData[0] == RuleContext.PARAMETER_CTX) {
+            for (LSCompletionItem lsCItem : completionItems) {
+                String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+                lsCItem.getCompletionItem().setSortText(sortText);
+            }
+            return;
+        }
+        super.sort(context, node, completionItems);
+    }
+
+    private enum RuleContext {
+        PARAMETER_CTX,
+        OTHER
     }
 }

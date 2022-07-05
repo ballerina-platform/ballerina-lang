@@ -84,8 +84,8 @@ function testOnFailWithUnion () returns string {
    };
    do {
      str += "Before failure throw";
-     int resA = check getTypeAError();
-     int resB = check getTypeBError();
+     int _ = check getTypeAError();
+     int _ = check getTypeBError();
    }
    on fail ErrorTypeA e {
       str += "-> Error caught : ";

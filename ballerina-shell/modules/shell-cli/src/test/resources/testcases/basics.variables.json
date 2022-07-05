@@ -23,7 +23,11 @@
   },
   {
     "description": "Define and output boolean variable.",
-    "code": "boolean available = false; available",
+    "code": "boolean available = false;"
+  },
+  {
+    "description": "Define and output boolean variable - get value.",
+    "code": "available",
     "expr": "false"
   },
   {

@@ -114,7 +114,7 @@ public final class NumericLiteralSupport {
             return false;
         }
         char lastChar = literalValue.charAt(length - 1);
-        return (lastChar == 'd' || lastChar == 'D');
+        return (lastChar == 'd' || lastChar == 'D') && !hasHexIndicator(literalValue);
     }
 
     /**
@@ -130,6 +130,6 @@ public final class NumericLiteralSupport {
             return false;
         }
         char lastChar = literalValue.charAt(length - 1);
-        return (lastChar == 'f' || lastChar == 'F');
+        return (lastChar == 'f' || lastChar == 'F') && !hasHexIndicator(literalValue);
     }
 }

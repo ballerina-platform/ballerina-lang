@@ -25,12 +25,13 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -76,7 +77,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, context));
         } else if (onSuggestionsAfterQualifiers(context, node)
-                && !QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+                && !QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             /*
                 Covers the following.
                 <qualifier> <cursor>
@@ -108,8 +109,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                         Snippet.KW_TYPE, Snippet.KW_ISOLATED,
                         Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT,
                         Snippet.KW_VAR, Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS,
-                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION,
-                        Snippet.DEF_SERVICE, Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
+                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, 
+                        Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
                         Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                         Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                         Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
@@ -148,10 +149,10 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
 
     private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Symbol> predicate =
                     symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
-            List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
+            List<Symbol> types = QNameRefCompletionUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             return this.getCompletionItemList(types, context);
         }
@@ -159,7 +160,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
         completionItems.addAll(this.getTypeDescContextItems(context));
-
+        completionItems.addAll(ServiceTemplateGenerator.getInstance(context.languageServercontext())
+                .getServiceTemplates(context));
         return completionItems;
     }
 

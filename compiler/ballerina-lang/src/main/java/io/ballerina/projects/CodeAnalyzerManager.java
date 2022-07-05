@@ -17,14 +17,7 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
@@ -172,7 +165,7 @@ class CodeAnalyzerManager {
         public void addSyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask,
                                               Collection<SyntaxKind> syntaxKinds) {
             codeAnalyzerTasks.addSyntaxNodeAnalysisTask(codeAnalyzerInfo,
-                    new SyntaxNodeAnalysisTask(analysisTask, syntaxKinds, codeAnalyzerInfo));
+                    new SyntaxNodeAnalysisTask(analysisTask, syntaxKinds, codeAnalyzerInfo.compilerPluginInfo));
         }
     }
 
@@ -197,52 +190,6 @@ class CodeAnalyzerManager {
         <T> void addTask(CodeAnalyzerInfo codeAnalyzerInfo, Map<CodeAnalyzerInfo, List<T>> map, T task) {
             List<T> tasks = map.computeIfAbsent(codeAnalyzerInfo, key -> new ArrayList<>());
             tasks.add(task);
-        }
-    }
-
-    /**
-     * A wrapper class for the syntax analysis task.
-     *
-     * @since 2.0.0
-     */
-    static class SyntaxNodeAnalysisTask {
-        private final AnalysisTask<SyntaxNodeAnalysisContext> analysisTask;
-        private final Collection<SyntaxKind> syntaxKinds;
-        private final CodeAnalyzerInfo codeAnalyzerInfo;
-
-        SyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask,
-                               Collection<SyntaxKind> syntaxKinds,
-                               CodeAnalyzerInfo codeAnalyzerInfo) {
-            this.analysisTask = analysisTask;
-            this.syntaxKinds = syntaxKinds;
-            this.codeAnalyzerInfo = codeAnalyzerInfo;
-        }
-
-        void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
-            try {
-                analysisTask.perform(syntaxNodeAnalysisContext);
-            } catch (Throwable e) {
-                // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
-                String message;
-                if (codeAnalyzerInfo.compilerPluginInfo().kind().equals(CompilerPluginKind.PACKAGE_PROVIDED)) {
-                    PackageProvidedCompilerPluginInfo compilerPluginInfo =
-                            (PackageProvidedCompilerPluginInfo) codeAnalyzerInfo.compilerPluginInfo();
-                    PackageDescriptor pkgDesc = compilerPluginInfo.packageDesc();
-                    message = "The compiler extension in package '" +
-                            pkgDesc.org() +
-                            ":" + pkgDesc.name() +
-                            ":" + pkgDesc.version() + "' failed to complete. ";
-                } else {
-                    message = "The compiler extension '" +
-                            codeAnalyzerInfo.compilerPluginInfo().compilerPlugin().getClass().getName()
-                            + "' failed to complete. ";
-                }
-                throw new ProjectException(message + e.getMessage(), e);
-            }
-        }
-
-        Collection<SyntaxKind> syntaxKinds() {
-            return syntaxKinds;
         }
     }
 
@@ -317,194 +264,6 @@ class CodeAnalyzerManager {
 
         List<Diagnostic> reportedDiagnostics() {
             return diagnostics;
-        }
-    }
-
-    /**
-     * The default implementation of the {@code SyntaxNodeAnalysisContext}.
-     *
-     * @since 2.0.0
-     */
-    static class SyntaxNodeAnalysisContextImpl implements SyntaxNodeAnalysisContext {
-
-        private final Node node;
-        private final ModuleId moduleId;
-        private final DocumentId documentId;
-        private final SyntaxTree syntaxTree;
-        private final SemanticModel semanticModel;
-        private final Package currentPackage;
-        private final PackageCompilation compilation;
-        private final List<Diagnostic> diagnostics = new ArrayList<>();
-
-        public SyntaxNodeAnalysisContextImpl(Node node,
-                                             ModuleId moduleId,
-                                             DocumentId documentId,
-                                             SyntaxTree syntaxTree,
-                                             SemanticModel semanticModel,
-                                             Package currentPackage,
-                                             PackageCompilation compilation) {
-            this.node = node;
-            this.moduleId = moduleId;
-            this.documentId = documentId;
-            this.syntaxTree = syntaxTree;
-            this.semanticModel = semanticModel;
-            this.currentPackage = currentPackage;
-            this.compilation = compilation;
-        }
-
-        @Override
-        public Node node() {
-            return node;
-        }
-
-        @Override
-        public ModuleId moduleId() {
-            return moduleId;
-        }
-
-        @Override
-        public DocumentId documentId() {
-            return documentId;
-        }
-
-        @Override
-        public SyntaxTree syntaxTree() {
-            return syntaxTree;
-        }
-
-        @Override
-        public SemanticModel semanticModel() {
-            return semanticModel;
-        }
-
-        @Override
-        public Package currentPackage() {
-            return currentPackage;
-        }
-
-        @Override
-        public PackageCompilation compilation() {
-            return compilation;
-        }
-
-        @Override
-        public void reportDiagnostic(Diagnostic diagnostic) {
-            diagnostics.add(diagnostic);
-        }
-
-        List<Diagnostic> reportedDiagnostics() {
-            return diagnostics;
-        }
-    }
-
-    /**
-     * Responsible for running {@code SyntaxNodeAnalysisTask} tasks.
-     *
-     * @since 2.0.0
-     */
-    static class SyntaxNodeAnalysisTaskRunner {
-        private final Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap;
-        private final Package currentPackage;
-        private final PackageCompilation compilation;
-
-        public SyntaxNodeAnalysisTaskRunner(Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap,
-                                            Package currentPackage,
-                                            PackageCompilation compilation) {
-            this.syntaxNodeAnalysisTaskMap = syntaxNodeAnalysisTaskMap;
-            this.currentPackage = currentPackage;
-            this.compilation = compilation;
-        }
-
-        List<Diagnostic> runTasks() {
-            // Here we are iterating through all the non-test documents in the current package.
-            List<Diagnostic> reportedDiagnostics = new ArrayList<>();
-            PackageContext packageContext = compilation.packageContext();
-            for (ModuleId moduleId : packageContext.moduleIds()) {
-                runTasks(packageContext.moduleContext(moduleId), reportedDiagnostics);
-            }
-            return reportedDiagnostics;
-        }
-
-        private void runTasks(ModuleContext moduleContext, List<Diagnostic> reportedDiagnostics) {
-            for (DocumentId srcDocumentId : moduleContext.srcDocumentIds()) {
-                DocumentContext documentContext = moduleContext.documentContext(srcDocumentId);
-                runTasks(documentContext.syntaxTree(), moduleContext.moduleId(),
-                        srcDocumentId, reportedDiagnostics);
-            }
-        }
-
-        private void runTasks(SyntaxTree syntaxTree,
-                              ModuleId moduleId,
-                              DocumentId documentId,
-                              List<Diagnostic> reportedDiagnostics) {
-            SyntaxTreeVisitor syntaxTreeVisitor = new SyntaxTreeVisitor(syntaxNodeAnalysisTaskMap, currentPackage,
-                    compilation, moduleId, documentId, syntaxTree, compilation.getSemanticModel(moduleId));
-            reportedDiagnostics.addAll(syntaxTreeVisitor.runAnalysisTasks());
-        }
-    }
-
-    /**
-     * Visit each non-terminal node in the tree to check for syntax kinds to which analyzer task are attached.
-     *
-     * @since 2.0.0
-     */
-    static class SyntaxTreeVisitor extends NodeVisitor {
-
-        private final Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap;
-        private final Package currentPackage;
-        private final PackageCompilation compilation;
-        private final ModuleId moduleId;
-        private final DocumentId documentId;
-        private final SyntaxTree syntaxTree;
-        private final SemanticModel semanticModel;
-        private final List<Diagnostic> diagnostics = new ArrayList<>();
-
-        SyntaxTreeVisitor(Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap,
-                          Package currentPackage,
-                          PackageCompilation compilation,
-                          ModuleId moduleId,
-                          DocumentId documentId,
-                          SyntaxTree syntaxTree,
-                          SemanticModel semanticModel) {
-            this.syntaxNodeAnalysisTaskMap = syntaxNodeAnalysisTaskMap;
-            this.currentPackage = currentPackage;
-            this.compilation = compilation;
-            this.moduleId = moduleId;
-            this.documentId = documentId;
-            this.syntaxTree = syntaxTree;
-            this.semanticModel = semanticModel;
-        }
-
-        List<Diagnostic> runAnalysisTasks() {
-            ModulePartNode modulePartNode = syntaxTree.rootNode();
-            this.visit(modulePartNode);
-            return diagnostics;
-        }
-
-        protected void visitSyntaxNode(Node node) {
-            // We don't support syntax kinds related to Tokens
-            if (node instanceof Token) {
-                return;
-            }
-
-            SyntaxKind syntaxKind = node.kind();
-            if (syntaxNodeAnalysisTaskMap.containsKey(syntaxKind)) {
-                runAnalysisTasks(node, syntaxNodeAnalysisTaskMap.get(syntaxKind));
-            }
-
-            NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-            for (Node child : nonTerminalNode.children()) {
-                child.accept(this);
-            }
-        }
-
-        private void runAnalysisTasks(Node node, List<SyntaxNodeAnalysisTask> syntaxNodeAnalysisTasks) {
-            for (SyntaxNodeAnalysisTask syntaxNodeAnalysisTask : syntaxNodeAnalysisTasks) {
-                SyntaxNodeAnalysisContextImpl analysisContext = new SyntaxNodeAnalysisContextImpl(node, moduleId,
-                        documentId, syntaxTree, semanticModel, currentPackage, compilation);
-                syntaxNodeAnalysisTask.perform(analysisContext);
-                diagnostics.addAll(analysisContext.reportedDiagnostics());
-            }
         }
     }
 

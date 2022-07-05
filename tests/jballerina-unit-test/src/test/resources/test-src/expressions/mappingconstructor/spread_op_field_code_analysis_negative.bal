@@ -28,8 +28,8 @@ type Bar record {|
 function testDulpicateKeyWithSpreadOpField() {
     Foo f = {s: "str", i: 2};
     Bar b = {i: 1, f: 1.0, ...f, s: "hi"};
-    map<string|int|float> m = {s: "hello", ...b, f: 1.0, i: "bye"};
-    map<anydata> n = {s: "hello", ...{s: "hi", i: 1}, f: 1.0, i: "bye"};
+    map<string|int|float> _ = {s: "hello", ...b, f: 1.0, i: "bye"};
+    map<anydata> _ = {s: "hello", ...{s: "hi", i: 1}, f: 1.0, i: "bye"};
 }
 
 type Alpha record {|
@@ -38,7 +38,7 @@ type Alpha record {|
 
 function testDuplicateKeyWithOptionalField() {
     Alpha alpha = {i:2};
-    map<int> m = {i:1, ...alpha};
+    map<int> _ = {i:1, ...alpha};
 }
 
 type AlphaWithRest record {|
@@ -47,7 +47,7 @@ type AlphaWithRest record {|
 
 function testClosedRecordWithRestField() {
     AlphaWithRest a = {"i": 1, "k": 2};
-    map<int> m = {i: 1, ...a};
+    map<int> _ = {i: 1, ...a};
 }
 
 type Beta record {
@@ -56,22 +56,22 @@ type Beta record {
 
 function testInclusiveRecordWithSpreadOp1() {
     Beta b = {j: 1, "i": 2};
-    map<anydata> m = {i: 0, ...b};
+    map<anydata> _ = {i: 0, ...b};
 }
 
 function testInclusiveRecordWithSpreadOp2() {
     Beta b = {j: 1, "i": 2};
-    map<anydata> m = {...b, i:3};
+    map<anydata> _ = {...b, i:3};
 }
 
 function testMappWithSpreadOp1() {
     map<string> m1 = {x: "aa", y: "bb"};
-    map<string> m2 = {...m1, y: "cc"};
+    map<string> _ = {...m1, y: "cc"};
 }
 
 function testMappWithSpreadOp2() {
     map<string> m1 = {x: "aa", y: "bb"};
-    map<string> m2 = {y: "cc", ...m1};
+    map<string> _ = {y: "cc", ...m1};
 }
 
 type Beta2 record {
@@ -81,7 +81,7 @@ type Beta2 record {
 function testMultipleInclRecordsWithSpreadOp1() {
     Beta b1 = {j: 1, "k": 4};
     Beta2 b2 = {i: 2, "k": 4};
-    map<any|error> m = {...b1, ...b2};
+    map<any|error> _ = {...b1, ...b2};
 }
 
 type Beta3 record {
@@ -91,17 +91,17 @@ type Beta3 record {
 function testMultipleInclRecordsWithSpreadOp2() {
     Beta2 b2 = {i: 2};
     Beta3 b3 = {i: 3};
-    map<any|error> m = {...b2, ...b3};
+    map<any|error> _ = {...b2, ...b3};
 }
 
 function testMultipleMapSpreadField() {
     map<int> m1 = {i: 1};
     map<int> m2 = {i: 2};
-    map<int> mm = {...m1, ...m2};
+    map<int> _ = {...m1, ...m2};
 }
 
 function testMultipleMapIncRecordSpreadField() {
     Beta2 beta = {i: 2};
     map<int> m1 = {i: 2};
-    map<anydata> mm = {...m1, ...beta};
+    map<anydata> _ = {...m1, ...beta};
 }

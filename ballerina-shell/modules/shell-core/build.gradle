@@ -22,7 +22,6 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 description = 'Ballerina - Ballerina Shell'
 
 group = 'io.ballerina'
-version = '0.0.1-SNAPSHOT'
 
 dependencies {
     implementation project(":ballerina-shell:shell-rt")
@@ -30,6 +29,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
+    implementation project(':identifier-util')
     implementation 'com.github.spullara.mustache.java:compiler'
 
     testImplementation('org.testng:testng')

@@ -16,9 +16,7 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -50,11 +48,10 @@ public class IntegerRangeOperatorTest {
     public void testStartLessThanEndClosedIntRange() {
         int startValue = 12;
         int endValue = 15;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(result, "testClosedIntRange", args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = {(startValue), (endValue)};
+        Object returns = BRunUtil.invoke(result, "testClosedIntRange", args);
 
-        BValueArray returnArray = (BValueArray) returns[0];
+        BArray returnArray = (BArray) returns;
         int expectedSize = endValue - startValue + 1;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
                 + "Integer Range " + startValue + " ... " + endValue);
@@ -67,11 +64,10 @@ public class IntegerRangeOperatorTest {
     public void testStartEqualsEndClosedIntRange() {
         int startValue = 25;
         int endValue = 25;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(result, "testClosedIntRange", args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = {(startValue), (endValue)};
+        Object returns = BRunUtil.invoke(result, "testClosedIntRange", args);
 
-        BValueArray returnArray = (BValueArray) returns[0];
+        BArray returnArray = (BArray) returns;
         int expectedSize = 1;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
                 + "Integer Range " + startValue + " ... " + endValue);
@@ -84,11 +80,10 @@ public class IntegerRangeOperatorTest {
     public void testStartGreaterThanEndClosedIntRange() {
         int startValue = 40;
         int endValue = 25;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(result, "testClosedIntRange", args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = {(startValue), (endValue)};
+        Object returns = BRunUtil.invoke(result, "testClosedIntRange", args);
 
-        BValueArray returnArray = (BValueArray) returns[0];
+        BArray returnArray = (BArray) returns;
         int expectedSize = 0;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
                 + "Integer Range " + startValue + " ... " + endValue);
@@ -98,11 +93,10 @@ public class IntegerRangeOperatorTest {
     public void testClosedIntRangeAsArray() {
         int startValue = 21;
         int endValue = 29;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(result, "testClosedIntRangeAsArray", args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = {(startValue), (endValue)};
+        Object returns = BRunUtil.invoke(result, "testClosedIntRangeAsArray", args);
 
-        BValueArray returnArray = (BValueArray) returns[0];
+        BArray returnArray = (BArray) returns;
         int expectedSize = endValue - startValue + 1;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
                 + "Integer Range " + startValue + " ... " + endValue + " accessed as an array");
@@ -115,11 +109,10 @@ public class IntegerRangeOperatorTest {
     public void testStartLessThanEndHalfOpenIntRange() {
         int startValue = 12;
         int endValue = 15;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = {(startValue), (endValue)};
+        Object returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
 
-        BValueArray returnArray = (BValueArray) returns[0];
+        BArray returnArray = (BArray) returns;
         int expectedSize = endValue - startValue;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
                 + " Open Integer Range " + startValue + " ..< " + endValue);
@@ -132,11 +125,10 @@ public class IntegerRangeOperatorTest {
     public void testStartEqualsEndHalfOpenIntRange() {
         int startValue = 25;
         int endValue = 25;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = {(startValue), (endValue)};
+        Object returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
 
-        BValueArray returnArray = (BValueArray) returns[0];
+        BArray returnArray = (BArray) returns;
         int expectedSize = 0;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
                 + " Open Integer Range " + startValue + " ..< " + endValue);
@@ -146,11 +138,10 @@ public class IntegerRangeOperatorTest {
     public void testStartGreaterThanEndHalfOpenIntRange() {
         int startValue = 40;
         int endValue = 25;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = {(startValue), (endValue)};
+        Object returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
 
-        BValueArray returnArray = (BValueArray) returns[0];
+        BArray returnArray = (BArray) returns;
         int expectedSize = 0;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
                 + " Open Integer Range " + startValue + " ..< " + endValue);
@@ -160,11 +151,10 @@ public class IntegerRangeOperatorTest {
     public void testHalfOpenIntRangeAsArray() {
         int startValue = 291;
         int endValue = 310;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRangeAsArray", args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = {(startValue), (endValue)};
+        Object returns = BRunUtil.invoke(result, "testHalfOpenIntRangeAsArray", args);
 
-        BValueArray returnArray = (BValueArray) returns[0];
+        BArray returnArray = (BArray) returns;
         int expectedSize = endValue - startValue;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half "
                 + "Open Integer Range " + startValue + " ..< " + endValue + " accessed as an array");
@@ -186,6 +176,16 @@ public class IntegerRangeOperatorTest {
     @Test(description = "Test half open int range operator on int sub types")
     public void testHalfOpenIntRangeOnIntSubTypes() {
         BRunUtil.invoke(result, "testHalfOpenIntRangeOnIntSubTypes");
+    }
+
+    @Test
+    public void testIsolatednessOfRangeExprIterableAndIterator() {
+        BRunUtil.invoke(result, "testIsolatednessOfRangeExprIterableAndIterator");
+    }
+
+    @Test(description = "Test int range with hex integer literals")
+    public void testIntRangeWithHexIntLiterals() {
+        BRunUtil.invoke(result, "testIntRangeWithHexIntLiterals");
     }
 
     @Test(description = "Test integer range operators with errors")

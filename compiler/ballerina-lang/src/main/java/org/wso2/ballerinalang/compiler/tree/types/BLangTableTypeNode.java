@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.TableKeyTypeConstraintNode;
 import org.ballerinalang.model.tree.types.TableTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
@@ -33,12 +35,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
  * @since 1.3.0
  */
 public class BLangTableTypeNode extends BLangType implements TableTypeNode {
-
+    // BLangNodes
     public BLangType type;
     public BLangType constraint;
     public BLangTableKeySpecifier tableKeySpecifier;
     public BLangTableKeyTypeConstraint tableKeyTypeConstraint;
+
+    // Parser Flags and Data
     public boolean isTypeInlineDefined;
+
+    // Semantic Data
     public BTableType tableType;
 
     @Override
@@ -74,6 +80,16 @@ public class BLangTableTypeNode extends BLangType implements TableTypeNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

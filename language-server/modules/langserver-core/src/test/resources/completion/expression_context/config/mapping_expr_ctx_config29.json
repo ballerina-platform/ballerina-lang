@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,24 +18,24 @@
       "label": "name",
       "kind": "Field",
       "detail": "Application.name",
-      "sortText": "G",
-      "insertText": "name: \"${1}\"",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "id",
       "kind": "Field",
       "detail": "Application.id",
-      "sortText": "G",
-      "insertText": "id: \"${2}\"",
+      "sortText": "K",
+      "insertText": "id: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "version",
       "kind": "Field",
       "detail": "Application.version",
-      "sortText": "G",
-      "insertText": "'version: ${3:0}",
+      "sortText": "K",
+      "insertText": "'version: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,7 +44,7 @@
       "detail": "Application",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "name: \"\",\nid: \"\",\nversion: 0",
+      "insertText": "name: ${1:\"\"},\nid: ${2:\"\"},\nversion: ${3:0}",
       "insertTextFormat": "Snippet"
     }
   ]

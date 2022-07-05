@@ -1,3 +1,3 @@
 public function initDatabase() {
-    int k = 10;
+    int _ = 10;
 }

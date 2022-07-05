@@ -16,68 +16,17 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
-import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import org.ballerinalang.debugadapter.EvaluationContext;
-import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
-import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.NodeBasedTypeResolver;
-import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
-
-import java.util.List;
-
-import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.checkIsType;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * Type test expression evaluator implementation.
  *
  * @since 2.0.0
  */
-public class TypeTestExpressionEvaluator extends Evaluator {
+public class TypeTestExpressionEvaluator extends ExpressionAsProgramEvaluator {
 
-    private final TypeTestExpressionNode syntaxNode;
-    private final Evaluator exprEvaluator;
-
-    public TypeTestExpressionEvaluator(EvaluationContext context, TypeTestExpressionNode typetestExpressionNode,
-                                       Evaluator exprEvaluator) {
-        super(context);
-        this.syntaxNode = typetestExpressionNode;
-        this.exprEvaluator = exprEvaluator;
-    }
-
-    @Override
-    public BExpressionValue evaluate() throws EvaluationException {
-        try {
-            BExpressionValue result = exprEvaluator.evaluate();
-            // primitive types need to be handled separately, as the jvm runtime util method accepts only the sub
-            // classes of 'java.lang.Object'. Therefore java primitive types are converted into their wrapper
-            // implementations first.
-            Value valueAsObject = getValueAsObject(context, result.getJdiValue());
-
-            // Resolves runtime type(s) using type descriptor nodes.
-            // resolvedTypes.size() > 1 for union types.
-            NodeBasedTypeResolver bTypeResolver = new NodeBasedTypeResolver(evaluationContext);
-            List<Value> resolvedTypes = bTypeResolver.resolve(syntaxNode.typeDescriptor());
-            if (resolvedTypes.isEmpty()) {
-                throw createEvaluationException(TYPE_RESOLVING_ERROR, syntaxNode.typeDescriptor().toSourceCode());
-            }
-
-            for (Value type : resolvedTypes) {
-                boolean typeMatched = checkIsType(context, valueAsObject, type);
-                if (typeMatched) {
-                    return VMUtils.make(context, true);
-                }
-            }
-            return VMUtils.make(context, false);
-        } catch (EvaluationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
-        }
+    public TypeTestExpressionEvaluator(EvaluationContext context, TypeTestExpressionNode typetestExpressionNode) {
+        super(context, typetestExpressionNode);
     }
 }

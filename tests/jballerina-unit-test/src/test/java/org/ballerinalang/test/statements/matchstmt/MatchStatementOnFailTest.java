@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,98 +43,52 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Test basics of static pattern match statement with fail statement")
     public void testStaticMatchPatternsWithFailStmt() {
-        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt");
+    }
 
-        BValueArray results = (BValueArray) returns[0];
-
-        int i = -1;
-        String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + "'12'");
-        Assert.assertEquals(results.getString(++i), msg + "'Hello'");
-        Assert.assertEquals(results.getString(++i), msg + "'true'");
-        Assert.assertEquals(results.getString(++i), msg + "'15'");
-        Assert.assertEquals(results.getString(++i), msg + "'error'");
-        Assert.assertEquals(results.getString(++i), msg + "'false'");
-        Assert.assertEquals(results.getString(++i), msg + "'Default'");
+    @Test
+    public void testStaticMatchPatternsWithOnFailStmtWithoutVariable() {
+        BRunUtil.invoke(result, "testStaticMatchPatternsWithOnFailStmtWithoutVariable");
     }
 
     @Test(description = "Test basics of static pattern match statement with check expression")
     public void testStaticMatchPatternsWithCheckExpr() {
-
-        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-
-        BValueArray results = (BValueArray) returns[0];
-
-        int i = -1;
-        String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + "'12'");
-        Assert.assertEquals(results.getString(++i), msg + "'Hello'");
-        Assert.assertEquals(results.getString(++i), msg + "'true'");
-        Assert.assertEquals(results.getString(++i), msg + "'15'");
-        Assert.assertEquals(results.getString(++i), msg + "'error'");
-        Assert.assertEquals(results.getString(++i), msg + "'false'");
-        Assert.assertEquals(results.getString(++i), msg + "'Default'");
+         BRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr");
     }
 
     @Test(description = "Test basics of static pattern match statement 2")
     public void testNestedMatchPatternsWithFail() {
-
-        BValue[] returns = BRunUtil.invoke(result, "testNestedMatchPatternsWithFail", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-
-        BValueArray results = (BValueArray) returns[0];
-
-        int i = -1;
-        String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + "'12'");
-        Assert.assertEquals(results.getString(++i), msg + "'15 & HelloWorld'");
-        Assert.assertEquals(results.getString(++i), msg + "'error'");
-        Assert.assertEquals(results.getString(++i), msg + "'Default'");
-        Assert.assertEquals(results.getString(++i), msg + "'15 & 34'");
-        Assert.assertEquals(results.getString(++i), msg + "'true'");
+        BRunUtil.invoke(result, "testNestedMatchPatternsWithFail");
     }
 
     @Test(description = "Test basics of static pattern match statement 2")
     public void testNestedMatchPatternsWithCheck() {
-
-        BValue[] returns = BRunUtil.invoke(result, "testNestedMatchPatternsWithCheck", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-
-        BValueArray results = (BValueArray) returns[0];
-
-        int i = -1;
-        String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + "'12'");
-        Assert.assertEquals(results.getString(++i), msg + "'15 & HelloWorld'");
-        Assert.assertEquals(results.getString(++i), msg + "'error'");
-        Assert.assertEquals(results.getString(++i), msg + "'Default'");
-        Assert.assertEquals(results.getString(++i), msg + "'15 & 34'");
-        Assert.assertEquals(results.getString(++i), msg + "'true'");
+        BRunUtil.invoke(result, "testNestedMatchPatternsWithCheck");
     }
 
     @Test(description = "Test using var defined in match clause within on-fail")
     public void testVarInMatchPatternWithinOnfail() {
-        BRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new BValue[]{});
+        BRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new Object[]{});
     }
 
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 29, 14);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 31, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 56, 14);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 59, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 59, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 85, 14);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 88, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 88, 7);
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 90, 9);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 124, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 124, 7);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i + 1);
     }
 
     @AfterClass

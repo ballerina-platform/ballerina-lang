@@ -16,4 +16,13 @@
   ~ under the License.
   -->
 <FindBugsFilter>
+    <Match>
+        <Package name="org.ballerinalang.testerina.core" />
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.testerina.natives.io" />
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.testerina.natives.mock" />
+    </Match>
 </FindBugsFilter>

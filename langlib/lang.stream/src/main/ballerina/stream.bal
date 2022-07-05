@@ -45,7 +45,7 @@ type Type1 any|error;
 #
 # + stm - the stream
 # + func - a predicate to apply to each member to test whether it should be selected
-# + return - new stream only containing members of parameter `stm` for which function `func` evaluates to true
+# + return - new stream only containing members of parameter `stm` for which parameter `func` evaluates to true
 public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam function(Type val) returns boolean func)
         returns stream<Type,CompletionType>  {
     FilterSupport itrObj = new(stm, func);
@@ -55,22 +55,22 @@ public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam 
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
 #
-# + strm - The stream
+# + stm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
-public isolated function next(stream<Type, CompletionType> strm) returns record {| Type value; |}|CompletionType {
+public isolated function next(stream<Type, CompletionType> stm) returns record {| Type value; |}|CompletionType {
     object {
         public isolated function next() returns record {|Type value;|}|CompletionType;
     } iteratorObj = <object {
                             public isolated function next() returns record {|Type value;|}|CompletionType;
-                     }>internal:getIteratorObj(strm);
+                     }>internal:getIteratorObj(stm);
     var val = iteratorObj.next();
     if (val is ()) {
         return ();
     } else if (val is error) {
         return val;
     } else {
-        return internal:setNarrowType(internal:getElementType(typeof strm), {value : val.value});
+        return internal:setNarrowType(internal:getElementType(typeof stm), {value : val.value});
     }
 }
 
@@ -78,7 +78,7 @@ public isolated function next(stream<Type, CompletionType> strm) returns record 
 #
 # + stm - the stream
 # + func - a function to apply to each member
-# + return - new stream containing result of applying function `func` to each member of parameter `stm` in order
+# + return - new stream containing result of applying parameter `func` to each member of parameter `stm` in order
 public isolated function 'map(stream<Type,CompletionType> stm, @isolatedParam function(Type val) returns Type1 func)
         returns stream<Type1,CompletionType> {
     MapSupport iteratorObj = new(stm, func);
@@ -93,8 +93,8 @@ public isolated function 'map(stream<Type,CompletionType> stm, @isolatedParam fu
 #
 # + stm - the stream
 # + func - combining function
-# + initial - initial value for the first argument of combining function `func`
-# + return - result of combining the members of parameter `stm` using function `func`
+# + initial - initial value for the first argument of combining parameter `func`
+# + return - result of combining the members of parameter `stm` using parameter `func`
 public isolated function reduce(stream<Type,ErrorType?> stm,
         @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1|ErrorType {
     any | error reducedValue = initial;
@@ -113,7 +113,7 @@ public isolated function reduce(stream<Type,ErrorType?> stm,
 
 # Applies a function to each member of a stream.
 #
-# The function `func` is applied to each member of parameter `stm` stream in order.
+# The parameter `func` is applied to each member of parameter `stm` stream in order.
 #
 # + stm - the stream
 # + func - a function to apply to each member
@@ -161,4 +161,5 @@ public isolated function close(stream<Type,CompletionType> stm) returns Completi
     }) {
         return itrObj.close();
     }
+    return;
 }

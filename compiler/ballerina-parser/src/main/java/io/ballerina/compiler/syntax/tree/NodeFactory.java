@@ -2564,19 +2564,28 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
             TypeDescriptorNode memberTypeDesc,
-            Token openBracket,
-            Node arrayLength,
-            Token closeBracket) {
+            NodeList<ArrayDimensionNode> dimensions) {
         Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
-        Objects.requireNonNull(openBracket, "openBracket must not be null");
-        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+        Objects.requireNonNull(dimensions, "dimensions must not be null");
 
         STNode stArrayTypeDescriptorNode = STNodeFactory.createArrayTypeDescriptorNode(
                 memberTypeDesc.internalNode(),
+                dimensions.underlyingListNode().internalNode());
+        return stArrayTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ArrayDimensionNode createArrayDimensionNode(
+            Token openBracket,
+            Node arrayLength,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stArrayDimensionNode = STNodeFactory.createArrayDimensionNode(
                 openBracket.internalNode(),
                 getOptionalSTNode(arrayLength),
                 closeBracket.internalNode());
-        return stArrayTypeDescriptorNode.createUnlinkedFacade();
+        return stArrayDimensionNode.createUnlinkedFacade();
     }
 
     public static TransactionStatementNode createTransactionStatementNode(
@@ -3029,15 +3038,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             BlockStatementNode blockStatement) {
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(failKeyword, "failKeyword must not be null");
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
-        Objects.requireNonNull(failErrorName, "failErrorName must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
 
         STNode stOnFailClauseNode = STNodeFactory.createOnFailClauseNode(
                 onKeyword.internalNode(),
                 failKeyword.internalNode(),
-                typeDescriptor.internalNode(),
-                failErrorName.internalNode(),
+                getOptionalSTNode(typeDescriptor),
+                getOptionalSTNode(failErrorName),
                 blockStatement.internalNode());
         return stOnFailClauseNode.createUnlinkedFacade();
     }
@@ -3149,6 +3156,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 keywordToken.internalNode(),
                 getOptionalSTNode(typeParamNode));
         return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static SpreadMemberNode createSpreadMemberNode(
+            Token ellipsis,
+            ExpressionNode expression) {
+        Objects.requireNonNull(ellipsis, "ellipsis must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stSpreadMemberNode = STNodeFactory.createSpreadMemberNode(
+                ellipsis.internalNode(),
+                expression.internalNode());
+        return stSpreadMemberNode.createUnlinkedFacade();
     }
 }
 

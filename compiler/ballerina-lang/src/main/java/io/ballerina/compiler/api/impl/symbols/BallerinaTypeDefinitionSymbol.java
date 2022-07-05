@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -45,15 +47,17 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     private final Documentation docAttachment;
     private final boolean deprecated;
     private final boolean readonly;
+    private final List<AnnotationSymbol> annots;
 
-    protected BallerinaTypeDefinitionSymbol(String name, List<Qualifier> qualifiers, TypeSymbol typeDescriptor,
-                                            BSymbol bSymbol, CompilerContext context) {
+    protected BallerinaTypeDefinitionSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
+                                            TypeSymbol typeDescriptor, BSymbol bSymbol, CompilerContext context) {
         super(name, SymbolKind.TYPE_DEFINITION, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.docAttachment = getDocAttachment(bSymbol);
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
         this.readonly = Symbols.isFlagOn(bSymbol.flags, Flags.READONLY);
+        this.annots = Collections.unmodifiableList(annots);
     }
 
     @Override
@@ -83,12 +87,22 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
     @Override
     public List<AnnotationSymbol> annotations() {
-        return Collections.emptyList();
+        return this.annots;
     }
 
     @Override
     public Optional<Documentation> documentation() {
         return Optional.ofNullable(this.docAttachment);
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     /**
@@ -99,6 +113,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     public static class TypeDefSymbolBuilder extends SymbolBuilder<TypeDefSymbolBuilder> {
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
@@ -115,9 +130,14 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
             return this;
         }
 
+        public TypeDefSymbolBuilder withAnnotation(AnnotationSymbol annot) {
+            this.annots.add(annot);
+            return this;
+        }
+
         @Override
         public BallerinaTypeDefinitionSymbol build() {
-            return new BallerinaTypeDefinitionSymbol(this.name, this.qualifiers, this.typeDescriptor,
+            return new BallerinaTypeDefinitionSymbol(this.name, this.qualifiers, this.annots, this.typeDescriptor,
                                                      this.bSymbol, this.context);
         }
     }

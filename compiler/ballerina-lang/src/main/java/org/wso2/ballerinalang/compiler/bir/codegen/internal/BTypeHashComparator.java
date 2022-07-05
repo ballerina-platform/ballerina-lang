@@ -32,13 +32,17 @@ import static java.util.Objects.hash;
  */
 public class BTypeHashComparator implements Comparator<BType> {
 
-    private final TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
+    private final TypeHashVisitor typeHashVisitor;
+
+    public BTypeHashComparator(TypeHashVisitor typeHashVisitor) {
+        this.typeHashVisitor = typeHashVisitor;
+    }
 
     @Override
     public int compare(BType o1, BType o2) {
-        Integer o1TypeHash = typeHashVisitor.visit(o1);
+        Integer o1TypeHash = typeHashVisitor.getHash(o1);
         typeHashVisitor.reset();
-        Integer o2TypeHash = typeHashVisitor.visit(o2);
+        Integer o2TypeHash = typeHashVisitor.getHash(o2);
         typeHashVisitor.reset();
         if (o1TypeHash.equals(o2TypeHash)) {
             o1TypeHash = hash(o1TypeHash, o1.toString());

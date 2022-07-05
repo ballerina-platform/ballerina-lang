@@ -25,6 +25,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.TextDocument;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,7 +53,7 @@ public abstract class TreeParserTrial {
      * @return Parsed syntax tree root node. Null if failed.
      * @throws ParserTrialFailedException If trial failed.
      */
-    public abstract Node parse(String source) throws ParserTrialFailedException;
+    public abstract Collection<Node> parse(String source) throws ParserTrialFailedException;
 
     /**
      * Creates and checks for errors in the syntax tree.

@@ -41,6 +41,15 @@ public function testStringArray() {
     arr[3] = "string";
 }
 
+function testReadOnlyMappingWithOptionalNeverFieldArray() {
+    record { never i?; int j; } a = {j: 1};
+    (any|error)[] b = createArrayOfMaps(a);
+
+    assertTrue(b is (record { never i?; int j; } & readonly)[]);
+    assertTrue(b is record { never i?; int j; }[] & readonly);
+    assertEquality(0, b.length());
+}
+
 public function createIntArray() returns int[] = @java:Method {
     'class:"org.ballerinalang.test.types.readonly.ReadonlyArrayCreator"
 } external;
@@ -61,3 +70,18 @@ public function createStringArray() returns string[] = @java:Method {
     'class:"org.ballerinalang.test.types.readonly.ReadonlyArrayCreator"
 } external;
 
+public function createArrayOfMaps(map<any|error> m) returns (any|error)[] = @java:Method {
+    'class:"org.ballerinalang.test.types.readonly.ReadonlyArrayCreator"
+} external;
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

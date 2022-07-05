@@ -55,11 +55,11 @@ function testCompoundAssignment() {
 }
 
 function testDestructuringAssignment() {
-    Person person = {name: "John", age: 0};
+    Employee employee = {name: "John", age: 0};
 
     _ = func1();
     [int, string, int...] [intVal, stringVal, ...otherVal] = [5, "myString", 3, 1];
-    Person {name: valName, age: valAge} = person;
+    Employee {name: valName, age: valAge} = employee;
 
 }
 
@@ -71,4 +71,9 @@ type Person record {|
     string name;
     int age;
     string dept?;
+|};
+
+type Employee record{|
+    string name;
+    int age;
 |};

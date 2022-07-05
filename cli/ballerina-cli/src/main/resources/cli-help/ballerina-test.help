@@ -2,139 +2,115 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       bal test
-       bal test [--debug] <port>
-       bal test [--offline] [--rerun-failed] [--experimental] [--observability-included]
-       bal test [--code-coverage] [--coverage-format] <xml> [--test-report]
-       bal test [<ballerina-file-path> | <ballerina-package-path>] [--list-groups]
-       bal test [<ballerina-file-path> | <ballerina-package-path>] [--groups] <test_group, ...>
-       bal test [<ballerina-file-path> | <ballerina-package-path>] 
-                [--disable-groups] <test_group, ...>
-       bal test [<ballerina-file-path> | <ballerina-package-path>] 
-                <PackageName>.<ModuleName>:<test_function_name, ...>        
+       bal test [OPTIONS] [<package>|<source-file>]
                
-            
 
 DESCRIPTION
-       Compile and execute Ballerina test sources and print a summary of
-       the test results. You can execute tests in a Ballerina package or a 
-       standalone Ballerina file.
-    
-       Use `bal test` to execute the tests in the current package.
+       Compiles and executes test functions and prints a summary of
+       the test results.
 
-       Use `bal test <balfile>` to execute the given Ballerina test file.
-              
-       Note: Testing single `.bal` files, which belong to a Ballerina 
-       package is not allowed.
-              
-       The file path can be relative or absolute.
+       Test runs the test functions defined in each module of a package when
+       building the current package. It runs the test functions defined in the
+       given source file when building a single '.bal' file.
+
+       Note: Testing individual '.bal' files of a package is not allowed.
 
 
 OPTIONS
-       --offline
-           Build offline using the local artifacts without downloading 
-           the latest artifacts of the dependencies from the remote 
-           repository (Ballerina Central).
+       --code-coverage
+           Enable code coverage. This will analyze the line coverage of the
+           source `.bal` files in the Ballerina package and add a section
+           to the test report with the code coverage details. This feature is
+           not supported with standalone Ballerina file executions.
 
-       --list-groups
-           List the test groups available in the test files. Groups are
-           tags that are added to the test functions. They are used to
-           control the execution of the test functions by specifying a
-           group or a set of groups that need to be executed in a test
-           run. A test function can be grouped using the 'groups' 
-           parameter within the '@test:Config' annotation.
+       --coverage-format
+           Generate a coverage report in the specified format. Only
+           'xml' format is supported.
 
-       --groups <test_group, ...>
-           Specify the test groups to be executed. Groups are tags that are
-           added to the test functions. They are used to control the
-           execution of the test functions by specifying a group or a set of
-           groups that need to be executed in a test run. A test
-           function can be grouped using the 'groups' parameter within the
-           '@test:Config' annotation.
+       --debug <port>
+           Run in the remote debugging mode.
 
        --disable-groups <test_group, ...>
-           Specify the test groups to be excluded. Groups are tags that are
-           added to the test functions. They are used to control the
-           execution of the test functions by specifying a group or a set of
-           groups that need to be executed in a test run. A test
-           function can be grouped using the 'groups' parameter within the
-           '@test:Config' annotation.
+           Specify the test groups to be excluded.
 
-       --tests <test_function_name, ...>
-           Specify the test functions to be executed. A specific set of
-           test functions can be executed using this command.
+       --groups <test_group, ...>
+           Specify the test groups to be executed.
 
-       --tests <PackageName>:<test_function_name, ...>
-           Specify the test functions to be executed only from the default
-           module. Wildcards can be used to specify the set of functions 
-           to be executed.
+       --list-groups
+           List the test groups available in the test files.
 
-       --tests <PackageName>.<ModuleName>:<test_function_name, ...>
-           Specify the test functions to be executed only from the given
-           module. Wildcards can be used to specify the set of functions 
-           to be executed.
+       --observability-included
+           Include the dependencies that are required to enable observability.
+
+       --offline
+           Proceed without accessing the network. Attempt to proceed with the
+           previously downloaded dependencies in local caches,
+           will fail otherwise.
+
+       --sticky
+       	   Attempt to stick to the dependency versions available in the
+       	   'Dependencies.toml' file. If the file doesn't exist, this option is
+       	   ignored.
 
        --rerun-failed
-           Execute only the previously-failed test cases in the package.
+           Execute only the test cases in the packages that failed in the
+           previous run.
 
-       --code-coverage
-           Enable code coverage. This will analyze the line coverage of
-           source `.bal` files in the Ballerina package and add a section
-           to the testerina report with the code coverage details.
-           This feature is not supported with single BAL file executions.
+       --target-dir <path>
+           Target directory path.
+
+       --tests <test_function_name, ...>
+           Specify the test functions to be executed. A specific set of test
+           functions can be executed using this command.
+
+       --tests <FullyQualifiedModuleName>:<test_function_name, ...>
+           Specify the test functions to be executed only from the given
+           module. The fully qualified module name for the default module is
+           <PackageName>.
+           For other modules, it is <PackageName>.<ModuleDirectoryName>.
+           Wildcards can be used to specify the set of functions to be executed.
 
        --test-report
            Generate an HTML report containing the test results.
 
-       --coverage-format
-           Generate a coverage report in the specified format. Only the 
-           'xml' value is allowed.
-
-       --experimental
-           Enable the experimental language features.
-
-       --debug
-           Run test functions in remote debugging mode.
-
-       --observability-included
-           Include the dependencies and artifacts in the  executable JAR file(s) of a 
-           Ballerina program that are required to enable the observability functionalities on it.
-
 
 EXAMPLES
-        Run all the test functions in the current package.
+       Run all the test functions in the current package.
            $ bal test
 
-        List all the test groups in the current package.
+       List all the test groups in the current package.
            $ bal test --list-groups
 
-        Run only the set of test functions belonging to the `group_x` in the current package.
+       Run only the set of test functions belonging to the `group_x` in the
+       current package.
            $ bal test --groups group_x
 
-        Run only the given set of test functions in the current package.
-            $ bal test --tests testFunction
+       Run only the given set of test functions in the current package.
+           $ bal test --tests testFunction
 
-        Run only the given set of test functions in the default module.
-            $ bal test --tests PackageName:testName1,testName2*
+       Run only the given set of test functions in the default module.
+           $ bal test --tests PackageName:testName1,testName2*
 
-        Run all the test functions in the given module.
-            $ bal test --tests PackageName.ModuleName:*
+       Run all the test functions in the given module.
+           $ bal test --tests PackageName.ModuleName:*
 
-        Run only the previously-failed test functions in the current package.
-            $ bal test --rerun-failed
+       Run only the previously-failed test functions in the current package.
+           $ bal test --rerun-failed
 
-        Run the tests in a single BAL file.
+       Run the tests in a standalone Ballerina file. The file path can be
+       relative or absolute.
            $ bal test main_test.bal
 
-        Run the tests and generate a test report.
+       Run the tests and generate a test report.
            $ bal test --test-report
 
-        Run the tests with the code coverage.
+       Run the tests with the code coverage.
            $ bal test --code-coverage
 
-        Run the test funcitons with the code coverage and generate a test report.
-        with test statuses and code coverage information.
+       Run the test functions with the code coverage and generate a test report
+       with test statuses and code coverage information.
            $ bal test --test-report --code-coverage
 
-        Run the test functions with the code coverage and generate a coverage report in the XML format.
+       Run the test functions with the code coverage and generate a coverage
+       report in the XML format.
            $ bal test --test-report --code-coverage --coverage-format=xml

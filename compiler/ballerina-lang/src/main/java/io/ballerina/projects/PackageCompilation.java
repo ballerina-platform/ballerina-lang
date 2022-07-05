@@ -40,7 +40,6 @@ import java.util.function.Function;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 
@@ -53,6 +52,7 @@ public class PackageCompilation {
 
     private final PackageContext rootPackageContext;
     private final PackageResolution packageResolution;
+    private final CompilationOptions compilationOptions;
     private CompilerContext compilerContext;
     private Map<TargetPlatform, CompilerBackend> compilerBackends;
     private List<Diagnostic> pluginDiagnostics;
@@ -61,15 +61,10 @@ public class PackageCompilation {
     private volatile boolean compiled;
     private CompilerPluginManager compilerPluginManager;
 
-    private PackageCompilation(PackageContext rootPackageContext) {
-        this.rootPackageContext = rootPackageContext;
-        this.packageResolution = rootPackageContext.getResolution();
-        setupCompilation(rootPackageContext.compilationOptions());
-    }
-
     private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
-        this.packageResolution = rootPackageContext.getResolution(compilationOptions);
+        this.packageResolution = rootPackageContext.getResolution();
+        this.compilationOptions = compilationOptions;
         setupCompilation(compilationOptions);
     }
 
@@ -88,17 +83,10 @@ public class PackageCompilation {
     private void setCompilerOptions(CompilationOptions compilationOptions) {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(OFFLINE, Boolean.toString(compilationOptions.offlineBuild()));
-        options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
-    }
-
-    static PackageCompilation from(PackageContext rootPkgContext) {
-        PackageCompilation compilation = new PackageCompilation(rootPkgContext);
-        return compile(compilation);
-
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
@@ -114,6 +102,11 @@ public class PackageCompilation {
         CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
         compilation.setCompilerPluginManager(compilerPluginManager);
 
+        // Do not run code analyzers, if the code generators are enabled.
+        if (compilation.compilationOptions().withCodeGenerators()) {
+            return compilation;
+        }
+
         // Run the CodeAnalyzer tasks.
         CodeAnalyzerManager codeAnalyzerManager = compilerPluginManager.getCodeAnalyzerManager();
         // At the moment, we run SyntaxNodeAnalysis and CompilationAnalysis tasks at the same time.
@@ -123,11 +116,15 @@ public class PackageCompilation {
         return compilation;
     }
 
-    public List<Diagnostic> notifyCompilationCompletion(Path filePath) {
+    List<Diagnostic> notifyCompilationCompletion(Path filePath) {
         CompilerLifecycleManager manager = this.compilerPluginManager.getCompilerLifecycleListenerManager();
         List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath);
         this.pluginDiagnostics.addAll(diagnostics);
         return diagnostics;
+    }
+
+    CompilationOptions compilationOptions() {
+        return compilationOptions;
     }
 
     public PackageResolution getResolution() {

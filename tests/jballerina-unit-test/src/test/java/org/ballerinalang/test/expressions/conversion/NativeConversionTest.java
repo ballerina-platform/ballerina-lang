@@ -17,15 +17,12 @@
  */
 package org.ballerinalang.test.expressions.conversion;
 
-import org.ballerinalang.core.model.types.BArrayType;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -33,6 +30,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
 /**
  * Test Cases for type conversion.
@@ -45,92 +44,97 @@ public class NativeConversionTest {
 
     @BeforeClass
     public void setup() {
+
         compileResult = BCompileUtil.compile("test-src/expressions/conversion/native-conversion.bal");
         packageResult = BCompileUtil.compile("test-src/expressions/conversion/test_project");
     }
 
     @Test
     public void testStructToMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToMap");
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap<String, ?> map = (BMap<String, ?>) returns[0];
 
-        BValue name = map.get("name");
+        Object returns = BRunUtil.invoke(compileResult, "testStructToMap");
+        Assert.assertTrue(returns instanceof BMap<?, ?>);
+        BMap<String, ?> map = (BMap<String, ?>) returns;
+
+        Object name = map.get(StringUtils.fromString("name"));
         Assert.assertTrue(name instanceof BString);
-        Assert.assertEquals(name.stringValue(), "Child");
+        Assert.assertEquals(name.toString(), "Child");
 
-        BValue age = map.get("age");
-        Assert.assertTrue(age instanceof BInteger);
-        Assert.assertEquals(((BInteger) age).intValue(), 25);
+        Object age = map.get(StringUtils.fromString("age"));
+        Assert.assertTrue(age instanceof Long);
+        Assert.assertEquals(age, 25L);
 
-        BValue parent = map.get("parent");
+        Object parent = map.get(StringUtils.fromString("parent"));
         Assert.assertTrue(parent instanceof BMap);
-        BMap<String, BValue> parentStruct = (BMap<String, BValue>) parent;
-        Assert.assertEquals(parentStruct.get("name").stringValue(), "Parent");
-        Assert.assertEquals(((BInteger) parentStruct.get("age")).intValue(), 50);
+        BMap<String, Object> parentStruct = (BMap<String, Object>) parent;
+        Assert.assertEquals(parentStruct.get(StringUtils.fromString("name")).toString(), "Parent");
+        Assert.assertEquals(parentStruct.get(StringUtils.fromString("age")), 50L);
 
-        BValue address = map.get("address");
+        Object address = map.get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
         BMap<String, ?> addressMap = (BMap<String, ?>) address;
-        Assert.assertEquals(addressMap.get("city").stringValue(), "Colombo");
-        Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
+        Assert.assertEquals(addressMap.get(StringUtils.fromString("city")).toString(), "Colombo");
+        Assert.assertEquals(addressMap.get(StringUtils.fromString("country")).toString(), "SriLanka");
 
-        BValue info = map.get("info");
+        Object info = map.get(StringUtils.fromString("info"));
         Assert.assertTrue(info instanceof BMap);
-        Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
+        Assert.assertEquals(info.toString(), "{\"status\":\"single\"}");
 
-        BValue marks = map.get("marks");
-        Assert.assertTrue(marks instanceof BValueArray);
-        BValueArray marksArray = (BValueArray) marks;
-        Assert.assertEquals(((BInteger) marksArray.getRefValue(0)).intValue(), 67);
-        Assert.assertEquals(((BInteger) marksArray.getRefValue(1)).intValue(), 38);
-        Assert.assertEquals(((BInteger) marksArray.getRefValue(2)).intValue(), 91);
+        Object marks = map.get(StringUtils.fromString("marks"));
+        Assert.assertTrue(marks instanceof BArray);
+        BArray marksArray = (BArray) marks;
+        Assert.assertEquals(marksArray.getRefValue(0), 67L);
+        Assert.assertEquals(marksArray.getRefValue(1), 38L);
+        Assert.assertEquals(marksArray.getRefValue(2), 91L);
     }
 
     @Test
     public void testMapToStruct() {
+
         testMapToStruct(compileResult, "testMapToStruct");
     }
 
     @Test
     public void testNestedMapToNestedStruct() {
+
         testMapToStruct(compileResult, "testNestedMapToNestedStruct");
     }
 
     private void testMapToStruct(CompileResult compileResult, String functionName) {
-        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
 
-        String name = struct.get("name").stringValue();
+        Object returns = BRunUtil.invoke(compileResult, functionName);
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> struct = (BMap<String, Object>) returns;
+
+        String name = struct.get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(name, "Child");
 
-        long age = ((BInteger) struct.get("age")).intValue();
+        long age = (long) struct.get(StringUtils.fromString("age"));
         Assert.assertEquals(age, 25);
 
-        BValue parent = struct.get("parent");
+        Object parent = struct.get(StringUtils.fromString("parent"));
         Assert.assertTrue(parent instanceof BMap);
-        BMap<String, BValue> parentStruct = (BMap<String, BValue>) parent;
-        Assert.assertEquals(parentStruct.get("name").stringValue(), "Parent");
-        Assert.assertEquals(((BInteger) parentStruct.get("age")).intValue(), 50);
-        Assert.assertNull(parentStruct.get("parent"));
-        Assert.assertNull(parentStruct.get("info"));
-        Assert.assertNull(parentStruct.get("address"));
-        Assert.assertNull(parentStruct.get("marks"));
+        BMap<String, Object> parentStruct = (BMap<String, Object>) parent;
+        Assert.assertEquals(parentStruct.get(StringUtils.fromString("name")).toString(), "Parent");
+        Assert.assertEquals((parentStruct.get(StringUtils.fromString("age"))), 50L);
+        Assert.assertNull(parentStruct.get(StringUtils.fromString("parent")));
+        Assert.assertNull(parentStruct.get(StringUtils.fromString("info")));
+        Assert.assertNull(parentStruct.get(StringUtils.fromString("address")));
+        Assert.assertNull(parentStruct.get(StringUtils.fromString("marks")));
 
-        BValue info = struct.get("info");
+        Object info = struct.get(StringUtils.fromString("info"));
         Assert.assertTrue(info instanceof BMap);
-        Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
+        Assert.assertEquals(info.toString(), "{\"status\":\"single\"}");
 
-        BValue address = struct.get("address");
+        Object address = struct.get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
         BMap<String, ?> addressMap = (BMap<String, ?>) address;
-        Assert.assertEquals(addressMap.get("city").stringValue(), "Colombo");
-        Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
+        Assert.assertEquals(addressMap.get(StringUtils.fromString("city")).toString(), "Colombo");
+        Assert.assertEquals(addressMap.get(StringUtils.fromString("country")).toString(), "SriLanka");
 
-        BValue marks = struct.get("marks");
-        Assert.assertTrue(marks instanceof BValueArray);
-        BValueArray marksArray = (BValueArray) marks;
+        Object marks = struct.get(StringUtils.fromString("marks"));
+        Assert.assertTrue(marks instanceof BArray);
+        BArray marksArray = (BArray) marks;
         Assert.assertEquals(marksArray.getInt(0), 87);
         Assert.assertEquals(marksArray.getInt(1), 94);
         Assert.assertEquals(marksArray.getInt(2), 72);
@@ -138,39 +142,40 @@ public class NativeConversionTest {
 
     @Test
     public void testJsonToStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStruct");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
 
-        String name = struct.get("name").stringValue();
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToStruct");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> struct = (BMap<String, Object>) returns;
+
+        String name = struct.get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(name, "Child");
 
-        long age = ((BInteger) struct.get("age")).intValue();
+        long age = (long) struct.get(StringUtils.fromString("age"));
         Assert.assertEquals(age, 25);
 
-        BValue parent = struct.get("parent");
+        Object parent = struct.get(StringUtils.fromString("parent"));
         Assert.assertTrue(parent instanceof BMap);
-        BMap<String, BValue> parentStruct = (BMap<String, BValue>) parent;
-        Assert.assertEquals(parentStruct.get("name").stringValue(), "Parent");
-        Assert.assertEquals(((BInteger) parentStruct.get("age")).intValue(), 50);
-        Assert.assertNull(parentStruct.get("parent"));
-        Assert.assertNull(parentStruct.get("info"));
-        Assert.assertNull(parentStruct.get("address"));
-        Assert.assertNull(parentStruct.get("marks"));
+        BMap<String, Object> parentStruct = (BMap<String, Object>) parent;
+        Assert.assertEquals(parentStruct.get(StringUtils.fromString("name")).toString(), "Parent");
+        Assert.assertEquals((parentStruct.get(StringUtils.fromString("age"))), 50L);
+        Assert.assertNull(parentStruct.get(StringUtils.fromString("parent")));
+        Assert.assertNull(parentStruct.get(StringUtils.fromString("info")));
+        Assert.assertNull(parentStruct.get(StringUtils.fromString("address")));
+        Assert.assertNull(parentStruct.get(StringUtils.fromString("marks")));
 
-        BValue info = struct.get("info");
+        Object info = struct.get(StringUtils.fromString("info"));
         Assert.assertTrue(info instanceof BMap);
-        Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
+        Assert.assertEquals(info.toString(), "{\"status\":\"single\"}");
 
-        BValue address = struct.get("address");
+        Object address = struct.get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
         BMap<String, ?> addressMap = (BMap<String, ?>) address;
-        Assert.assertEquals(addressMap.get("city").stringValue(), "Colombo");
-        Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
+        Assert.assertEquals(addressMap.get(StringUtils.fromString("city")).toString(), "Colombo");
+        Assert.assertEquals(addressMap.get(StringUtils.fromString("country")).toString(), "SriLanka");
 
-        BValue marks = struct.get("marks");
-        Assert.assertTrue(marks instanceof BValueArray);
-        BValueArray marksArray = (BValueArray) marks;
+        Object marks = struct.get(StringUtils.fromString("marks"));
+        Assert.assertTrue(marks instanceof BArray);
+        BArray marksArray = (BArray) marks;
         Assert.assertEquals(marksArray.size(), 2);
         Assert.assertEquals(marksArray.getInt(0), 56);
         Assert.assertEquals(marksArray.getInt(1), 79);
@@ -178,182 +183,199 @@ public class NativeConversionTest {
 
     @Test
     public void testStructToJson() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJson");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> child = ((BMap<String, BValue>) returns[0]);
-        Assert.assertEquals(child.get("name").stringValue(), "Child");
-        Assert.assertEquals(((BInteger) child.get("age")).intValue(), 25);
 
-        Assert.assertTrue(child.get("parent") instanceof BMap);
-        BMap<String, BValue> parent = (BMap<String, BValue>) child.get("parent");
-        Assert.assertEquals(parent.get("name").stringValue(), "Parent");
-        Assert.assertEquals(((BInteger) parent.get("age")).intValue(), 50);
-        Assert.assertNull(parent.get("parent"));
-        Assert.assertNull(parent.get("info"));
-        Assert.assertNull(parent.get("address"));
-        Assert.assertNull(parent.get("marks"));
+        Object returns = BRunUtil.invoke(compileResult, "testStructToJson");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> child = ((BMap<String, Object>) returns);
+        Assert.assertEquals(child.get(StringUtils.fromString("name")).toString(), "Child");
+        Assert.assertEquals((child.get(StringUtils.fromString("age"))), 25L);
 
-        Assert.assertTrue(child.get("info") instanceof BMap);
-        BMap<String, BValue> info = (BMap<String, BValue>) child.get("info");
-        Assert.assertEquals(info.get("status").stringValue(), "single");
+        Assert.assertTrue(child.get(StringUtils.fromString("parent")) instanceof BMap);
+        BMap<String, Object> parent = (BMap<String, Object>) child.get(StringUtils.fromString("parent"));
+        Assert.assertEquals(parent.get(StringUtils.fromString("name")).toString(), "Parent");
+        Assert.assertEquals((parent.get(StringUtils.fromString("age"))), 50L);
+        Assert.assertNull(parent.get(StringUtils.fromString("parent")));
+        Assert.assertNull(parent.get(StringUtils.fromString("info")));
+        Assert.assertNull(parent.get(StringUtils.fromString("address")));
+        Assert.assertNull(parent.get(StringUtils.fromString("marks")));
 
-        Assert.assertTrue(child.get("address") instanceof BMap);
-        BMap<String, BValue> address = (BMap<String, BValue>) child.get("address");
-        Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
-        Assert.assertEquals(address.get("city").stringValue(), "Colombo");
+        Assert.assertTrue(child.get(StringUtils.fromString("info")) instanceof BMap);
+        BMap<String, Object> info = (BMap<String, Object>) child.get(StringUtils.fromString("info"));
+        Assert.assertEquals(info.get(StringUtils.fromString("status")).toString(), "single");
 
+        Assert.assertTrue(child.get(StringUtils.fromString("address")) instanceof BMap);
+        BMap<String, Object> address = (BMap<String, Object>) child.get(StringUtils.fromString("address"));
+        Assert.assertEquals(address.get(StringUtils.fromString("country")).toString(), "SriLanka");
+        Assert.assertEquals(address.get(StringUtils.fromString("city")).toString(), "Colombo");
 
-        Assert.assertTrue(child.get("marks") instanceof BValueArray);
-        BValueArray marks = (BValueArray) child.get("marks");
+        Assert.assertTrue(child.get(StringUtils.fromString("marks")) instanceof BArray);
+        BArray marks = (BArray) child.get(StringUtils.fromString("marks"));
         Assert.assertEquals(marks.size(), 3);
-        Assert.assertEquals(((BInteger) marks.getRefValue(0)).intValue(), 87);
-        Assert.assertEquals(((BInteger) marks.getRefValue(1)).intValue(), 94);
-        Assert.assertEquals(((BInteger) marks.getRefValue(2)).intValue(), 72);
+        Assert.assertEquals(marks.getRefValue(0), 87L);
+        Assert.assertEquals(marks.getRefValue(1), 94L);
+        Assert.assertEquals(marks.getRefValue(2), 72L);
     }
-    
+
     @Test(description = "Test any type to anydata type at runtime")
     public void testAnyRecordToAnydataMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRecordToAnydataMap");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Waruna");
+
+        Object returns = BRunUtil.invoke(compileResult, "testAnyRecordToAnydataMap");
+        Assert.assertTrue(returns instanceof BMap);
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Waruna");
     }
 
     @Test(description = "Test converting a map to json")
     public void testMapToJsonConversion() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testComplexMapToJson");
-        Assert.assertTrue(result[0] instanceof BMap);
-        Assert.assertEquals(result[0].toString(), "{\"name\":\"Supun\", \"age\":25, \"gpa\":2.81, \"status\":true}");
+
+        Object result = BRunUtil.invoke(compileResult, "testComplexMapToJson");
+        Assert.assertTrue(result instanceof BMap);
+        Assert.assertEquals(result.toString(), "{\"name\":\"Supun\",\"age\":25,\"gpa\":2.81,\"status\":true}");
     }
 
     @Test(description = "Test converting a struct with map of blob to a JSON",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*'Info2' value cannot be converted to 'json'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'Info2' value cannot be converted to 'json'.*")
     public void testStructWithIncompatibleTypeToJson() {
+
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeToJson");
     }
 
     @Test(description = "Test converting a map to a record, with a map value for a JSON field")
     public void testMapToStructWithMapValueForJsonField() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructWithMapValueForJsonField");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> personStruct = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", age:25, parent:(), " +
-                "info:{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " +
-                "marks:[87, 94, 72], a:\"any value\", score:5.67, alive:true, children:()}");
+        Object returns = BRunUtil.invoke(compileResult, "testMapToStructWithMapValueForJsonField");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> personStruct = (BMap<String, Object>) returns;
+
+        Assert.assertEquals(personStruct.toString(), "{\"name\":\"Child\",\"age\":25,\"parent\":null," +
+                "\"info\":{\"status\":\"single\"},\"address\":{\"city\":\"Colombo\",\"country\":\"SriLanka\"}," +
+                "\"marks\":[87,94,72],\"a\":\"any value\",\"score\":5.67,\"alive\":true,\"children\":null}");
     }
 
     @Test(description = "Test converting a map with missing field to a struct")
     public void testMapWithMissingOptionalFieldsToStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapWithMissingOptionalFieldsToStruct");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> personStruct = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", age:25, parent:(), " +
-                "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, marks:[87, 94, 72], " +
-                "a:\"any value\", score:5.67, alive:true}");
+        Object returns = BRunUtil.invoke(compileResult, "testMapWithMissingOptionalFieldsToStruct");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> personStruct = (BMap<String, Object>) returns;
+
+        Assert.assertEquals(personStruct.toString(), "{\"name\":\"Child\",\"age\":25,\"parent\":null," +
+                "\"address\":{\"city\":\"Colombo\",\"country\":\"SriLanka\"},\"marks\":[87,94,72],\"a\":\"any " +
+                "value\",\"score\":5.67,\"alive\":true}");
     }
 
     @Test(description = "Test converting a map with incompatible inner array to a struct",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp =
-                  ".*'map<anydata>' value cannot be converted to 'Person'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*'map<anydata>' value cannot be converted to 'Person'.*")
     public void testMapWithIncompatibleArrayToStruct() {
+
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleArrayToStruct");
     }
 
     @Test(description = "Test converting a map with incompatible inner struct to a struct",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*'map<anydata>' " +
-                  "value cannot be converted to 'Employee'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<anydata>' " +
+                    "value cannot be converted to 'Employee'.*")
     public void testMapWithIncompatibleStructToStruct() {
+
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleStructToStruct");
     }
 
     @Test(description = "Test converting a incompatible JSON to a struct",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'Person'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'Person'.*")
     public void testIncompatibleJsonToStruct() {
+
         BRunUtil.invoke(compileResult, "testIncompatibleJsonToStruct");
     }
 
     @Test(description = "Test converting a JSON with missing optional fields to a struct")
     public void testJsonToStructWithMissingOptionalFields() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStructWithMissingOptionalFields");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\", age:25, parent:(), " +
-                "info:{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " +
-                "marks:[87, 94, 72], a:\"any value\", score:5.67, alive:true}");
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToStructWithMissingOptionalFields");
+        Assert.assertTrue(returns instanceof BMap);
+        Assert.assertEquals(returns.toString(), "{\"name\":\"Child\",\"age\":25,\"parent\":null," +
+                "\"info\":{\"status\":\"single\"},\"address\":{\"city\":\"Colombo\",\"country\":\"SriLanka\"}," +
+                "\"marks\":[87,94,72],\"a\":\"any value\",\"score\":5.67,\"alive\":true}");
     }
 
     @Test(description = "Test converting a incompatible JSON to a struct",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*'map<json>'" +
-                  " value cannot be converted to 'PersonWithChildren'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<json>'" +
+                    " value cannot be converted to 'PersonWithChildren'.*")
     public void testJsonToStructWithMissingRequiredFields() {
+
         BRunUtil.invoke(compileResult, "testJsonToStructWithMissingRequiredFields");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*'map<json>'" +
-                  " value cannot be converted to 'Person'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<json>'" +
+                    " value cannot be converted to 'Person'.*")
     public void testJsonWithIncompatibleMapToStruct() {
+
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleMapToStruct");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner struct to a struct",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*'map<json>' " +
-                  "value cannot be converted to 'Person'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<json>' " +
+                    "value cannot be converted to 'Person'.*")
     public void testJsonWithIncompatibleStructToStruct() {
+
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleStructToStruct");
     }
 
     @Test(description = "Test converting a JSON array to a struct",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*'json\\[\\]' value cannot be converted to 'Person'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'json\\[\\]' value cannot be converted to 'Person'.*")
     public void testJsonArrayToStruct() {
+
         BRunUtil.invoke(compileResult, "testJsonArrayToStruct");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner type to a struct",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'Person'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'Person'.*")
     public void testJsonWithIncompatibleTypeToStruct() {
+
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleTypeToStruct");
     }
 
     @Test(description = "Test converting a struct with map of blob to a JSON",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*'Info' value cannot be converted to 'json'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'Info' value cannot be converted to 'json'.*")
     public void testStructWithIncompatibleTypeMapToJson() {
+
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeMapToJson");
     }
 
     @Test(description = "Test converting a JSON array to any data array")
     public void testJsonToAnyArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToAnyArray");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
-        BValueArray array = (BValueArray) anyArrayStruct.get("a");
 
-        Assert.assertEquals(((BInteger) array.getRefValue(0)).intValue(), 4);
-        Assert.assertEquals(array.getRefValue(1).stringValue(), "Supun");
-        Assert.assertEquals(((BFloat) array.getRefValue(2)).floatValue(), 5.36);
-        Assert.assertTrue(((BBoolean) array.getRefValue(3)).booleanValue());
-        Assert.assertEquals(array.getRefValue(4).stringValue(), "{\"lname\":\"Setunga\"}");
-        Assert.assertEquals(array.getRefValue(5).stringValue(), "[4, 3, 7]");
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToAnyArray");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> anyArrayStruct = (BMap<String, Object>) returns;
+        BArray array = (BArray) anyArrayStruct.get(StringUtils.fromString("a"));
+
+        Assert.assertEquals(array.getRefValue(0), 4L);
+        Assert.assertEquals(array.getRefValue(1).toString(), "Supun");
+        Assert.assertEquals(array.getRefValue(2), 5.36);
+        Assert.assertTrue((Boolean) array.getRefValue(3));
+        Assert.assertEquals(array.getRefValue(4).toString(), "{\"lname\":\"Setunga\"}");
+        Assert.assertEquals(array.getRefValue(5).toString(), "[4,3,7]");
         Assert.assertNull(array.getRefValue(6));
     }
 
     @Test(description = "Test converting a JSON array to int array")
     public void testJsonToIntArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToIntArray");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
 
-        BValueArray array = (BValueArray) anyArrayStruct.get("a");
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToIntArray");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> anyArrayStruct = (BMap<String, Object>) returns;
+
+        BArray array = (BArray) anyArrayStruct.get(StringUtils.fromString("a"));
         Assert.assertEquals(((BArrayType) array.getType()).getElementType().toString(), "int");
         Assert.assertEquals(array.getInt(0), 4);
         Assert.assertEquals(array.getInt(1), 3);
@@ -362,10 +384,11 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON string array to string array")
     public void testJsonToStringArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStringArray");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
-        BValueArray array = (BValueArray) anyArrayStruct.get("a");
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToStringArray");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> anyArrayStruct = (BMap<String, Object>) returns;
+        BArray array = (BArray) anyArrayStruct.get(StringUtils.fromString("a"));
 
         Assert.assertEquals(((BArrayType) array.getType()).getElementType().toString(), "string");
         Assert.assertEquals(array.getString(0), "a");
@@ -375,293 +398,323 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array")
     public void testJsonIntArrayToStringArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonIntArrayToStringArray");
-        Assert.assertEquals(returns[0].toString(), "{\"a\":[\"4\", \"3\", \"9\"]}");
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonIntArrayToStringArray");
+        Assert.assertEquals(returns.toString(), "{\"a\":[\"4\",\"3\",\"9\"]}");
     }
 
     @Test(description = "Test converting a JSON array to xml array",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*'map<json>' " +
-                  "value cannot be converted to 'XmlArray'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<json>' " +
+                    "value cannot be converted to 'XmlArray'.*")
     public void testJsonToXmlArray() {
+
         BRunUtil.invoke(compileResult, "testJsonToXmlArray");
     }
 
     @Test(description = "Test converting a JSON integer array to string array",
-            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*cannot convert '\\(\\)' to type 'StringArray'.*")
     public void testNullJsonToArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
-        Assert.assertNull(returns[0]);
+
+        Object returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
+        Assert.assertNull(returns);
     }
 
     @Test(description = "Test converting a JSON null to string array",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*'map<json>'" +
-                  " value cannot be converted to 'StringArray'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<json>'" +
+                    " value cannot be converted to 'StringArray'.*")
     public void testNullJsonArrayToArray() {
+
         BRunUtil.invoke(compileResult, "testNullJsonArrayToArray");
     }
 
     @Test(description = "Test converting a JSON string to string array",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'StringArray'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'StringArray': \n\t\t.*")
     public void testNonArrayJsonToArray() {
+
         BRunUtil.invoke(compileResult, "testNonArrayJsonToArray");
     }
 
     @Test(description = "Test converting a null JSON to struct",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*cannot convert '\\(\\)' to type 'Person'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*cannot convert '\\(\\)' to type 'Person'.*")
     public void testNullJsonToStruct() {
+
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }
 
     @Test(description = "Test converting a null Struct to json")
     public void testNullStructToJson() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNullStructToJson");
-        Assert.assertNull(returns[0]);
+
+        Object returns = BRunUtil.invoke(compileResult, "testNullStructToJson");
+        Assert.assertNull(returns);
     }
 
     @Test
     public void testStructToMapWithRefTypeArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToMapWithRefTypeArray");
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap<String, ?> map = (BMap<String, ?>) returns[0];
 
-        BValue name = map.get("title");
+        Object arr = BRunUtil.invoke(compileResult, "testStructToMapWithRefTypeArray");
+        BArray returns = (BArray) arr;
+        Assert.assertTrue(returns.get(0) instanceof BMap<?, ?>);
+        BMap<String, ?> map = (BMap<String, ?>) returns.get(0);
+
+        Object name = map.get(StringUtils.fromString("title"));
         Assert.assertTrue(name instanceof BString);
-        Assert.assertEquals(name.stringValue(), "The Revenant");
+        Assert.assertEquals(name.toString(), "The Revenant");
 
-        BValue age = map.get("year");
-        Assert.assertTrue(age instanceof BInteger);
-        Assert.assertEquals(((BInteger) age).intValue(), 2015);
+        Object age = map.get(StringUtils.fromString("year"));
+        Assert.assertTrue(age instanceof Long);
+        Assert.assertEquals(age, 2015L);
 
-        BValue marks = map.get("genre");
-        Assert.assertTrue(marks instanceof BValueArray);
-        BValueArray genreArray = (BValueArray) marks;
-        Assert.assertEquals(genreArray.getRefValue(0).stringValue(), "Adventure");
-        Assert.assertEquals(genreArray.getRefValue(1).stringValue(), "Drama");
-        Assert.assertEquals(genreArray.getRefValue(2).stringValue(), "Thriller");
+        Object marks = map.get(StringUtils.fromString("genre"));
+        Assert.assertTrue(marks instanceof BArray);
+        BArray genreArray = (BArray) marks;
+        Assert.assertEquals(genreArray.getRefValue(0).toString(), "Adventure");
+        Assert.assertEquals(genreArray.getRefValue(1).toString(), "Drama");
+        Assert.assertEquals(genreArray.getRefValue(2).toString(), "Thriller");
 
-        BValue actors = map.get("actors");
-        Assert.assertTrue(actors instanceof BValueArray);
-        BValueArray actorsArray = (BValueArray) actors;
+        Object actors = map.get(StringUtils.fromString("actors"));
+        Assert.assertTrue(actors instanceof BArray);
+        BArray actorsArray = (BArray) actors;
         Assert.assertTrue(actorsArray.getRefValue(0) instanceof BMap);
-        Assert.assertEquals(actorsArray.getRefValue(0).stringValue(),
-                "{\"fname\":\"Leonardo\", \"lname\":\"DiCaprio\", \"age\":35}");
+        Assert.assertEquals(actorsArray.getRefValue(0).toString(),
+                "{\"fname\":\"Leonardo\",\"lname\":\"DiCaprio\",\"age\":35}");
     }
 
     @Test
     public void testStructWithStringArrayToJSON() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructWithStringArrayToJSON");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"names\":[\"John\", \"Doe\"]}");
+
+        Object returns = BRunUtil.invoke(compileResult, "testStructWithStringArrayToJSON");
+        Assert.assertTrue(returns instanceof BMap);
+        Assert.assertEquals(returns.toString(), "{\"names\":[\"John\",\"Doe\"]}");
     }
 
     @Test
     public void testEmptyJSONtoStructWithOptionals() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithOptionals");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> bValue = (BMap<String, BValue>) returns[0];
+
+        Object returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithOptionals");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> bValue = (BMap<String, Object>) returns;
         Assert.assertEquals(bValue.size(), 0);
     }
 
     @Test
     public void structWithComplexMapToJson() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "structWithComplexMapToJson");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"foo\":{\"a\":4, \"b\":2.5, \"c\":true, \"d\":\"apple\", " +
-                "\"e\":{\"foo\":\"bar\"}, \"f\":{\"name\":\"\", \"age\":0}, \"g\":[1, 8, 7], \"h\":null}}");
+
+        Object returns = BRunUtil.invoke(compileResult, "structWithComplexMapToJson");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"foo\":{\"a\":4,\"b\":2.5,\"c\":true,\"d\":\"apple\"," +
+                "\"e\":{\"foo\":\"bar\"},\"f\":{\"name\":\"\",\"age\":0},\"g\":[1,8,7],\"h\":null}}");
     }
 
     @Test
     public void structWithComplexArraysToJson() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "structWithComplexArraysToJson");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"a\":[4, 6, 9], \"b\":[4.6, 7.5], " +
-                "\"c\":[true, true, false], \"d\":[\"apple\", \"orange\"], \"e\":[{}, {}], " +
-                "\"f\":[{\"name\":\"\", \"age\":0}, {\"name\":\"\", \"age\":0}], \"g\":[{\"foo\":\"bar\"}]}");
+
+        Object returns = BRunUtil.invoke(compileResult, "structWithComplexArraysToJson");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(),
+                "{\"a\":[4,6,9],\"b\":[4.6,7.5],\"c\":[true,true,false],\"d\":[\"apple\",\"orange\"],\"e\":[{},{}]," +
+                        "\"f\":[{\"name\":\"\",\"age\":0},{\"name\":\"\",\"age\":0}],\"g\":[{\"foo\":\"bar\"}]}");
     }
 
     @Test
     public void testJsonToRecordInPackage() {
-        BValue[] returns = BRunUtil.invoke(packageResult, "testJsonToRecord");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
 
-        String name = struct.get("name").stringValue();
+        Object returns = BRunUtil.invoke(packageResult, "testJsonToRecord");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> struct = (BMap<String, Object>) returns;
+
+        String name = struct.get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(name, "John");
 
-        long age = ((BInteger) struct.get("age")).intValue();
+        long age = (long) struct.get(StringUtils.fromString("age"));
         Assert.assertEquals(age, 30);
 
-        BValue address = struct.get("adrs");
+        Object address = struct.get(StringUtils.fromString("adrs"));
         Assert.assertTrue(address instanceof BMap);
-        BMap<String, BValue> addressStruct = (BMap<String, BValue>) address;
-        Assert.assertEquals(addressStruct.get("street").stringValue(), "20 Palm Grove");
-        Assert.assertEquals(addressStruct.get("city").stringValue(), "Colombo 03");
-        Assert.assertEquals(addressStruct.get("country").stringValue(), "Sri Lanka");
+        BMap<String, Object> addressStruct = (BMap<String, Object>) address;
+        Assert.assertEquals(addressStruct.get(StringUtils.fromString("street")).toString(), "20 Palm Grove");
+        Assert.assertEquals(addressStruct.get(StringUtils.fromString("city")).toString(), "Colombo 03");
+        Assert.assertEquals(addressStruct.get(StringUtils.fromString("country")).toString(), "Sri Lanka");
     }
 
     @Test
     public void testMapToRecordInPackage() {
-        BValue[] returns = BRunUtil.invoke(packageResult, "testMapToRecord");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
 
-        String name = struct.get("name").stringValue();
+        Object returns = BRunUtil.invoke(packageResult, "testMapToRecord");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> struct = (BMap<String, Object>) returns;
+
+        String name = struct.get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(name, "John");
 
-        long age = ((BInteger) struct.get("age")).intValue();
+        long age = (long) struct.get(StringUtils.fromString("age"));
         Assert.assertEquals(age, 30);
 
-        BValue address = struct.get("adrs");
+        Object address = struct.get(StringUtils.fromString("adrs"));
         Assert.assertTrue(address instanceof BMap);
-        BMap<String, BValue> addressStruct = (BMap<String, BValue>) address;
-        Assert.assertEquals(addressStruct.get("street").stringValue(), "20 Palm Grove");
-        Assert.assertEquals(addressStruct.get("city").stringValue(), "Colombo 03");
-        Assert.assertEquals(addressStruct.get("country").stringValue(), "Sri Lanka");
+        BMap<String, Object> addressStruct = (BMap<String, Object>) address;
+        Assert.assertEquals(addressStruct.get(StringUtils.fromString("street")).toString(), "20 Palm Grove");
+        Assert.assertEquals(addressStruct.get(StringUtils.fromString("city")).toString(), "Colombo 03");
+        Assert.assertEquals(addressStruct.get(StringUtils.fromString("country")).toString(), "Sri Lanka");
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testJsonToMapUnconstrained() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToMapUnconstrained");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, ?> map = (BMap<String, ?>) returns[0];
-        Assert.assertEquals(map.stringValue(),
-                "{\"x\":5, \"y\":10, \"z\":3.14, \"o\":{\"a\":\"A\", \"b\":\"B\", \"c\":true}}");
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToMapUnconstrained");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns;
+        Assert.assertEquals(map.toString(),
+                "{\"x\":5,\"y\":10,\"z\":3.14,\"o\":{\"a\":\"A\",\"b\":\"B\",\"c\":true}}");
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testJsonToMapConstrained1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToMapConstrained1");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, ?> map = (BMap<String, ?>) returns[0];
-        Assert.assertEquals(map.stringValue(), "{\"x\":\"A\", \"y\":\"B\"}");
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToMapConstrained1");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns;
+        Assert.assertEquals(map.toString(), "{\"x\":\"A\",\"y\":\"B\"}");
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testJsonToMapConstrained2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToMapConstrained2");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, ?> map = (BMap<String, ?>) returns[0];
-        Assert.assertEquals(map.stringValue(), "{\"a\":{x:5, y:10}}");
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToMapConstrained2");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns;
+        Assert.assertEquals(map.toString(), "{\"a\":{\"x\":5,\"y\":10}}");
     }
 
     @Test(description = "Test converting json to constrained map",
-            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map<json>' " +
-                    "value cannot be converted to 'map<T1>'.*")
+                    "value cannot be converted to 'T1Map'.*")
     public void testJsonToMapConstrainedFail() {
+
         BRunUtil.invoke(compileResult, "testJsonToMapConstrainedFail");
     }
 
     @Test
     public void testStructArrayConversion1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructArrayConversion1");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(((BInteger) struct.get("y")).intValue(), 1);
+
+        Object returns = BRunUtil.invoke(compileResult, "testStructArrayConversion1");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> struct = (BMap<String, Object>) returns;
+        Assert.assertEquals((struct.get(StringUtils.fromString("y"))), 1L);
     }
 
     @Test(description = "Test converting incompatible record types")
     public void testStructArrayConversion2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructArrayConversion2");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(((BInteger) struct.get("z")).intValue(), 2);
+
+        Object returns = BRunUtil.invoke(compileResult, "testStructArrayConversion2");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> struct = (BMap<String, Object>) returns;
+        Assert.assertEquals((struct.get(StringUtils.fromString("z"))), 2L);
     }
 
     @Test
     public void testTupleConversion1() {
+
         BRunUtil.invoke(compileResult, "testTupleConversion1");
     }
 
     @Test
     public void testTupleConversion2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleConversion2");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.INT);
-        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.STRING);
+
+        Object arr = BRunUtil.invoke(compileResult, "testTupleConversion2");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(getType(returns.get(0)).getTag(), TypeTags.INT);
+        Assert.assertEquals(getType(returns.get(1)).getTag(), TypeTags.STRING);
     }
 
     @Test
     public void testArrayToJson1() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayToJson1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[10, 15]");
+
+        Object returns = BRunUtil.invoke(compileResult, "testArrayToJson1");
+        Assert.assertEquals(returns.toString(), "[10,15]");
     }
 
     @Test
     public void testArrayToJson2() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayToJson2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"x\":10, \"y\":0}, {\"x\":15, \"y\":0}]");
+
+        Object returns = BRunUtil.invoke(compileResult, "testArrayToJson2");
+        Assert.assertEquals(returns.toString(), "[{\"x\":10,\"y\":0},{\"x\":15,\"y\":0}]");
     }
 
     @Test
     public void testJsonToArray1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToArray1");
-        Assert.assertEquals(returns.length, 1);
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToArray1");
     }
 
     @Test
     public void testJsonToArray2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToArray2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3]");
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToArray2");
+        Assert.assertEquals(returns.toString(), "[1,2,3]");
     }
 
     @Test(description = "Test an invalid json to array conversion",
-            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map<json>' value cannot" +
-                    " be converted to 'int\\[\\]'.*")
+                    " be converted to 'IntArrayType'.*")
     public void testJsonToArrayFail() {
+
         BRunUtil.invoke(compileResult, "testJsonToArrayFail");
     }
 
     @Test
     public void testJsonFloatToRecordWithFloat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonFloatToRecordWithFloat");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{f:3.0}");
+
+        Object returns = BRunUtil.invoke(compileResult, "testJsonFloatToRecordWithFloat");
+        Assert.assertTrue(returns instanceof BMap);
+        Assert.assertEquals(returns.toString(), "{\"f\":3.0}");
     }
 
     @Test(description = "Test result is json after converting record to json")
     public void testRecordToJsonWithIsJson() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRecordToJsonWithIsJson");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+
+        Object returns = BRunUtil.invoke(compileResult, "testRecordToJsonWithIsJson");
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test convert any, anydata and json values to string")
     public void testImplicitConversionToString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversionToString");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, ?> map = (BMap<String, ?>) returns[0];
-        Assert.assertEquals(map.get("fromFloat").stringValue(), "234.45");
-        Assert.assertEquals(map.get("fromString").stringValue(), "hello");
-        Assert.assertEquals(map.get("fromInt").stringValue(), "200");
-        Assert.assertEquals(map.get("fromDecimal").stringValue(), "23.456");
-        Assert.assertEquals(map.get("fromByte").stringValue(), "5");
-        Assert.assertEquals(map.get("fromBoolean").stringValue(), "true");
+
+        Object returns = BRunUtil.invoke(compileResult, "testImplicitConversionToString");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns;
+        Assert.assertEquals(map.get(StringUtils.fromString("fromFloat")).toString(), "234.45");
+        Assert.assertEquals(map.get(StringUtils.fromString("fromString")).toString(), "hello");
+        Assert.assertEquals(map.get(StringUtils.fromString("fromInt")).toString(), "200");
+        Assert.assertEquals(map.get(StringUtils.fromString("fromDecimal")).toString(), "23.456");
+        Assert.assertEquals(map.get(StringUtils.fromString("fromByte")).toString(), "5");
+        Assert.assertEquals(map.get(StringUtils.fromString("fromBoolean")).toString(), "true");
     }
 
     @Test
     public void testConvertWithFuncCall() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConvertWithFuncCall");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+
+        Object returns = BRunUtil.invoke(compileResult, "testConvertWithFuncCall");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 5L);
     }
 
     @Test
     public void testConvertWithFuncReturnUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConvertWithFuncReturnUnion");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 125);
+
+        Object returns = BRunUtil.invoke(compileResult, "testConvertWithFuncReturnUnion");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 125L);
     }
 }

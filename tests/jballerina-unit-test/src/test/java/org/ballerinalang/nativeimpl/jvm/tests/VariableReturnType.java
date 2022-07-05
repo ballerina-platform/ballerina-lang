@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -64,6 +65,7 @@ import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
  * Native methods for testing functions with variable return types.
@@ -144,6 +146,12 @@ public class VariableReturnType {
         }
 
         return map;
+    }
+
+    public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
+        RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
+        assert streamConstraint == strm.getConstraintType();
+        return strm;
     }
 
     public static ArrayValue getTuple(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
@@ -227,11 +235,12 @@ public class VariableReturnType {
     }
 
     public static BXml getXml(BTypedesc td, BXml val) {
-        if (td.getDescribingType().getTag() == XML_ELEMENT_TAG) {
+        Type describingType = getReferredType(td.getDescribingType());
+        if (describingType.getTag() == XML_ELEMENT_TAG) {
             return val;
         }
 
-        assert td.getDescribingType().getTag() == XML_COMMENT_TAG : td.getDescribingType();
+        assert describingType.getTag() == XML_COMMENT_TAG : describingType;
         return val;
     }
 
@@ -442,7 +451,7 @@ public class VariableReturnType {
     }
 
     public static Object funcReturningUnionWithBuiltInRefType(Object strm, BTypedesc td) {
-        int tag = ((BStreamType) td.getDescribingType()).getConstrainedType().getTag();
+        int tag = ((BStreamType) getReferredType(td.getDescribingType())).getConstrainedType().getTag();
 
         if (tag == INT_TAG) {
             return strm;
@@ -478,5 +487,18 @@ public class VariableReturnType {
     public static BFunctionPointer getFunctionWithAnyFunctionParamType(BFunctionPointer x, BTypedesc td) {
         assert td.getDescribingType().getTag() == INT_TAG;
         return x;
+    }
+
+    public static Object functionWithInferredArgForParamOfTypeReferenceType(BTypedesc td) {
+        Type describingType = td.getDescribingType();
+
+        int tag = describingType.getTag();
+
+        if (tag == INT_TAG) {
+            return 9876L;
+        }
+
+        assert tag == STRING_TAG;
+        return StringUtils.fromString("hello!");
     }
 }

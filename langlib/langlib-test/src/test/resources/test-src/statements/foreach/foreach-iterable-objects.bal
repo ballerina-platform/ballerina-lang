@@ -156,6 +156,33 @@ public function testIterableIterator() {
     assert(intArr[2], 3);
 }
 
+int globalInt = 0;
+function testNextIsNotInvokedTwiseBeforeInvokingBody() {
+    foreach int i in new Range() {
+        assert(globalInt, i);
+    }
+}
+
+class Iter {
+    public function next() returns record {|int value;|}? {
+        globalInt += 1;
+        if globalInt == 5 {
+            return ();
+        }
+        return {value: globalInt};
+    }
+}
+
+class Range {
+    *object:Iterable;
+
+    public function iterator() returns object {
+        public function next() returns record {|int value;|}?;
+    } {
+        return new Iter();
+    }
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

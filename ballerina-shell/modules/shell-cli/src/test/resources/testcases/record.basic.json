@@ -57,12 +57,20 @@
   },
   {
     "description": "Change record field.",
-    "code": "peter.age = 16; peter",
+    "code": "peter.age = 16;"
+  },
+  {
+    "description": "Change record field - get value.",
+    "code": "peter",
     "expr": "{\"name\":\"Peter\",\"age\":16,\"grades\":{\"maths\":40,\"physics\":35,\"chemistry\":35}}"
   },
   {
     "description": "Create field.",
-    "code": "peter[\"address\"] = address; peter",
+    "code": "peter[\"address\"] = address;"
+  },
+  {
+    "description": "Create field - get value.",
+    "code": "peter",
     "expr": "{\"name\":\"Peter\",\"age\":16,\"grades\":{\"maths\":40,\"physics\":35,\"chemistry\":35},\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}}"
   },
   {
@@ -72,7 +80,11 @@
   },
   {
     "description": "Use of var keyword.",
-    "code": "var rec = {name: \"Amy\", age: 18, ...address}; rec",
+    "code": "var rec = {name: \"Amy\", age: 18, ...address};"
+  },
+  {
+    "description": "Use of var keyword. - get value",
+    "code": "rec",
     "expr": "{\"name\":\"Amy\",\"age\":18,\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}"
   },
   {

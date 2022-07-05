@@ -10,10 +10,21 @@ dependencies-toml-version = "2"
 org = "waruna"
 name = "http"
 version = "1.1.1"
-transitive = false
 modules = [
 	{org = "waruna", packageName = "http", moduleName = "http"},
 	{org = "waruna", packageName = "http", moduleName = "http.client"}
+]
+
+[[package]]
+org = "waruna"
+name = "websub"
+version = "1.0.1"
+dependencies = [
+	{org = "waruna", name = "http"}
+]
+modules = [
+	{org = "waruna", packageName = "websub", moduleName = "websub"},
+	{org = "waruna", packageName = "websub", moduleName = "websub.server"}
 ]
 
 

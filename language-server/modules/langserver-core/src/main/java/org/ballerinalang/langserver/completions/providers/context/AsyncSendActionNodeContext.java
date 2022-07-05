@@ -48,6 +48,8 @@ public class AsyncSendActionNodeContext extends RightArrowActionNodeContext<Asyn
     @Override
     public void sort(BallerinaCompletionContext context, AsyncSendActionNode node, 
                      List<LSCompletionItem> completionItems) {
-        SortingUtil.toDefaultSorting(context, completionItems);
+        for (LSCompletionItem completionItem : completionItems) {
+            sortByAssignability(context, completionItem, SortingUtil.toRank(context, completionItem));
+        }
     }
 }

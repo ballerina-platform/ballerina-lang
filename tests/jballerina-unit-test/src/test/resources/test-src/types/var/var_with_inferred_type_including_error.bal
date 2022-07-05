@@ -112,3 +112,15 @@ function testOnFailClauseWithError() {
     //} on fail var error(m, c) {
     //}
 }
+
+function testErrorUsedInAnonymousFunctions() {
+    var e1 = error("");
+
+    function () returns error _ = function () returns error {
+        return e1;
+    };
+
+    var e2 = error("");
+
+    function () returns error _ = () => e2;
+}

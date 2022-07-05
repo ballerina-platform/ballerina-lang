@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DECIMAL_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUTURE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
@@ -47,9 +48,14 @@ public class BallerinaErrorReasons {
 
     public static final BString DIVISION_BY_ZERO_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("DivisionByZero"));
-    public static final BString NUMBER_OVERFLOW = StringUtils.fromString(BALLERINA_PREFIX.concat("NumberOverflow"));
+    public static final String NUMBER_OVERFLOW_ERROR_IDENTIFIER = "NumberOverflow";
+    public static final BString NUMBER_OVERFLOW =
+            StringUtils.fromString(BALLERINA_PREFIX.concat(NUMBER_OVERFLOW_ERROR_IDENTIFIER));
+    public static final BString LARGE_EXPONENT_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
+            "DecimalExponentError"));
     public static final BString ARITHMETIC_OPERATION_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("ArithmeticOperationError"));
+    public static final BString QUANTIZE_ERROR = getModulePrefixedReason(DECIMAL_LANG_LIB, "QuantizeError");
     public static final BString JAVA_NULL_REFERENCE_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("JavaNullReferenceError"));
     public static final String JAVA_CLASS_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("JavaClassNotFoundError");
@@ -66,10 +72,13 @@ public class BallerinaErrorReasons {
     public static final String INVALID_UPDATE_ERROR_IDENTIFIER = "InvalidUpdate";
     public static final String INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER = "IndexOutOfRange";
     public static final String INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER = "InherentTypeViolation";
+    public static final String INCOMPATIBLE_ARGUMENTS = "IncompatibleArguments";
     public static final String OPERATION_NOT_SUPPORTED_IDENTIFIER = "OperationNotSupported";
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
     public static final String INVALID_TYPE_TO_SORT = "SortOperationError";
     public static final String UNORDERED_TYPES = "UnorderedTypesError";
+    public static final String LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED =
+            "length greater that '2147483647' not yet supported";
 
     public static final BString INDEX_OUT_OF_RANGE_ERROR = StringUtils
             .fromString(INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER);
@@ -105,6 +114,11 @@ public class BallerinaErrorReasons {
     public static final BString ASYNC_CALL_INSIDE_LOCK =
             StringUtils.fromString(BALLERINA_PREFIX.concat("AsyncCallInsideLockError"));
     public static final BString UNORDERED_TYPES_ERROR = StringUtils.fromString(UNORDERED_TYPES);
+    public static final BString UNSUPPORTED_DECIMAL_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
+            "UnsupportedDecimalError"));
+
+    public static final String INVALID_FRACTION_DIGITS_ERROR = "InvalidFractionDigits";
+    public static final BString FAILED_TO_DECODE_BYTES = StringUtils.fromString("FailedToDecodeBytes");
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

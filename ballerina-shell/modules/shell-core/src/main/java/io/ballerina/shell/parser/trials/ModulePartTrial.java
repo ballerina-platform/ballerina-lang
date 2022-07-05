@@ -24,6 +24,10 @@ import io.ballerina.shell.parser.TrialTreeParser;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Attempts to capture a module part node.
  * Parses directly and checks for module level entries.
@@ -36,9 +40,11 @@ public class ModulePartTrial extends TreeParserTrial {
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         TextDocument document = TextDocuments.from(source);
         SyntaxTree tree = getSyntaxTree(document);
-        return tree.rootNode();
+        List<Node> nodes = new ArrayList<>();
+        nodes.add(tree.rootNode());
+        return nodes;
     }
 }

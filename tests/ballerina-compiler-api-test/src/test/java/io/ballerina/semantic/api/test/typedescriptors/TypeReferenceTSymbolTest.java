@@ -21,16 +21,26 @@ package io.ballerina.semantic.api.test.typedescriptors;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
@@ -41,6 +51,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocume
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the type reference type descriptor.
@@ -67,7 +78,7 @@ public class TypeReferenceTSymbolTest {
         assertEquals(definition.kind(), TYPE_DEFINITION);
         assertEquals(definition.getName().get(), type.getName().get());
         assertEquals(((TypeDefinitionSymbol) definition).documentation().get().description().get(),
-                     "Represents a person.");
+                "Represents a person.");
         assertSame(type.definition(), definition);
     }
 
@@ -93,4 +104,77 @@ public class TypeReferenceTSymbolTest {
         assertSame(type.definition(), enm);
     }
 
+    @Test
+    public void testRecordField() {
+        Optional<Symbol> fieldSymbol = model.symbol(srcFile, from(44, 7));
+        Optional<Symbol> typeSymbol = model.symbol(srcFile, from(39, 6));
+
+        TypeSymbol variableSymbol = ((VariableSymbol) fieldSymbol.get()).typeDescriptor();
+        assertEquals(variableSymbol.typeKind(), TypeDescKind.RECORD);
+        Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) (variableSymbol)).fieldDescriptors();
+        assertEquals(recordFields.size(), 1);
+        RecordFieldSymbol recordFieldSymbol = recordFields.get("age");
+        assertEquals(recordFieldSymbol.getName().get(), "age");
+        assertEquals(((TypeReferenceTypeSymbol) (recordFieldSymbol).typeDescriptor()).definition(), typeSymbol.get());
+        assertEquals(((recordFieldSymbol).typeDescriptor()).typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((recordFieldSymbol).typeDescriptor()).getName().get().toString(), "Age");
+    }
+
+    @Test
+    public void testReferringATypeRef1() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(46, 8));
+        TypeSymbol type = ((VariableSymbol) symbol.get()).typeDescriptor();
+
+        assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "Foo");
+
+        type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "Person");
+
+        type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(type.typeKind(), TypeDescKind.RECORD);
+    }
+
+    @Test
+    public void testReferringATypeRef2() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(47, 8));
+        TypeSymbol type = ((VariableSymbol) symbol.get()).typeDescriptor();
+
+        assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "Bar");
+
+        type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "Foo");
+
+        type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "Person");
+
+        type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(type.typeKind(), TypeDescKind.RECORD);
+    }
+
+    @Test(dataProvider = "TypeRefPos")
+    public void testTypeRefLookup(int line, int col, String expName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.TYPE);
+
+        TypeSymbol type = (TypeSymbol) symbol.get();
+        assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(type.getName().get(), expName);
+        assertEquals(type.getModule().get().id().orgName(), Names.ANON_ORG.toString());
+        assertEquals(type.getModule().get().id().moduleName(), PackageID.DEFAULT.toString());
+    }
+
+    @DataProvider(name = "TypeRefPos")
+    public Object[][] getTypeRefPos() {
+        return new Object[][]{
+                {46, 4, "Foo"},
+                {48, 4, "Baz"},
+        };
+    }
 }

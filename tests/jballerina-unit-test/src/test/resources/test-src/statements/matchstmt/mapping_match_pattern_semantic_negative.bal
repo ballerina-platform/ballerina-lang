@@ -68,3 +68,32 @@ function testInvalidTypesWithClosedRecordUnion(ClosedRecordWithOneField|EmptyClo
         }
     }
 }
+
+type T readonly & (S1|S2);
+
+type S1 record {|
+    1 x;
+    3 z;
+    string y1;
+    int y2;
+    decimal y3;
+|};
+
+type S2 record {|
+    2 x;
+    4 z;
+    string y1;
+    int y2;
+    decimal y3;
+|};
+
+function testMatchNarrowing() {
+    T t = {x: 1, z: 3, y1: "s", y2: 12, y3: 3};
+    match t {
+        {x: 1, z: 3, y1: var val1, y2: var val2, y3: var val3} => {
+            () _ = val1;
+            string _ = val2;
+            string _ = val3;
+        }
+    }
+}

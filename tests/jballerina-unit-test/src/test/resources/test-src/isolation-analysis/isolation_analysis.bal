@@ -205,8 +205,8 @@ function testIsolatedFunctionAsIsolatedFunctionRuntimeNegative() {
     assertEquality(true, res is error);
 
     error err = <error> res;
-    assertEquality("incompatible types: 'function (int,map) returns (int)' cannot be cast to " +
-                        "'isolated function (int,map) returns (int)'", err.detail()["message"]);
+    assertEquality("incompatible types: 'function (int,map<int>) returns (int)' cannot be cast to " +
+                        "'isolated function (int,map<int>) returns (int)'", err.detail()["message"]);
 }
 
 const FLOAT = 1.23;

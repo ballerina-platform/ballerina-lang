@@ -40,7 +40,7 @@ function testArrayWithErrors() returns [string, string, string] {
     string result2 = "";
     foreach DError error(reason2, message = message1, fatal = fatal1) in errorArray {
         result2 += reason2 + ":";
-        any temp2 = message;
+        any temp2 = message1;
         result2 += <string> message1 + ":";
         result2 += fatal1.toString() + ":";
     }

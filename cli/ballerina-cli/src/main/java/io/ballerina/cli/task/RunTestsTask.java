@@ -26,14 +26,15 @@ import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -109,6 +110,8 @@ public class RunTestsTask implements Task {
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
     private List<String> singleExecTests;
+    private Map<String, Module> coverageModules;
+
     TestReport testReport;
 
     public RunTestsTask(PrintStream out, PrintStream err, String includes, String coverageFormat) {
@@ -119,7 +122,8 @@ public class RunTestsTask implements Task {
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes, String coverageFormat) {
+                        List<String> disableGroupList, List<String> testList, String includes, String coverageFormat,
+                        Map<String, Module> modules) {
         this.out = out;
         this.err = err;
         this.isSingleTestExecution = false;
@@ -142,6 +146,7 @@ public class RunTestsTask implements Task {
         }
         this.includesInCoverage = includes;
         this.coverageReportFormat = coverageFormat;
+        this.coverageModules = modules;
     }
 
     @Override
@@ -149,11 +154,6 @@ public class RunTestsTask implements Task {
         long start = 0;
         if (project.buildOptions().dumpBuildTime()) {
             start = System.currentTimeMillis();
-        }
-        try {
-            ProjectUtils.checkExecutePermission(project.sourceRoot());
-        } catch (ProjectException e) {
-            throw createLauncherException(e.getMessage());
         }
 
         filterTestGroups();
@@ -170,11 +170,12 @@ public class RunTestsTask implements Task {
         try {
             if (project.kind() == ProjectKind.BUILD_PROJECT) {
                 cachesRoot = project.sourceRoot();
+                target = new Target(project.targetDir());
             } else {
                 cachesRoot = Files.createTempDirectory("ballerina-test-cache" + System.nanoTime());
+                target = new Target(cachesRoot);
             }
 
-            target = new Target(cachesRoot);
             testsCachePath = target.getTestsCachePath();
         } catch (IOException e) {
             throw createLauncherException("error while creating target directory: ", e);
@@ -192,8 +193,9 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-        for (ModuleId moduleId : project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            Module module = project.currentPackage().module(moduleId);
+        for (ModuleDescriptor moduleDescriptor :
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
@@ -383,7 +385,8 @@ public class RunTestsTask implements Task {
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
-            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.coverageReportFormat);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.coverageReportFormat,
+                    this.coverageModules.get(module.moduleName().toString()));
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -449,7 +452,7 @@ public class RunTestsTask implements Task {
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + jsonFile.getAbsolutePath() + "\n");
+                out.println("\t" + jsonFile.toPath() + "\n");
             }
         }
 
@@ -527,7 +530,7 @@ public class RunTestsTask implements Task {
 
         // Adds arguments to be read at the Test Runner
         // Index [0 - 3...]
-        cmdArgs.add(testCachePath.toString());
+        cmdArgs.add(target.path().toString());
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
 
@@ -647,6 +650,15 @@ public class RunTestsTask implements Task {
                 PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
                         currentPackage.packageId(), module.moduleName());
                 exclusionPathList.add(codeGeneratedTestLibrary.path());
+            }
+        }
+
+        for (ResolvedPackageDependency resolvedPackageDependency : currentPackage.getResolution().allDependencies()) {
+            Package pkg = resolvedPackageDependency.packageInstance();
+            for (ModuleId moduleId : pkg.moduleIds()) {
+                Module module = pkg.module(moduleId);
+                exclusionPathList.add(
+                        jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
             }
         }
 

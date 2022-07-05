@@ -5,7 +5,11 @@
   },
   {
     "description": "View functions.",
-    "code": "function getAddress() returns Address { Address address = {street: \"380 Lakewood Dr.\", city: \"Desoto\", state: \"TX\", zipcode: \"75115\"}; return address;\n}; function getPerson() returns Person { Address address = getAddress(); Person person = {name: \"Jack Smith\", age: 23, address, \"occupation\": \"Software Engineer\"}; return person;\n}"
+    "code": "function getAddress() returns Address { Address address = {street: \"380 Lakewood Dr.\", city: \"Desoto\", state: \"TX\", zipcode: \"75115\"}; return address;\n}"
+  },
+  {
+    "description": "View functions.",
+    "code": "function getPerson() returns Person { Address address = getAddress(); Person person = {name: \"Jack Smith\", age: 23, address, \"occupation\": \"Software Engineer\"}; return person;\n}"
   },
   {
     "description": "Define variables using record binding pattern.",

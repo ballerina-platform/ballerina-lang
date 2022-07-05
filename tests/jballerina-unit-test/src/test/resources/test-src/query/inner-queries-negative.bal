@@ -98,3 +98,48 @@ function testScopeVisibilityOfJoinOnClose() {
         };
 
 }
+
+function testRedeclaredSymInAction1() returns error? {
+     from var item in 1 ... 5
+        do {
+          from var item in 1...3
+            do {
+                int _ = 10;
+            };
+        };
+}
+
+function testRedeclaredSymbol2() returns error? {
+    error? a = ();
+    from var item in 1 ... 5
+        where item < 2
+        do {
+            a = (from var item in 1 ... 5
+                where item < 2
+                do {
+                    int _ = 10;
+                });
+        };
+
+    return a;
+}
+
+function testRedeclaredSymInExp() returns error? {
+    from var item in 1 ... 5
+        do {
+            _ = from var item in 1...3
+            select item;
+        };
+}
+
+type A record {|
+    int[] pos;
+|};
+
+function testInnerQuerySymbolVisibility() {
+   A[] res = from var a in 2...5
+        select {
+            pos: (from var b in (from var c in 1...2 where c == a select c)
+                select b)
+        };
+}

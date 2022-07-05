@@ -44,7 +44,7 @@ type KeyType anydata;
 #
 # + t - the table
 # + return - number of members in parameter `t`
-public isolated function length(table<MapType> t) returns int = @java:Method {
+public isolated function length(table<map<any|error>> t) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.table.Length",
     name: "length"
 } external;
@@ -108,20 +108,20 @@ public isolated function add(table<MapType> t, MapType val) = @java:Method {
 
 // Functional iteration
 
-# Applies a function each member of a table and returns a table of the result.
+# Applies a function to each member of a table and returns a table of the result.
 #
 # + t - the table
 # + func - a function to apply to each member
-# + return - new table containing result of applying function `func` to each member
-public isolated function 'map(table<MapType> t, @isolatedParam function(MapType val) returns Type func)
-   returns table<Type> key<never> = @java:Method {
+# + return - new table containing result of applying parameter `func` to each member
+public isolated function 'map(table<MapType> t, @isolatedParam function(MapType val) returns MapType1 func)
+   returns table<MapType1> key<never> = @java:Method {
     'class: "org.ballerinalang.langlib.table.Map",
     name: "map"
 } external;
 
 # Applies a function to each member of a table.
 #
-# The function `func` is applied to each member of parameter `t`.
+# The parameter `func` is applied to each member of parameter `t`.
 #
 # + t - the table
 # + func - a function to apply to each member
@@ -136,7 +136,7 @@ public isolated function forEach(table<MapType> t, @isolatedParam function(MapTy
 #
 # + t - the table
 # + func - a predicate to apply to each member to test whether it should be included
-# + return - new table containing members for which function `func` evaluates to true
+# + return - new table containing members for which parameter `func` evaluates to true
 public isolated function filter(table<MapType> key<KeyType> t, @isolatedParam function(MapType val) returns boolean func)
    returns table<MapType> key<KeyType> = @java:Method {
     'class: "org.ballerinalang.langlib.table.Filter",
@@ -150,8 +150,8 @@ public isolated function filter(table<MapType> key<KeyType> t, @isolatedParam fu
 #
 # + t - the table
 # + func - combining function
-# + initial - initial value for the first argument of combining function `func`
-# + return - result of combining the members of parameter `t` using function `func`
+# + initial - initial value for the first argument of combining parameter `func`
+# + return - result of combining the members of parameter `t` using parameter `func`
 public isolated function reduce(table<MapType> t, @isolatedParam function(Type accum, MapType val) returns Type func, Type initial) returns Type =
 @java:Method {
     'class: "org.ballerinalang.langlib.table.Reduce",
@@ -189,7 +189,7 @@ public isolated function removeIfHasKey(table<MapType> key<KeyType> t, KeyType k
 # This panics if any member cannot be removed.
 #
 # + t - the table
-public isolated function removeAll(table<MapType> t) returns () = @java:Method {
+public isolated function removeAll(table<map<any|error>> t) returns () = @java:Method {
     'class: "org.ballerinalang.langlib.table.RemoveAll",
     name: "removeAll"
 } external;
@@ -208,7 +208,7 @@ public isolated function hasKey(table<MapType> key<KeyType> t, KeyType k) return
 #
 # + t - the table
 # + return - a new list of all keys
-public isolated function keys(table<MapType> key<KeyType> t) returns KeyType[] = @java:Method {
+public isolated function keys(table<map<any|error>> key<KeyType> t) returns KeyType[] = @java:Method {
     'class: "org.ballerinalang.langlib.table.GetKeys",
     name: "keys"
 } external;

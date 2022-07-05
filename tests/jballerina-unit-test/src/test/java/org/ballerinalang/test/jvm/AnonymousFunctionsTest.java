@@ -17,7 +17,6 @@
   */
  package org.ballerinalang.test.jvm;
 
- import org.ballerinalang.core.model.values.BValue;
  import org.ballerinalang.test.BCompileUtil;
  import org.ballerinalang.test.BRunUtil;
  import org.ballerinalang.test.CompileResult;
@@ -43,32 +42,32 @@
 
      @Test(description = "Test anon call")
      public void testAnonCall() {
-         BValue[] result = BRunUtil.invoke(compileResult, "testAnonFunc");
-         Assert.assertEquals(result[0].stringValue(), "Hello World.!!!");
+         Object result = BRunUtil.invoke(compileResult, "testAnonFunc");
+         Assert.assertEquals(result.toString(), "Hello World.!!!");
      }
 
      @Test(description = "Test fp passing between methods")
      public void testFPPassing() {
-         BValue[] result = BRunUtil.invoke(compileResult, "testFPPassing");
-         Assert.assertEquals(result[0].stringValue(), "200");
+         Object result = BRunUtil.invoke(compileResult, "testFPPassing");
+         Assert.assertEquals(result.toString(), "200");
      }
 
      @Test(description = "Test basic closures")
      public void testBasicClosure() {
-         BValue[] result = BRunUtil.invoke(compileResult, "testBasicClosure");
-         Assert.assertEquals(result[0].stringValue(), "242");
+         Object result = BRunUtil.invoke(compileResult, "testBasicClosure");
+         Assert.assertEquals(result.toString(), "242");
      }
 
      @Test(description = "Test multilevel closures")
      public void testMultilevelClosures() {
-         BValue[] result = BRunUtil.invoke(compileResult, "testMultilevelClosure");
-         Assert.assertEquals(result[0].stringValue(), "72");
+         Object result = BRunUtil.invoke(compileResult, "testMultilevelClosure");
+         Assert.assertEquals(result.toString(), "72");
      }
 
      @Test(description = "Test basic worker")
      public void testWorkerBasic() {
-         BValue[] result = BRunUtil.invoke(compileResult, "basicWorkerTest");
-         Assert.assertEquals(result[0].stringValue(), "120");
+         Object result = BRunUtil.invoke(compileResult, "basicWorkerTest");
+         Assert.assertEquals(result.toString(), "120");
      }
 
      @AfterClass

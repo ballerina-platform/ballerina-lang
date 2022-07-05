@@ -16,7 +16,7 @@
 
 type UserDefinedError error <BasicErrorDetail>;
 type BasicErrorDetail record {|
-    int basicErrorNo?;
+    int basicErrorNo;
     anydata...;
 |};
 string message1 = "my message one";
@@ -29,12 +29,12 @@ boolean detail1 = false;
 isolated UserDefinedError error(message3, basicErrorNo = detail3) = error UserDefinedError("error message three", basicErrorNo = 3);
 
 // Only simple variables are allowed to be configurable
-configurable UserDefinedError error(message4) = error UserDefinedError("error message four");
+configurable UserDefinedError2 error(message4) = error UserDefinedError2("error message four");
 
 const annotation annot on source function;
 
 @annot
-UserDefinedError error (message5) = error UserDefinedError("error message five");
+UserDefinedError2 error (message5) = error UserDefinedError2("error message five");
 
 UserDefinedError error(message7, basicErrorNo = errorNo2, ...otherDetails) = error UserDefinedError(
                                                                     message6, basicErrorNo = errorNo1);
@@ -58,3 +58,9 @@ function foo() returns VarTestError =>
 function getError() returns UserDefinedError {
     return error UserDefinedError("error message one", basicErrorNo = 1);
 }
+
+type UserDefinedError2 error <BasicErrorDetail2>;
+type BasicErrorDetail2 record {|
+    int basicErrorNo?;
+    anydata...;
+|};

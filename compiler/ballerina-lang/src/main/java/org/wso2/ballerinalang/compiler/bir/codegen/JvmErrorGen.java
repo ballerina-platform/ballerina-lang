@@ -34,11 +34,13 @@ import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK_OVERFLOW_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRAP_ERROR_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_ERROR_FROM_THROWABLE;
 
 /**
  * Error generator class used for holding errors and the index map.
@@ -72,7 +74,7 @@ public class JvmErrorGen {
         BIRNode.BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
         int errorIndex = this.getJVMIndexOfVarRef(varDcl);
         jvmInstructionGen.generateVarLoad(this.mv, varDcl, errorIndex);
-        this.mv.visitTypeInsn(CHECKCAST, JvmConstants.BERROR);
+        this.mv.visitTypeInsn(CHECKCAST, BERROR);
         this.mv.visitInsn(ATHROW);
     }
 
@@ -103,7 +105,7 @@ public class JvmErrorGen {
                 this.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
                 this.mv.visitLabel(errorValueLabel);
                 this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "createInteropError",
-                                        String.format("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+                        CREATE_ERROR_FROM_THROWABLE, false);
                 jvmInstructionGen.generateVarStore(this.mv, retVarDcl, retIndex);
                 termGen.genReturnTerm(retIndex, func);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
@@ -121,8 +123,7 @@ public class JvmErrorGen {
 
             this.mv.visitLabel(otherErrorLabel);
             this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "createInteropError",
-                                    String.format("(L%s;)L%s;", THROWABLE, ERROR_VALUE),
-                                    false);
+                    CREATE_ERROR_FROM_THROWABLE, false);
             this.mv.visitInsn(ATHROW);
             this.mv.visitJumpInsn(GOTO, jumpLabel);
             this.mv.visitLabel(jumpLabel);
@@ -141,7 +142,7 @@ public class JvmErrorGen {
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         this.mv.visitLabel(otherErrorLabel);
         this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, TRAP_ERROR_METHOD,
-                                String.format("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+                CREATE_ERROR_FROM_THROWABLE, false);
         this.mv.visitVarInsn(ASTORE, lhsIndex);
         this.mv.visitLabel(jumpLabel);
     }

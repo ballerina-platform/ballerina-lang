@@ -20,6 +20,7 @@ package org.ballerinalang.test.expressions.trap;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -39,11 +40,17 @@ public class TrapOperatorTest {
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'int', found '(int|error)'", 19, 13);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'boolean', found '(boolean|error)'",
                 25, 8);
-        BAssertUtil.validateError(negative, i++, "invalid usage of the 'check' expression operator: " +
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'check' expression operator: " +
                         "no expression type is equivalent to error type", 29, 46);
-        BAssertUtil.validateError(negative, i++, "invalid usage of the 'check' expression operator: " +
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'check' expression operator: " +
                         "no expression type is equivalent to error type", 29, 56);
+        Assert.assertEquals(negative.getWarnCount(), 2);
+        Assert.assertEquals(negative.getErrorCount(), i - 2);
+    }
 
-        Assert.assertEquals(negative.getErrorCount(), i);
+    @Test
+    public void testTrapExpression() {
+        CompileResult result = BCompileUtil.compile("test-src/expressions/trap/trap-expr.bal");
+        BRunUtil.invoke(result, "trapInsideFunctionArg");
     }
 }

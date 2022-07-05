@@ -31,13 +31,16 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -45,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for change parameter type.
@@ -55,6 +59,14 @@ import java.util.Optional;
 public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Change Parameter Type";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
+
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
 
     /**
      * {@inheritDoc}
@@ -63,9 +75,6 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
-            return Collections.emptyList();
-        }
 
         // Skip, non-local var declarations
         VariableDeclarationNode localVarNode = getVariableDeclarationNode(positionDetails.matchedNode());
@@ -107,6 +116,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         if (node.isEmpty()) {
             return Collections.emptyList();
         }
+
         Optional<Range> paramTypeRange = getParameterTypeRange(node.get());
         if (paramTypeRange.isEmpty()) {
             return Collections.emptyList();
@@ -120,8 +130,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(paramTypeRange.get(), type));
             String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
-                                                type);
-            actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+                    type);
+            actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;
     }
@@ -144,13 +154,13 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             return Optional.empty();
         } else if (parameterNode.kind() == SyntaxKind.REQUIRED_PARAM) {
             RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(requiredParameterNode.typeName().lineRange()));
+            return Optional.of(PositionUtil.toRange(requiredParameterNode.typeName().lineRange()));
         } else if (parameterNode.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
             DefaultableParameterNode defaultableParameterNode = (DefaultableParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(defaultableParameterNode.typeName().lineRange()));
+            return Optional.of(PositionUtil.toRange(defaultableParameterNode.typeName().lineRange()));
         } else if (parameterNode.kind() == SyntaxKind.REST_PARAM) {
             RestParameterNode restParameterNode = (RestParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(restParameterNode.typeName().lineRange()));
+            return Optional.of(PositionUtil.toRange(restParameterNode.typeName().lineRange()));
         } else {
             // Skip other node types
             return Optional.empty();

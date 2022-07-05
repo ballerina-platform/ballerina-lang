@@ -34,6 +34,7 @@ import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +51,8 @@ public class TypeIds {
     private static final Module BALLERINA_TYPEDESC_PKG_ID =
             new Module(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
 
-    private static final String TYPE_ID_TYPE_SIG = "record {| ModuleId moduleId; (string|int) localId; |}";
+    private static final String TYPE_ID_TYPE_SIG =
+            "record {| ballerina/lang.typedesc:0.0.0:ModuleId moduleId; (string|int) localId; |}";
     private static final String MODULE_ID_TYPE_SIG =
             "record {| string organization; string name; string[] platformParts; |}";
 
@@ -86,12 +88,17 @@ public class TypeIds {
                 typeIdSet = errorType.typeIdSet;
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 BObjectType objectType = (BObjectType) describingType;
                 typeIdSet = objectType.typeIdSet;
                 break;
             case TypeTags.INTERSECTION_TAG:
                 BIntersectionType intersectionType = (BIntersectionType) describingType;
                 typeIdSet = getTypeIdSetForType(intersectionType.getEffectiveType());
+                break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                BTypeReferenceType referenceType = (BTypeReferenceType) describingType;
+                typeIdSet = getTypeIdSetForType(referenceType.getReferredType());
                 break;
             default:
                 return null;

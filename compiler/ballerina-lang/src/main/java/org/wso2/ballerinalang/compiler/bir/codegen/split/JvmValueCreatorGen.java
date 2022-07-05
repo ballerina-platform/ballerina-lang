@@ -46,7 +46,7 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 
 /**
  * Ballerina value creation related JVM byte code generation class.
@@ -95,7 +95,7 @@ public class JvmValueCreatorGen {
 
     public void generateStaticInitializer(BIRNode.BIRPackage module, ClassWriter cw,
                                            String typeOwnerClass, String varName, String metaDataVarName) {
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, metaDataVarName, String.format("L%s;", STRAND_METADATA),
+        FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, metaDataVarName, GET_STRAND_METADATA,
                 null, null);
         fv.visitEnd();
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);

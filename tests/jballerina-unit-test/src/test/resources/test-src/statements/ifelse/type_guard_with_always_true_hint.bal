@@ -23,7 +23,7 @@ function testTypeGuardRuntimeWithAlwaysTrueHint1() {
     if code is byte {
 
     } else {
-        panic error("Expected 'code' to be a 'byte' value");
+        panic error("Expected 'code' to be a 'byte' value"); // unreachable panic stmt is not an error
     }
 }
 
@@ -33,6 +33,6 @@ function testTypeGuardRuntimeWithAlwaysTrueHint2() {
     if func is function () returns int {
 
     } else {
-        panic error("Expected 'func' to be a 'function () returns int' value");
+        panic error("Expected 'func' to be a 'function () returns int' value"); // unreachable panic stmt is not an error
     }
 }

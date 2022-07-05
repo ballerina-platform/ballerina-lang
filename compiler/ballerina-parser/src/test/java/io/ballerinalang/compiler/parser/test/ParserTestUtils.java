@@ -797,6 +797,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_CONSTRUCTOR;
             case "INFERRED_TYPEDESC_DEFAULT":
                 return SyntaxKind.INFERRED_TYPEDESC_DEFAULT;
+            case "SPREAD_MEMBER":
+                return SyntaxKind.SPREAD_MEMBER;
             default:
                 return getActionKind(kind);
         }

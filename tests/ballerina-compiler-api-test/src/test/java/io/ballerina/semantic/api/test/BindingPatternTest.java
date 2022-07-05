@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -111,6 +112,7 @@ public class BindingPatternTest {
                     break;
                 case MAP:
                     assertEquals(((MapTypeSymbol) type).typeParameter().get().typeKind(), constraintKind);
+                    assertEquals(((MapTypeSymbol) type).typeParam().typeKind(), constraintKind);
                     break;
             }
         }
@@ -140,6 +142,70 @@ public class BindingPatternTest {
                 {45, 28, "cause1", UNION, null},
                 {45, 41, "code1", INT, null},
                 {45, 51, "rbp6", MAP, ANYDATA},
+        };
+    }
+
+    @Test(dataProvider = "ExprPosProvider")
+    public void testExprOfBindingPatterns(int line, int col, SymbolKind expKind, String name) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), expKind);
+        assertEquals(symbol.get().getName().get(), name);
+    }
+
+    @DataProvider(name = "ExprPosProvider")
+    public Object[][] getExprPos() {
+        return new Object[][]{
+                {29, 53, SymbolKind.VARIABLE, "cbp1"},
+                {37, 51, SymbolKind.RECORD_FIELD, "name"},
+                {45, 65, SymbolKind.TYPE, "Error"},
+        };
+    }
+
+    @Test
+    public void testListBindingPatternPos() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(29, 5));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.TYPE);
+        assertEquals(((TypeSymbol) symbol.get()).typeKind(), INT);
+    }
+
+    @Test(dataProvider = "PosProvider2")
+    public void testTypeOfWithinBindingPatterns(int line, int sCol, int eCol, TypeDescKind expTypeKind) {
+        Optional<TypeSymbol> type = model.typeOf(
+                LineRange.from("binding_patterns_test.bal", from(line, sCol), from(line, eCol)));
+
+        if (expTypeKind == null) {
+            assertTrue(type.isEmpty());
+            return;
+        }
+
+        assertTrue(type.isPresent());
+        assertEquals(type.get().typeKind(), expTypeKind);
+    }
+
+    @DataProvider(name = "PosProvider2")
+    public Object[][] getPos2() {
+        return new Object[][]{
+                {28, 11, 15, FLOAT},
+                {28, 20, 24, ARRAY},
+                {29, 29, 33, null},
+                {29, 44, 48, null},
+                {29, 53, 57, INT},
+                {35, 5, 9, null},
+                {35, 11, 15, STRING},
+                {35, 17, 21, INT},
+                {35, 26, 30, MAP},
+                {36, 42, 46, null},
+                {36, 48, 51, null},
+                {36, 56, 60, null},
+                {44, 16, 19, STRING},
+                {44, 28, 32, null},
+                {44, 33, 37, INT},
+                {44, 42, 46, MAP},
+                {45, 22, 26, null},
+                {45, 41, 46, null},
+                {45, 51, 55, null},
         };
     }
 }

@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 1,
+    "character": 27
+  },
+  "source": "statement_context/source/start_action_ctx_source4a.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tDesc",
+      "kind": "Variable",
+      "detail": "future<any|error>",
+      "sortText": "F",
+      "insertText": "tDesc",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

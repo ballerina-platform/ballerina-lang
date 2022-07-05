@@ -97,23 +97,6 @@ public class BPackageSymbol extends BTypeSymbol {
     }
 
     @Override
-    public BPackageSymbol createLabelSymbol() {
-        BPackageSymbol copy = new BPackageSymbol(pkgID, owner, pos, origin);
-        copy.initFunctionSymbol = initFunctionSymbol;
-        copy.startFunctionSymbol = startFunctionSymbol;
-        copy.stopFunctionSymbol = stopFunctionSymbol;
-        copy.testInitFunctionSymbol = testInitFunctionSymbol;
-        copy.testStartFunctionSymbol = testStartFunctionSymbol;
-        copy.testStopFunctionSymbol = testStopFunctionSymbol;
-        copy.packageFile = packageFile;
-        copy.compiledPackage = compiledPackage;
-        copy.entryPointExists = entryPointExists;
-        copy.isLabel = true;
-        copy.importPrefix = importPrefix;
-        return copy;
-    }
-
-    @Override
     public String toString() {
         return pkgID.toString();
     }

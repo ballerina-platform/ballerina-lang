@@ -4,6 +4,7 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 
 /**
  * Utilities for the class definition context.
@@ -23,6 +24,6 @@ public class ClassDefinitionNodeContextUtil {
         return classDefinitionNode.members().stream()
                 .filter(member -> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
                 .map(member -> (FunctionDefinitionNode) member)
-                .noneMatch(funcDef -> "init".equals(funcDef.functionName().text()));
+                .noneMatch(funcDef -> ItemResolverConstants.INIT.equals(funcDef.functionName().text()));
     }
 }

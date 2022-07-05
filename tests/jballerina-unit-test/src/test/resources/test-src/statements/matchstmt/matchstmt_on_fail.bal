@@ -1,93 +1,123 @@
-import ballerina/jballerina.java;
 
-function testStaticMatchPatternsWithFailStmt() returns string[] {
-    string | int | boolean a1 = 12;
-    string | int | boolean a2 = "Hello";
-    string | int | boolean a3 = true;
+function testStaticMatchPatternsWithFailStmt() {
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "Hello";
+    string|int|boolean a3 = true;
 
-    string | int | boolean a4 = 15;
-    string | int | boolean a5 = "fail";
-    string | int | boolean a6 = false;
+    string|int|boolean a4 = 15;
+    string|int|boolean a5 = "fail";
+    string|int|boolean a6 = false;
 
-    string | int | boolean a7 = "NothingToMatch";
+    string|int|boolean a7 = "NothingToMatch";
 
-    string[] result = [fooWithFail(a1), fooWithFail(a2), fooWithFail(a3), fooWithFail(a4), fooWithFail(a5),
-    fooWithFail(a6), fooWithFail(a7)];
-
-    return result;
+    assertEquals("12", fooWithFail(a1));
+    assertEquals("Hello", fooWithFail(a2));
+    assertEquals("true", fooWithFail(a3));
+    assertEquals("15", fooWithFail(a4));
+    assertEquals("error(\"custom error\",message=\"error value\")", fooWithFail(a5));
+    assertEquals("false", fooWithFail(a6));
+    assertEquals("Default", fooWithFail(a7));
 }
 
-function testStaticMatchPatternsWithCheckExpr() returns string[] {
-    string | int | boolean a1 = 12;
-    string | int | boolean a2 = "Hello";
-    string | int | boolean a3 = true;
+function testStaticMatchPatternsWithOnFailStmtWithoutVariable() {
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "fail";
+    string|int|boolean a3 = "NothingToMatch";
 
-    string | int | boolean a4 = 15;
-    string | int | boolean a5 = "check";
-    string | int | boolean a6 = false;
-
-    string | int | boolean a7 = "NothingToMatch";
-
-    string[] result = [fooWithCheck(a1), fooWithCheck(a2), fooWithCheck(a3), fooWithCheck(a4), fooWithCheck(a5),
-    fooWithCheck(a6), fooWithCheck(a7)];
-
-    return result;
+    assertEquals("12", onFailWithoutVariable(a1));
+    assertEquals("Failed!", onFailWithoutVariable(a2));
+    assertEquals("Default", onFailWithoutVariable(a3));
 }
 
-function fooWithFail(string | int | boolean a) returns string {
+function testStaticMatchPatternsWithCheckExpr() {
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "Hello";
+    string|int|boolean a3 = true;
+
+    string|int|boolean a4 = 15;
+    string|int|boolean a5 = "check";
+    string|int|boolean a6 = false;
+
+    string|int|boolean a7 = "NothingToMatch";
+
+    assertEquals("12", fooWithCheck(a1));
+    assertEquals("Hello", fooWithCheck(a2));
+    assertEquals("true", fooWithCheck(a3));
+    assertEquals("15", fooWithCheck(a4));
+    assertEquals("error(\"Check Error\")", fooWithCheck(a5));
+    assertEquals("false", fooWithCheck(a6));
+    assertEquals("Default", fooWithCheck(a7));
+}
+
+function onFailWithoutVariable(string|int|boolean a) returns string {
     match a {
         12 => {
-            return "Value is '12'";
-        }
-        "Hello" => {
-            return "Value is 'Hello'";
-        }
-        15 => {
-            return "Value is '15'";
-        }
-        true => {
-            return "Value is 'true'";
-        }
-        false => {
-            return "Value is 'false'";
+            return "12";
         }
         "fail" => {
-             error err = error("custom error", message = "error value");
-             fail err;
+            error err = error("custom error", message = "error value");
+            fail err;
         }
-    } on fail error e {
-        return "Value is 'error'";
+    } on fail {
+        return "Failed!";
     }
-
-    return "Value is 'Default'";
+    return "Default";
 }
 
-function fooWithCheck(string | int | boolean a) returns string {
+function fooWithFail(string|int|boolean a) returns string {
     match a {
         12 => {
-            return "Value is '12'";
+            return "12";
         }
         "Hello" => {
-            return "Value is 'Hello'";
+            return "Hello";
         }
         15 => {
-            return "Value is '15'";
+            return "15";
         }
         true => {
-            return "Value is 'true'";
+            return "true";
         }
         false => {
-            return "Value is 'false'";
+            return "false";
+        }
+        "fail" => {
+            error err = error("custom error", message = "error value");
+            fail err;
+        }
+    } on fail error e {
+        return e.toString();
+    }
+
+    return "Default";
+}
+
+function fooWithCheck(string|int|boolean a) returns string {
+    match a {
+        12 => {
+            return "12";
+        }
+        "Hello" => {
+            return "Hello";
+        }
+        15 => {
+            return "15";
+        }
+        true => {
+            return "true";
+        }
+        false => {
+            return "false";
         }
         "check" => {
-            string str = check getError();
+            string str = check getCheckError();
             return str;
         }
     } on fail error e {
-        return "Value is 'error'";
+        return e.toString();
     }
 
-    return "Value is 'Default'";
+    return "Default";
 }
 
 function getError() returns string|error {
@@ -95,151 +125,163 @@ function getError() returns string|error {
     return err;
 }
 
-function testNestedMatchPatternsWithFail() returns string[] {
-    string | int | boolean a1 = 12;
-    string | int | boolean a2 = "Hello";
-
-    string | int | boolean a3 = 15;
-    string | int | boolean a4 = "HelloWorld";
-
-    string | int | boolean a5 = "fail";
-    string | int | boolean a6 = "fail";
-
-    string | int | boolean a7 = "NothingToMatch";
-    string | int | boolean a8 = false;
-
-    string | int | boolean a9 = 15;
-    string | int | boolean a10 = 34;
-
-    string | int | boolean a11 = true;
-    string | int | boolean a12 = false;
-
-    string[] result = [barWithFail(a1, a2), barWithFail(a3, a4), barWithFail(a5, a6), barWithFail(a7, a8),
-    barWithFail(a9, a10), barWithFail(a11, a12)];
-
-    return result;
+function getCheckError() returns string|error {
+    error err = error("Check Error");
+    return err;
 }
 
-function barWithFail(string | int | boolean a, string | int | boolean b) returns string {
+function testNestedMatchPatternsWithFail() {
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "Hello";
+
+    string|int|boolean a3 = 15;
+    string|int|boolean a4 = "HelloWorld";
+
+    string|int|boolean a5 = "fail";
+    string|int|boolean a6 = "fail";
+
+    string|int|boolean a7 = "NothingToMatch";
+    string|int|boolean a8 = false;
+
+    string|int|boolean a9 = 15;
+    string|int|boolean a10 = 34;
+
+    string|int|boolean a11 = true;
+    string|int|boolean a12 = false;
+
+    assertEquals("12", barWithFail(a1, a2));
+    assertEquals("15 & HelloWorld", barWithFail(a3, a4));
+    assertEquals("error(\"custom error\",message=\"error value\")", barWithFail(a5, a6));
+    assertEquals("Default", barWithFail(a7, a8));
+    assertEquals("15 & 34", barWithFail(a9, a10));
+    assertEquals("true", barWithFail(a11, a12));
+}
+
+function barWithFail(string|int|boolean a, string|int|boolean b) returns string {
     match a {
         12 => {
-            return "Value is '12'";
+            return "12";
         }
         "Hello" => {
-            return "Value is 'Hello'";
+            return "Hello";
         }
         15 => {
             match b {
                 34 => {
-                    return "Value is '15 & 34'";
+                    return "15 & 34";
                 }
                 "HelloWorld" => {
-                    return "Value is '15 & HelloWorld'";
+                    return "15 & HelloWorld";
                 }
             }
         }
         "fail" => {
             match b {
                 "fail" => {
-                     error err = error("custom error", message = "error value");
-                     fail err;
+                    error err = error("custom error", message = "error value");
+                    fail err;
                 }
                 "HelloWorld" => {
-                    return "Value is 'HelloAgain & HelloWorld'";
+                    return "HelloAgain & HelloWorld";
                 }
             }
         }
         true => {
-            return "Value is 'true'";
+            return "true";
         }
     } on fail error e {
-        return "Value is 'error'";
+        return e.toString();
     }
 
-    return "Value is 'Default'";
+    return "Default";
 }
 
-function testNestedMatchPatternsWithCheck() returns string[] {
-    string | int | boolean a1 = 12;
-    string | int | boolean a2 = "Hello";
+string msg = "Value is ";
 
-    string | int | boolean a3 = 15;
-    string | int | boolean a4 = "HelloWorld";
+function testNestedMatchPatternsWithCheck() {
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "Hello";
 
-    string | int | boolean a5 = "check";
-    string | int | boolean a6 = "check";
+    string|int|boolean a3 = 15;
+    string|int|boolean a4 = "HelloWorld";
 
-    string | int | boolean a7 = "NothingToMatch";
-    string | int | boolean a8 = false;
+    string|int|boolean a5 = "check";
+    string|int|boolean a6 = "check";
 
-    string | int | boolean a9 = 15;
-    string | int | boolean a10 = 34;
+    string|int|boolean a7 = "NothingToMatch";
+    string|int|boolean a8 = false;
 
-    string | int | boolean a11 = true;
-    string | int | boolean a12 = false;
+    string|int|boolean a9 = 15;
+    string|int|boolean a10 = 34;
 
-    string[] result = [barWithCheck(a1, a2), barWithCheck(a3, a4), barWithCheck(a5, a6), barWithCheck(a7, a8),
-    barWithCheck(a9, a10), barWithCheck(a11, a12)];
+    string|int|boolean a11 = true;
+    string|int|boolean a12 = false;
 
-    return result;
+    assertEquals("12", barWithCheck(a1, a2));
+    assertEquals("15 & HelloWorld", barWithCheck(a3, a4));
+    assertEquals("error(\"Check Error\")", barWithCheck(a5, a6));
+    assertEquals("Default", barWithCheck(a7, a8));
+    assertEquals("15 & 34", barWithCheck(a9, a10));
+    assertEquals("true", barWithCheck(a11, a12));
 }
 
-function barWithCheck(string | int | boolean a, string | int | boolean b) returns string {
+function barWithCheck(string|int|boolean a, string|int|boolean b) returns string {
     match a {
-            12 => {
-                return "Value is '12'";
-            }
-            "Hello" => {
-                return "Value is 'Hello'";
-            }
-            15 => {
-                match b {
-                    34 => {
-                        return "Value is '15 & 34'";
-                    }
-                    "HelloWorld" => {
-                        return "Value is '15 & HelloWorld'";
-                    }
-                }
-            }
-            "check" => {
-                match b {
-                    "check" => {
-                        println("Inside inner chek");
-                         string str = check getError();
-                         return str;
-                    }
-                    "HelloWorld" => {
-                        return "Value is 'HelloAgain & HelloWorld'";
-                    }
-                }
-            }
-            true => {
-                return "Value is 'true'";
-            }
-        } on fail error e {
-            println("Inside error caught");
-            return "Value is 'error'";
+        12 => {
+            return "12";
         }
+        "Hello" => {
+            return "Hello";
+        }
+        15 => {
+            match b {
+                34 => {
+                    return "15 & 34";
+                }
+                "HelloWorld" => {
+                    return "15 & HelloWorld";
+                }
+            }
+        }
+        "check" => {
+            match b {
+                "check" => {
+                    string str = check getCheckError();
+                    return str;
+                }
+                "HelloWorld" => {
+                    return "HelloAgain & HelloWorld";
+                }
+            }
+        }
+        true => {
+            return "true";
+        }
+    } on fail error e {
+        return e.toString();
+    }
 
-        return "Value is 'Default'";
+    return "Default";
 }
 
 const DECIMAL_NUMBER = 2;
 
 function testVarInMatchPatternWithinOnfail() {
     string res1 = getDetailErrorWithMatchedInput([2, "10"]);
-    assertEquals("Error caught at onfail; input received: 2, 10", res1);
+    assertEquals("error(\"Custom Error\") at onfail; input received: 2, 10", res1);
     string res2 = getDetailErrorWithMatchedInput([10, "50"]);
-    assertEquals("Error caught at onfail; input received: 10, 50", res2);
+    assertEquals("error(\"Custom Error\") at onfail; input received: 10, 50", res2);
     string res3 = getDetailErrorWithMatchedInput([20, "100"]);
-    assertEquals("Error caught at onfail; input received: 20, 100", res3);
+    assertEquals("error(\"Custom Error\") at onfail; input received: 20, 100", res3);
     string res4 = getErrorDetailFromMultipleThrow([2, "100"]);
-    assertEquals("Error caught at onfail; input received: 2, 100-> Error caught at outer onfail.", res4);
+    assertEquals("error(\"Custom Error\") at onfail; input received: 2, 100->" +
+    " Error at outer onfail : error(\"Custom Error\")", res4);
     string res5 = getErrorDetailFromMultipleThrow([10, "100"]);
-    assertEquals("Error caught at onfail; input received: 10, 100-> Error caught at outer onfail.", res5);
+    assertEquals("error(\"Custom Error\") at onfail; input received: 10, 100->" +
+    " Error at outer onfail : error(\"Custom Error\")", res5);
     string res6 = getErrorDetailNestedMatch([DECIMAL_NUMBER, "10"]);
-    assertEquals("Error caught at onfail; input received; digits:10 num:10-> Error caught at outer onfail.", res6);
+    assertEquals("error(\"Custom Error\") at onfail; input received; digits:10 num:10->" +
+    " Error at outer onfail : error(\"Custom Error\")", res6);
 }
 
 function getDetailErrorWithMatchedInput([int, string] dataEntry) returns string {
@@ -247,25 +289,25 @@ function getDetailErrorWithMatchedInput([int, string] dataEntry) returns string 
     match dataEntry {
         [DECIMAL_NUMBER, var digits] => {
             do {
-                string val = check getError();
+                string _ = check getError();
             } on fail error cause {
-                str += "Error caught at onfail; input received: " + DECIMAL_NUMBER.toString() + ", " + digits;
+                str += cause.toString() + " at onfail; input received: " + DECIMAL_NUMBER.toString() + ", " + digits;
             }
         }
 
         [10, var digits] => {
             do {
-                string val = check getError();
+                string _ = check getError();
             } on fail error cause {
-                str += "Error caught at onfail; input received: 10, " + digits;
+                str += cause.toString() + " at onfail; input received: 10, " + digits;
             }
         }
 
         [20, var digits] => {
             do {
-                string val = check getError();
+                string _ = check getError();
             } on fail error cause {
-                str += "Error caught at onfail; input received: 20, " + digits;
+                str += cause.toString() + " at onfail; input received: 20, " + digits;
             }
         }
     }
@@ -277,23 +319,23 @@ function getErrorDetailFromMultipleThrow([int, string] dataEntry) returns string
     match dataEntry {
         [DECIMAL_NUMBER, var digits] => {
             do {
-                string val = check getError();
+                string _ = check getError();
             } on fail error cause {
-                str += "Error caught at onfail; input received: " + DECIMAL_NUMBER.toString() + ", " + digits;
+                str += cause.toString() + " at onfail; input received: " + DECIMAL_NUMBER.toString() + ", " + digits;
                 fail cause;
             }
         }
 
         [10, var digits] => {
             do {
-                string val = check getError();
+                string _ = check getError();
             } on fail error cause {
-                str += "Error caught at onfail; input received: 10, " + digits;
+                str += cause.toString() + " at onfail; input received: 10, " + digits;
                 fail cause;
             }
         }
     } on fail error e {
-        str += "-> Error caught at outer onfail.";
+        str += "-> Error at outer onfail : " + e.toString();
     }
     return str;
 }
@@ -305,27 +347,23 @@ function getErrorDetailNestedMatch([int, string] dataEntry) returns string {
             match digits {
                 var num => {
                     do {
-                        string val = check getError();
+                        string _ = check getError();
                     } on fail error cause {
-                        str += "Error caught at onfail; input received; digits:" + digits + " num:" + num;
+                        str += cause.toString() + " at onfail; input received; digits:" + digits + " num:" + num;
                         fail cause;
                     }
                 }
             }
         }
     } on fail error e {
-        str += "-> Error caught at outer onfail.";
+        str += "-> Error at outer onfail : " + e.toString();
     }
     return str;
 }
-
-public function println(any|error... values) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Utils"
-} external;
 
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

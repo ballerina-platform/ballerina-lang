@@ -18,25 +18,23 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,14 +60,10 @@ public class ModuleVariableDeclarationNodeContext extends
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ResolvedContext resolvedContext;
-        TypeDescriptorNode tDescNode = node.typedBindingPattern().typeDescriptor();
         if (node.initializer().isPresent() && this.withinInitializerContext(ctx, node)) {
-            completionItems.addAll(this.initializerContextCompletions(ctx, node.typedBindingPattern().typeDescriptor(),
-                    node.initializer().get()));
+            completionItems.addAll(this.initializerContextCompletions(ctx, node.initializer().get()));
             resolvedContext = ResolvedContext.INITIALIZER;
-        } else if (tDescNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
-                && ModulePartNodeContextUtil.onServiceTypeDescContext(((SimpleNameReferenceNode) tDescNode).name(),
-                ctx)) {
+        } else if (this.onServiceTypeDescriptorContext(ctx, node)) {
             /*
             Covers the following cases
             Eg
@@ -78,23 +72,30 @@ public class ModuleVariableDeclarationNodeContext extends
             (3) service <cursor>
             (4) isolated service <cursor>
              */
-            List<Symbol> objectSymbols = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(ctx);
-            completionItems.addAll(this.getCompletionItemList(objectSymbols, ctx));
-            completionItems.addAll(this.getModuleCompletionItems(ctx));
-            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
-            completionItems.addAll(this.getCompletionItemsOnQualifiers(node, ctx));
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) ctx.getNodeAtCursor();
+                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(ctx, qNameRef,
+                        ModulePartNodeContextUtil.serviceTypeDescPredicate());
+                completionItems.addAll(this.getCompletionItemList(moduleContent, ctx));
+            } else {
+                List<Symbol> objectSymbols = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(ctx);
+                completionItems.addAll(this.getCompletionItemList(objectSymbols, ctx));
+                completionItems.addAll(this.getModuleCompletionItems(ctx));
+                completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
+                completionItems.addAll(this.getCompletionItemsOnQualifiers(node, ctx));
+            }
             resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
         } else if (withinServiceOnKeywordContext(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
             resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
         } else if (onSuggestionsAfterQualifiers(ctx, node) &&
-                !QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
+                !QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
             /*
                 Covers the following.
                 (1) <qualifier> <cursor>
-                currently the qualifier can be isolated/transactional/client.
+                currently the qualifier can be isolated/transactional/client/configurable.
                 (2) <qualifier> x<cursor>
-                currently the qualifier can be isolated/transactional/client.
+                currently the qualifier can be isolated/transactional/client/configurable.
             */
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, ctx));
             resolvedContext = ResolvedContext.ON_QUALIFIER;
@@ -152,7 +153,7 @@ public class ModuleVariableDeclarationNodeContext extends
                         Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT,
                         Snippet.KW_VAR, Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS,
                         Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION,
-                        Snippet.DEF_SERVICE, Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
+                        Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
                         Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                         Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                         Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
@@ -184,26 +185,39 @@ public class ModuleVariableDeclarationNodeContext extends
             case TRANSACTIONAL_KEYWORD:
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
                 break;
+            case CONFIGURABLE_KEYWORD:
+                completionItems.addAll(this.getTypeDescContextItems(context));
+                break;
             default:
         }
         return completionItems;
     }
 
-    private boolean withinServiceOnKeywordContext(BallerinaCompletionContext context,
+    private boolean withinServiceOnKeywordContext(BallerinaCompletionContext ctx,
                                                   ModuleVariableDeclarationNode node) {
-        TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
-        TypeDescriptorNode typeDescriptor = typedBindingPattern.typeDescriptor();
+        List<String> leadingInvalidTokens = node.leadingInvalidTokens().stream()
+                .map(Token::text)
+                .collect(Collectors.toList());
+        boolean onServiceContext = leadingInvalidTokens.contains(SyntaxKind.SERVICE_KEYWORD.stringValue());
+        CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
+        int cursor = ctx.getCursorPositionInTree();
+        TypeDescriptorNode typeDesc = node.typedBindingPattern().typeDescriptor();
+        boolean completeTypeDesc = typeDesc.apply(expressionValidator);
 
-        if (typeDescriptor.kind() != SyntaxKind.SERVICE_TYPE_DESC
-                || typedBindingPattern.bindingPattern().isMissing()) {
-            return false;
-        }
+        return onServiceContext && completeTypeDesc && cursor > typeDesc.textRange().endOffset();
+    }
 
-        Position position = context.getCursorPosition();
-        LineRange lineRange = typedBindingPattern.bindingPattern().lineRange();
-        return (position.getLine() == lineRange.endLine().line()
-                && position.getCharacter() > lineRange.endLine().offset())
-                || position.getLine() > lineRange.endLine().line();
+    private boolean onServiceTypeDescriptorContext(BallerinaCompletionContext ctx, ModuleVariableDeclarationNode node) {
+        List<String> leadingInvalidTokens = node.leadingInvalidTokens().stream()
+                .map(Token::text)
+                .collect(Collectors.toList());
+        boolean onServiceContext = leadingInvalidTokens.contains(SyntaxKind.SERVICE_KEYWORD.stringValue());
+        CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
+        int cursor = ctx.getCursorPositionInTree();
+        TypeDescriptorNode typeDesc = node.typedBindingPattern().typeDescriptor();
+        boolean completeTypeDesc = typeDesc.apply(expressionValidator);
+
+        return onServiceContext && (!completeTypeDesc || cursor <= typeDesc.textRange().endOffset());
     }
 
     private boolean withinInitializerContext(BallerinaCompletionContext context, ModuleVariableDeclarationNode node) {

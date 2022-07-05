@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
@@ -34,11 +35,13 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
+import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -113,7 +116,7 @@ public class EnumDeclSymbolTest {
 
     @Test(dataProvider = "EnumMemberDeclarationProvider")
     public void testEnumMemberDeclarations(int line, int col, String expName, String expDoc,
-                                           String expAnnot, List<Qualifier> expQuals, TypeDescKind typeDescKind) {
+                                           String expAnnot, List<Qualifier> expQuals) {
         ConstantSymbol symbol = (ConstantSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                           expName, SymbolKind.ENUM_MEMBER);
         // check docs (metadata)
@@ -146,20 +149,32 @@ public class EnumDeclSymbolTest {
 
         // check type
         assertEquals(symbol.typeKind(), TypeDescKind.SINGLETON);
-        assertEquals(symbol.typeDescriptor().typeKind(), typeDescKind);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.SINGLETON);
     }
 
     @DataProvider(name = "EnumMemberDeclarationProvider")
     public Object[][] getEnumMemberDeclInfo() {
         return new Object[][]{
-                {18, 4, "RED", null, null, List.of(), TypeDescKind.SINGLETON},
-                {19, 4, "BLUE", null, null, List.of(), TypeDescKind.SINGLETON},
-                {28, 4, "TWO", "This kind two", null, List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
-                {30, 4, "THREE", null, "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
-                {38, 4, "AMERICA", null, "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
-                {41, 4, "AUSTRALIA", "Australia", "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
-                {42, 4, "EUROPE", null, null, List.of(Qualifier.PUBLIC), TypeDescKind.STRING},
-                {44, 4, "OTHER", "Other", null, List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
+                {18, 4, "RED", null, null, List.of()},
+                {19, 4, "BLUE", null, null, List.of()},
+                {28, 4, "TWO", "This kind two", null, List.of(Qualifier.PUBLIC)},
+                {30, 4, "THREE", null, "enumMemberDecl", List.of(Qualifier.PUBLIC)},
+                {38, 4, "AMERICA", null, "enumMemberDecl", List.of(Qualifier.PUBLIC)},
+                {41, 4, "AUSTRALIA", "Australia", "enumMemberDecl", List.of(Qualifier.PUBLIC)},
+                {42, 4, "EUROPE", null, null, List.of(Qualifier.PUBLIC)},
+                {44, 4, "OTHER", "Other", null, List.of(Qualifier.PUBLIC)},
         };
+    }
+
+    @Test
+    public void testEnumMemberSignature() {
+        List<String> memberSignature = List.of("RED", "BLUE", "GREEN");
+        Optional<Symbol> symbolOptional = model.symbol(srcFile, from(17, 5));
+        assertTrue(symbolOptional.isPresent());
+        EnumSymbol symbol = (EnumSymbol) symbolOptional.get();
+        List<ConstantSymbol> members = symbol.members();
+        for (ConstantSymbol member : members) {
+            assertTrue(memberSignature.contains(member.signature()));
+        }
     }
 }

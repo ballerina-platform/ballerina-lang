@@ -18,14 +18,9 @@
 
 package org.ballerinalang.test.types.anydata;
 
-import org.ballerinalang.core.model.types.BArrayType;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.types.BArrayType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -33,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -53,112 +49,111 @@ public class AnydataTernaryConvTest {
 
     @Test(description = "Test anydata to value type conversion using ternary operator")
     public void testAnydataToValueTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToValueTypes");
-        assertEquals(((BInteger) returns[0]).intValue(), 33);
-        assertEquals(((BFloat) returns[1]).floatValue(), 23.45);
-        assertTrue(((BBoolean) returns[2]).booleanValue());
-        assertEquals(returns[3].stringValue(), "Hello World!");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToValueTypes");
+        assertEquals(returns.get(0), 33L);
+        assertEquals(returns.get(1), 23.45);
+        assertTrue((Boolean) returns.get(2));
+        assertEquals(returns.get(3).toString(), "Hello World!");
     }
 
     @Test(description = "Test anydata to json conversion")
     public void testAnydataToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToJson");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
-        assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
+        Object returns = BRunUtil.invoke(result, "testAnydataToJson");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
+        assertEquals(returns.toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
     }
 
     @Test(description = "Test anydata to xml conversion")
     public void testAnydataToXml() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToXml");
-        assertEquals(returns[0].getType().getTag(), TypeTags.XML_TAG);
-        assertEquals(returns[0].stringValue(), "<book>The Lost World</book>");
+        Object returns = BRunUtil.invoke(result, "testAnydataToXml");
+        assertEquals(getType(returns).getTag(), TypeTags.XML_ELEMENT_TAG);
+        assertEquals(returns.toString(), "<book>The Lost World</book>");
     }
 
     @Test(description = "Test anydata to record conversion")
     public void testAnydataToRecord() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToRecord");
-        assertEquals(returns[0].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[0].stringValue(), "{a:15}");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToRecord");
+        assertEquals(getType(returns.get(0)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(returns.get(0).toString(), "{\"a\":15}");
     }
 
     @Test(description = "Test anydata to union conversion")
     public void testAnydataToUnion() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToUnion");
-        assertEquals(returns[0].getType().getTag(), TypeTags.INT_TAG);
-        assertEquals(returns[1].getType().getTag(), TypeTags.FLOAT_TAG);
-        assertEquals(returns[2].getType().getTag(), TypeTags.STRING_TAG);
-        assertEquals(returns[3].getType().getTag(), TypeTags.BOOLEAN_TAG);
-        assertEquals(returns[4].getType().getTag(), TypeTags.BYTE_TAG);
-        assertEquals(((BInteger) returns[0]).intValue(), 10);
-        assertEquals(((BFloat) returns[1]).floatValue(), 23.45);
-        assertEquals(returns[2].stringValue(), "hello world!");
-        assertTrue(((BBoolean) returns[3]).booleanValue());
-        assertEquals(((BByte) returns[4]).intValue(), 255);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToUnion");
+        assertEquals(getType(returns.get(0)).getTag(), TypeTags.INT_TAG);
+        assertEquals(getType(returns.get(1)).getTag(), TypeTags.FLOAT_TAG);
+        assertEquals(getType(returns.get(2)).getTag(), TypeTags.STRING_TAG);
+        assertEquals(getType(returns.get(3)).getTag(), TypeTags.BOOLEAN_TAG);
+        assertEquals(getType(returns.get(4)).getTag(), TypeTags.BYTE_TAG);
+        assertEquals(returns.get(0), 10L);
+        assertEquals(returns.get(1), 23.45);
+        assertEquals(returns.get(2).toString(), "hello world!");
+        assertTrue((Boolean) returns.get(3));
+        assertEquals(returns.get(4), 255);
     }
 
     @Test(description = "Test anydata to union conversion for complex types")
     public void testAnydataToUnion2() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToUnion2");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
-        assertEquals(returns[1].getType().getTag(), TypeTags.XML_TAG);
-        assertEquals(returns[2].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[3].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(returns[1].stringValue(), "<book>The Lost World</book>");
-        assertEquals(returns[2].stringValue(), "{a:15}");
-        assertEquals(returns[3].stringValue(), "{ca:15}");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToUnion2");
+        assertEquals(getType(returns.get(0)).getTag(), TypeTags.MAP_TAG);
+        assertEquals(getType(returns.get(1)).getTag(), TypeTags.XML_ELEMENT_TAG);
+        assertEquals(getType(returns.get(2)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(getType(returns.get(3)).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(returns.get(0).toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
+        assertEquals(returns.get(1).toString(), "<book>The Lost World</book>");
+        assertEquals(returns.get(2).toString(), "{\"a\":15}");
+        assertEquals(returns.get(3).toString(), "{\"ca\":15}");
     }
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple");
-        assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(returns[0].getType().toString(), "[int,float,boolean,string,byte]");
-        assertEquals(returns[0].stringValue(), "[123, 23.45, true, \"hello world!\", 255]");
+        Object returns = BRunUtil.invoke(result, "testAnydataToTuple");
+        assertEquals(getType(returns).getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(getType(returns).toString(), "[int,float,boolean,string,byte]");
+        assertEquals(returns.toString(), "[123,23.45,true,\"hello world!\",255]");
     }
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple2() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple2");
-        assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(returns[0].getType().toString(), "[json,xml]");
-        assertEquals(returns[0].stringValue(), "[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
-                "Lost World</book>]");
+        Object returns = BRunUtil.invoke(result, "testAnydataToTuple2");
+        assertEquals(getType(returns).getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(getType(returns).toString(), "[json,xml<(lang.xml:Element|lang.xml:Comment|lang" +
+                ".xml:ProcessingInstruction|lang.xml:Text)>]");
+        assertEquals(returns.toString(), "[{\"name\":\"apple\",\"color\":\"red\",\"price\":40},`<book>The Lost " +
+                "World</book>`]");
     }
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple3() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple3");
-        assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(returns[0].getType().toString(),
-                     "[[int|float|string|boolean|byte|json|xml|ClosedFoo|Foo|map<anydata>|anydata[][]" +
-                             ",string],int,float]");
-        assertEquals(returns[0].stringValue(), "[[[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
-                "Lost World</book>], \"hello world!\"], 123, 23.45]");
+        Object returns = BRunUtil.invoke(result, "testAnydataToTuple3");
+        assertEquals(getType(returns).getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(getType(returns).toString(), "[[DataType[],string],int,float]");
+        assertEquals(returns.toString(), "[[[{\"name\":\"apple\",\"color\":\"red\",\"price\":40},`<book>The Lost " +
+                "World</book>`],\"hello world!\"],123,23.45]");
     }
 
     @Test(description = "Test anydata to nil conversion")
     public void testAnydataToNil() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToNil");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testAnydataToNil");
+        assertNull(returns);
     }
 
     @Test(description = "Test type testing on any")
     public void testTypeCheckingOnAny() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testTypeCheckingOnAny");
+        Object returns = BRunUtil.invoke(result, "testTypeCheckingOnAny");
 
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-        assertEquals(((BArrayType) returns[0].getType()).getElementType().getTag(), TypeTags.ANYDATA_TAG);
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
+        assertEquals(((BArrayType) getType(returns)).getElementType().getTag(), TypeTags.ANYDATA_TAG);
 
-        BValueArray rets = (BValueArray) returns[0];
-        assertEquals(((BInteger) rets.getRefValue(0)).intValue(), 10);
-        assertEquals(((BFloat) rets.getRefValue(1)).floatValue(), 23.45);
-        assertTrue(((BBoolean) rets.getRefValue(2)).booleanValue());
-        assertEquals(rets.getRefValue(3).stringValue(), "hello world!");
-        assertEquals(rets.getRefValue(4).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(rets.getRefValue(5).stringValue(), "<book>The Lost World</book>");
-        assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
-        assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
+        BArray rets = (BArray) returns;
+        assertEquals(rets.getRefValue(0), 10L);
+        assertEquals(rets.getRefValue(1), 23.45);
+        assertTrue((Boolean) rets.getRefValue(2));
+        assertEquals(rets.getRefValue(3).toString(), "hello world!");
+        assertEquals(rets.getRefValue(4).toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
+        assertEquals(rets.getRefValue(5).toString(), "<book>The Lost World</book>");
+        assertEquals(rets.getRefValue(6).toString(), "{\"a\":15}");
+        assertEquals(rets.getRefValue(7).toString(), "{\"ca\":15}");
     }
 
     @AfterClass

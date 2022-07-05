@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -56,83 +56,87 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "missing identifier", 27, 18);
         BAssertUtil.validateError(compileResult1, i++, "operator '+' not defined for 'string'", 29, 20);
         BAssertUtil.validateError(compileResult1, i++, "operator '!' not defined for 'int'", 31, 21);
+        BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 33, 22);
+        BAssertUtil.validateError(compileResult1, i++, "operator '-' not defined for 'boolean'", 35, 21);
+        BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 37, 22);
+        BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[A, B, C]'", 40, 15);
+        BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[E, F]'", 45, 17);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 
     @Test
     public void getConstAdditions() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "getConstAdditions");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertNotNull(returns[2]);
-        Assert.assertNotNull(returns[3]);
-        Assert.assertEquals(returns[0].stringValue(), "15");
-        Assert.assertEquals(returns[1].stringValue(), "15.0");
-        Assert.assertEquals(returns[2].stringValue(), "15.5");
-        Assert.assertEquals(returns[3].stringValue(), "helloworld");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstAdditions");
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertNotNull(returns.get(3));
+        Assert.assertEquals(returns.get(0).toString(), "15");
+        Assert.assertEquals(returns.get(1).toString(), "15.0");
+        Assert.assertEquals(returns.get(2).toString(), "15.5");
+        Assert.assertEquals(returns.get(3).toString(), "helloworld");
     }
 
     @Test
     public void getConstSubtracts() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "getConstSubtracts");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[0].stringValue(), "5");
-        Assert.assertEquals(returns[1].stringValue(), "5.5");
-        Assert.assertEquals(returns[2].stringValue(), "5.5");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstSubtracts");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertEquals(returns.get(0).toString(), "5");
+        Assert.assertEquals(returns.get(1).toString(), "5.5");
+        Assert.assertEquals(returns.get(2).toString(), "5.5");
     }
 
     @Test
     public void getConstMultiplications() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "getConstMultiplications");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[0].stringValue(), "50");
-        Assert.assertEquals(returns[1].stringValue(), "52.5");
-        Assert.assertEquals(returns[2].stringValue(), "52.5");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstMultiplications");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertEquals(returns.get(0).toString(), "50");
+        Assert.assertEquals(returns.get(1).toString(), "52.5");
+        Assert.assertEquals(returns.get(2).toString(), "52.5");
     }
 
     @Test
     public void getConstDivisions() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "getConstDivisions");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertNotNull(returns[2]);
-        Assert.assertNotNull(returns[3]);
-        Assert.assertNotNull(returns[4]);
-        Assert.assertEquals(returns[0].stringValue(), "2");
-        Assert.assertEquals(returns[1].stringValue(), "2.1");
-        Assert.assertEquals(returns[2].stringValue(), "NaN");
-        Assert.assertEquals(returns[3].stringValue(), "Infinity");
-        Assert.assertEquals(returns[4].stringValue(), "2.1");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstDivisions");
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertNotNull(returns.get(3));
+        Assert.assertNotNull(returns.get(4));
+        Assert.assertEquals(returns.get(0).toString(), "2");
+        Assert.assertEquals(returns.get(1).toString(), "2.1");
+        Assert.assertEquals(returns.get(2).toString(), "NaN");
+        Assert.assertEquals(returns.get(3).toString(), "Infinity");
+        Assert.assertEquals(returns.get(4).toString(), "2.1");
     }
 
     @Test
     public void getConstGrouping() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "getConstGrouping");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "20");
-        Assert.assertEquals(returns[1].stringValue(), "-1");
-        Assert.assertEquals(returns[2].stringValue(), "35");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstGrouping");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "20");
+        Assert.assertEquals(returns.get(1).toString(), "-1");
+        Assert.assertEquals(returns.get(2).toString(), "35");
     }
 
     @Test
     public void checkMapAccessReference() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "checkMapAccessReference");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"v1\":3.0, \"v2\":5.0}");
+        Object returns = BRunUtil.invoke(compileResult, "checkMapAccessReference");
+        Assert.assertEquals(returns.toString(), "{\"v1\":3.0,\"v2\":5.0}");
     }
 
     @Test

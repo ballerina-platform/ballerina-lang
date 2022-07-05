@@ -1,0 +1,14 @@
+{
+  "line": 0,
+  "character": 0,
+  "position": {
+    "line": 4,
+    "character": 14
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast"
+    }
+  ]
+}

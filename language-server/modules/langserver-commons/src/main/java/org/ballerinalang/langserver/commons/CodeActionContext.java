@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
@@ -50,4 +51,18 @@ public interface CodeActionContext extends DocumentServiceContext {
      * @return {@link  List} of diagnostics at the cursor
      */
     List<Diagnostic> cursorDiagnostics();
+
+    /**
+     * Get the cursor position as an offset value according to the syntax tree.
+     *
+     * @return {@link Integer} offset of the cursor
+     */
+    int cursorPositionInTree();
+
+    /**
+     * Get the node at cursor.
+     *
+     * @return {@link Integer} offset of the cursor
+     */
+    Node nodeAtCursor();
 }

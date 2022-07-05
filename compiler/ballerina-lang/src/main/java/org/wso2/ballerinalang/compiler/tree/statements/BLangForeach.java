@@ -24,6 +24,8 @@ import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -35,15 +37,19 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangForeach extends BLangStatement implements ForeachNode {
 
-    public BLangExpression collection;
+    // BLangNodes
+    public VariableDefinitionNode variableDefinitionNode;
     public BLangBlockStmt body;
+    public BLangExpression collection;
     public BLangOnFailClause onFailClause;
 
-    public VariableDefinitionNode variableDefinitionNode;
+    // Parser Flags and Data
+    public boolean isDeclaredWithVar;
+
+    // Semantic Data
     public BType varType; // T
     public BType resultType; // map<T>
     public BType nillableResultType; // map<T>?
-    public boolean isDeclaredWithVar;
 
     @Override
     public ExpressionNode getCollection() {
@@ -103,5 +109,15 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 }

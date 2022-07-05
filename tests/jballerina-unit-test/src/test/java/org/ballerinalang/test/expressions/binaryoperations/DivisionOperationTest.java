@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -46,20 +43,19 @@ public class DivisionOperationTest {
 
     @Test(description = "Test two int divide expression")
     public void testIntDivideExpr() {
-        BValue[] args = { new BInteger(2000), new BInteger(50) };
-        BValue[] returns = BRunUtil.invoke(result, "intDivide", args);
+        Object[] args = { (2000), (50) };
+        Object returns = BRunUtil.invoke(result, "intDivide", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 40;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
-        BValue[] args = { new BInteger(2000), new BInteger(0) };
+        Object[] args = { (2000), (0) };
         BRunUtil.invoke(result, "intDivide", args);
     }
 
@@ -70,46 +66,46 @@ public class DivisionOperationTest {
 
         double expectedResult = a / b;
 
-        BValue[] args = { new BFloat(a), new BFloat(b) };
-        BValue[] returns = BRunUtil.invoke(result, "floatDivide", args);
+        Object[] args = { (a), (b) };
+        Object returns = BRunUtil.invoke(result, "floatDivide", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actual = ((BFloat) returns[0]).floatValue();
+        double actual = (double) returns;
         Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
     @Test(description = "Test float by zero")
     public void testFloatDivideByZeroExpr() {
-        BValue[] args = { new BFloat(300.0f), new BFloat(0) };
-        BValue[] returns = BRunUtil.invoke(result, "floatDivide", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
-        Assert.assertTrue(Double.isInfinite(((BFloat) returns[0]).floatValue()),
+        Object[] args = { (300.0f), (0) };
+        Object returns = BRunUtil.invoke(result, "floatDivide", args);
+        Assert.assertSame(returns.getClass(), Double.class, "Return type of the division is invalid");
+        Assert.assertTrue(Double.isInfinite((Double) returns),
                 "Result of the division operation is incorrect");
     }
 
     @Test(description = "Test divide statement with errors")
     public void testDivideStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
-        BAssertUtil.validateError(resultNegative, 0, "operator '/' not defined for 'json' and 'json'", 8, 10);
-        BAssertUtil.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 11);
-        BAssertUtil.validateError(resultNegative, 2, "operator '/' not defined for 'C' and 'string'", 28, 14);
-        BAssertUtil.validateError(resultNegative, 3, "operator '/' not defined for 'C' and '(float|int)'", 29, 14);
-        BAssertUtil.validateError(resultNegative, 4, "operator '/' not defined for 'string' and " +
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'json' and 'json'", 8, 10);
+        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'string' and 'float'", 14, 11);
+        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'string' and " +
                 "'(string|string:Char)'", 30, 17);
-        BAssertUtil.validateError(resultNegative, 5, "operator '/' not defined for 'float' and 'decimal'", 37, 14);
-        BAssertUtil.validateError(resultNegative, 6, "operator '/' not defined for 'float' and 'decimal'", 38, 14);
-        BAssertUtil.validateError(resultNegative, 7, "operator '/' not defined for 'float' and 'int'", 39, 14);
-        BAssertUtil.validateError(resultNegative, 8, "operator '/' not defined for 'decimal' and 'int'", 40, 14);
-        BAssertUtil.validateError(resultNegative, 9, "operator '/' not defined for 'int' and 'float'", 41, 18);
-        BAssertUtil.validateError(resultNegative, 10, "operator '/' not defined for 'C' and 'float'", 45, 14);
-        BAssertUtil.validateError(resultNegative, 11, "operator '/' not defined for 'C' and 'float'", 46, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'float' and 'decimal'", 37, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'float' and 'decimal'", 38, 14);
+        BAssertUtil.validateError(resultNegative, i++, 
+                "operator '/' not defined for 'int'(dividend) and 'float'(divisor)", 39, 18);
+        BAssertUtil.validateError(resultNegative, i++, 
+                "operator '/' not defined for 'int'(dividend) and 'decimal'(divisor)", 40, 18);
+        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'C' and 'float'", 44, 14);
+        BAssertUtil.validateError(resultNegative, i, "operator '/' not defined for 'C' and 'float'", 45, 14);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByDivision() {
         BRunUtil.invoke(result, "overflowByDivision");
@@ -128,8 +124,61 @@ public class DivisionOperationTest {
         };
     }
 
-    @Test(description = "Test contextually expected type of numeric literals in addition")
+    @Test(description = "Test contextually expected type of numeric literals in division")
     public void testContextuallyExpectedTypeOfNumericLiteralInDivision() {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
+    }
+
+    @Test(description = "Test division of nullable values")
+    public void testDivisionNullable() {
+        BRunUtil.invoke(result, "testDivisionNullable");
+    }
+
+    @Test(dataProvider = "dataToTestDivisionFloatInt", description = "Test division float with int")
+    public void testDivisionFloatInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestDivisionFloatInt() {
+        return new Object[]{
+                "testDivisionFloatInt",
+                "testDivisionFloatIntSubTypes",
+                "testDivisionFloatIntWithNullableOperands",
+                "testDivisionFloatIntSubTypeWithNullableOperands",
+                "testResultTypeOfDivisionFloatIntByInfering",
+                "testResultTypeOfDivisionFloatIntForNilableOperandsByInfering",
+                "testDivisionFloatIntToInfinityAndNaN"
+        };
+    }
+
+    @Test(dataProvider = "dataToTestDivisionDecimalInt", description = "Test division decimal with int")
+    public void testDivisionDecimalInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestDivisionDecimalInt() {
+        return new Object[]{
+                "testDivisionDecimalInt",
+                "testDivisionDecimalIntSubTypes",
+                "testDivisionDecimalIntWithNullableOperands",
+                "testDivisionDecimalIntSubTypeWithNullableOperands",
+                "testResultTypeOfDivisionDecimalIntByInfering",
+                "testResultTypeOfDivisionDecimalIntForNilableOperandsByInfering",
+        };
+    }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInDivision")
+    public void testShortCircuitingInDivision(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInDivision() {
+        return new Object[]{
+                "testNoShortCircuitingInDivisionWithNullable",
+                "testNoShortCircuitingInDivisionWithNonNullable"
+        };
     }
 }

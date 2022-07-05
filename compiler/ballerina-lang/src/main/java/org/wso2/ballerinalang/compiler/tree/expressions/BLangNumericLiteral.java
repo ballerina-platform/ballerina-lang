@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.NodeKind;
  * @since 0.990.4
  */
 public class BLangNumericLiteral extends BLangLiteral {
+    public NodeKind kind;
 
     @Override
     public NodeKind getKind() {

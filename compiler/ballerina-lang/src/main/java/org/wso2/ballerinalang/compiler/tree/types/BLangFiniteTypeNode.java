@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.FiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
@@ -38,6 +40,7 @@ import java.util.StringJoiner;
  */
 public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
 
+    // BLangNodes
     public List<BLangExpression> valueSpace;
 
     public BLangFiniteTypeNode() {
@@ -60,20 +63,37 @@ public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.FINITE_TYPE_NODE;
     }
 
     @Override
     public String toString() {
-        StringJoiner stringJoiner = new StringJoiner(" | ");
+        StringJoiner stringJoiner = new StringJoiner("|");
         for (BLangExpression memberTypeNode : valueSpace) {
-            if (memberTypeNode.getBType().tag == TypeTags.FLOAT) {
-                stringJoiner.add(memberTypeNode.toString() + NumericLiteralSupport.FLOAT_DISCRIMINATOR);
-            } else if (memberTypeNode.getBType().tag == TypeTags.DECIMAL) {
-                stringJoiner.add(memberTypeNode.toString() + NumericLiteralSupport.DECIMAL_DISCRIMINATOR);
-            } else {
-                stringJoiner.add(memberTypeNode.toString());
+            switch (memberTypeNode.getBType().tag) {
+                case TypeTags.FLOAT:
+                    stringJoiner.add(memberTypeNode + NumericLiteralSupport.FLOAT_DISCRIMINATOR);
+                    break;
+                case TypeTags.DECIMAL:
+                    stringJoiner.add(memberTypeNode + NumericLiteralSupport.DECIMAL_DISCRIMINATOR);
+                    break;
+                case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
+                    stringJoiner.add("\"" + memberTypeNode + "\"");
+                    break;
+                default:
+                    stringJoiner.add(memberTypeNode.toString());
             }
         }
         return stringJoiner.toString();

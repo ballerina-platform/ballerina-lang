@@ -17,18 +17,12 @@
  */
 package org.ballerinalang.test.types.string;
 
-import io.ballerina.runtime.internal.XmlFactory;
-import io.ballerina.runtime.internal.values.ArrayValue;
-import io.ballerina.runtime.internal.values.XmlItem;
-import org.apache.axiom.om.OMNode;
-import org.ballerinalang.core.model.util.JsonParser;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BXMLItem;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.JsonParser;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,6 +40,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  * Test Native functions in ballerina.model.string.
  */
 public class StringTest {
+
     private CompileResult result;
 
     @BeforeClass
@@ -55,173 +50,174 @@ public class StringTest {
 
     @Test
     public void testBooleanValueOf() {
-        BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BRunUtil.invoke(result, "booleanValueOf", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {(true)};
+        Object returns = BRunUtil.invoke(result, "booleanValueOf", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "true";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testFloatValueOf() {
-        BValue[] args = {new BFloat(1.345f)};
-        BValue[] returns = BRunUtil.invoke(result, "floatValueOf", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {(1.345f)};
+        Object returns = BRunUtil.invoke(result, "floatValueOf", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "1.345";
-        Assert.assertEquals(returns[0].stringValue().substring(0, 5), expected);
+        Assert.assertEquals(returns.toString().substring(0, 5), expected);
     }
 
     @Test
     public void testHasPrefix() {
-        BValue[] args = {new BString("Expendables"), new BString("Ex")};
-        BValue[] results = BRunUtil.invoke(result, "hasPrefix", args);
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object[] args = {StringUtils.fromString("Expendables"), StringUtils.fromString("Ex")};
+        Object results = BRunUtil.invoke(result, "hasPrefix", args);
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testHasSuffix() {
-        BValue[] args = {new BString("One Two"), new BString("Two")};
-        BValue[] results = BRunUtil.invoke(result, "hasSuffix", args);
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object[] args = {StringUtils.fromString("One Two"), StringUtils.fromString("Two")};
+        Object results = BRunUtil.invoke(result, "hasSuffix", args);
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testIndexOf() {
-        BValue[] args = {new BString("Lion in the town"), new BString("in")};
-        BValue[] results = BRunUtil.invoke(result, "indexOf", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 5);
+        Object[] args = {StringUtils.fromString("Lion in the town"), StringUtils.fromString("in")};
+        Object results = BRunUtil.invoke(result, "indexOf", args);
+        Assert.assertEquals(results, 5L);
     }
 
     @Test
     public void testIndexOfAfterEmoji() {
-        BValue[] args = {new BString("Lion\uD83E\uDD81 in the town"), new BString("in")};
-        BValue[] results = BRunUtil.invoke(result, "indexOf", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 6);
+        Object[] args = {StringUtils.fromString("Lion\uD83E\uDD81 in the town"), StringUtils.fromString("in")};
+        Object results = BRunUtil.invoke(result, "indexOf", args);
+        Assert.assertEquals(results, 6L);
     }
 
     @Test
     public void testIndexOfAtEmoji() {
-        BValue[] args = {new BString("Lion\uD83E\uDD81 in the town"), new BString("\uD83E\uDD81")};
-        BValue[] results = BRunUtil.invoke(result, "indexOf", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 4);
+        Object[] args =
+                {StringUtils.fromString("Lion\uD83E\uDD81 in the town"), StringUtils.fromString("\uD83E\uDD81")};
+        Object results = BRunUtil.invoke(result, "indexOf", args);
+        Assert.assertEquals(results, 4L);
     }
 
     @Test
     public void testIndexOfBeforeEmoji() {
-        BValue[] args = {new BString("Lion\uD83E\uDD81 in the town"), new BString("Lion")};
-        BValue[] results = BRunUtil.invoke(result, "indexOf", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 0);
+        Object[] args = {StringUtils.fromString("Lion\uD83E\uDD81 in the town"), StringUtils.fromString("Lion")};
+        Object results = BRunUtil.invoke(result, "indexOf", args);
+        Assert.assertEquals(results, 0L);
     }
 
     @Test
     public void testIntValueOf() {
-        BValue[] args = {new BInteger(25)};
-        BValue[] returns = BRunUtil.invoke(result, "intValueOf", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {(25)};
+        Object returns = BRunUtil.invoke(result, "intValueOf", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "25";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testJsonValueOf() {
-        BValue[] args = { JsonParser.parse("{\"name\":\"chanaka\"}") };
-        BValue[] returns = BRunUtil.invoke(result, "jsonValueOf", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {JsonParser.parse("{\"name\":\"chanaka\"}")};
+        Object returns = BRunUtil.invoke(result, "jsonValueOf", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testLength() {
-        BValue[] args = {new BString("Bandwagon")};
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfStr", args);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
+        Object[] args = {StringUtils.fromString("Bandwagon")};
+        Object returns = BRunUtil.invoke(result, "lengthOfStr", args);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 9L);
     }
 
     @Test
     public void testStringValueOf() {
-        BValue[] args = {new BString("This is a String")};
-        BValue[] returns = BRunUtil.invoke(result, "stringValueOf", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {StringUtils.fromString("This is a String")};
+        Object returns = BRunUtil.invoke(result, "stringValueOf", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "This is a String";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testSubString() {
-        BValue[] args = {new BString("testValues"), new BInteger(0), new BInteger(9)};
-        BValue[] returns = BRunUtil.invoke(result, "substring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "testValue");
+        Object[] args = {StringUtils.fromString("testValues"), (0), (9)};
+        Object returns = BRunUtil.invoke(result, "substring", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "testValue");
     }
 
     @Test
     public void testSubStringAfterEmoji() {
-        BValue[] args = {new BString("test\uD83D\uDC87\uD83C\uDFFE\u200D♂️Values"), new BInteger(0), new BInteger(12)};
-        BValue[] returns = BRunUtil.invoke(result, "substring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "test\uD83D\uDC87\uD83C\uDFFE\u200D♂️Val");
+        Object[] args = {StringUtils.fromString("test\uD83D\uDC87\uD83C\uDFFE\u200D♂️Values"), (0), (12)};
+        Object returns = BRunUtil.invoke(result, "substring", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "test\uD83D\uDC87\uD83C\uDFFE\u200D♂️Val");
     }
 
     @Test
     public void testSubStringBeforeEmoji() {
-        BValue[] args = {new BString("test\uD83D\uDC69\uD83C\uDFFC\u200D⚖️️️Values"), new BInteger(0), new BInteger(4)};
-        BValue[] returns = BRunUtil.invoke(result, "substring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "test");
+        Object[] args = {StringUtils.fromString("test\uD83D\uDC69\uD83C\uDFFC\u200D⚖️️️Values"), (0), (4)};
+        Object returns = BRunUtil.invoke(result, "substring", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "test");
     }
 
     @Test
     public void testSubStringAtEmoji() {
-        BValue[] args = {new BString("test\uD83D\uDC69\uD83C\uDFFE\u200D\uD83C\uDF7C️️Values"), new BInteger(0),
-                new BInteger(8)};
-        BValue[] returns = BRunUtil.invoke(result, "substring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "test\uD83D\uDC69\uD83C\uDFFE\u200D\uD83C\uDF7C");
+        Object[] args = {StringUtils.fromString("test\uD83D\uDC69\uD83C\uDFFE\u200D\uD83C\uDF7C️️Values"), (0),
+                (8)};
+        Object returns = BRunUtil.invoke(result, "substring", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "test\uD83D\uDC69\uD83C\uDFFE\u200D\uD83C\uDF7C");
     }
 
     @Test
     public void testToLowerCase() {
-        BValue[] args = {new BString("COMPANY")};
-        BValue[] returns = BRunUtil.invoke(result, "toLower", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "company");
+        Object[] args = {StringUtils.fromString("COMPANY")};
+        Object returns = BRunUtil.invoke(result, "toLower", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "company");
     }
 
     @Test
     public void testToUpperCase() {
-        BValue[] args = {new BString("company")};
-        BValue[] returns = BRunUtil.invoke(result, "toUpper", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "COMPANY");
+        Object[] args = {StringUtils.fromString("company")};
+        Object returns = BRunUtil.invoke(result, "toUpper", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "COMPANY");
     }
 
     @Test
     public void testTrim() {
-        BValue[] args = {new BString(" This is a String ")};
-        BValue[] returns = BRunUtil.invoke(result, "trim", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "This is a String");
+        Object[] args = {StringUtils.fromString(" This is a String ")};
+        Object returns = BRunUtil.invoke(result, "trim", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "This is a String");
     }
 
     @Test
     public void testXmlValueOf() {
-        OMNode omNode = ((XmlItem) ((ArrayValue) XmlFactory.parse("<test>name</test>").value()).get(0)).value();
-        BValue[] args = { new BXMLItem(omNode) };
-        BValue[] returns = BRunUtil.invoke(result, "xmlValueOf", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        BXml xmlArg = ValueCreator.createXmlValue("<test>name</test>");
+        Object[] args = {xmlArg};
+        Object returns = BRunUtil.invoke(result, "xmlValueOf", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "<test>name</test>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testToByteArray() {
         String content = "Sample Ballerina Byte Array Content";
         byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-        BValue[] args = {new BString(content)};
-        BValue[] returns = BRunUtil.invoke(result, "toByteArray", args);
-        BValueArray bByteArray = (BValueArray) returns[0];
+        Object[] args = {StringUtils.fromString(content)};
+        Object returns = BRunUtil.invoke(result, "toByteArray", args);
+        BArray bByteArray = (BArray) returns;
         Assert.assertEquals(bByteArray.size(), bytes.length);
         ByteArrayUtils.assertJBytesWithBBytes(bytes, bByteArray.getBytes());
     }

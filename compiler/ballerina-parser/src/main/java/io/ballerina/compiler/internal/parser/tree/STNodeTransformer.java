@@ -665,6 +665,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public T transform(STArrayDimensionNode arrayDimensionNode) {
+        return transformSyntaxNode(arrayDimensionNode);
+    }
+
     public T transform(STTransactionStatementNode transactionStatementNode) {
         return transformSyntaxNode(transactionStatementNode);
     }
@@ -811,6 +815,10 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         return transformSyntaxNode(parameterizedTypeDescriptorNode);
+    }
+
+    public T transform(STSpreadMemberNode spreadMemberNode) {
+        return transformSyntaxNode(spreadMemberNode);
     }
 
     // Tokens

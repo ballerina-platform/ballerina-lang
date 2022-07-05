@@ -18,9 +18,8 @@
 
 package org.ballerinalang.test.service.http.sample;
 
+import io.ballerina.runtime.api.values.BString;
 import org.apache.commons.text.StringEscapeUtils;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.BaseTest;
@@ -54,9 +53,8 @@ public class SslProtocolTest extends BaseTest {
         runtimeParams.put("truststore", trustStore);
         CompileResult result = BCompileUtil.compile(balFile);
 
-        BValue[] responses = BRunUtil.invoke(result, "testSslProtocol", new Object[] {});
-        Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BString);
-        Assert.assertTrue(responses[0].stringValue().contains(clientLog));
+        Object responses = BRunUtil.invoke(result, "testSslProtocol", new Object[] {});
+        Assert.assertTrue(responses instanceof BString);
+        Assert.assertTrue(responses.toString().contains(clientLog));
     }
 }

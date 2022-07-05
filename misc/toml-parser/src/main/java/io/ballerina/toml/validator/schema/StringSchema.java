@@ -47,8 +47,9 @@ public class StringSchema extends PrimitiveValueSchema<String> {
     private final Integer maxLength;
 
     public StringSchema(Type type, Map<String, String> message, String pattern, String defaultValue,
-                        Integer minLength, Integer maxLength, CompositionSchema compositionSchemas) {
-        super(type, message, defaultValue, compositionSchemas);
+                        Integer minLength, Integer maxLength, CompositionSchema compositionSchemas,
+                        String description) {
+        super(type, message, defaultValue, compositionSchemas, description);
         this.pattern = pattern;
         this.minLength = minLength;
         this.maxLength = maxLength;

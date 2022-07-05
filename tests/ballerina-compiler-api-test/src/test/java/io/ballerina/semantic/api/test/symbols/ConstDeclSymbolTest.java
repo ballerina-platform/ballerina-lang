@@ -23,16 +23,19 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -104,5 +107,38 @@ public class ConstDeclSymbolTest {
                 {31, 11, "byteConst", "Byte", "constDecl", List.of()},
                 {35, 14, "boolConst", "Boolean", "constDecl", List.of()},
         };
+    }
+
+    @Test(dataProvider = "PosProvider")
+    public void testConstValues(int line, int col, String expVal) {
+        Optional<Symbol> constSym = model.symbol(srcFile, LinePosition.from(line, col));
+
+        assertTrue(constSym.isPresent());
+        assertEquals(constSym.get().kind(), SymbolKind.CONSTANT);
+        assertTrue(((ConstantSymbol) constSym.get()).resolvedValue().isPresent());
+        assertEquals(((ConstantSymbol) constSym.get()).resolvedValue().get(), expVal);
+    }
+
+    @DataProvider(name = "PosProvider")
+    public Object[][] getConsts() {
+        return new Object[][]{
+                {16, 6, "1000"},
+                {19, 20, "\"Value\""},
+                {23, 17, "10"},
+                {27, 12, "12.3"},
+                {31, 11, "2"},
+                {35, 14, "true"},
+                {37, 10, "1010"},
+                {38, 18, "{foo: \"Value\", bar: \"BAR\"}"},
+                {39, 20, "{foo: {a: 10, b: 100}}"}
+        };
+    }
+
+    @Test
+    public void testMissingConstExpr() {
+        Optional<Symbol> constSym = model.symbol(srcFile, LinePosition.from(40, 6));
+        assertTrue(constSym.isPresent());
+        assertEquals(constSym.get().kind(), SymbolKind.CONSTANT);
+        assertTrue(((ConstantSymbol) constSym.get()).resolvedValue().isEmpty());
     }
 }

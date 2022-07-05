@@ -40,28 +40,46 @@ public class BallerinaTestDebugPoint {
     private final int line;
     private final String condition;
     private final String logMessage;
+    private final boolean verified;
 
     public BallerinaTestDebugPoint(Path filePath, int line) {
-        this(filePath, line, null, null);
+        this(filePath, line, null, null, false);
+    }
+
+    public BallerinaTestDebugPoint(Path filePath, int line, boolean verified) {
+        this(filePath, line, null, null, verified);
     }
 
     public BallerinaTestDebugPoint(URI filePathUri, int line) {
-        this(filePathUri, line, null, null);
+        this(filePathUri, line, null, null, false);
     }
 
     public BallerinaTestDebugPoint(Path filePath, int line, String condition, String logMessage) {
-        this(filePath.toAbsolutePath().toUri(), line, condition, logMessage);
+        this(filePath.toAbsolutePath().toUri(), line, condition, logMessage, false);
     }
 
-    public BallerinaTestDebugPoint(URI filePathUri, int line, String condition, String logMessage) {
+    public BallerinaTestDebugPoint(Path filePath, int line, String condition, String logMessage, boolean verified) {
+        this(filePath.toAbsolutePath().toUri(), line, condition, logMessage, verified);
+    }
+
+    public BallerinaTestDebugPoint(URI filePathUri, int line, String condition, String logMessage, boolean verified) {
         this.filePathUri = filePathUri;
         this.line = line;
         this.condition = condition;
         this.logMessage = logMessage;
+        this.verified = verified;
     }
 
     public URI getSourceURI() {
         return filePathUri;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public int getLine() {
+        return line;
     }
 
     public Source getSource() throws BallerinaTestException {

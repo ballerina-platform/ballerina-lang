@@ -36,6 +36,10 @@ public class BTypeIdSet implements TypeIdSet {
         this.ids = new ArrayList<>();
     }
 
+    public BTypeIdSet(List<TypeId> ids) {
+        this.ids = ids;
+    }
+
     public void add(Module pkg, String name, boolean isPrimary) {
         ids.add(new BTypeId(pkg, name, isPrimary));
     }

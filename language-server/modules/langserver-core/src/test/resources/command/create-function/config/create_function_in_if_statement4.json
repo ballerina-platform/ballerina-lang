@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "create_function_in_if_statement4.bal",
   "expected": {
     "result": {
       "edit": {
@@ -28,7 +29,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction foo() returns boolean {\n    return false;\n}\n"
+                "newText": "\n\nfunction foo() returns boolean {\n    return false;\n}"
               }
             ]
           }

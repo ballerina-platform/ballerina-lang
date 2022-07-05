@@ -2,17 +2,16 @@ NAME
        ballerina-new - Create a new Ballerina package
 
 SYNOPSIS
-       bal new <package-path>
-       bal new <package-path> [-t |--template] <template-name>
+       bal new <package-name> [-t |--template <template-name> ]
 
 
 DESCRIPTION
        Create a new directory and initialize a Ballerina package inside
        that directory.
 
-       A Ballerina package is a collection of logically-related Ballerina modules that
-       are versioned and shared as a single unit. All modules of the package share the
-       same 'Ballerina.toml' file and the 'target' directory.
+       A Ballerina package is a collection of logically-related Ballerina
+       modules that are versioned and shared as a single unit. All modules of
+       the package share the same 'Ballerina.toml' file and 'target' directory.
 
        The package directory will have the structure below.
             .
@@ -20,39 +19,39 @@ DESCRIPTION
             └── main.bal
 
        Any directory becomes a Ballerina package if that directory has a
-       'Ballerina.toml' file. It contains the organization name, package name,
-       and the version. It also enables dependency management across the package.
-       The package root directory is the default module directory.
+       'Ballerina.toml' file. For library packages, it contains the organization
+       name, package name, and the version. The package root directory is the
+       default module directory.
 
        The 'modules' directory contains other non-default Ballerina modules. Use
        'bal add <module-name>' command to create modules.
 
-       The 'target' directory is created during the build process. It is the output directory, 
-       which contains the build artifacts.
+       The 'target' directory is created during the build process. It is the
+       output directory, which contains the build artifacts.
 
-       A template can also be specified when creating a new package. If a template is not 
-       specified, this command creates a package with a 'main' template.
+       A template can also be specified when creating a new package. If a
+       template is not specified, this command creates a package with the
+       default template.
 
 
-       OPTIONS
-            -t <template-name>, --template <template-name>
-                Create a package using a predefined template.
+OPTIONS
+       -t <template-name>, --template <template-name>
+           Create a package using a predefined template.
 
-                 There are three built-in templates named:
-                 1. `main`
-                 2. `service`
-                 3. `lib`
+           There are three built-in templates named:
+           1. `main`
+           2. `service`
+           3. `lib`
 
-       EXAMPLES
-            Create a package with the 'main' function.
-               $ bal new <package-name>
+EXAMPLES
+       Create a package with the 'main' function.
+           $ bal new <package-name>
 
-            Create a package with the 'main' function with tests.
-               $ bal new <package-name> -t main
+       Create a package with the 'main' function with tests.
+           $ bal new <package-name> -t main
 
-            Create a package with a Ballerina service.
-               $ bal new <package-name> -t service
+       Create a package with a Ballerina service.
+           $ bal new <package-name> -t service
 
-            Create a package with a Ballerina library.
-               $ bal new <package-name> -t lib
-
+       Create a package with a Ballerina library.
+           $ bal new <package-name> -t lib

@@ -2083,11 +2083,19 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STArrayTypeDescriptorNode transform(
             STArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         STNode memberTypeDesc = modifyNode(arrayTypeDescriptorNode.memberTypeDesc);
-        STNode openBracket = modifyNode(arrayTypeDescriptorNode.openBracket);
-        STNode arrayLength = modifyNode(arrayTypeDescriptorNode.arrayLength);
-        STNode closeBracket = modifyNode(arrayTypeDescriptorNode.closeBracket);
+        STNode dimensions = modifyNode(arrayTypeDescriptorNode.dimensions);
         return arrayTypeDescriptorNode.modify(
                 memberTypeDesc,
+                dimensions);
+    }
+
+    @Override
+    public STArrayDimensionNode transform(
+            STArrayDimensionNode arrayDimensionNode) {
+        STNode openBracket = modifyNode(arrayDimensionNode.openBracket);
+        STNode arrayLength = modifyNode(arrayDimensionNode.arrayLength);
+        STNode closeBracket = modifyNode(arrayDimensionNode.closeBracket);
+        return arrayDimensionNode.modify(
                 openBracket,
                 arrayLength,
                 closeBracket);
@@ -2557,6 +2565,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 parameterizedTypeDescriptorNode.kind,
                 keywordToken,
                 typeParamNode);
+    }
+
+    @Override
+    public STSpreadMemberNode transform(
+            STSpreadMemberNode spreadMemberNode) {
+        STNode ellipsis = modifyNode(spreadMemberNode.ellipsis);
+        STNode expression = modifyNode(spreadMemberNode.expression);
+        return spreadMemberNode.modify(
+                ellipsis,
+                expression);
     }
 
     // Tokens

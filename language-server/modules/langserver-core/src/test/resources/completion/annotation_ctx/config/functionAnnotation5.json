@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "bar",
       "kind": "Field",
       "detail": "module1:AnnotationType.bar",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "bar: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -26,8 +26,8 @@
       "label": "foo",
       "kind": "Field",
       "detail": "module1:AnnotationType.foo",
-      "sortText": "G",
-      "insertText": "foo: \"${2}\"",
+      "sortText": "K",
+      "insertText": "foo: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "module1:AnnotationType",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "foo: \"\"",
+      "insertText": "foo: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     }
   ]

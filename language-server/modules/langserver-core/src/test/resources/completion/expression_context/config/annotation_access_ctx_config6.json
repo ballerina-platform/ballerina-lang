@@ -9,6 +9,7 @@
       "label": "a2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "a2",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "functionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "functionAnnotation1",
       "insertTextFormat": "Snippet"
     },
@@ -23,7 +25,56 @@
       "label": "functionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "functionAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeAnnotation3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "annotationCommon",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "commonAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "commonAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "commonAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "commonAnnotation2",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.MappingMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -32,12 +34,24 @@ import java.util.List;
  * @since 2.0.0
  */
 public class BLangMappingMatchPattern extends BLangMatchPattern implements MappingMatchPatternNode {
+
+    // BLangNodes
     public List<BLangFieldMatchPattern> fieldMatchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

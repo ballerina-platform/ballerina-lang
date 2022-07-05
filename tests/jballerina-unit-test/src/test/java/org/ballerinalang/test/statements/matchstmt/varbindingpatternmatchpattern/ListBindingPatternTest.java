@@ -158,11 +158,6 @@ public class ListBindingPatternTest {
     }
 
     @Test
-    public void testListBindingPattern23() {
-        BRunUtil.invoke(result, "testListBindingPattern23");
-    }
-
-    @Test
     public void testRestBindingPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest1");
     }
@@ -205,44 +200,103 @@ public class ListBindingPatternTest {
     @Test
     public void testListBindingPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 8);
-        Assert.assertEquals(resultNegative.getWarnCount(), 25);
+        Assert.assertEquals(resultNegative.getWarnCount(), 84);
         int i = -1;
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 20, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 23, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 23, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 23, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 28, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 30, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 30, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 30, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 30, 17);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 35, 5);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 37, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 37, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 37, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 40, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 40, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 40, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 47, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 47, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 47, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 52, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 58, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 58, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 58, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 63, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 65, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 65, 35);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 65, 35);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 71, 5);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 79, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 79, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 79, 22);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 81, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 81, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 81, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 81, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 83, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 83, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 83, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 83, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 85, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 92, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 92, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 93, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 93, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'd'", 93, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 99, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 99, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 100, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 100, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'd'", 100, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'x'", 106, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'y'", 106, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 107, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 107, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 107, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 107, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 113, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 113, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 113, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 114, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'x'", 114, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'y'", 114, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'z'", 114, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 122, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 122, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 124, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 133, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 133, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 135, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 144, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 144, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 146, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 155, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 166, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 172, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 172, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 172, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'd'", 172, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 174, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 174, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 174, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'c'", 174, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'd'", 174, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 176, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 176, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 176, 9);
     }
 
     @Test

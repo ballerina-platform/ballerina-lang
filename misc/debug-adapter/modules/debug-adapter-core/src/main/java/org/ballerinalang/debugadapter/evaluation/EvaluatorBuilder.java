@@ -327,9 +327,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     @Override
     public void visit(TypeTestExpressionNode typeTestExpressionNode) {
         visitSyntaxNode(typeTestExpressionNode);
-        typeTestExpressionNode.expression().accept(this);
-        Evaluator subExprEvaluator = result;
-        result = new TypeTestExpressionEvaluator(context, typeTestExpressionNode, subExprEvaluator);
+        result = new TypeTestExpressionEvaluator(context, typeTestExpressionNode);
     }
 
     @Override

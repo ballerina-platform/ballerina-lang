@@ -19,7 +19,9 @@ package io.ballerina.runtime.test;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 
 import java.nio.file.Path;
@@ -44,4 +46,9 @@ public class TestUtils {
         VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
         return new VariableKey[]{intVar, stringVar};
     }
+
+    public static BIntersectionType getIntersectionType(Module module, Type type) {
+        return new BIntersectionType(module, new Type[]{type, PredefinedTypes.TYPE_READONLY}, type, 1, true);
+    }
+
 }

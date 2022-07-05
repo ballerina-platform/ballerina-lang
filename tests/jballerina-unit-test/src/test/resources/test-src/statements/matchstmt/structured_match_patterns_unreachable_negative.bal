@@ -26,7 +26,7 @@ type OpenedFoo record {
 
 function testRecordUnreachablePattern() returns string {
     OpenedFoo k = {s: "A", i: 12};
-    any a = k;
+    any _ = k;
     match k {
         var{x: name, y: age} => {return "A";}
         var{x: name, y: [p, q]} => {return "A";} // unreachable since y is matched above

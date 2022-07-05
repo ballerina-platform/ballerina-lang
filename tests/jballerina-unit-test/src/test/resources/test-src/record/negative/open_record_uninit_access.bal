@@ -27,9 +27,9 @@ function uninitAccess() {
     p.age = 25;
     p["age"] = 30;
 
-    Person p1 = getUninitializedRecord11(p);
+    Person _ = getUninitializedRecord11(p);
 
-    Person p2 = getUninitializedRecord21();
+    Person _ = getUninitializedRecord21();
 }
 
 function getUninitializedRecord11(Person p) returns Person {

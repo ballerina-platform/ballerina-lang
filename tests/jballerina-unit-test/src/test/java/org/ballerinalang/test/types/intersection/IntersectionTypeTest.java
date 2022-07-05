@@ -157,6 +157,8 @@ public class IntersectionTypeTest {
                         "error detail type 'record {| string x; string...; |}' contains individual field descriptors",
                 56, 63);
         validateError(result, index++,
+                "incompatible types: expected 'string', found 'int'", 56, 67);
+        validateError(result, index++,
                       "incompatible types: expected 'DistinctErrorIntersection', found 'IntersectionErrorFour'", 57,
                       38);
         validateError(result, index++,
@@ -193,7 +195,7 @@ public class IntersectionTypeTest {
         validateError(result, index++, "error constructor does not accept additional detail args 'oth' when error " +
                 "detail type 'record {| boolean fatal?; int code; int...; |}' contains individual field descriptors",
                 96, 59);
-
+        validateError(result, index++, "incompatible types: expected 'int', found 'boolean'", 96, 65);
         assertEquals(result.getErrorCount(), index);
     }
 
@@ -238,7 +240,7 @@ public class IntersectionTypeTest {
         validateError(result, index++, "unsupported intersection 'int & string'", 17, 8);
         validateError(result, index++, "unsupported intersection 'int & int'", 18, 9);
         validateError(result, index++,
-                "unsupported intersection 'function()returns(int) & function()returns(2 | 3)'", 19, 9);
+                "unsupported intersection 'function()returns(int) & function()returns(2|3|4.0f|-50d|\"a\")'", 19, 9);
         validateError(result, index++, "unsupported intersection 'int & int'", 21, 1);
         validateError(result, index++, "unknown type 'A'", 23, 14);
         validateError(result, index++, "unknown type 'II'", 23, 19);

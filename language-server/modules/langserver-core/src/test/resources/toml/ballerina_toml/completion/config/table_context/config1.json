@@ -37,6 +37,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "include",
+      "kind": "Snippet",
+      "detail": "Array",
+      "sortText": "A",
+      "insertText": "include=[${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "dependency",
       "kind": "Snippet",
       "detail": "Table Array",
@@ -49,6 +57,27 @@
       "detail": "String",
       "sortText": "A",
       "insertText": "distribution=\"${1:}\""
+    },
+    {
+      "label": "visibility",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "visibility=\"${1:}\""
+    },
+    {
+      "label": "icon",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "icon=\"${1:}\""
+    },
+    {
+      "label": "template",
+      "kind": "Snippet",
+      "detail": "Boolean",
+      "sortText": "A",
+      "insertText": "template=${1:false}"
     }
   ]
 }

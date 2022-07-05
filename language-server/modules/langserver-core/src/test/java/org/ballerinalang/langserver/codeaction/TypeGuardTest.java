@@ -37,19 +37,33 @@ public class TypeGuardTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"typeGuardCodeAction1.json", "typeGuard.bal"},
-                {"typeGuardCodeAction2.json", "typeGuard.bal"},
-                {"typeGuardCodeAction3.json", "typeGuard.bal"},
-                {"typeGuardVariableCodeAction1.json", "typeGuardVariable1.bal"},
-                {"typeGuardVariableCodeAction2.json", "typeGuardVariable1.bal"},
+                {"typeGuardCodeAction1.json"},
+                {"typeGuardCodeAction2.json"},
+                {"typeGuardCodeAction3.json"},
+                {"typeGuardVariableCodeAction1.json"},
+                {"typeGuardVariableCodeAction3.json"},
+                {"typeGuardWithTuple1.json"},
+        };
+    }
+
+    @Test(dataProvider = "negative-test-data-provider")
+    @Override
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"typeGuardVariableCodeAction2.json"},
         };
     }
 }

@@ -598,6 +598,83 @@ function testMappingMatchPattern26() {
     assertEquals(1, mappingMatchPattern27({y: "hello world", x: 1}));
 }
 
+type T (map<string> & readonly)|map<int>;
+
+function mappingMatchPattern28(T v) returns string {
+    match v {
+        {a: "str1", b: "str2"} => {
+            return "match1";
+        }
+        {a: 1, b: 2} => {
+            return "match2";
+        }
+    }
+
+    return "No match";
+}
+
+function testMappingMatchPattern28() {
+    assertEquals("match1", mappingMatchPattern28({a: "str1", b: "str2"}));
+    assertEquals("match2", mappingMatchPattern28({a: 1, b: 2}));
+    assertEquals("No match", mappingMatchPattern28({a: int:MAX_VALUE, b: int:MIN_VALUE}));
+}
+
+type Foo record {|
+    int x;
+    int y = 1;
+|};
+
+function fn1() returns string {
+    Foo v = {x: 0, y: 1};
+    string matched = "";
+
+    match v {
+        {x: 0, y: 1} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function fn2() returns string {
+    Foo v = {x: 0};
+    string matched = "";
+
+    match v {
+        {x: 0} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function testMappingBindingToRecordWithDefaultValue() {
+    assertEquals("Matched", fn1());
+    assertEquals("Matched", fn2());
+}
+
+type T2 readonly & (S1|S2);
+
+type S1 record {|
+    1 x;
+    string y;
+|};
+
+type S2 record {|
+    2 x;
+    string y;
+|};
+
+function testMatchNarrowing() {
+    T2 t = {x: 1, y: "s"};
+    match t {
+        {x: 1, y: var val} => {
+            string a = val;
+            assertEquals("s", a);
+        }
+    }
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

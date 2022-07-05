@@ -20,7 +20,6 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -35,7 +34,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
-import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
+import static io.ballerina.projects.util.ProjectUtils.guessModuleName;
 
 /**
  * This class represents the "bal add" command.
@@ -48,7 +47,6 @@ public class AddCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private boolean exitWhenFinish;
-//    private Path homeCache;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -63,20 +61,14 @@ public class AddCommand implements BLauncherCmd {
         this.userDir = Paths.get(System.getProperty("user.dir"));
         this.errStream = System.err;
         this.exitWhenFinish = true;
-//        homeCache = RepoUtils.createAndGetHomeReposPath();
         CommandUtil.initJarFs();
     }
 
     public AddCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish) {
-        this(userDir, errStream, exitWhenFinish, RepoUtils.createAndGetHomeReposPath());
-    }
-
-    public AddCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish, Path homeCache) {
         this.userDir = userDir;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
-//        this.homeCache = homeCache;
     }
 
     @Override
@@ -87,20 +79,6 @@ public class AddCommand implements BLauncherCmd {
             errStream.println(commandUsageInfo);
             return;
         }
-
-        // TODO: 11/13/20 to be enabled once it gets finalised.
-//        if (list) {
-//            errStream.println("Available templates:");
-//            for (String template : getTemplates()) {
-//                errStream.println("    - " + template);
-//            }
-//            // Get templates from balas
-//            for (String template : getBalaTemplates()) {
-//                errStream.println("    - " + template);
-//            }
-//            return;
-//        }
-
         // Check if inside a project repo
         Path projectPath = ProjectUtils.findProjectRoot(userDir);
         if (null == projectPath) {
@@ -160,6 +138,16 @@ public class AddCommand implements BLauncherCmd {
                                            ProjectUtils.getValidateUnderscoreError(moduleName, "Module"),
                                    null,
                                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!ProjectUtils.validateInitialNumericsOfName(moduleName)) {
+            CommandUtil.printError(errStream,
+                    "invalid module name : '" + moduleName + "' :\n" +
+                            "Module name cannot have initial numeric characters.",
+                    null,
+                    false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -242,152 +230,7 @@ public class AddCommand implements BLauncherCmd {
         // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template);
         Path source = modulePath.resolve(template.toLowerCase(Locale.getDefault()) + ".bal");
-        Files.move(source, source.resolveSibling(guessPkgName(moduleName) + ".bal"),
+        Files.move(source, source.resolveSibling(guessModuleName(moduleName) + ".bal"),
                 StandardCopyOption.REPLACE_EXISTING);
     }
-
-//        private void applyBalaTemplate(Path modulePath, String template) {
-//        // find all balas matching org and module name.
-//        Path balaTemplate = findBalaTemplate(template);
-//        if (balaTemplate != null) {
-//            String moduleName = getModuleName(balaTemplate);
-//
-//            URI zipURI = URI.create("jar:" + balaTemplate.toUri().toString());
-//            try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-//                // Copy sources
-//                Path srcDir = zipfs.getPath("/modules").resolve(moduleName);
-//                // We do a string comparison to be efficient.
-//                Files.walkFileTree(srcDir, new FileUtils.Copy(srcDir, modulePath));
-//
-//                // Copy resources
-//                Path resourcesDir = zipfs.getPath("/" + ProjectConstants.RESOURCE_DIR_NAME);
-//                Path moduleResources = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-//                Files.createDirectories(moduleResources);
-//                // We do a string comparison to be efficient.
-//                Files.walkFileTree(resourcesDir, new FileUtils.Copy(resourcesDir, moduleResources));
-//                // Copy Module.md
-//                Path moduleMd = zipfs.getPath("/docs").resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-//                Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-//                Files.copy(moduleMd, toModuleMd, StandardCopyOption.REPLACE_EXISTING);
-//            } catch (IOException e) {
-//                CommandUtil.printError(errStream,
-//                        "Error while applying template : " + e.getMessage(),
-//                        null,
-//                        false);
-//                Runtime.getRuntime().exit(1);
-//            }
-//        }
-//    }
-
-//    private String getModuleName(Path balaTemplate) {
-//        Path balaName = balaTemplate.getFileName();
-//        if (balaName != null) {
-//            String fileName = balaName.toString();
-//            return fileName.split("-")[0];
-//        }
-//        return "";
-//    }
-
-//    private Path findBalaTemplate(String template) {
-//        // Split the template in to parts
-//        String[] orgSplit = template.split("/");
-//        String orgName = orgSplit[0].trim();
-//        String moduleName = "";
-//        String version = "*";
-//        String modulePart = (orgSplit.length > 1) ? orgSplit[1] : "";
-//        String[] moduleSplit = modulePart.split(":");
-//        moduleName = moduleSplit[0].trim();
-//        version = (moduleSplit.length > 1) ? moduleSplit[1].trim() : version;
-//
-//        String balaGlob = "glob:**/" + orgName + "/" + moduleName + "/" + version + "/*.bala";
-//        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
-//        Path balaCache = this.homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
-//        // Iterate directories
-//        try (Stream<Path> walk = Files.walk(balaCache)) {
-//
-//            List<Path> balaList = walk
-//                    .filter(pathMatcher::matches)
-//                    .collect(Collectors.toList());
-//
-//            Collections.sort(balaList);
-//            // get the latest
-//            if (balaList.size() > 0) {
-//                return balaList.get(balaList.size() - 1);
-//            } else {
-//                return null;
-//            }
-//        } catch (IOException e) {
-//            CommandUtil.printError(errStream,
-//                    "Unable to read home cache",
-//                    null,
-//                    false);
-//            Runtime.getRuntime().exit(1);
-//        }
-//
-//        return homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
-//    }
-//
-//    /**
-//     * Iterate home cache and search for template balas.
-//     *
-//     * @return list of templates
-//     */
-//    private List<String> getBalaTemplates() {
-//        List<String> templates = new ArrayList<>();
-//        // get the path to home cache
-//        Path balaCache = this.homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
-//        final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.bala");
-//        // Iterate directories
-//        try (Stream<Path> walk = Files.walk(balaCache)) {
-//
-//            List<Path> balaList = walk
-//                    .filter(pathMatcher::matches)
-//                    .filter(this::isTemplateBala)
-//                    .collect(Collectors.toList());
-//
-//            // Convert the bala list to string list.
-//            templates = balaList.stream()
-//                    .map(this::getModuleToml)
-//                    .filter(o -> o != null)
-//                    .map(m -> {
-//                        return m.getModule_organization() + "/" + m.getModule_name();
-//                    })
-//                    .distinct()
-//                    .collect(Collectors.toList());
-//        } catch (IOException e) {
-//            CommandUtil.printError(errStream,
-//                    "Unable to read home cache",
-//                    null,
-//                    false);
-//            Runtime.getRuntime().exit(1);
-//        }
-//        // filter template modules
-//        return templates;
-//    }
-//
-//    private Module getModuleToml(Path balaPath) {
-//        URI zipURI = URI.create("jar:" + balaPath.toUri().toString());
-//        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-//            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
-//            // We do a string comparison to be efficient.
-//            String content = new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8);
-//            Toml toml = new Toml().read(content);
-//            return toml.to(Module.class);
-//        } catch (IOException e) {
-//            return null;
-//        }
-//    }
-
-//    private boolean isTemplateBala(Path balaPath) {
-//        URI zipURI = URI.create("jar:" + balaPath.toUri().toString());
-//        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-//            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
-//            // We do a string comparison to be efficient.
-//            return new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8)
-//                    .contains("template = \"true\"");
-//        } catch (IOException e) {
-//            // we simply ignore the bala file
-//        }
-//        return false;
-//    }
 }

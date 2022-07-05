@@ -133,8 +133,18 @@ public class MatchStmtConstPatternTest {
     }
 
     @Test
+    public void testConstPattern19() {
+        BRunUtil.invoke(result, "testConstPattern19");
+    }
+
+    @Test
     public void testConstPatternWithNegativeLiteral() {
         BRunUtil.invoke(result, "testConstPatternWithNegativeLiteral");
+    }
+
+    @Test
+    public void testConstPatternWithPredeclaredPrefix() {
+        BRunUtil.invoke(result, "testConstPatternWithPredeclaredPrefix");
     }
 
     @Test(description = "Test pattern will not be matched")

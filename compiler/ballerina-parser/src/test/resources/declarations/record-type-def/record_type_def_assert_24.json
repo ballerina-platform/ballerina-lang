@@ -31,6 +31,10 @@
         },
         {
           "kind": "COLON_TOKEN",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+          ],
           "trailingMinutiae": [
             {
               "kind": "END_OF_LINE_MINUTIAE",

@@ -771,6 +771,413 @@ public function testNestedMemberAccessOnIntersectionTypes() {
     assertEquality((), v3);
 }
 
+type MyRec record {|
+    string name;
+|};
+
+const LENGTH = 10;
+
+function testMemberAccessWithBinaryExprAsIndex() {
+    int x = 8;
+    int[3] intArr = [0, 1, 2];
+    int member1 = intArr[10 - 9];
+    assertEquality(1,member1);
+    member1 = intArr[x - 6];
+    assertEquality(2, member1);
+    
+    [int, string] tupleVar = [101, "Jhone"];
+    int|string member2 = tupleVar[2 - 1];
+    assertEquality("Jhone", member2);
+    member2 = tupleVar[x - 8];
+    assertEquality(101, member2);
+    
+    int member3 = intArr[10 - x];
+    assertEquality(2, member3);
+    
+    int member4 = intArr[10 - LENGTH];
+    assertEquality(0, member4);
+    
+    string y = "na";
+    MyRec myRecVar = {name: "Ballerina"};
+    string? member5 = myRecVar["na" + "me"];
+    assertEquality("Ballerina", member5);
+    member5 = myRecVar[y + "me"];
+    assertEquality("Ballerina", member5);
+    
+    (string|error)? member6 = trap myRecVar["Ballerina" + "1"];
+    assertEquality(null, member6);
+    member6 = trap myRecVar["Ballerina" + y];
+    assertEquality(null, member6);
+    
+    map<int> mapVar = {field1: 202, field2: 303};
+    int? member7 = mapVar["field" + "1"];
+    assertEquality(202, member7);
+    string z = "2";
+    member7 = mapVar["field" + z];
+    assertEquality(303, member7);
+    
+    (int|error)? member8 = trap mapVar["field1" + "1"];
+    assertEquality(null, member8);
+    member8 = trap mapVar["field1" + z];
+    assertEquality(null, member8);
+}
+
+function testMemberAccessWithGroupExprAsIndex() {
+    int[3] intArr = [0, 1, 2];
+    int member1 = intArr[((1))];
+    assertEquality(1, member1);
+    
+    [int, int] intTuple = [3, 4];
+    int member2 = intTuple[(10 - 9)];
+    assertEquality(4, member2);
+    member2 = intTuple[(LENGTH - 10)];
+    assertEquality(3, member2);
+    
+    MyRec myRecVar = {name: "Ballerina"};
+    string member3 = myRecVar[("name")];
+    assertEquality("Ballerina", member3);
+    
+    map<int> mapVar = {field1: 202};
+    int? member4 = mapVar[("field1")];
+    assertEquality(202, member4);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr1() {
+    int[3] intArr = [0, 1, 2];
+    int|error a = trap intArr[2 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("array index out of range: index: 3, size: 3", e.detail()["message"]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr2() {
+    [int, string] tupleVar = [0, "Car"];
+    int|string|error a = trap tupleVar[1 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("tuple index out of range: index: 2, size: 2", e.detail()["message"]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr3() {
+    int[3] intArr = [0, 1, 2];
+    int int2 = 2;
+    int|error a = trap intArr[int2 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("array index out of range: index: 3, size: 3", e.detail()["message"]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr4() {
+    [int, string] tupleVar = [0, "Car"];
+    int int1 = 1;
+    int|string|error a = trap tupleVar[int1 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("tuple index out of range: index: 2, size: 2", e.detail()["message"]);
+}
+
+type MyMap map<int>?;
+
+public function testMemberAccessInInferTypeCtxWithTypeRef() {
+    MyMap x = {"w": 33};
+    var s = x["w"];
+    assertEquality(33, s);
+}
+
+function testValidArrayMemberAccessWithBuiltInIntSubTypeKeyExpr() {
+    int[] a = [10, 20];
+
+    byte b = 0;
+    int:Unsigned8 c = 0;
+    int:Unsigned16 d = 0;
+    int:Unsigned32 e = 0;
+    int:Signed8 f = 0;
+    int:Signed16 g = 0;
+    int:Signed32 h = 0;
+
+    int v = a[b];
+    assertEquality(10, v);
+    v = a[c];
+    assertEquality(10, v);
+    v = a[d];
+    assertEquality(10, v);
+    v = a[e];
+    assertEquality(10, v);
+    v = a[f];
+    assertEquality(10, v);
+    v = a[g];
+    assertEquality(10, v);
+    v = a[h];
+    assertEquality(10, v);
+
+    b = 1;
+    c = 1;
+    d = 1;
+    e = 1;
+    f = 1;
+    g = 1;
+    h = 1;
+
+    assertEquality(20, a[b]);
+    assertEquality(20, a[c]);
+    assertEquality(20, a[d]);
+    assertEquality(20, a[e]);
+    assertEquality(20, a[f]);
+    assertEquality(20, a[g]);
+    assertEquality(20, a[h]);
+}
+
+function testOutOfRangeArrayMemberAccessWithBuiltInIntSubTypeKeyExpr() {
+    int[] a = [10, 20];
+
+    byte b = 255;
+    int:Unsigned8 c = 255;
+    int:Unsigned16 d = 65535;
+    int:Unsigned32 e = 4294967295;
+    int:Signed8 f = 127;
+    int:Signed16 g = 32767;
+    int:Signed32 h = 2147483647;
+
+    function () fn = function () {
+        int _ = a[b];
+    };
+    assertArrayOutOfRangeError(trap fn(), 255, 2);
+
+    fn = function () {
+        int _ = a[c];
+    };
+    assertArrayOutOfRangeError(trap fn(), 255, 2);
+
+    fn = function () {
+        int _ = a[d];
+    };
+    assertArrayOutOfRangeError(trap fn(), "65,535", 2);
+
+    fn = function () {
+        int _ = a[e];
+    };
+    assertIndexTooLargeError(trap fn(), "4,294,967,295");
+
+    fn = function () {
+        int _ = a[f];
+    };
+    assertArrayOutOfRangeError(trap fn(), 127, 2);
+
+    fn = function () {
+        int _ = a[g];
+    };
+    assertArrayOutOfRangeError(trap fn(), "32,767", 2);
+
+    fn = function () {
+        int _ = a[h];
+    };
+    assertArrayOutOfRangeError(trap fn(), "2,147,483,647", 2);
+
+    f = -128;
+    g = -32768;
+    h = -2147483648;
+
+    fn = function () {
+        int _ = a[f];
+    };
+    assertArrayOutOfRangeError(trap fn(), -128, 2);
+
+    fn = function () {
+        int _ = a[g];
+    };
+    assertArrayOutOfRangeError(trap fn(), "-32,768", 2);
+
+    fn = function () {
+        int _ = a[h];
+    };
+    assertArrayOutOfRangeError(trap fn(), "-2,147,483,648", 2);
+}
+
+function testValidTupleMemberAccessWithBuiltInIntSubTypeKeyExpr() {
+    [int, int...] a = [10, 20];
+
+    byte b = 0;
+    int:Unsigned8 c = 0;
+    int:Unsigned16 d = 0;
+    int:Unsigned32 e = 0;
+    int:Signed8 f = 0;
+    int:Signed16 g = 0;
+    int:Signed32 h = 0;
+
+    int v = a[b];
+    assertEquality(10, v);
+    v = a[c];
+    assertEquality(10, v);
+    v = a[d];
+    assertEquality(10, v);
+    v = a[e];
+    assertEquality(10, v);
+    v = a[f];
+    assertEquality(10, v);
+    v = a[g];
+    assertEquality(10, v);
+    v = a[h];
+    assertEquality(10, v);
+
+    b = 1;
+    c = 1;
+    d = 1;
+    e = 1;
+    f = 1;
+    g = 1;
+    h = 1;
+
+    assertEquality(20, a[b]);
+    assertEquality(20, a[c]);
+    assertEquality(20, a[d]);
+    assertEquality(20, a[e]);
+    assertEquality(20, a[f]);
+    assertEquality(20, a[g]);
+    assertEquality(20, a[h]);
+}
+
+function testOutOfRangeTupleMemberAccessWithBuiltInIntSubTypeKeyExpr() {
+    [int, int...] a = [10, 20];
+
+    byte b = 255;
+    int:Unsigned8 c = 255;
+    int:Unsigned16 d = 65535;
+    int:Unsigned32 e = 4294967295;
+    int:Signed8 f = 127;
+    int:Signed16 g = 32767;
+    int:Signed32 h = 2147483647;
+
+    function () fn = function () {
+        int _ = a[b];
+    };
+    assertTupleOutOfRangeError(trap fn(), 255, 2);
+
+    fn = function () {
+        int _ = a[c];
+    };
+    assertTupleOutOfRangeError(trap fn(), 255, 2);
+
+    fn = function () {
+        int _ = a[d];
+    };
+    assertTupleOutOfRangeError(trap fn(), "65,535", 2);
+
+    fn = function () {
+        int _ = a[e];
+    };
+    assertIndexTooLargeError(trap fn(), "4,294,967,295");
+
+    fn = function () {
+        int _ = a[f];
+    };
+    assertTupleOutOfRangeError(trap fn(), 127, 2);
+
+    fn = function () {
+        int _ = a[g];
+    };
+    assertTupleOutOfRangeError(trap fn(), "32,767", 2);
+
+    fn = function () {
+        int _ = a[h];
+    };
+    assertTupleOutOfRangeError(trap fn(), "2,147,483,647", 2);
+
+    f = -128;
+    g = -32768;
+    h = -2147483648;
+
+    fn = function () {
+        int _ = a[f];
+    };
+    assertTupleOutOfRangeError(trap fn(), -128, 2);
+
+    fn = function () {
+        int _ = a[g];
+    };
+    assertTupleOutOfRangeError(trap fn(), "-32,768", 2);
+
+    fn = function () {
+        int _ = a[h];
+    };
+    assertTupleOutOfRangeError(trap fn(), "-2,147,483,648", 2);
+}
+
+function assertArrayOutOfRangeError(error? res, int|string index, int size) {
+    assertOutOfRangeError(res, "array", index, size);
+}
+
+function assertTupleOutOfRangeError(error? res, int|string index, int size) {
+    assertOutOfRangeError(res, "tuple", index, size);
+}
+
+function assertOutOfRangeError(error? res, "array"|"tuple" listKind, int|string index, int size) {
+    assertTrue(res is error);
+
+    error err = <error> res;
+
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", err.message());
+    assertEquality(string `${listKind} index out of range: index: ${index}, size: ${size}`, err.detail()["message"]);
+}
+
+function assertIndexTooLargeError(error? res, string index) {
+    assertTrue(res is error);
+
+    error err = <error> res;
+
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", err.message());
+    assertEquality(string `index number too large: ${index}`, err.detail()["message"]);
+}
+
+function testValidRecordMemberAccessWithStringCharKeyExpr() {
+    record {|
+        int a = 1;
+        int b;
+        int cd;
+    |} r = {b: 2, cd: 3};
+
+    string:Char a = "a";
+    string:Char b = "b";
+
+    int? v = r[a];
+    assertEquality(1, v);
+
+    v = r[b];
+    assertEquality(2, v);
+
+    record {
+        int a = 10;
+        int b;
+        int cd;
+    } s = {b: 20, cd: 30};
+
+    anydata w = s[a];
+    assertEquality(10, w);
+
+    w = s[b];
+    assertEquality(20, w);
+}
+
+function testUnspecifiedFieldRecordMemberAccessWithStringCharKeyExpr() {
+    record {|
+        int a = 1;
+        int b;
+        int cd;
+    |} r = {b: 2, cd: 3};
+
+    string:Char c = "c";
+
+    int? v = r[c];
+    assertTrue(v is ());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

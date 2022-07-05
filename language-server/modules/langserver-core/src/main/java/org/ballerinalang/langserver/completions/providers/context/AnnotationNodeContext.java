@@ -31,12 +31,12 @@ import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.AnnotationUtil;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Node attachedNode = this.getAttached(node);
 
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.annotReference())) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, node.annotReference())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.annotReference();
             completionItems.addAll(this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(),
                     node, attachedNode));
@@ -100,7 +100,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
     private List<LSCompletionItem> getAnnotationsInModule(BallerinaCompletionContext context, String alias,
                                                           AnnotationNode annotationNode, Node attachedNode) {
-        Optional<ModuleSymbol> moduleEntry = CommonUtil.searchModuleForAlias(context, alias);
+        Optional<ModuleSymbol> moduleEntry = ModuleUtil.searchModuleForAlias(context, alias);
         // TODO: Enable after annotation cache is supported
 //        if (moduleEntry.isEmpty()) {
 //            List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -201,7 +201,8 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, AnnotationNode node) {
-        return !node.atToken().isMissing();
+            return !node.atToken().isMissing() 
+                    && context.getCursorPositionInTree() <= node.annotReference().textRange().endOffset();
     }
 
     private boolean addAlias(BallerinaCompletionContext context, AnnotationNode node, ModuleID annotationOwner) {

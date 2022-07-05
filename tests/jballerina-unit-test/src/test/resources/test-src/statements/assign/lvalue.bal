@@ -398,3 +398,112 @@ function testFillingReadOnRecordNegativeMemberAccessLvExpr() {
     M m = {};
     m["l"]["i"] = 1;
 }
+
+function testArrayMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr() {
+    int[] a = [];
+    byte b = 0;
+    int:Signed32 c = 355;
+
+    a[b] = 10;
+
+    b = 255;
+    a[b] = 30;
+
+    a[c] = 20;
+
+    assertEquality(356, a.length());
+    assertEquality(10, a[0]);
+    assertEquality(0, a[100]);
+    assertEquality(0, a[254]);
+    assertEquality(30, a[255]);
+    assertEquality(30, a[b]);
+    assertEquality(0, a[256]);
+    assertEquality(20, a[355]);
+
+    function () fn = function () {
+        record {| int i; |}[] d = [];
+        int:Unsigned16 e = 45;
+        d[e] = {i: 1};
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertEquality("{ballerina/lang.array}IllegalListInsertion", err.message());
+    assertEquality("array of length 0 cannot be expanded into array of length 46 without filler values",
+                   <string> checkpanic err.detail()["message"]);
+}
+
+function testTupleMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr() {
+    [int, int...] a = [-1];
+    byte b = 0;
+    int:Signed32 c = 355;
+
+    a[b] = 10;
+
+    b = 255;
+    a[b] = 30;
+
+    a[c] = 20;
+
+    assertEquality(356, a.length());
+    assertEquality(10, a[0]);
+    assertEquality(0, a[100]);
+    assertEquality(0, a[254]);
+    assertEquality(30, a[255]);
+    assertEquality(30, a[b]);
+    assertEquality(0, a[256]);
+    assertEquality(20, a[355]);
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/35441
+    // function () fn = function () {
+    //     [record {| int i; |}...] d = [];
+    //     int:Unsigned16 e = 45;
+    //     d[e] = {i: 1};
+    // };
+
+    // error? res = trap fn();
+    // assertTrue(res is error);
+
+    // error err = <error> res;
+    // assertEquality("{ballerina/lang.array}IllegalListInsertion", err.message());
+    // assertEquality("tuple of length 0 cannot be expanded into tuple of length 46 without filler values",
+    //                <string> checkpanic err.detail()["message"]);
+}
+
+function testRecordMemberAccessLvExprWithStringCharKeyExpr() {
+    record {|
+        int a;
+        int b;
+    |} r = {a: 1, b: 2};
+
+    string:Char a = "a";
+    r[a] = 101;
+    assertEquality(101, r.a);
+
+    function () fn = function () {
+        string:Char c = "c";
+        r[c] = 20;
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertEquality("{ballerina/lang.map}KeyNotFound", err.message());
+    assertEquality("invalid field access: field 'c' not found in record type 'record {| int a; int b; |}'",
+                   <string> checkpanic err.detail()["message"]);
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

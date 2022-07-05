@@ -62,7 +62,7 @@ public class BJsonType extends BUnionType implements JsonType {
     }
 
     public BJsonType(BUnionType unionType, String typeName, boolean readonly) {
-        super(unionType, typeName);
+        super(unionType, typeName, readonly);
         if (!readonly) {
             BJsonType immutableJsonType = new BJsonType(unionType, TypeConstants.READONLY_JSON_TNAME, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},

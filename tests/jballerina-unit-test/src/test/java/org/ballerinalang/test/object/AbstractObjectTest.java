@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -78,29 +78,29 @@ public class AbstractObjectTest {
 
     @Test
     public void testAbstractAnonObjectInMatch() {
-        BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInTypeTest");
-        Assert.assertEquals(result[0].stringValue(), "Person Name");
-        Assert.assertEquals(result[1].stringValue(), "Employee Name");
+        BArray result = (BArray) BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInTypeTest");
+        Assert.assertEquals(result.get(0).toString(), "Person Name");
+        Assert.assertEquals(result.get(1).toString(), "Employee Name");
     }
 
     @Test
     public void testAbstractAnonObjectInFunction() {
-        BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInFunction");
-        Assert.assertEquals(result[0].stringValue(), "Person Name");
-        Assert.assertEquals(result[1].stringValue(), "Employee Name");
+        BArray result = (BArray) BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInFunction");
+        Assert.assertEquals(result.get(0).toString(), "Person Name");
+        Assert.assertEquals(result.get(1).toString(), "Employee Name");
     }
 
     @Test
     public void testAbstractAnonObjectInVarDef() {
-        BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInVarDef");
-        Assert.assertEquals(result[0].stringValue(), "Person Name");
-        Assert.assertEquals(result[1].stringValue(), "Employee Name");
+        BArray result = (BArray) BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInVarDef");
+        Assert.assertEquals(result.get(0).toString(), "Person Name");
+        Assert.assertEquals(result.get(1).toString(), "Employee Name");
     }
 
     @Test(description = "Test abstract object as an object field")
     public void testAbstractObjectInObject() {
-        BValue[] result = BRunUtil.invoke(abstractObjects, "testAbstractObjectInObject");
-        Assert.assertEquals(result[0].stringValue(), "{city:\"Colombo\", address:{city:\"Colombo\"}}");
+        Object result = BRunUtil.invoke(abstractObjects, "testAbstractObjectInObject");
+        Assert.assertEquals(result.toString(), "{city:Colombo, address:{city:Colombo}}");
     }
 
     @AfterClass

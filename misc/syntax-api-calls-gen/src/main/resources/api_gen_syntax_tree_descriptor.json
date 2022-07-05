@@ -2371,6 +2371,26 @@
       ]
     },
     {
+      "name": "XMLCDATANode",
+      "base": "XMLItemNode",
+      "kind": "XML_CDATA",
+      "attributes": [
+        {
+          "name": "cdataStart",
+          "type": "Token"
+        },
+        {
+          "name": "content",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "cdataEnd",
+          "type": "Token"
+        }
+      ]
+    },
+    {
       "name": "XMLProcessingInstruction",
       "base": "XMLItemNode",
       "kind": "XML_PI",
@@ -3533,6 +3553,18 @@
           "type": "TypeDescriptorNode"
         },
         {
+          "name": "dimensions",
+          "type": "ArrayDimensionNode",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "ArrayDimensionNode",
+      "base": "Node",
+      "kind": "ARRAY_DIMENSION",
+      "attributes": [
+        {
           "name": "openBracket",
           "type": "Token"
         },
@@ -4163,11 +4195,13 @@
         },
         {
           "name": "typeDescriptor",
-          "type": "TypeDescriptorNode"
+          "type": "TypeDescriptorNode",
+          "isOptional": true
         },
         {
           "name": "failErrorName",
-          "type": "IdentifierToken"
+          "type": "IdentifierToken",
+          "isOptional": true
         },
         {
           "name": "blockStatement",
@@ -4322,6 +4356,21 @@
           "name": "typeParamNode",
           "type": "TypeParameterNode",
           "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "SpreadMemberNode",
+      "base": "Node",
+      "kind": "SPREAD_MEMBER",
+      "attributes": [
+        {
+          "name": "ellipsis",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
         }
       ]
     }

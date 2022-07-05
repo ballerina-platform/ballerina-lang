@@ -1,0 +1,21 @@
+{
+  "packages": [
+    {
+      "org": "parkavik",
+      "name": "Sample",
+      "version": "1.0.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "parkavik",
+      "package_name": "Sample",
+      "version": "1.0.0",
+      "module_name": "Sample",
+      "dependencies": []
+    }
+  ]
+}

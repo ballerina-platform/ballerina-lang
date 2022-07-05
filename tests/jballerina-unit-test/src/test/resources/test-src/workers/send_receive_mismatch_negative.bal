@@ -22,7 +22,7 @@ public function main() {
 
     @strand{thread:"any"}
     worker w2 {
-        string lw = <- w1;
+        string _ = <- w1;
     }
 
     wait w2;

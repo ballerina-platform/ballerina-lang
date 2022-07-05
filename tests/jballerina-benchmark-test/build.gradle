@@ -44,10 +44,9 @@ dependencies {
     implementation 'com.github.chewiebug:gcviewer'
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-core')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
-    testLibs 'com.github.chewiebug:gcviewer:1.36'
+    testLibs "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
 }
 
 task copyToLib(type: Copy) {

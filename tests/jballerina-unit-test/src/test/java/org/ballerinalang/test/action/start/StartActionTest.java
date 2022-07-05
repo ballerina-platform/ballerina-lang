@@ -84,7 +84,7 @@ public class StartActionTest {
     public void testStartLambdaParameterCastingFromOtherPackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/action/start/StartTypeCastProject");
         BRunUtil.ExitDetails output = BRunUtil.run(compileResult, new String[]{});
-        Assert.assertEquals("", output.errorOutput);
+        Assert.assertEquals(output.errorOutput, "");
     }
 
     @DataProvider(name = "FuncList")

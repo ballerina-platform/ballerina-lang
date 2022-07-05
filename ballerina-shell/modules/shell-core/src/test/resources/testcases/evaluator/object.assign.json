@@ -9,7 +9,11 @@
   },
   {
     "description": "Invoke person method.",
-    "code": "Person p1 = new Employee(50, \"John\", \"street1\"); p1.getName()",
+    "code": "Person p1 = new Employee(50, \"John\", \"street1\");"
+  },
+  {
+    "description": "Invoke person method - get value.",
+    "code": "p1.getName()",
     "expr": "\"John Doe\""
   }
 ]

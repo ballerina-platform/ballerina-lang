@@ -1,0 +1,4 @@
+digraph "samejs/app:0.1.0" {
+    "ballerina/io"
+    "samjs/io"
+}

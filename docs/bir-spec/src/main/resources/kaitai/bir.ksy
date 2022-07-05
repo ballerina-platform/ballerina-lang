@@ -109,6 +109,7 @@ types:
             'type_tag_enum::type_tag_map': type_map
             'type_tag_enum::type_tag_stream': type_stream
             'type_tag_enum::type_tag_typedesc': type_typedesc
+            'type_tag_enum::type_tag_typerefdesc': type_typerefdesc
             'type_tag_enum::type_tag_parameterized_type': type_parameterized
             'type_tag_enum::type_tag_future': type_future
             'type_tag_enum::type_tag_object_or_service': type_object_or_service
@@ -217,6 +218,14 @@ types:
     seq:
       - id: constraint_type_cp_index
         type: s4
+  type_typerefdesc:
+    seq:
+      - id: pkd_id_cp_index
+        type: s4
+      - id: name_cp_index
+        type: s4
+      - id: constraint_type_cp_index
+        type: s4
   type_parameterized:
     seq:
       - id: param_value_type_cp_index
@@ -285,6 +294,8 @@ types:
     seq:
       - id: name_cp_index
         type: s4
+      - id: original_name_cp_index
+        type: s4
       - id: flags
         type: s8
       - id: type_cp_index
@@ -350,7 +361,7 @@ types:
         type: s4
         repeat: expr
         repeat-expr: constituent_types_count
-      - id: effective_type_count
+      - id: effective_type_cp_index
         type: s4
   type_xml:
     seq:
@@ -477,6 +488,8 @@ types:
         repeat-expr: service_decls_size
   golbal_var:
     seq:
+      - id: position
+        type: position
       - id: kind
         type: s1
       - id: name_cp_index
@@ -489,6 +502,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   type_definition:
     seq:
       - id: position
@@ -499,16 +514,17 @@ types:
         type: s4
       - id: flags
         type: s8
-      - id: label
-        type: s1
       - id: origin
         type: s1
       - id: doc
         type: markdown
-      - id: annotation_attachments_content
-        type: annotation_attachments_content
       - id: type_cp_index
         type: s4
+      - id: has_reference_type
+        type: u1
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
+
   type_definition_body:
     seq:
       - id: attached_functions_count
@@ -567,6 +583,8 @@ types:
         type: s4
   annotation:
     seq:
+      - id: package_id_cp_index
+        type: s4
       - id: name_cp_index
         type: s4
       - id: original_name_cp_index
@@ -587,6 +605,8 @@ types:
         type: s4
       - id: doc
         type: markdown
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   attach_point:
     seq:
       - id: point_name_cp_index
@@ -607,6 +627,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: length
         type: s8
       - id: constant_value
@@ -633,7 +655,7 @@ types:
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
-            'type_tag_enum::type_tag_map': map_constant_info
+            'type_tag_enum::type_tag_intersection': intersection_constant_info
     instances:
       type:
         value: _root.constant_pool.constant_pool_entries[constant_value_type_cp_index].cp_info.as<shape_cp_info>
@@ -665,6 +687,21 @@ types:
     seq:
       - id: value_nil_constant
         size: 0
+  intersection_constant_info:
+    seq:
+      - id: constant_value_info
+        type:
+          switch-on: effective_type.shape.type_tag
+          cases:
+            'type_tag_enum::type_tag_record': map_constant_info
+            'type_tag_enum::type_tag_tuple': list_constant_info
+    instances:
+      type:
+        value: _root.constant_pool.constant_pool_entries[_parent.constant_value_type_cp_index].cp_info.as<shape_cp_info>
+      intersection_type:
+        value: type.shape.type_structure.as<type_intersection>
+      effective_type:
+        value: _root.constant_pool.constant_pool_entries[intersection_type.effective_type_cp_index].cp_info.as<shape_cp_info>
   map_constant_info:
     seq:
       - id: map_constant_size
@@ -679,6 +716,14 @@ types:
         type: s4
       - id: key_value_info
         type: constant_value
+  list_constant_info:
+    seq:
+      - id: list_constant_size
+        type: s4
+      - id: list_member_value_info
+        type: constant_value
+        repeat: expr
+        repeat-expr: list_constant_size
   markdown:
     seq:
       - id: length
@@ -745,6 +790,9 @@ types:
       - id: rest_param_name_cp_index
         type: s4
         if: has_rest_param != 0
+      - id: rest_param_annotations
+        type: annotation_attachments_content
+        if: has_rest_param != 0
       - id: has_receiver
         type: u1
       - id: reciever
@@ -789,62 +837,11 @@ types:
         type: position
       - id: tag_reference_cp_index
         type: s4
-      - id: attach_values_count
-        type: s4
-      - id: attache_values
-        type: attach_value
-        repeat: expr
-        repeat-expr: attach_values_count
-  attach_value:
-    seq:
-      - id: attach_value_type_cp_index
-        type: s4
-      - id: attach_value_value_info
-        type:
-          switch-on: attach_type.shape.type_tag
-          cases:
-            'type_tag_enum::type_tag_array': attach_value_array
-            'type_tag_enum::type_tag_map': attach_value_map
-            'type_tag_enum::type_tag_record': attach_value_map
-            'type_tag_enum::type_tag_int': int_constant_info
-            'type_tag_enum::type_tag_signed32_int': int_constant_info
-            'type_tag_enum::type_tag_signed16_int': int_constant_info
-            'type_tag_enum::type_tag_signed8_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned32_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned16_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned8_int': int_constant_info
-            'type_tag_enum::type_tag_byte': byte_constant_info
-            'type_tag_enum::type_tag_float': float_constant_info
-            'type_tag_enum::type_tag_string': string_constant_info
-            'type_tag_enum::type_tag_char_string': string_constant_info
-            'type_tag_enum::type_tag_decimal': decimal_constant_info
-            'type_tag_enum::type_tag_boolean': boolean_constant_info
-            'type_tag_enum::type_tag_nil': nil_constant_info
-    instances:
-      attach_type:
-        value: _root.constant_pool.constant_pool_entries[attach_value_type_cp_index].cp_info.as<shape_cp_info>
-  attach_value_array:
-    seq:
-      - id: array_values_count
-        type: s4
-      - id: array_values
-        type: attach_value
-        repeat: expr
-        repeat-expr: array_values_count
-  attach_value_map:
-    seq:
-      - id: map_entries_count
-        type: s4
-      - id: map_entries
-        type: attach_value_map_entry
-        repeat: expr
-        repeat-expr: map_entries_count
-  attach_value_map_entry:
-    seq:
-      - id: key_name_cp_index
-        type: s4
-      - id: key_value_info
-        type: attach_value
+      - id: is_const_annot
+        type: u1
+      - id: constant_value
+        type: constant_value
+        if: is_const_annot == 1
   referenced_type:
     seq:
       - id: type_cp_index
@@ -855,6 +852,8 @@ types:
         type: s4
       - id: flags
         type: s8
+      - id: param_annotations
+        type: annotation_attachments_content
   reciever:
     seq:
       - id: kind
@@ -1704,41 +1703,42 @@ enums:
     11: type_tag_anydata
     12: type_tag_record
     13: type_tag_typedesc
-    14: type_tag_stream
-    15: type_tag_map
-    16: type_tag_invokable
-    17: type_tag_any
-    18: type_tag_endpoint
-    19: type_tag_array
-    20: type_tag_union
-    21: type_tag_intersection
-    22: type_tag_package
-    23: type_tag_none
-    24: type_tag_void
-    25: type_tag_xmlns
-    26: type_tag_annotation
-    27: type_tag_semantic_error
-    28: type_tag_error
-    29: type_tag_iterator
-    30: type_tag_tuple
-    31: type_tag_future
-    32: type_tag_finite
-    33: type_tag_object_or_service
-    34: type_tag_byte_array
-    35: type_tag_function_pointer
-    36: type_tag_handle
-    37: type_tag_readonly
-    38: type_tag_signed32_int
-    39: type_tag_signed16_int
-    40: type_tag_signed8_int
-    41: type_tag_unsigned32_int
-    42: type_tag_unsigned16_int
-    43: type_tag_unsigned8_int
-    44: type_tag_char_string
-    45: type_tag_xml_element
-    46: type_tag_xml_pi
-    47: type_tag_xml_comment
-    48: type_tag_xml_text
-    49: type_tag_never
-    50: type_tag_null_set
-    51: type_tag_parameterized_type
+    14: type_tag_typerefdesc
+    15: type_tag_stream
+    16: type_tag_map
+    17: type_tag_invokable
+    18: type_tag_any
+    19: type_tag_endpoint
+    20: type_tag_array
+    21: type_tag_union
+    22: type_tag_intersection
+    23: type_tag_package
+    24: type_tag_none
+    25: type_tag_void
+    26: type_tag_xmlns
+    27: type_tag_annotation
+    28: type_tag_semantic_error
+    29: type_tag_error
+    30: type_tag_iterator
+    31: type_tag_tuple
+    32: type_tag_future
+    33: type_tag_finite
+    34: type_tag_object_or_service
+    35: type_tag_byte_array
+    36: type_tag_function_pointer
+    37: type_tag_handle
+    38: type_tag_readonly
+    39: type_tag_signed32_int
+    40: type_tag_signed16_int
+    41: type_tag_signed8_int
+    42: type_tag_unsigned32_int
+    43: type_tag_unsigned16_int
+    44: type_tag_unsigned8_int
+    45: type_tag_char_string
+    46: type_tag_xml_element
+    47: type_tag_xml_pi
+    48: type_tag_xml_comment
+    49: type_tag_xml_text
+    50: type_tag_never
+    51: type_tag_null_set
+    52: type_tag_parameterized_type

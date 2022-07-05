@@ -7,6 +7,10 @@ SYNOPSIS
 
 DESCRIPTION
        Search Ballerina Central for the given keyword appearing
-       in the organization name, package name, or package descriptions.
+       in the organization name or package name.
 
        The keyword is treated as case-insensitive when the search is executed.
+
+EXAMPLES
+       Search for packages.
+           $ bal search gmail

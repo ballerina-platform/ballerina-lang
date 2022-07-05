@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,59 +40,58 @@ public class ForeachJSONTypedBindingPatternsTests {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach-json-typed-binding-patterns.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+    }
+
     @Test
     public void testJsonWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testJsonWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:\"bob\" 1:10 2:true " +
+        Object returns = BRunUtil.invoke(program, "testJsonWithoutType");
+        Assert.assertEquals(returns.toString(), "0:\"bob\" 1:10 2:true " +
                 "3:[{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ");
     }
 
     @Test
     public void testJsonWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testJsonWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:\"bob\" 1:10 2:true " +
+        Object returns = BRunUtil.invoke(program, "testJsonWithType");
+        Assert.assertEquals(returns.toString(), "0:\"bob\" 1:10 2:true " +
                 "3:[{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ");
     }
 
     @Test
     public void testDirectAccessJsonArrayWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessJsonArrayWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = BRunUtil.invoke(program, "testDirectAccessJsonArrayWithoutType");
+        Assert.assertEquals(returns.toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testDirectAccessJsonArrayWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessJsonArrayWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = BRunUtil.invoke(program, "testDirectAccessJsonArrayWithType");
+        Assert.assertEquals(returns.toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testJsonArrayWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testJsonArrayWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = BRunUtil.invoke(program, "testJsonArrayWithoutType");
+        Assert.assertEquals(returns.toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testJsonArrayWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testJsonArrayWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = BRunUtil.invoke(program, "testJsonArrayWithType");
+        Assert.assertEquals(returns.toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'random' not found in JSON " +
+                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"key 'random' not found in JSON " +
                             "mapping\"\\}\n" +
                             "\tat foreach-json-typed-binding-patterns" +
                             ":testDirectAccessInvalidElementWithoutType\\(foreach-json-typed-binding-patterns.bal" +
@@ -103,7 +102,7 @@ public class ForeachJSONTypedBindingPatternsTests {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'random' not found in JSON " +
+                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"key 'random' not found in JSON " +
                             "mapping\"\\}\n" +
                             "\tat foreach-json-typed-binding-patterns" +
                             ":testDirectAccessInvalidElementWithType\\(foreach-json-typed-binding-patterns.bal:133\\)")
@@ -113,24 +112,21 @@ public class ForeachJSONTypedBindingPatternsTests {
 
     @Test
     public void testIteratingCompleteJsonWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testIteratingCompleteJsonWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = BRunUtil.invoke(program, "testIteratingCompleteJsonWithoutType");
+        Assert.assertEquals(returns.toString(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
                 "3:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testIteratingCompleteJsonWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testIteratingCompleteJsonWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = BRunUtil.invoke(program, "testIteratingCompleteJsonWithType");
+        Assert.assertEquals(returns.toString(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
                 "3:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testEmptyJsonIteration() {
-        BValue[] returns = BRunUtil.invoke(program, "testEmptyJsonIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Object returns = BRunUtil.invoke(program, "testEmptyJsonIteration");
+        Assert.assertEquals(returns.toString(), "");
     }
 }

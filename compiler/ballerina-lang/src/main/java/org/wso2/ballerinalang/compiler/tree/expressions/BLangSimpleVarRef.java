@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -31,10 +33,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSimpleVarRef extends BLangVariableReference implements SimpleVariableReferenceNode {
 
-    public BSymbol varSymbol;
+    // BLangNodes
     public BLangIdentifier pkgAlias;
-
     public BLangIdentifier variableName;
+
+    // Semantic Data
+    public BSymbol varSymbol;
 
     @Override
     public BLangIdentifier getPackageAlias() {
@@ -50,7 +54,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
     public String toString() {
         StringBuilder br = new StringBuilder();
         if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
-            br.append(String.valueOf(pkgAlias)).append(":");
+            br.append(pkgAlias).append(":");
         }
         br.append(variableName == null ? String.valueOf(varSymbol.name) : String.valueOf(variableName));
         return br.toString();
@@ -62,6 +66,16 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.SIMPLE_VARIABLE_REF;
     }
@@ -70,6 +84,8 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
      * @since 0.94
      */
     public static class BLangLocalVarRef extends BLangSimpleVarRef {
+
+        // Semantic Data
         // This is used for closure desugar purposes.
         public boolean closureDesugared = false;
 
@@ -81,6 +97,16 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
 
         @Override
@@ -103,6 +129,17 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
+
     }
 
     /***
@@ -118,6 +155,16 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 
@@ -135,6 +182,16 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
     }
 
     /***
@@ -149,6 +206,16 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
 
         @Override

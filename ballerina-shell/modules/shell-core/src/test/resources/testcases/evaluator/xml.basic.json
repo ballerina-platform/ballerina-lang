@@ -1,27 +1,47 @@
 [
   {
     "description": "The XML element. There can be only one root element.",
-    "code": "xml x1 = xml `<book>The Lost World</book>`; x1",
+    "code": "xml x1 = xml `<book>The Lost World</book>`;"
+  },
+  {
+    "description": "The XML element. There can be only one root element - get value.",
+    "code": "x1",
     "expr": "xml`<book>The Lost World</book>`"
   },
   {
     "description": "The XML text.",
-    "code": "xml x2 = xml `Hello, world!`; x2",
+    "code": "xml x2 = xml `Hello, world!`;"
+  },
+  {
+    "description": "The XML text - get value.",
+    "code": "x2",
     "expr": "xml`Hello, world!`"
   },
   {
     "description": "The XML comment.",
-    "code": "xml x3 = xml `<!--I am a comment-->`; x3",
+    "code": "xml x3 = xml `<!--I am a comment-->`;"
+  },
+  {
+    "description": "The XML comment - get value.",
+    "code": "x3",
     "expr": "xml`<!--I am a comment-->`"
   },
   {
     "description": "The XML processing instructions.",
-    "code": "xml x4 = xml `<?target data?>`; x4",
+    "code": "xml x4 = xml `<?target data?>`;"
+  },
+  {
+    "description": "The XML processing instructions - get value.",
+    "code": "x4",
     "expr": "xml`<?target data?>`"
   },
   {
     "description": "Multiple XML items can be combined to form a sequence of XML.",
-    "code": "xml x5 = x1 + x2 + x3 + x4; x5",
+    "code": "xml x5 = x1 + x2 + x3 + x4;"
+  },
+  {
+    "description": "Multiple XML items can be combined to form a sequence of XML - get value.",
+    "code": "x5",
     "expr": "xml`<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?>`"
   }
 ]

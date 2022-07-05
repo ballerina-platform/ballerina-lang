@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -46,12 +43,11 @@ public class BasicTupleTest {
         resultNegative = BCompileUtil.compile("test-src/types/tuples/tuple_negative_test.bal");
     }
 
-
     @Test(description = "Test basics of tuple types")
     public void testTupleTypeBasics() {
-        BValue[] returns = BRunUtil.invoke(result, "basicTupleTest", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), " test1 expr \n" +
+        Object returns = BRunUtil.invoke(result, "basicTupleTest", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), " test1 expr \n" +
                 " test2 \n" +
                 " test3 3 \n" +
                 " test4 4 \n" +
@@ -60,83 +56,83 @@ public class BasicTupleTest {
 
     @Test(description = "Test Function invocation using tuples")
     public void testFunctionInvocationUsingTuples() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocation", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "xy5.0z");
+        Object returns = BRunUtil.invoke(result, "testFunctionInvocation", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "xy5.0z");
     }
 
     @Test(description = "Test Function Invocation return values using tuples")
     public void testFunctionReturnValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionReturnValue", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "x5.0z");
+        Object returns = BRunUtil.invoke(result, "testFunctionReturnValue", new Object[]{});
 
-        returns = BRunUtil.invoke(result, "testFunctionReturnValue2", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "xz");
-        Assert.assertEquals(returns[1].stringValue(), "5.0");
+        Assert.assertEquals(returns.toString(), "x5.0z");
+
+        BArray returns1 = (BArray) BRunUtil.invoke(result, "testFunctionReturnValue2", new Object[]{});
+        Assert.assertEquals(returns1.size(), 2);
+        Assert.assertEquals(returns1.get(0).toString(), "xz");
+        Assert.assertEquals(returns1.get(1).toString(), "5.0");
     }
 
     @Test(description = "Test Function Invocation return values using tuples")
     public void testIgnoredValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testIgnoredValue1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "foo");
+        Object returns = BRunUtil.invoke(result, "testIgnoredValue1");
+
+        Assert.assertEquals(returns.toString(), "foo");
 
         returns = BRunUtil.invoke(result, "testIgnoredValue2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "foo");
+
+        Assert.assertEquals(returns.toString(), "foo");
 
         returns = BRunUtil.invoke(result, "testIgnoredValue3");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "foo");
 
-        returns = BRunUtil.invoke(result, "testIgnoredValue4");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "foo");
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertEquals(returns.toString(), "foo");
+
+        BArray returns1 = (BArray) BRunUtil.invoke(result, "testIgnoredValue4");
+        Assert.assertEquals(returns1.size(), 2);
+        Assert.assertEquals(returns1.get(0).toString(), "foo");
+        Assert.assertTrue((Boolean) returns1.get(1));
     }
 
     @Test(description = "Test index based access of tuple type")
     public void testIndexBasedAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testIndexBasedAccess");
-        Assert.assertEquals(returns[0].stringValue(), "def");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIndexBasedAccess");
+        Assert.assertEquals(returns.get(0).toString(), "def");
+        Assert.assertEquals(returns.get(1), 4L);
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test(description = "Test index based access of tuple type with records")
     public void testIndexBasedAccessOfRecords() {
-        BValue[] returns = BRunUtil.invoke(result, "testIndexBasedAccessOfRecords");
-        Assert.assertEquals(returns[0].stringValue(), "NewFoo");
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertEquals(returns[2].stringValue(), "NewBar");
-        Assert.assertEquals(returns[3].stringValue(), "Foo");
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 15.5);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIndexBasedAccessOfRecords");
+        Assert.assertEquals(returns.get(0).toString(), "NewFoo");
+        Assert.assertTrue((Boolean) returns.get(1));
+        Assert.assertEquals(returns.get(2).toString(), "NewBar");
+        Assert.assertEquals(returns.get(3).toString(), "Foo");
+        Assert.assertEquals(returns.get(4), 15.5);
     }
 
     @Test(description = "Test default values for tuple type")
     public void testDefaultValuesInTuples() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultValuesInTuples");
-        Assert.assertEquals(returns[0].stringValue(), "");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertEquals(((BFloat) returns[3]).intValue(), 0);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDefaultValuesInTuples");
+        Assert.assertEquals(returns.get(0).toString(), "");
+        Assert.assertEquals(returns.get(1), 0L);
+        Assert.assertFalse((Boolean) returns.get(2));
+        Assert.assertEquals(returns.get(3), 0.0);
     }
 
     @Test(description = "Test tuple to array assignment")
     public void testTupleToArrayAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleToArrayAssignment1", new BValue[]{});
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "a");
-        Assert.assertEquals(returns[1].stringValue(), "b");
-        Assert.assertEquals(returns[2].stringValue(), "c");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleToArrayAssignment1", new Object[]{});
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "a");
+        Assert.assertEquals(returns.get(1).toString(), "b");
+        Assert.assertEquals(returns.get(2).toString(), "c");
 
-        returns = BRunUtil.invoke(result, "testTupleToArrayAssignment2", new BValue[]{});
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "a");
-        Assert.assertEquals(returns[1].stringValue(), "b");
-        Assert.assertEquals(returns[2].stringValue(), "c");
+        returns = (BArray) BRunUtil.invoke(result, "testTupleToArrayAssignment2", new Object[]{});
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "a");
+        Assert.assertEquals(returns.get(1).toString(), "b");
+        Assert.assertEquals(returns.get(2).toString(), "c");
     }
 
     @Test(description = "Test tuple to JSON assignment")
@@ -146,22 +142,22 @@ public class BasicTupleTest {
 
     @Test(description = "Test array to tuple assignment")
     public void testArrayToTupleAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayToTupleAssignment1", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", \"c\"]");
+        Object returns = BRunUtil.invoke(result, "testArrayToTupleAssignment1", new Object[]{});
 
-        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment2", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", \"c\"]");
+        Assert.assertEquals(returns.toString(), "[\"a\",\"b\",\"c\"]");
 
-        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment3", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "a");
-        Assert.assertEquals(returns[1].stringValue(), "[\"b\", \"c\"]");
+        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment2", new Object[]{});
 
-        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment4", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", \"c\"]");
+        Assert.assertEquals(returns.toString(), "[\"a\",\"b\",\"c\"]");
+
+        BArray returns1 = (BArray) BRunUtil.invoke(result, "testArrayToTupleAssignment3", new Object[]{});
+        Assert.assertEquals(returns1.size(), 2);
+        Assert.assertEquals(returns1.get(0).toString(), "a");
+        Assert.assertEquals(returns1.get(1).toString(), "[\"b\",\"c\"]");
+
+        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment4", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "[\"a\",\"b\",\"c\"]");
     }
 
     @Test(description = "Test union expected type for list constructor")
@@ -186,12 +182,14 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 39);
+        Assert.assertEquals(resultNegative.getErrorCount(), 44);
         int i = 0;
         BAssertUtil.validateError(
-                resultNegative, i++, "tuple and expression size does not match", 18, 32);
+                resultNegative, i++,
+                "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value", 18, 32);
         BAssertUtil.validateError(
-                resultNegative, i++, "tuple and expression size does not match", 19, 41);
+                resultNegative, i++,
+                "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value", 19, 41);
         BAssertUtil.validateError(
                 resultNegative, i++, "ambiguous type '([int,boolean,string]|[any,boolean,string])?'", 34, 63);
         BAssertUtil.validateError(
@@ -230,7 +228,8 @@ public class BasicTupleTest {
     @Test(description = "Test negatives of index based access of tuple type")
     public void testNegativesOfTupleType() {
         int i = 16;
-        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match", 114, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value", 114, 38);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '-1'", 119, 16);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 120, 16);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 122, 16);
@@ -242,16 +241,16 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(string|boolean)', found '(string|boolean|int)'", 136, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found 'S1|S2'", 154, 19);
+                "incompatible types: expected 'int', found 'FiniteOne'", 154, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid list member access expression: value space '3|4|5' out of range", 155, 19);
+                "invalid list member access expression: value space 'FiniteTwo' out of range", 155, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '0|1|2|S1'", 156, 19);
+                "incompatible types: expected 'int', found 'FiniteThree'", 156, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'int', found 'FiniteFour'", 157, 19);
+                "incompatible types: expected 'int', found 'FiniteFour'", 157, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "invalid list member access expression: value space 'FiniteFive' " +
-                                          "out of range", 158, 19);
+                "invalid list member access expression: value space 'FiniteFive' " +
+                        "out of range", 158, 19);
         BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
     }
 
@@ -263,10 +262,10 @@ public class BasicTupleTest {
                         + "that belong to type 'any'", 187, 1);
         BAssertUtil.validateError(
                 resultNegative, i++, "a wildcard binding pattern can be used only with a value "
-                        + "that belong to type 'any'", 190, 9);
+                        + "that belong to type 'any'", 190, 5);
         BAssertUtil.validateError(
                 resultNegative, i++, "a wildcard binding pattern can be used only with a value "
-                        + "that belong to type 'any'", 193, 9);
+                        + "that belong to type 'any'", 193, 5);
     }
 
     @Test(dataProvider = "dataToTestTupleDeclaredWithVar", description = "Test tuple declared with var")
@@ -288,11 +287,11 @@ public class BasicTupleTest {
     public void testInvalidTupleDeclaredWithVar() {
         int i = 30;
         BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; " +
-                "member variable count mismatch with member type count", 172, 9);
+                "member variable count mismatch with member type count", 172, 5);
         BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; member variable " +
-                "count mismatch with member type count", 173, 9);
+                "count mismatch with member type count", 173, 5);
         BAssertUtil.validateError(resultNegative, i, "invalid list binding pattern; member variable " +
-                "count mismatch with member type count", 174, 9);
+                "count mismatch with member type count", 174, 5);
     }
 
     @Test(description = "Test invalid tuple assignments to JSON")
@@ -304,6 +303,21 @@ public class BasicTupleTest {
                 "cannot be cast to 'json[]'", 202, 16);
         BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'json', " +
                 "found '[string,(int|xml),string...]'", 203, 16);
+    }
+
+    @Test(description = "Test ambiguous tuple assignment to unions of tuple types")
+    public void testAmbiguousTupleTupeNegative() {
+        int i = 39;
+        BAssertUtil.validateError(resultNegative, i, "ambiguous type '([1,\"hello\"]|[1])'", 208, 10);
+    }
+
+    @Test(description = "Test the tuple argument when the variable is already declared")
+    public void testTupleParamWithExistingArg() {
+        int i = 40;
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'i'", 215, 34);
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'i'", 222, 41);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'int' and 'string'", 230, 21);
+        BAssertUtil.validateError(resultNegative, i, "redeclared symbol 'i'", 233, 37);
     }
 
     @Test

@@ -36,13 +36,21 @@ public class FindRefsOfEnumsTest extends FindAllReferencesTest {
         return new Object[][]{
                 {16, 5, location(16, 5, 11),
                         List.of(location(16, 5, 11),
-                                location(20, 24, 30),
-                                location(21, 4, 10))
+                                location(30, 24, 30),
+                                location(31, 4, 10))
                 },
                 {17, 4, location(17, 4, 7),
                         List.of(location(17, 4, 7),
-                                location(21, 17, 20),
-                                location(22, 11, 14))
+                                location(31, 17, 20),
+                                location(33, 11, 14))
+                },
+                {20, 6, location(20, 6, 15),
+                        List.of(location(20, 6, 15),
+                                location(24, 10, 19))
+                },
+                {22, 5, location(22, 5, 12),
+                        List.of(location(22, 5, 12),
+                                location(28, 14, 21))
                 },
         };
     }

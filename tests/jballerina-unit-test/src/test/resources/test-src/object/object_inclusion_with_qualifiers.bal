@@ -157,6 +157,34 @@ readonly class TimestampImpl  {
     public function toString() returns string => "test";
 }
 
+class Function {
+    final string name = "";
+}
+
+class FunctionWithSingleCharName {
+    *Function; // OK, since `Function` isn't readonly even though it has only immutable fields.
+    final string:Char name;
+
+    function init(string:Char name) {
+        self.name = name;
+    }
+}
+
+class FunctionDefn {
+    *Function;
+    string[] body;
+
+    function init(string name, string[] body) {
+        self.name = name;
+        self.body = body;
+    }
+}
+
+type PublicFunction object {
+    *Function;
+    string module;
+};
+
 function testReadOnlyAndObjectIntersectionInclusion() {
     Timestamp tp = new TimestampImpl(12345.2);
     assertTrue(<any> tp is TimestampImpl);

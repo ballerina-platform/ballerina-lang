@@ -1,26 +1,24 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -50,34 +48,34 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testSimpleObjectTypeReferenceSemanticsNegative_1() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-semantics" +
-                "-negative.bal");
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/object/object-type-reference-1-semantics-negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an object", 32,
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[Foo, Foo]'", 52, 1);
+                "invalid cyclic type reference in '[Foo, Foo]'", 52, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[A, B, C, D, A]'", 57, 1);
+                "invalid cyclic type reference in '[A, B, C, D, A]'", 57, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[C, E, C]'", 57, 1);
+                "invalid cyclic type reference in '[C, E, C]'", 57, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[B, C, D, A, B]'", 61, 1);
+                "invalid cyclic type reference in '[B, C, D, A, B]'", 61, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                "invalid cyclic type reference in '[C, E, C]'", 61, 1);
+                "invalid cyclic type reference in '[C, E, C]'", 61, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[C, D, A, B, C]'", 65, 1);
+                "invalid cyclic type reference in '[C, D, A, B, C]'", 65, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[C, E, C]'", 65, 1);
+                "invalid cyclic type reference in '[C, E, C]'", 65, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[C, E, C]'", 70, 1);
+                "invalid cyclic type reference in '[C, E, C]'", 70, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[D, A, B, C, D]'", 70, 1);
+                "invalid cyclic type reference in '[D, A, B, C, D]'", 70, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
+                "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid cyclic type reference in '[E, C, E]'", 74, 1);
+                "invalid cyclic type reference in '[E, C, E]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the method 'getName' of class 'Manager2'", 95, 1);
         BAssertUtil.validateError(negativeResult, i++,
@@ -87,6 +85,12 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 119, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 123, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 144, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'O2'", 171, 5);
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { byte[] a; }' cannot " +
+                "be overridden by a field of type 'O5': expected a subtype of 'object { byte[] a; }'", 186, 5);
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { int:Unsigned8 i; }' " +
+                "cannot be overridden by a field of type 'O8': expected a subtype of 'object { int:Unsigned8 i; }'",
+                                  205, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -121,7 +125,7 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testCyclicDependencyReferencesObjectTypeReferenceNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-cyclic-dependency" +
-                                                                    "-negative.bal");
+                "-negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[Foo, Foo]'", 18, 1);
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[A, B, C, D, A]'", 23, 1);
@@ -137,7 +141,7 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
                 "-negative.bal");
@@ -164,18 +168,16 @@ public class ObjectTypeReferenceTest {
                 BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers_negative.bal");
 
         int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in a 'class' that is not 'readonly'", 26, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
-                                  26, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
-                                  27, 6);
+                27, 6);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in an 'object' type descriptor", 33, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
-                                  33, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
-                                  34, 6);
+                34, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
                 "(s) in the referencing object", 58, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
-                                  58, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
                 "in the referencing object", 59, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
@@ -183,11 +185,9 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
                 "qualifier(s) in the referencing object", 61, 6);
         BAssertUtil.validateError(negativeResult, i++, "remote qualifier only allowed in client and service objects",
-                                  68, 5);
+                68, 5);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
                 "(s) in the referencing object", 74, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
-                                  74, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
                 "in the referencing object", 75, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
@@ -199,7 +199,7 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid type reference: missing 'client' qualifier(s) in the " +
                 "referencing object constructor expression", 84, 24);
         BAssertUtil.validateError(negativeResult, i++, "remote qualifier only allowed in client and service objects",
-                                  87, 5);
+                87, 5);
         BAssertUtil.validateError(negativeResult, i++, "invalid type reference: missing 'isolated client' " +
                 "qualifier(s) in the referencing object constructor expression", 93, 21);
         BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
@@ -279,60 +279,60 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testSimpleObjectTypeReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleObjectTypeReference");
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testSimpleObjectTypeReference");
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertSame(returns.get(2).getClass(), Double.class);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 99);
-        Assert.assertEquals(returns[1].stringValue(), "sample name 2 from inner function");
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 8.0);
-        Assert.assertEquals(returns[3].stringValue(), "HR");
+        Assert.assertEquals(returns.get(0), 99L);
+        Assert.assertEquals(returns.get(1).toString(), "sample name 2 from inner function");
+        Assert.assertEquals(returns.get(2), 8.0);
+        Assert.assertEquals(returns.get(3).toString(), "HR");
     }
 
     @Test
     public void testInitTypeReferenceObjectWithNew() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testInitTypeReferenceObjectWithNew");
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testInitTypeReferenceObjectWithNew");
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertSame(returns.get(2).getClass(), Double.class);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
-        Assert.assertEquals(returns[1].stringValue(), "John from inner function");
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 1000.0);
-        Assert.assertEquals(returns[3].stringValue(), "HR");
+        Assert.assertEquals(returns.get(0), 20L);
+        Assert.assertEquals(returns.get(1).toString(), "John from inner function");
+        Assert.assertEquals(returns.get(2), 1000.0);
+        Assert.assertEquals(returns.get(3).toString(), "HR");
     }
 
     @Test
     public void testObjectWithChainedTypeReferences() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithChainedTypeReferences");
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithChainedTypeReferences");
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertSame(returns.get(2).getClass(), Double.class);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
-        Assert.assertEquals(returns[1].stringValue(), "John from outer function");
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 2500.0);
-        Assert.assertEquals(returns[3].stringValue(), "HR");
+        Assert.assertEquals(returns.get(0), 20L);
+        Assert.assertEquals(returns.get(1).toString(), "John from outer function");
+        Assert.assertEquals(returns.get(2), 2500.0);
+        Assert.assertEquals(returns.get(3).toString(), "HR");
     }
 
     @Test
     public void testAbstractObjectFuncWithDefaultVal() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAbstractObjectFuncWithDefaultVal");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "Hello Jane");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAbstractObjectFuncWithDefaultVal");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Hello Jane");
+        Assert.assertSame(returns.get(1).getClass(), Double.class);
+        Assert.assertEquals(returns.get(1), 1800.0);
     }
 
     @Test
@@ -350,36 +350,36 @@ public class ObjectTypeReferenceTest {
         CompileResult result = BCompileUtil.compile("test-src/object/object_func_reference_neg.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test1(string aString, int " +
-                                          "anInt) returns (string|error)', found 'function test1(string str, int " +
-                                          "anInt)" +
-                                          " returns (string|error)'", 53, 5);
+                "mismatched function signatures: expected 'function test1(string aString, int " +
+                        "anInt) returns (string|error)', found 'function test1(string str, int " +
+                        "anInt)" +
+                        " returns (string|error)'", 53, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'public function test2(string aString)', " +
-                                          "found 'function test2(string aString)'", 58, 5);
+                "mismatched function signatures: expected 'public function test2(string aString)', " +
+                        "found 'function test2(string aString)'", 58, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test3(int anInt, string " +
-                                          "aString, string defaultable, int def2)', found 'function test3(string " +
-                                          "aString, int anInt, string defaultable, int def2) returns string'", 61, 5);
+                "mismatched function signatures: expected 'function test3(int anInt, string " +
+                        "aString, string defaultable, int def2)', found 'function test3(string " +
+                        "aString, int anInt, string defaultable, int def2) returns string'", 61, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test4(string aString, " +
-                                          "int:Signed16 anInt, Bar... bars) returns string', found 'function test4" +
-                                          "(string aString, int anInt, AnotherBar... bars) returns string'",
-                                  66, 5);
+                "mismatched function signatures: expected 'function test4(string aString, " +
+                        "int:Signed16 anInt, Bar... bars) returns string', found 'function test4" +
+                        "(string aString, int anInt, AnotherBar... bars) returns string'",
+                66, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test5(ON|OFF... status) returns" +
-                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 71, 5);
+                "mismatched function signatures: expected 'function test5(Status... status) returns Bar',"
+                        + " found 'function test5(Status... stat) returns Bar'", 71, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test6([string,ON|OFF]... tup)'," +
-                                          " found 'function test6([string,ON|OFF]... tupl)'", 76, 5);
+                "mismatched function signatures: expected 'function test6([string,Status]... tup)'," +
+                        " found 'function test6([string,Status]... tupl)'", 76, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test7() returns ON|OFF', found " +
-                                          "'function test7(int x) returns ON|OFF'", 79, 5);
+                "mismatched function signatures: expected 'function test7() returns Status', found " +
+                        "'function test7(int x) returns Status'", 79, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test8(int:Signed16 anInt, Bar.." +
-                                          ". bars) returns int:Signed16', found 'function test8(int:Signed16 anInt, " +
-                                          "Bar... bars) returns int'",
-                                  84, 5);
+                "mismatched function signatures: expected 'function test8(int:Signed16 anInt, Bar.." +
+                        ". bars) returns int:Signed16', found 'function test8(int:Signed16 anInt, " +
+                        "Bar... bars) returns int'",
+                84, 5);
         BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
                 "'InvalidReadOnlyClassWithMissingImpl'", 93, 1);
         BAssertUtil.validateError(result, index++, "no implementation found for the method 'toFloat' of class " +
@@ -396,18 +396,33 @@ public class ObjectTypeReferenceTest {
 
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, index++,
-                                  "incompatible type reference 'abc:Foo': a referenced object cannot have non-public " +
-                                          "fields or methods", 20, 6);
+                "incompatible type reference 'abc:Foo': a referenced type across modules " +
+                        "cannot have non-public fields or methods", 20, 6);
         BAssertUtil.validateError(result, index++,
-                                  "incompatible type reference 'abc:Bar': a referenced object cannot have non-public " +
-                                          "fields or methods", 21, 6);
+                "incompatible type reference 'abc:Bar': a referenced type across modules " +
+                        "cannot have non-public fields or methods", 21, 6);
         BAssertUtil.validateError(result, index,
-                                  "incompatible type reference 'abc:Baz': a referenced object cannot have non-public " +
-                                          "fields or methods", 22, 6);
+                "incompatible type reference 'abc:Baz': a referenced type across modules " +
+                        "cannot have non-public fields or methods", 22, 6);
     }
 
     @Test
     public void testCreatingObjectWithOverriddenMethods() {
         BRunUtil.invoke(compileResult, "testCreatingObjectWithOverriddenMethods");
+    }
+
+    @Test
+    public void testObjectReferenceRecordUpdate() {
+        BRunUtil.invoke(compileResult, "testObjectReferenceRecordUpdate");
+    }
+
+    @Test
+    public void testOverridingIncludedFieldInClassWithReadOnlyIntersection() {
+        BRunUtil.invoke(compileResult, "testOverridingIncludedFieldInClassWithReadOnlyIntersection");
+    }
+
+    @Test
+    public void testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection() {
+        BRunUtil.invoke(compileResult, "testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection");
     }
 }

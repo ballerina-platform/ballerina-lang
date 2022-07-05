@@ -403,6 +403,133 @@ function testQueryConstructingTableWithVar() returns error? {
     assertEquality({"user": u1}, result2.get(u1));
 }
 
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+type Team readonly & record {|
+    string user;
+    int teamId;
+|};
+
+ScoreEvent[] events = [
+    {email: "jake@abc.com", problemId: "12", score: 80.0},
+    {email: "anne@abc.com", problemId: "20", score: 95.0},
+    {email: "peter@abc.com", problemId: "3", score: 72.0}
+];
+
+Team[] team = [
+    {user: "jake@abc.com", teamId: 1},
+    {user: "anne@abc.com", teamId: 2},
+    {user: "peter@abc.com", teamId: 2}
+];
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause() {
+    json j = from var {email, problemId, score} in events
+        where score > 85.5
+        select {email, score};
+    assertEquality([{email: "anne@abc.com", score: 95.0}], j);
+
+    j = from var {email: em, problemId: pi, score: sc} in events
+        where sc < 80.0
+        select {em, sc};
+    assertEquality([{em : "peter@abc.com", sc: 72.0}], j);
+}
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause() {
+    json j = from var {email, problemId, score} in events
+        join var {user, teamId} in team
+        on email equals user
+        where teamId == 2 && score > 85.5
+        select {email, score};
+    assertEquality([{email: "anne@abc.com", score: 95.0}], j);
+
+    j = from var {email: em, problemId: pi, score: sc} in events
+        join var {user: us, teamId: ti} in team
+        on em equals us
+        where sc < 80.0
+        select {ti, sc};
+    assertEquality([{ti: 2, sc: 72.0}], j);
+}
+
+function testUsingAnIntersectionTypeInQueryExpr() {
+    json j = from var ev in events
+        where ev.score < 80.0
+        select {
+            email: ev.email,
+            score: ev.score
+        };
+    assertEquality([{email : "peter@abc.com", score: 72.0}], j);
+
+    j = from var ev in events
+        join var tm in team
+        on ev.email equals tm.user
+        where ev.score < 80.0
+        select {
+            email: ev.email,
+            teamId: tm.teamId
+        };
+    assertEquality([{email : "peter@abc.com", teamId: 2}], j);
+}
+
+type ScoreEventType ScoreEvent;
+
+type TeamType Team;
+
+ScoreEventType[] events2 = events;
+
+TeamType[] team2 = team;
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause2() {
+    json j = from var {email, problemId, score} in events2
+        where score > 85.5
+        select {email, score};
+    assertEquality([{email: "anne@abc.com", score: 95.0}], j);
+
+    j = from var {email: em, problemId: pi, score: sc} in events2
+        where sc < 80.0
+        select {em, sc};
+    assertEquality([{em : "peter@abc.com", sc: 72.0}], j);
+}
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause2() {
+    json j = from var {email, problemId, score} in events2
+        join var {user, teamId} in team2
+        on email equals user
+        where teamId == 2 && score > 85.5
+        select {email, score};
+    assertEquality([{email: "anne@abc.com", score: 95.0}], j);
+
+    j = from var {email: em, problemId: pi, score: sc} in events2
+        join var {user: us, teamId: ti} in team2
+        on em equals us
+        where sc < 80.0
+        select {ti, sc};
+    assertEquality([{ti: 2, sc: 72.0}], j);
+}
+
+function testUsingAnIntersectionTypeInQueryExpr2() {
+    json j = from var ev in events2
+        where ev.score < 80.0
+        select {
+            email: ev.email,
+            score: ev.score
+        };
+    assertEquality([{email : "peter@abc.com", score: 72.0}], j);
+
+    j = from var ev in events2
+        join var tm in team2
+        on ev.email equals tm.user
+        where ev.score < 80.0
+        select {
+            email: ev.email,
+            teamId: tm.teamId
+        };
+    assertEquality([{email : "peter@abc.com", teamId: 2}], j);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -30,9 +32,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangBinaryExpr extends BLangExpression implements BinaryExpressionNode {
 
+    // BLangNodes
     public BLangExpression lhsExpr;
     public BLangExpression rhsExpr;
+
+    // Parser Flags and Data
     public OperatorKind opKind;
+
+    // Semantic Data
     public BOperatorSymbol opSymbol;
 
     @Override
@@ -58,6 +65,16 @@ public class BLangBinaryExpr extends BLangExpression implements BinaryExpression
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

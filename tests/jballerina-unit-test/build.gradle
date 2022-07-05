@@ -26,7 +26,6 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
     implementation 'org.slf4j:slf4j-api'
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')
@@ -35,8 +34,8 @@ dependencies {
     implementation project(':ballerina-lang-test')
     implementation project(':ballerina-runtime')
     implementation project(':docerina')
+    implementation project(':ballerina-lang:value');
 
-    implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
     testCompile 'com.zaxxer:HikariCP'
@@ -53,8 +52,6 @@ dependencies {
     testRuntime project(':ballerina-runtime')
 
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
-    distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
-    distributionBala project(path: ':ballerina-observability-internal', configuration: 'distributionBala')
 
 //    balaTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 ////    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')

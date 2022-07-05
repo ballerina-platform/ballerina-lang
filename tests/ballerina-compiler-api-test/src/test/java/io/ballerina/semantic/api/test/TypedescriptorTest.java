@@ -20,12 +20,15 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaByteTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaIntTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
@@ -219,6 +222,26 @@ public class TypedescriptorTest {
         assertEquals(((TypeReferenceTypeSymbol) type.memberTypeDescriptor()).typeDescriptor().typeKind(), OBJECT);
     }
 
+    @Test(dataProvider = "ArrayVarPosProvider")
+    public void testFixedArrayType(int line, int col, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), ARRAY);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "ArrayVarPosProvider")
+    public Object[][] getArrayVarPos() {
+        return new Object[][]{
+                {269, 11, "int[3]"},
+                {270, 26, "string[1][2][3][4][5]"},
+                {271, 13, "int[][2]"},
+                {272, 13, "int[2][]"},
+                {273, 23, "(int|string)[1][2]"},
+                {274, 30, "(Bar & readonly)[1][2][3]"},
+        };
+    }
+
     @Test
     public void testMapType() {
         Symbol symbol = getSymbol(49, 16);
@@ -344,8 +367,29 @@ public class TypedescriptorTest {
         return new Object[][]{
                 {204, 11, "int?"},
                 {205, 17, "int|float|()"},
-                {206, 11, "A?"},
+                {206, 11, "\"A\"?"},
 //                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
+        };
+    }
+
+    @Test(dataProvider = "UnionWithFunctionTypePos")
+    public void testUnionTypeWithFunctionType(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionWithFunctionTypePos")
+    public Object[][] getUnionWithFunctionTypePos() {
+        return new Object[][]{
+                {259, 34, "(function () returns int)|10|20"},
+                {260, 37, "(function () returns int)|string"},
+                {261, 35, "string|function () returns int"},
+                {262, 36, "(function () returns int)|10|20"},
+                {263, 37, "(function () returns int|string)|3"},
+                {264, 34, "ReturnIntFunctionType?|string"},
+                {265, 57, "(function () returns string)|function () returns int"},
         };
     }
 
@@ -375,7 +419,7 @@ public class TypedescriptorTest {
     public Object[][] getFiniteTypePos() {
         return new Object[][]{
                 {60, 10, "Digit", List.of("0", "1", "2", "3")},
-                {62, 11, "Format", List.of("default", "csv", "tdf")}
+                {62, 11, "Format", List.of("\"default\"", "\"csv\"", "\"tdf\"")}
         };
     }
 
@@ -895,12 +939,20 @@ public class TypedescriptorTest {
         assertList(symbolList, expectedSymbolList);
     }
 
+    @Test
+    public void testObjectTypeSignature() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(255, 6));
+        assertEquals(((VariableSymbol) symbol.get()).typeDescriptor().signature(),
+                     "client object {int a; int b; function testFunc(); remote function testRFunc(); " +
+                             "function getA() returns int;}");
+    }
+
     public Object[][] getSymbolModuleInfo() {
         return new Object[][]{
-                {2, 16, "main.bal", SymbolKind.FUNCTION, "main",
+                {0, 16, "main.bal", SymbolKind.FUNCTION, "main",
                         "symbolowner/testprojmodules:0.1.0"},
                 {5, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "Int",
-                        "ballerina/lang.annotations:0.0.0"},
+                        "symbolowner/testprojmodules.module1:0.1.0"},
                 {9, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType1",
                         "symbolowner/testprojmodules.module1:0.1.0"},
                 {11, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType2",
@@ -912,6 +964,43 @@ public class TypedescriptorTest {
                 {7, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "ClassType",
                         "symbolowner/testprojmodules.module1:0.1.0"},
         };
+    }
+
+    @Test
+    public void testIncompleteConstDef() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(277, 13));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), CONSTANT);
+        BallerinaConstantSymbol constSymbol = (BallerinaConstantSymbol) symbol.get();
+        assertEquals(constSymbol.getName().get(), "greeting");
+        assertEquals(constSymbol.typeDescriptor().typeKind(), SINGLETON);
+        assertEquals(constSymbol.typeDescriptor().signature(), "");
+    }
+
+    @Test(dataProvider = "UnionTypeSymbolPos")
+    public void testUnionTypeSymbolSignature(int line, int col, String signature) {
+        TypeReferenceTypeSymbol symbol = (TypeReferenceTypeSymbol) getSymbol(line, col);
+        assertEquals(symbol.typeDescriptor().typeKind(), UNION);
+        UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) symbol.typeDescriptor();
+        assertEquals(unionTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionTypeSymbolPos")
+    public Object[][] getUnionTypeSymbolPos() {
+        return new Object[][]{
+                {280, 0, "\"foo1\"|\"foo2\""},
+                {282, 0, "\"parent\"|\"any\""},
+        };
+    }
+
+    @Test
+    public void testSingletonTypeSignatureInUnionType() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(282, 7));
+        assertTrue(symbol.isPresent());
+        List<TypeSymbol> memberSymbols = ((BallerinaUnionTypeSymbol) ((BallerinaTypeReferenceTypeSymbol)
+                ((VariableSymbol) symbol.get()).typeDescriptor()).typeDescriptor()).memberTypeDescriptors();
+        assertEquals(memberSymbols.get(0).signature(), "\"parent\"");
+        assertEquals(memberSymbols.get(1).signature(), "\"any\"");
     }
 
     private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {

@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -47,136 +45,133 @@ public class MapInitializerExprTest {
 
     @Test(description = "Test map initializer expression")
     public void testMapInitExpr() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "mapInitTest", args);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(compileResult, "mapInitTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertTrue(returns instanceof BMap);
 
-        BMap<String, BString> mapValue = (BMap<String, BString>) returns[0];
+        BMap<String, BString> mapValue = (BMap<String, BString>) returns;
         Assert.assertEquals(mapValue.size(), 4);
 
-        Assert.assertEquals(mapValue.get("animal1").stringValue(), "Lion");
-        Assert.assertEquals(mapValue.get("animal2").stringValue(), "Cat");
-        Assert.assertEquals(mapValue.get("animal4").stringValue(), "Dog");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("animal1")).toString(), "Lion");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("animal2")).toString(), "Cat");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("animal4")).toString(), "Dog");
     }
 
     @Test(description = "Test map initializing with different types")
     public void testMultiTypeMapInit() {
         BCompileUtil.compile("test-src/types/map/multi-type-map-initializer.bal");
     }
-    
+
     @Test
     public void testNestedMapInit() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedMapInit", new BValue[] {});
+        Object returns = BRunUtil.invoke(compileResult, "testNestedMapInit", new Object[]{});
 
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
-        BValue info = outerMap.get("info");
+        Assert.assertTrue(returns instanceof BMap<?, ?>);
+        BMap<String, Object> outerMap = (BMap<String, Object>) returns;
+        Object info = outerMap.get(StringUtils.fromString("info"));
         Assert.assertTrue(info instanceof BMap<?, ?>);
-        BMap<String, BValue> infoMap = (BMap<String, BValue>) info;
-        Assert.assertEquals(infoMap.get("city"), new BString("Colombo"));
-        Assert.assertEquals(infoMap.get("country"), new BString("SriLanka"));
+        BMap<String, Object> infoMap = (BMap<String, Object>) info;
+        Assert.assertEquals(infoMap.get(StringUtils.fromString("city")), StringUtils.fromString("Colombo"));
+        Assert.assertEquals(infoMap.get(StringUtils.fromString("country")), StringUtils.fromString("SriLanka"));
     }
-    
+
     @Test
     public void testMapInitWithJson() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapInitWithJson", new BValue[] {});
+        Object returns = BRunUtil.invoke(compileResult, "testMapInitWithJson", new Object[]{});
 
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(outerMap.get("name"), new BString("Supun"));
+        Assert.assertTrue(returns instanceof BMap<?, ?>);
+        BMap<String, Object> outerMap = (BMap<String, Object>) returns;
+        Assert.assertEquals(outerMap.get(StringUtils.fromString("name")), StringUtils.fromString("Supun"));
 
-        BValue info = outerMap.get("info");
+        Object info = outerMap.get(StringUtils.fromString("info"));
         Assert.assertTrue(info instanceof BMap);
-        Assert.assertEquals(info.stringValue(), "{\"city\":\"Colombo\", \"country\":\"SriLanka\"}");
+        Assert.assertEquals(info.toString(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");
     }
-    
+
     @Test
     public void testComplexMapInit() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexMapInit", new BValue[] {});
+        Object returns = BRunUtil.invoke(compileResult, "testComplexMapInit", new Object[]{});
 
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(outerMap.get("name").stringValue(), "Supun");
+        Assert.assertTrue(returns instanceof BMap<?, ?>);
+        BMap<String, Object> outerMap = (BMap<String, Object>) returns;
+        Assert.assertEquals(outerMap.get(StringUtils.fromString("name")).toString(), "Supun");
 
-        BValue adrsArray = outerMap.get("addressArray");
-        Assert.assertTrue(adrsArray instanceof BValueArray);
-        BValueArray addressArray = (BValueArray) adrsArray;
+        Object adrsArray = outerMap.get(StringUtils.fromString("addressArray"));
+        Assert.assertTrue(adrsArray instanceof BArray);
+        BArray addressArray = (BArray) adrsArray;
 
-        BValue adrs1 = addressArray.getRefValue(0);
+        Object adrs1 = addressArray.getRefValue(0);
         Assert.assertTrue(adrs1 instanceof BMap<?, ?>);
-        BValue address = ((BMap) adrs1).get("address");
+        Object address = ((BMap) adrs1).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get("city").stringValue(), "Colombo");
+        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Colombo");
 
-        BValue adrs2 = addressArray.getRefValue(1);
+        Object adrs2 = addressArray.getRefValue(1);
         Assert.assertTrue(adrs2 instanceof BMap<?, ?>);
-        address = ((BMap) adrs2).get("address");
+        address = ((BMap) adrs2).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get("city").stringValue(), "Kandy");
+        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Kandy");
 
-        BValue adrs3 = addressArray.getRefValue(2);
+        Object adrs3 = addressArray.getRefValue(2);
         Assert.assertTrue(adrs3 instanceof BMap<?, ?>);
-        address = ((BMap) adrs3).get("address");
+        address = ((BMap) adrs3).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get("city").stringValue(), "Galle");
+        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Galle");
     }
 
     @Test()
     public void testMapInitWithPackageVars() {
         CompileResult result = BCompileUtil.compile("test-src/types/map/MapAccessProject");
-        BValue[] returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
+        Object returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertTrue(returns instanceof BMap);
 
-        BMap<String, ?> mapValue = (BMap<String, BString>) returns[0];
+        BMap<String, ?> mapValue = (BMap<String, BString>) returns;
         Assert.assertEquals(mapValue.size(), 2);
-        Assert.assertEquals(mapValue.get("name").stringValue(), "PI");
-        Assert.assertEquals(((BFloat) mapValue.get("value")).floatValue(), 3.14159);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("name")).toString(), "PI");
+        Assert.assertEquals((mapValue.get(StringUtils.fromString("value"))), 3.14159);
     }
 
     @Test
     public void testMapInitWithStringTemplateAsKey() {
         CompileResult result = BCompileUtil.compile("test-src/types/map/map-initializer-with-string-template.bal");
-        BValue[] returns = BRunUtil.invoke(result, "testMapInitWithStringTemplateAsKey");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BString> mapValue = (BMap<String, BString>) returns[0];
-        Assert.assertEquals(mapValue.get("firstname").stringValue(), "John");
+        Object returns = BRunUtil.invoke(result, "testMapInitWithStringTemplateAsKey");
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, BString> mapValue = (BMap<String, BString>) returns;
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("firstname")).toString(), "John");
     }
 
     @Test(description = "Test map initializer expression")
     public void mapInitWithIdentifiersTest() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "mapInitWithIdentifiersTest", args);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(compileResult, "mapInitWithIdentifiersTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertTrue(returns instanceof BMap);
 
-        BMap<String, BString> mapValue = (BMap<String, BString>) returns[0];
+        BMap<String, BString> mapValue = (BMap<String, BString>) returns;
         Assert.assertEquals(mapValue.size(), 3);
 
-        Assert.assertEquals(mapValue.get("a").stringValue(), "Lion");
-        Assert.assertEquals(mapValue.get("key1").stringValue(), "Cat");
-        Assert.assertEquals(mapValue.get("key2").stringValue(), "Dog");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("a")).toString(), "Lion");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("key1")).toString(), "Cat");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("key2")).toString(), "Dog");
     }
 
     @Test
     public void testEmptyMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMap", new BValue[] {});
+        Object returns = BRunUtil.invoke(compileResult, "testEmptyMap", new Object[]{});
 
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>, "empty map initialization with {}");
-        Assert.assertEquals(((BMap) returns[0]).size(), 0, "incorrect empty map size");
+        Assert.assertTrue(returns instanceof BMap<?, ?>, "empty map initialization with {}");
+        Assert.assertEquals(((BMap) returns).size(), 0, "incorrect empty map size");
     }
 
     @Test
     public void testExpressionsAsKeys() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testExpressionAsKeys");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsKeys");
+        Assert.assertTrue((Boolean) returns);
 
         returns = BRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue((Boolean) returns);
     }
 
     @AfterClass

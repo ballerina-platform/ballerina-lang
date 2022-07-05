@@ -63,6 +63,16 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_14.bal", "match-stmt/match_stmt_assert_14.json");
     }
 
+    @Test
+    public void testSimpleMatchStatementWithOnFailClauseWithoutVariable() {
+        testFile("match-stmt/match_stmt_source_23.bal", "match-stmt/match_stmt_assert_23.json");
+    }
+
+    @Test
+    public void testConstPatternWithPreDeclaredPrefix() {
+        testFile("match-stmt/match_stmt_source_22.bal", "match-stmt/match_stmt_assert_22.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -94,6 +104,7 @@ public class MatchStatementTest extends AbstractStatementTest {
     @Test
     public void testMatchStmtRecoveryInvalidMappingMatchPatterns() {
         testFile("match-stmt/match_stmt_source_11.bal", "match-stmt/match_stmt_assert_11.json");
+        testFile("match-stmt/match_stmt_source_21.bal", "match-stmt/match_stmt_assert_21.json");
     }
 
     @Test

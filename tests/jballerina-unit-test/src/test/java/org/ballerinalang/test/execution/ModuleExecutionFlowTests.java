@@ -38,7 +38,7 @@ public class ModuleExecutionFlowTests {
 
         String expectedConsoleString = "Initializing module a" + System.lineSeparator() +
                 "Initializing module b";
-        String expectedErrorString = "error: error returned while initializing module B {}";
+        String expectedErrorString = "error: error returned while initializing module B";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -57,7 +57,7 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener gracefulStop called, service name - ModB" + System.lineSeparator() +
                 "a:ABC listener gracefulStop called, service name - ModA";
 
-        String expectedErrorString = "error: error returned while starting module B {}";
+        String expectedErrorString = "error: error returned while starting module B";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -82,7 +82,7 @@ public class ModuleExecutionFlowTests {
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "init invoked";
-        String expectedErrorString = "error: Listener init failed {}";
+        String expectedErrorString = "error: Listener init failed";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -96,7 +96,7 @@ public class ModuleExecutionFlowTests {
         String expectedConsoleString = "init invoked" + System.lineSeparator() +
                 "init invoked" + System.lineSeparator() +
                 "init invoked";
-        String expectedErrorString = "error: ModA-inline-2 errored!!! {}";
+        String expectedErrorString = "error: ModA-inline-2 errored!!!";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -130,7 +130,7 @@ public class ModuleExecutionFlowTests {
                 "Initializing module b" + System.lineSeparator() +
                 "Initializing module c" + System.lineSeparator() +
                 "Module c main function invoked";
-        String expectedErrorString = "error: error returned while executing main method {}";
+        String expectedErrorString = "error: error returned while executing main method";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }

@@ -28,6 +28,7 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -48,6 +49,11 @@ public class LangLibBooleanTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/booleanlib_test.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
     @Test(dataProvider = "InputList")

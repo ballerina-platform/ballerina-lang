@@ -25,7 +25,7 @@ configurations.all {
 
 dependencies {
     implementation project(':ballerina-tools-api')
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.code.gson:gson:"${project.gsonVersion}"'
     implementation 'org.apache.commons:commons-text'
     testCompile 'org.testng:testng'
 }

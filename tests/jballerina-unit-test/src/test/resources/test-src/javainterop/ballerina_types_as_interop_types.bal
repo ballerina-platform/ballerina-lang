@@ -160,8 +160,8 @@ public function interopWithAnydataReturn() returns boolean {
         return false;
     }
     var e = acceptIntAnydataReturn(5);
-    if (e is anydata) {
-        // do nothing
+    if (!(e is map<anydata>)) {
+        return false;
     }
     var f = acceptIntAnydataReturn(-1);
     if (!(f is boolean)) {
@@ -186,6 +186,13 @@ public function interopWithHandleOrErrorReturn() {
     string messageString = message is error ? message.toString() : message.toString();
     test:assertEquals(err.message(), "org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException");
     test:assertEquals(messageString, "Invalid state");
+}
+
+public function testInteropWithErrorUnionReturn() {
+    int|error intOrError = acceptIntErrorUnionReturnWhichThrowsCheckedException(1);
+    test:assertTrue(intOrError is error);
+    error err = <error> intOrError;
+    test:assertEquals(err.message(), "error message");
 }
 
 public function acceptIntAnydataReturn(int s) returns anydata = @java:Method {
@@ -223,6 +230,10 @@ public function acceptStringErrorReturnWhichThrowsCheckedException(string s) ret
 } external;
 
 public function getArrayValueFromMapWhichThrowsCheckedException(string key, map<int> mapValue) returns int[] | error = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptIntErrorUnionReturnWhichThrowsCheckedException(int flag) returns int|error = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

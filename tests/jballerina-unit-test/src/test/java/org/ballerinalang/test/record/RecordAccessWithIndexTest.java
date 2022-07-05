@@ -1,28 +1,27 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.BLangConstants;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -50,148 +49,148 @@ public class RecordAccessWithIndexTest {
 
     @Test(description = "Test Basic record operations")
     public void testBasicStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateStruct");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testCreateStruct");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
 
-        Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<String, ?> adrsMap = ((BMap) returns[1]);
-        Assert.assertEquals(adrsMap.get("country"), new BString("USA"));
-        Assert.assertEquals(adrsMap.get("state"), new BString("CA"));
+        Assert.assertTrue(returns.get(1) instanceof BMap);
+        BMap<String, ?> adrsMap = ((BMap) returns.get(1));
+        Assert.assertEquals(adrsMap.get(StringUtils.fromString("country")), StringUtils.fromString("USA"));
+        Assert.assertEquals(adrsMap.get(StringUtils.fromString("state")), StringUtils.fromString("CA"));
 
-        Assert.assertTrue(returns[2] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 25);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertEquals(returns.get(2), 25L);
     }
 
     @Test(description = "Test using expressions as index for record arrays")
     public void testExpressionAsIndex() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testExpressionAsIndex");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Jane");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsIndex");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Jane");
     }
 
     @Test(description = "Test using records inside records")
     public void testStructOfStructs() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructOfStruct");
+        Object returns = BRunUtil.invoke(compileResult, "testStructOfStruct");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "USA");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "USA");
     }
 
     @Test(description = "Test returning fields of a record")
     public void testReturnStructAttributes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReturnStructAttributes");
+        Object returns = BRunUtil.invoke(compileResult, "testReturnStructAttributes");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "emily");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "emily");
     }
 
     @Test(description = "Test using record expression as a index in another record expression")
     public void testStructExpressionAsIndex() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "emily");
+        Object returns = BRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "emily");
     }
 
     @Test(description = "Test default value of a record field")
     public void testDefaultValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultVal");
 
         // Check default value of a field where the default value is set
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "default first name");
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "default first name");
 
         // Check the default value of a field where the default value is not set
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), BLangConstants.STRING_EMPTY_VALUE);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "");
 
-        Assert.assertTrue(returns[2] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertEquals(returns.get(2), 999L);
     }
 
     @Test(description = "Test default value of a nested record field")
     public void testNestedFieldDefaultValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "default first name");
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "default first name");
 
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "Smith");
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "Smith");
 
-        Assert.assertTrue(returns[2] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertEquals(returns.get(2), 999L);
     }
 
     @Test(description = "Test using expression as the index")
     public void testExpressionAsStructIndex() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testExpressionAsStructIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsStructIndex");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Jack");
     }
 
     @Test(description = "Test using expression as the index")
     public void testDynamicIndexAccessTypes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypes");
-        Assert.assertEquals(returns[0].stringValue(), "string:string:int:100:boolean:true:()::float:25.5:decimal:96.9");
+        Object returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypes");
+        Assert.assertEquals(returns.toString(), "string:string:int:100:boolean:true:()::float:25.5:decimal:96.9");
     }
 
     @Test(description = "Test using expression as the index")
     public void testDynamicIndexAccessTypesWithRestParam() {
-        BValue[] args = {new BString("fieldOne")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args);
-        Assert.assertEquals(returns[0].stringValue(), ":int:50");
+        Object[] args = {StringUtils.fromString("fieldOne")};
+        Object returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args);
+        Assert.assertEquals(returns.toString(), ":int:50");
 
-        BValue[] args1 = {new BString("fieldTwo")};
+        Object[] args1 = {StringUtils.fromString("fieldTwo")};
         returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args1);
-        Assert.assertEquals(returns[0].stringValue(), ":string:string");
+        Assert.assertEquals(returns.toString(), ":string:string");
 
-        BValue[] args2 = {new BString("fieldThree")};
+        Object[] args2 = {StringUtils.fromString("fieldThree")};
         returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args2);
-        Assert.assertEquals(returns[0].stringValue(), ":boolean:true");
+        Assert.assertEquals(returns.toString(), ":boolean:true");
 
-        BValue[] args3 = {new BString("fieldFour")};
+        Object[] args3 = {StringUtils.fromString("fieldFour")};
         returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args3);
-        Assert.assertEquals(returns[0].stringValue(), "()");
+        Assert.assertEquals(returns.toString(), "()");
     }
 
     @Test(description = "Test using expression as the index")
     public void testDynamicIndexAccessTypesWithOpenRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithOpenRecord");
-        Assert.assertEquals(returns[0].stringValue(),
+        Object returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithOpenRecord");
+        Assert.assertEquals(returns.toString(),
                 ":object:10:function:16:json:json-string:boolean:true:():");
     }
 
     @Test(description = "Test using expression as the index")
     public void testDynamicIndexAccessWithSingleType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessWithSingleType");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 582);
+        Object returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessWithSingleType");
+        Assert.assertEquals(returns, 582L);
     }
 
     @Test(description = "Test using expression as the index")
     public void testDynamicIndexAccessWithRecordInsideRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessWithRecordInsideRecord");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDynamicIndexAccessWithRecordInsideRecord");
+        Assert.assertEquals(returns.get(0), returns.get(1));
     }
 
     @Test(description = "Test using expression as the index")
     public void testFiniteTypeAsIndex() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFiniteTypeAsIndex");
-        Assert.assertEquals(returns[0].stringValue(), "stringbarField98.995");
+        Object returns = BRunUtil.invoke(compileResult, "testFiniteTypeAsIndex");
+        Assert.assertEquals(returns.toString(), "stringbarField98.995");
     }
 
     @Test(description = "Test using expression as the index")
     public void testUnionInFiniteTypeAsIndex() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnionInFiniteTypeAsIndex");
-        Assert.assertEquals(returns[0].stringValue(), "string100true()");
+        Object returns = BRunUtil.invoke(compileResult, "testUnionInFiniteTypeAsIndex");
+        Assert.assertEquals(returns.toString(), "string100true()");
     }
 
     @Test(description = "Test using expression as the index")
     public void testUnionInFiniteTypeAsIndexNoField() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnionInFiniteTypeAsIndexNoField");
-        Assert.assertEquals(returns[0].stringValue(), "Passed");
+        Object returns = BRunUtil.invoke(compileResult, "testUnionInFiniteTypeAsIndexNoField");
+        Assert.assertEquals(returns.toString(), "Passed");
     }
 
     // Negative tests
@@ -205,13 +204,13 @@ public class RecordAccessWithIndexTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found '(string|int)?'", 26, 16);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 58, 40);
+                "incompatible types: expected 'string', found 'FiniteOne'", 58, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found '0|1'", 59, 40);
+                "incompatible types: expected 'string', found 'FiniteTwo'", 59, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 62, 40);
+                "incompatible types: expected 'string', found 'FiniteOne'", 62, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found '0|1'", 63, 40);
+                "incompatible types: expected 'string', found 'FiniteTwo'", 63, 40);
         BAssertUtil.validateError(negativeResult, i++,
                 "invalid record member access expression: value space 'NoIntersection' " +
                         "out of range", 64, 40);
@@ -222,21 +221,21 @@ public class RecordAccessWithIndexTest {
     }
 
     @Test(description = "Test accessing an field of a noninitialized record",
-            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitField() {
         BRunUtil.invoke(compileResult, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized record",
-            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitArrayField() {
         BRunUtil.invoke(compileResult, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized record",
-            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitLastField() {
         BRunUtil.invoke(compileResult, "testGetNonInitLastAttribute");

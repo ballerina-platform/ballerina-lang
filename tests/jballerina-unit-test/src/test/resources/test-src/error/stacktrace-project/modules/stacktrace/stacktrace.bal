@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function getStackTrace() returns error:CallStackElement[] {
+public function getStackTrace() returns error:StackFrame[] {
     error e = error("error!");
-    return e.stackTrace().callStack;
+    return e.stackTrace();
 }

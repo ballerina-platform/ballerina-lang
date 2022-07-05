@@ -714,8 +714,15 @@ class BIRTestUtils {
 
     private static void assertConstantValue(Bir.ConstantValue actualConstantValue, Object expectedValue,
                                             ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+        assertConstantValue(actualConstantValue, expectedValue, constantPoolEntries,
+                            actualConstantValue.type().shape());
+    }
+
+    private static void assertConstantValue(Bir.ConstantValue actualConstantValue, Object expectedValue,
+                                            ArrayList<Bir.ConstantPoolEntry> constantPoolEntries,
+                                            Bir.TypeInfo typeInfo) {
+        Bir.TypeTagEnum typeTag = typeInfo.typeTag();
         KaitaiStruct constantValueInfo = actualConstantValue.constantValueInfo();
-        Bir.TypeTagEnum typeTag = actualConstantValue.type().shape().typeTag();
         switch (typeTag) {
             case TYPE_TAG_INT:
                 Bir.IntConstantInfo intConstantInfo = (Bir.IntConstantInfo) constantValueInfo;
@@ -737,10 +744,31 @@ class BIRTestUtils {
                 Bir.DecimalConstantInfo decimalConstantInfo = (Bir.DecimalConstantInfo) constantValueInfo;
                 assertConstantPoolEntry(constantPoolEntries.get(decimalConstantInfo.valueCpIndex()), expectedValue);
                 break;
-            case TYPE_TAG_MAP:
-                Bir.MapConstantInfo actualMapConst = (Bir.MapConstantInfo) constantValueInfo;
+            case TYPE_TAG_BOOLEAN:
+                Bir.BooleanConstantInfo booleanConstantInfo = (Bir.BooleanConstantInfo) constantValueInfo;
+                Assert.assertEquals(booleanConstantInfo.valueBooleanConstant() == 1, expectedValue);
+                break;
+            case TYPE_TAG_RECORD:
+                Bir.MapConstantInfo actualMapConst =
+                        (Bir.MapConstantInfo) ((Bir.IntersectionConstantInfo) constantValueInfo).constantValueInfo();
                 Map<String, BIRNode.ConstValue> expectedMapConst = (Map<String, BIRNode.ConstValue>) expectedValue;
                 Assert.assertEquals(actualMapConst.mapConstantSize(), expectedMapConst.size());
+                break;
+            case TYPE_TAG_TUPLE:
+                Bir.ListConstantInfo actualListConst =
+                        (Bir.ListConstantInfo) ((Bir.IntersectionConstantInfo) constantValueInfo).constantValueInfo();
+                ArrayList<Bir.ConstantValue> actualConstValues = actualListConst.listMemberValueInfo();
+                BIRNode.ConstValue[] expectedListConst = (BIRNode.ConstValue[]) expectedValue;
+                Assert.assertEquals(actualListConst.listConstantSize(), expectedListConst.length);
+                for (int i = 0; i < expectedListConst.length; i++) {
+                    assertConstantValue(actualConstValues.get(i), expectedListConst[i], constantPoolEntries);
+                }
+                break;
+            case TYPE_TAG_INTERSECTION:
+                Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(
+                        ((Bir.TypeIntersection) typeInfo.typeStructure()).effectiveTypeCpIndex());
+                Bir.TypeInfo effectiveTypeInfo = ((Bir.ShapeCpInfo) constantPoolEntry.cpInfo()).shape();
+                assertConstantValue(actualConstantValue, expectedValue, constantPoolEntries, effectiveTypeInfo);
                 break;
             default:
                 Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
@@ -755,11 +783,28 @@ class BIRTestUtils {
         for (int i = 0; i < expAnnots.size(); i++) {
             Bir.AnnotationAttachment actualAnnot = actualAnnots.annotationAttachments().get(i);
             BIRNode.BIRAnnotationAttachment expAnnot = expAnnots.get(i);
-            Bir.ConstantPoolEntry annotTag = constantPoolEntries.get(actualAnnot.tagReferenceCpIndex());
 
+            Bir.ConstantPoolEntry pkgId = constantPoolEntries.get(actualAnnot.packageIdCpIndex());
+            assertConstantPoolEntry(pkgId, expAnnot.annotPkgId);
+
+            assertPosition(actualAnnot.position(), expAnnot.pos);
+
+            Bir.ConstantPoolEntry annotTag = constantPoolEntries.get(actualAnnot.tagReferenceCpIndex());
             assertConstantPoolEntry(annotTag, expAnnot.annotTagRef.value);
 
-            Assert.assertEquals(actualAnnot.attachValuesCount(), expAnnot.annotValues.size());
+            boolean constAnnotAttachment = expAnnot instanceof BIRNode.BIRConstAnnotationAttachment;
+            Assert.assertEquals(actualAnnot.isConstAnnot() == 1, constAnnotAttachment);
+
+            if (!constAnnotAttachment) {
+                continue;
+            }
+
+            BIRNode.ConstValue expAnnotValue = ((BIRNode.BIRConstAnnotationAttachment) expAnnot).annotValue;
+            Bir.ConstantValue actualAnnotValue = actualAnnot.constantValue();
+
+            assertConstantPoolEntry(constantPoolEntries.get(actualAnnotValue.constantValueTypeCpIndex()),
+                                    expAnnotValue.type);
+            assertConstantValue(actualAnnotValue, expAnnotValue.value, constantPoolEntries);
         }
     }
 

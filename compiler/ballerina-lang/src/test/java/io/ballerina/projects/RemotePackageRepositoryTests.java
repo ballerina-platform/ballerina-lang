@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -93,7 +92,7 @@ public class RemotePackageRepositoryTests {
         PackageResolutionResponse response = PackageResolutionResponse.from(Arrays.asList(http122, covid154),
                 Arrays.asList());
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
-                anyString(), anyString(), anyBoolean())).thenReturn(response);
+                anyString(), anyString())).thenReturn(response);
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
@@ -133,7 +132,7 @@ public class RemotePackageRepositoryTests {
         PackageResolutionResponse response = PackageResolutionResponse.from(Arrays.asList(http122),
                 Arrays.asList(covid154, smtp));
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
-                anyString(), anyString(), anyBoolean())).thenReturn(response);
+                anyString(), anyString())).thenReturn(response);
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(PackageMetadataResponse.createUnresolvedResponse(resHttp120),
@@ -179,7 +178,7 @@ public class RemotePackageRepositoryTests {
         PackageResolutionResponse response = PackageResolutionResponse.from(Arrays.asList(http122, covid154),
                 Arrays.asList());
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
-                anyString(), anyString(), anyBoolean()))
+                anyString(), anyString()))
                 .thenThrow(new AssertionError("Client get called in offline mode"));
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
@@ -213,7 +212,7 @@ public class RemotePackageRepositoryTests {
         PackageResolutionResponse response = PackageResolutionResponse.from(Arrays.asList(http122, covid154),
                 Arrays.asList());
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
-                anyString(), anyString(), anyBoolean())).thenThrow(new ConnectionErrorException("500 Error"));
+                anyString(), anyString())).thenThrow(new ConnectionErrorException("500 Error"));
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
@@ -263,7 +262,7 @@ public class RemotePackageRepositoryTests {
                         .Module("ballerina", "unknown", "1.4.5", null, "module not found"))
         );
         when(centralAPIClient.resolvePackageNames(any(PackageNameResolutionRequest.class),
-                anyString(), anyString(), anyBoolean())).thenReturn(centralResponse);
+                anyString(), anyString())).thenReturn(centralResponse);
 
         // Mock response from file system
         when(fileSystemRepository.getPackageNames(anyList(), any(ResolutionOptions.class)))

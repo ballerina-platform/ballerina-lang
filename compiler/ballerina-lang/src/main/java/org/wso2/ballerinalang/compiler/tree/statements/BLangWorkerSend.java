@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.statements.WorkerSendNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -33,8 +35,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
+
+    // Semantic Data
     public SymbolEnv env;
     public BSymbol workerSymbol;
 
@@ -61,6 +66,16 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     public String toActionString() {

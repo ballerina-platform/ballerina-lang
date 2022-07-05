@@ -20,7 +20,7 @@ type myType1 string | boolean | 1 | object { int intField1; int intField2; };
 public function testAssigment() {
     testObj to = new;
     myType mt = to;
-    myType1 mt1 = to;
+    myType1 _ = to;
 }
 
 class testObj {

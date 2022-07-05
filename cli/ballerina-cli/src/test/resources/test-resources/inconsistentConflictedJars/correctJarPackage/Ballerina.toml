@@ -1,0 +1,32 @@
+[package]
+org = "pramodya"
+name = "correctJarPackage"
+version = "0.1.0"
+distribution = "2201.0.0"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-handler-4.1.71.Final.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-handler-proxy-4.1.71.Final.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-codec-http-4.1.71.Final.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-codec-4.1.71.Final.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-codec-http2-4.1.71.Final.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-transport-4.1.71.Final.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-common-4.1.71.Final.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-resolver-4.1.71.Final.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/netty-buffer-4.1.71.Final.jar"

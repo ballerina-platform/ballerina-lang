@@ -19,12 +19,10 @@
 
 package org.ballerinalang.test.bala.record;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -34,8 +32,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -86,102 +84,118 @@ public class ClosedRecordTypeInclusionTest {
                 "Employee]'", 173, 1);
         BAssertUtil.validateError(negative, index++, "included field 'body' of type 'float' cannot " +
                 "be overridden by a field of type 'Baz2': expected a subtype of 'float'", 185, 5);
+        BAssertUtil.validateError(negative, index++, "included field 'body' of type 'anydata' cannot be overridden by" +
+                " a field of type 'Qux': expected a subtype of 'anydata'", 207, 5);
         assertEquals(negative.getErrorCount(), index);
     }
 
     @Test(description = "Test case for type referencing all value-typed fields")
     public void testValRefType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testValRefType");
-        BMap foo1 = (BMap) returns[0];
-        assertEquals(((BInteger) foo1.get("a")).intValue(), 10);
-        assertEquals(((BFloat) foo1.get("b")).floatValue(), 23.45);
-        assertEquals(foo1.get("s").stringValue(), "hello foo");
-        assertEquals(((BInteger) foo1.get("ri")).intValue(), 20);
-        assertEquals(((BFloat) foo1.get("rf")).floatValue(), 45.6);
-        assertEquals(foo1.get("rs").stringValue(), "asdf");
-        Assert.assertTrue(((BBoolean) foo1.get("rb")).booleanValue());
-        assertEquals(((BInteger) foo1.get("cri")).intValue(), 20);
-        assertEquals(((BByte) foo1.get("cry")).intValue(), 254);
-        assertEquals(((BFloat) foo1.get("crf")).floatValue(), 12.34);
-        assertEquals(foo1.get("crs").stringValue(), "qwerty");
-        Assert.assertTrue(((BBoolean) foo1.get("crb")).booleanValue());
-        assertEquals(((BByte) foo1.get("ry")).intValue(), 255);
+        Object returns = BRunUtil.invoke(compileResult, "testValRefType");
+        BMap foo1 = (BMap) returns;
+        assertEquals(foo1.get(StringUtils.fromString("a")), 10L);
+        assertEquals(foo1.get(StringUtils.fromString("b")), 23.45);
+        assertEquals(foo1.get(StringUtils.fromString("s")).toString(), "hello foo");
+        assertEquals(foo1.get(StringUtils.fromString("ri")), 20L);
+        assertEquals(foo1.get(StringUtils.fromString("rf")), 45.6);
+        assertEquals(foo1.get(StringUtils.fromString("rs")).toString(), "asdf");
+        Assert.assertTrue((Boolean) foo1.get(StringUtils.fromString("rb")));
+        assertEquals(foo1.get(StringUtils.fromString("cri")), 20L);
+        assertEquals(foo1.get(StringUtils.fromString("cry")), 254);
+        assertEquals(foo1.get(StringUtils.fromString("crf")), 12.34);
+        assertEquals(foo1.get(StringUtils.fromString("crs")).toString(), "qwerty");
+        Assert.assertTrue((Boolean) foo1.get(StringUtils.fromString("crb")));
+        assertEquals(foo1.get(StringUtils.fromString("ry")), 255);
     }
 
     @Test(description = "Test case for type referencing records with complex ref types")
     public void testRefTypes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRefTypes");
-        BMap foo2 = (BMap) returns[0];
-        assertEquals(foo2.get("s").stringValue(), "qwerty");
-        assertEquals(((BInteger) foo2.get("i")).intValue(), 10);
-        assertEquals(foo2.get("rj").getType().getTag(), TypeTags.MAP);
-        assertEquals(foo2.get("rj").stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(foo2.get("rx").getType().getTag(), TypeTags.XML);
-        assertEquals(foo2.get("rx").stringValue(), "<book>Count of Monte Cristo</book>");
-        assertEquals(foo2.get("rp").getType().getTag(), TypeTags.OBJECT);
-        assertEquals(((BMap) foo2.get("rp")).get("name").stringValue(), "John Doe");
-        assertEquals(foo2.get("ra").getType().getTag(), TypeTags.RECORD);
-        assertEquals(foo2.get("ra").stringValue(), "{city:\"Colombo\", country:\"Sri Lanka\"}");
-        assertEquals(foo2.get("crx").getType().getTag(), TypeTags.XML);
-        assertEquals(foo2.get("crx").stringValue(), "<book>Count of Monte Cristo</book>");
-        assertEquals(foo2.get("crj").getType().getTag(), TypeTags.MAP);
-        assertEquals(foo2.get("crj").stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(foo2.get("rp").getType().getTag(), TypeTags.OBJECT);
-        assertEquals(((BMap) foo2.get("crp")).get("name").stringValue(), "Jane Doe");
-        assertEquals(foo2.get("cra").getType().getTag(), TypeTags.RECORD);
-        assertEquals(foo2.get("cra").stringValue(), "{city:\"Colombo\", country:\"Sri Lanka\"}");
+        Object returns = BRunUtil.invoke(compileResult, "testRefTypes");
+        BMap foo2 = (BMap) returns;
+        assertEquals(foo2.get(StringUtils.fromString("s")).toString(), "qwerty");
+        assertEquals(foo2.get(StringUtils.fromString("i")), 10L);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rj"))).getTag(),
+                io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        assertEquals(foo2.get(StringUtils.fromString("rj")).toString(),
+                "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
+        assertEquals(getType(foo2.get(StringUtils.fromString("rx"))).getTag(),
+                TypeTags.XML_ELEMENT_TAG);
+        assertEquals(foo2.get(StringUtils.fromString("rx")).toString(), "<book>Count of Monte Cristo</book>");
+        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(),
+                io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG);
+        assertEquals(((BObject) foo2.get(StringUtils.fromString("rp"))).get(StringUtils.fromString("name")).toString(),
+                "John Doe");
+        assertEquals(getType(foo2.get(StringUtils.fromString("ra"))).getTag(),
+                io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG);
+        assertEquals(foo2.get(StringUtils.fromString("ra")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
+                "Lanka\"}");
+        assertEquals(getType(foo2.get(StringUtils.fromString("crx"))).getTag(), TypeTags.XML_ELEMENT_TAG);
+        assertEquals(foo2.get(StringUtils.fromString("crx")).toString(), "<book>Count of Monte Cristo</book>");
+        assertEquals(getType(foo2.get(StringUtils.fromString("crj"))).getTag(),
+                io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        assertEquals(foo2.get(StringUtils.fromString("crj")).toString(),
+                "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
+        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(),
+                io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG);
+        assertEquals(((BObject) foo2.get(StringUtils.fromString("crp"))).get(StringUtils.fromString("name")).toString(),
+                "Jane Doe");
+        assertEquals(getType(foo2.get(StringUtils.fromString("cra"))).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(foo2.get(StringUtils.fromString("cra")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
+                "Lanka\"}");
     }
 
     @Test(description = "Test case for order of resolving")
     public void testOrdering() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testOrdering");
-        BMap foo3 = (BMap) returns[0];
-        assertEquals(foo3.get("s").stringValue(), "qwerty");
-        assertEquals(((BInteger) foo3.get("ri")).intValue(), 10);
-        assertEquals(foo3.get("rs").stringValue(), "asdf");
+        Object returns = BRunUtil.invoke(compileResult, "testOrdering");
+        BMap foo3 = (BMap) returns;
+        assertEquals(foo3.get(StringUtils.fromString("s")).toString(), "qwerty");
+        assertEquals(foo3.get(StringUtils.fromString("ri")), 10L);
+        assertEquals(foo3.get(StringUtils.fromString("rs")).toString(), "asdf");
     }
 
     @Test(description = "Test case for reference chains")
     public void testReferenceChains() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReferenceChains");
-        BMap foo4 = (BMap) returns[0];
-        assertEquals(foo4.get("s").stringValue(), "qwerty");
-        assertEquals(((BInteger) foo4.get("abi")).intValue(), 10);
-        assertEquals(foo4.get("efs").stringValue(), "asdf");
-        assertEquals(foo4.get("cdr").stringValue(), "{abi:123}");
+        Object returns = BRunUtil.invoke(compileResult, "testReferenceChains");
+        BMap foo4 = (BMap) returns;
+        assertEquals(foo4.get(StringUtils.fromString("s")).toString(), "qwerty");
+        assertEquals(foo4.get(StringUtils.fromString("abi")), 10L);
+        assertEquals(foo4.get(StringUtils.fromString("efs")).toString(), "asdf");
+        assertEquals(foo4.get(StringUtils.fromString("cdr")).toString(), "{\"abi\":123}");
     }
 
     @Test(description = "Test case for type referencing in BALAs")
     public void testTypeReferencingInBALAs() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTypeReferencingInBALAs");
-        BMap manager = (BMap) returns[0];
-        assertEquals(manager.get("name").stringValue(), "John Doe");
-        assertEquals(((BInteger) manager.get("age")).intValue(), 25);
-        assertEquals(manager.get("adr").stringValue(), "{city:\"Colombo\", country:\"Sri Lanka\"}");
-        assertEquals(manager.get("company").stringValue(), "WSO2");
-        assertEquals(manager.get("dept").stringValue(), "Engineering");
+        Object returns = BRunUtil.invoke(compileResult, "testTypeReferencingInBALAs");
+        BMap manager = (BMap) returns;
+        assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
+        assertEquals(manager.get(StringUtils.fromString("age")), 25L);
+        assertEquals(manager.get(StringUtils.fromString("adr")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
+                "Lanka\"}");
+        assertEquals(manager.get(StringUtils.fromString("company")).toString(), "WSO2");
+        assertEquals(manager.get(StringUtils.fromString("dept")).toString(), "Engineering");
     }
 
     @Test(description = "Test case for default value initializing in type referenced fields")
     public void testDefaultValueInit() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
-        BMap manager = (BMap) returns[0];
-        assertEquals(manager.get("name").stringValue(), "John Doe");
-        assertEquals(((BInteger) manager.get("age")).intValue(), 25);
-        assertEquals(manager.get("adr").stringValue(), "{city:\"Colombo\", country:\"Sri Lanka\"}");
-        assertEquals(manager.get("company").stringValue(), "WSO2");
-        assertEquals(manager.get("dept").stringValue(), "");
+        Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
+        BMap manager = (BMap) returns;
+        assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
+        assertEquals(manager.get(StringUtils.fromString("age")), 25L);
+        assertEquals(manager.get(StringUtils.fromString("adr")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
+                "Lanka\"}");
+        assertEquals(manager.get(StringUtils.fromString("company")).toString(), "WSO2");
+        assertEquals(manager.get(StringUtils.fromString("dept")).toString(), "");
     }
 
     @Test(description = "Test case for default value initializing in type referenced fields from a bala")
     public void testDefaultValueInitInBALAs() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueInitInBALAs");
-        BMap manager = (BMap) returns[0];
-        assertEquals(manager.get("name").stringValue(), "anonymous");
-        assertEquals(((BInteger) manager.get("age")).intValue(), 0);
-        assertEquals(manager.get("adr").stringValue(), "{city:\"\", country:\"\"}");
-        assertEquals(manager.get("company").stringValue(), "");
-        assertEquals(manager.get("dept").stringValue(), "");
+        Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInitInBALAs");
+        BMap manager = (BMap) returns;
+        assertEquals(manager.get(StringUtils.fromString("name")).toString(), "anonymous");
+        assertEquals(manager.get(StringUtils.fromString("age")), 0L);
+        assertEquals(manager.get(StringUtils.fromString("adr")).toString(), "{\"city\":\"\",\"country\":\"\"}");
+        assertEquals(manager.get(StringUtils.fromString("company")).toString(), "");
+        assertEquals(manager.get(StringUtils.fromString("dept")).toString(), "");
     }
 
     @Test(dataProvider = "FunctionList")

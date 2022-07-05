@@ -72,6 +72,12 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                                 location(59, 17, 19),
                                 location(62, 23, 25))
                 },
+
+                {171, 25, location(174, 9, 19),
+                        List.of(location(174, 9, 19),
+                                location(171, 25, 35))
+                },
+
                 // Template literals
                 {76, 8, location(76, 8, 9),
                         List.of(location(76, 8, 9),
@@ -100,7 +106,8 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {92, 15, location(92, 15, 19),
                         List.of(location(92, 15, 19),
                                 location(94, 17, 21),
-                                location(95, 18, 22))
+                                location(95, 18, 22),
+                                location(98, 27, 31))
                 },
                 {93, 12, location(93, 12, 15),
                         List.of(location(93, 12, 15),
@@ -115,7 +122,8 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {98, 26, location(92, 15, 19),
                         List.of(location(92, 15, 19),
                                 location(94, 17, 21),
-                                location(95, 18, 22))
+                                location(95, 18, 22),
+                                location(98, 27, 31))
                 },
                 // Query exprs
                 {114, 22, location(114, 21, 23),
@@ -170,6 +178,19 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                         List.of(location(166, 8, 14),
                                 location(163, 6, 12))
                 },
+                // List spread operator
+                {178, 6, location(178, 6, 8),
+                        List.of(location(178, 6, 8),
+                                location(179, 15, 17))
+                },
+                {179, 6, location(179, 6, 8),
+                        List.of(location(179, 6, 8),
+                                location(184, 19, 21))
+                },
+                {182, 10, location(182, 10, 12),
+                        List.of(location(182, 10, 12),
+                                location(183, 19, 21))
+                }
         };
     }
 

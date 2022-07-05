@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,7 +46,7 @@ public class EditorSimulator {
     private static final Logger logger = LoggerFactory.getLogger(EditorSimulator.class);
 
     private static final String PROP_DURATION = "ls.simulation.duration";
-    private static final String PROP_SOURCE_DIR = "ls.simulation.src";
+    public static final String PROP_SOURCE_DIR = "ls.simulation.src";
 
     private static final Random random = new Random();
 
@@ -66,7 +67,7 @@ public class EditorSimulator {
         }
 
         Path path = Paths.get(projectPath);
-        logger.info("Using project: {}", path.toString());
+        logger.info("Using project: {}, path: {}", path.toString(), projectPath);
 
         List<Path> balFiles = Files.list(path)
                 .filter(Files::isRegularFile)
@@ -108,21 +109,41 @@ public class EditorSimulator {
             Path balFile = balFiles.get(i);
             EditorTab editorTab = editor.openFile(balFile);
 
-            // Select a random place to type random code
-            ModulePartNode modulePartNode = editorTab.syntaxTree().rootNode();
-            NodeList<ModuleMemberDeclarationNode> members = modulePartNode.members();
-            ModuleMemberDeclarationNode moduleMemberDeclarationNode = members.get(random.nextInt(members.size()));
-            LinePosition linePosition = moduleMemberDeclarationNode.location().lineRange().startLine();
-            // Set cursor to start of random node
-            editorTab.cursor(linePosition.line(), linePosition.offset());
-
             logger.info("Generating random code snippet");
-            // Get random content to type
-            String content = getRandomNode();
-            logger.info("Typing in editor tab: {} -> {}", editorTab, content);
+            // Get random generator type
+            Generators.Type type = getRandomGenerator();
+            logger.info("Generating snippet of type: {}", type);
+            String content = Generators.generate(type);
 
-            editorTab.type(content);
-            editorTab.completions();
+            if (type == Generators.Type.IMPORT_STATEMENT) {
+                // Set cursor to start of the file
+                editorTab.cursor(0, 0);
+            } else {
+                // Select a random place to type random code
+                ModulePartNode modulePartNode = editorTab.syntaxTree().rootNode();
+                NodeList<ModuleMemberDeclarationNode> members = modulePartNode.members();
+                ModuleMemberDeclarationNode moduleMemberDeclarationNode = members.get(random.nextInt(members.size()));
+                LinePosition linePosition = moduleMemberDeclarationNode.location().lineRange().startLine();
+                // Set cursor to start of random node
+                editorTab.cursor(linePosition.line(), linePosition.offset());
+            }
+
+            logger.info("Typing in editor tab: {} -> {}", editorTab, content);
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                editorTab.type(content);
+                editorTab.completions();
+            });
+
+            // While the snippet is being typed, check if we have reached a timeout
+            while (!future.isDone() && Instant.now().getEpochSecond() < endTime) {
+                logger.info("Remaining time: {}", endTime - Instant.now().getEpochSecond());
+                try {
+                    Thread.sleep(60 * 1000L);
+                } catch (InterruptedException e) {
+                    logger.warn("Interrupted editing", e);
+                    break;
+                }
+            }
 
             try {
                 int sleepSecs = 1 + random.nextInt(5);
@@ -133,7 +154,9 @@ public class EditorSimulator {
             }
         }
 
+        logger.info("Exiting...");
         editor.close();
+        System.exit(0);
     }
 
     /**
@@ -141,14 +164,13 @@ public class EditorSimulator {
      *
      * @return Source for a random top level node.
      */
-    public static String getRandomNode() {
+    public static Generators.Type getRandomGenerator() {
         List<Generators.Type> types = Arrays.stream(Generators.Type.values())
                 .filter(Generators.Type::isTopLevelNode)
                 .collect(Collectors.toList());
 
         // Get random generator
         Generators.Type type = types.get(random.nextInt(types.size()));
-        logger.info("Generating snippet of type: {}", type);
-        return Generators.generate(type);
+        return type;
     }
 }

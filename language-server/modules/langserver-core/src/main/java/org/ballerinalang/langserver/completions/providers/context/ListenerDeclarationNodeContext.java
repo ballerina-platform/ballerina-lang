@@ -33,15 +33,15 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -183,8 +183,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         because the type descriptor is optional as per the grammar
          */
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            String modulePrefix = QNameReferenceUtil.getAlias((QualifiedNameReferenceNode) nodeAtCursor);
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            String modulePrefix = QNameRefCompletionUtil.getAlias((QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(listenersInModule(context, modulePrefix));
         } else {
             completionItems.addAll(listenersAndPackagesItems(context));
@@ -276,8 +276,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         }
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context,
-                    QNameReferenceUtil.getAlias(nameReferenceNode));
+            Optional<ModuleSymbol> moduleSymbol = ModuleUtil.searchModuleForAlias(context,
+                    QNameRefCompletionUtil.getAlias(nameReferenceNode));
 
             if (moduleSymbol.isEmpty()) {
                 return Optional.empty();
@@ -306,14 +306,14 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context,
                                                            ListenerDeclarationNode listenerNode) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Supports the following
             (1) public listener mod:Listener test = module:<cursor>
             (2) public listener mod:Listener test = module:a<cursor>
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> ctxEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> ctxEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
 
             return this.getCompletionItemList(ctxEntries, context);
         }

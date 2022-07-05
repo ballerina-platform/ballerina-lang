@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "next",
       "kind": "Field",
       "detail": "LinkedList.next",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "next: ${1:{}}",
       "insertTextFormat": "Snippet"
     },
@@ -26,8 +26,8 @@
       "label": "value",
       "kind": "Field",
       "detail": "LinkedList.value",
-      "sortText": "G",
-      "insertText": "value: ${2:0}",
+      "sortText": "K",
+      "insertText": "value: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,16 @@
       "detail": "LinkedList",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "next: {},\nvalue: 0",
+      "insertText": "next: ${1:{}},\nvalue: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...l1",
+      "kind": "Variable",
+      "detail": "LinkedList",
+      "sortText": "AB",
+      "filterText": "l1",
+      "insertText": "...l1",
       "insertTextFormat": "Snippet"
     }
   ]

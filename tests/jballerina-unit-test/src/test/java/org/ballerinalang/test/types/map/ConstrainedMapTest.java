@@ -18,15 +18,12 @@
 
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -70,46 +67,47 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test Map constrained with value type value retrieval positive case.")
     public void testConstrainedMapValueTypePositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypePositive");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "kevin");
+        Object returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypePositive");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "kevin");
     }
 
     @Test(description = "Test Map constrained with value type value retrieval negative case.",
-          expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find" +
-                  " key 'names'.*")
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find" +
+                            " key 'names'.*")
     public void testConstrainedMapValueTypeNegative() {
         BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeNegative");
     }
 
     @Test(description = "Test Map constrained with value type index based value retrieval positive case.")
     public void testConstrainedMapValueTypeIndexBasedPositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeIndexBasedPositive");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "kevin");
+        Object returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeIndexBasedPositive");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "kevin");
     }
 
     @Test(description = "Test Map constrained with value type index based value retrieval negative case.")
     public void testConstrainedMapValueTypeIndexBasedNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeIndexBasedNegative");
-        Assert.assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeIndexBasedNegative");
+        Assert.assertNull(returns);
     }
 
     @Test(description = "Test Map constrained with user defined type value retrieval positive case.")
     public void testConstrainedMapStructTypePositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapStructTypePositive");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testConstrainedMapStructTypePositive");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 25L);
     }
 
     @Test(description = "Test Map constrained with user defined type value retrieval negative case.",
-          expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
-                  "find key 'item-not'.*")
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
+                    "find key 'item-not'.*")
     public void testConstrainedMapStructTypeNegative() {
         BRunUtil.invoke(compileResult, "testConstrainedMapStructTypeNegative");
     }
@@ -117,393 +115,406 @@ public class ConstrainedMapTest {
     @Test(description = "Test Map constrained with value type value retrieval positive case" +
             " assignment with member access expressions.")
     public void testConstrainedMapValueTypeAssignWithMemberAccessPositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapValueTypeAssignWithMemberAccessPositive");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "kevin");
-        Assert.assertEquals(returns[1].stringValue(), "ratnasekera");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "kevin");
+        Assert.assertEquals(returns.get(1).toString(), "ratnasekera");
     }
 
     @Test(description = "Test Map constrained with another constrained map.")
     public void testConstrainedMapConstrainedWithConstrainedMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapConstrainedWithConstrainedMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "kevin");
-        Assert.assertEquals(returns[1].stringValue(), "ratnasekera");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "kevin");
+        Assert.assertEquals(returns.get(1).toString(), "ratnasekera");
     }
 
     @Test(description = "Test Map constrained with value type array.")
     public void testConstrainedMapConstrainedWithValueTypeArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapConstrainedWithValueTypeArray");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 25);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(0), 25L);
+        Assert.assertEquals(returns.get(1), 30L);
     }
 
     @Test(description = "Test Map constrained with value type int positive.")
     public void testConstrainedMapIntTypePositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapIntTypePositive");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 36);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(0), 36L);
+        Assert.assertEquals(returns.get(1), 63L);
     }
 
     @Test(description = "Test Map constrained with value type int negative.")
     public void testConstrainedMapIntTypeNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapIntTypeNegative");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(0), 0L);
+        Assert.assertEquals(returns.get(1), 0L);
     }
 
     @Test(description = "Test Map constrained with value type float positive.")
     public void testConstrainedMapFloatTypePositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapFloatTypePositive");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 3.6);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.3);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof Double);
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(0), 3.6);
+        Assert.assertEquals(returns.get(1), 6.3);
     }
 
     @Test(description = "Test Map constrained with value type float negative.")
     public void testConstrainedMapFloatTypeNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapFloatTypeNegative");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 0.0);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof Double);
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(0), 0.0);
+        Assert.assertEquals(returns.get(1), 0.0);
     }
 
     @Test(description = "Test Map constrained with value type boolean positive.")
     public void testConstrainedMapBooleanTypePositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
-                                           "testConstrainedMapBooleanTypePositive");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(returns[1] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
+                "testConstrainedMapBooleanTypePositive");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test(description = "Test Map constrained with value type boolean negative.")
     public void testConstrainedMapBooleanTypeNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapBooleanTypeNegative");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(returns[1] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue(returns.get(1) instanceof Boolean);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
     }
 
     @Test(description = "Test Map constrained with value type blob positive.")
     public void testConstrainedMapBlobTypePositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapBlobTypePositive");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
-        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[0]).getBytes(), "hi".getBytes());
-        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[1]).getBytes(), "ballerina".getBytes());
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof BArray);
+        Assert.assertTrue(returns.get(1) instanceof BArray);
+        ByteArrayUtils.assertJBytesWithBBytes(((BArray) returns.get(0)).getBytes(), "hi".getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BArray) returns.get(1)).getBytes(), "ballerina".getBytes());
     }
 
     @Test(description = "Test Map constrained with value type blob negative.")
     public void testConstrainedMapBlobTypeNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testConstrainedMapBlobTypeNegative");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertTrue(returns[1] instanceof BValueArray);
-        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[0]).getBytes(), "hi".getBytes());
-        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[1]).getBytes(), "ballerina".getBytes());
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof BArray);
+        Assert.assertTrue(returns.get(1) instanceof BArray);
+        ByteArrayUtils.assertJBytesWithBBytes(((BArray) returns.get(0)).getBytes(), "hi".getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BArray) returns.get(1)).getBytes(), "ballerina".getBytes());
     }
 
     @Test(description = "Test cast map constrained with value type from map any positive.")
     public void testConstrainedMapValueTypeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCast");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "kevin");
+        Object returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCast");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "kevin");
     }
 
     @Test(description = "Test cast map constrained with value type from map any positive.")
     public void testConstrainedMapValueTypeCastNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCastNegative");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        Object returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCastNegative");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BError);
+        String errorMsg = ((BMap<String, BString>) ((BError) returns).getDetails()).get(
+                StringUtils.fromString("message")).toString();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<string>' cannot be cast to 'map<int>'"));
 
     }
 
     @Test(description = "Test cast map constrained with ref type from map any positive.")
     public void testConstrainedMapRefTypeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCast");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCast");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 25L);
     }
 
     @Test(description = "Test cast map constrained with ref type from map any negative.")
     public void testConstrainedMapRefTypeCastNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCastNegative");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        Object returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCastNegative");
+        Assert.assertTrue(returns instanceof BError);
+        String errorMsg =
+                ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
+                        .toString();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<Person>' cannot be cast to 'map<int>'"));
 
     }
 
     @Test(description = "Test map constrained with string update.")
     public void testUpdateStringMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateStringMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "update");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateStringMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "update");
     }
 
     @Test(description = "Test map constrained with string update with invalid type negative.",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
-                  "\\{\"message\":\"invalid map" +
-                  " insertion: expected value of type 'string', found 'int'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
+                    "\\{\"message\":\"invalid map" +
+                    " insertion: expected value of type 'string', found 'int'.*")
     public void testStringMapUpdateWithInvalidTypeNegativeCase() {
         BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidTypeNegativeCase");
     }
 
     @Test(description = "Test cast equivalent struct constrained maps in runtime time.")
     public void testStructConstrainedMapRuntimeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructConstrainedMapRuntimeCast");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testStructConstrainedMapRuntimeCast");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 25L);
     }
 
     @Test(description = "Test cast equivalent struct constrained maps in compile time.")
     public void testStructConstrainedMapStaticCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructConstrainedMapStaticCast");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testStructConstrainedMapStaticCast");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 25L);
     }
 
     @Test(description = "Test equivalent struct constrained map update negative.")
     public void testStructEquivalentMapUpdate() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalentMapUpdate");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testStructEquivalentMapUpdate");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 25L);
     }
 
     @Test(description = "Test cast equivalent struct constrained maps in runtime time.")
     public void testStructEquivalentMapAccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalentMapAccess");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Mervin");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testStructEquivalentMapAccess");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "Mervin");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 25L);
     }
 
     @Test(description = "Test struct map update after casting to map any.")
     public void testStructMapUpdate() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructMapUpdate");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Arnold");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 45);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testStructMapUpdate");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "Arnold");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 45L);
     }
 
     @Test(description = "Test runtime cast for constrained maps of structurally not equivalent.")
     public void testStructNotEquivalentRuntimeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructNotEquivalentRuntimeCast");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        Object returns = BRunUtil.invoke(compileResult, "testStructNotEquivalentRuntimeCast");
+        Assert.assertTrue(returns instanceof BError);
+        String errorMsg =
+                ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
+                        .toString();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<Employee>' cannot be cast to 'map<Person>'"));
     }
 
     @Test(description = "Test runtime cast for any map to int map.")
     public void testAnyMapToValueTypeRuntimeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToValueTypeRuntimeCast");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        Object returns = BRunUtil.invoke(compileResult, "testAnyMapToValueTypeRuntimeCast");
+        Assert.assertTrue(returns instanceof BError);
+        String errorMsg =
+                ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
+                        .toString();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map' cannot be cast to 'map<int>'"));
     }
 
     @Test(description = "Test runtime cast for any map to Employee map.")
     public void testAnyMapToRefTypeRuntimeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToRefTypeRuntimeCast");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        Object returns = BRunUtil.invoke(compileResult, "testAnyMapToRefTypeRuntimeCast");
+        Assert.assertTrue(returns instanceof BError);
+        String errorMsg =
+                ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
+                        .toString();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map' cannot be cast to 'map<Employee>'"));
     }
 
     @Test(description = "Test struct to map conversion for constrained map.")
     public void testMapToStructConversion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructConversion");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMapToStructConversion");
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 100L);
+        Assert.assertEquals(returns.get(1), 63L);
     }
 
     @Test(description = "Test struct to map conversion for constrained map negative.")
     public void testMapFunctionsOnConstrainedMaps() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapFunctionsOnConstrainedMaps");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].size(), 2);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMapFunctionsOnConstrainedMaps");
+        Assert.assertTrue(returns instanceof BArray);
+        Assert.assertEquals(returns.size(), 2);
     }
 
     @Test(description = "Test struct to map conversion for constrained map negative.")
     public void testForEachOnConstrainedMaps() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForEachOnConstrainedMaps");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "o");
-        Assert.assertEquals(returns[1].stringValue(), "a");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testForEachOnConstrainedMaps");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "o");
+        Assert.assertEquals(returns.get(1).toString(), "a");
     }
 
     @Test(description = "Test constrained map of string array.")
     public void testMapOfElementTypeArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapOfElementTypeArray");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Kollupitiya");
-        Assert.assertEquals(returns[1].stringValue(), "Ja-Ela");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMapOfElementTypeArray");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Kollupitiya");
+        Assert.assertEquals(returns.get(1).toString(), "Ja-Ela");
     }
 
     @Test(description = "Test constrained map of ref array.")
     public void testMapOfElementTypeRefArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapOfElementTypeRefArray");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMapOfElementTypeRefArray");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 25L);
     }
 
     @Test(description = "Test json to struct conversion where struct is included with constrained map.")
     public void testJsonToStructConversionStructWithConstrainedMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStructConversionStructWithConstrainedMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Colombo");
-        Assert.assertEquals(returns[1].stringValue(), "SriLanka");
+        BArray returns =
+                (BArray) BRunUtil.invoke(compileResult, "testJsonToStructConversionStructWithConstrainedMap");
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Colombo");
+        Assert.assertEquals(returns.get(1).toString(), "SriLanka");
     }
 
     @Test(description = "Test json to struct conversion where struct is included with constrained map negative.")
     public void testJsonToStructConversionStructWithConstrainedMapNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        Object returns = BRunUtil.invoke(compileResult,
                 "testJsonToStructConversionStructWithConstrainedMapNegative");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        Assert.assertTrue(returns instanceof BError);
+        String errorMsg =
+                ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
+                        .toString();
         Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'PersonComplexTwo': " +
-                "\n\t\tfield 'address' in record 'PersonComplexTwo' should be of type 'map<int>'");
+                "\n\t\tmap field 'address.city' should be of type 'int', found '\"Colombo\"'" +
+                "\n\t\tmap field 'address.country' should be of type 'int', found '\"SriLanka\"'");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")
     public void testConstrainedUnionRetrieveString() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        Object returns = BRunUtil.invoke(compileResult,
                 "testConstrainedUnionRetrieveString");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "kevin");
+
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "kevin");
     }
 
     @Test(description = "Test constrained map with union retrieving int value.")
     public void testConstrainedUnionRetrieveInt() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        Object returns = BRunUtil.invoke(compileResult,
                 "testConstrainedUnionRetrieveInt");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 3L);
     }
 
     @Test(description = "Test constrianed map Equivelent map insert.")
     public void testMapConstrianedWithStructEquivalency() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        BArray returns = (BArray) BRunUtil.invoke(compileResult,
                 "testMapConstrainedEquivalentMapInsert");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 25L);
     }
 
     @Test(description = "Test runtime struct equivalency with nested constrained maps.")
     public void testRuntimeStructEquivalencyWithNestedConstrainedMaps() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        Object returns = BRunUtil.invoke(compileResult,
                 "testRuntimeStructEquivalencyWithNestedConstrainedMaps");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "TR-ID");
+
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "TR-ID");
     }
 
     @Test(description = "Test basic map constrained to union.")
     public void testMapConstrainedToUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        Object returns = BRunUtil.invoke(compileResult,
                 "testMapConstrainedToUnion");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "test-value");
+
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "test-value");
     }
 
     @Test(description = "Test basic map constrained to union case two.")
     public void testMapConstrainedToUnionCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        Object returns = BRunUtil.invoke(compileResult,
                 "testMapConstrainedToUnionCaseTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 2L);
     }
 
     @Test(description = "Test basic map constrained to union case three.",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound " +
-                  "\\{\"message\":\"cannot find key 'non-existing-key'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound " +
+                    "\\{\"message\":\"cannot find key 'non-existing-key'.*")
     public void testMapConstrainedToUnionCaseThree() {
         BRunUtil.invoke(compileResult,
                 "testMapConstrainedToUnionCaseThree");
@@ -511,18 +522,18 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test basic map constrained to nullable union.")
     public void testMapConstrainedToNullableUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        Object returns = BRunUtil.invoke(compileResult,
                 "testMapConstrainedToNullableUnion");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "test-nullable-union");
+
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "test-nullable-union");
     }
 
     @Test(description = "Test basic map constrained to nullable union retrieve non existing key.",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
-                  "find key 'nonexist'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
+                    "find key 'nonexist'.*")
     public void testMapConstrainedToNullableUnionNonExistingKey() {
         BRunUtil.invoke(compileResult,
                 "testMapConstrainedToNullableUnionNonExistingKey");
@@ -530,14 +541,14 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test basic map constrained to nullable union retrieve non existing key with index access.")
     public void testMapConstrainedToNullableUnionNonExistingKeyWithIndexAccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
+        Object returns = BRunUtil.invoke(compileResult,
                 "testMapConstrainedToNullableUnionNonExistingKeyWithIndexAccess");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(returns[0]);
+
+        Assert.assertNull(returns);
     }
 
     @Test(description = "Test basic map constrained to string non existing key retrieve.",
-          expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound " +
                     "\\{\"message\":\"cannot find key 'nonexist-key'.*")
     public void testMapConstrainedStringNonExistingKeyRetrieve() {
@@ -546,10 +557,10 @@ public class ConstrainedMapTest {
     }
 
     @Test(description = "Test inherent type violation with nil value.",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
-                  "\\{\"message\":\"invalid map" +
-                  " insertion: expected value of type 'string', found '\\(\\)'.*")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
+                    "\\{\"message\":\"invalid map" +
+                    " insertion: expected value of type 'string', found '\\(\\)'.*")
     public void testInherentTypeViolationWithNilType() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
     }
@@ -557,9 +568,9 @@ public class ConstrainedMapTest {
     @Test(description = "Test closed record assignment to map which is constrained to anydata.")
     public void testMapAnyDataClosedRecordAssignment() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapAnyDataClosedRecordAssignment");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
+        Object returns = BRunUtil.invoke(compileResult, "testMapAnyDataClosedRecordAssignment");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "Jack");
     }
 
     @AfterClass

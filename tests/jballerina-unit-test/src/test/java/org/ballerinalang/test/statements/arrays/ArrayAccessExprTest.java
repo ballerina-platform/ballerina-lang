@@ -17,12 +17,11 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -58,42 +57,38 @@ public class ArrayAccessExprTest {
 
     @Test(description = "Test arrays access expression")
     public void testArrayAccessExpr() {
-        BValue[] args = { new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "arrayAccessTest", args);
+        Object[] args = { (100), (5)};
+        Object returns = BRunUtil.invoke(compileResult, "arrayAccessTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 210;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test arrays access with finite type")
     public void testArrayAccessWithFiniteType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayAccessWithFiniteType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testArrayAccessWithFiniteType");
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test arrays access with unions with finite types")
     public void testArrayAccessUsingUnionWithFiniteTypes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayAccessUsingUnionWithFiniteTypes");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testArrayAccessUsingUnionWithFiniteTypes");
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test arrays return value")
     public void testArrayReturnValue() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "arrayReturnTest", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compileResult, "arrayReturnTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Assert.assertTrue(returns instanceof BArray);
 
-        BValueArray arrayValue = (BValueArray) returns[0];
+        BArray arrayValue = (BArray) returns;
         Assert.assertEquals(arrayValue.size(), 106);
 
         Assert.assertEquals(arrayValue.getInt(0), 100);
@@ -103,17 +98,16 @@ public class ArrayAccessExprTest {
 
     @Test(description = "Test arrays arg value")
     public void testArrayArgValue() {
-        BValueArray arrayValue = new BValueArray(BTypes.typeInt);
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 10);
         arrayValue.add(1, 1);
 
-        BValue[] args = {arrayValue};
-        BValue[] returns = BRunUtil.invoke(compileResult, "arrayArgTest", args);
+        Object[] args = {arrayValue};
+        Object returns = BRunUtil.invoke(compileResult, "arrayArgTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 11;
         Assert.assertEquals(actual, expected);
     }
@@ -142,9 +136,13 @@ public class ArrayAccessExprTest {
     @Test(description = "Test arrays access with a key")
     public void testArrayAccessWithKey() {
         CompileResult compileResult = BCompileUtil.compile("test-src/statements/arrays/incorrect-array-access.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
-        BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'int', found 'string'", 4, 20);
-        BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'int', found '1|two'", 12, 25);
+        int i = 0;
+        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'string'", 4, 20);
+        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'IntOrString'",
+                                  12, 25);
+        BAssertUtil.validateError(compileResult, i++, "list index out of range: index: '-1'", 19, 7);
+        BAssertUtil.validateError(compileResult, i++, "list index out of range: index: '-2'", 20, 7);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
     @Test(description = "Test access a primitive as an arrays")

@@ -21,6 +21,8 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
@@ -37,11 +39,13 @@ import java.util.stream.Collectors;
  */
 public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode {
 
+    // BLangNodes
     public List<BLangVariable> params = new ArrayList<>();
     public BLangVariable restParam;
     public BLangType returnTypeNode;
-    public Set<Flag> flagSet = new HashSet<>();
 
+    // Parser Flags and Data
+    public Set<Flag> flagSet = new HashSet<>();
     public boolean returnsKeywordExists = false;
 
     @Override
@@ -67,6 +71,16 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

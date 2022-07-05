@@ -22,3 +22,23 @@ type InvalidIntersectionType int & string;
 function foo() {
     type MyType int;
 }
+
+type CustomType int;
+
+type CustomType record {
+    int i = 0;
+};
+
+type MyTuple [int, string];
+
+function bar() returns MyTuple => [1, ""];
+
+function testTypeReference() {
+    function () returns int x = bar;
+}
+
+type Foo boolean|null;
+
+function testNullFiniteType() {
+    Foo _ = "null"; // error
+}

@@ -34,17 +34,18 @@ public class FileSystemRepositoryValidationTests {
 
     @Test
     public void testGetPackageVersions() {
-
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("hevayo"), PackageName.from("package_d"), null),
                 PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = fileSystemRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
-        Assert.assertEquals(versions.size(), 2);
+        Assert.assertEquals(versions.size(), 4);
         Assert.assertFalse(versions.contains(PackageVersion.from("0.1.0")));
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.2")));
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.3")));
-        Assert.assertFalse(versions.contains(PackageVersion.from("0.2.0")));
+        Assert.assertTrue(versions.contains(PackageVersion.from("0.2.0")));
+        Assert.assertTrue(versions.contains(PackageVersion.from("0.2.1")));
+        Assert.assertFalse(versions.contains(PackageVersion.from("0.3.0")));
     }
 
 }

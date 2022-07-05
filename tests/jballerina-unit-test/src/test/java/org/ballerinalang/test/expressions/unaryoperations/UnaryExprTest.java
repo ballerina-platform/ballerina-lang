@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.expressions.unaryoperations;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -47,98 +44,85 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary negative expression")
     public void integerUnaryExprTest() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "negativeIntTest", args);
+        Object[] args = {};
+        Object arr = BRunUtil.invoke(result, "negativeIntTest", args);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertEquals(returns.length, 2);
+        long x = (long) returns.get(0);
+        Assert.assertEquals(x, (-5), "Invalid value returned.");
 
-        BInteger x = (BInteger) returns[0];
-        Assert.assertSame(x.getClass(), BInteger.class, "Invalid class type returned.");
-        Assert.assertEquals(x.intValue(), (-5), "Invalid value returned.");
-
-        BInteger y = (BInteger) returns[1];
-        Assert.assertSame(y.getClass(), BInteger.class, "Invalid class type returned.");
-        Assert.assertEquals(y.intValue(), 5, "Invalid value returned.");
+        long y = (long) returns.get(1);
+        Assert.assertEquals(y, 5, "Invalid value returned.");
     }
 
     @Test(description = "Test int positive unary expression")
     public void positiveIntegerUnaryExprTest() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "positiveIntTest", args);
+        Object[] args = {};
+        Object arr = BRunUtil.invoke(result, "positiveIntTest", args);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertEquals(returns.length, 2);
+        long x = (long) returns.get(0);
+        Assert.assertEquals(x, (+5), "Invalid value returned.");
 
-        BInteger x = (BInteger) returns[0];
-        Assert.assertSame(x.getClass(), BInteger.class, "Invalid class type returned.");
-        Assert.assertEquals(x.intValue(), (+5), "Invalid value returned.");
-
-        BInteger y = (BInteger) returns[1];
-        Assert.assertSame(y.getClass(), BInteger.class, "Invalid class type returned.");
-        Assert.assertEquals(y.intValue(), +5, "Invalid value returned.");
+        long y = (long) returns.get(1);
+        Assert.assertEquals(y, +5, "Invalid value returned.");
     }
 
     @Test(description = "Test float unary negative expression")
     public void floatUnaryExprTest() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "negativeFloatTest", args);
+        Object[] args = {};
+        Object arr = BRunUtil.invoke(result, "negativeFloatTest", args);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertEquals(returns.length, 2);
+        double x = (double) returns.get(0);
+        Assert.assertEquals(x, -5.0D, "Invalid value returned.");
 
-        BFloat x = (BFloat) returns[0];
-        Assert.assertSame(x.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(x.floatValue(), -5.0D, "Invalid value returned.");
-
-        BFloat y = (BFloat) returns[1];
-        Assert.assertSame(y.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(y.floatValue(), 5.0D, "Invalid value returned.");
+        double y = (double) returns.get(1);
+        Assert.assertEquals(y, 5.0D, "Invalid value returned.");
     }
 
     @Test(description = "Test float positive unary expression")
     public void positiveFloatUnaryExprTest() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "positiveFloatTest", args);
+        Object[] args = {};
+        Object arr = BRunUtil.invoke(result, "positiveFloatTest", args);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertEquals(returns.length, 2);
+        double x = (double) returns.get(0);
+        Assert.assertEquals(x, +5D, "Invalid value returned.");
 
-        BFloat x = (BFloat) returns[0];
-        Assert.assertSame(x.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(x.floatValue(), +5D, "Invalid value returned.");
-
-        BFloat y = (BFloat) returns[1];
-        Assert.assertSame(y.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(y.floatValue(), +5D, "Invalid value returned.");
+        double y = (double) returns.get(1);
+        Assert.assertEquals(y, +5D, "Invalid value returned.");
     }
 
     @Test(description = "Test unary boolean not expression")
     public void booleanUnaryExprTest() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "booleanNotTest", args);
+        Object[] args = {};
+        Object arr = BRunUtil.invoke(result, "booleanNotTest", args);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
 
-        Assert.assertEquals(returns.length, 3);
+        boolean x = (boolean) returns.get(0);
+        Assert.assertFalse(x, "Invalid value returned.");
 
-        BBoolean x = (BBoolean) returns[0];
-        Assert.assertSame(x.getClass(), BBoolean.class, "Invalid class type returned.");
-        Assert.assertFalse(x.booleanValue(), "Invalid value returned.");
+        boolean y = (boolean) returns.get(1);
+        Assert.assertTrue(y, "Invalid value returned.");
 
-        BBoolean y = (BBoolean) returns[1];
-        Assert.assertSame(y.getClass(), BBoolean.class, "Invalid class type returned.");
-        Assert.assertTrue(y.booleanValue(), "Invalid value returned.");
-
-        BBoolean z = (BBoolean) returns[2];
-        Assert.assertSame(z.getClass(), BBoolean.class, "Invalid class type returned.");
-        Assert.assertTrue(z.booleanValue(), "Invalid value returned.");
+        boolean z = (boolean) returns.get(2);
+        Assert.assertTrue(z, "Invalid value returned.");
     }
 
     @Test(description = "Test unary boolean not expression in if else")
     public void unaryExprInIfConditionTest() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "unaryExprInIfConditionTest", args);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "unaryExprInIfConditionTest", args);
 
-        Assert.assertEquals(returns.length, 1);
 
-        BBoolean x = (BBoolean) returns[0];
-        Assert.assertSame(x.getClass(), BBoolean.class, "Invalid class type returned.");
-        Assert.assertTrue(x.booleanValue(), "Invalid value returned.");
+        boolean x = (boolean) returns;
+        Assert.assertTrue(x, "Invalid value returned.");
     }
 
     @Test(description = "Test unary negation expression")
@@ -148,14 +132,13 @@ public class UnaryExprTest {
 
         long expectedResult = a - -b;
 
-        BValue[] args = {new BInteger(a), new BInteger(b)};
+        Object[] args = {(a), (b)};
 
-        BValue[] returns = BRunUtil.invoke(result, "unaryNegationTest", args);
+        Object returns = BRunUtil.invoke(result, "unaryNegationTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertSame(returns.getClass(), Long.class, "Invalid class type returned.");
 
-        long actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
 
@@ -167,14 +150,13 @@ public class UnaryExprTest {
 
         long expectedResult = +-a;
 
-        BValue[] args = {new BInteger(a)};
+        Object[] args = {(a)};
 
-        BValue[] returns = BRunUtil.invoke(result, "unaryPositiveNegationTest", args);
+        Object returns = BRunUtil.invoke(result, "unaryPositiveNegationTest", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertSame(returns.getClass(), Long.class, "Invalid class type returned.");
 
-        long actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
 
@@ -194,9 +176,24 @@ public class UnaryExprTest {
         };
     }
 
+    @Test(description = "Test unary operators for nullable expressions")
+    public void testNullableUnaryExpressions() {
+        BRunUtil.invoke(result, "testNullableUnaryExpressions");
+    }
+
+    @Test(description = "Test unary operators with user defined subtypes")
+    public void testUnaryOperationsWithUserDefinedTypes() {
+        BRunUtil.invoke(result, "testUnaryOperationsWithUserDefinedTypes");
+    }
+
+    @Test(description = "Test resulting type of unary plus")
+    public void testResultingTypeOfUnaryPlus() {
+        BRunUtil.invoke(result, "testResultingTypeOfUnaryPlus");
+    }
+
     @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 10);
@@ -213,6 +210,15 @@ public class UnaryExprTest {
         BAssertUtil.validateError(resultNegative, 9, "operator '~' not defined for 'float'", 46, 17);
         BAssertUtil.validateError(resultNegative, 10, "operator '~' not defined for 'decimal'", 47, 18);
         BAssertUtil.validateError(resultNegative, 11, "operator '!' not defined for 'decimal'", 48, 18);
+        BAssertUtil.validateError(resultNegative, 12, "incompatible types: expected 'A', found 'int'",
+                56, 11);
+        BAssertUtil.validateError(resultNegative, 13, "incompatible types: expected 'B', found 'float'",
+                59, 11);
+        BAssertUtil.validateError(resultNegative, 14, "operator '-' not defined for 'C'", 74, 13);
+        BAssertUtil.validateError(resultNegative, 15, "operator '-' not defined for 'D'", 77, 13);
+        BAssertUtil.validateError(resultNegative, 16, "operator '+' not defined for '(decimal|DecimalType1)'", 80, 24);
+        BAssertUtil.validateError(resultNegative, 17, "operator '-' not defined for 'DecimalType1'", 83, 24);
+        BAssertUtil.validateError(resultNegative, 18, "operator '+' not defined for '(decimal|DecimalType2)'", 86, 24);
     }
 
     @AfterClass

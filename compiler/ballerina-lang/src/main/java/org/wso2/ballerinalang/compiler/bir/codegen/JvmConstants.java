@@ -36,6 +36,7 @@ public class JvmConstants {
     public static final String B_FUNCTION_POINTER = "io/ballerina/runtime/api/values/BFunctionPointer";
     public static final String B_MAP = "io/ballerina/runtime/api/values/BMap";
     public static final String B_OBJECT = "io/ballerina/runtime/api/values/BObject";
+    public static final String B_ARRAY = "io/ballerina/runtime/api/values/BArray";
 
     // jvm runtime values related classes
     public static final String MAP_VALUE = "io/ballerina/runtime/internal/values/MapValue";
@@ -89,6 +90,8 @@ public class JvmConstants {
     public static final String LIST_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/internal/values/ListInitialValueEntry";
     public static final String LIST_INITIAL_EXPRESSION_ENTRY =
             "io/ballerina/runtime/internal/values/ListInitialValueEntry$ExpressionEntry";
+    public static final String LIST_INITIAL_SPREAD_ENTRY =
+            "io/ballerina/runtime/internal/values/ListInitialValueEntry$SpreadEntry";
 
     // types related classes
     public static final String TYPE = "io/ballerina/runtime/api/types/Type";
@@ -153,11 +156,16 @@ public class JvmConstants {
     public static final String REMOTE_METHOD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BRemoteMethodType";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFutureType";
+    public static final String TYPE_REF_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypeReferenceType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
+    public static final String LARGE_STRING_VAR_PREFIX = "$stringChunk";
+    public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
     public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
+    public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
+    public static final String ARRAY_TYPE_VAR_PREFIX = "$arrayType";
     public static final String MODULE_VAR_PREFIX = "$module";
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
@@ -199,10 +207,9 @@ public class JvmConstants {
     public static final String BLANG_EXCEPTION_HELPER =
             "io/ballerina/runtime/internal/util/exceptions/BLangExceptionHelper";
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
-    public static final String LISTENER_REGISTRY_CLASS =
-            "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
+    public static final String RUNTIME_REGISTRY_CLASS =
+            "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
-    public static final String IDENTIFIER_UTILS = "io/ballerina/runtime/api/utils/IdentifierUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -210,6 +217,7 @@ public class JvmConstants {
     public static final String LINKED_HASH_MAP = "java/util/LinkedHashMap";
     public static final String ARRAY_LIST = "java/util/ArrayList";
     public static final String LIST = "java/util/List";
+    public static final String STACK = "java/util/Stack";
     public static final String SET = "java/util/Set";
     public static final String LINKED_HASH_SET = "java/util/LinkedHashSet";
     public static final String STRING_BUILDER = "java/lang/StringBuilder";
@@ -267,9 +275,12 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
-    public static final String BUNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_bunion_type_constants";
-    public static final String BTUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
+    public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_bunion_type_constants";
+    public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
+    public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
+    public static final String TYPEREF_TYPE_CONSTANT_CLASS_NAME = "constants/$_typeref_type_constants";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
+    public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
     public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
@@ -286,13 +297,15 @@ public class JvmConstants {
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
     public static final String B_TUPLE_TYPE_INIT_METHOD_PREFIX = "$tuple_type_init";
+    public static final String B_ARRAY_TYPE_INIT_METHOD_PREFIX = "$array_type_init";
+    public static final String B_TYPEREF_TYPE_INIT_METHOD_PREFIX = "$typeref_type_init";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
-    public static final String MODULE_INIT = "$moduleInit";
-    public static final String MODULE_START = "$moduleStart";
-    public static final String MODULE_STOP = "$moduleStop";
+    public static final String MODULE_INIT_METHOD = "$moduleInit";
+    public static final String MODULE_START_METHOD = "$moduleStart";
+    public static final String MODULE_STOP_METHOD = "$moduleStop";
     public static final String BAL_EXTENSION = ".bal";
     public static final String WINDOWS_PATH_SEPERATOR = "\\";
     public static final String UNIX_PATH_SEPERATOR = "/";
@@ -329,7 +342,7 @@ public class JvmConstants {
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
-    public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
+    public static final String RUNTIME_REGISTRY_VARIABLE = "$runtimeRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
@@ -344,7 +357,7 @@ public class JvmConstants {
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
-    public static final String GET_ANON_TYPE = "getAnonType";
+    public static final String GET_ANON_TYPE_METHOD = "getAnonType";
 
     // strand data related constants
     public static final String STRAND = "strand";
@@ -396,6 +409,8 @@ public class JvmConstants {
     Max strings constant initializations per method = 64000/12 -> 5000
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
+
+    public static final int BALLERINA_MAX_YIELD_DEPTH = 256;
 
 
     private JvmConstants() {

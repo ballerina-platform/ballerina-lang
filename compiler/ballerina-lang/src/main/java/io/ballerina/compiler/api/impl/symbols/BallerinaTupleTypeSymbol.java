@@ -16,7 +16,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -40,7 +41,7 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
     private List<TypeSymbol> memberTypes;
     private TypeSymbol restTypeDesc;
 
-    public BallerinaTupleTypeSymbol(CompilerContext context, ModuleID moduleID, BTupleType tupleType) {
+    public BallerinaTupleTypeSymbol(CompilerContext context, BTupleType tupleType) {
         super(context, TypeDescKind.TUPLE, tupleType);
     }
 
@@ -90,8 +91,18 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
         }
         tupleType.resolvingToString = false;
         if (restTypeDescriptor().isPresent()) {
-            joiner.add("..." + restTypeDescriptor().get().signature());
+            joiner.add(restTypeDescriptor().get().signature() + "...");
         }
         return "[" + joiner.toString() + "]";
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

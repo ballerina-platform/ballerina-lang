@@ -16,11 +16,7 @@
  */
 package org.ballerinalang.test.expressions.async;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -44,102 +40,102 @@ public class BasicAsyncOperationsTest {
     
     @Test
     public void testAsyncNonNativeBasic1() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic1", new BValue[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic1", new Object[0]);
+        Assert.assertEquals(returns, 7L);
     }
     
     @Test
     public void testAsyncNonNativeBasic2() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic2", new BValue[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 19);
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic2", new Object[0]);
+        Assert.assertEquals(returns, 19L);
     }
     
     @Test
     public void testAsyncNonNativeBasic3() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic3", new BValue[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 31);
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic3", new Object[0]);
+        Assert.assertEquals(returns, 31L);
     }
     
     @Test
     public void testAsyncNonNativeBasic4() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic4", new BValue[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic4", new Object[0]);
+        Assert.assertEquals(returns, 3L);
     }
     
     @Test
     public void testAsyncNonNativeBasic5() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic5", new BValue[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 31.0);
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic5", new Object[0]);
+        Assert.assertEquals(returns, 31.0);
     }
     
     @Test
     public void testAsyncNonNativeBasic6() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic6", new BValue[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic6", new Object[0]);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.future}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic7() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic7", new BValue[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic7", new Object[0]);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.future}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic8() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic8", new BValue[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic8", new Object[0]);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAsyncNonNativeBasic9() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic9", new BValue[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic9", new Object[0]);
+        Assert.assertEquals(returns, 7L);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.future}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic10() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic10", new BValue[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic10", new Object[0]);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.future}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic11() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic11", new BValue[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic11", new Object[0]);
+        Assert.assertTrue((Boolean) returns);
     }
     
     @Test
     public void testAsyncObjectAttachedFunctions() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncObjectAttachedFunctions");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object returns = BRunUtil.invoke(result, "testAsyncObjectAttachedFunctions");
+        Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testAsyncInvWithoutDefaultParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncInvWithoutDefaultParams");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Object returns = BRunUtil.invoke(result, "testAsyncInvWithoutDefaultParams");
+        Assert.assertEquals(returns, 5L);
     }
 
     @Test
     public void testAsyncInvWithDefaultParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testAsyncInvWithDefaultParams");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 45);
+        Object returns = BRunUtil.invoke(result, "testAsyncInvWithDefaultParams");
+        Assert.assertEquals(returns, 45L);
     }
 
     @Test
     public void testAttachedAsyncInvWithoutDefaultParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testAttachedAsyncInvWithoutDefaultParams");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
+        Object returns = BRunUtil.invoke(result, "testAttachedAsyncInvWithoutDefaultParams");
+        Assert.assertEquals(returns, 40L);
     }
 
     @Test
     public void testAttachedAsyncInvWithDefaultParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testAttachedAsyncInvWithDefaultParams");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
+        Object returns = BRunUtil.invoke(result, "testAttachedAsyncInvWithDefaultParams");
+        Assert.assertEquals(returns, 9L);
     }
 
     @Test (description = "Test negative issues with future")

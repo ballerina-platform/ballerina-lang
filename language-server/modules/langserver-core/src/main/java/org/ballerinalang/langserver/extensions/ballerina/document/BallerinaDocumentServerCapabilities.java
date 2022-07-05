@@ -42,6 +42,8 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
 
     private boolean executorPositions;
 
+    private boolean resolveMissingDependencies;
+
     public boolean isSyntaxApiCalls() {
         return syntaxApiCalls;
     }
@@ -116,5 +118,13 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
 
     public BallerinaDocumentServerCapabilities() {
         super(Constants.CAPABILITY_NAME);
+    }
+
+    public boolean isResolveMissingDependencies() {
+        return resolveMissingDependencies;
+    }
+
+    public void setResolveMissingDependencies(boolean resolveMissingDependencies) {
+        this.resolveMissingDependencies = resolveMissingDependencies;
     }
 }

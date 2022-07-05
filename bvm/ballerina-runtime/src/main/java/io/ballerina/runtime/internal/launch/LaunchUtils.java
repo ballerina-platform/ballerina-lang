@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -64,6 +65,15 @@ public class LaunchUtils {
     public static void stopListeners(boolean isService) {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
         listeners.forEach(listener -> listener.afterRunProgram(isService));
+    }
+
+    public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
+                                           VariableKey[] variableKeys) {
+        VariableKey[] keys = configurationData.put(m, variableKeys);
+        if (keys == null) {
+            return;
+        }
+        configurationData.put(m, ArrayUtils.addAll(keys, variableKeys));
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,

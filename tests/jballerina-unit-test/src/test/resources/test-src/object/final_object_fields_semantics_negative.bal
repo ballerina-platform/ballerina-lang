@@ -132,3 +132,17 @@ function testMutabilityOfFinalFieldOnlyObjectWithMutableTypes() {
     };
     readonly rd2 = ob;
 }
+
+class NonReadOnlyClassWithImmutableFieldsOnly {
+    final int i = 1;
+    final readonly j = 2;
+
+    function fn() returns int => self.i;
+}
+
+readonly nrc1 = new NonReadOnlyClassWithImmutableFieldsOnly();
+
+function testReadOnlyFlagNotBeingSetForClassWithImmutableFieldsOnly() {
+    NonReadOnlyClassWithImmutableFieldsOnly nrc2 = new;
+    readonly & object {} _ = nrc2;
+}

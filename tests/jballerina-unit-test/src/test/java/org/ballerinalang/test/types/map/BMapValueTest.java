@@ -17,15 +17,12 @@
  */
 package org.ballerinalang.test.types.map;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BRefType;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,30 +43,30 @@ public class BMapValueTest {
     @Test
     public void testBMap() {
 
-        BMap<BString, BInteger> map = new BMap<>();
-        map.put(new BString("Chanaka"), new BInteger(1));
-        map.put(new BString("Udaya"), new BInteger(2));
-        map.put(new BString("Chanaka"), new BInteger(1));
-        assertEquals(map.get(new BString("Chanaka")), new BInteger(1));
+        BMap map = ValueCreator.createMapValue();
+        map.put(StringUtils.fromString("Chanaka"), 1L);
+        map.put(StringUtils.fromString("Udaya"), 2L);
+        map.put(StringUtils.fromString("Chanaka"), 1L);
+        assertEquals(map.get(StringUtils.fromString("Chanaka")), 1L);
         for (int i = 0; i < 100; i++) {
-            map.put(new BString(String.valueOf(i)), new BInteger(i));
+            map.put(StringUtils.fromString(String.valueOf(i)), (long) i);
         }
         assertEquals(map.size(), 102);
-        assertEquals(map.get(new BString("51")), new BInteger(51));
+        assertEquals(map.get(StringUtils.fromString("51")), 51L);
 
-        map.remove(new BString("Chanaka"));
+        map.remove(StringUtils.fromString("Chanaka"));
         assertEquals(map.size(), 101);
 
-        map.remove(new BString("Chanaka"));
+        map.remove(StringUtils.fromString("Chanaka"));
         assertEquals(map.size(), 101);
     }
 
     @Test
     public void testBMapClear() {
-        BMap<BString, BInteger> map = new BMap<>();
-        map.put(new BString("IS"), new BInteger(0));
-        map.put(new BString("ESB"), new BInteger(1));
-        map.put(new BString("APIM"), new BInteger(2));
+        BMap map = ValueCreator.createMapValue();
+        map.put(StringUtils.fromString("IS"), 0L);
+        map.put(StringUtils.fromString("ESB"), 1L);
+        map.put(StringUtils.fromString("APIM"), 2L);
         assertEquals(map.size(), 3);
         map.clear();
         assertEquals(map.size(), 0);
@@ -77,13 +74,13 @@ public class BMapValueTest {
 
     @Test
     public void testBMapHasKey() {
-        BMap<BString, BInteger> map = new BMap<>();
-        map.put(new BString("IS"), new BInteger(0));
-        map.put(new BString("ESB"), new BInteger(1));
-        map.put(new BString("APIM"), new BInteger(2));
-        assertTrue(map.hasKey(new BString("IS")));
-        assertTrue(map.hasKey(new BString("ESB")));
-        assertTrue(map.hasKey(new BString("APIM")));
+        BMap map = ValueCreator.createMapValue();
+        map.put(StringUtils.fromString("IS"), (0));
+        map.put(StringUtils.fromString("ESB"), (1));
+        map.put(StringUtils.fromString("APIM"), (2));
+        assertTrue(map.containsKey(StringUtils.fromString("IS")));
+        assertTrue(map.containsKey(StringUtils.fromString("ESB")));
+        assertTrue(map.containsKey(StringUtils.fromString("APIM")));
     }
 
     @Test
@@ -93,65 +90,51 @@ public class BMapValueTest {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAny() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapWithAny", new BValue[0]);
+        Object returnVals = BRunUtil.invoke(programFile, "testMapWithAny", new Object[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
-        Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
-        Assert.assertNotNull(returnVals[0], "Return value can't be null.");
-        Assert.assertEquals(returnVals[0].stringValue(), "Lion", "Return value din't match. Expected Lion");
+        Assert.assertEquals(returnVals.toString(), "Lion", "Return value din't match. Expected Lion");
     }
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithMap() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapWithMap", new BValue[0]);
+        Object returnVals = BRunUtil.invoke(programFile, "testMapWithMap", new Object[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
-        Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
-        Assert.assertNotNull(returnVals[0], "Return value can't be null.");
-        Assert.assertEquals(returnVals[0].stringValue(), "item1", "Return value din't match.");
+        Assert.assertEquals(returnVals.toString(), "item1", "Return value din't match.");
     }
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAnyValue() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapWithAnyValue", new BValue[0]);
+        Object returnVals = BRunUtil.invoke(programFile, "testMapWithAnyValue", new Object[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
-        Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
-        Assert.assertNotNull(returnVals[0], "Return value can't be null.");
-        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 5, "Return value din't match.");
+        Assert.assertEquals(returnVals, 5L, "Return value didn't match.");
     }
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAnyDifferentValue() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapWithAnyDifferentValue", new BValue[0]);
-        Assert.assertNotNull(returnVals, "Return values can't be null.");
-        Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
-        Assert.assertNotNull(returnVals[0], "Return value can't be null.");
-        Assert.assertEquals(returnVals[0].stringValue(), "aString", "Return value din't match.");
+        Object returnVals = BRunUtil.invoke(programFile, "testMapWithAnyDifferentValue", new Object[0]);
+        Assert.assertNotNull(returnVals, "Return value can't be null.");
+        Assert.assertEquals(returnVals.toString(), "aString", "Return value din't match.");
     }
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithBinaryExpression() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapWithBinaryExpression", new BValue[0]);
+        Object returnVals = BRunUtil.invoke(programFile, "testMapWithBinaryExpression", new Object[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
-        Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
-        Assert.assertNotNull(returnVals[0], "Return value can't be null.");
-        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 3, "Return value din't match.");
+        Assert.assertEquals(returnVals, 3L, "Return value didn't match.");
     }
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithFunctionInvocations() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapWithFunctionInvocations", new BValue[0]);
+        Object returnVals = BRunUtil.invoke(programFile, "testMapWithFunctionInvocations", new Object[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
-        Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
-        Assert.assertNotNull(returnVals[0], "Return value can't be null.");
-        Assert.assertEquals(returnVals[0].stringValue(), "item1", "Return value din't match.");
+        Assert.assertEquals(returnVals.toString(), "item1", "Return value din't match.");
     }
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAnyFunctionInvocations() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapWithAnyFunctionInvocations", new BValue[0]);
+        Object returnVals = BRunUtil.invoke(programFile, "testMapWithAnyFunctionInvocations", new Object[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
-        Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
-        Assert.assertNotNull(returnVals[0], "Return value can't be null.");
-        Assert.assertEquals(returnVals[0].stringValue(), "item2", "Return value din't match.");
+        Assert.assertEquals(returnVals.toString(), "item2", "Return value din't match.");
     }
 
     @Test(description = "Testing map value access in variableDefStmt")
@@ -159,7 +142,7 @@ public class BMapValueTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-1-negative.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
-                            "incompatible types: expected 'string', found 'any'");
+                "incompatible types: expected 'string', found 'any'");
     }
 
     @Test(description = "Testing map value access in assignStmt")
@@ -167,7 +150,7 @@ public class BMapValueTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-2-negative.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
-                            "incompatible types: expected 'string', found 'any'");
+                "incompatible types: expected 'string', found 'any'");
     }
 
     @Test(description = "Testing map value access in binary expression")
@@ -175,7 +158,7 @@ public class BMapValueTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-3-negative.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].message(),
-                            "operator '+' not defined for 'any' and 'int'");
+                "operator '+' not defined for 'any' and 'int'");
     }
 
     @Test(description = "Testing convert map values to string")
@@ -189,38 +172,38 @@ public class BMapValueTest {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapOrder() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapOrder", new BValue[0]);
-        BMap<String, BRefType<?>> m = (BMap) returnVals[0];
-        String[] keys = m.keys();
+        Object returnVals = BRunUtil.invoke(programFile, "testMapOrder", new Object[0]);
+        BMap m = (BMap) returnVals;
+        Object[] keys = m.getKeys();
         int counter = 0;
-        String[] values = { "Element 1", "Element 2", "Element 3" };
-        for (String key : keys) {
-            Assert.assertEquals(m.get(key).stringValue(), values[counter]);
+        String[] values = {"Element 1", "Element 2", "Element 3"};
+        for (Object key : keys) {
+            Assert.assertEquals(m.get(key).toString(), values[counter]);
             counter++;
         }
-        String mapString = m.stringValue();
-        Assert.assertEquals(mapString, "{\"key1\":\"Element 1\", \"key2\":\"Element 2\", \"key3\":\"Element 3\"}");
+        String mapString = m.toString();
+        Assert.assertEquals(mapString, "{\"key1\":\"Element 1\",\"key2\":\"Element 2\",\"key3\":\"Element 3\"}");
     }
 
     @Test(description = "Test string representations of a map with a nil value", dependsOnMethods = "testGrammar")
     public void testMapStringRepresentation() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapStringRepresentation", new BValue[0]);
-        BMap<String, BRefType<?>> m = (BMap) returnVals[0];
-        String mapString = m.stringValue();
-        Assert.assertEquals(mapString, "{\"key1\":\"Element 1\", \"key2\":\"Element 2\", \"key3\":()}");
+        Object returnVals = BRunUtil.invoke(programFile, "testMapStringRepresentation", new Object[0]);
+        BMap m = (BMap) returnVals;
+        String mapString = m.toString();
+        Assert.assertEquals(mapString, "{\"key1\":\"Element 1\",\"key2\":\"Element 2\",\"key3\":null}");
     }
 
     @Test
-    public  void testBMapOrder() {
-        BMap<String, BRefType> map = new BMap<>();
-        map.put("Entry1", new BString("foo"));
-        map.put("Entry2", new BString("bar"));
-        map.put("Entry3", new BString("foobar"));
+    public void testBMapOrder() {
+        BMap map = ValueCreator.createMapValue();
+        map.put(StringUtils.fromString("Entry1"), StringUtils.fromString("foo"));
+        map.put(StringUtils.fromString("Entry2"), StringUtils.fromString("bar"));
+        map.put(StringUtils.fromString("Entry3"), StringUtils.fromString("foobar"));
 
-        String[] keys = map.keys();
-        Assert.assertEquals(map.get(keys[0]).stringValue(), "foo");
-        Assert.assertEquals(map.get(keys[1]).stringValue(), "bar");
-        Assert.assertEquals(map.get(keys[2]).stringValue(), "foobar");
+        Object[] keys = map.getKeys();
+        Assert.assertEquals(map.get(keys[0]).toString(), "foo");
+        Assert.assertEquals(map.get(keys[1]).toString(), "bar");
+        Assert.assertEquals(map.get(keys[2]).toString(), "foobar");
 
     }
 

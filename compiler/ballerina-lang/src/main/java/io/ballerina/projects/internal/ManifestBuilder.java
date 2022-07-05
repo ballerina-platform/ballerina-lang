@@ -19,7 +19,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
@@ -31,7 +30,6 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
@@ -59,13 +57,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
-import static io.ballerina.projects.util.ProjectUtils.guessOrgName;
-import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
+import static io.ballerina.projects.util.ProjectUtils.defaultName;
+import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
+import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
 
 /**
  * Build Manifest using toml files.
@@ -74,13 +74,13 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
  */
 public class ManifestBuilder {
 
-    private TomlDocument ballerinaToml;
-    private TomlDocument compilerPluginToml;
+    private final TomlDocument ballerinaToml;
+    private final TomlDocument compilerPluginToml;
     private DiagnosticResult diagnostics;
-    private List<Diagnostic> diagnosticList;
-    private PackageManifest packageManifest;
-    private BuildOptions buildOptions;
-    private Path projectPath;
+    private final List<Diagnostic> diagnosticList;
+    private final PackageManifest packageManifest;
+    private final BuildOptions buildOptions;
+    private final Path projectPath;
 
     private static final String PACKAGE = "package";
     private static final String VERSION = "version";
@@ -89,8 +89,13 @@ public class ManifestBuilder {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
+    private static final String INCLUDE = "include";
     private static final String PLATFORM = "platform";
     private static final String SCOPE = "scope";
+    private static final String TEMPLATE = "template";
+    public static final String ICON = "icon";
+    public static final String DISTRIBUTION = "distribution";
+    public static final String VISIBILITY = "visibility";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -157,18 +162,31 @@ public class ManifestBuilder {
         List<String> authors = Collections.emptyList();
         List<String> keywords = Collections.emptyList();
         List<String> exported = Collections.emptyList();
+        List<String> includes = Collections.emptyList();
         String repository = "";
         String ballerinaVersion = "";
+        String visibility = "";
+        boolean template = false;
+        String icon = "";
 
         if (!tomlAstNode.entries().isEmpty()) {
-            TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
-            if (pkgNode != null && pkgNode.kind() != TomlType.NONE && pkgNode.kind() == TomlType.TABLE) {
+            TopLevelNode topLevelPkgNode = tomlAstNode.entries().get(PACKAGE);
+            if (topLevelPkgNode != null && topLevelPkgNode.kind() == TomlType.TABLE) {
+                TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
                 license = getStringArrayFromPackageNode(pkgNode, LICENSE);
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
+                includes = getStringArrayFromPackageNode(pkgNode, INCLUDE);
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
-                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
+                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, DISTRIBUTION, "");
+                visibility = getStringValueFromTomlTableNode(pkgNode, VISIBILITY, "");
+                template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
+                icon = getStringValueFromTomlTableNode(pkgNode, ICON, "");
+
+                // we ignore file types except png here, since file type error will be shown
+                validateIconPathForPng(icon, pkgNode);
+                validateFilePathsForIncludes(includes, pkgNode);
             }
         }
 
@@ -198,56 +216,128 @@ public class ManifestBuilder {
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion);
+                diagnostics(), license, authors, keywords, exported, includes, repository, ballerinaVersion, visibility,
+                template, icon);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
         // set defaults
-        PackageOrg defaultOrg = PackageOrg.from(guessOrgName());
-        PackageName defaultName = PackageName.from(guessPkgName(Optional.ofNullable(this.projectPath.getFileName())
-                                                                        .map(Path::toString).orElse("")));
-        PackageVersion defaultVersion = PackageVersion.from(ProjectConstants.INTERNAL_VERSION);
         String org;
         String name;
         String version;
 
+        String errorMessage = "missing table '[package]' in 'Ballerina.toml'. Defaulting to:\n" +
+                "[package]\n" +
+                "org = \"" + defaultOrg().value() + "\"\n" +
+                "name = \"" + defaultName(this.projectPath).value() + "\"\n" +
+                "version = \"" + defaultVersion().value().toString() + "\"";
+
         if (tomlTableNode.entries().isEmpty()) {
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+            reportDiagnostic(tomlTableNode, errorMessage,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
+            return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
-        TomlTableNode pkgNode = (TomlTableNode) tomlTableNode.entries().get(PACKAGE);
-        if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+        TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
+        if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
+            reportDiagnostic(tomlTableNode, errorMessage,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
+            return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
-        if (pkgNode.entries().isEmpty()) {
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
-        }
+        TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
 
-        org = getStringValueFromTomlTableNode(pkgNode, "org", defaultOrg.value());
-        name = getStringValueFromTomlTableNode(pkgNode, "name", defaultName.value());
-        version = getStringValueFromTomlTableNode(pkgNode, VERSION, defaultVersion.value().toString());
+        org = getStringValueFromTomlTableNode(pkgNode, "org");
+        if (org == null) {
+            org = defaultOrg().value();
+            reportDiagnostic(pkgNode, "missing key 'org' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'org = \"" + org + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
+        }
+        name = getStringValueFromTomlTableNode(pkgNode, "name");
+        if (name == null) {
+            name = defaultName(this.projectPath).value();
+            reportDiagnostic(pkgNode, "missing key 'name' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'name = \"" + name + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
+        }
+        version = getStringValueFromTomlTableNode(pkgNode, VERSION);
+        if (version == null) {
+            version = defaultVersion().value().toString();
+            reportDiagnostic(pkgNode, "missing key 'version' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'version = \"" + version + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
+        }
 
         // check org is valid identifier
         boolean isValidOrg = ProjectUtils.validateOrgName(org);
         if (!isValidOrg) {
-            org = defaultOrg.value();
+            org = defaultOrg().value();
         }
 
         // check that the package name is valid
-        boolean isValidPkg = ProjectUtils.validatePackageName(name);
+        boolean isValidPkg = ProjectUtils.validatePackageName(org, name);
         if (!isValidPkg) {
-            name = defaultName.value();
+            name = defaultName(this.projectPath).value();
         }
 
         // check version is compatible with semver
         try {
             SemanticVersion.from(version);
         } catch (ProjectException e) {
-            version = defaultVersion.value().toString();
+            version = defaultVersion().value().toString();
         }
 
         return PackageDescriptor.from(PackageOrg.from(org), PackageName.from(name), PackageVersion.from(version));
+    }
+
+    private void validateIconPathForPng(String icon, TomlTableNode pkgNode) {
+        if (icon != null && hasPngExtension(icon)) {
+            Path iconPath = Paths.get(icon);
+            if (!iconPath.isAbsolute()) {
+                iconPath = this.projectPath.resolve(iconPath);
+            }
+
+            if (Files.notExists(iconPath)) {
+                // validate icon path
+                // if file path does not exist, throw this error
+                reportDiagnostic(pkgNode.entries().get(ICON),
+                        "could not locate icon path '" + icon + "'",
+                        "error.invalid.path", DiagnosticSeverity.ERROR);
+            } else {
+                // validate file content
+                // if other file types renamed as png, throw this error
+                try {
+                    if (!FileUtils.isValidPng(iconPath)) {
+                        reportDiagnostic(pkgNode.entries().get("icon"),
+                                "invalid 'icon' under [package]: 'icon' can only have 'png' images",
+                                "error.invalid.icon", DiagnosticSeverity.ERROR);
+                    }
+                } catch (IOException e) {
+                    // should not reach to this line
+                    throw new ProjectException("failed to read icon: '" + icon + "'");
+                }
+            }
+        }
+    }
+
+    private void validateFilePathsForIncludes(List<String> includes, TomlTableNode pkgNode) {
+        for (String include : includes) {
+            Path includePath = Path.of(include);
+            if (!includePath.isAbsolute()) {
+                includePath = this.projectPath.resolve(include);
+            }
+            if (Files.notExists(includePath)) {
+                reportDiagnostic(pkgNode.entries().get(INCLUDE),
+                        "could not locate include path '" + include + "'",
+                        "error.invalid.path", DiagnosticSeverity.ERROR);
+            }
+        }
     }
 
     private BuildOptions parseBuildOptions() {
@@ -295,7 +385,9 @@ public class ManifestBuilder {
                                             path = this.projectPath.resolve(path);
                                         }
                                         if (Files.notExists(path)) {
-                                            reportInvalidPathDiagnostic(platformEntryTable, pathValue);
+                                            reportDiagnostic(platformEntryTable.entries().get("path"),
+                                                    "could not locate dependency path '" + pathValue + "'",
+                                                    "error.invalid.path", DiagnosticSeverity.ERROR);
                                         }
                                     }
                                     platformEntryMap.put("path",
@@ -355,35 +447,36 @@ public class ManifestBuilder {
                     continue;
                 }
 
-                dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
+                dependencies.add(new PackageManifest.Dependency(
+                        depName, depOrg, depVersion, repository, dependencyNode.location()));
             }
         }
         return dependencies;
     }
 
-    private void reportInvalidPathDiagnostic(TomlTableNode tomlTableNode, String path) {
+    private void reportDiagnostic(TopLevelNode tomlTableNode,
+                                  String message,
+                                  String messageFormat,
+                                  DiagnosticSeverity severity) {
         DiagnosticInfo diagnosticInfo =
-                new DiagnosticInfo(null, "error.invalid.path", DiagnosticSeverity.ERROR);
+                new DiagnosticInfo(null, messageFormat, severity);
         TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(
-                tomlTableNode.entries().get("path").location(),
+                tomlTableNode.location(),
                 diagnosticInfo,
-                "could not locate dependency path '" + path + "'");
+                message);
         tomlTableNode.addDiagnostic(tomlDiagnostic);
     }
 
     private BuildOptions setBuildOptions(TomlTableNode tomlTableNode) {
-        TomlTableNode tableNode = (TomlTableNode) tomlTableNode.entries().get("build-options");
-        if (tableNode == null || tableNode.kind() == TomlType.NONE) {
+        TopLevelNode topLevelBuildOptionsNode = tomlTableNode.entries().get("build-options");
+        if (topLevelBuildOptionsNode == null || topLevelBuildOptionsNode.kind() != TomlType.TABLE) {
             return null;
         }
+        TomlTableNode tableNode = (TomlTableNode) topLevelBuildOptionsNode;
 
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
-        Boolean skipTests =
-                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
         Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
-        Boolean experimental =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
         Boolean observabilityIncluded =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
         Boolean testReport =
@@ -402,18 +495,24 @@ public class ManifestBuilder {
         Boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
-        return buildOptionsBuilder
-                .skipTests(skipTests)
-                .offline(offline)
-                .experimental(experimental)
-                .observabilityIncluded(observabilityIncluded)
-                .testReport(testReport)
-                .codeCoverage(codeCoverage)
-                .cloud(cloud)
-                .listConflictedClasses(listConflictedClasses)
-                .dumpBuildTime(dumpBuildTime)
-                .sticky(sticky)
-                .build();
+        String targetDir = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.TARGET_DIR.toString());
+
+        buildOptionsBuilder
+                .setOffline(offline)
+                .setObservabilityIncluded(observabilityIncluded)
+                .setTestReport(testReport)
+                .setCodeCoverage(codeCoverage)
+                .setCloud(cloud)
+                .setListConflictedClasses(listConflictedClasses)
+                .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir);
+        }
+
+        return buildOptionsBuilder.build();
     }
 
     private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
@@ -433,6 +532,40 @@ public class ManifestBuilder {
         return null;
     }
 
+    private String getStringFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return null;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.STRING) {
+                TomlStringValueNode tomlStringValueNode = (TomlStringValueNode) value;
+                return tomlStringValueNode.getValue();
+            }
+        }
+        return null;
+    }
+
+    private boolean getBooleanFromTemplateNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return false;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.BOOLEAN) {
+                TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
+                return tomlBooleanValueNode.getValue();
+            }
+        }
+        return false;
+    }
+
     private boolean getTrueFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
         TopLevelNode topLevelNode = tableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -448,6 +581,15 @@ public class ManifestBuilder {
             }
         }
         return true;
+    }
+
+    public static String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key) {
+        TopLevelNode topLevelNode = tomlTableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            // return default value
+            return null;
+        }
+        return getStringFromTomlTableNode(topLevelNode);
     }
 
     public static String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key, String defaultValue) {
@@ -498,5 +640,18 @@ public class ManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    /**
+     * Check file name has {@code .png} extension.
+     *
+     * @param fileName file name
+     * @return has {@code .png} extension
+     */
+    private boolean hasPngExtension(String fileName) {
+        String pngExtensionPattern = ".*.png$";
+        Pattern pattern = Pattern.compile(pngExtensionPattern);
+        Matcher matcher = pattern.matcher(fileName);
+        return matcher.find();
     }
 }

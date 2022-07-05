@@ -18,12 +18,7 @@
 
 package org.ballerinalang.test.types.var;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BDecimal;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -48,58 +43,50 @@ public class TopLevelVarDeclarationTest {
 
     @Test
     public void testGetInt() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetInt");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object returns = BRunUtil.invoke(result, "testGetInt");
+        Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testGetString() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetString");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((returns[0]).stringValue(), "Ballerina");
+        Object returns = BRunUtil.invoke(result, "testGetString");
+        Assert.assertEquals((returns).toString(), "Ballerina");
     }
 
     @Test
     public void testGetDecimal() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetDecimal");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal(100.0)), 0);
+        BDecimal returns = (BDecimal) BRunUtil.invoke(result, "testGetDecimal");
+        Assert.assertEquals(returns.value().compareTo(new BigDecimal(100.0)), 0);
     }
 
     @Test
     public void testGetBoolean() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetBoolean");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testGetBoolean");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testGetByte() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetByte");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BByte) returns[0]).byteValue(), 2);
+        Object returns = BRunUtil.invoke(result, "testGetByte");
+        Assert.assertEquals(returns, 2);
     }
 
     @Test
     public void testGetFloat() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetFloat");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+        Object returns = BRunUtil.invoke(result, "testGetFloat");
+        Assert.assertEquals(returns, 2.0);
     }
 
     @Test
     public void testFunctionInvocation() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocation");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"k\":\"v\"}");
+        Object returns = BRunUtil.invoke(result, "testFunctionInvocation");
+        Assert.assertEquals(returns.toString(), "{\"k\":\"v\"}");
     }
 
     @Test
     public void testVarAssign() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarAssign");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"x\":\"y\"}");
+        Object returns = BRunUtil.invoke(result, "testVarAssign");
+        Assert.assertEquals(returns.toString(), "{\"x\":\"y\"}");
     }
 
     @AfterClass

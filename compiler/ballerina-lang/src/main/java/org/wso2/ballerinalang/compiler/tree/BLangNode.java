@@ -18,16 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-
-import java.util.Set;
 
 /**
  * @since 0.94
  */
-public abstract class BLangNode implements Node {
+public abstract class BLangNode implements Node, Cloneable {
 
     protected BType type;
     public BLangNode parent = null;
@@ -51,7 +48,6 @@ public abstract class BLangNode implements Node {
      * The location of this node in the source file.
      */
     public Location pos;
-    private Set<Whitespace> ws;
 
     /*
      * Following fields will be used for AST Cloning.
@@ -101,17 +97,8 @@ public abstract class BLangNode implements Node {
 
     public abstract void accept(BLangNodeVisitor visitor);
 
-    @Override
-    public Set<Whitespace> getWS() {
-        return ws;
-    }
+    public abstract <T> void accept(BLangNodeAnalyzer<T> analyzer, T props);
 
-    @Override
-    public void addWS(Set<Whitespace> whitespaces) {
-        if (this.ws == null) {
-            this.ws = whitespaces;
-        } else if (whitespaces != null) {
-            this.ws.addAll(whitespaces);
-        }
-    }
+    public abstract <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props);
+
 }

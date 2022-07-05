@@ -15,7 +15,7 @@
 // under the License.
 
 function testCheckedExprErrors1() returns error? {
-    string line = checkpanic readLineError();
+    string _ = checkpanic readLineError();
     return;
 }
 
@@ -25,7 +25,7 @@ function readLineError() returns error {
 }
 
 function testCheckedExprErrors2() returns error? {
-    string line = checkpanic readLine();
+    string _ = checkpanic readLine();
     return;
 }
 

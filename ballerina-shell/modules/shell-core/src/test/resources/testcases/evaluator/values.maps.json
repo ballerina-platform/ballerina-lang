@@ -9,12 +9,20 @@
   },
   {
     "description": "Declare and initialize a `map` with a mapping constructor.",
-    "code": "map<string> addrMap = {line1: \"No. 20\", line2: \"Palm Grove\", city: \"Colombo 03\", country,  [codeLiteral]: \"00300\" }; addrMap; ",
+    "code": "map<string> addrMap = {line1: \"No. 20\", line2: \"Palm Grove\", city: \"Colombo 03\", country,  [codeLiteral]: \"00300\" };"
+  },
+  {
+    "description": "Declare and initialize a `map` with a mapping constructor - get value.",
+    "code": "addrMap;",
     "expr": "{\"line1\":\"No. 20\",\"line2\":\"Palm Grove\",\"city\":\"Colombo 03\",\"country\":\"Sri Lanka\",\"code\":\"00300\"}"
   },
   {
     "description": "Member access can be used to retrieve a value from a map.",
-    "code": "string? countryValue = addrMap[\"country\"]; countryValue",
+    "code": "string? countryValue = addrMap[\"country\"];"
+  },
+  {
+    "description": "Member access can be used to retrieve a value from a map - get value.",
+    "code": "countryValue",
     "expr": "\"Sri Lanka\""
   },
   {
@@ -29,7 +37,11 @@
   },
   {
     "description": "Member access expressions can be used on the left hand side of an assignment.",
-    "code": "addrMap[\"postalCode\"] = \"00300\"; addrMap",
+    "code": "addrMap[\"postalCode\"] = \"00300\";"
+  },
+  {
+    "description": "Member access expressions can be used on the left hand side of an assignment - get value.",
+    "code": "addrMap",
     "expr": "{\"line1\":\"No. 20\",\"line2\":\"Palm Grove\",\"city\":\"Colombo 03\",\"country\":\"Sri Lanka\",\"code\":\"00300\",\"postalCode\":\"00300\"}"
   },
   {
@@ -58,7 +70,11 @@
   },
   {
     "description": "A mapping constructor expression can also include a spread field.",
-    "code": "map<int> allMarks = {physics: 100, ...humanitiesMarks, chemistry: 75}; allMarks",
+    "code": "map<int> allMarks = {physics: 100, ...humanitiesMarks, chemistry: 75};"
+  },
+  {
+    "description": "A mapping constructor expression can also include a spread field - get value.",
+    "code": "allMarks",
     "expr": "{\"physics\":100,\"history\":80,\"geography\":75,\"chemistry\":75}"
   }
 ]

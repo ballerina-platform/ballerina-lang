@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 6,
+    "character": 45
+  },
+  "source": "convert_to_readonly_clone_source5.bal",
+  "expected": [
+    {
+      "title": "Convert to Readonly Clone",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 31
+            },
+            "end": {
+              "line": 6,
+              "character": 57
+            }
+          },
+          "newText": "(checkpanic getFirstValue()).cloneReadOnly()"
+        }
+      ]
+    }
+  ]
+}

@@ -31,21 +31,21 @@ import java.util.List;
 public class UpdateDocumentationExecutorTest extends AbstractCommandExecutionTest {
 
     @Test(dataProvider = "update-doc-data-provider")
-    public void testUpdateDocumentation(String config, String source) throws IOException {
-        performTest(config, source, UpdateDocumentationExecutor.COMMAND);
+    public void testUpdateDocumentation(String config) throws IOException {
+        performTest(config, UpdateDocumentationExecutor.COMMAND);
     }
 
     @DataProvider(name = "update-doc-data-provider")
     public Object[][] addDocDataProvider() {
         return new Object[][]{
-                {"updateDocumentationConfig1.json", "updateDocumentationSource1.bal"},
-                {"updateDocumentationConfig2.json", "updateDocumentationSource2.bal"},
-                {"updateDocumentationConfig3.json", "updateDocumentationSource3.bal"},
-                {"updateDocumentationConfig4.json", "updateDocumentationSource4.bal"},
-                {"updateDocumentationConfig5.json", "updateDocumentationSource5.bal"},
-                {"updateDocumentationWithDeprecatedConfig1.json", "updateDocumentationWithDeprecatedSource1.bal"},
-                {"updateDocumentationWithDeprecatedConfig2.json", "updateDocumentationWithDeprecatedSource2.bal"},
-                {"updateDocumentationWithDeprecatedConfig3.json", "updateDocumentationWithDeprecatedSource3.bal"},
+                {"updateDocumentationConfig1.json"},
+                {"updateDocumentationConfig2.json"},
+                {"updateDocumentationConfig3.json"},
+                {"updateDocumentationConfig4.json"},
+                {"updateDocumentationConfig5.json"},
+                {"updateDocumentationWithDeprecatedConfig1.json"},
+                {"updateDocumentationWithDeprecatedConfig2.json"},
+                {"updateDocumentationWithDeprecatedConfig3.json"},
         };
     }
 

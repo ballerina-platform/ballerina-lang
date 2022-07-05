@@ -52,8 +52,6 @@ dependencies {
 
     // Lang libs
 
-    balSource project(path: ':ballerina-observability', configuration: 'balSource')
-    balSource project(path: ':ballerina-observability-internal', configuration: 'balSource')
 //    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
 
     // Lang Libs
@@ -64,6 +62,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:error', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:floatingpoint', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:function', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:future', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:integer', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:map', configuration: 'balSource')

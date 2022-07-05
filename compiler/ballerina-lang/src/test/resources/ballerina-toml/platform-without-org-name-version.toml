@@ -11,6 +11,6 @@ version = "0.7.2"
 groupId = "swagger.io"
 
 [build-options]
-observabilityIncluded = true
+observabilityIncluded = false
 offline = true
 skipTests = false

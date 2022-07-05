@@ -15,22 +15,22 @@
 // under the License.
 
 function testStaticMatchPatternsBasic1() returns string[] {
-    string | int | boolean a1 = 12;
-    string | int | boolean a2 = "Hello";
-    string | int | boolean a3 = true;
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "Hello";
+    string|int|boolean a3 = true;
 
-    string | int | boolean a4 = 15;
-    string | int | boolean a5 = "HelloAgain";
-    string | int | boolean a6 = false;
+    string|int|boolean a4 = 15;
+    string|int|boolean a5 = "HelloAgain";
+    string|int|boolean a6 = false;
 
-    string | int | boolean a7 = "NothingToMatch";
+    string|int|boolean a7 = "NothingToMatch";
 
     string[] result = [foo(a1), foo(a2), foo(a3), foo(a4), foo(a5), foo(a6), foo(a7)];
 
     return result;
 }
 
-function foo(string | int | boolean a) returns string {
+function foo(string|int|boolean a) returns string {
     match a {
         12 => {
             return "Value is '12'";
@@ -55,32 +55,31 @@ function foo(string | int | boolean a) returns string {
     return "Value is 'Default'";
 }
 
-
 function testStaticMatchPatternsBasic2() returns string[] {
-    string | int | boolean a1 = 12;
-    string | int | boolean a2 = "Hello";
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "Hello";
 
-    string | int | boolean a3 = 15;
-    string | int | boolean a4 = "HelloWorld";
+    string|int|boolean a3 = 15;
+    string|int|boolean a4 = "HelloWorld";
 
-    string | int | boolean a5 = "HelloAgain";
-    string | int | boolean a6 = 34;
+    string|int|boolean a5 = "HelloAgain";
+    string|int|boolean a6 = 34;
 
-    string | int | boolean a7 = "NothingToMatch";
-    string | int | boolean a8 = false;
+    string|int|boolean a7 = "NothingToMatch";
+    string|int|boolean a8 = false;
 
-    string | int | boolean a9 = 15;
-    string | int | boolean a10 = 34;
+    string|int|boolean a9 = 15;
+    string|int|boolean a10 = 34;
 
-    string | int | boolean a11 = true;
-    string | int | boolean a12 = false;
+    string|int|boolean a11 = true;
+    string|int|boolean a12 = false;
 
     string[] result = [bar(a1, a2), bar(a3, a4), bar(a5, a6), bar(a7, a8), bar(a9, a10), bar(a11, a12)];
 
     return result;
 }
 
-function bar(string | int | boolean a, string | int | boolean b) returns string {
+function bar(string|int|boolean a, string|int|boolean b) returns string {
     match a {
         12 => {
             return "Value is '12'";
@@ -133,7 +132,7 @@ function testRecordStaticMatch() returns string[] {
     return result;
 }
 
-function tar1(Foo | map<any> | int f) returns string {
+function tar1(Foo|map<any>|int f) returns string {
 
     match f {
         {x: 12, y: "B"} => {
@@ -234,7 +233,7 @@ function tar3(anydata f) returns string {
     return "Value is 'Default'";
 }
 
-type Finite "A" | true | 15.2 | "B" | "C";
+type Finite "A"|true|15.2|"B"|"C";
 
 function testFiniteType() returns string {
     Finite a = 15.2;
@@ -312,37 +311,37 @@ function testStringLiteralKeyInRecordMatch() returns string {
 }
 
 function testStaticMatchOrPatterns1() returns string[] {
-    string | int | boolean a1 = 12;
-    string | int | boolean a2 = "Hello";
-    string | int | boolean a3 = true;
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "Hello";
+    string|int|boolean a3 = true;
 
-    string | int | boolean a4 = 15;
-    string | int | boolean a5 = "HelloAgain";
-    string | int | boolean a6 = false;
+    string|int|boolean a4 = 15;
+    string|int|boolean a5 = "HelloAgain";
+    string|int|boolean a6 = false;
 
-    string | int | boolean a7 = "NothingToMatch";
-    string | int | boolean a8 = 13;
-    string | int | boolean a9 = 14;
-    string | int | boolean a10 = "World";
-    string | int | boolean a11 = "Test";
+    string|int|boolean a7 = "NothingToMatch";
+    string|int|boolean a8 = 13;
+    string|int|boolean a9 = 14;
+    string|int|boolean a10 = "World";
+    string|int|boolean a11 = "Test";
 
     string[] result = [baz(a1), baz(a2), baz(a3), baz(a4), baz(a5), baz(a6), baz(a7), baz(a8), baz(a9), baz(a10), baz(a11)];
 
     return result;
 }
 
-function baz(string | int | boolean a) returns string {
+function baz(string|int|boolean a) returns string {
     match a {
-        12 | 13 | 14 => {
+        12|13|14 => {
             return "Value is : " + a.toString();
         }
-        "Hello" | "World" => {
+        "Hello"|"World" => {
             return "Value is : " + a.toString();
         }
-        15 | "Test" => {
+        15|"Test" => {
             return "Value is : " + a.toString();
         }
-        true | false => {
+        true|false => {
             return "Value is : " + a.toString();
         }
         "HelloAgain" => {
@@ -352,7 +351,6 @@ function baz(string | int | boolean a) returns string {
 
     return "Default value is : " + a.toString();
 }
-
 
 function testStaticMatchOrPatterns2() returns string[] {
 
@@ -378,13 +376,13 @@ function testStaticMatchOrPatterns2() returns string[] {
 function caz1(anydata f) returns string {
 
     match f {
-        15 | [12, "Ballerina"] => {
+        15|[12, "Ballerina"] => {
             return "Value is : " + f.toString();
         }
-        [15, "Ballerina"] | [20, "Ballerina"] | [20, "Bala"] => {
+        [15, "Ballerina"]|[20, "Ballerina"]|[20, "Bala"] => {
             return "Value is : " + f.toString();
         }
-        [15, "Bal", 100] | [15, "Bal", 200, 400] | [15, "Bal", "Ballerina", 5678, "Test"] => {
+        [15, "Bal", 100]|[15, "Bal", 200, 400]|[15, "Bal", "Ballerina", 5678, "Test"] => {
             return "Value is : " + f.toString();
         }
     }
@@ -396,7 +394,6 @@ type AnotherFoo record {
     int x;
     [string, Foo, string] y;
 };
-
 
 function testStaticMatchOrPatterns3() returns string[] {
 
@@ -416,20 +413,22 @@ function testStaticMatchOrPatterns3() returns string[] {
     return result;
 }
 
-function caz2(Foo | AnotherFoo | map<any> | int f) returns string {
+function caz2(Foo|AnotherFoo|map<any>|int f) returns string {
 
     match f {
-        {x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true} => {
+        {x: 10, y: "Ballerina"}|{x: 12, y: "Ballerina", z: true} => {
             return "Value is : 1st pattern - " + f.toString();
         }
-        {x: 12, y: "B"} | {x: 12, y: "Ballerina"} => {
+        {x: 12, y: "B"}|{x: 12, y: "Ballerina"} => {
             return "Value is : 2nd pattern - " + f.toString();
         }
-        {x: 15, y: ["Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"], z: 15.1} |
+        {x: 15, y: ["Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"], z: 15.1}|
         {x: 40, y: ["Tyrion", {x: 12, y: "Ballerina"}, "Lanister"], z: 56.9} => {
             return "Value is : 3rd pattern - " + f.toString();
         }
-        16 | 15 | {x: 10, y: "B"} => {return "Value is : 4th pattern - " + f.toString();}
+        16|15|{x: 10, y: "B"} => {
+            return "Value is : 4th pattern - " + f.toString();
+        }
         {x: 15, y: ["John", {x: 12, y: "Ballerina"}, "Snow"], z: 15.1} => {
             return "Value is : 5th pattern - " + f.toString();
         }
@@ -437,7 +436,6 @@ function caz2(Foo | AnotherFoo | map<any> | int f) returns string {
 
     return "Value is Default pattern - " + f.toString();
 }
-
 
 function testStaticMatchOrPatterns4() returns string[] {
 
@@ -461,17 +459,19 @@ function testStaticMatchOrPatterns4() returns string[] {
 function caz3(any f) returns string {
 
     match f {
-        {x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true} => {
+        {x: 10, y: "Ballerina"}|{x: 12, y: "Ballerina", z: true} => {
             return "Value is : 1st pattern - " + f.toString();
         }
-        {x: 12, y: "B"} | {x: 12, y: "Ballerina"} => {
+        {x: 12, y: "B"}|{x: 12, y: "Ballerina"} => {
             return "Value is : 2nd pattern - " + f.toString();
         }
-        {x: 15, y: ["Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"], z: 15.1} |
+        {x: 15, y: ["Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"], z: 15.1}|
         {x: 40, y: ["Tyrion", {x: 12, y: "Ballerina"}, "Lanister"], z: 56.9} => {
             return "Value is : 3rd pattern - " + f.toString();
         }
-        16 | 15 | {x: 10, y: "B"} => {return "Value is : 4th pattern - " + f.toString();}
+        16|15|{x: 10, y: "B"} => {
+            return "Value is : 4th pattern - " + f.toString();
+        }
         {x: 15, y: ["John", {x: 12, y: "Ballerina"}, "Snow"], z: 15.1} => {
             return "Value is : 5th pattern - " + f.toString();
         }
@@ -483,10 +483,18 @@ function caz3(any f) returns string {
 function testBracedUnionType() returns string {
     any|error a = 12;
     match a {
-        1 | 2 => {return "1|2";}
-        3 | 4 => {return "3|4";}
-        11 | 12 => {return "11|12";}
-        _ => {return "Default";}
+        1|2 => {
+            return "1|2";
+        }
+        3|4 => {
+            return "3|4";
+        }
+        11|12 => {
+            return "11|12";
+        }
+        _ => {
+            return "Default";
+        }
     }
     return "NoMatch";
 }
@@ -541,7 +549,7 @@ function testMatchingConstTypesWithConstPatterns() returns string[] {
     return results;
 }
 
-function caz5(CONST_1 | CONST_2 | CONST_3 | CONST_4 a) returns string {
+function caz5(CONST_1|CONST_2|CONST_3|CONST_4 a) returns string {
     string results = "";
 
     match a {
@@ -660,8 +668,12 @@ function foo9(any x) returns string {
 function testErrorShouldNotMatchWildCardPattern() returns string {
     any|error v = error("{UserGenError}Error");
     match v {
-        0 => { return "zero"; }
-        _ => { return "other"; }
+        0 => {
+            return "zero";
+        }
+        _ => {
+            return "other";
+        }
     }
     return "no-match";
 }

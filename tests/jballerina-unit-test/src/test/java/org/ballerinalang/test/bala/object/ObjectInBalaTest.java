@@ -17,11 +17,8 @@
 */
 package org.ballerinalang.test.bala.object;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -50,333 +47,344 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleObjectAsStruct");
+        Object resultObject = BRunUtil.invoke(result, "testSimpleObjectAsStruct");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(returns[1].stringValue(), "sample name");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
-        Assert.assertEquals(returns[3].stringValue(), "february");
+        Assert.assertEquals(returns.get(0), 10L);
+        Assert.assertEquals(returns.get(1).toString(), "sample name");
+        Assert.assertEquals(returns.get(2), 50L);
+        Assert.assertEquals(returns.get(3).toString(), "february");
     }
 
     @Test(description = "Test Object field defaultable")
     public void testObjectFieldDefaultable() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectFieldDefaultable");
+        Object resultObject = BRunUtil.invoke(result, "testObjectFieldDefaultable");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(returns[1].stringValue(), "sample name");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
-        Assert.assertEquals(returns[3].stringValue(), "february");
+        Assert.assertEquals(returns.get(0), 10L);
+        Assert.assertEquals(returns.get(1).toString(), "sample name");
+        Assert.assertEquals(returns.get(2), 50L);
+        Assert.assertEquals(returns.get(3).toString(), "february");
     }
 
     @Test(description = "Test Basic object as struct with just new")
     public void testBasicStructAsObjectWithJustNew() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleObjectAsStructWithNew");
+        Object resultObject = BRunUtil.invoke(result, "testSimpleObjectAsStructWithNew");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(returns[1].stringValue(), "sample name");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
-        Assert.assertEquals(returns[3].stringValue(), "february");
+        Assert.assertEquals(returns.get(0), 10L);
+        Assert.assertEquals(returns.get(1).toString(), "sample name");
+        Assert.assertEquals(returns.get(2), 50L);
+        Assert.assertEquals(returns.get(3).toString(), "february");
     }
 
     @Test(description = "Test object with init function")
     public void testObjectWithSimpleInit() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithSimpleInit");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithSimpleInit");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 17);
-        Assert.assertEquals(returns[1].stringValue(), "sample value1");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 99);
-        Assert.assertEquals(returns[3].stringValue(), "default value");
+        Assert.assertEquals(returns.get(0), 17L);
+        Assert.assertEquals(returns.get(1).toString(), "sample value1");
+        Assert.assertEquals(returns.get(2), 99L);
+        Assert.assertEquals(returns.get(3).toString(), "default value");
     }
 
     @Test(description = "Test object with defaultable field in init function")
     public void testObjectWithDefaultableField() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithDefaultableValues");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithDefaultableValues");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 109);
-        Assert.assertEquals(returns[1].stringValue(), "sample value1");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
-        Assert.assertEquals(returns[3].stringValue(), "default value");
+        Assert.assertEquals(returns.get(0), 109L);
+        Assert.assertEquals(returns.get(1).toString(), "sample value1");
+        Assert.assertEquals(returns.get(2), 50L);
+        Assert.assertEquals(returns.get(3).toString(), "default value");
     }
 
     @Test(description = "Test object with init with different values")
     public void testObjectWithSimpleInitWithDiffValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithSimpleInitWithDiffValues");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithSimpleInitWithDiffValues");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 37);
-        Assert.assertEquals(returns[1].stringValue(), "sample value1");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 675);
-        Assert.assertEquals(returns[3].stringValue(), "adding value in invocation");
+        Assert.assertEquals(returns.get(0), 37L);
+        Assert.assertEquals(returns.get(1).toString(), "sample value1");
+        Assert.assertEquals(returns.get(2), 675L);
+        Assert.assertEquals(returns.get(3).toString(), "adding value in invocation");
     }
 
     @Test(description = "Test object without RHS type")
     public void testObjectWithoutRHSType() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithoutRHSType");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithoutRHSType");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 37);
-        Assert.assertEquals(returns[1].stringValue(), "sample value1");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 675);
-        Assert.assertEquals(returns[3].stringValue(), "adding value in invocation");
+        Assert.assertEquals(returns.get(0), 37L);
+        Assert.assertEquals(returns.get(1).toString(), "sample value1");
+        Assert.assertEquals(returns.get(2), 675L);
+        Assert.assertEquals(returns.get(3).toString(), "adding value in invocation");
     }
 
     @Test(description = "Test object with init attached function")
     public void testObjectWithAttachedFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithAttachedFunc1");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithAttachedFunc1");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 361);
-        Assert.assertEquals(returns[1].stringValue(), "added values february");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 99);
-        Assert.assertEquals(returns[3].stringValue(), "february");
+        Assert.assertEquals(returns.get(0), 361L);
+        Assert.assertEquals(returns.get(1).toString(), "added values february");
+        Assert.assertEquals(returns.get(2), 99L);
+        Assert.assertEquals(returns.get(3).toString(), "february");
     }
 
     @Test(description = "Test object with self keyword")
     public void testObjectWithSelfKeyword() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithSelfKeyword");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithSelfKeyword");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "sample name");
-        Assert.assertEquals(returns[1].stringValue(), "sample name");
-        Assert.assertEquals(returns[2].stringValue(), "sample name");
-        Assert.assertEquals(returns[3].stringValue(), "sample name");
+        Assert.assertEquals(returns.get(0).toString(), "sample name");
+        Assert.assertEquals(returns.get(1).toString(), "sample name");
+        Assert.assertEquals(returns.get(2).toString(), "sample name");
+        Assert.assertEquals(returns.get(3).toString(), "sample name");
     }
 
     @Test(description = "Test object with byte type fields")
     public void testObjectWithByteTypeFields() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithByteTypeFields");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithByteTypeFields");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-        Assert.assertSame(returns[1].getClass(), BValueArray.class);
-        Assert.assertSame(returns[2].getClass(), BValueArray.class);
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof  BArray);
+        Assert.assertTrue(returns.get(1) instanceof  BArray);
+        Assert.assertTrue(returns.get(2) instanceof  BArray);
 
         byte[] bytes1 = new byte[]{3, 4, 5, 8};
         byte[] bytes2 = ByteArrayUtils.decodeBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==");
         byte[] bytes3 = ByteArrayUtils.hexStringToByteArray("aaabcfccadafcd341a4bdfabcd8912df");
-        BValueArray blobArray1 = (BValueArray) returns[0];
-        BValueArray blobArray2 = (BValueArray) returns[1];
-        BValueArray blobArray3 = (BValueArray) returns[2];
-        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blobArray1);
-        ByteArrayUtils.assertJBytesWithBBytes(bytes2, blobArray2);
-        ByteArrayUtils.assertJBytesWithBBytes(bytes3, blobArray3);
+        BArray blobArray1 = (BArray) returns.get(0);
+        BArray blobArray2 = (BArray) returns.get(1);
+        BArray blobArray3 = (BArray) returns.get(2);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blobArray1.getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(bytes2, blobArray2.getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(bytes3, blobArray3.getBytes());
     }
 
     @Test(description = "Test object with calling attached functions")
     public void testObjectCallAttachedFunctions() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectCallAttachedFunctions");
+        Object resultObject = BRunUtil.invoke(result, "testObjectCallAttachedFunctions");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "sample name");
-        Assert.assertEquals(returns[1].stringValue(), "sample name");
-        Assert.assertEquals(returns[2].stringValue(), "sample name");
-        Assert.assertEquals(returns[3].stringValue(), "sample name");
+        Assert.assertEquals(returns.get(0).toString(), "sample name");
+        Assert.assertEquals(returns.get(1).toString(), "sample name");
+        Assert.assertEquals(returns.get(2).toString(), "sample name");
+        Assert.assertEquals(returns.get(3).toString(), "sample name");
     }
 
     @Test(description = "Test object inside object with different values")
     public void testObjectInsideObject() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectInsideObject");
+        Object resultObject = BRunUtil.invoke(result, "testObjectInsideObject");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "sample name");
-        Assert.assertEquals(returns[1].stringValue(), "changed value");
+        Assert.assertEquals(returns.get(0).toString(), "sample name");
+        Assert.assertEquals(returns.get(1).toString(), "changed value");
     }
 
     @Test(description = "Test object self as a value")
     public void testObjectPassSelfAsValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetValueFromPassedSelf");
+        Object returns = BRunUtil.invoke(result, "testGetValueFromPassedSelf");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(returns[0].stringValue(), "sample name");
+        Assert.assertEquals(returns.toString(), "sample name");
     }
 
     @Test(description = "Test object with init attached function")
     public void testObjectWithAttachedFunction1() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithInterface");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithInterface");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 80);
-        Assert.assertEquals(returns[1].stringValue(), "sample value1");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 100);
-        Assert.assertEquals(returns[3].stringValue(), "adding value in invocation uuuu");
+        Assert.assertEquals(returns.get(0), 80L);
+        Assert.assertEquals(returns.get(1).toString(), "sample value1");
+        Assert.assertEquals(returns.get(2), 100L);
+        Assert.assertEquals(returns.get(3).toString(), "adding value in invocation uuuu");
     }
 
     @Test(description = "Test object with default initializer")
     public void testObjectWithWithDefaultInitialize() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetDefaultValuesInObject");
+        Object resultObject = BRunUtil.invoke(result, "testGetDefaultValuesInObject");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(returns[1].stringValue(), "sample value");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
-        Assert.assertEquals(returns[3].stringValue(), "");
+        Assert.assertEquals(returns.get(0), 0L);
+        Assert.assertEquals(returns.get(1).toString(), "sample value");
+        Assert.assertEquals(returns.get(2), 0L);
+        Assert.assertEquals(returns.get(3).toString(), "");
     }
 
     @Test(description = "Test passing value to a defaultable object field")
     public void testPassingValueForDefaultableObjectField() {
         CompileResult compileResult = BCompileUtil
                                   .compile("test-src/object/object_values_for_defaultable_field.bal");
-        BValue[] returns = BRunUtil.invoke(compileResult, "passValueForDefaultableObjectField");
+        Object resultObject = BRunUtil.invoke(compileResult, "passValueForDefaultableObjectField");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
-        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
+        Assert.assertEquals(returns.get(0), 50L);
+        Assert.assertEquals(returns.get(1).toString(), "passed in name value");
     }
 
     @Test(description = "Test shadowing object field")
     public void testShadowingObjectField() {
-        BValue[] returns = BRunUtil.invoke(result, "testShadowingObjectField");
+        Object resultObject = BRunUtil.invoke(result, "testShadowingObjectField");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
-        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
+        Assert.assertEquals(returns.get(0), 50L);
+        Assert.assertEquals(returns.get(1).toString(), "passed in name value");
     }
 
     @Test(description = "Test initializing object in return statement with same type")
     public void testNewAsReturnWithSameType() {
-        BValue[] returns = BRunUtil.invoke(result, "testCreateObjectInReturnSameType");
+        Object returns = BRunUtil.invoke(result, "testCreateObjectInReturnSameType");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertTrue(returns instanceof Long);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Assert.assertEquals(returns, 5L);
     }
 
     @Test(description = "Test initializing object in return statement with different type")
     public void testNewAsReturnWithDifferentType() {
-        BValue[] returns = BRunUtil.invoke(result, "testCreateObjectInReturnDifferentType");
+        Object returns = BRunUtil.invoke(result, "testCreateObjectInReturnDifferentType");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertTrue(returns instanceof Long);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+        Assert.assertEquals(returns, 12L);
     }
 
     @Test(description = "Test object with default initialize global variable")
     public void testObjectWithDefaultInitializeGlobalVar() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetDefaultValuesInObjectGlobalVar");
+        Object resultObject = BRunUtil.invoke(result, "testGetDefaultValuesInObjectGlobalVar");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertTrue(returns.get(3) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(returns[1].stringValue(), "sample value");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
-        Assert.assertEquals(returns[3].stringValue(), "");
+        Assert.assertEquals(returns.get(0), 0L);
+        Assert.assertEquals(returns.get(1).toString(), "sample value");
+        Assert.assertEquals(returns.get(2), 0L);
+        Assert.assertEquals(returns.get(3).toString(), "");
     }
 
     @Test(description = "Test object self reference with defaultable")
     public void testObjectSelfreferenceWithDefaultable() {
-        BValue[] returns = BRunUtil.invoke(result, "testCyclicReferenceWithDefaultable");
+        Object returns = BRunUtil.invoke(result, "testCyclicReferenceWithDefaultable");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertTrue(returns instanceof Long);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 89);
+        Assert.assertEquals(returns, 89L);
     }
 
     @Test(description = "Test object recursive reference with nillable")
     public void testRecursiveObjectRefWithNillable() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecursiveObjectWithNill");
+        Object returns = BRunUtil.invoke(result, "testRecursiveObjectWithNill");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertTrue(returns instanceof Long);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 90);
+        Assert.assertEquals(returns, 90L);
     }
 
     @Test(description = "Test object field with expr as defaultable")
     public void testFieldWithExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testFieldWithExpr");
+        Object resultObject = BRunUtil.invoke(result, "testFieldWithExpr");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
-        Assert.assertEquals(returns[1].stringValue(), "sanjiva");
+        Assert.assertEquals(returns.get(0), 88L);
+        Assert.assertEquals(returns.get(1).toString(), "sanjiva");
     }
 
     @Test (description = "Negative test to test multiple attach functions for same function interface and " +
@@ -468,34 +476,38 @@ public class ObjectInBalaTest {
 
     @Test
     public void testObjectReferingTypeFromBala_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_1");
-        Assert.assertEquals(returns.length, 2);
+        Object resultObject = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_1");
+        BArray returns = (BArray) resultObject;
 
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertEquals(returns[0].stringValue(), "Hello John");
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 800.0);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof Double);
+
+        Assert.assertEquals(returns.get(0).toString(), "Hello John");
+        Assert.assertEquals(returns.get(1), 800.0);
     }
 
     @Test
     public void testObjectReferingTypeFromBala_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_2");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "Hello Jane");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
+        Object resultObject = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_2");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Hello Jane");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 1800.0);
     }
 
     @Test
     public void testObjectReferingTypeFromBala_3() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_3");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "Good morning Jane");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
+        Object resultObject = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_3");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Good morning Jane");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), 1800.0);
     }
 
     @Test
@@ -526,9 +538,8 @@ public class ObjectInBalaTest {
                 "mismatched visibility qualifiers for field 'dpt' with object type inclusion",
                 36, 5);
         BAssertUtil.validateError(result, i++,
-                "incompatible type reference 'foo:NormalPerson': a referenced object cannot have " +
-                        "non-public fields or methods",
-                42, 6);
+                "incompatible type reference 'foo:NormalPerson': a referenced type across modules cannot " +
+                        "have non-public fields or methods", 42, 6);
         BAssertUtil.validateError(result, i++,
                 "no implementation found for the method 'getSalary' of class 'Emp'", 45, 1);
         BAssertUtil.validateError(result, i,

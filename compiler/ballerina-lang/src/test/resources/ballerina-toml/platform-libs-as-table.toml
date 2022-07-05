@@ -1,0 +1,16 @@
+[package]
+org = "foo"
+name = "mod"
+version = "0.0.1"
+
+[platform.java11.dependency]
+path = "../dummy-jars/toml4j.txt"
+artifactId = "toml4j"
+version = "0.7.2"
+groupId = "com.moandjiezana.toml"
+
+[platform.java11.dependency]
+path = "../dummy-jars/swagger.txt"
+artifactId = "swagger"
+version = "0.7.2"
+groupId = "swagger.io"

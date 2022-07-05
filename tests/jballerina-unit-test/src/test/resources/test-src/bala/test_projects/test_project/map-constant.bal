@@ -236,3 +236,29 @@ map<()>[] na1 = [nm11];
 public function getNA1() returns map<()>[] {
     return na1;
 }
+
+public const XCONST = 1;
+
+public const map<int> BCONST = {
+    a: XCONST,
+    b: 2
+};
+
+public const map<map<int>> CCONST = {
+    a: BCONST,
+    b: {
+        a: 3
+    }
+};
+
+public const map<int> ECONST = {
+    a: XCONST,
+    b: 2
+};
+
+public const map<map<int>> FCONST = {
+    a: ECONST,
+    b: {
+        a: 1
+    }
+};

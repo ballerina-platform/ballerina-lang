@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import java.util.List;
  */
 public class BLangXMLSequenceLiteral extends BLangExpression implements XMLLiteralNode {
 
+    // BLangNodes
     public List<BLangExpression> xmlItems;
 
     public BLangXMLSequenceLiteral() {
@@ -38,6 +41,16 @@ public class BLangXMLSequenceLiteral extends BLangExpression implements XMLLiter
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

@@ -675,6 +675,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public void visit(ArrayDimensionNode arrayDimensionNode) {
+        visitSyntaxNode(arrayDimensionNode);
+    }
+
     public void visit(TransactionStatementNode transactionStatementNode) {
         visitSyntaxNode(transactionStatementNode);
     }
@@ -821,6 +825,10 @@ public abstract class NodeVisitor {
 
     public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
+    }
+
+    public void visit(SpreadMemberNode spreadMemberNode) {
+        visitSyntaxNode(spreadMemberNode);
     }
 
     // Tokens

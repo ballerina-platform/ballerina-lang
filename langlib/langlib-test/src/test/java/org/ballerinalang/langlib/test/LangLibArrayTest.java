@@ -18,22 +18,21 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -52,50 +51,55 @@ public class LangLibArrayTest {
         compileResult = BCompileUtil.compile("test-src/arraylib_test.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
+
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object returns = BRunUtil.invoke(compileResult, "testLength");
+        assertEquals(returns, 4L);
     }
 
     @Test
     public void testIterator() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
-        assertEquals(returns[0].stringValue(), "HelloWorld!FromBallerina");
+        Object returns = BRunUtil.invoke(compileResult, "testIterator");
+        assertEquals(returns.toString(), "HelloWorld!FromBallerina");
     }
 
     @Test
     public void testEnumerate() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testEnumerate");
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testEnumerate");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BValueArray arr = (BValueArray) returns[0];
-        assertEquals(arr.elementType.getTag(), TypeTags.TUPLE_TAG);
+        BArray arr = (BArray) returns;
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.TUPLE_TAG);
 
-        BValueArray elem = (BValueArray) arr.getRefValue(0);
-        assertEquals(((BInteger) elem.getRefValue(0)).intValue(), 0);
-        assertEquals(elem.getRefValue(1).stringValue(), "Hello");
+        BArray elem = (BArray) arr.getRefValue(0);
+        assertEquals(elem.getRefValue(0), 0L);
+        assertEquals(elem.getRefValue(1).toString(), "Hello");
 
-        elem = (BValueArray) arr.getRefValue(1);
-        assertEquals(((BInteger) elem.getRefValue(0)).intValue(), 1);
-        assertEquals(elem.getRefValue(1).stringValue(), "World!");
+        elem = (BArray) arr.getRefValue(1);
+        assertEquals(elem.getRefValue(0), 1L);
+        assertEquals(elem.getRefValue(1).toString(), "World!");
 
-        elem = (BValueArray) arr.getRefValue(2);
-        assertEquals(((BInteger) elem.getRefValue(0)).intValue(), 2);
-        assertEquals(elem.getRefValue(1).stringValue(), "From");
+        elem = (BArray) arr.getRefValue(2);
+        assertEquals(elem.getRefValue(0), 2L);
+        assertEquals(elem.getRefValue(1).toString(), "From");
 
-        elem = (BValueArray) arr.getRefValue(3);
-        assertEquals(((BInteger) elem.getRefValue(0)).intValue(), 3);
-        assertEquals(elem.getRefValue(1).stringValue(), "Ballerina");
+        elem = (BArray) arr.getRefValue(3);
+        assertEquals(elem.getRefValue(0), 3L);
+        assertEquals(elem.getRefValue(1).toString(), "Ballerina");
     }
 
     @Test
     public void testMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BValueArray arr = (BValueArray) returns[0];
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        BArray arr = (BArray) returns;
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.INT_TAG);
         assertEquals(arr.getInt(0), 1);
         assertEquals(arr.getInt(1), 2);
         assertEquals(arr.getInt(2), 3);
@@ -104,37 +108,37 @@ public class LangLibArrayTest {
 
     @Test
     public void testForeach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(returns[0].stringValue(), "HelloWorld!fromBallerina");
+        Object returns = BRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns.toString(), "HelloWorld!fromBallerina");
     }
 
     @Test
     public void testSlice() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSlice");
-        BValueArray result = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testSlice");
+        BArray result = (BArray) returns;
 
-        BValueArray arr = (BValueArray) result.getRefValue(0);
-        assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
+        BArray arr = (BArray) result.getRefValue(0);
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.FLOAT_TAG);
         assertEquals(arr.size(), 3);
         assertEquals(arr.getFloat(0), 23.45);
         assertEquals(arr.getFloat(1), 34.56);
         assertEquals(arr.getFloat(2), 45.67);
-        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 3);
+        assertEquals(result.getRefValue(1), 3L);
 
-        arr = (BValueArray) result.getRefValue(2);
-        assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
+        arr = (BArray) result.getRefValue(2);
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.FLOAT_TAG);
         assertEquals(arr.size(), 3);
         assertEquals(arr.getFloat(0), 34.56);
         assertEquals(arr.getFloat(1), 45.67);
         assertEquals(arr.getFloat(2), 56.78);
-        assertEquals(((BInteger) result.getRefValue(3)).intValue(), 3);
+        assertEquals(result.getRefValue(3), 3L);
 
-        arr = (BValueArray) result.getRefValue(4);
-        assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
+        arr = (BArray) result.getRefValue(4);
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.FLOAT_TAG);
         assertEquals(arr.size(), 2);
         assertEquals(arr.getFloat(0), 45.67);
         assertEquals(arr.getFloat(1), 56.78);
-        assertEquals(((BInteger) result.getRefValue(5)).intValue(), 2);
+        assertEquals(result.getRefValue(5), 2L);
     }
 
     @Test(dataProvider = "testSliceOfReadonlyArrays")
@@ -162,39 +166,6 @@ public class LangLibArrayTest {
         Assert.fail();
     }
 
-    @Test
-    public void testPushAfterSlice() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSlice");
-        BValueArray result = (BValueArray) returns[0];
-
-        assertEquals(((BInteger) result.getRefValue(0)).intValue(), 3);
-        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 4);
-
-        BValueArray arr = (BValueArray) result.getRefValue(2);
-        assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
-        assertEquals(arr.size(), 4);
-        assertEquals(arr.getFloat(0), 23.45);
-        assertEquals(arr.getFloat(1), 34.56);
-        assertEquals(arr.getFloat(2), 45.67);
-        assertEquals(arr.getFloat(3), 20.1);
-    }
-
-    @Test
-    public void testPushAfterSliceFixed() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSliceFixed");
-        BValueArray result = (BValueArray) returns[0];
-
-        assertEquals(((BInteger) result.getRefValue(0)).intValue(), 2);
-        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 3);
-
-        BValueArray arr = (BValueArray) result.getRefValue(2);
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
-        assertEquals(arr.size(), 3);
-        assertEquals(arr.getInt(0), 4);
-        assertEquals(arr.getInt(1), 5);
-        assertEquals(arr.getInt(2), 88);
-    }
-
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
                     "\\{\"message\":\"incompatible types: expected '\\(map<string> & readonly\\)', " +
@@ -206,13 +177,15 @@ public class LangLibArrayTest {
 
     @Test
     public void testRemove() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemove");
-        assertEquals(returns[0].stringValue(), "FooFoo");
+        Object returns = BRunUtil.invoke(compileResult, "testRemove");
+        BArray result = (BArray) returns;
 
-        assertEquals(returns[1].getType().getTag(), TypeTags.ARRAY_TAG);
-        BValueArray arr = (BValueArray) returns[1];
+        assertEquals(result.get(0).toString(), "FooFoo");
 
-        assertEquals(arr.elementType.getTag(), TypeTags.STRING_TAG);
+        assertEquals(getType(result.get(1)).getTag(), TypeTags.ARRAY_TAG);
+        BArray arr = (BArray) result.get(1);
+
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.STRING_TAG);
         assertEquals(arr.size(), 3);
         assertEquals(arr.getString(0), "Foo");
         assertEquals(arr.getString(1), "Bar");
@@ -221,122 +194,81 @@ public class LangLibArrayTest {
 
     @Test
     public void testReduce() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(((BFloat) returns[0]).floatValue(), 13.8);
+        Object returns = BRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 13.8);
     }
 
     @Test
     public void testIterableOpChain() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
-        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
+        Object returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
+        assertEquals(returns, 3.25);
     }
 
     @Test
     public void testIterableOpChain2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain2");
-        assertEquals(((BInteger) returns[0]).intValue(), 420);
+        Object returns = BRunUtil.invoke(compileResult, "testIterableOpChain2");
+        assertEquals(returns, 420L);
     }
 
     @Test
     public void testIndexOf() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
-        assertNull(returns[1]);
-    }
-
-    @Test
-    public void testLastIndexOf() {
-        BRunUtil.invoke(compileResult, "testLastIndexOf");
-    }
-
-    @Test
-    public void testReverseInt() {
-        BRunUtil.invoke(compileResult, "testReverseInt");
-    } 
-
-    @Test
-    public void testReverseFloat() {
-        BRunUtil.invoke(compileResult, "testReverseFloat");
-    }
-
-    @Test
-    public void testReverseStr() {
-        BRunUtil.invoke(compileResult, "testReverseStr");
-    }
-
-    @Test
-    public void testReverseBool() {
-        BRunUtil.invoke(compileResult, "testReverseBool");
-    }
-
-    @Test
-    public void testReverseByte() {
-        BRunUtil.invoke(compileResult, "testReverseByte");
-    }
-
-    @Test
-    public void testReverseMap() {
-        BRunUtil.invoke(compileResult, "testReverseMap");
-    }
-
-    @Test
-    public void testReverseRecord() {
-        BRunUtil.invoke(compileResult, "testReverseRecord");
-    }
-
-    @Test
-    public void testArrayReverseEquality() {
-        BRunUtil.invoke(compileResult, "testArrayReverseEquality");
+        Object returns = BRunUtil.invoke(compileResult, "testIndexOf");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0), 4L);
+        assertNull(result.get(1));
     }
 
     @Test
     public void testForEach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
-        assertEquals(returns[0].stringValue(), "SunMonTues");
+        Object returns = BRunUtil.invoke(compileResult, "testForEach");
+        assertEquals(returns.toString(), "SunMonTues");
     }
 
     @Test(dataProvider = "setLengthDataProvider")
-    public void testSetLength(int setLengthTo, int lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetLength", new BValue[] {new BInteger(setLengthTo)});
-        assertEquals(((BInteger) returns[0]).intValue(), lenAfterSet);
-        assertEquals(returns[1].stringValue(), arrayAfterSet);
-        assertEquals(returns[2].stringValue(), arrayLenPlusOneAfterSet);
+    public void testSetLength(int setLengthTo, long lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
+        Object returns = BRunUtil.invoke(compileResult, "testSetLength", new Object[] {(setLengthTo)});
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0), lenAfterSet);
+        assertEquals(result.get(1).toString(), arrayAfterSet);
+        assertEquals(result.get(2).toString(), arrayLenPlusOneAfterSet);
     }
 
     @DataProvider(name = "setLengthDataProvider")
     public static Object[][] setLengthDataProvider() {
-        return new Object[][] {
-                { 0, 0, "[]",                       "[0]"},
-                { 1, 1, "[1]",                      "[1, 0]"},
-                { 6, 6, "[1, 2, 3, 4, 5, 6]",       "[1, 2, 3, 4, 5, 6, 0]"},
-                { 7, 7, "[1, 2, 3, 4, 5, 6, 7]",    "[1, 2, 3, 4, 5, 6, 7, 0]"},
-                { 8, 8, "[1, 2, 3, 4, 5, 6, 7, 0]", "[1, 2, 3, 4, 5, 6, 7, 0, 0]"},
+        return new Object[][]{
+                {0, 0, "[]", "[0]"},
+                {1, 1, "[1]", "[1,0]"},
+                {6, 6, "[1,2,3,4,5,6]", "[1,2,3,4,5,6,0]"},
+                {7, 7, "[1,2,3,4,5,6,7]", "[1,2,3,4,5,6,7,0]"},
+                {8, 8, "[1,2,3,4,5,6,7,0]", "[1,2,3,4,5,6,7,0,0]"},
         };
     }
 
     @Test
     public void testShift() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testShift");
-        assertEquals(returns[0].stringValue(), "[2, 3, 4, 5]");
-        assertEquals(returns[1].stringValue(), "1");
+        Object returns = BRunUtil.invoke(compileResult, "testShift");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0).toString(), "[2,3,4,5]");
+        assertEquals(result.get(1).toString(), "1");
     }
 
     @Test
     public void testUnshift() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnshift");
-        assertEquals(returns[0].stringValue(), "[8, 8, 1, 2, 3, 4, 5]");
+        Object returns = BRunUtil.invoke(compileResult, "testUnshift");
+        assertEquals(returns.toString(), "[8,8,1,2,3,4,5]");
     }
 
     @Test
     public void testUnshiftTypeWithoutFillerValues() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
-        assertEquals(returns.length, 2);
+        Object returns = BRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
+        BArray result = (BArray) returns;
+        assertEquals(result.size(), 2);
     }
 
     @Test
     public void testRemoveAll() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAll");
-        assertEquals(returns[0].stringValue(), "[]");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveAll");
+        assertEquals(returns.toString(), "[]");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -376,20 +308,20 @@ public class LangLibArrayTest {
 
     @Test
     public void testTupleRemoveAllForTupleWithJustRestMemberType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithJustRestMemberType");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithJustRestMemberType");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTupleSetLengthLegal() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleSetLengthLegal");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testTupleSetLengthLegal");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTupleSetLengthToSameAsOriginal() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleSetLengthToSameAsOriginal");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testTupleSetLengthToSameAsOriginal");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -403,11 +335,12 @@ public class LangLibArrayTest {
 
     @Test
     public void testAsyncFpArgsWithArrays() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");
-        assertTrue(results[0] instanceof BInteger);
-        assertTrue(results[1] instanceof BValueArray);
-        assertEquals(((BInteger) results[0]).intValue(), 19);
-        BValueArray bValueArray = (BValueArray) results[1];
+        Object results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");
+        BArray resultArray = (BArray) results;
+        assertTrue(resultArray.get(0) instanceof Long);
+        assertTrue(resultArray.get(1) instanceof  BArray);
+        assertEquals(resultArray.get(0), 19L);
+        BArray bValueArray = (BArray) resultArray.get(1);
         assertEquals(bValueArray.getInt(0), 4);
         assertEquals(bValueArray.getInt(1), 6);
         assertEquals(bValueArray.getInt(2), 3);
@@ -481,7 +414,7 @@ public class LangLibArrayTest {
                 "incompatible types: expected 'ballerina/lang.array:0.0.0:SortDirection', " +
                         "found 'function (int) returns (int)'", 137, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns" +
+                "incompatible types: expected 'isolated function (ballerina/lang.array:0.0.0:Type) returns" +
                         " (ballerina/lang.array:0.0.0:OrderedType)?', found 'string'", 139, 8);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type",
@@ -493,14 +426,14 @@ public class LangLibArrayTest {
                 "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type",
                 147, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns " +
+                "incompatible types: expected 'isolated function (ballerina/lang.array:0.0.0:Type) returns " +
                         "(ballerina/lang.array:0.0.0:OrderedType)?', found 'isolated function ((Person|int)) " +
                         "returns ((Person|int))'", 149, 61);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type",
                 155, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns " +
+                "incompatible types: expected 'isolated function (ballerina/lang.array:0.0.0:Type) returns " +
                         "(ballerina/lang.array:0.0.0:OrderedType)?', found 'isolated function (map<string>?) " +
                         "returns (map<string>?)'", 157, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
@@ -524,13 +457,59 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid sort key function return type: '(string|int)' is not an ordered type", 184, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 195, 15);
+                "incompatible types: expected 'ballerina/lang.array:0.0.0:AnydataType[]', " +
+                        "found '(Person|error)[]'", 195, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 196, 15);
+                "incompatible types: expected 'ballerina/lang.array:0.0.0:AnydataType[]', " +
+                        "found '(Person|error)[]'", 196, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'anydata[]', found 'function[]'", 199, 15);
-        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'anydata', found " +
-                        "'function (int) returns (int)'", 199, 26);
+                "incompatible types: expected 'ballerina/lang.array:0.0.0:AnydataType[]', " +
+                        "found 'function[]'", 199, 15);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected " +
+                "'ballerina/lang.array:0.0.0:AnydataType', found 'function (int) returns (int)'", 199, 26);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "undefined function 'som' in type '[int,int]'", 207, 16);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                        "found 'function (int) returns (int)'", 215, 21);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'int', found 'boolean'", 219, 13);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'int', found 'string'", 224, 18);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "operator '>' not defined for 'string' and 'int'", 229, 25);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "undefined function 'ever' in type '[int,int]'",
+                233, 16);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: " +
+                "expected 'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (int) returns (int)'", 237, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'boolean'",
+                241, 13);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'string'",
+                246, 19);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "operator '>' not defined for 'string' and 'int'",
+                251, 26);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                        "'[string,T][]' is not an ordered type", 258, 31);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                        "'[string,T][]' is not an ordered type", 259, 28);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid sort key function return type: " +
+                        "'[string,T]' is not an ordered type", 261, 69);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid sort key function return type: " +
+                        "'[string,T]' is not an ordered type", 264, 32);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                "'[string,T][]' is not an ordered type", 268, 28);
+        Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
+    }
+
+    @Test
+    public void testArrayLibNegativeSemantics() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative_semantic.bal");
+        int errorIndex = 0;
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: 'int' will not be matched to 'string'", 18, 28);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: 'int' will not be matched to 'string'", 22, 29);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -541,12 +520,12 @@ public class LangLibArrayTest {
 
     @Test
     public void testSort3() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSort3");
+        Object returns = BRunUtil.invoke(compileResult, "testSort3");
 
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-        BValueArray arr = (BValueArray) returns[0];
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
+        BArray arr = (BArray) returns;
 
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.INT_TAG);
         assertEquals(arr.size(), 100);
 
         for (int i = 1; i < arr.size(); i++) {
@@ -556,7 +535,7 @@ public class LangLibArrayTest {
 
     @DataProvider(name = "FunctionList")
     public Object[] testFunctions() {
-        return new Object[]{
+        return new String[]{
                 "testSliceOnTupleWithRestDesc",
                 "testLastIndexOf",
                 "testPush",
@@ -573,7 +552,43 @@ public class LangLibArrayTest {
                 "testReadOnlyArrayFilter",
                 "testTupleFilter",
                 "testTupleReverse",
-                "testToStreamOnImmutableArray"
+                "testToStreamOnImmutableArray",
+                "testPushAfterSlice",
+                "testPushAfterSliceFixed",
+                "testLastIndexOf",
+                "testReverseInt",
+                "testReverseFloat",
+                "testReverseStr",
+                "testReverseBool",
+                "testReverseByte",
+                "testReverseMap",
+                "testReverseRecord",
+                "testArrayReverseEquality",
+                "testPushAfterSliceOnTuple",
+                "testUnshiftLargeValues",
+                "testSome1",
+                "testSome2",
+                "testSome3",
+                "testSome4",
+                "testSome5",
+                "testSome6",
+                "testSome7",
+                "testSome8",
+                "testSome9",
+                "testModificationWithinSome",
+                "testEvery1",
+                "testEvery2",
+                "testEvery3",
+                "testEvery4",
+                "testEvery5",
+                "testEvery6",
+                "testEvery7",
+                "testEvery8",
+                "testEvery9",
+                "testModificationWithinEvery",
+                "testArrSortWithNamedArgs1",
+                "testArrSortWithNamedArgs2",
+                "testArrSortWithNamedArgs3"
         };
     }
 }

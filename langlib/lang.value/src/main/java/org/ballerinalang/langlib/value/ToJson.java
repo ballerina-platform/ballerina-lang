@@ -152,7 +152,7 @@ public class ToJson {
 
     private static BError createConversionError(Object inputValue, Type targetType) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                           BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
                                                                 TypeChecker.getType(inputValue), targetType));
     }
 
@@ -163,7 +163,7 @@ public class ToJson {
     }
 
     private static BError createCyclicValueReferenceError(Object value) {
-        return createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper.getErrorMessage(
+        return createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper.getErrorDetails(
                 RuntimeErrors.CYCLIC_VALUE_REFERENCE, ((BRefValue) value).getType()));
     }
 }

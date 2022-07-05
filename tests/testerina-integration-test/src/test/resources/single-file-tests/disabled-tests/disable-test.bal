@@ -38,3 +38,25 @@ function testDisableFunc2 () {
 function testDisableFunc3 () {
     test:assertFalse(false);
 }
+
+@test:Config {
+    "enable": false
+}
+function testDisableFunc4() {
+    test:assertTrue(false, msg = "this test is not expected to run");
+}
+
+@test:Config {
+    // this is an intentional comment
+    enable: false
+}
+function testDisableFunc5() {
+    test:assertTrue(false, msg = "this test is not expected to run");
+}
+
+@ test:Config { // space after @ is intentional
+    enable: false
+}
+function testDisableFunc6() {
+    test:assertTrue(false, msg = "this test is not expected to run");
+}

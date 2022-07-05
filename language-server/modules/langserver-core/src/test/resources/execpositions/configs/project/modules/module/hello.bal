@@ -1,8 +1,8 @@
-import ballerina/http;
-import ballerina/log;
+import ballerina/httpx;
+import ballerina/logx;
 
 // By default, Ballerina exposes an HTTP service via HTTP/1.1.
-service /hello on new http:Listener(9093) {
+service /hello on new httpx:Listener(9093) {
 
     // The resource method is invoked by the GET request for the
     // `/greeting` path. The returned string value
@@ -13,5 +13,5 @@ service /hello on new http:Listener(9093) {
 }
 
 public function logMessage() {
-    log:printInfo("This is a module!");
+    logx:printInfo("This is a module!");
 }

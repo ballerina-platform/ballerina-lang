@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 3,
+    "character": 14
+  },
+  "source": "ignore_unused_var2.bal",
+  "expected": [
+    {
+      "title": "Ignore unused variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 16
+            },
+            "end": {
+              "line": 3,
+              "character": 17
+            }
+          },
+          "newText": "_"
+        }
+      ]
+    }
+  ]
+}

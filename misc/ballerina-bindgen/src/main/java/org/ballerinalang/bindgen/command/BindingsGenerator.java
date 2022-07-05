@@ -74,6 +74,7 @@ public class BindingsGenerator {
     }
 
     void generateJavaBindings() throws BindgenException {
+        outStream.println("\nResolving maven dependencies...");
         // Resolve existing platform.libraries specified in the Ballerina.toml
         resolvePlatformLibraries();
 
@@ -95,7 +96,9 @@ public class BindingsGenerator {
             // Generate bindings for super classes of directly specified Java classes.
             if (!env.getSuperClasses().isEmpty()) {
                 env.setAllJavaClasses(env.getSuperClasses());
-                generateBindings(env.getSuperClasses(), classLoader, modulePath);
+                // Remove the explicitly generated classes from the list of super classes.
+                env.getSuperClasses().removeAll(classNames);
+                generateBindings(new HashSet<>(env.getSuperClasses()), classLoader, modulePath);
             }
 
             // Generate bindings for dependent Java classes.
@@ -266,7 +269,7 @@ public class BindingsGenerator {
                         }
                         // Prevent the overwriting of existing class implementations with partially generated classes.
                         if (Files.exists(filePath) && !env.isDirectJavaClass()) {
-                            return;
+                            continue;
                         }
                         outputSyntaxTreeFile(jClass, env, filePath.toString(), false);
                         outStream.println("\t" + c);

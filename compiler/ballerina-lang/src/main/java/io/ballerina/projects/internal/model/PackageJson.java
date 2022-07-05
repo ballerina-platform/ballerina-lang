@@ -35,6 +35,8 @@ public class PackageJson {
     private String source_repository; //?
     private List<String> keywords; //?
     private List<String> export; //?
+    private List<String> include;
+    private String visibility;
 
     // Distribution details
     private String ballerina_version;
@@ -118,8 +120,24 @@ public class PackageJson {
         return export;
     }
 
+    public List<String> getInclude() {
+        return include;
+    }
+
     public void setExport(List<String> export) {
         this.export = export;
+    }
+
+    public void setInclude(List<String> include) {
+        this.include = include;
+    }
+
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 
     public String getBallerinaVersion() {
@@ -162,7 +180,7 @@ public class PackageJson {
         this.platformDependencies = platformDependencies;
     }
 
-    public boolean isTemplate() {
+    public boolean getTemplate() {
         return template;
     }
 

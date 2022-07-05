@@ -17,8 +17,6 @@
 
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -44,47 +42,47 @@ public class TablesAsFuncArgs {
 
     @Test
     public void testSameKeySpecifierInParamAndArg() {
-        BValue[] values = BRunUtil.invoke(result, "testSameKeySpecifierInParamAndArg", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testSameKeySpecifierInParamAndArg", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testKeySpecifierAndKeyConstraint() {
-        BValue[] values = BRunUtil.invoke(result, "testKeySpecifierAndKeyConstraint", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testKeySpecifierAndKeyConstraint", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testSameKeyConstraintInArgAndParam() {
-        BValue[] values = BRunUtil.invoke(result, "testSameKeyConstraintInArgAndParam", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testSameKeyConstraintInArgAndParam", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testNoKeyConstraintParam() {
-        BValue[] values = BRunUtil.invoke(result, "testNoKeyConstraintParam1", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testNoKeyConstraintParam1", new Object[]{});
+        Assert.assertTrue((Boolean) values);
 
-        values = BRunUtil.invoke(result, "testNoKeyConstraintParam2", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        values = BRunUtil.invoke(result, "testNoKeyConstraintParam2", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testUnionTypeInParam() {
-        BValue[] values = BRunUtil.invoke(result, "testUnionTypeInParam", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testUnionTypeInParam", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testUnionConstraintParam() {
-        BValue[] values = BRunUtil.invoke(result, "testUnionConstraintParam", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testUnionConstraintParam", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testUnionKeyConstraintParam() {
-        BValue[] values = BRunUtil.invoke(result, "testUnionKeyConstraintParam", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testUnionKeyConstraintParam", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test

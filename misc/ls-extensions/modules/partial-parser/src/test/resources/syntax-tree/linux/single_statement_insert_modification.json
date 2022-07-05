@@ -1,0 +1,177 @@
+{
+  "annotations": [],
+  "typedBindingPattern": {
+    "kind": "TypedBindingPattern",
+    "typeDescriptor": {
+      "kind": "IntTypeDesc",
+      "name": {
+        "kind": "IntKeyword",
+        "isToken": true,
+        "value": "int",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 0,
+          "endLine": 0,
+          "endColumn": 3
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "int ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 0,
+        "endLine": 0,
+        "endColumn": 3
+      },
+      "typeData": {}
+    },
+    "bindingPattern": {
+      "kind": "CaptureBindingPattern",
+      "variableName": {
+        "kind": "IdentifierToken",
+        "isToken": true,
+        "value": "age",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 4,
+          "endLine": 0,
+          "endColumn": 7
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "age ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 4,
+        "endLine": 0,
+        "endColumn": 7
+      },
+      "typeData": {}
+    },
+    "source": "int age ",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ],
+    "position": {
+      "startLine": 0,
+      "startColumn": 0,
+      "endLine": 0,
+      "endColumn": 7
+    },
+    "typeData": {}
+  },
+  "equalsToken": {
+    "kind": "EqualToken",
+    "isToken": true,
+    "value": "=",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 8,
+      "endLine": 0,
+      "endColumn": 9
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "initializer": {
+    "kind": "NumericLiteral",
+    "literalToken": {
+      "kind": "DecimalIntegerLiteralToken",
+      "isToken": true,
+      "value": "15",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 10,
+        "endLine": 0,
+        "endColumn": 12
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": []
+    },
+    "source": "15",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [],
+    "position": {
+      "startLine": 0,
+      "startColumn": 10,
+      "endLine": 0,
+      "endColumn": 12
+    },
+    "typeData": {}
+  },
+  "semicolonToken": {
+    "kind": "SemicolonToken",
+    "isToken": true,
+    "value": ";",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 12,
+      "endLine": 0,
+      "endColumn": 13
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": []
+  },
+  "source": "int age = 15;",
+  "kind": "LocalVarDecl",
+  "syntaxDiagnostics": [],
+  "leadingMinutiae": [],
+  "trailingMinutiae": [],
+  "position": {
+    "startLine": 0,
+    "startColumn": 0,
+    "endLine": 0,
+    "endColumn": 13
+  },
+  "typeData": {}
+}

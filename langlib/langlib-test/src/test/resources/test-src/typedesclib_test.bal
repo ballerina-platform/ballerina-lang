@@ -81,7 +81,8 @@ function assertSingleTypeId(typedesc:TypeId[]? tids, (string|int)[] localIds) {
             }
         }
     } else {
-        panic error("Assertion error: expected array of: " + typedesc:TypeId.toString() + "found: " + (typeof tids).toString());
+        panic error("Assertion error: expected array of: " + typedesc:TypeId.toString() + " found: " + (typeof tids)
+        .toString());
     }
 }
 

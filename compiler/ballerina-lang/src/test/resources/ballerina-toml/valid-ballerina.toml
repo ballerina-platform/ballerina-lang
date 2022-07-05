@@ -7,6 +7,7 @@ authors= ["jo", "pramodya"]
 keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
 distribution= "slbeta2"
+visibility= "private"
 
 [[platform.java11.dependency]]
 path = "../dummy-jars/toml4j.txt"
@@ -21,7 +22,7 @@ version = "0.7.2"
 groupId = "swagger.io"
 
 [build-options]
-observabilityIncluded = true
+observabilityIncluded = false
 offline = true
 skipTests = false
 cloud = "k8s"

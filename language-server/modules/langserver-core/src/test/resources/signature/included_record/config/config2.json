@@ -1,0 +1,142 @@
+{
+    "position": {
+        "line": 34,
+        "character": 35
+    },
+    "source": "included_record/source1.bal",
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "testFunction2(int arg1, int arg2, int field1, int field2, int r2field1, string r2field2)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 18,
+                                    "second": 22
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`arg1**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 28,
+                                    "second": 32
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`arg2**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 38,
+                                    "second": 44
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 50,
+                                    "second": 56
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 62,
+                                    "second": 70
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 79,
+                                    "second": 87
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "label": "testFunction2(int arg1, int arg2, Record1 rec1, Record2 rec2)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 18,
+                                    "second": 22
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`arg1**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 28,
+                                    "second": 32
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`arg2**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 42,
+                                    "second": 46
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`Record1`rec1**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 56,
+                                    "second": 60
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`Record2`rec2**"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 3
+        },
+        "jsonrpc": "2.0"
+    }
+}
