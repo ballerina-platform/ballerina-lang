@@ -20,6 +20,8 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -38,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -73,16 +76,16 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnType() {
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getTypeDefinitions().get(2).getAnnotationAttachments();
+        List<BLangAnnotationAttachment> attachments =
+                getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "T1").getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v1", "val", "v1 value");
     }
 
     @Test
     public void testAnnotOnObjectType() {
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                ((BLangClassDefinition) ((BLangPackage) compileResult.getAST()).topLevelNodes.get(16))
+        List<BLangAnnotationAttachment> attachments =
+                getClassDefinition(((BLangPackage) compileResult.getAST()).topLevelNodes, "T2")
                         .getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v1", "val", "v1 value object");
@@ -388,7 +391,7 @@ public class AnnotationAttachmentTest {
                 (BLangRecordLiteral.BLangRecordKeyValueField) recordLiteral.getFields().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), "f1");
         BLangExpression expression = keyValuePair.valueExpr;
-        Assert.assertEquals(expression.getKind(), NodeKind.ARRAY_LITERAL_EXPR);
+        Assert.assertEquals(expression.getKind(), NodeKind.TUPLE_LITERAL_EXPR);
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) expression;
         Assert.assertEquals(listConstructorExpr.exprs.size(), 2);
 
@@ -439,8 +442,8 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotWithEmptyMapConstructorOnType() {
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getTypeDefinitions().get(9).getAnnotationAttachments();
+        List<BLangAnnotationAttachment> attachments =
+                getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "MyType").getAnnotationAttachments();
         validateEmptyMapConstructorExprInAnnot(attachments, "v16", "A");
     }
 
@@ -552,5 +555,29 @@ public class AnnotationAttachmentTest {
         keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) recordFields.get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "s2");
         Assert.assertNull(((BLangLiteral) keyValuePair.getValue()).value);
+    }
+
+    private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
+        for (TypeDefinition typeDefinition : typeDefinitions) {
+            BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) typeDefinition;
+            if (name.equals(bLangTypeDefinition.symbol.name.value)) {
+                return bLangTypeDefinition;
+            }
+        }
+        throw new RuntimeException("Type Definition '" + name + "' not found.");
+    }
+
+    private BLangClassDefinition getClassDefinition(List<? extends TopLevelNode> typeDefinitions, String name) {
+        for (TopLevelNode topLevelNode : typeDefinitions) {
+            if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
+                continue;
+            }
+
+            BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
+            if (name.equals(classDefinition.symbol.name.value)) {
+                return classDefinition;
+            }
+        }
+        throw new RuntimeException("Class Definition '" + name + "' not found.");
     }
 }

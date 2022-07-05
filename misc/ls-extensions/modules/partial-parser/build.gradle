@@ -28,6 +28,7 @@ dependencies {
     compileOnly project(':ballerina-parser')
     compileOnly project(':ballerina-lang')
     compileOnly project(':diagram-util')
+    compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
     compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 

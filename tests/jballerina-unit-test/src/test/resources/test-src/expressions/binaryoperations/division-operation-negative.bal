@@ -36,9 +36,8 @@ function testImplicitConversion() {
     int c = 1;
     var x1 = a / b;
     any x2 = a / b;
-    var x3 = a / c;
-    any x4 = b / c;
     anydata x5 = c / a;
+    anydata x6 = c / b;
 
     C d = 10;
     float e = 12.25;

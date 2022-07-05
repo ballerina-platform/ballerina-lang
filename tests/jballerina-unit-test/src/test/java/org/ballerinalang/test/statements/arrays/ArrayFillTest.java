@@ -528,6 +528,11 @@ public class ArrayFillTest {
         Assert.assertEquals(((BArray) returns).getValues()[5].toString(), "1.2");
     }
 
+    @Test
+    public void testFiniteTypeUnionArrayFill() {
+        BRunUtil.invoke(compileResult, "testFiniteTypeUnionArrayFill");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
@@ -611,6 +616,11 @@ public class ArrayFillTest {
         for (Map.Entry<String, Object> entry : expected.entrySet()) {
             assertEquals(actual.get(entry.getKey()), entry.getValue());
         }
+    }
+
+    @Test
+    public void testXMLSubtypesArrayFill() {
+        BRunUtil.invoke(compileResult, "testXMLSubtypesArrayFill");
     }
 
     @AfterClass

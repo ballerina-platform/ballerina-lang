@@ -102,13 +102,13 @@ public class BServerInstance implements BServer {
     @Override
     public void startServer(String balFile, boolean useBallerinaRunCommand) throws BallerinaTestException {
         assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
-        startServer(balFile, new String[] { "--experimental" }, null, null, requiredPorts, true);
+        startServer(balFile, new String[] {}, null, null, requiredPorts, true);
     }
 
     @Override
     public void startServer(String balFile, int[] requiredPorts) throws BallerinaTestException {
         assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
-        startServer(balFile, new String[] { "--experimental" }, null, requiredPorts);
+        startServer(balFile, new String[] { }, null, requiredPorts);
     }
 
     @Override

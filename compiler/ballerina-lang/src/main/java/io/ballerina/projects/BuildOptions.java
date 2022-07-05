@@ -63,8 +63,15 @@ public class BuildOptions {
         return this.compilationOptions.sticky();
     }
 
+    /**
+     * Checks whether experimental compilation option is set.
+     *
+     * @return Is experimental compilation option is set
+     * @deprecated Since language no longer has experimental features
+     */
+    @Deprecated(forRemoval = true)
     public boolean experimental() {
-        return this.compilationOptions.experimental();
+        return false;
     }
 
     public boolean observabilityIncluded() {
@@ -123,7 +130,6 @@ public class BuildOptions {
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
-        buildOptionsBuilder.setExperimental(compilationOptions.experimental);
         buildOptionsBuilder.setObservabilityIncluded(compilationOptions.observabilityIncluded);
         buildOptionsBuilder.setDumpBir(compilationOptions.dumpBir);
         buildOptionsBuilder.setDumpBirFile(compilationOptions.dumpBirFile);
@@ -234,8 +240,14 @@ public class BuildOptions {
             return this;
         }
 
+        /**
+         * Set experimental compilation option.
+         *
+         * @return Build options builder
+         * @deprecated Since language no longer has experimental features
+         */
+        @Deprecated(forRemoval = true)
         public BuildOptionsBuilder setExperimental(Boolean value) {
-            compilationOptionsBuilder.setExperimental(value);
             return this;
         }
 

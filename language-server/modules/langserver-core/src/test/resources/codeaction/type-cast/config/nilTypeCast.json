@@ -1,9 +1,13 @@
 {
-  "line": 52,
-  "character": 13,
+  "position": {
+    "line": 52,
+    "character": 13
+  },
+  "source": "typeCast.bal",
   "expected": [
     {
-      "title": "Add type cast to assignment",
+      "title": "Add type cast",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 13
             }
           },
-          "newText": "<()> "
+          "newText": "\u003c()\u003e"
         }
       ]
     }

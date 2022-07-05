@@ -86,7 +86,7 @@ public class TomlTableNode extends TopLevelNode {
 
     public TomlTableNode(InlineTableNode tableNode, TomlKeyNode key, boolean generated, TomlNodeLocation location,
                          Map<String, TopLevelNode> entries) {
-        super(tableNode, key, TomlType.INLINE_TABLE, location);
+        super(tableNode, key, TomlType.TABLE, location);
         this.entries = entries;
         this.generated = generated;
     }

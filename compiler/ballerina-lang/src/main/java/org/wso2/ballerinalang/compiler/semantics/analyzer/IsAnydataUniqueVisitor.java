@@ -70,7 +70,10 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.BOOLEAN:
             case TypeTags.JSON:
             case TypeTags.XML:
-            case TypeTags.TABLE:
+            case TypeTags.XML_TEXT:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_PI:
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.ANYDATA:
@@ -109,10 +112,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return isAnydata;
         }
         visited.add(type);
-
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
-
-        return isPureTypeUniqueVisitor.visit(type.eType);
+        return visit(type.eType);
     }
 
     @Override
@@ -151,9 +151,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return isAnydata;
         }
         visited.add(type);
-
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
-        return isPureTypeUniqueVisitor.visit(type.constraint);
+        return visit(type.constraint);
     }
 
     @Override
@@ -204,14 +202,13 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         if (!visited.add(type)) {
             return isAnydata;
         }
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
         for (BType member : type.tupleTypes) {
-            if (!isPureTypeUniqueVisitor.visit(member)) {
+            if (!visit(member)) {
                 type.isAnyData = false;
                 return false;
             }
         }
-        type.isAnyData = (type.restType == null) || isPureTypeUniqueVisitor.visit(type.restType);
+        type.isAnyData = (type.restType == null) || visit(type.restType);
         return isAnydata;
     }
 
@@ -232,7 +229,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BTableType type) {
-        return isAnydata(type);
+        return visit(type.constraint);
     }
 
     @Override
@@ -283,9 +280,8 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return isAnydata;
         }
         visited.add(type);
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
         for (BField field : type.fields.values()) {
-            if (!isPureTypeUniqueVisitor.visit(field.type)) {
+            if (!visit(field.type)) {
                 type.isAnyData = false;
                 return false;
             }
@@ -295,7 +291,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return false;
         }
 
-        type.isAnyData = type.sealed || isPureTypeUniqueVisitor.visit(type.restFieldType);
+        type.isAnyData = type.sealed || visit(type.restFieldType);
         return type.isAnyData;
     }
 

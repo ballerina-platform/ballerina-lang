@@ -294,6 +294,8 @@ types:
     seq:
       - id: name_cp_index
         type: s4
+      - id: original_name_cp_index
+        type: s4
       - id: flags
         type: s8
       - id: type_cp_index
@@ -486,6 +488,8 @@ types:
         repeat-expr: service_decls_size
   golbal_var:
     seq:
+      - id: position
+        type: position
       - id: kind
         type: s1
       - id: name_cp_index
@@ -498,6 +502,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   type_definition:
     seq:
       - id: position
@@ -512,12 +518,12 @@ types:
         type: s1
       - id: doc
         type: markdown
-      - id: annotation_attachments_content
-        type: annotation_attachments_content
       - id: type_cp_index
         type: s4
       - id: has_reference_type
         type: u1
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
 
   type_definition_body:
     seq:
@@ -599,6 +605,8 @@ types:
         type: s4
       - id: doc
         type: markdown
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   attach_point:
     seq:
       - id: point_name_cp_index
@@ -619,6 +627,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: length
         type: s8
       - id: constant_value
@@ -645,7 +655,7 @@ types:
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
-            'type_tag_enum::type_tag_intersection': map_constant_info
+            'type_tag_enum::type_tag_intersection': intersection_constant_info
     instances:
       type:
         value: _root.constant_pool.constant_pool_entries[constant_value_type_cp_index].cp_info.as<shape_cp_info>
@@ -677,6 +687,21 @@ types:
     seq:
       - id: value_nil_constant
         size: 0
+  intersection_constant_info:
+    seq:
+      - id: constant_value_info
+        type:
+          switch-on: effective_type.shape.type_tag
+          cases:
+            'type_tag_enum::type_tag_record': map_constant_info
+            'type_tag_enum::type_tag_tuple': list_constant_info
+    instances:
+      type:
+        value: _root.constant_pool.constant_pool_entries[_parent.constant_value_type_cp_index].cp_info.as<shape_cp_info>
+      intersection_type:
+        value: type.shape.type_structure.as<type_intersection>
+      effective_type:
+        value: _root.constant_pool.constant_pool_entries[intersection_type.effective_type_cp_index].cp_info.as<shape_cp_info>
   map_constant_info:
     seq:
       - id: map_constant_size
@@ -691,6 +716,14 @@ types:
         type: s4
       - id: key_value_info
         type: constant_value
+  list_constant_info:
+    seq:
+      - id: list_constant_size
+        type: s4
+      - id: list_member_value_info
+        type: constant_value
+        repeat: expr
+        repeat-expr: list_constant_size
   markdown:
     seq:
       - id: length
@@ -757,13 +790,8 @@ types:
       - id: rest_param_name_cp_index
         type: s4
         if: has_rest_param != 0
-      - id: annotation_attachment_symbol_count
-        type: s4
-        if: has_rest_param != 0
-      - id: annotation_attachment_symbols
-        type: annotation
-        repeat: expr
-        repeat-expr: annotation_attachment_symbol_count
+      - id: rest_param_annotations
+        type: annotation_attachments_content
         if: has_rest_param != 0
       - id: has_receiver
         type: u1
@@ -809,62 +837,11 @@ types:
         type: position
       - id: tag_reference_cp_index
         type: s4
-      - id: attach_values_count
-        type: s4
-      - id: attache_values
-        type: attach_value
-        repeat: expr
-        repeat-expr: attach_values_count
-  attach_value:
-    seq:
-      - id: attach_value_type_cp_index
-        type: s4
-      - id: attach_value_value_info
-        type:
-          switch-on: attach_type.shape.type_tag
-          cases:
-            'type_tag_enum::type_tag_array': attach_value_array
-            'type_tag_enum::type_tag_map': attach_value_map
-            'type_tag_enum::type_tag_record': attach_value_map
-            'type_tag_enum::type_tag_int': int_constant_info
-            'type_tag_enum::type_tag_signed32_int': int_constant_info
-            'type_tag_enum::type_tag_signed16_int': int_constant_info
-            'type_tag_enum::type_tag_signed8_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned32_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned16_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned8_int': int_constant_info
-            'type_tag_enum::type_tag_byte': byte_constant_info
-            'type_tag_enum::type_tag_float': float_constant_info
-            'type_tag_enum::type_tag_string': string_constant_info
-            'type_tag_enum::type_tag_char_string': string_constant_info
-            'type_tag_enum::type_tag_decimal': decimal_constant_info
-            'type_tag_enum::type_tag_boolean': boolean_constant_info
-            'type_tag_enum::type_tag_nil': nil_constant_info
-    instances:
-      attach_type:
-        value: _root.constant_pool.constant_pool_entries[attach_value_type_cp_index].cp_info.as<shape_cp_info>
-  attach_value_array:
-    seq:
-      - id: array_values_count
-        type: s4
-      - id: array_values
-        type: attach_value
-        repeat: expr
-        repeat-expr: array_values_count
-  attach_value_map:
-    seq:
-      - id: map_entries_count
-        type: s4
-      - id: map_entries
-        type: attach_value_map_entry
-        repeat: expr
-        repeat-expr: map_entries_count
-  attach_value_map_entry:
-    seq:
-      - id: key_name_cp_index
-        type: s4
-      - id: key_value_info
-        type: attach_value
+      - id: is_const_annot
+        type: u1
+      - id: constant_value
+        type: constant_value
+        if: is_const_annot == 1
   referenced_type:
     seq:
       - id: type_cp_index
@@ -875,12 +852,8 @@ types:
         type: s4
       - id: flags
         type: s8
-      - id: annotation_attachment_symbol_count
-        type: s4
-      - id: annotation_attachment_symbols
-        type: annotation
-        repeat: expr
-        repeat-expr: annotation_attachment_symbol_count
+      - id: param_annotations
+        type: annotation_attachments_content
   reciever:
     seq:
       - id: kind

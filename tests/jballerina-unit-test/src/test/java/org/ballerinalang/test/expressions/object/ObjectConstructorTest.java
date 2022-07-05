@@ -57,6 +57,7 @@ public class ObjectConstructorTest {
                 {"testObjectConstructorWithDistinctTypeReferenceVar"},
                 {"testObjectConstructorWithDefiniteTypeAndWithoutReference"},
                 {"testObjectConstructorExprWithReadOnlyCET"},
+                {"testMultipleVarAssignments"}
         };
     }
 
@@ -180,6 +181,13 @@ public class ObjectConstructorTest {
                         "'object { function onMessage () returns (); }'", 127, 14);
         validateError(negativeResult, index++, "incompatible types: expected 'any & readonly', found 'stream<int>'",
                       140, 17);
+        validateError(negativeResult, index++, "annotation not attached to a construct", 153, 14);
+        validateError(negativeResult, index++, "missing object constructor expression", 153, 14);
+        validateError(negativeResult, index++, "missing semicolon token", 154, 1);
+        validateError(negativeResult, index++, "annotation not attached to a construct", 154, 14);
+        validateError(negativeResult, index++, "missing object constructor expression", 154, 14);
+        validateError(negativeResult, index++, "annotation not attached to a construct", 154, 18);
+        validateError(negativeResult, index++, "missing semicolon token", 155, 1);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

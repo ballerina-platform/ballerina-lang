@@ -151,3 +151,39 @@ function testErrorAsAMemberOfAnydata() {
      (anydata|error)[] x = [error("")];
      anydata y = x;
 }
+
+type TANY table<map<any>>;
+type TERR table<map<error>>;
+
+public function testInvalidTableAssignment() {
+    TANY tany = table [{"a": 2}];
+    anydata _ = tany; // error
+
+    TERR terror = table [{"e": error("Message")}];
+    anydata _ = terror; // error
+}
+
+type Bar1 record {|
+   int id;
+   any a;
+|};
+
+type Foo1 record {|
+   int id;
+   Bar1 b;
+|};
+
+public function testInvalidJsonInvocation() {
+   table<map<any>> tbl = table [
+            {a: "x", b: 3},
+            {c: "z", d: 5}
+   ];
+
+   json _ = tbl.toJson(); // error
+
+   table<Foo1> tb = table[
+         {id: 1, b: {id: 1, a: 5}}
+   ];
+
+   json _ = tb.toJson();
+}

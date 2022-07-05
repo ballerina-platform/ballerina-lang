@@ -37,6 +37,7 @@ public class SealedArraysOfArraysTest {
 
     private CompileResult compileResult;
     private CompileResult resultNegative;
+    private CompileResult codeAnalysisNegative;
 
     @BeforeClass
     public void setup() {
@@ -44,6 +45,8 @@ public class SealedArraysOfArraysTest {
                 .compile("test-src/statements/arrays/arraysofarrays/sealed-arrays-of-arrays.bal");
         resultNegative = BCompileUtil
                 .compile("test-src/statements/arrays/arraysofarrays/negative-sealed-arrays-of-arrays.bal");
+        codeAnalysisNegative = BCompileUtil.compile("test-src/statements/arrays/arraysofarrays/" +
+                        "code_analysis_negative_sealed_arrays_of_arrays.bal");
     }
 
     @Test
@@ -110,7 +113,7 @@ public class SealedArraysOfArraysTest {
 
     @Test()
     public void testNegativeSealedArraysOfArrays() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 24);
+        Assert.assertEquals(resultNegative.getErrorCount(), 34);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "size mismatch in closed array. expected '2', but found '3'", 19, 23);
@@ -145,16 +148,107 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "list index out of range: index: '4'", 68, 14);
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in closed array. expected '3', but found '5'", 73, 46);
+                resultNegative, i++, "size mismatch in closed array. expected '3', but found '5'", 72, 46);
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in closed array. expected '3', but found '4'", 73, 66);
+                resultNegative, i++, "size mismatch in closed array. expected '3', but found '4'", 72, 66);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 75, 22);
+                resultNegative, i++, "invalid usage of closed type: array not initialized", 73, 5);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 75, 26);
+                resultNegative, i++, "incompatible types: expected '((float[*][] & readonly)|string)', " +
+                        "found '(float[2][2] & readonly)'", 76, 40);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: array not initialized", 76, 5);
+                resultNegative, i++, "list index out of range: index: '4'", 83, 11);
         BAssertUtil.validateError(
-                resultNegative, i, "list index out of range: index: '4'", 83, 11);
+                resultNegative, i++, "length of the array cannot be inferred from the context", 88, 22);
+        BAssertUtil.validateError(
+                resultNegative, i++, "length of the array cannot be inferred from the context", 91, 33);
+        BAssertUtil.validateError(
+                resultNegative, i++, "length of the array cannot be inferred from the context", 94, 33);
+        BAssertUtil.validateError(
+                resultNegative, i++, "length of the array cannot be inferred from the context", 98, 24);
+        BAssertUtil.validateError(
+                resultNegative, i++, "incompatible types: expected 'map<int[*][]>', found 'map<(float|int[1][1])>'",
+                102, 23);
+        BAssertUtil.validateError(
+                resultNegative, i++, "incompatible types: expected '[(int[*][] & readonly),float]', " +
+                        "found '[(string|int[1][]),float]'", 105, 38);
+        BAssertUtil.validateError(
+                resultNegative, i++, "length of the array cannot be inferred from the context", 109, 18);
+        BAssertUtil.validateError(
+                resultNegative, i++, "length of the array cannot be inferred from the context", 112, 29);
+        BAssertUtil.validateError(
+                resultNegative, i++, "length of the array cannot be inferred from the context", 115, 29);
+        BAssertUtil.validateError(
+                resultNegative, i++, "incompatible types: expected 'map<int[*][]>', found 'map<(float|int[1][1])>'",
+                118, 19);
+        BAssertUtil.validateError(
+                resultNegative, i, "incompatible types: expected '[(int[*][] & readonly),float]', " +
+                        "found '[(string|int[1][]),float]'", 121, 34);
+    }
+
+    @Test
+    public void testCodeAnalysisNegativeSealedArrays() {
+        int i = 0;
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 18, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 19, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 20, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 23, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 24, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 26, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 30, 6);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 32, 6);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 36, 15);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                37, 44);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                38, 43);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                39, 40);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 47, 17);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                47, 46);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                51, 46);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 55, 24);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 59, 24);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                63, 41);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 63, 53);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                67, 14);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                70, 2);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                71, 9);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                72, 2);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                74, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 75, 11);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                76, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                77, 11);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                77, 60);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                77, 88);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                78, 36);
+        Assert.assertEquals(codeAnalysisNegative.getErrorCount(), i);
     }
 }

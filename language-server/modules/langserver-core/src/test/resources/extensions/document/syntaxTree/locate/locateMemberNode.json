@@ -71,13 +71,13 @@
           {
             "kind": "IdentifierToken",
             "isToken": true,
-            "value": "io",
+            "value": "iox",
             "isMissing": false,
             "position": {
               "startLine": 0,
               "startColumn": 17,
               "endLine": 0,
-              "endColumn": 19
+              "endColumn": 20
             },
             "leadingMinutiae": [],
             "trailingMinutiae": []
@@ -90,9 +90,9 @@
           "isMissing": false,
           "position": {
             "startLine": 0,
-            "startColumn": 19,
+            "startColumn": 20,
             "endLine": 0,
-            "endColumn": 20
+            "endColumn": 21
           },
           "leadingMinutiae": [],
           "trailingMinutiae": [
@@ -103,7 +103,7 @@
             }
           ]
         },
-        "source": "import ballerina/io;\n",
+        "source": "import ballerina/iox;\n",
         "syntaxDiagnostics": [],
         "leadingMinutiae": [],
         "trailingMinutiae": [
@@ -117,12 +117,12 @@
           "startLine": 0,
           "startColumn": 0,
           "endLine": 0,
-          "endColumn": 20
+          "endColumn": 21
         },
         "typeData": {
           "diagnostics": [
             {
-              "message": "cannot resolve module 'ballerina/io'",
+              "message": "cannot resolve module \u0027ballerina/iox\u0027",
               "diagnosticInfo": {
                 "code": "BCE2003",
                 "severity": "ERROR"
@@ -287,13 +287,13 @@
                   "modulePrefix": {
                     "kind": "IdentifierToken",
                     "isToken": true,
-                    "value": "io",
+                    "value": "iox",
                     "isMissing": false,
                     "position": {
                       "startLine": 3,
                       "startColumn": 4,
                       "endLine": 3,
-                      "endColumn": 6
+                      "endColumn": 7
                     },
                     "leadingMinutiae": [
                       {
@@ -311,9 +311,9 @@
                     "isMissing": false,
                     "position": {
                       "startLine": 3,
-                      "startColumn": 6,
+                      "startColumn": 7,
                       "endLine": 3,
-                      "endColumn": 7
+                      "endColumn": 8
                     },
                     "leadingMinutiae": [],
                     "trailingMinutiae": []
@@ -325,14 +325,14 @@
                     "isMissing": false,
                     "position": {
                       "startLine": 3,
-                      "startColumn": 7,
+                      "startColumn": 8,
                       "endLine": 3,
-                      "endColumn": 14
+                      "endColumn": 15
                     },
                     "leadingMinutiae": [],
                     "trailingMinutiae": []
                   },
-                  "source": "    io:println",
+                  "source": "    iox:println",
                   "syntaxDiagnostics": [],
                   "leadingMinutiae": [
                     {
@@ -346,7 +346,7 @@
                     "startLine": 3,
                     "startColumn": 4,
                     "endLine": 3,
-                    "endColumn": 14
+                    "endColumn": 15
                   },
                   "typeData": {
                     "typeSymbol": {
@@ -366,9 +366,9 @@
                   "isMissing": false,
                   "position": {
                     "startLine": 3,
-                    "startColumn": 14,
+                    "startColumn": 15,
                     "endLine": 3,
-                    "endColumn": 15
+                    "endColumn": 16
                   },
                   "leadingMinutiae": [],
                   "trailingMinutiae": []
@@ -385,9 +385,9 @@
                         "isMissing": false,
                         "position": {
                           "startLine": 3,
-                          "startColumn": 15,
+                          "startColumn": 16,
                           "endLine": 3,
-                          "endColumn": 30
+                          "endColumn": 31
                         },
                         "leadingMinutiae": [],
                         "trailingMinutiae": []
@@ -398,9 +398,9 @@
                       "trailingMinutiae": [],
                       "position": {
                         "startLine": 3,
-                        "startColumn": 15,
+                        "startColumn": 16,
                         "endLine": 3,
-                        "endColumn": 30
+                        "endColumn": 31
                       },
                       "typeData": {
                         "typeSymbol": {
@@ -417,9 +417,9 @@
                     "trailingMinutiae": [],
                     "position": {
                       "startLine": 3,
-                      "startColumn": 15,
+                      "startColumn": 16,
                       "endLine": 3,
-                      "endColumn": 30
+                      "endColumn": 31
                     },
                     "typeData": {
                       "typeSymbol": {
@@ -438,14 +438,14 @@
                   "isMissing": false,
                   "position": {
                     "startLine": 3,
-                    "startColumn": 30,
+                    "startColumn": 31,
                     "endLine": 3,
-                    "endColumn": 31
+                    "endColumn": 32
                   },
                   "leadingMinutiae": [],
                   "trailingMinutiae": []
                 },
-                "source": "    io:println(\"Hello, World!\")",
+                "source": "    iox:println(\"Hello, World!\")",
                 "syntaxDiagnostics": [],
                 "leadingMinutiae": [
                   {
@@ -459,7 +459,7 @@
                   "startLine": 3,
                   "startColumn": 4,
                   "endLine": 3,
-                  "endColumn": 31
+                  "endColumn": 32
                 },
                 "typeData": {
                   "typeSymbol": {
@@ -469,14 +469,14 @@
                   },
                   "diagnostics": [
                     {
-                      "message": "undefined function 'println'",
+                      "message": "undefined function \u0027println\u0027",
                       "diagnosticInfo": {
                         "code": "BCE2011",
                         "severity": "ERROR"
                       }
                     },
                     {
-                      "message": "undefined module 'io'",
+                      "message": "undefined module \u0027iox\u0027",
                       "diagnosticInfo": {
                         "code": "BCE2000",
                         "severity": "ERROR"
@@ -493,9 +493,9 @@
                 "isMissing": false,
                 "position": {
                   "startLine": 3,
-                  "startColumn": 31,
+                  "startColumn": 32,
                   "endLine": 3,
-                  "endColumn": 32
+                  "endColumn": 33
                 },
                 "leadingMinutiae": [],
                 "trailingMinutiae": [
@@ -506,7 +506,7 @@
                   }
                 ]
               },
-              "source": "    io:println(\"Hello, World!\");\n",
+              "source": "    iox:println(\"Hello, World!\");\n",
               "syntaxDiagnostics": [],
               "leadingMinutiae": [
                 {
@@ -526,7 +526,7 @@
                 "startLine": 3,
                 "startColumn": 4,
                 "endLine": 3,
-                "endColumn": 32
+                "endColumn": 33
               },
               "typeData": {
                 "typeSymbol": {
@@ -536,14 +536,14 @@
                 },
                 "diagnostics": [
                   {
-                    "message": "undefined function 'println'",
+                    "message": "undefined function \u0027println\u0027",
                     "diagnosticInfo": {
                       "code": "BCE2011",
                       "severity": "ERROR"
                     }
                   },
                   {
-                    "message": "undefined module 'io'",
+                    "message": "undefined module \u0027iox\u0027",
                     "diagnosticInfo": {
                       "code": "BCE2000",
                       "severity": "ERROR"
@@ -574,7 +574,7 @@
               }
             ]
           },
-          "source": "{\n    io:println(\"Hello, World!\");\n}\n",
+          "source": "{\n    iox:println(\"Hello, World!\");\n}\n",
           "syntaxDiagnostics": [],
           "leadingMinutiae": [],
           "trailingMinutiae": [
@@ -593,14 +593,14 @@
           "typeData": {
             "diagnostics": [
               {
-                "message": "undefined function 'println'",
+                "message": "undefined function \u0027println\u0027",
                 "diagnosticInfo": {
                   "code": "BCE2011",
                   "severity": "ERROR"
                 }
               },
               {
-                "message": "undefined module 'io'",
+                "message": "undefined module \u0027iox\u0027",
                 "diagnosticInfo": {
                   "code": "BCE2000",
                   "severity": "ERROR"
@@ -610,7 +610,7 @@
           },
           "isNodePath": true
         },
-        "source": "\npublic function main() {\n    io:println(\"Hello, World!\");\n}\n",
+        "source": "\npublic function main() {\n    iox:println(\"Hello, World!\");\n}\n",
         "syntaxDiagnostics": [],
         "leadingMinutiae": [
           {
@@ -638,22 +638,22 @@
             "deprecated": false,
             "moduleID": {
               "orgName": "$anon",
-              "moduleName": ".",
               "packageName": ".",
+              "moduleName": ".",
               "version": "0.0.0"
             },
             "kind": "FUNCTION"
           },
           "diagnostics": [
             {
-              "message": "undefined function 'println'",
+              "message": "undefined function \u0027println\u0027",
               "diagnosticInfo": {
                 "code": "BCE2011",
                 "severity": "ERROR"
               }
             },
             {
-              "message": "undefined module 'io'",
+              "message": "undefined module \u0027iox\u0027",
               "diagnosticInfo": {
                 "code": "BCE2000",
                 "severity": "ERROR"
@@ -678,7 +678,7 @@
       "leadingMinutiae": [],
       "trailingMinutiae": []
     },
-    "source": "import ballerina/io;\n\npublic function main() {\n    io:println(\"Hello, World!\");\n}\n",
+    "source": "import ballerina/iox;\n\npublic function main() {\n    iox:println(\"Hello, World!\");\n}\n",
     "kind": "ModulePart",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
@@ -692,21 +692,21 @@
     "typeData": {
       "diagnostics": [
         {
-          "message": "cannot resolve module 'ballerina/io'",
+          "message": "cannot resolve module \u0027ballerina/iox\u0027",
           "diagnosticInfo": {
             "code": "BCE2003",
             "severity": "ERROR"
           }
         },
         {
-          "message": "undefined function 'println'",
+          "message": "undefined function \u0027println\u0027",
           "diagnosticInfo": {
             "code": "BCE2011",
             "severity": "ERROR"
           }
         },
         {
-          "message": "undefined module 'io'",
+          "message": "undefined module \u0027iox\u0027",
           "diagnosticInfo": {
             "code": "BCE2000",
             "severity": "ERROR"
@@ -716,6 +716,6 @@
     },
     "isNodePath": true
   },
-  "source": "import ballerina/io;\n\npublic function main() {\n    io:println(\"Hello, World!\");\n}\n",
+  "source": "import ballerina/iox;\n\npublic function main() {\n    iox:println(\"Hello, World!\");\n}\n",
   "parseSuccess": true
 }

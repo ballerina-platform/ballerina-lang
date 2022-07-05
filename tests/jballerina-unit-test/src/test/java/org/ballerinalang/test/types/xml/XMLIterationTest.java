@@ -24,6 +24,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -110,6 +111,15 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++,
                 "xml langlib functions does not support union types as their arguments",
                 73, 68);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with 'xml:Element[]'",
+                77, 5);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with '(xml:Element[] & readonly)'",
+                85, 5);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with '[int,string]'",
+                93, 5);
     }
 
     @Test
@@ -122,17 +132,28 @@ public class XMLIterationTest {
         BRunUtil.invoke(result, "foreachOpTest");
     }
 
-    @Test
-    public void testXMLTypesForeachOp() {
-        BRunUtil.invoke(result, "testXmlElementSequenceIteration");
-        BRunUtil.invoke(result, "testXmlTextSequenceIteration");
-        BRunUtil.invoke(result, "testXmlCommentSequenceIteration");
-        BRunUtil.invoke(result, "testXmlPISequenceIteration");
-        BRunUtil.invoke(result, "testXmlUnionSequenceIteration");
-        BRunUtil.invoke(result, "testXmlSequenceIteration");
-        BRunUtil.invoke(result, "xmlTypeParamCommentIter");
-        BRunUtil.invoke(result, "xmlTypeParamElementIter");
-        BRunUtil.invoke(result, "xmlTypeParamPIIter");
+    @Test(dataProvider = "xmlForeachTests")
+    public void testXMLTypesForeachOp(String testFunction) {
+        BRunUtil.invoke(result, testFunction);
+    }
+
+    @DataProvider
+    public Object[] xmlForeachTests() {
+        return new String[] {
+            "testXmlElementSequenceIteration",
+            "testXmlTextSequenceIteration",
+            "testXmlCommentSequenceIteration",
+            "testXmlPISequenceIteration",
+            "testXmlUnionSequenceIteration",
+            "testXmlSequenceIteration",
+            "xmlTypeParamCommentIter",
+            "xmlTypeParamElementIter",
+            "xmlTypeParamPIIter",
+            "testSequenceOfSequenceOfXmlElementIteration",
+            "testSequenceOfSequenceOfReadonlyXmlElementIteration",
+            "testSequenceOfReadOnlyXmlSubTypeUnionIteration",
+            "testSequenceOfReadOnlyXmlSubTypeUnionIteration2"
+        };
     }
 
     @Test

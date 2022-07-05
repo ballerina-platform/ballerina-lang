@@ -20,11 +20,18 @@ package org.ballerinalang.test.runtime;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,6 +40,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -43,8 +51,12 @@ import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Main class to init the test suit.
@@ -53,6 +65,10 @@ public class Main {
     private static final PrintStream out = System.out;
     static TestReport testReport;
     static ClassLoader classLoader;
+    static Map<String, List<String>> classVsMockFunctionsMap = new HashMap<>();
+
+    private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN_DELIMITER = "~";
 
     public static void main(String[] args) throws IOException {
         int exitStatus = 0;
@@ -94,7 +110,11 @@ public class Main {
 
                         testSuite.setModuleName(moduleName);
                         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
-                        classLoader = createClassLoader(testExecutionDependencies);
+                        classLoader = createURLClassLoader(testExecutionDependencies);
+
+                        if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
+                            replaceMockedFunctions(testSuite, testExecutionDependencies);
+                        }
 
                         Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
@@ -142,7 +162,7 @@ public class Main {
         }
     }
 
-    public static URLClassLoader createClassLoader(List<String> jarFilePaths) {
+    public static List<URL> getURLList(List<String> jarFilePaths) {
         List<URL> urlList = new ArrayList<>();
 
         for (String jarFilePath : jarFilePaths) {
@@ -153,9 +173,134 @@ public class Main {
                 throw new RuntimeException("Failed to create classloader with all jar files", e);
             }
         }
+        return urlList;
+    }
+
+    public static URLClassLoader createURLClassLoader(List<String> jarFilePaths) {
         return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
-                        ClassLoader.getSystemClassLoader()));
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(getURLList(jarFilePaths).toArray(
+                        new URL[0]), ClassLoader.getSystemClassLoader()));
+    }
+
+    public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths) {
+        String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getTestPackageID(),
+                suite.getVersion(), suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
+
+        Class<?> testClass;
+        try {
+            testClass = classLoader.loadClass(testClassName);
+        } catch (Throwable e) {
+            throw new BallerinaTestException("failed to load Test init class :" + testClassName);
+        }
+
+        populateClassNameVsFunctionToMockMap(suite);
+        Map<String, byte[]> modifiedClassDef = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : classVsMockFunctionsMap.entrySet()) {
+            String className = entry.getKey();
+            List<String> functionNamesList = entry.getValue();
+            byte[] classFile = getModifiedClassBytes(className, functionNamesList, testClass, suite);
+            modifiedClassDef.put(className, classFile);
+        }
+        classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
+    }
+
+    private static void populateClassNameVsFunctionToMockMap(TestSuite suite) {
+        Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
+        for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
+            String key = entry.getKey();
+            String functionToMockClassName;
+            String functionToMock;
+            if (key.contains(MOCK_ANNOTATION_DELIMITER)) {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_ANNOTATION_DELIMITER));
+                functionToMock = key.substring(key.indexOf(MOCK_ANNOTATION_DELIMITER));
+            } else {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER));
+            }
+            classVsMockFunctionsMap.computeIfAbsent(functionToMockClassName,
+                    k -> new ArrayList<>()).add(functionToMock);
+        }
+    }
+
+    public static byte[] getModifiedClassBytes(String className, List<String> functionNames, Class<?> testClass,
+                                               TestSuite suite) {
+        Class<?> functionToMockClass;
+        try {
+            functionToMockClass = classLoader.loadClass(className);
+        } catch (Throwable e) {
+            throw new BallerinaTestException("failed to load class: " + className);
+        }
+
+        byte[] classFile = new byte[0];
+        boolean readFromBytes = false;
+        for (Method method1 : functionToMockClass.getDeclaredMethods()) {
+            if (functionNames.contains(MOCK_ANNOTATION_DELIMITER + method1.getName())) {
+                String desugaredMockFunctionName = "$MOCK_" + method1.getName();
+                for (Method method2 : testClass.getDeclaredMethods()) {
+                    if (method2.getName().equals(desugaredMockFunctionName)) {
+                        if (!readFromBytes) {
+                            classFile = replaceMethodBody(method1, method2);
+                            readFromBytes = true;
+                        } else {
+                            classFile = replaceMethodBody(classFile, method1, method2);
+                        }
+                    }
+                }
+            } else if (functionNames.contains(MOCK_FN_DELIMITER + method1.getName())) {
+                String key = className + MOCK_FN_DELIMITER + method1.getName();
+                String mockFunctionName = suite.getMockFunctionNamesMap().get(key);
+                String mockFunctionClassName = suite.getTestUtilityFunctions().get(mockFunctionName);
+                Class<?> mockFunctionClass;
+                try {
+                    mockFunctionClass = classLoader.loadClass(mockFunctionClassName);
+                } catch (ClassNotFoundException e) {
+                    throw new BallerinaTestException("failed to load class: " + mockFunctionClassName);
+                }
+                for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
+                    if (method2.getName().equals(mockFunctionName)) {
+                        if (!readFromBytes) {
+                            classFile = replaceMethodBody(method1, method2);
+                            readFromBytes = true;
+                        } else {
+                            classFile = replaceMethodBody(classFile, method1, method2);
+                        }
+                    }
+                }
+            }
+        }
+        return classFile;
+    }
+
+    private static byte[] replaceMethodBody(Method method, Method mockMethod) {
+        Class<?> clazz = method.getDeclaringClass();
+        ClassReader cr;
+        try {
+            cr = new ClassReader(requireNonNull(
+                    clazz.getResourceAsStream(clazz.getSimpleName() + ".class")));
+        } catch (IOException e) {
+            throw new BallerinaTestException("failed to get the class reader object for the class "
+                    + clazz.getSimpleName());
+        }
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
+                Type.getMethodDescriptor(method), mockMethod);
+        cr.accept(cv, 0);
+        return cw.toByteArray();
+    }
+
+    private static byte[] replaceMethodBody(byte[] classFile, Method method, Method mockMethod) {
+        ClassReader cr = new ClassReader(classFile);
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
+                Type.getMethodDescriptor(method), mockMethod);
+        cr.accept(cv, 0);
+        return cw.toByteArray();
+    }
+
+    private static CustomClassLoader createClassLoader(List<String> jarFilePaths,
+                                                       Map<String, byte[]> modifiedClassDef) {
+        return new CustomClassLoader(getURLList(jarFilePaths).toArray(new URL[0]),
+                ClassLoader.getSystemClassLoader(), modifiedClassDef);
     }
 
     public static ClassLoader getClassLoader() {

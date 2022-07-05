@@ -467,23 +467,6 @@ type FooRec record {
 };
 
 public function testSpreadFieldInConstructor() {
-    string expected = "[{\"x\":1001,\"y\":20},{\"x\":1002,\"y\":30}]";
-    FooRec spreadField1 = {x: 1002, y: 30};
-
-    table<FooRec> tb1 = table key(x) [
-            {x: 1001, y: 20},
-            {...spreadField1}
-        ];
-    assertEquality(expected, tb1.toString());
-
-    var spreadField2 = {x: 1002, y: 30};
-
-    var tb2 = table key(x) [
-            {x: 1001, y: 20},
-            {...spreadField2}
-        ];
-    assertEquality(expected, tb2.toString());
-
     var spreadField3 = {id: 2, name: "Jo", age: 12};
     var tb3 = table [
             {id: 1, name: "Mary", salary: 100.0},
@@ -696,6 +679,68 @@ function testTableTypeInferenceWithVarType11() {
     v1.add({a: f});
 
     assertEquality("[{\"a\":2},{\"a\":2}]", v1.toString());
+}
+
+type CustomerEmptyKeyedTbl table<Customer> key();
+
+function testAssignabilityWithEmptyKeyedKeylessTbl() {
+    table<Customer> key() tbl1 = table key(id) [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+    assertEquality(2, tbl1.length());
+
+    CustomerTableWithKS tbl2 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+    CustomerEmptyKeyedTbl tbl3 = tbl2;
+    assertTrue(tbl1 == tbl2);
+    assertTrue(tbl1 == tbl3);
+
+    table<Customer> key<int> tbl4 = table key(id) [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+    tbl3 = tbl4;
+    assertTrue(tbl1 == tbl4);
+    assertTrue(tbl1 == tbl3);
+    assertTrue(tbl2 == tbl3);
+
+    table<Customer> key(id, name) tbl5 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+    tbl1 = tbl5;
+    assertTrue(tbl1 == tbl4);
+    assertTrue(tbl1 == tbl3);
+    assertTrue(tbl2 == tbl3);
+}
+
+function testEqualityWithEmptyKeyedKeylessTbl() {
+    table<Customer> key() tbl1 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+
+    CustomerEmptyKeyedTbl tbl2 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+
+    CustomerTableWithKS tbl3 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+
+    assertTrue(tbl1 == tbl2);
+    assertFalse(tbl2 == tbl3);
+
+    tbl2 = tbl3;
+    assertTrue(tbl2 == tbl3);
+
+    tbl1 = tbl3;
+    assertTrue(tbl1 == tbl3);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

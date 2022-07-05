@@ -19,11 +19,12 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Annotatable;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -33,16 +34,21 @@ import java.util.List;
 /**
  * @since 2.0.0
  */
-public class BTypeDefinitionSymbol extends BSymbol {
+public class BTypeDefinitionSymbol extends BSymbol implements Annotatable {
 
     public BTypeReferenceType referenceType = null;
-    public List<BLangAnnotationAttachment> annAttachments;
+    private List<BAnnotationAttachmentSymbol> annAttachments;
 
     public BTypeDefinitionSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                  Location pos, SymbolOrigin origin) {
         super(SymTag.TYPE_DEF, flags, name, pkgID, type, owner, pos, origin);
         this.kind = SymbolKind.TYPE_DEF;
         this.annAttachments = new ArrayList<>();
+    }
+
+    @Override
+    public SymbolKind getKind() {
+        return SymbolKind.TYPE_DEF;
     }
 
     @Override
@@ -53,5 +59,15 @@ public class BTypeDefinitionSymbol extends BSymbol {
             return this.name.value;
         }
         return this.pkgID.toString() + ":" + this.name;
+    }
+
+    @Override
+    public void addAnnotation(AnnotationAttachmentSymbol symbol) {
+        this.annAttachments.add((BAnnotationAttachmentSymbol) symbol);
+    }
+
+    @Override
+    public List<? extends AnnotationAttachmentSymbol> getAnnotations() {
+        return this.annAttachments;
     }
 }

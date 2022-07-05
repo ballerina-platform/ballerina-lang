@@ -398,6 +398,183 @@ function testBinaryBitwiseXOROperationForUserDefinedTypes() {
     assertEqual(f ^ g, -1);
 }
 
+int intVal = 10;
+
+function testNoShortCircuitingInBitwiseAndWithNullable() {
+    int? result = foo() & bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 18);
+
+    result = foo() & 12;
+    assertEqual(result, ());
+    assertEqual(intVal, 20);
+
+    result = 12 & bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 26);
+
+    int? x = 12;
+    result = foo() & x;
+    assertEqual(result, ());
+    assertEqual(intVal, 28);
+
+    result = x & bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 34);
+
+    result = x & bam();
+    assertEqual(result, 4);
+    assertEqual(intVal, 44);
+
+    result = bam() & x;
+    assertEqual(result, 4);
+    assertEqual(intVal, 54);
+
+    result = foo() & bam();
+    assertEqual(result, ());
+    assertEqual(intVal, 66);
+
+    result = bam() & bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 82);
+}
+
+function testNoShortCircuitingInBitwiseAndWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x & bam();
+    assertEqual(result, 0);
+    assertEqual(intVal, 20);
+
+    result = bam() & 12;
+    assertEqual(result, 4);
+    assertEqual(intVal, 30);
+}
+
+function testNoShortCircuitingInBitwiseOrWithNullable() {
+    intVal = 10;
+
+    int? result = foo() | bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 18);
+
+    result = foo() | 12;
+    assertEqual(result, ());
+    assertEqual(intVal, 20);
+
+    result = 12 | bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 26);
+
+    int? x = 12;
+    result = foo() | x;
+    assertEqual(result, ());
+    assertEqual(intVal, 28);
+
+    result = x | bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 34);
+
+    result = x | bam();
+    assertEqual(result, 13);
+    assertEqual(intVal, 44);
+
+    result = bam() | x;
+    assertEqual(result, 13);
+    assertEqual(intVal, 54);
+
+    result = foo() | bam();
+    assertEqual(result, ());
+    assertEqual(intVal, 66);
+
+    result = bam() | bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 82);
+}
+
+function testNoShortCircuitingInBitwiseOrWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x | bam();
+    assertEqual(result, 15);
+    assertEqual(intVal, 20);
+
+    result = bam() | 12;
+    assertEqual(result, 13);
+    assertEqual(intVal, 30);
+}
+
+function testNoShortCircuitingInBitwiseXorWithNullable() {
+    intVal = 10;
+
+    int? result = foo() ^ bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 18);
+
+    result = foo() ^ 12;
+    assertEqual(result, ());
+    assertEqual(intVal, 20);
+
+    result = 12 ^ bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 26);
+
+    int? x = 12;
+    result = foo() ^ x;
+    assertEqual(result, ());
+    assertEqual(intVal, 28);
+
+    result = x ^ bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 34);
+
+    result = x ^ bam();
+    assertEqual(result, 9);
+    assertEqual(intVal, 44);
+
+    result = bam() ^ x;
+    assertEqual(result, 9);
+    assertEqual(intVal, 54);
+
+    result = foo() ^ bam();
+    assertEqual(result, ());
+    assertEqual(intVal, 66);
+
+    result = bam() ^ bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 82);
+}
+
+function testNoShortCircuitingInBitwiseXorWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x ^ bam();
+    assertEqual(result, 15);
+    assertEqual(intVal, 20);
+
+    result = bam() ^ 12;
+    assertEqual(result, 9);
+    assertEqual(intVal, 30);
+}
+
+function foo() returns int? {
+    intVal += 2;
+    return ();
+}
+
+function bar() returns int? {
+    intVal += 6;
+    return ();
+}
+
+function bam() returns int {
+    intVal += 10;
+    return 5;
+}
+
 function assertEqual(anydata actual, anydata expected) {
     if actual == expected {
         return;

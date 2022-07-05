@@ -118,7 +118,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -430,6 +429,7 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangRetry retryNode) {
         lookupNode(retryNode.retryBody);
         lookupNode(retryNode.retrySpec);
+        lookupNode(retryNode.onFailClause);
     }
 
     @Override
@@ -952,6 +952,11 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        lookupNode(spreadOpExpr.expr);
+    }
+
+    @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
         lookupNode(tableConstructorExpr.tableKeySpecifier);
         lookupNodes(tableConstructorExpr.recordLiteralList);
@@ -1121,11 +1126,6 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         lookupNodes(queryExpr.queryClauseList);
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        super.visit(tableMultiKeyExpr);
     }
 
     @Override

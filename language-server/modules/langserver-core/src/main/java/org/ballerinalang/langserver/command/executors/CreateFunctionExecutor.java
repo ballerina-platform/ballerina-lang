@@ -22,6 +22,8 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -37,6 +39,9 @@ import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -56,6 +61,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -92,7 +98,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             }
         }
 
-        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(uri);
         if (range == null || filePath.isEmpty()) {
             throw new UserErrorException("Invalid parameters received for the create function command!");
         }
@@ -147,12 +153,19 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                 varName = symbol.get().getName().orElse("");
             }
 
+            // If arg is a named arg, type and varName should be derived differently
+            if (fnArgNode.kind() == SyntaxKind.NAMED_ARG) {
+                NamedArgumentNode namedArgumentNode = (NamedArgumentNode) fnArgNode;
+                type = semanticModel.typeOf(namedArgumentNode.expression());
+                varName = namedArgumentNode.argumentName().name().text();
+            }
+
             if (type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                varName = CommonUtil.generateParameterName(varName, argIndex,
+                varName = NameUtil.generateParameterName(varName, argIndex,
                         CommonUtil.getRawType(type.get()), visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, type.get()) + " " + varName);
             } else {
-                varName = CommonUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
+                varName = NameUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, null) + " " + varName);
             }
             visibleSymbolNames.add(varName);
@@ -173,11 +186,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(fnCallExprNode.get());
         Range insertRange;
         if (enclosingNode.isPresent()) {
-            LineRange endLineRange = enclosingNode.get().lineRange();
-            newLineAtEnd = false;
-            insertRange = new Range(new Position(endLineRange.endLine().line(), endLineRange.endLine().offset()),
-                    new Position(endLineRange.endLine().line(), endLineRange.endLine().offset()));
-
+            newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
+            insertRange = PositionUtil.toRange(enclosingNode.get().lineRange().endLine());
         } else {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
@@ -195,10 +205,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         // on that, we need to use separate APIs.
         String function;
         if (returnTypeSymbol.isPresent()) {
-            function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
+            function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
                     args, returnTypeSymbol.get(), isIsolated);
         } else if (returnTypeDescKind.isPresent()) {
-            function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
+            function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
                     args, returnTypeDescKind.get(), isIsolated);
         } else {
             return Collections.emptyList();
@@ -226,5 +236,15 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             reference = reference.parent();
         }
         return Optional.empty();
+    }
+
+    private boolean addNewLineAtEnd(Node enclosingNode) {
+        Iterator<Node> iterator = enclosingNode.parent().children().iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }

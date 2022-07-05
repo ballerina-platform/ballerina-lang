@@ -88,19 +88,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUTDOWN_HOOK;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LISTENER_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_ERROR_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LISTENER_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_MAIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
@@ -149,8 +149,8 @@ public class MainMethodGen {
         generateJavaCompatibilityCheck(mv);
 
         invokeConfigInit(mv, pkg.packageID);
-        // start all listeners
-        startListeners(mv, serviceEPAvailable);
+        // start all listeners and TRAP signal handler
+        startListenersAndSignalHandler(mv, serviceEPAvailable);
 
         genInitScheduler(mv);
         // register a shutdown hook to call package stop() method.
@@ -228,9 +228,9 @@ public class MainMethodGen {
         return Objects.requireNonNullElse(javaVersion, "");
     }
 
-    private void startListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
+    private void startListenersAndSignalHandler(MethodVisitor mv, boolean isServiceEPAvailable) {
         mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListenersAndSignalHandler", "(Z)V", false);
     }
 
     private void genShutdownHook(MethodVisitor mv, String initClass) {
@@ -240,10 +240,10 @@ public class MainMethodGen {
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "getListenerRegistry",
-                GET_LISTENER_REGISTRY_CLASS, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "getRuntimeRegistry",
+                GET_RUNTIME_REGISTRY_CLASS, false);
         mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, JVM_INIT_METHOD,
-                           INIT_LISTENER_REGISTRY, false);
+                INIT_RUNTIME_REGISTRY, false);
         mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", ADD_SHUTDOWN_HOOK, false);
     }
 
@@ -360,14 +360,14 @@ public class MainMethodGen {
         int defaultableIndex = 0;
         for (BIRNode.BIRAnnotationAttachment attachment : annotAttachments) {
             if (attachment != null && attachment.annotTagRef.value.equals(JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME)) {
-                BIRNode.BIRAnnotationRecordValue
-                        annotRecValue = (BIRNode.BIRAnnotationRecordValue) attachment.annotValues.get(0);
-                Map<String, BIRNode.BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
-                BIRNode.BIRAnnotationArrayValue annotArrayValue =
-                        (BIRNode.BIRAnnotationArrayValue) annotFieldMap.get(JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD);
-                for (BIRNode.BIRAnnotationValue entryOptional : annotArrayValue.annotArrayValue) {
-                    BIRNode.BIRAnnotationLiteralValue argValue = (BIRNode.BIRAnnotationLiteralValue) entryOptional;
-                    defaultableNames.add(defaultableIndex, (String) argValue.value);
+                Map<String, BIRNode.ConstValue> annotFieldMap =
+                        (Map<String, BIRNode.ConstValue>)
+                                ((BIRNode.BIRConstAnnotationAttachment) attachment).annotValue.value;
+
+                BIRNode.ConstValue[] annotArrayValue =
+                        (BIRNode.ConstValue[]) annotFieldMap.get(JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD).value;
+                for (BIRNode.ConstValue entryOptional : annotArrayValue) {
+                    defaultableNames.add(defaultableIndex, (String) entryOptional.value);
                     defaultableIndex += 1;
                 }
                 break;

@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "create_function_in_function_call_expr1.bal",
   "expected": {
     "result": {
       "edit": {
@@ -28,7 +29,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction getRandomNum() returns int {\n    return 0;\n}\n"
+                "newText": "\n\nfunction getRandomNum() returns int {\n    return 0;\n}"
               }
             ]
           }

@@ -21,6 +21,7 @@ package io.ballerina.runtime.test.config.negative;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -61,14 +62,14 @@ public class ConfigNegativeTest {
         ConfigResolver configResolver;
         if (tomlFilePath != null) {
             configResolver = new ConfigResolver(configVarMap,
-                                                diagnosticLog, List.of(
-                                                new CliProvider(ROOT_MODULE, args),
-                                                new TomlFileProvider(ROOT_MODULE,
-                                                        getConfigPathForNegativeCases(tomlFilePath), Set.of(MODULE))));
+                    diagnosticLog, List.of(
+                    new CliProvider(ROOT_MODULE, args),
+                    new TomlFileProvider(ROOT_MODULE,
+                            getConfigPathForNegativeCases(tomlFilePath), Set.of(MODULE))));
 
         } else {
             configResolver = new ConfigResolver(configVarMap,
-                                                diagnosticLog, List.of(new CliProvider(ROOT_MODULE, args)));
+                    diagnosticLog, List.of(new CliProvider(ROOT_MODULE, args)));
         }
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), errorCount);
@@ -80,15 +81,11 @@ public class ConfigNegativeTest {
 
     @DataProvider(name = "different-config-use-cases-data-provider")
     public Object[][] configErrorCases() {
+        MapType mapStringType = TypeCreator.createMapType(TYPE_STRING);
         Type incompatibleUnionType = new BIntersectionType(MODULE, new Type[]{},
-                                                           new BUnionType(Arrays.asList(PredefinedTypes.TYPE_INT,
-                                                                                        PredefinedTypes.TYPE_STRING)),
-                                                           0, true);
+                new BUnionType(Arrays.asList(PredefinedTypes.TYPE_INT, mapStringType)), 0, true);
         Type ambiguousUnionType = new BIntersectionType(MODULE, new Type[]{},
-                                                        new BUnionType(
-                                                                Arrays.asList(TypeCreator.createMapType(TYPE_ANYDATA),
-                                                                              TypeCreator.createMapType(TYPE_STRING))),
-                                                        0, true);
+                new BUnionType(Arrays.asList(TypeCreator.createMapType(TYPE_ANYDATA), mapStringType)), 0, true);
         return new Object[][]{
                 // Required but not given
                 {new String[]{}, null,
@@ -116,9 +113,9 @@ public class ConfigNegativeTest {
                 {new String[]{"-Corg.mod1.intVar=1"}, "MismatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 0
                         , 1, new String[]{
-                                "warning: [MismatchedTypeValues.toml:(3:10,3:18)] configurable variable 'intVar'" +
-                                        " is expected to be of type 'int', but found 'string'"
-                        }},
+                        "warning: [MismatchedTypeValues.toml:(3:10,3:18)] configurable variable 'intVar'" +
+                                " is expected to be of type 'int', but found 'string'"
+                }},
                 // valid toml value invalid cli
                 {new String[]{"-Corg.mod1.intVar=waruna"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 2, 1,
@@ -130,11 +127,11 @@ public class ConfigNegativeTest {
                 {new String[]{"-Corg.mod1.intVar=waruna"}, "MismatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 2
                         , 0, new String[]{
-                                "error: [org.mod1.intVar=waruna] configurable variable 'intVar' is expected to be " +
-                                        "of type 'int', but found 'waruna'",
-                                "error: [MismatchedTypeValues.toml:(3:10,3:18)] configurable variable 'intVar'" +
-                                        " is expected to be of type 'int', but found 'string'"
-                        }},
+                        "error: [org.mod1.intVar=waruna] configurable variable 'intVar' is expected to be " +
+                                "of type 'int', but found 'waruna'",
+                        "error: [MismatchedTypeValues.toml:(3:10,3:18)] configurable variable 'intVar'" +
+                                " is expected to be of type 'int', but found 'string'"
+                }},
                 // invalid toml but valid cli
                 {new String[]{"-Corg.mod1.intVar=2"}, "Invalid.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
@@ -145,9 +142,9 @@ public class ConfigNegativeTest {
                 // supported toml type but not cli type and cli value given
                 {new String[]{"-Corg.mod1.intArr=3"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intArr",
-                                                          new BIntersectionType(MODULE, new BType[]{}, TypeCreator
-                                                                  .createArrayType(PredefinedTypes.TYPE_INT), 0, false),
-                                                          null, true)}, 2, 1,
+                                new BIntersectionType(MODULE, new BType[]{}, TypeCreator
+                                        .createArrayType(PredefinedTypes.TYPE_INT), 0, false),
+                                null, true)}, 2, 1,
                         new String[]{
                                 "warning: value for configurable variable 'intArr' with type '" +
                                         "int[]' is not supported as a command line argument",
@@ -156,9 +153,9 @@ public class ConfigNegativeTest {
                 // supported toml type but not cli type and cli value not given
                 {new String[]{""}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intArr",
-                                                          new BIntersectionType(MODULE, new BType[]{}, TypeCreator
-                                                                  .createArrayType(PredefinedTypes.TYPE_INT), 0, false),
-                                                          null, true)}, 2, 0,
+                                new BIntersectionType(MODULE, new BType[]{}, TypeCreator
+                                        .createArrayType(PredefinedTypes.TYPE_INT), 0, false),
+                                null, true)}, 2, 0,
                         new String[]{
                                 "error: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
                                         ".intVar'"}},
@@ -169,22 +166,22 @@ public class ConfigNegativeTest {
                         "error: [org.mod1.myMap=4] unused command line argument"}},
                 // not supported cli union type
                 {new String[]{"-Corg.mod1.myUnion=5"}, null, new VariableKey[]{
-                        new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 2, 0,
-                        new String[]{"error: value for configurable variable 'myUnion' with type '(int|string)' is " +
-                                "not supported as a command line argument"}},
+                        new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 1, 0,
+                        new String[]{"error: value for configurable variable 'myUnion' with type '(int|map<string>)' " +
+                                "is not supported as a command line argument"}},
                 // not supported cli type
                 {new String[]{"-Corg.mod1.myMap=5"}, null,
                         new VariableKey[]{
                                 new VariableKey(MODULE, "myMap",
-                                                new BIntersectionType(MODULE, new BType[]{}, PredefinedTypes.TYPE_MAP
-                                                        , 0, true), null, true)}, 2
+                                        new BIntersectionType(MODULE, new BType[]{}, PredefinedTypes.TYPE_MAP
+                                                , 0, true), null, true)}, 1
                         , 0, new String[]{"error: value for configurable variable 'myMap' with type 'map' is not " +
-                "supported as a command line argument"}},
+                        "supported as a command line argument"}},
                 // not supported union type
                 {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
                         new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 3, 0,
                         new String[]{"error: [InvalidUnionType.toml:(2:1,2:19)] configurable variable 'floatUnionVar'" +
-                                " is expected to be of type '(int|string)', but found 'float'"}},
+                                " is expected to be of type '(int|map<string>)', but found 'float'"}},
                 {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
                         new VariableKey(MODULE, "ambiguousUnionVar", ambiguousUnionType, null, true)}, 2, 0,
                         new String[]{"error: [InvalidUnionType.toml:(4:1,5:16)] ambiguous target types found for " +

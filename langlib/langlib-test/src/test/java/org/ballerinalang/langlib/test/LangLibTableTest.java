@@ -24,7 +24,9 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -43,6 +45,12 @@ public class LangLibTableTest {
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/tablelib_test.bal");
         negativeResult = BCompileUtil.compile("test-src/tablelib_test_negative.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
     }
 
     @Test
@@ -167,7 +175,6 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 25);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'EmployeeTable', " +
                 "found 'table<Person> key<string>'", 68, 36);
@@ -224,9 +231,52 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "incompatible types: expected 'function (ballerina/lang.table:0.0" +
                 ".0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', found 'function (Person) returns " +
                 "(string)'", 199, 18);
-        validateError(negativeResult, index, "incompatible types: expected 'function (ballerina/lang.table:0.0" +
+        validateError(negativeResult, index++, "incompatible types: expected 'function (ballerina/lang.table:0.0" +
                 ".0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', found 'function (Person) returns " +
                 "(string)'", 200, 18);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
+                "key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Person>'", 210, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
+                "key<ballerina/lang.table:0.0.0:KeyType>', found 'PersonEmptyKeyedTbl'", 216, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
+                "found 'record {| string name; int age; |}'", 227, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
+                "found 'record {| string name; int age; |}'", 233, 22);
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
+                "found 'record {| string name; int age; |}'", 242, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
+                "found 'record {| string name; int age; |}'", 248, 22);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Person>'", 256, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                        "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                        "found 'PersonEmptyKeyedTbl'", 262, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'EmployeeEmptyKeyedTbl'",
+                270, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Employee>'", 276, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'EmployeeEmptyKeyedTbl'",
+                284, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Employee>'", 290, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Person>'", 298, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'PersonEmptyKeyedTbl'",
+                304, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<int>', found 'table<Person>'", 312, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<int>', found 'PersonEmptyKeyedTbl'", 318, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'PersonEmptyKeyedTbl'",
+                326, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ballerina/" +
+                        "lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', found 'table<Person>'",
+                334, 9);
+        assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test
@@ -493,5 +543,33 @@ public class LangLibTableTest {
     @Test
     public void testReduceForKeylessReadOnlyTables() {
         BRunUtil.invoke(compileResult, "testReduceForKeylessReadOnlyTables");
+    }
+
+    @Test(dataProvider = "functionsToTestEmptyKeyedKeylessTbl")
+    public void testEmptyKeyedKeylessTbl(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestEmptyKeyedKeylessTbl() {
+        return new String[] {
+                "testPutWithEmptyKeyedKeyLessTbl",
+                "testPutWithEmptyKeyedKeyLessTblAfterIteratorCreation",
+                "testAddWithEmptyKeyedKeyLessTbl",
+                "testAddWithEmptyKeyedKeyLessTblAfterIteratorCreation",
+                "testRemoveAllReturnedRecordsFromIteratorEmptyKeyedKeyLessTbl",
+                "testAddInconsistentDataToEmptyKeyedKeyLessTbl",
+                "testAddInconsistentDataToEmptyKeyedKeyLessTbl2",
+                "testPutInconsistentDataToEmptyKeyedKeyLessTbl",
+                "testPutInconsistentDataToEmptyKeyedKeyLessTbl2",
+                "testAddValidDataToEmptyKeyedKeyLessTbl",
+                "testPutValidDataToEmptyKeyedKeyLessTbl",
+                "testEmptyKeyedKeyLessTblForeach",
+                "testEmptyKeyedKeyLessTblReadOnlyTableForeach",
+                "testReduceForEmptyKeyedKeyLessTbl",
+                "testReduceForEmptyKeyedKeyLessReadOnlyTbl",
+                "testMapWithEmptyKeyedKeyLessTbl",
+                "testLengthWithEmptyKeyedKeyLessTbl"
+        };
     }
 }

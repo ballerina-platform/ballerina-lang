@@ -130,3 +130,9 @@ function testFuture() {
     future<string> a1 = a0;
 }
 
+type MyUnion any|error;
+
+public function testUnionOfError() {
+    MyUnion var1 = 3;
+    int e = var1;
+}

@@ -28,6 +28,7 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -38,7 +39,9 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -54,7 +57,7 @@ public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     public TestCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -63,30 +66,23 @@ public class TestCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public TestCommand(Path projectPath, boolean exitWhenFinish) {
+    TestCommand(Path projectPath, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                       boolean dumpBuildTime) {
-        this.projectPath = projectPath;
-        this.outStream = outStream;
-        this.errStream = errStream;
-        this.exitWhenFinish = exitWhenFinish;
-        this.dumpBuildTime = dumpBuildTime;
-    }
-
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        Boolean testReport, Boolean coverage, String coverageFormat) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -95,9 +91,10 @@ public class TestCommand implements BLauncherCmd {
         this.testReport = testReport;
         this.coverage = coverage;
         this.coverageFormat = coverageFormat;
+        this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        Boolean testReport, Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -105,6 +102,7 @@ public class TestCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
         this.testReport = testReport;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
@@ -116,9 +114,6 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private Boolean experimentalFlag;
 
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
@@ -157,8 +152,18 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
     private Boolean dumpBuildTime;
 
+    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
+    private Boolean sticky;
+
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
+
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
+    private boolean dumpGraph;
+
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+            "dependency resolution process.", hidden = true)
+    private boolean dumpRawGraphs;
 
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
@@ -169,6 +174,10 @@ public class TestCommand implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
+        }
+
+        if (sticky == null) {
+            sticky = false;
         }
 
         // load project
@@ -251,6 +260,13 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
+        Iterable<Module> originalModules = project.currentPackage().modules();
+        Map<String, Module> moduleMap = new HashMap<>();
+
+        for (Module originalModule : originalModules) {
+            moduleMap.put(originalModule.moduleName().toString(), originalModule);
+        }
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
@@ -258,7 +274,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat), listGroups)
+                        testList, includes, coverageFormat, moduleMap), listGroups)
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -273,12 +289,14 @@ public class TestCommand implements BLauncherCmd {
 
         buildOptionsBuilder
                 .setCodeCoverage(coverage)
-                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setSkipTests(false)
                 .setTestReport(testReport)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky)
+                .setDumpGraph(dumpGraph)
+                .setDumpRawGraphs(dumpRawGraphs)
                 .build();
 
         if (targetDir != null) {

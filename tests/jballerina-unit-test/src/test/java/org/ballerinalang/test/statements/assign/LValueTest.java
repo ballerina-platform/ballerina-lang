@@ -73,7 +73,6 @@ public class LValueTest {
 
     @Test
     public void testSemanticsNegativeCases() {
-        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 9);
         int i = 0;
         validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
         validateError(semanticsNegativeResult, i++, "undefined field 'y' in object 'A'", 27, 7);
@@ -86,8 +85,16 @@ public class LValueTest {
         validateError(semanticsNegativeResult, i++, "undefined field 'y' in record 'E'", 75, 5);
         validateError(semanticsNegativeResult, i++, "invalid operation: type 'map<int>?' does not support member " +
                 "access for assignment", 78, 5);
-        validateError(semanticsNegativeResult, i, "invalid operation: type 'E?' does not support field access",
+        validateError(semanticsNegativeResult, i++, "invalid operation: type 'E?' does not support field access",
                 79, 5);
+        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found 'string'", 85, 12);
+        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 88, 12);
+        // https://github.com/ballerina-platform/ballerina-lang/issues/35442
+        // validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
+        //              98, 12);
+        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int:Signed8?', found 'int'",
+                      98, 12);
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -216,6 +223,21 @@ public class LValueTest {
                     " 'l'\"\\}\n.*")
     public void testFillingReadOnRecordNegativeMemberAccessLvExpr() {
         BRunUtil.invoke(result, "testFillingReadOnRecordNegativeMemberAccessLvExpr");
+    }
+
+    @Test
+    public void testArrayMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr() {
+        BRunUtil.invoke(result, "testArrayMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr");
+    }
+
+    @Test
+    public void testTupleMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr() {
+        BRunUtil.invoke(result, "testTupleMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr");
+    }
+
+    @Test
+    public void testRecordMemberAccessLvExprWithStringCharKeyExpr() {
+        BRunUtil.invoke(result, "testRecordMemberAccessLvExprWithStringCharKeyExpr");
     }
 
     @AfterClass

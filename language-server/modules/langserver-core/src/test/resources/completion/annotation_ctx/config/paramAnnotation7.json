@@ -283,11 +283,20 @@
       "additionalTextEdits": []
     },
     {
+      "label": "isolatedParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "isolatedParam",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "parameterAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "A",
-      "insertText": "parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "parameterAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -296,18 +305,113 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "isolatedParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "isolatedParam",
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project2",
+      "insertText": "project2",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

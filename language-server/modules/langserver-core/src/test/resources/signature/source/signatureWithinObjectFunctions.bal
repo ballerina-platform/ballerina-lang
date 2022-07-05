@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/iox;
 
 type TestObject1 object {
     function testOb1Signature1();

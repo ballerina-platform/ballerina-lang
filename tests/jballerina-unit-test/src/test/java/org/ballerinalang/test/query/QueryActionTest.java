@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -152,6 +153,39 @@ public class QueryActionTest {
     @Test
     public void testQueryActionWithAsyncCalls() {
         BRunUtil.invoke(result, "testQueryActionWithAsyncCalls");
+    }
+
+    @Test
+    public void testQueryExpWithinQueryAction() {
+        BRunUtil.invoke(result, "testQueryExpWithinQueryAction");
+    }
+
+    @Test
+    public void testErrorHandlingWithinQueryAction() {
+        BRunUtil.invoke(result, "testErrorHandlingWithinQueryAction");
+    }
+
+    @Test
+    public void testReturnStmtWithinQueryAction() {
+        BRunUtil.invoke(result, "testReturnStmtWithinQueryAction");
+    }
+
+    @Test
+    public void testQueryActionWithDoClauseContainsCheck() {
+        BRunUtil.invoke(result, "testQueryActionWithDoClauseContainsCheck");
+    }
+
+    @Test(dataProvider = "dataToTestQueryActionWithVar")
+    public void testQueryActionWithVar(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestQueryActionWithVar() {
+        return new Object[]{
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction",
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction2"
+        };
     }
 
     @AfterClass

@@ -18,17 +18,24 @@
 
 package io.ballerina.runtime.internal.util;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -195,6 +202,47 @@ public class RuntimeUtils {
 
     public static String getMajorVersion(String version) {
         return version.split("\\.")[0];
+    }
+
+    public static BMap<BString, Object> validateBMapValues(BMap<BString, Object> bMap) {
+        if (bMap == null) {
+            return new MapValueImpl<>();
+        }
+        for (Object value : bMap.values()) {
+            if (isInvalidBallerinaValue(value)) {
+                throw ErrorUtils.createJToBTypeCastError(value.getClass());
+            }
+        }
+        return bMap;
+    }
+
+    public static Map<String, Object> validateBMapValues(Map<String, Object> bMap) {
+        if (bMap == null) {
+            return new MapValueImpl<>();
+        }
+        for (Object value : bMap.values()) {
+            if (isInvalidBallerinaValue(value) && !(value instanceof String)) {
+                throw ErrorUtils.createJToBTypeCastError(value.getClass());
+            }
+        }
+        return bMap;
+    }
+
+    public static BMap<BString, Object> validateErrorDetails(BMap<BString, Object> details) {
+        if (details == null) {
+            return new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        }
+        for (Object value : details.values()) {
+            if (isInvalidBallerinaValue(value)) {
+                throw ErrorUtils.createJToBTypeCastError(value.getClass());
+            }
+        }
+        return details;
+    }
+
+    private static boolean isInvalidBallerinaValue(Object value) {
+        return (value != null && !(value instanceof Number) && !(value instanceof Boolean) &&
+                !(value instanceof BValue));
     }
 
     private RuntimeUtils() {

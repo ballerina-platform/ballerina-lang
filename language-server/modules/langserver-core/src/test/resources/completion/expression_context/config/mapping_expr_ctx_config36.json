@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "module1:TestRecord1.rec1Field1",
       "sortText": "K",
-      "insertText": "rec1Field1: ${2:0}",
+      "insertText": "rec1Field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -35,7 +35,16 @@
       "kind": "Field",
       "detail": "module1:TestRecord1.rec1Field2",
       "sortText": "K",
-      "insertText": "rec1Field2: \"${3}\"",
+      "insertText": "rec1Field2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec",
+      "kind": "Variable",
+      "detail": "module1:TestRecord1",
+      "sortText": "AB",
+      "filterText": "rec",
+      "insertText": "...rec",
       "insertTextFormat": "Snippet"
     }
   ]

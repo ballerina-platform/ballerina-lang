@@ -1,0 +1,56 @@
+product = { intVal = 22, floatVal = 22.33, stringVal = "abc", arrVal = [1, 2, 3], mapVal = { a = "a", b = 123 }, mapArr = [{ c = "c", d = 456 }] }
+
+productArr = [
+    { intVal = 11, floatVal = 99.77, stringVal = "def", arrVal = [4.5, 6.7], mapVal = { c = "c", d = 456 }, mapArr = [{ a = "a", b = 789 }] },
+    { intVal = 33, floatVal = 88.44, stringVal = "ghi", arrVal = [8.9, 0.1], mapVal = { e = "e", f = 789 }, mapArr = [{ g = "g", h = 876 }] },
+]
+productTable = [
+    { intVal = 65, floatVal = 9.12, stringVal = "val", arrVal = ["4", "6"], mapVal = { c = "ccc", d = 43 }, mapArr = [{ i = "iii", j = 21 }] },
+    { intVal = 40, floatVal = 13.57, stringVal = "str", arrVal = [10, 20], mapVal = { m = "mmm", n = 68 }, mapArr = [{ y = "yyy", x = 24 }] },
+]
+
+productMap = { entry1 = { intVal = 22, floatVal = 22.33, stringVal = "abc", arrVal = [1, 2, 3], mapVal = { a = "a", b = 123 } }, entry2 = { mapArr = [{ c = "c", d = 456 }] } }
+
+productMapTable = { entry1 = [{ intVal = 100, floatVal = 103.507, stringVal = "string", arrVal = [100, 200], mapVal = { m = "value", n = 608 }, mapArr = [{ y = "test", x = 204 }] }] }
+
+owner = { id = 101, intVal = 22, floatVal = 22.33, stringVal = "abc", arrVal = [1, 2, 3], mapVal = { a = "a", b = 123 }, mapArr = [{ c = "c", d = 456 }] }
+
+ownerArr = [{ id = 102, intVal = 11, floatVal = 99.77, stringVal = "def", arrVal = [4.5, 6.7], mapVal = { c = "c", d = 456 }, mapArr = [{ a = "a", b = 789 }] }, { id = 103, intVal = 33, floatVal = 88.44, stringVal = "ghi", arrVal = [8.9, 0.1], mapVal = { e = "e", f = 789 }, mapArr = [{ g = "g", h = 876 }] }]
+
+ownerTable = [{ id = 104, intVal = 65, floatVal = 9.12, stringVal = "val", arrVal = ["4", "6"], mapVal = { c = "ccc", d = 43 }, mapArr = [{ i = "iii", j = 21 }] }, { id = 105, intVal = 40, floatVal = 13.57, stringVal = "str", arrVal = [10, 20], mapVal = { m = "mmm", n = 68 }, mapArr = [{ y = "yyy", x = 24 }] }]
+
+ownerMap = { entry1 = { id = 106, intVal = 22, floatVal = 22.33, stringVal = "abc", arrVal = [1, 2, 3], mapVal = { a = "a", b = 123 } }, entry2 = { id = 107, mapArr = [{ c = "c", d = 456 }] } }
+
+ownerMapTable = { entry1 = [{ id = 108, intVal = 100, floatVal = 103.507, stringVal = "string", arrVal = [100, 200], mapVal = { m = "value", n = 608 }, mapArr = [{ y = "test", x = 204 }] }] }
+
+member = { id = 101, intVal = 22, floatVal = 22.33, stringVal = "abc", arrVal = [1, 2, 3], mapVal = { a = "a", b = 123 }, mapArr = [{ c = "c", d = 456 }] }
+
+memberArr = [{ id = 102, intVal = 11, floatVal = 99.77, stringVal = "def", arrVal = [4.5, 6.7], mapVal = { c = "c", d = 456 }, mapArr = [{ a = "a", b = 789 }] }, { id = 103, intVal = 33, floatVal = 88.44, stringVal = "ghi", arrVal = [8.9, 0.1], mapVal = { e = "e", f = 789 }, mapArr = [{ g = "g", h = 876 }] }]
+
+memberTable = [{ id = 104, intVal = 65, floatVal = 9.12, stringVal = "val", arrVal = ["4", "6"], mapVal = { c = "ccc", d = 43 }, mapArr = [{ i = "iii", j = 21 }] }, { id = 105, intVal = 40, floatVal = 13.57, stringVal = "str", arrVal = [10, 20], mapVal = { m = "mmm", n = 68 }, mapArr = [{ y = "yyy", x = 24 }] }]
+
+memberMap = { entry1 = { id = 106, intVal = 22, floatVal = 22.33, stringVal = "abc", arrVal = [1, 2, 3], mapVal = { a = "a", b = 123 } }, entry2 = { id = 107, mapArr = [{ c = "c", d = 456 }] } }
+
+memberMapTable = { entry1 = [{ id = 108, intVal = 100, floatVal = 103.507, stringVal = "string", arrVal = [100, 200], mapVal = { m = "value", n = 608 }, mapArr = [{ y = "test", x = 204 }] }] }
+
+anonRecord = { id = 123, intVal = 22, floatVal = 22.33, stringVal = "abc", arrVal = [1, 2, 3], mapVal = { a = "a", b = 123 }, mapArr = [{ c = "c", d = 456 }] }
+
+anonRecordMap = { entry1 = { id = 124, intVal = 22, floatVal = 22.33, stringVal = "abc", arrVal = [1, 2, 3], mapVal = { a = "a", b = 123 } }, entry2 = { id = 125, mapArr = [{ c = "c", d = 456 }] } }
+
+anonRecordMapTable = { entry1 = [{ id = 126, intVal = 100, floatVal = 103.507, stringVal = "string", arrVal = [100, 200], mapVal = { m = "value", n = 608 }, mapArr = [{ y = "test", x = 204 }] }] }
+
+anonRecordArr = [{ id = 127, intVal = 11, floatVal = 99.77, stringVal = "def", arrVal = [4.5, 6.7], mapVal = { c = "c", d = 456 }, mapArr = [{ a = "a", b = 789 }] }, { id = 128, intVal = 33, floatVal = 88.44, stringVal = "ghi", arrVal = [8.9, 0.1], mapVal = { e = "e", f = 789 }, mapArr = [{ g = "g", h = 876 }] }]
+
+anonRecordTable = [{ id = 129, intVal = 65, floatVal = 9.12, stringVal = "val", arrVal = ["4", "6"], mapVal = { c = "ccc", d = 43 }, mapArr = [{ i = "iii", j = 21 }] }, { id = 130, intVal = 40, floatVal = 13.57, stringVal = "str", arrVal = [10, 20], mapVal = { m = "mmm", n = 68 }, mapArr = [{ y = "yyy", x = 24 }] }]
+
+configOpenRecord.rest_fields.intRest = { id = 11, age = 26 }
+configOpenRecord.rest_fields.floatRest = { height = 161.5, weight = 62.3 }
+configOpenRecord.rest_fields.stringRest = { name = "Hinduja", city = "Colombo" }
+configOpenRecord.rest_fields.booleanRest = { isBoolean = true, isByte = false }
+configOpenRecord.rest_fields.anyRest = { intVal = 100, floatVal = 103.507, stringVal = "string", arrVal = [100, 200], mapVal = { m = "value", n = 608 } }
+
+configOpenRecord.rest_fields.player = { id = 101, teamMate = { id = 102, teamMate = { id = 103 } } }
+configOpenRecord.rest_fields.playerArr = [{ id = 104, teamMate = { id = 105, teamMate = { id = 106 } } }, { id = 107, teamMate = { id = 108, teamMate = { id = 109 } } }]
+configOpenRecord.rest_fields.playerTable = [{ id = 110, teamMate = { id = 111, teamMate = { id = 112 } } }, { id = 113, teamMate = { id = 114, teamMate = { id = 115 } } }]
+configOpenRecord.rest_fields.playerMap = { entry1 = { id = 116, teamMate = { id = 117, teamMate = { id = 118 } } }, entry2 = { id = 119 } }
+configOpenRecord.rest_fields.playerMapTable = { entry1 = [{ id = 120 }, { id = 121, teamMate = { id = 122, teamMate = { id = 123 } } }] }

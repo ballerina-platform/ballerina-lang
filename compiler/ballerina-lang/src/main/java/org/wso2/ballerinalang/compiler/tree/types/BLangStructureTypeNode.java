@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.StructureTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -44,6 +45,7 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     // Parser Flags and Data
     public boolean isAnonymous;
     public boolean isLocal;
+    public boolean referencedFieldsDefined;
 
     // Semantic Data
     public BSymbol symbol;
@@ -51,10 +53,18 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     // This is a cache of the fields referred through the type references
     public List<BLangSimpleVariable> includedFields;
 
+    // This is a cache to be used when resolving type inclusions
+    public SymbolEnv typeDefEnv;
+
     public BLangStructureTypeNode() {
         this.fields = new ArrayList<>();
         this.typeRefs = new ArrayList<>();
         this.includedFields = new ArrayList<>();
+    }
+
+    // This ctor is to be used in node cloner. Since we clone fields and typeRefs no need to initialize them
+    public BLangStructureTypeNode(int includedFieldCount) {
+        this.includedFields = new ArrayList<>(includedFieldCount);
     }
 
     @Override

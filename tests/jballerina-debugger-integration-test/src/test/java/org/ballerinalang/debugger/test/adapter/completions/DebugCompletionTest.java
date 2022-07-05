@@ -62,7 +62,7 @@ public class DebugCompletionTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
-        Assert.assertEquals(completions.size(), 30);
+        Assert.assertEquals(completions.size(), 31);
 
         // Test for global variable completions in the beginning of the main() method.
         debugTestRunner.assertCompletions(completions, "globalVar");
@@ -82,7 +82,7 @@ public class DebugCompletionTest extends BaseTestCase {
         // Debug completions test at the end of the main() method.
         assertCompletionSuggestions();
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
-        Assert.assertEquals(completions.size(), 41);
+        Assert.assertEquals(completions.size(), 42);
     }
 
     private void assertCompletionSuggestions() throws BallerinaTestException {
@@ -129,7 +129,7 @@ public class DebugCompletionTest extends BaseTestCase {
         debugTestRunner.assertCompletions(completions, "carName");
 
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "person.getCar().getCarName().");
-        Assert.assertEquals(completions.size(), 34);
+        Assert.assertEquals(completions.size(), 37);
         debugTestRunner.assertCompletions(completions, "toBalString()");
 
         // Debug completions test for object remote functions

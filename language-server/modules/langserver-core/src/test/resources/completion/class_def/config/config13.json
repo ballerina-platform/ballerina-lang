@@ -51,15 +51,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "resource function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "resource_function",
-      "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -84,6 +75,15 @@
       "sortText": "Q",
       "filterText": "client",
       "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "resource_function",
+      "insertText": "resource function ${1:accessor} ${2:path} (${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

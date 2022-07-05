@@ -114,6 +114,30 @@ public class MatchStmtMappingMatchPatternNegativeTest {
                 64, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
                 "found 'record {| int i?; never...; |}'", 67, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '()', found 'string'", 94, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 95, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'decimal'", 96,
+                24);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testMappingMatchPatternNegativeSyntax() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/statements/matchstmt/mapping_match_pattern_syntax_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++,  "missing field match pattern member", 18, 17);
+        BAssertUtil.validateError(negativeResult, i++,
+                "variable '$missingNode$_1' should be declared as constant", 18, 17);
+        BAssertUtil.validateError(negativeResult, i++,  "invalid token ','", 21, 26);
+        BAssertUtil.validateError(negativeResult, i++,  "invalid token ','", 24, 18);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 27, 20);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 27, 29);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 27, 36);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 30, 29);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 30, 39);
+        BAssertUtil.validateError(negativeResult, i++,  "match pattern after rest match pattern", 30, 46);
+        BAssertUtil.validateError(negativeResult, i++,  "invalid token ','", 33, 10);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

@@ -44,7 +44,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
@@ -146,19 +145,15 @@ public class SymbolBIRTest {
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
                 .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
-        List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
-        SemanticAPITestUtils.assertList(fooModule.functions(), fooFunctions);
-
-        List<String> fooConstants = getSymbolNames(fooPkgSymbol, SymTag.CONSTANT);
-        SemanticAPITestUtils.assertList(fooModule.constants(), fooConstants);
-
-        List<String> fooTypeDefs = getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF);
-        fooTypeDefs.remove("PersonObj");
-        fooTypeDefs.remove("Colour");
-        fooTypeDefs.remove("Dog");
-        fooTypeDefs.remove("EmployeeObj");
-        SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
-        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj"));
+        SemanticAPITestUtils.assertList(fooModule.functions(), List.of("loadHuman", 
+                "testAnonTypeDefSymbolsIsNotVisible", "add"));
+        SemanticAPITestUtils.assertList(fooModule.constants(), List.of("RED", "GREEN", "BLUE", "PI", "TRUE", "FALSE"));
+        
+        SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
+                "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
+                "Annot", "Detail"));
+        
+        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
@@ -221,6 +216,24 @@ public class SymbolBIRTest {
         assertEquals(inclusions.get(0).getName().get(), "Person");
     }
 
+    @Test(dataProvider = "MethodsInAbstractObject")
+    public void testMethodsInAbstractObject(int line, int col, String name, SymbolKind kind) {
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(line, col));
+        assertTrue(optionalSymbol.isPresent());
+        Symbol symbol = optionalSymbol.get();
+        assertEquals(symbol.getName().get(), name);
+        assertEquals(symbol.kind(), kind);
+    }
+
+    @DataProvider(name = "MethodsInAbstractObject")
+    public Object[][] getMethodSymbolsInAbstractObject() {
+        return new Object[][]{
+                {36, 26, "eatFunction", SymbolKind.METHOD},
+                {37, 24, "walkFunction", SymbolKind.METHOD},
+                {38, 17, "age", SymbolKind.OBJECT_FIELD},
+        };
+    }
+
     // util methods
 
     public static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {
@@ -256,7 +269,7 @@ public class SymbolBIRTest {
                 new Object[][]{
                         {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
                         {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
-                        {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
+                        {"function", MODULE}, {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
                         {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}
                 });
     }

@@ -328,6 +328,52 @@ function testObjectConstructorWithReferredIntersectionType() {
     assertValueEquality(1, b.i);
 }
 
+var obj1 = object {
+    function foo() returns boolean {
+        var intOrNil = self.bar();
+        return intOrNil is int;
+    }
+
+    function bar() returns int? {
+        return 2;
+    }
+};
+
+public type DistinctError distinct error;
+
+var obj2 = object {
+    function foo() returns boolean {
+        var err = self.bar();
+        return err is DistinctError;
+    }
+
+    function bar() returns DistinctError? {
+        return error("MSG");
+    }
+};
+
+var obj3 = object {
+    function foo() returns boolean {
+        var err1 = self.bar1();
+        var err2 = self.bar2();
+        return (err1 is DistinctError) && (err2 is DistinctError);
+    }
+
+    function bar1() returns DistinctError? {
+        return error("MSG1");
+    }
+
+    function bar2() returns DistinctError? {
+        return error("MSG2");
+    }
+};
+
+function testMultipleVarAssignments() {
+    assertTrue(obj1.foo());
+    assertTrue(obj2.foo());
+    assertTrue(obj3.foo());
+}
+
 // assertion helpers
 
 const ASSERTION_ERROR_REASON = "AssertionError";

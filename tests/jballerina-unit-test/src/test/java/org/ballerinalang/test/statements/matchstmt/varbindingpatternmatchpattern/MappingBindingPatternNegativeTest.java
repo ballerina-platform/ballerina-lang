@@ -111,6 +111,8 @@ public class MappingBindingPatternNegativeTest {
                 "found 'record {| never i?; never...; |}'", 74, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
                 "found 'record {| int i?; never...; |}'", 77, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'map<int> & readonly'", 89, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

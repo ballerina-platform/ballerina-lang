@@ -2392,5 +2392,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 keywordToken,
                 typeParamNode);
     }
+
+    public static STNode createSpreadMemberNode(
+            STNode ellipsis,
+            STNode expression) {
+
+        return new STSpreadMemberNode(
+                ellipsis,
+                expression);
+    }
 }
 

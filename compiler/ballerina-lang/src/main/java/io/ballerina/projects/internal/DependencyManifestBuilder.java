@@ -227,7 +227,7 @@ public class DependencyManifestBuilder {
                 }
 
                 dependencies.add(new DependencyManifest.Package(depName, depOrg, depVersion, scope, transitive,
-                                                                transDependencies, modules));
+                                                                transDependencies, modules, dependencyNode.location()));
             }
         }
         return dependencies;
@@ -289,7 +289,7 @@ public class DependencyManifestBuilder {
                                      DiagnosticSeverity.WARNING, dependencyNode.location());
                     continue;
                 }
-                packages.add(new DependencyManifest.Package(depName, depOrg, depVersion));
+                packages.add(new DependencyManifest.Package(depName, depOrg, depVersion, dependencyNode.location()));
             }
         }
         return packages;

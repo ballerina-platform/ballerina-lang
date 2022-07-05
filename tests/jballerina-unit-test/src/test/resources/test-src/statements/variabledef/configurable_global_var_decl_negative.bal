@@ -94,4 +94,4 @@ configurable string|json unionVar1 = ?;
 configurable json unionVar2 = ?;
 
 // Unsupported tuple type
-configurable [int, string] tupleVar = ?;
+configurable [int, string, json] tupleVar = ?;

@@ -363,6 +363,23 @@ public class BallerinaTomlTests {
     }
 
     @Test
+    public void testPackageHasOrgAndNameWithInitialNumericCharacters() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("initial-numeric-chars-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have initial numeric characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:20)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have initial numeric characters");
+    }
+
+    @Test
     public void testLangPackageHasNameWithConsecutiveUnderscores() throws IOException {
         PackageManifest packageManifest = getPackageManifest(
                 BAL_TOML_REPO.resolve("underscores-lang-package.toml"));

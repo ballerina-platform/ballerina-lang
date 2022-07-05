@@ -317,7 +317,8 @@ public class TupleVariableReferenceTest {
         String errorMsg1 = "incompatible types: expected ";
 
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "tuple and expression size does not match", 19, 17);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "tuple and expression size does not match", 24, 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value", 24, 17);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'string', found 'int'", 29, 18);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'int', found 'string'", 29, 22);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'float', found 'boolean'", 29, 30);

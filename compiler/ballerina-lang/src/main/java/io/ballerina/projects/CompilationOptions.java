@@ -24,7 +24,6 @@ package io.ballerina.projects;
  */
 public class CompilationOptions {
     Boolean offlineBuild;
-    Boolean experimental;
     Boolean observabilityIncluded;
     Boolean dumpBir;
     Boolean dumpBirFile;
@@ -34,16 +33,15 @@ public class CompilationOptions {
     Boolean dumpGraph;
     Boolean dumpRawGraphs;
     Boolean withCodeGenerators;
+    Boolean withCodeModifiers;
     Boolean configSchemaGen;
     Boolean exportOpenAPI;
 
-    CompilationOptions(Boolean offlineBuild, Boolean experimental,
-                       Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
-                       String cloud, Boolean listConflictedClasses, Boolean sticky,
-                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators, Boolean configSchemaGen,
-                       Boolean exportOpenAPI) {
+    CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
+                       Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
+                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
+                       Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI) {
         this.offlineBuild = offlineBuild;
-        this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
         this.dumpBirFile = dumpBirFile;
@@ -53,6 +51,7 @@ public class CompilationOptions {
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
         this.withCodeGenerators = withCodeGenerators;
+        this.withCodeModifiers = withCodeModifiers;
         this.configSchemaGen = configSchemaGen;
         this.exportOpenAPI = exportOpenAPI;
     }
@@ -63,10 +62,6 @@ public class CompilationOptions {
 
     boolean sticky() {
         return toBooleanTrueIfNull(this.sticky);
-    }
-
-    boolean experimental() {
-        return toBooleanDefaultIfNull(this.experimental);
     }
 
     boolean observabilityIncluded() {
@@ -101,6 +96,10 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.withCodeGenerators);
     }
 
+    public boolean withCodeModifiers() {
+        return toBooleanDefaultIfNull(this.withCodeModifiers);
+    }
+
     public Boolean configSchemaGen() {
         return toBooleanDefaultIfNull(this.configSchemaGen);
     }
@@ -121,11 +120,6 @@ public class CompilationOptions {
             compilationOptionsBuilder.setOffline(theirOptions.offlineBuild);
         } else {
             compilationOptionsBuilder.setOffline(this.offlineBuild);
-        }
-        if (theirOptions.experimental != null) {
-            compilationOptionsBuilder.setExperimental(theirOptions.experimental);
-        } else {
-            compilationOptionsBuilder.setExperimental(this.experimental);
         }
         if (theirOptions.observabilityIncluded != null) {
             compilationOptionsBuilder.setObservabilityIncluded(theirOptions.observabilityIncluded);
@@ -172,6 +166,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.withCodeGenerators(this.withCodeGenerators);
         }
+        if (theirOptions.withCodeModifiers != null) {
+            compilationOptionsBuilder.withCodeModifiers(theirOptions.withCodeModifiers);
+        } else {
+            compilationOptionsBuilder.withCodeModifiers(this.withCodeModifiers);
+        }
         if (theirOptions.configSchemaGen != null) {
             compilationOptionsBuilder.setConfigSchemaGen(theirOptions.configSchemaGen);
         } else {
@@ -217,7 +216,6 @@ public class CompilationOptions {
      */
     public static class CompilationOptionsBuilder {
         private Boolean offline;
-        private Boolean experimental;
         private Boolean observabilityIncluded;
         private Boolean dumpBir;
         private Boolean dumpBirFile;
@@ -227,6 +225,7 @@ public class CompilationOptions {
         private Boolean dumpGraph;
         private Boolean dumpRawGraph;
         private Boolean withCodeGenerators;
+        private Boolean withCodeModifiers;
         private Boolean configSchemaGen;
         private Boolean exportOpenAPI;
 
@@ -237,11 +236,6 @@ public class CompilationOptions {
 
         public CompilationOptionsBuilder setSticky(Boolean value) {
             sticky = value;
-            return this;
-        }
-
-        CompilationOptionsBuilder setExperimental(Boolean value) {
-            experimental = value;
             return this;
         }
 
@@ -290,15 +284,20 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder withCodeModifiers(Boolean value) {
+            withCodeModifiers = value;
+            return this;
+        }
+
         CompilationOptionsBuilder setExportOpenAPI(Boolean value) {
             exportOpenAPI = value;
             return this;
         }
 
         public CompilationOptions build() {
-            return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
-                    dumpBirFile, cloud, listConflictedClasses, sticky,
-                    dumpGraph, dumpRawGraph, withCodeGenerators, configSchemaGen, exportOpenAPI);
+            return new CompilationOptions(offline, observabilityIncluded, dumpBir,
+                    dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
+                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI);
         }
     }
 }

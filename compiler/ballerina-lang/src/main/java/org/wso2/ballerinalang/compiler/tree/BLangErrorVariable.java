@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
@@ -110,6 +111,7 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
         // BLangNodes
         public BLangIdentifier key;
         public BLangVariable valueBindingPattern;
+        public BSymbol keySymbol;
 
         public BLangErrorDetailEntry(BLangIdentifier key, BLangVariable valueBindingPattern) {
             this.key = key;

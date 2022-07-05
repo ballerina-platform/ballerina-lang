@@ -401,13 +401,15 @@ public class TupleVariableDefinitionTest {
         String errorMsg2 = "invalid list binding pattern: expected an array or a tuple, but found ";
         String errorMsg3 = "tuple and expression size does not match";
         String errorMsg4 = "incompatible types: expected ";
+        String errorMsg5 = "invalid usage of list constructor: ";
 
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 5);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 5);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 5);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int'", 25, 34);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 48);
+        BAssertUtil.validateError(resultNegative, ++i,
+                errorMsg5 + "type 'NoFillerObject' does not have a filler value", 30, 48);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'string', found 'int'", 31, 42);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'int', found 'float'", 31, 45);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'float', found 'string'", 31, 50);

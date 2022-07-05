@@ -159,7 +159,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> record",
+      "label": "type <RecordName> record {}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
@@ -204,7 +204,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> closed record",
+      "label": "type <RecordName> record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
@@ -685,11 +685,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service on test:MockListener",
+      "label": "service on lang.test:MockListener",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "E",
-      "filterText": "service_test_MockListener",
+      "filterText": "service_lang_test_MockListener",
       "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -731,6 +731,119 @@
           "newText": "import ballerina/module1;\n"
         }
       ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

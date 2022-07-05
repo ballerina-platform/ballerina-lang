@@ -335,6 +335,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_s");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
+        Path cacheDir = testBuildDirectory.resolve("repo").resolve("bala").resolve("adv_res").resolve("package_r");
+        Files.deleteIfExists(cacheDir);
+
         // project --> package_protobuf:0.6.0
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
@@ -422,7 +425,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // User caches package_m:1_3_0-beta.1
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
         // User caches package_m:1_3_0-beta.1 to local repository
-        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
         // Cache package_n
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_n_2_0_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
@@ -460,23 +463,32 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
     @Test(description = "A newer pre-release version of a dependency is being used from the local repo")
     public void testCase0011(ITestContext ctx) throws IOException {
-        // 1. Specify pre-release version in Ballerina.toml
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_o_local_dependency");
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
-        buildProject1.save();
-        failIfDiagnosticsExists(buildProject1);
+
+        // 1. User caches package_m:1_3_0-beta.1 to local repository
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_m_1_0_1"));
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
+        // Cache package_n
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_n_2_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+        // 2. Directly import package while specifying in Ballerina.toml
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_o_with_import_local_dependency");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+
+        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().build());
+        buildProject2.save();
+        failIfDiagnosticsExists(buildProject2);
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
-        // 2. Directly import package while specifying in Ballerina.toml
-        projectDirPath = RESOURCE_DIRECTORY.resolve("project_o_with_import_local_dependency");
-        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        // 3. Check sticky false
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
-        buildProject2.save();
-        failIfDiagnosticsExists(buildProject2);
-
+        buildProject3.save();
+        failIfDiagnosticsExists(buildProject3);
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }

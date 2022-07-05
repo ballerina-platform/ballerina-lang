@@ -1025,10 +1025,10 @@ public class CentralAPIClient {
             Response searchResponse = httpRequestCall.execute();
             body = Optional.ofNullable(searchResponse.body());
             if (body.isPresent()) {
-                String responseStr = body.get().string();
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    String responseStr = body.get().string();
                     return new Gson().fromJson(responseStr, JsonObject.class);
                 }
             }

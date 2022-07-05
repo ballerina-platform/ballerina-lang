@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.BooleanTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -30,12 +31,22 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaBooleanTypeSymbol extends AbstractTypeSymbol implements BooleanTypeSymbol {
 
-    public BallerinaBooleanTypeSymbol(CompilerContext context, ModuleID moduleID, BType booleanType) {
+    public BallerinaBooleanTypeSymbol(CompilerContext context, BType booleanType) {
         super(context, TypeDescKind.BOOLEAN, booleanType);
     }
 
     @Override
     public String signature() {
         return "boolean";
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

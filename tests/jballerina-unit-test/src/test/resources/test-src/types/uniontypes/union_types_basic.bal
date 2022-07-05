@@ -401,6 +401,11 @@ function testRecursiveUnionWithTable() {
     assertEquality("[{\"one\":1},{\"one\":2}]", (<table<map<UnionTypeWithTable>>> tb).toString());
 }
 
+function testParenthesisedSingletonUnionType() {
+    (true|false?) b = true;
+    assertEquality(true, b);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

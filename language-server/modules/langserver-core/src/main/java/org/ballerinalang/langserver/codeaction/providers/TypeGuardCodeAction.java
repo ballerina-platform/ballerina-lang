@@ -41,10 +41,12 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -65,17 +67,14 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
 
     public TypeGuardCodeAction() {
         super(Arrays.asList(CodeActionNodeType.LOCAL_VARIABLE,
-                            CodeActionNodeType.ASSIGNMENT));
+                CodeActionNodeType.ASSIGNMENT));
     }
 
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
         NonTerminalNode matchedNode = posDetails.matchedStatementNode();
-        boolean isAssignment = matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT;
-        boolean isVarDeclr = matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL;
-        // Skip, if not a var declaration or assignment
-        if (!isVarDeclr && !isAssignment) {
+        if (!isInValidContext(matchedNode, context)) {
             return Collections.emptyList();
         }
 
@@ -100,12 +99,13 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
 
         // Add type guard code action
         String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, varName.get());
-        Range range = CommonUtil.toRange(matchedNode.lineRange());
+        Range range = PositionUtil.toRange(matchedNode.lineRange());
         List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(varName.get(), range, varTypeSymbol, context);
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }
-        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
+        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(), 
+                CodeActionKind.Source));
     }
 
     @Override
@@ -175,10 +175,26 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
         Document srcFile = context.currentDocument().orElseThrow();
         Optional<Symbol> symbol = semanticModel.symbol(srcFile,
-                                                       assignmentStmtNode.varRef().lineRange().startLine());
+                assignmentStmtNode.varRef().lineRange().startLine());
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }
         return Optional.of((VariableSymbol) symbol.get());
     }
+
+    private boolean isInValidContext(NonTerminalNode matchedNode, CodeActionContext context) {
+
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
+            return false;
+        }
+        Node node = null;
+        if (matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+            node = ((AssignmentStatementNode) matchedNode).varRef();
+        } else if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            node = ((VariableDeclarationNode) matchedNode).typedBindingPattern().bindingPattern();
+        }
+        return node != null &&  PositionUtil.isWithInRange(node, context.cursorPositionInTree());
+    }
+    
 }

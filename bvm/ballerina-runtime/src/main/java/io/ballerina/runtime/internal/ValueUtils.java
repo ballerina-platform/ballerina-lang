@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -56,10 +57,17 @@ public class ValueUtils {
      * @return value of the record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
-        io.ballerina.runtime.internal.values.ValueCreator valueCreator =
-                io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator.
-                        getLookupKey(packageId));
-        return valueCreator.createRecordValue(recordTypeName);
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
+        try {
+            return valueCreator.createRecordValue(recordTypeName);
+        } catch (BError e) {
+            // If record type definition not found, get it from test module.
+            String testLookupKey = ValueCreator.getLookupKey(packageId, true);
+            if (ValueCreator.containsValueCreator(testLookupKey)) {
+                return ValueCreator.getValueCreator(testLookupKey).createRecordValue(recordTypeName);
+            }
+            throw e;
+        }
     }
 
     /**
@@ -119,23 +127,37 @@ public class ValueUtils {
      */
     public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
         Strand currentStrand = Scheduler.getStrandNoException();
-        // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
-        io.ballerina.runtime.internal.values.ValueCreator
-                valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
-                .getLookupKey(packageId));
         Object[] fields = new Object[fieldValues.length * 2];
-
-        // Here the variables are initialized with default values
-        Scheduler scheduler = null;
-        State prevState = State.RUNNABLE;
-        boolean prevBlockedOnExtern = false;
-        BObject objectValue;
-
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
             fields[j++] = fieldValues[i];
             fields[j++] = true;
         }
+        return createObjectValue(currentStrand, packageId, objectTypeName, fields);
+    }
+
+    /**
+     * Create object value with strand, package id, object type name and given field values.
+     *
+     * @param currentStrand   current strand.
+     * @param packageId       the package id that the object type resides.
+     * @param objectTypeName  name of the object type.
+     * @param fieldValues     values to be used for fields when creating the object value instance.
+     * @return value of the object.
+     */
+    public static BObject createObjectValue(Strand currentStrand, Module packageId, String objectTypeName,
+                                             Object[] fieldValues) {
+
+        // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
+        io.ballerina.runtime.internal.values.ValueCreator
+                valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
+                .getLookupKey(packageId, false));
+
+        // Here the variables are initialized with default values
+        Scheduler scheduler = null;
+        State prevState = State.RUNNABLE;
+        boolean prevBlockedOnExtern = false;
+
         try {
             // Check for non-blocking call
             if (currentStrand != null) {
@@ -145,15 +167,25 @@ public class ValueUtils {
                 currentStrand.blockedOnExtern = false;
                 currentStrand.setState(State.RUNNABLE);
             }
-            objectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
-                                                         null, fields);
+            try {
+                return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
+                        null, fieldValues);
+            } catch (BError e) {
+                // If object type definition not found, get it from test module.
+                String testLookupKey = ValueCreator.getLookupKey(packageId, true);
+                if (ValueCreator.containsValueCreator(testLookupKey)) {
+                    valueCreator = ValueCreator.getValueCreator(testLookupKey);
+                    return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
+                            null, fieldValues);
+                }
+                throw e;
+            }
         } finally {
             if (currentStrand != null) {
                 currentStrand.blockedOnExtern = prevBlockedOnExtern;
                 currentStrand.setState(prevState);
             }
         }
-        return objectValue;
     }
 
     private ValueUtils() {
@@ -178,7 +210,7 @@ public class ValueUtils {
      */
     public static BTypedesc createSingletonTypedesc(BValue value) {
         return io.ballerina.runtime.api.creators.ValueCreator
-                .createTypedescValue(TypeCreator.createFiniteType(value.toString(), Set.of(value), 0));
+                .createTypedescValue(TypeCreator.createFiniteType(null, Set.of(value), 0));
     }
 
     /**

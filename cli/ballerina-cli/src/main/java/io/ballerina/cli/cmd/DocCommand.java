@@ -63,19 +63,21 @@ public class DocCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
-    public DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish, Path targetDir) {
+    DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish, Path targetDir) {
         this.projectPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
@@ -99,9 +101,6 @@ public class DocCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private boolean experimentalFlag;
 
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
@@ -214,7 +213,6 @@ public class DocCommand implements BLauncherCmd {
 
         buildOptionsBuilder
                 .setCodeCoverage(false)
-                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setTestReport(false)
                 .setObservabilityIncluded(false)

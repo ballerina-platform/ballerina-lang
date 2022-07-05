@@ -60,11 +60,17 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_enum_member.json", "DARK_RED"},
                 {"rename_to_keyword1.json", "int"},
                 {"rename_identifier_with_escaped_char1.json", "first\\ name"},
+                {"rename_in_undefined_fn_call.json", "counter"},
+                {"rename_in_fn_call_rest_args.json", "myValue1"},
+                {"rename_in_mapping_binding_pattern1.json", "name2"},
+                {"rename_in_mapping_binding_pattern2.json", "pName"},
+                {"rename_in_mapping_binding_pattern3.json", "pName"},
 
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},
                 {"rename_self.json", "this"},
                 {"rename_invalid_qname_ref.json", "io"},
+                {"rename_with_compilation_error.json", "NewTypeMap"}
         };
     }
 }

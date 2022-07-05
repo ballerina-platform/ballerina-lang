@@ -444,7 +444,10 @@ function testTypedescCastPositive() returns boolean {
 function testTypedescCastNegative() {
     typedesc<int> t1 = int;
     any a = t1;
-    assertTypeCastFailureWithMessage(trap <int> a, "incompatible types: 'typedesc' cannot be cast to 'int'");
+    assertTypeCastFailureWithMessage(trap <int>a, "incompatible types: 'typedesc<int>' cannot be cast to 'int'");
+
+    typedesc<int> i = typeof 1;
+    assertTypeCastFailureWithMessage(trap <typedesc<string>><any>i, "incompatible types: 'typedesc<1>' cannot be cast to 'typedesc<string>'");
 }
 
 function testMapElementCastPositive() returns boolean {
@@ -946,10 +949,18 @@ function testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
     assertTypeCastFailureWithMessage(trap <int:Signed16|float> c, "incompatible types: 'string' cannot be cast to '(lang.int:Signed16|float)'");
 }
 
+const NIL = ();
+const int Interger = 1;
+const string String = "Ballerina";
+const float Float = 2.3;
+const decimal Decimal = 4.5d;
+const byte Byte = 5;
+const boolean Boolean = true;
+
 function testFiniteTypeArrayNegative() {
-    (1|2.0|3.0d)[] a = [];
+    (1|2.0|3.0d|true|"Hello"|()|NIL|Interger|String|Float|Decimal|Byte|Boolean)[] a = [];
     any c = a;
-    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(1|2.0f|3.0d)[]' cannot be cast to 'int'");
+    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(()|1|\"Ballerina\"|2.3f|4.5d|5|true|(1|2.0f|3.0d|true|\"Hello\"))?[]' cannot be cast to 'int'");
 }
 
 // Util functions

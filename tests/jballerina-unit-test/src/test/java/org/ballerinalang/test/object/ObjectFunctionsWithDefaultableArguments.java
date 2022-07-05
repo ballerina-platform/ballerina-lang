@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -264,6 +265,43 @@ public class ObjectFunctionsWithDefaultableArguments {
         bValueArray = (BArray) returns.get(3);
         Assert.assertEquals(bValueArray.getRefValue(0), 400L);
         Assert.assertEquals(bValueArray.getRefValue(1), 44.4);
+    }
+
+    @Test(description = "Negative tests for functions with defaultable parameters")
+    public void testFunctionsWithDefaultableParametersNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/object/object_functions_with_default_parameters_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 20, 36);
+        BAssertUtil.validateError(result, i++, "self referenced variable 'i'", 28, 33);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 37, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 's'", 37, 53);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 51, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 's'", 51, 53);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'u'", 51, 74);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 59, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 71, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 75, 37);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 85, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 88, 37);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 97, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 101, 37);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 106, 45);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 117, 29);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 122, 29);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 123, 29);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 58);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 84);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test(description = "Test an object constructor when value of default parameter is a local variable. " +
+            "Currently fails at BIR generation (#35359)", enabled = false)
+    public void testReferLocalVarInObjConstructor() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/object/object_functions_with_default_parameters_rt_failure.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
     }
 
     @AfterClass

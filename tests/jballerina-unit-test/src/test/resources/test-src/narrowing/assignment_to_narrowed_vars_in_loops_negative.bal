@@ -679,3 +679,42 @@ function f23() {
         boolean _ = m is error;
     }
 }
+
+function testInLoopAssignmentsWithQueryAction() returns error? {
+    (int|string)[] x = [1, 2];
+    int|string? p = 10;
+
+    if p is int|string {
+            from var a in x
+            where p is int
+            do {
+                p = 12;
+            };
+    }
+
+    if p is int|string {
+            from var a in x
+            where p is int && a is int
+            do {
+                p = 12;
+                a = 10;
+            };
+    }
+
+    while p is int|string {
+            from var a in x
+            where p is int
+            do {
+                p = 12;
+            };
+    }
+
+    while p is int|string {
+            from var a in x
+            where p is int && a is int
+            do {
+                p = 12;
+                a = 10;
+            };
+    }
+}

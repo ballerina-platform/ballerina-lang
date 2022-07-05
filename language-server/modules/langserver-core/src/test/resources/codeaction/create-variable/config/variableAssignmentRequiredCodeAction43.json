@@ -1,9 +1,13 @@
 {
-  "line": 3,
-  "character": 4,
+  "position": {
+    "line": 3,
+    "character": 4
+  },
+  "source": "createVariable7.bal",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "record {| int value; |}? next = "
+          "newText": "record {|int value;|}? next \u003d "
         }
       ]
     }

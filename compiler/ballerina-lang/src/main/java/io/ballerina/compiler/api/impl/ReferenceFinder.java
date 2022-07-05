@@ -107,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -762,9 +761,16 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangErrorVarRef varRefExpr) {
         find(varRefExpr.typeNode);
         find(varRefExpr.message);
-        find(varRefExpr.detail);
         find(varRefExpr.cause);
         find(varRefExpr.restVar);
+
+        if (varRefExpr.typeNode != null) {
+            find(varRefExpr.detail);
+        } else {
+            // This is to avoid cases where the binding pattern doesn't have a error type ref
+            // e.g., error (msg, cause, code=code)
+            visitNamedArgWithoutAddingSymbol(varRefExpr.detail);
+        }
     }
 
     @Override
@@ -812,9 +818,8 @@ public class ReferenceFinder extends BaseVisitor {
             find(invocationExpr.expr);
         }
 
-        find(invocationExpr.requiredArgs);
         find(invocationExpr.annAttachments);
-        find(invocationExpr.restArgs);
+        find(invocationExpr.argExprs);
 
         if (!invocationExpr.pkgAlias.value.isEmpty() && invocationExpr.symbol != null) {
             addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
@@ -887,6 +892,11 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         find(listConstructorExpr.exprs);
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        find(spreadOpExpr.expr);
     }
 
     @Override
@@ -1035,11 +1045,6 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        find(tableMultiKeyExpr.multiKeyIndexExprs);
-    }
-
-    @Override
     public void visit(BLangObjectConstructorExpression objConstructor) {
         find(objConstructor.classNode);
     }
@@ -1184,6 +1189,7 @@ public class ReferenceFinder extends BaseVisitor {
 
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : bLangErrorVariable.detail) {
             find(errorDetailEntry.valueBindingPattern);
+            addIfSameSymbol(errorDetailEntry.keySymbol, errorDetailEntry.key.pos);
         }
     }
 
@@ -1282,6 +1288,12 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     // Private methods
+
+    private void visitNamedArgWithoutAddingSymbol(List<BLangNamedArgsExpression> args) {
+        for (BLangNamedArgsExpression arg : args) {
+            find(arg.expr);
+        }
+    }
 
     private boolean addIfSameSymbol(BSymbol symbol, Location location) {
         if (symbol != null

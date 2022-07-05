@@ -156,11 +156,17 @@ public class BuildProject extends Project {
     }
 
     @Override
+    public void clearCaches() {
+        resetPackage(this);
+        this.projectEnvironment = ProjectEnvironmentBuilder.getDefaultBuilder().build(this);
+    }
+
+    @Override
     public Project duplicate() {
         BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(
                 ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
-        return cloneProject(buildProject);
+        return resetPackage(buildProject);
     }
 
     @Override
@@ -217,8 +223,8 @@ public class BuildProject extends Project {
     public void save() {
         Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
-        // if build file does not exists
 
+        // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
             createBuildFile(buildFilePath);
             writeBuildFile(buildFilePath);

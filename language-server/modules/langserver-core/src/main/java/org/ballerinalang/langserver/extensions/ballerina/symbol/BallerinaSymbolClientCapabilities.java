@@ -28,6 +28,16 @@ public class BallerinaSymbolClientCapabilities extends BallerinaClientCapability
 
     private boolean type;
 
+    private boolean getSymbol;
+
+    public boolean isGetSymbol() {
+        return getSymbol;
+    }
+
+    public void setGetSymbol(boolean getSymbol) {
+        this.getSymbol = getSymbol;
+    }
+
     public boolean isEndpoints() {
         return endpoints;
     }

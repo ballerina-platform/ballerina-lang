@@ -31,7 +31,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -83,7 +83,7 @@ public class ExecutorPositionsUtil {
                         symbol.getLocation().isPresent())
                 .filter(symbol -> {
                     try {
-                        return CommonUtil.isLocationInFile(module, symbol.getLocation().get(), filePath);
+                        return isLocationInFile(module, symbol.getLocation().get(), filePath);
                     } catch (IOException e) {
                         return false;
                     }
@@ -108,7 +108,7 @@ public class ExecutorPositionsUtil {
                         symbol.getLocation().isPresent())
                 .filter(symbol -> {
                     try {
-                        return CommonUtil.isLocationInFile(module, symbol.getLocation().get(), filePath);
+                        return isLocationInFile(module, symbol.getLocation().get(), filePath);
                     } catch (IOException e) {
                         return false;
                     }
@@ -140,6 +140,22 @@ public class ExecutorPositionsUtil {
         
         getTestCasePositions(execPositions, project, filePath, module);
         return execPositions;
+    }
+
+
+    /**
+     * Checks if the provided location (interpreted relatively to the provided module) is location in the same file
+     * provided.
+     *
+     * @param module   Module where the location resides
+     * @param location Location
+     * @param filePath File path to check against
+     * @return True if the location resides in the provided file path
+     * @throws IOException On IO errors
+     */
+    private static boolean isLocationInFile(Module module, Location location, Path filePath) throws IOException {
+        Path symbolPath = PathUtil.getPathFromLocation(module, location);
+        return Files.isSameFile(symbolPath, filePath);
     }
 
     private static void getTestCasePositions(JsonArray execPositions, Project project, Path filePath, Module module) {

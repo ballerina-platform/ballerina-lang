@@ -1,9 +1,13 @@
 {
-  "line": 84,
-  "character": 74,
+  "position": {
+    "line": 84,
+    "character": 74
+  },
+  "source": "typeCast.bal",
   "expected": [
     {
-      "title": "Add type cast to assignment",
+      "title": "Add type cast",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 72
             }
           },
-          "newText": "<int> "
+          "newText": "\u003cint\u003e"
         }
       ]
     }

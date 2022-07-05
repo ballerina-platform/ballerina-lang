@@ -566,6 +566,7 @@ public class EnvironmentResolver extends BaseVisitor {
                 && isNarrowerEnclosure(matchStatementNode.getPosition())) {
             matchStatementNode.getMatchClauses()
                     .forEach(bLangMatchClause -> this.acceptNode(bLangMatchClause, this.symbolEnv));
+            this.acceptNode(matchStatementNode.onFailClause, symbolEnv);
         }
     }
 

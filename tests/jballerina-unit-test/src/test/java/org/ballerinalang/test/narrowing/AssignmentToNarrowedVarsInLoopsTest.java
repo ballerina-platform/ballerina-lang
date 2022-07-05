@@ -128,9 +128,21 @@ public class AssignmentToNarrowedVarsInLoopsTest {
         index++; // https://github.com/ballerina-platform/ballerina-lang/issues/33535
         BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed outside " +
                 "the query action", 676, 17);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'a'", 688, 18);
+        BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed " +
+                "outside the query action", 691, 17);
+        BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed " +
+                "outside the query action", 699, 17);
+        BAssertUtil.validateError(result, index++, "cannot assign a value to final 'a'", 700, 17);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'a'", 705, 18);
+        BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed " +
+                "outside the query action", 708, 17);
+        BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed " +
+                "outside the query action", 716, 17);
+        BAssertUtil.validateError(result, index++, "cannot assign a value to final 'a'", 717, 17);
 
-        Assert.assertEquals(result.getErrorCount(), index - 14);
-        Assert.assertEquals(result.getWarnCount(), 13);
+        Assert.assertEquals(result.getErrorCount(), index - 16);
+        Assert.assertEquals(result.getWarnCount(), 15);
         Assert.assertEquals(result.getHintCount(), 1);
     }
 }

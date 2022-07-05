@@ -1,0 +1,32 @@
+{
+  "position": {
+    "line": 1,
+    "character": 14
+  },
+  "source": "createUndefinedFunctionInObjectField.bal",
+  "expected": [
+    {
+      "title": "Create function 'fn(...)'",
+      "kind": "quickfix",
+      "command": {
+        "title": "Create function 'fn(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 1,
+                "character": 13
+              },
+              "end": {
+                "line": 1,
+                "character": 17
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

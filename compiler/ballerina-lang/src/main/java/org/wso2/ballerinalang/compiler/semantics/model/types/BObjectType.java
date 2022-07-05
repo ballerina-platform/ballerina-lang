@@ -49,7 +49,6 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private BIntersectionType intersectionType = null;
 
-    public BIntersectionType immutableType;
     public BObjectType mutableType = null;
     public BLangClassDefinition classDef = null;
 
@@ -121,11 +120,6 @@ public class BObjectType extends BStructureType implements ObjectType {
             return sb.toString();
         }
         return this.tsymbol.toString();
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
     }
 
     @Override

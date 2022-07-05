@@ -148,6 +148,9 @@ public class ConfigResolver {
                     case TypeTags.FINITE_TYPE_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsFiniteAndMark(module, key));
+                    case TypeTags.TUPLE_TAG:
+                        return getConfigValue(key, configProvider -> configProvider
+                                .getAsTupleAndMark(module, key));
                     default:
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
                                             Utils.decodeIdentifier(effectiveType.toString()));

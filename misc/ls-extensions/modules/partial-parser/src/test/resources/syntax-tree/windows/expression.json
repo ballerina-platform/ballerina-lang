@@ -1,0 +1,252 @@
+{
+  "lhsExpr": {
+    "kind": "BracedExpression",
+    "openParen": {
+      "kind": "OpenParenToken",
+      "isToken": true,
+      "value": "(",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 0,
+        "endLine": 0,
+        "endColumn": 1
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": []
+    },
+    "expression": {
+      "kind": "BinaryExpression",
+      "lhsExpr": {
+        "kind": "SimpleNameReference",
+        "name": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "population",
+          "isMissing": false,
+          "position": {
+            "startLine": 0,
+            "startColumn": 1,
+            "endLine": 0,
+            "endColumn": 11
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "population ",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 0,
+          "startColumn": 1,
+          "endLine": 0,
+          "endColumn": 11
+        },
+        "typeData": {}
+      },
+      "operator": {
+        "kind": "MinusToken",
+        "isToken": true,
+        "value": "-",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 12,
+          "endLine": 0,
+          "endColumn": 13
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "rhsExpr": {
+        "kind": "SimpleNameReference",
+        "name": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "infantCount",
+          "isMissing": false,
+          "position": {
+            "startLine": 0,
+            "startColumn": 14,
+            "endLine": 0,
+            "endColumn": 25
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": []
+        },
+        "source": "infantCount",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [],
+        "trailingMinutiae": [],
+        "position": {
+          "startLine": 0,
+          "startColumn": 14,
+          "endLine": 0,
+          "endColumn": 25
+        },
+        "typeData": {}
+      },
+      "source": "population - infantCount",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [],
+      "position": {
+        "startLine": 0,
+        "startColumn": 1,
+        "endLine": 0,
+        "endColumn": 25
+      },
+      "typeData": {}
+    },
+    "closeParen": {
+      "kind": "CloseParenToken",
+      "isToken": true,
+      "value": ")",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 25,
+        "endLine": 0,
+        "endColumn": 26
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ]
+    },
+    "source": "(population - infantCount) ",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ],
+    "position": {
+      "startLine": 0,
+      "startColumn": 0,
+      "endLine": 0,
+      "endColumn": 26
+    },
+    "typeData": {}
+  },
+  "operator": {
+    "kind": "AsteriskToken",
+    "isToken": true,
+    "value": "*",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 27,
+      "endLine": 0,
+      "endColumn": 28
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "rhsExpr": {
+    "kind": "NumericLiteral",
+    "literalToken": {
+      "kind": "DecimalIntegerLiteralToken",
+      "isToken": true,
+      "value": "20",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 29,
+        "endLine": 0,
+        "endColumn": 31
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "INVALID_NODE_MINUTIAE",
+          "minutiae": ";",
+          "isInvalid": true
+        }
+      ]
+    },
+    "source": "20;",
+    "syntaxDiagnostics": [
+      {
+        "message": "invalid token '{0}'",
+        "diagnosticInfo": {
+          "code": "BCE0600",
+          "severity": "ERROR"
+        }
+      }
+    ],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "INVALID_NODE_MINUTIAE",
+        "minutiae": ";",
+        "isInvalid": true
+      }
+    ],
+    "position": {
+      "startLine": 0,
+      "startColumn": 29,
+      "endLine": 0,
+      "endColumn": 31
+    },
+    "typeData": {}
+  },
+  "source": "(population - infantCount) * 20;",
+  "kind": "BinaryExpression",
+  "syntaxDiagnostics": [
+    {
+      "message": "invalid token '{0}'",
+      "diagnosticInfo": {
+        "code": "BCE0600",
+        "severity": "ERROR"
+      }
+    }
+  ],
+  "leadingMinutiae": [],
+  "trailingMinutiae": [
+    {
+      "kind": "INVALID_NODE_MINUTIAE",
+      "minutiae": ";",
+      "isInvalid": true
+    }
+  ],
+  "position": {
+    "startLine": 0,
+    "startColumn": 0,
+    "endLine": 0,
+    "endColumn": 31
+  },
+  "typeData": {}
+}

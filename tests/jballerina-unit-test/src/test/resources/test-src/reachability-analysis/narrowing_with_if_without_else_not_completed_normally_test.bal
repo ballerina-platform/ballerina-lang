@@ -428,3 +428,20 @@ function testTypeNarrowingWithEqualityInCondition2() {
 
     int j = i;
 }
+
+public function testReachabilityWithWorker1() returns error? {
+   string? protocol = foo();
+    if protocol is string {
+        return;
+    }
+    @strand {
+        thread: "any"
+    }
+    worker w1 returns error? {
+        string subProtocol = protocol;
+    }
+}
+
+function foo() returns string? {
+    return "string";
+}

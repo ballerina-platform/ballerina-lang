@@ -767,7 +767,8 @@ public class TypeTestExprTest {
                 "testBuiltInSubTypeTypeTestAgainstFiniteType",
                 "testIntSubtypes",
                 "testRecordsWithOptionalFields",
-                "testReadOnlyArrays"
+                "testReadOnlyArrays",
+                "testTypeTestExprWithSingletons"
         };
     }
 }

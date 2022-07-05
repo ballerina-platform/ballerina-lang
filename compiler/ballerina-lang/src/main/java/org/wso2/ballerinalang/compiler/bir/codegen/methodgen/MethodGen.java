@@ -50,11 +50,12 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -111,6 +112,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_CANCELLED_FUTURE_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
@@ -144,12 +147,12 @@ public class MethodGen {
     private static final String RESUME_INDEX = "resumeIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
-    private final CompilerContext compilerContext;
+    private final Types types;
 
-    public MethodGen(JvmPackageGen jvmPackageGen, CompilerContext compilerContext) {
+    public MethodGen(JvmPackageGen jvmPackageGen, Types types) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.compilerContext = compilerContext;
+        this.types = types;
     }
 
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
@@ -158,7 +161,7 @@ public class MethodGen {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                                                          jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
-                                                         asyncDataCollector, compilerContext);
+                                                         asyncDataCollector, types);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
                                attachedType, asyncDataCollector);
@@ -206,6 +209,8 @@ public class MethodGen {
 
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
         int stateVarIndex = getStateVarIndex(indexMap, mv);
+        int yieldLocationVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_LOCATION);
+        int yieldStatusVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_STATUS);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -225,7 +230,7 @@ public class MethodGen {
 
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
                                                           jvmCastGen, jvmConstantsGen, asyncDataCollector,
-                                                          compilerContext);
+                                                          types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
                                                         jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
@@ -234,8 +239,8 @@ public class MethodGen {
         Label yieldLable = labelGen.getLabel(funcName + "yield");
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
 
-        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                            stateVarIndex, localVarOffset, module, attachedType, moduleClassName);
+        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
+                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, module, attachedType, moduleClassName);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module.packageID), funcName,
                                                             attachedType);
@@ -256,6 +261,8 @@ public class MethodGen {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ILOAD, stateVarIndex);
         mv.visitFieldInsn(PUTFIELD, frameName, STATE, "I");
+        generateFrameStringFieldSet(mv, frameName, yieldLocationVarIndex, YIELD_LOCATION);
+        generateFrameStringFieldSet(mv, frameName, yieldStatusVarIndex, YIELD_STATUS);
 
         generateGetFrame(indexMap, localVarOffset, mv);
 
@@ -268,6 +275,12 @@ public class MethodGen {
 
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private void generateFrameStringFieldSet(MethodVisitor mv, String frameName, int rhsVarIndex, String fieldName) {
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, rhsVarIndex);
+        mv.visitFieldInsn(PUTFIELD, frameName, fieldName, GET_STRING);
     }
 
     private BType getReturnType(BIRFunction func) {
@@ -428,6 +441,13 @@ public class MethodGen {
         return stateVarIndex;
     }
 
+    private int getFrameStringVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv, String frameStringFieldName) {
+        int stateVarIndex = indexMap.addIfNotExists(frameStringFieldName, symbolTable.stringType);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, stateVarIndex);
+        return stateVarIndex;
+    }
+
     private void addCasesForBasicBlocks(BIRFunction func, String funcName, LabelGenerator labelGen, List<Label> lables,
                                         List<Integer> states) {
         int caseIndex = 0;
@@ -452,9 +472,9 @@ public class MethodGen {
         return ints;
     }
 
-    void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
-                             JvmInstructionGen instGen, JvmTerminatorGen termGen,
-                             BIRFunction func, int returnVarRefIndex, int stateVarIndex, int localVarOffset,
+    void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
+                             JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex, int stateVarIndex,
+                             int yieldLocationVarIndex, int yieldStatusVarIndex, int localVarOffset,
                              BIRPackage module, BType attachedType, String moduleClassName) {
 
         String funcName = func.name.value;
@@ -480,23 +500,54 @@ public class MethodGen {
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
 
+            String fullyQualifiedFuncName = getFullyQualifiedFuncName(func.type.tsymbol, funcName);
             BIRTerminator terminator = bb.terminator;
             pushShort(mv, stateVarIndex, caseIndex);
             caseIndex += 1;
 
             processTerminator(mv, func, module, funcName, terminator);
-            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset,
-                                  returnVarRefIndex, attachedType);
+            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
+                    attachedType, yieldLocationVarIndex, yieldStatusVarIndex, fullyQualifiedFuncName);
 
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
+            String yieldStatus = getYieldStatusByTerminator(terminator);
+
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset);
+                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset,
+                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName,
+                        yieldStatus, yieldStatusVarIndex);
             }
+        }
+    }
+
+    private String getFullyQualifiedFuncName(BTypeSymbol funcTypeSymbol, String funcName) {
+        if (funcTypeSymbol != null) {
+            PackageID funcTSymbolPkgID = funcTypeSymbol.pkgID;
+            return funcTSymbolPkgID.getOrgName().toString() + "." +
+                    funcTSymbolPkgID.getName().toString() + "." + funcTSymbolPkgID.getPackageVersion().toString() +
+                    ":" + funcName;
+        }
+        return funcName;
+    }
+
+    private String getYieldStatusByTerminator(BIRTerminator terminator) {
+        switch (terminator.kind) {
+            case WK_SEND:
+                return "BLOCKED ON WORKER MESSAGE SEND";
+            case WK_RECEIVE:
+                return "BLOCKED ON WORKER MESSAGE RECEIVE";
+            case FLUSH:
+                return "BLOCKED ON WORKER MESSAGE FLUSH";
+            case WAIT:
+            case WAIT_ALL:
+                return "WAITING";
+            default:
+                return "BLOCKED";
         }
     }
 
@@ -510,13 +561,13 @@ public class MethodGen {
                                    BIRTerminator terminator) {
         if (terminator.kind == InstructionKind.GOTO &&
                 ((BIRTerminator.GOTO) terminator).targetBB.terminator.kind == InstructionKind.RETURN &&
-                !JvmCodeGenUtil.isExternFunc(func) && func.pos != null &&
-                func.pos.lineRange().endLine().line() != 0x80000000) {
+                ((BIRTerminator.GOTO) terminator).targetBB.terminator.pos != null) {
             // The ending line number of the function is added to the line number table to prevent wrong code
             // coverage for generated return statements.
             Label label = new Label();
             mv.visitLabel(label);
-            mv.visitLineNumber(func.pos.lineRange().endLine().line() + 1, label);
+            mv.visitLineNumber(
+                    ((BIRTerminator.GOTO) terminator).targetBB.terminator.pos.lineRange().endLine().line() + 1, label);
         } else if (terminator.kind != InstructionKind.RETURN) {
             JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
         }

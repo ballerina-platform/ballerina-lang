@@ -24,10 +24,12 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,25 +51,30 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnFailClauseNode node) {
-        if (!this.onSuggestTypeDescriptors(context, node)) {
-            return Collections.emptyList();
-        }
-
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
-        
-        Predicate<Symbol> errorPredicate = SymbolUtil::isError;
-        if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qRef, errorPredicate);
-            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        if (this.onSuggestFailKeyword(context, node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FAIL.get()));
+        } else if (!this.onSuggestTypeDescriptors(context, node)) {
+            return Collections.emptyList();
         } else {
-            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            List<Symbol> errEntries = visibleSymbols.stream()
-                    .filter(errorPredicate)
-                    .collect(Collectors.toList());
-            completionItems.addAll(this.getCompletionItemList(errEntries, context));
+            NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
+
+            Predicate<Symbol> errorPredicate = SymbolUtil::isError;
+            if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
+                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qRef, errorPredicate);
+                completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            } else {
+                completionItems.addAll(this.getModuleCompletionItems(context));
+                List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+                List<Symbol> errEntries = visibleSymbols.stream()
+                        .filter(errorPredicate)
+                        .collect(Collectors.toList());
+                completionItems.addAll(this.getCompletionItemList(errEntries, context));
+
+                // Add 'var' completion item
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
+            }
         }
         this.sort(context, node, completionItems);
 
@@ -77,6 +84,15 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, OnFailClauseNode node) {
         return !node.onKeyword().isMissing();
+    }
+    
+    private boolean onSuggestFailKeyword(BallerinaCompletionContext context, OnFailClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
+        if (node.onKeyword().isMissing()) {
+            return false;
+        }
+
+        return node.failKeyword().isMissing() && node.onKeyword().textRange().endOffset() < cursor;
     }
 
     private boolean onSuggestTypeDescriptors(BallerinaCompletionContext context, OnFailClauseNode node) {

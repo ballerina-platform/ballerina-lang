@@ -16,12 +16,29 @@
 
 import annots/defn;
 
-public const annotation Allow on parameter;
+public const annotation Allow on parameter, source var;
+
+public const annotation Custom on source annotation;
+
+@Custom
+public annotation map<int> NonConstAllow on parameter;
 
 public function func(@Allow int i) {
 }
 
-public function otherFunc(int i, @defn:Annot {i: 456} int j = 1, @Allow int... k) {
+int iVal = 12345;
+
+@Allow @defn:Annot {i: 321} int jVal = 6543;
+
+@defn:KnownConst
+const C = 1;
+
+const int D = C;
+
+public function otherFunc(int i, @defn:Annot {i: 456} @defn:NonConstAnnot {i: iVal} int j = 1, @Allow int... k) {
+}
+
+public function anotherFunc(@NonConstAllow {x: 1, y: iVal} int i) {
 }
 
 public class TestListener {
@@ -31,7 +48,7 @@ public class TestListener {
     public function attach(@defn:Annot {i: 1} service object {} s, string[]|string? name) returns error? {
     }
 
-    public function detach(@defn:Annots {i: 1} @defn:Annots {i: 2} service object {} s) returns error? {
+    public function detach(@defn:Annots {i: 2} @defn:Annots {i: 3} service object {} s) returns error? {
     }
 
     public function 'start() returns error? {
@@ -41,5 +58,56 @@ public class TestListener {
     }
 
     public isolated function immediateStop() returns error? {
+    }
+}
+
+public type Foo record {|
+    string s;
+    string t;
+    boolean b = false;
+|};
+
+public type Bar record {|
+    Foo[] f1;
+    [Foo, string] f2;
+    int i = 10;
+|};
+
+public const annotation Bar ClassAnnot on source class;
+
+const s2 = "s2";
+const t3 = "t3";
+
+@ClassAnnot {
+    f1: [
+        { s: "s", t: "t" },
+        { s: s2, t: "t2" }
+    ],
+    f2: [{ s: "s3", t: t3 }, "test"]
+}
+class Cl {
+
+}
+
+public const annotation FunctionAnnot on function;
+public const annotation ReturnAnnot on return;
+
+@FunctionAnnot
+public function fn1() returns @ReturnAnnot int {
+    return 0;
+}
+
+public function fn2() {
+
+}
+
+public class Cl2 {
+    public function cfn1() returns @ReturnAnnot string {
+        return "";
+    }
+
+    @FunctionAnnot
+    public function cfn2() {
+
     }
 }

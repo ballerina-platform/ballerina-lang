@@ -32,31 +32,31 @@ public class ModVarToListenerDeclCodeActionTest extends AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
     @Override
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Test(dataProvider = "negative-test-data-provider")
     @Override
-    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.negativeTest(config, source);
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"modVarToListenerDecl1.json", "modVarToListenerDecl1.bal"},
-                {"modVarToListenerDecl2.json", "project/main.bal"},
-                {"modVarToListenerDecl3.json", "modVarToListenerDecl3.bal"},
+                {"modVarToListenerDecl1.json"},
+                {"modVarToListenerDecl2.json"},
+                {"modVarToListenerDecl3.json"},
         };
     }
 
     @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeTestDataProvider() {
         return new Object[][]{
-                {"negative_modVarToListnerDecl1.json", "negative_modVarToListnerDecl1.bal"},
-                {"negative_modVarToListnerDecl2.json", "negative_modVarToListnerDecl2.bal"}
+                {"negative_modVarToListnerDecl1.json"},
+                {"negative_modVarToListnerDecl2.json"}
         };
     }
 

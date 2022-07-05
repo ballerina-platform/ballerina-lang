@@ -1,0 +1,1 @@
+test_module.arrayVar = ["{ name = 12 }", { name = "Jane" }]

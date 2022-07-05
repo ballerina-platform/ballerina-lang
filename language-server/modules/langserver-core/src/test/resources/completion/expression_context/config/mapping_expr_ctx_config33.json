@@ -19,7 +19,7 @@
       "kind": "Field",
       "detail": "Foo.Fa2",
       "sortText": "K",
-      "insertText": "Fa2: {\n\tBa1: ${1:0},\n\tBa2: \"${2}\"\n}",
+      "insertText": "Fa2: {Ba1: ${1:0}, Ba2: ${2:\"\"}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "Foo.Fa1",
       "sortText": "K",
-      "insertText": "Fa1: ${2:0}",
+      "insertText": "Fa1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "Foo",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "Fa2: {Ba1: 0, Ba2: \"\"},\nFa1: 0",
+      "insertText": "Fa2: {Ba1: ${1:0}, Ba2: ${2:\"\"}},\nFa1: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -15,11 +15,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "node",
+      "kind": "Field",
+      "detail": "MyConfig.node",
+      "sortText": "K",
+      "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"})",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "isAlive",
       "kind": "Field",
       "detail": "MyConfig.isAlive",
       "sortText": "K",
-      "insertText": "isAlive: ${2:false}",
+      "insertText": "isAlive: ${1:false}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -27,7 +35,7 @@
       "kind": "Field",
       "detail": "MyConfig.err1",
       "sortText": "K",
-      "insertText": "err1: ${3:error (\"\", message = \"\")}",
+      "insertText": "err1: error (\"\", message = ${1:\"\"})",
       "insertTextFormat": "Snippet"
     },
     {
@@ -35,7 +43,7 @@
       "kind": "Field",
       "detail": "MyConfig.myXML",
       "sortText": "K",
-      "insertText": "myXML: ${4:xml ``}",
+      "insertText": "myXML: ${1:xml ``}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -43,7 +51,7 @@
       "kind": "Field",
       "detail": "MyConfig.keywords",
       "sortText": "K",
-      "insertText": "keywords: [${5}]",
+      "insertText": "keywords: [${1:[]}]",
       "insertTextFormat": "Snippet"
     },
     {
@@ -51,7 +59,7 @@
       "kind": "Field",
       "detail": "MyConfig.credentials",
       "sortText": "K",
-      "insertText": "credentials: {\n\tip: \"${1}\",\n\tport: ${2:0},\n\tusername: \"${3}\",\n\tfiles: ${4:new ()}\n}",
+      "insertText": "credentials: {ip: ${1:\"\"}, port: ${2:0}, username: ${3:\"\"}, files: ${4:new ()}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -59,7 +67,7 @@
       "kind": "Field",
       "detail": "MyConfig.record2",
       "sortText": "K",
-      "insertText": "record2: {\n\tf1: ${1:0}\n}",
+      "insertText": "record2: {f1: ${1:0}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -67,7 +75,23 @@
       "kind": "Field",
       "detail": "MyConfig.record1",
       "sortText": "K",
-      "insertText": "record1: {${8}}",
+      "insertText": "record1: {}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myMap",
+      "kind": "Field",
+      "detail": "MyConfig.myMap",
+      "sortText": "K",
+      "insertText": "myMap: ${1:{}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myTable",
+      "kind": "Field",
+      "detail": "MyConfig.myTable",
+      "sortText": "K",
+      "insertText": "myTable: table [${1:}]",
       "insertTextFormat": "Snippet"
     },
     {
@@ -75,7 +99,7 @@
       "kind": "Field",
       "detail": "MyConfig.myError",
       "sortText": "K",
-      "insertText": "myError: ${11:error (\"\")}",
+      "insertText": "myError: error (\"\")",
       "insertTextFormat": "Snippet"
     },
     {
@@ -83,7 +107,7 @@
       "kind": "Field",
       "detail": "MyConfig.randomNum",
       "sortText": "K",
-      "insertText": "randomNum: ${12:error (\"\")}",
+      "insertText": "randomNum: ${1:error(\"\")}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -92,31 +116,16 @@
       "detail": "MyConfig",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "node: new ({ip: \"\", port: 0, username: \"\", files: new ()}, 0, \"\"),\nisAlive: false,\nerr1: error (\"\", message = \"\"),\nmyXML: xml ``,\nkeywords: [[]],\ncredentials: {ip: \"\", port: 0, username: \"\", files: new ()},\nrecord2: {f1: 0},\nrecord1: {},\nmyMap: {},\nmyTable: table [{f1: 0}],\nmyError: error (\"\"),\nrandomNum: error (\"\")",
+      "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"}),\nisAlive: ${2:false},\nerr1: error (\"\", message = ${3:\"\"}),\nmyXML: ${4:xml ``},\nkeywords: [${5:[]}],\ncredentials: {ip: ${6:\"\"}, port: ${7:0}, username: ${8:\"\"}, files: ${9:new ()}},\nrecord2: {f1: ${7:0}},\nrecord1: {},\nmyMap: ${9:{}},\nmyTable: table [${10:}],\nmyError: error (\"\"),\nrandomNum: ${12:error(\"\")}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "node",
-      "kind": "Field",
-      "detail": "MyConfig.node",
-      "sortText": "K",
-      "insertText": "node: ${1:new ({ip: \"\", port: 0, username: \"\", files: new ()\\}, 0, \"\")}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myMap",
-      "kind": "Field",
-      "detail": "MyConfig.myMap",
-      "sortText": "K",
-      "insertText": "myMap: ${9:{\\}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myTable",
-      "kind": "Field",
-      "detail": "MyConfig.myTable",
-      "sortText": "K",
-      "insertText": "myTable: ${10:table [{f1: 0\\}]}",
+      "label": "...config",
+      "kind": "Variable",
+      "detail": "MyConfig",
+      "sortText": "AB",
+      "filterText": "config",
+      "insertText": "...config",
       "insertTextFormat": "Snippet"
     }
   ]

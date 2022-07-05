@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -120,7 +121,7 @@ public class JvmTupleTypeGen {
                 INIT_TUPLE_TYPE_IMPL, false);
     }
 
-    public void populateTuple(MethodVisitor mv, BTupleType bType) {
+    public void populateTuple(MethodVisitor mv, BTupleType bType, SymbolTable symbolTable) {
         mv.visitTypeInsn(CHECKCAST, TUPLE_TYPE_IMPL);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -128,7 +129,7 @@ public class JvmTupleTypeGen {
 
         addCyclicFlag(mv, bType);
         addTupleMembers(mv, bType);
-        jvmCreateTypeGen.addImmutableType(mv, bType);
+        jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
     }
 
 

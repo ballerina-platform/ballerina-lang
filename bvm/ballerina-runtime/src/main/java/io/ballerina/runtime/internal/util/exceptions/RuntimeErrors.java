@@ -66,7 +66,7 @@ public enum RuntimeErrors implements DiagnosticCode {
     CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0038"),
     CANNOT_CONVERT_NIL("cannot.convert.nil", "RUNTIME_0039"),
     INCOMPATIBLE_CONVERT_OPERATION("incompatible.convert.operation", "RUNTIME_0040"),
-
+    J_TYPE_ASSIGNABLE_ERROR("incompatible.java.object.type.assignment", "RUNTIME_0041"),
     INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION("incompatible.simple.type.convert.operation", "RUNTIME_0042"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range", "RUNTIME_0043"),
     ILLEGAL_ARRAY_INSERTION("illegal.array.insertion", "RUNTIME_0044"),
@@ -122,7 +122,11 @@ public enum RuntimeErrors implements DiagnosticCode {
     CONFIG_CLI_ARGS_AMBIGUITY("config.cli.args.ambiguity", "RUNTIME_0094"),
     CONFIG_CLI_UNUSED_CLI_ARGS("config.cli.unused.args", "RUNTIME_0095"),
     LARGE_EXPONENTS_IN_DECIMAL("large.number.of.exponents.in.decimal", "RUNTIME_0096"),
-    UNSUPPORTED_DECIMAL_VALUE("unsupported.decimal.value", "RUNTIME_0097");
+    UNSUPPORTED_DECIMAL_VALUE("unsupported.decimal.value", "RUNTIME_0097"),
+    CONFIG_SIZE_MISMATCH("config.size.mismatch", "RUNTIME_0098"),
+    INVALID_FRACTION_DIGITS("invalid.fraction.digits", "RUNTIME_0099"),
+    INVALID_UTF_8_BYTE_ARRAY_VALUE("invalid.utf8.byte.array.value", "RUNTIME_0100"),
+    INCOMPATIBLE_ARGUMENTS("incompatible.arguments", "RUNTIME_0101");
 
     private String errorMsgKey;
     private String errorCode;

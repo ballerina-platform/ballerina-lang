@@ -47,7 +47,7 @@ public class SyntaxTreeUtils {
      * @return node typename
      */
     public static String getNodeKindName(SyntaxKind nodeKind) {
-        return nodeKind.name().toLowerCase(Locale.ROOT).toLowerCase(Locale.getDefault()).replaceAll("_", " ");
+        return nodeKind.name().toLowerCase(Locale.ROOT).toLowerCase(Locale.ENGLISH).replaceAll("_", " ");
     }
 
     /**

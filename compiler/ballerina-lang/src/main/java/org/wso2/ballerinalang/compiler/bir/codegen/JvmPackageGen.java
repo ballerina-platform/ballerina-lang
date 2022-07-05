@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -64,7 +65,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -142,10 +142,9 @@ public class JvmPackageGen {
     private final Map<String, String> globalVarClassMap;
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
-    private final CompilerContext compilerContext;
+    private final Types types;
 
-    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog,
-                  CompilerContext compilerContext) {
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types) {
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
         externClassMap = new HashMap<>();
@@ -153,8 +152,8 @@ public class JvmPackageGen {
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
-        this.compilerContext = compilerContext;
-        methodGen = new MethodGen(this, compilerContext);
+        this.types = types;
+        methodGen = new MethodGen(this, types);
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         frameClassGen = new FrameClassGen();
@@ -198,6 +197,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.VALUE);
         dependentModuleArray.add(PackageID.ERROR);
         dependentModuleArray.add(PackageID.FLOAT);
+        dependentModuleArray.add(PackageID.FUNCTION);
         dependentModuleArray.add(PackageID.FUTURE);
         dependentModuleArray.add(PackageID.INT);
         dependentModuleArray.add(PackageID.MAP);
@@ -400,8 +400,8 @@ public class JvmPackageGen {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
-            JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
-            JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen);
+            JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
+            JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
@@ -567,7 +567,7 @@ public class JvmPackageGen {
         // Generate init class. Init function should be the first function of the package, hence check first
         // function.
         BIRFunction initFunc = functions.get(0);
-        String functionName = initFunc.name.value;
+        String functionName = Utils.encodeFunctionIdentifier(initFunc.name.value);
         JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
         klass.functions.add(0, initFunc);
         PackageID packageID = birPackage.packageID;
@@ -578,14 +578,14 @@ public class JvmPackageGen {
 
         // Add start function
         BIRFunction startFunc = functions.get(1);
-        functionName = startFunc.name.value;
+        functionName = Utils.encodeFunctionIdentifier(startFunc.name.value);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(startFunc, packageID, initClass));
         klass.functions.add(1, startFunc);
         count += 1;
 
         // Add stop function
         BIRFunction stopFunc = functions.get(2);
-        functionName = stopFunc.name.value;
+        functionName = Utils.encodeFunctionIdentifier(stopFunc.name.value);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(stopFunc, packageID, initClass));
         klass.functions.add(2, stopFunc);
         count += 1;
@@ -734,7 +734,7 @@ public class JvmPackageGen {
         }
     }
 
-    private void generateDependencyList(BPackageSymbol packageSymbol) {
+    private void generateDependencyList(BPackageSymbol packageSymbol)  {
         if (packageSymbol.bir != null) {
             generate(packageSymbol.bir, false);
         } else {
@@ -748,7 +748,7 @@ public class JvmPackageGen {
         dependentModules.add(packageSymbol.pkgID);
     }
 
-    CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
+    CompiledJarFile generate(BIRPackage module, boolean isEntry) {
         if (dependentModules.contains(module.packageID)) {
             return null;
         }
@@ -783,12 +783,11 @@ public class JvmPackageGen {
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
-        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, compilerContext,
-                typeHashVisitor);
+        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, types, typeHashVisitor);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass
                 , typeHashVisitor);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
-                                             typeHashVisitor, jarEntries);
+                                             typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
@@ -797,7 +796,7 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
-        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor);
+        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen);
 
 

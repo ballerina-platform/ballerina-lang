@@ -63,6 +63,7 @@ public class PackageUtils {
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String MODULE_DIR_NAME = "modules";
+    static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     private static final String URI_SCHEME_BALA = "bala";
 
@@ -227,7 +228,7 @@ public class PackageUtils {
             int packageMajorVersion = document.module().packageInstance().packageVersion().value().major();
             StringJoiner classNameJoiner = new StringJoiner(".");
             classNameJoiner.add(document.module().packageInstance().packageOrg().value())
-                    .add(encodeModuleName(document.module().moduleName().toString()))
+                    .add(getFullModuleName(document))
                     .add(String.valueOf(packageMajorVersion))
                     .add(document.name().replace(BAL_FILE_EXT, "").replace(FILE_SEPARATOR_REGEX, ".")
                             .replace("/", "."));
@@ -311,6 +312,24 @@ public class PackageUtils {
         }
 
         throw new IllegalArgumentException("unsupported URI with scheme: " + fileUri.getScheme());
+    }
+
+    /**
+     * Returns the full name string of the Ballerina module (package name part + module name part) for a given
+     * Ballerina source document.
+     *
+     * @param document Ballerina document
+     * @return full name of the Ballerina module
+     */
+    private static String getFullModuleName(Document document) {
+        String packageNamePart = encodeModuleName(document.module().moduleName().packageName().value());
+        if (document.module().testDocumentIds().contains(document.documentId())) {
+            // all the generated java classes for Ballerina test sources ends with "$test" postfix
+            packageNamePart = packageNamePart + TEST_PKG_POSTFIX;
+        }
+
+        String moduleNamePart = document.module().moduleName().moduleNamePart();
+        return moduleNamePart != null ? encodeModuleName(packageNamePart + "." + moduleNamePart) : packageNamePart;
     }
 
     private static String replaceSeparators(String path) {

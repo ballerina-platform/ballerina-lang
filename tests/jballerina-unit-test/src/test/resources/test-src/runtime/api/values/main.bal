@@ -17,6 +17,7 @@
 import testorg/runtime_api.records;
 import testorg/runtime_api.objects;
 import testorg/runtime_api.maps;
+import testorg/runtime_api.enums;
 import ballerina/lang.test as test;
 
 public function main() {
@@ -40,6 +41,28 @@ public function main() {
     test:assertValueEqual(e1.message(), "No such object: Person2");
     test:assertValueEqual(e2.message(), "No such record: Address2");
 
+    records:Foo|error fooOrError =  trap <records:Foo> records:getRecordNegative("Foo");
+    test:assertTrue(fooOrError is error);
+    error e3 = <error> fooOrError;
+    test:assertValueEqual(e3.message(), "'class java.util.ArrayList' is not from a valid java runtime class. " +
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
+
+    records:Bar|error barOrError = trap <records:Bar> records:getReadonlyRecordNegative("Bar");
+    test:assertTrue(barOrError is error);
+    error e4 = <error> barOrError;
+    test:assertValueEqual(e4.message(), "'class java.util.ImmutableCollections$MapN' is not from a valid java runtime class. " +
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
+
+    record{}|error res = trap records:getRecordWithRestFieldsNegative();
+    test:assertTrue(res is error);
+    error e5 = <error> res;
+    test:assertValueEqual(e5.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
+
     maps:validateAPI();
     records:validateAPI();
+    enums:validateAPI();
 }

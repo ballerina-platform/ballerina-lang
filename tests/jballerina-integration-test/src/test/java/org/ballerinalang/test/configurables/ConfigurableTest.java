@@ -269,7 +269,17 @@ public class ConfigurableTest extends BaseTest {
                 {"configRecordArray", "Config_record_arrays.toml"},
                 {"configTableType", "Config_tables.toml"},
                 {"configMapType", "Config_maps.toml"},
-                {"configComplexXml", "Config_xml.toml"}
+                {"configComplexXml", "Config_xml.toml"},
+                {"configTupleType", "Config_tuples.toml"},
+                {"configRecordType", "Config_records_inline.toml"},
+                {"configOpenRecord", "Config_open_records_inline.toml"},
+                {"defaultValuesRecord", "Config_default_values_inline.toml"},
+                {"configRecordArray", "Config_record_arrays_inline.toml"},
+                {"configTableType", "Config_tables_inline.toml"},
+                {"configMapType", "Config_maps_inline.toml"},
+                {"configComplexXml", "Config_xml_inline.toml"},
+                {"configTupleType", "Config_tuples_inline.toml"},
+
         };
     }
 

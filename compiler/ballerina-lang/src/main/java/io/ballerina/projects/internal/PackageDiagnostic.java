@@ -23,6 +23,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
@@ -49,6 +50,10 @@ public class PackageDiagnostic extends Diagnostic {
     protected Project project;
     protected ModuleDescriptor moduleDescriptor;
 
+    protected PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location) {
+        this.diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+        this.location = location;
+    }
 
     public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
         String filePath;

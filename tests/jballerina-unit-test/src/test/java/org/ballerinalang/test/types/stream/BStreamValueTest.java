@@ -120,6 +120,11 @@ public class BStreamValueTest {
         Assert.assertTrue((Boolean) values);
     }
 
+    @Test(description = "Test passing a stream constructor to create an unbounded stream")
+    public void testUnboundedStreams() {
+        BRunUtil.invoke(result, "testUnboundedStreams", new Object[]{});
+    }
+
     @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
@@ -248,6 +253,11 @@ public class BStreamValueTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype " +
                 "of 'object { public isolated function next() returns record {| int value; |}?; }', but found " +
                 "'string'", 381, 31);
+        BAssertUtil.validateError(negativeResult, i++, "type 'readonly' not allowed here; " +
+                        "expected an 'error' or a subtype of 'error'.", 387, 31);
+        BAssertUtil.validateError(negativeResult, i++, "no stream constructor provided. " +
+                "expected a subtype of 'object { public isolated function next() " +
+                "returns (record {| int value; |}|error); }'", 389, 28);
 
         Assert.assertEquals(i, negativeResult.getErrorCount());
 
@@ -267,6 +277,32 @@ public class BStreamValueTest {
                             + "cast to 'stream<Foo,error>'.*")
     public void testInvalidCast() {
         BRunUtil.invoke(result, "testInvalidCast");
+    }
+
+    @Test(description = "Check if stream without params contextually expected type",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina}TypeCastError " +
+                            "\\{\"message\":\"incompatible types: 'stream<\\(any\\|error\\),error\\?>' cannot be cast" +
+                            " to 'stream<int,error\\?>'.*")
+    public void testCastingFromSuperStreamType() {
+        BRunUtil.invoke(result, "testCastingFromSuperStreamType");
+    }
+
+
+    @Test(description = "Test basic stream type variables")
+    public void testBasicStreamType() {
+        BRunUtil.invoke(result, "testBasicStreamType");
+    }
+
+    @Test(description = "Test basic stream type variables")
+    public void testErrorStreamTypeAssignedToStreamWithoutParams() {
+        BRunUtil.invoke(result, "testErrorStreamTypeAssignedToStreamWithoutParams");
+    }
+
+    @Test(description = "Test basic stream type variables")
+    public void testImplicitNewExprToStreamWithoutParams() {
+        BRunUtil.invoke(result, "testImplicitNewExprToStreamWithoutParams");
     }
 
     @AfterClass

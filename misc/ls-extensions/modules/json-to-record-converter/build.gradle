@@ -42,6 +42,8 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-parser')
     testCompile project(':formatter:formatter-core')
+    testCompile project(':language-server:language-server-core')
+    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 }
 
 test {

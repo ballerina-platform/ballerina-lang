@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.IntUnsigned8TypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
@@ -31,9 +32,9 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaIntUnsigned8TypeSymbol extends AbstractTypeSymbol implements IntUnsigned8TypeSymbol {
+public class BallerinaIntUnsigned8TypeSymbol extends AbstractIntSubTypeSymbol implements IntUnsigned8TypeSymbol {
 
-    public BallerinaIntUnsigned8TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType unsigned8Type) {
+    public BallerinaIntUnsigned8TypeSymbol(CompilerContext context, BIntSubType unsigned8Type) {
         super(context, TypeDescKind.INT_UNSIGNED8, unsigned8Type);
     }
 
@@ -45,5 +46,15 @@ public class BallerinaIntUnsigned8TypeSymbol extends AbstractTypeSymbol implemen
     @Override
     public String signature() {
         return "int:" + Names.STRING_UNSIGNED8;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

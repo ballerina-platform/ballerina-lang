@@ -69,6 +69,23 @@ public class BinaryBitwiseOperationTest {
         BRunUtil.invoke(result, "testBinaryBitwiseXOROperationForUserDefinedTypes");
     }
 
+    @Test(dataProvider = "dataToTestShortCircuitingInBinaryBitwiseOp")
+    public void testShortCircuitingInBinaryBitwiseOp(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInBinaryBitwiseOp() {
+        return new Object[]{
+                "testNoShortCircuitingInBitwiseAndWithNullable",
+                "testNoShortCircuitingInBitwiseAndWithNonNullable",
+                "testNoShortCircuitingInBitwiseOrWithNullable",
+                "testNoShortCircuitingInBitwiseOrWithNonNullable",
+                "testNoShortCircuitingInBitwiseXorWithNullable",
+                "testNoShortCircuitingInBitwiseXorWithNonNullable"
+        };
+    }
+
     @Test(description = "Test binary bitwise operations negative scenarios")
     public void testBinaryBitwiseOperationsNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 21);

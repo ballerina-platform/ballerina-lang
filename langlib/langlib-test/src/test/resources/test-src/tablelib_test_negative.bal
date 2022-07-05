@@ -199,3 +199,139 @@ function testMap() {
     _ = tab.'map(arrowExpr);
     _ = tab.'map((per) => "");
 }
+
+type PersonEmptyKeyedTbl table<Person> key();
+
+function testGettingKeysFromEmptyKeyedKeyLessTbl() {
+    table<Person> key() tbl1 = table [
+            {name: "John", age: 23},
+            {name: "Anne", age: 20}
+        ];
+    _ = tbl1.keys();
+
+    PersonEmptyKeyedTbl tbl2 = table [
+            {name: "John", age: 23},
+            {name: "Anne", age: 20}
+        ];
+    _ = tbl2.keys();
+}
+
+type EmployeeEmptyKeyedTbl table<Employee> key();
+
+function testPutIncompatibleTypesWithEmptyKeyedKeyLessTbl() {
+    EmployeeEmptyKeyedTbl employeeTbl = table [
+            {name: "Lisa", department: "HR"},
+            {name: "Jonas", department: "Marketing"}
+        ];
+    var person = {name: "Robert", age: 33};
+    employeeTbl.put(person);
+
+    table<Employee> key() employeeTbl2 = table [
+            {name: "Lisa", department: "HR"},
+            {name: "Jonas", department: "Marketing"}
+        ];
+    employeeTbl2.put(person);
+}
+
+function testAddIncompatibleTypesWithEmptyKeyedKeyLessTbl() {
+    EmployeeEmptyKeyedTbl employeeTbl = table [
+            {name: "Lisa", department: "HR"},
+            {name: "Jonas", department: "Marketing"}
+        ];
+    var person = {name: "Robert", age: 33};
+    employeeTbl.add(person);
+
+    table<Employee> key() employeeTbl2 = table [
+            {name: "Lisa", department: "HR"},
+            {name: "Jonas", department: "Marketing"}
+        ];
+    employeeTbl2.add(person);
+}
+
+function testGettingMemberFromEmptyKeyedKeyLessTbl() {
+    table<Person> key() tbl1 = table [
+            {name: "John", age: 23},
+            {name: "Anne", age: 20}
+        ];
+    _ = tbl1.get("John");
+
+    PersonEmptyKeyedTbl tbl2 = table [
+            {name: "John", age: 23},
+            {name: "Anne", age: 20}
+        ];
+    _ = tbl2.get("John");
+}
+
+function testRemovingMemberFromEmptyKeyedKeyLessTbl() {
+    EmployeeEmptyKeyedTbl tbl1 = table [
+            {name: "Lisa", department: "HR"},
+            {name: "Jonas", department: "Marketing"}
+        ];
+    _ = tbl1.remove("Lisa");
+
+    table<Employee> key() tbl2 = table [
+            {name: "Lisa", department: "HR"},
+            {name: "Jonas", department: "Marketing"}
+        ];
+    _ = tbl2.remove("Lisa");
+}
+
+function testRemovingMemberFromEmptyKeyedKeyLessTbl2() {
+    EmployeeEmptyKeyedTbl tbl1 = table [
+            {name: "Lisa", department: "HR"},
+            {name: "Jonas", department: "Marketing"}
+        ];
+    _ = tbl1.removeIfHasKey("Lisa");
+
+    table<Employee> key() tbl2 = table [
+            {name: "Lisa", department: "HR"},
+            {name: "Jonas", department: "Marketing"}
+        ];
+    _ = tbl2.removeIfHasKey("Lisa");
+}
+
+function testRemovingIfKeyIsAvaibleFromEmptyKeyedKeyLessTbl() {
+    table<Person> key() tbl1 = table [
+            {name: "John", age: 23},
+            {name: "Anne", age: 20}
+        ];
+    _ = tbl1.hasKey("John");
+
+    PersonEmptyKeyedTbl tbl2 = table [
+            {name: "John", age: 23},
+            {name: "Anne", age: 20}
+        ];
+    _ = tbl2.hasKey("Anne");
+}
+
+function testNextKeyFromEmptyKeyedKeyLessTbl() {
+    table<Person> key() tbl1 = table [
+            {name: "John", age: 23},
+            {name: "Anne", age: 20}
+        ];
+    _ = tbl1.nextKey();
+
+    PersonEmptyKeyedTbl tbl2 = table [
+            {name: "John", age: 23},
+            {name: "Anne", age: 20}
+        ];
+    _ = tbl2.nextKey();
+}
+
+function testFilterFromEmptyKeyedKeyLessTbl() {
+    PersonEmptyKeyedTbl personTable = table [
+            {name: "Harry", age: 14},
+            {name: "Hermione", age: 28}
+        ];
+    _ = personTable.filter(function(Person person) returns boolean {
+        return person.age < 15;
+    });
+
+    table<Person> key() personTable2 = table [
+            {name: "Harry", age: 14},
+            {name: "Hermione", age: 28}
+        ];
+    _ = personTable2.filter(function(Person person) returns boolean {
+        return person.age < 15;
+    });
+}

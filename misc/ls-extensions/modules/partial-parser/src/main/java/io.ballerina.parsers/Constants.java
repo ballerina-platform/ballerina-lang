@@ -21,5 +21,6 @@ package io.ballerina.parsers;
  * @since 2.0.0
  */
 public class Constants {
-    public static final String CAPABILITY_NAME = "partialParserService";
+    public static final String CAPABILITY_NAME = "partialParser";
+    public static final int SPACE_COUNT_FOR_ST_TAB = 4;
 }

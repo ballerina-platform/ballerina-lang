@@ -742,6 +742,11 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testTypeTestingInReadonlyRecord() {
+        BRunUtil.invoke(result, "testTypeTestingInReadonlyRecord");
+    }
+
+    @Test
     public void testTypeGuardsAccountingForSemTypes1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_1.bal");
         int index = 0;
@@ -967,9 +972,9 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected '3.0f', found '3|\"foo\"|false'", 50, 17); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3.0ff', found '3|\"foo\"|false'", 51, 18); // issue #34928
+                "incompatible types: expected '3.0f', found '3|\"foo\"|false'", 51, 18); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3.0dd', found '3|\"foo\"|false'", 52, 18); // issue #34928
+                "incompatible types: expected '3.0d', found '3|\"foo\"|false'", 52, 18); // issue #34928
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected '\"foo\"', found '3|\"foo\"|false'", 55, 19); // issue #34928
         BAssertUtil.validateError(result, index++,

@@ -11,11 +11,10 @@ failLockWithinLock function() -> (int, string) {
     %19(TEMP) typeDesc<any|error>;
     %20(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
     %21(TEMP) string;
-    %22(TEMP) ballerina/lang.value:0.0.0:Cloneable;
-    %23(TEMP) string;
-    %24(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
-    %25(LOCAL) error;
-    %41(TEMP) int;
+    %22(TEMP) string;
+    %23(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
+    %24(LOCAL) error;
+    %40(TEMP) int;
 
     bb0 {
         lock -> bb1;
@@ -52,20 +51,19 @@ failLockWithinLock function() -> (int, string) {
         %12 = <error> %18;
         %19 = newType map<ballerina/lang.value:0.0.0:Cloneable>;
         %21 = ConstLoad message;
-        %23 = ConstLoad error value;
-        %22 = <ballerina/lang.value:0.0.0:Cloneable> %23;
+        %22 = ConstLoad error value;
         %20 = NewMap %19;
-        %24 = cloneReadOnly(%20) -> bb8;
+        %23 = cloneReadOnly(%20) -> bb8;
     }
     bb8 {
-        %14 = error error(%16, %12, %24);
+        %14 = error error(%16, %12, %23);
         GOTO bb9;
     }
     bb9 {
         unlock -> bb10;
     }
     bb10 {
-        %25 = %14;
+        %24 = %14;
         lockWithinLockInt = ConstLoad 100;
         lockWithinLockString = ConstLoad Error caught;
         %18 = ConstLoad 0;
@@ -102,8 +100,8 @@ failLockWithinLock function() -> (int, string) {
         panic %12;
     }
     bb19 {
-        %41 = ConstLoad 2;
-        %0 = newArray (int, string)[%41];
+        %40 = ConstLoad 2;
+        %0 = newArray (int, string)[%40];
         GOTO bb20;
     }
     bb20 {

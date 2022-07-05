@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "module1:TestRecord2.rec3Field2",
       "sortText": "K",
-      "insertText": "rec3Field2: \"${2}\"",
+      "insertText": "rec3Field2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     }
   ]

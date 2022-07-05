@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "TestRecord2.field3",
       "sortText": "K",
-      "insertText": "field3: ${2:false}",
+      "insertText": "field3: ${1:false}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -35,7 +35,7 @@
       "kind": "Field",
       "detail": "TestRecord2.field2",
       "sortText": "K",
-      "insertText": "field2: \"${3}\"",
+      "insertText": "field2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,7 +44,25 @@
       "detail": "TestRecord2",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "field1: 0",
+      "insertText": "field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec",
+      "kind": "Variable",
+      "detail": "TestRecord2",
+      "sortText": "AB",
+      "filterText": "rec",
+      "insertText": "...rec",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec1",
+      "kind": "Variable",
+      "detail": "TestRecord1",
+      "sortText": "F",
+      "filterText": "rec1",
+      "insertText": "...rec1",
       "insertTextFormat": "Snippet"
     }
   ]

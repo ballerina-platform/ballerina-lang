@@ -1,0 +1,44 @@
+{
+  "source": {
+    "file": "rename_in_fn_call_rest_args.bal"
+  },
+  "position": {
+    "line": 2,
+    "character": 11
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "rename_in_fn_call_rest_args.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 8
+            },
+            "end": {
+              "line": 2,
+              "character": 14
+            }
+          },
+          "newText": "myValue1"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 35
+            },
+            "end": {
+              "line": 3,
+              "character": 41
+            }
+          },
+          "newText": "myValue1"
+        }
+      ]
+    }
+  }
+}

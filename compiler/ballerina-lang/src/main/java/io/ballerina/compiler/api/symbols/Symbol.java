@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Optional;
@@ -74,4 +76,8 @@ public interface Symbol {
      * @return true if the name is similar to the symbol's name and false otherwise
      */
     boolean nameEquals(String name);
+
+    void accept(SymbolVisitor visitor);
+
+    <T> T apply(SymbolTransformer<T> transformer);
 }

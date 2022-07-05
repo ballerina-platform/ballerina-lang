@@ -196,3 +196,12 @@ function fn() {
 function add(int a, int b) returns int {
     return 1;
 }
+
+int[] x1 = [1, 2 , 3];
+int[] y1 = [...x1, 4];
+
+function testListConstructorSpreadOp() {
+    int[] x2 = [1, 2 , 3];
+    int[] y2 = [...x2, 4];
+    int[] y3 = [...y1, 5];
+}

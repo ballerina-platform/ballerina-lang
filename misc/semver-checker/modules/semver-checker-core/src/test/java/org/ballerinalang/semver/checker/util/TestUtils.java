@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *

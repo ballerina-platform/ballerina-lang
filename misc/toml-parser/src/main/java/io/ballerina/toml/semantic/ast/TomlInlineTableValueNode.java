@@ -27,7 +27,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,7 +108,7 @@ public class TomlInlineTableValueNode extends TomlValueNode {
     }
 
     public TomlTableNode toTable() {
-        Map<String, TopLevelNode> table = new HashMap<>();
+        Map<String, TopLevelNode> table = new LinkedHashMap<>();
         for (TopLevelNode node : elements) {
             table.put(node.key().name(), node);
         }

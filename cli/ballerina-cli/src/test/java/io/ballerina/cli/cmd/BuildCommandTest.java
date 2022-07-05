@@ -19,7 +19,11 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,6 +43,7 @@ import java.util.Objects;
 import java.util.jar.JarFile;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -48,6 +53,11 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  */
 public class BuildCommandTest extends BaseCommandTest {
     private Path testResources;
+    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+    private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
+    Path customUserHome = Paths.get("build", "user-home");
+    Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+    ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
 
     @BeforeClass
     public void setup() throws IOException {
@@ -559,7 +569,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_NAME, "john");
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        // non-existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -656,39 +666,24 @@ public class BuildCommandTest extends BaseCommandTest {
                                   .resolve("_org-validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile().exists());
     }
 
-    static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
+    @Test(description = "tests consistent conflicted jars reporting")
+    public void testConsistentConflictedJarsReporting() throws IOException {
+        // Cache packages
+        BCompileUtil.compileAndCacheBala(testResources.resolve("inconsistentConflictedJars")
+                .resolve("uberJarPackage"), testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(testResources.resolve("inconsistentConflictedJars")
+                .resolve("correctJarPackage"), testDistCacheDirectory, projectEnvironmentBuilder);
 
+        Path projectPath = this.testResources.resolve("inconsistentConflictedJars").resolve("conflictedJarsProject");
+        System.setProperty("user.dir", projectPath.toString());
 
-        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
-            this.fromPath = fromPath;
-            this.toPath = toPath;
-            this.copyOption = copyOption;
-        }
-
-        public Copy(Path fromPath, Path toPath) {
-            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
-
-            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
-            if (!Files.exists(targetPath)) {
-                Files.createDirectory(targetPath);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
-
-            Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
-            return FileVisitResult.CONTINUE;
+        // Check build output which contains conflicted jars for 10 consecutive builds
+        for (int i = 0; i < 10; i++) {
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
+            new CommandLine(buildCommand).parse();
+            buildCommand.execute();
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-conflicted-jars-project.txt"));
         }
     }
 
@@ -756,4 +751,115 @@ public class BuildCommandTest extends BaseCommandTest {
                 ".json")));
     }
 
+    @Test(description = "Build an empty package")
+    public void testBuildEmptyPackage() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackage");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-empty-package.txt"));
+    }
+
+    @Test(description = "Build an empty package with compiler plugin")
+    public void testBuildEmptyPackageWithCompilerPlugin() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackageWithCompilerPlugin");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-empty-package.txt"));
+    }
+
+    @Test(description = "Build a ballerina project with the flag dump-graph")
+    public void testBuildBalProjectWithDumpGraphFlag() throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+
+        Path projectPath = dumpGraphResourcePath.resolve("package_a");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs("--dump-graph");
+        buildCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+
+        Assert.assertEquals(buildLog, getOutput("build-project-with-dump-graph.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("foo-package_a-0.1.0.jar").toFile().exists());
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a ballerina project with the flag dump-raw-graphs")
+    public void testBuildBalProjectWithDumpRawGraphsFlag() throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+
+        Path projectPath = dumpGraphResourcePath.resolve("package_a");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs("--dump-raw-graphs");
+        buildCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+
+        Assert.assertEquals(buildLog, getOutput("build-project-with-dump-raw-graphs.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("foo-package_a-0.1.0.jar").toFile().exists());
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
+    static class Copy extends SimpleFileVisitor<Path> {
+        private Path fromPath;
+        private Path toPath;
+        private StandardCopyOption copyOption;
+
+
+        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+            this.copyOption = copyOption;
+        }
+
+        public Copy(Path fromPath, Path toPath) {
+            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException {
+
+            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
+            if (!Files.exists(targetPath)) {
+                Files.createDirectory(targetPath);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+
+            Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
+            return FileVisitResult.CONTINUE;
+        }
+    }
 }

@@ -53,9 +53,9 @@ public class ModuleConstantComparator extends NodeComparator<ConstantDeclaration
     public Optional<? extends Diff> computeDiff() {
         NodeDiffBuilder diffBuilder = new ModuleConstantDiff.Builder(newNode, oldNode)
                 .withChildDiffs(compareModuleVariableMetadata(newNode, oldNode))
-                .withChildDiffs(compareModuleVariableQualifiers(newNode, oldNode))
-                .withChildDiffs(compareModuleVariableType(newNode, oldNode))
-                .withChildDiffs(compareModuleVariableExpression(newNode, oldNode));
+                .withChildDiffs(compareQualifiers(newNode, oldNode))
+                .withChildDiffs(compareType(newNode, oldNode))
+                .withChildDiffs(compareExpression(newNode, oldNode));
 
         // if the object field is non-public, all the sub level changes can be considered as patch-compatible changes.
         if (!isPublic()) {
@@ -85,7 +85,7 @@ public class ModuleConstantComparator extends NodeComparator<ConstantDeclaration
         return metadataDiffs;
     }
 
-    private List<Diff> compareModuleVariableQualifiers(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
+    private List<Diff> compareQualifiers(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
         List<Diff> qualifierDiffs = new ArrayList<>();
 
         // analyzes public qualifier changes
@@ -112,7 +112,7 @@ public class ModuleConstantComparator extends NodeComparator<ConstantDeclaration
         return qualifierDiffs;
     }
 
-    private List<Diff> compareModuleVariableType(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
+    private List<Diff> compareType(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
         List<Diff> typeDiffs = new LinkedList<>();
         Optional<TypeDescriptorNode> newType = newNode.typeDescriptor();
         Optional<TypeDescriptorNode> oldType = oldNode.typeDescriptor();
@@ -141,7 +141,7 @@ public class ModuleConstantComparator extends NodeComparator<ConstantDeclaration
         return typeDiffs;
     }
 
-    private List<Diff> compareModuleVariableExpression(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
+    private List<Diff> compareExpression(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
         List<Diff> exprDiffs = new LinkedList<>();
         DumbNodeComparator<Node> exprComparator = new DumbNodeComparator<>(newNode.initializer(),
                 oldNode.initializer(), DiffKind.MODULE_CONST_INIT.toString());

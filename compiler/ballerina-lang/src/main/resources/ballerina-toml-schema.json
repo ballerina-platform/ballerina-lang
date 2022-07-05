@@ -38,6 +38,13 @@
               "message": {
                 "pattern": "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters"
               }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?![0-9]).+",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have initial numeric characters"
+              }
             }
           ]
         },
@@ -69,6 +76,13 @@
               "pattern": "^(?!.*__).*$",
               "message": {
                 "pattern": "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?![0-9]).+",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have initial numeric characters"
               }
             }
           ]
@@ -102,6 +116,12 @@
           "type": "string"
         },
         "export": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "include": {
           "type": "array",
           "items": {
             "type": "string"

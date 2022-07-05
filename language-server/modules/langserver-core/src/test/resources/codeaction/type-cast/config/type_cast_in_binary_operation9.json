@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 27,
+    "character": 17
+  },
+  "source": "type_cast_in_binary_operation.bal",
+  "expected": [
+    {
+      "title": "Add type cast to 'd1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 27,
+              "character": 18
+            },
+            "end": {
+              "line": 27,
+              "character": 18
+            }
+          },
+          "newText": "<float>"
+        }
+      ]
+    }
+  ]
+}

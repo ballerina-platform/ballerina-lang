@@ -50,6 +50,8 @@ public class IsolationAnalysisTest {
             "invalid invocation of a non-isolated function in the default value of a record field";
     private static final String INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_RECORD_FIELD_DEFAULT =
             "invalid non-isolated initialization expression in the default value of a record field";
+    private static final String INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT =
+            "invalid access of an isolated variable outside a lock statement in the default value of a record field";
 
     private static final String INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT =
             "invalid access of mutable storage in the initializer of an object field";
@@ -158,9 +160,9 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 50, 7);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 55, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 68, 13);
-        validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 74, 12);
         validateWarning(result, i++, "unused variable 'ft'", 80, 5);
-        validateError(result, i++, "async invocation not allowed in an 'isolated' function", 80, 22);
+        validateError(result, i++, "invalid start action calling a non-isolated function in an 'isolated' function",
+                80, 28);
         validateWarning(result, i++, "unused variable 'a'", 94, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
@@ -204,8 +206,6 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 193, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 193, 23);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 193, 26);
-        validateError(result, i++, "fork statement not allowed in an 'isolated' function", 208, 5);
-        validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 209, 16);
         validateWarning(result, i++, "unused variable 'ln2'", 218, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 218, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 223, 81);
@@ -259,8 +259,13 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_RECORD_FIELD_DEFAULT, 33, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_RECORD_FIELD_DEFAULT, 33, 24);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 39, 25);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 67, 23);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 68, 23);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 81, 25);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 95, 25);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 108, 27);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 111, 23);
         Assert.assertEquals(result.getErrorCount(), i);
-
     }
 
     @Test

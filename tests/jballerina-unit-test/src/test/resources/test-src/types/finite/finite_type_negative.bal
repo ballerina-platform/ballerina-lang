@@ -119,6 +119,83 @@ function testFiniteTypeWithNumericValues() {
     "chiran" x = 5;
 }
 
+function testFiniteTypeOfNumericValues() {
+    1f _ = 2;
+    1.0 _ = 3;
+    1.121 _ = 5;
+    1.2e12 _ = 2.1;
+    0x1p-1 _ = 1.2f;
+    0x.12p12 _ = 1.2d;
+    1.2e12 _ = 2.1d;
+
+    2d _ = 4;
+    1.2d _ = 2.1;
+    1.21d _ = 1.2f;
+    0.1219e-1 _ = 1.21d;
+    12.1d _ = 0x.21;
+
+    boolean b = true;
+    if b {
+        0x.12p12 _ = 1.2d;
+        1.2e12 _ = 2.1d;
+
+        2d _ = 4;
+        1.2d _ = 2.1;
+    }
+}
+
+type Float1 1f;
+Float1 _ = 2;
+
+1f _ = 2;
+1.0 _ = 3;
+1.121 _ = 5;
+1.2e12 _ = 2.1;
+0x1p-1 _ = 1.2f;
+0x.12p12 _ = 1.2d;
+1.2e12 _ = 2.1d;
+
+2d _ = 4;
+1.2d _ = 2.1;
+1.21d _ = 1.2f;
+0.1219e-1 _ = 1.21d;
+12.1d _ = 0x.21;
+
+function finiteTypeFunctionParameterTest() {
+    fn1(1, 2);
+    fn2(1, 2);
+}
+
+function fn1(2d x, 1f y) {
+
+}
+
+function fn2(0.1219e-1 x, 0x.12p12 y) {
+
+}
+
+function finiteTypeFunctionReturnTypeTest() {
+    2d _ = fn3();
+    3f _ = fn4();
+}
+
+function fn3() returns 1f {
+    return 2;
+}
+
+function fn4() returns 2d {
+    return "s";
+}
+
+function finiteTypeTypeCastExpr() {
+    2d _ = <2f> 1;
+    3d _ = <4f> 4;
+    2f _ = <2d> 2;
+    3f _ = <4d> 4;
+    3f _ = <4f> 4;
+    3d _ = <4d> 4;
+}
+
 type IntOrNull int|null;
 type IntOrNullStr int|"null";
 
@@ -153,4 +230,30 @@ function testNullFiniteType() {
 
     null _ = "null"; // error
     "null" _ = null; // error
+}
+
+type IntOne 1;
+type FloatOne 1.0;
+type DecimalOne 1.0d;
+type StringA "A";
+
+function testFiniteTypeAssignableNegative() {
+    IntOne intOne = 1;
+    FloatOne _ = intOne;
+    1.0 _ = intOne;
+    float _ = intOne;
+    DecimalOne _ = intOne;
+
+    FloatOne floatOne = 1.0;
+    IntOne _ = floatOne;
+    1 _ = floatOne;
+    DecimalOne _ = floatOne;
+    DecimalOne _ = 1.0f;
+    FloatOne|StringA _ = intOne;
+    FloatOne|StringA _ = floatOne;
+
+    DecimalOne decimalOne = 1.0d;
+    IntOne _ = decimalOne;
+    FloatOne _ = decimalOne;
+    FloatOne|IntOne _ = decimalOne;
 }

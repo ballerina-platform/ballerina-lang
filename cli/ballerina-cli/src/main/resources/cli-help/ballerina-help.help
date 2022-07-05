@@ -33,13 +33,15 @@ COMMANDS
         search          Search Ballerina Central for packages
         semver          Show SemVer compatibility and local package changes against
                         published packages in Ballerina Central
+        graph           Print the dependency graph in the console
 
    Other Commands:
         clean           Clean the artifacts generated during the build
         format          Format Ballerina source files
-        grpc            Generate the Ballerina sources for a given Protocol Buffer definition
-        openapi         Generate the Ballerina sources for a given OpenAPI definition and 
-                        vice versa
+        grpc            Generate the Ballerina sources for a given Protocol
+                        Buffer definition
+        openapi         Generate the Ballerina sources for a given OpenAPI
+                        definition and vice versa
         bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL
         version         Print the Ballerina version

@@ -308,3 +308,27 @@ function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyMapWithVarNegativ
         int|string f = c[0];
     }
 }
+
+type Foo record {|
+    int id;
+|};
+
+type Bar Foo;
+
+type Foo2 readonly & record {|
+    int id;
+|};
+
+type Bar2 Foo2;
+
+function testInvalidTypeInVariableBinding() {
+    Bar[] arr = [];
+    foreach int item in arr {
+
+    }
+
+    Bar2[] arr2 = [];
+    foreach int item in arr2 {
+
+    }
+}

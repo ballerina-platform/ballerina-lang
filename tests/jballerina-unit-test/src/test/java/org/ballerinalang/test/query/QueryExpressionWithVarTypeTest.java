@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -250,6 +251,23 @@ public class QueryExpressionWithVarTypeTest {
     @Test(description = "Test query constructing table with var")
     public void testQueryConstructingTableWithVar() {
         BRunUtil.invoke(result, "testQueryConstructingTableWithVar");
+    }
+
+    @Test(dataProvider = "dataToTestQueryExprWithVar")
+    public void testQueryExprWithVar(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestQueryExprWithVar() {
+        return new Object[]{
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause",
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause",
+                "testUsingAnIntersectionTypeInQueryExpr",
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause2",
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause2",
+                "testUsingAnIntersectionTypeInQueryExpr2"
+        };
     }
 
     @AfterClass

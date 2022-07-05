@@ -9,7 +9,7 @@
       "label": "start",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "start",
       "insertText": "start ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "wait",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "wait",
       "insertText": "wait ",
       "insertTextFormat": "Snippet"
@@ -27,7 +27,7 @@
       "label": "flush",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "flush",
       "insertText": "flush ",
       "insertTextFormat": "Snippet"
@@ -36,7 +36,7 @@
       "label": "from clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CS",
+      "sortText": "CR",
       "filterText": "from",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
@@ -117,7 +117,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "CR",
+      "sortText": "CQ",
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
@@ -262,7 +262,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
@@ -271,7 +271,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
@@ -280,7 +280,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -289,7 +289,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
@@ -298,7 +298,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -307,7 +307,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
@@ -316,7 +316,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
@@ -325,7 +325,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
@@ -334,7 +334,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
@@ -343,7 +343,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -352,7 +352,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -361,7 +361,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
@@ -370,7 +370,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
@@ -379,7 +379,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
@@ -388,7 +388,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CS",
+      "sortText": "CR",
       "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
@@ -397,7 +397,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CS",
+      "sortText": "CR",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -406,7 +406,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CS",
+      "sortText": "CR",
       "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
@@ -415,7 +415,7 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CS",
+      "sortText": "CR",
       "filterText": "base64",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
@@ -424,7 +424,7 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
@@ -433,7 +433,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "CQ",
+      "sortText": "CP",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -444,7 +444,7 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "CP",
+      "sortText": "CO",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
@@ -532,7 +532,7 @@
       "label": "testFPointer",
       "kind": "Variable",
       "detail": "function (int) returns ()",
-      "sortText": "CE",
+      "sortText": "CD",
       "insertText": "testFPointer",
       "insertTextFormat": "Snippet"
     },
@@ -540,7 +540,7 @@
       "label": "testInt",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "CE",
+      "sortText": "CD",
       "insertText": "testInt",
       "insertTextFormat": "Snippet"
     },
@@ -548,7 +548,7 @@
       "label": "arr",
       "kind": "Variable",
       "detail": "int[]",
-      "sortText": "CE",
+      "sortText": "CD",
       "insertText": "arr",
       "insertTextFormat": "Snippet"
     },
@@ -562,7 +562,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "CE",
+      "sortText": "CD",
       "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet"
@@ -577,7 +577,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CE",
       "filterText": "test",
       "insertText": "test()",
       "insertTextFormat": "Snippet"
@@ -586,7 +586,7 @@
       "label": "TestClass",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "CN",
+      "sortText": "CM",
       "insertText": "TestClass",
       "insertTextFormat": "Snippet"
     },
@@ -600,7 +600,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` hello"
         }
       },
-      "sortText": "CE",
+      "sortText": "CD",
       "filterText": "utilizeInt",
       "insertText": "utilizeInt",
       "insertTextFormat": "Snippet",
@@ -619,7 +619,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` hello"
         }
       },
-      "sortText": "CC",
+      "sortText": "CE",
       "filterText": "utilizeInt",
       "insertText": "utilizeInt(${1})",
       "insertTextFormat": "Snippet",
@@ -632,7 +632,7 @@
       "label": "cls",
       "kind": "Variable",
       "detail": "TestClass",
-      "sortText": "CE",
+      "sortText": "CD",
       "insertText": "cls",
       "insertTextFormat": "Snippet"
     },
@@ -640,7 +640,7 @@
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CT",
+      "sortText": "CS",
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
@@ -649,9 +649,113 @@
       "label": "function (..) {..}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CS",
+      "sortText": "CR",
       "filterText": "function",
       "insertText": "function (int i) returns int {\n    return 0;\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "CR",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]

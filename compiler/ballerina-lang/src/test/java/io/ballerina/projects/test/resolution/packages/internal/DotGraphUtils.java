@@ -70,11 +70,12 @@ public class DotGraphUtils {
     public static DependencyNode getDependencyNode(String name,
                                                    String repo,
                                                    PackageDependencyScope scope,
-                                                   String resolutionTypeStr) {
+                                                   String resolutionTypeStr,
+                                                   boolean error) {
         PackageDescriptor pkgDesc = Utils.getPkgDescFromNode(name, repo);
         DependencyResolutionType resolutionType = DependencyResolutionType.valueOf(
                 resolutionTypeStr.toUpperCase(Locale.ENGLISH));
-        return new DependencyNode(pkgDesc, scope, resolutionType);
+        return new DependencyNode(pkgDesc, scope, resolutionType, error);
     }
 
     public static DependencyGraph<PackageDescriptor> createPackageDescGraph(MutableGraph mutableGraph) {
@@ -112,6 +113,10 @@ public class DotGraphUtils {
 
         for (MutableNode node : mutableGraph.nodes()) {
             MutableAttributed<MutableNode, ForNode> attrs = node.attrs();
+            boolean error = false;
+            if (attrs.get("error") != null) {
+                error = Boolean.parseBoolean(Objects.requireNonNull(attrs.get("error")).toString());
+            }
 
             String repo = null;
             if (attrs.get("repo") != null) {
@@ -131,7 +136,7 @@ public class DotGraphUtils {
             }
 
             String name = node.name().toString();
-            dependencyNodeMap.put(name, getDependencyNode(name, repo, scope, kind));
+            dependencyNodeMap.put(name, getDependencyNode(name, repo, scope, kind, error));
         }
 
         for (Link edge : mutableGraph.edges()) {

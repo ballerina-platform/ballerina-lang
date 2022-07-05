@@ -25,6 +25,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -48,6 +49,13 @@ public class LangLibXMLTest {
         compileResult = BCompileUtil.compile("test-src/xmllib_test.bal");
         constrainedTest = BCompileUtil.compile("test-src/xmllib_constrained_test.bal");
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        constrainedTest = null;
+        negativeResult = null;
     }
 
     @Test(dataProvider = "XMLDataProvider")

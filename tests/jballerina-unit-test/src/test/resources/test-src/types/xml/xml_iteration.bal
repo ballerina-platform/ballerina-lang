@@ -290,6 +290,64 @@ function xmlTypeParamPIIter() {
     assert(nextPI2.toString(), "{\"value\":`<?target data?>`}");
 }
 
+type XmlElement xml:Element;
+
+function testSequenceOfSequenceOfXmlElementIteration() {
+    xml<xml<xml:Element>> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach var e1 in elements {
+        arr.push(e1);
+    }
+    validateValues(arr);
+
+    xml<xml<XmlElement>> elements2 = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    arr = [];
+    foreach var e2 in elements2 {
+        arr.push(e2);
+    }
+    validateValues(arr);
+}
+
+function testSequenceOfSequenceOfReadonlyXmlElementIteration() {
+    xml<xml<xml:Element & readonly>> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach var e1 in elements {
+        arr.push(e1);
+    }
+    validateValues(arr);
+
+    xml<xml:Element & readonly> elements2 = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    arr = [];
+    foreach var e2 in elements2 {
+        arr.push(e2);
+    }
+    validateValues(arr);
+}
+
+function testSequenceOfReadOnlyXmlSubTypeUnionIteration() {
+    xml<(xml:Element|xml:Comment) & readonly> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach (xml:Element|xml:Comment) & readonly e1 in elements {
+        arr.push(<xml:Element> e1);
+    }
+    validateValues(arr);
+}
+
+function testSequenceOfReadOnlyXmlSubTypeUnionIteration2() {
+    xml<(xml:Element & readonly|xml:Comment & readonly)> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach var e1 in elements {
+        arr.push(<xml:Element> e1);
+    }
+    validateValues(arr);
+}
+
+function validateValues(xml:Element[] arr) {
+    assert(arr.length(), 3);
+    assert(arr[0], xml `<foo/>`);
+    assert(arr[1], xml `<bar>value</bar>`);
+    assert(arr[2], xml `<baz>1</baz>`);
+}
 
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {

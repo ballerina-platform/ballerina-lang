@@ -57,10 +57,10 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
     @Override
     public Optional<? extends Diff> computeDiff() {
         NodeDiffBuilder diffBuilder = new ModuleVarDiff.Builder(newNode, oldNode)
-                .withChildDiffs(compareModuleVariableMetadata(newNode, oldNode))
-                .withChildDiffs(compareModuleVariableQualifiers(newNode, oldNode))
-                .withChildDiffs(compareModuleVariableType(newNode, oldNode))
-                .withChildDiffs(compareModuleVariableExpression(newNode, oldNode));
+                .withChildDiffs(compareMetadata(newNode, oldNode))
+                .withChildDiffs(compareQualifiers(newNode, oldNode))
+                .withChildDiffs(compareType(newNode, oldNode))
+                .withChildDiffs(compareExpression(newNode, oldNode));
 
         // if the object field is non-public, all the sub level changes can be considered as patch-compatible changes.
         if (!isPublic()) {
@@ -70,7 +70,7 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
         return diffBuilder.build();
     }
 
-    private List<Diff> compareModuleVariableMetadata(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
+    private List<Diff> compareMetadata(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
         List<Diff> metadataDiffs = new ArrayList<>();
         Optional<MetadataNode> newMeta = newNode.metadata();
         Optional<MetadataNode> oldMeta = oldNode.metadata();
@@ -90,7 +90,7 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
         return metadataDiffs;
     }
 
-    private List<Diff> compareModuleVariableQualifiers(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
+    private List<Diff> compareQualifiers(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
         List<Diff> qualifierDiffs = new ArrayList<>();
         NodeList<Token> newQualifiers = newNode.qualifiers();
         NodeList<Token> oldQualifiers = oldNode.qualifiers();
@@ -174,7 +174,7 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
         return qualifierDiffs;
     }
 
-    private List<Diff> compareModuleVariableType(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
+    private List<Diff> compareType(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
         List<Diff> typeDiffs = new LinkedList<>();
         Node newType = newNode.typedBindingPattern().typeDescriptor();
         Node oldType = oldNode.typedBindingPattern().typeDescriptor();
@@ -193,7 +193,7 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
         return typeDiffs;
     }
 
-    private List<Diff> compareModuleVariableExpression(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
+    private List<Diff> compareExpression(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
         List<Diff> exprDiffs = new LinkedList<>();
         DumbNodeComparator<Node> exprComparator = new DumbNodeComparator<>(newNode.initializer().orElse(null),
                 oldNode.initializer().orElse(null), MODULE_VAR_INIT.toString());

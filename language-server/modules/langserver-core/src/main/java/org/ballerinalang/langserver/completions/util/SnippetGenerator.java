@@ -465,7 +465,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getResourceFunctionDefSnippet() {
-        String snippet = "function ${1:name} ${2:.} (${3})${4} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+        String snippet = "function ${1:accessor} ${2:path} (${3})${4} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE_FUNC_DEF, ItemResolverConstants.FUNCTION, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
@@ -477,7 +477,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getResourceFunctionSignatureSnippet() {
-        String snippet = "resource function ${1:name} ${2:.} (${3})${4} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+        String snippet = "resource function ${1:accessor} ${2:path} (${3})${4} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE_FUNC_DEF,
                 generateFilterText(Arrays.asList(ItemResolverConstants.RESOURCE, ItemResolverConstants.FUNCTION)),

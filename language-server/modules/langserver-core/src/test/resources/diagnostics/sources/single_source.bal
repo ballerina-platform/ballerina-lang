@@ -1,9 +1,9 @@
-import ballerina/io;
+import ballerina/iox;
 
 # Prints `Hello World`.
 
 public function main() {
-    io:println("Hello World!")
+    iox:println("Hello World!")
 }
 
 

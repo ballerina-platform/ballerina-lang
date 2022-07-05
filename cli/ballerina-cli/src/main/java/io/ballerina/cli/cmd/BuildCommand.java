@@ -27,13 +27,12 @@ import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -55,7 +54,7 @@ public class BuildCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     public BuildCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -64,38 +63,42 @@ public class BuildCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         boolean dumpBuildTime) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.dumpBuildTime = dumpBuildTime;
+        this.offline = true;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         String output) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.output = output;
+        this.offline = true;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
@@ -116,17 +119,15 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-bir-file", hidden = true)
     private Boolean dumpBIRFile;
 
-    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+            "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private Boolean experimentalFlag;
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
@@ -219,13 +220,12 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
-        if (isProjectEmpty(project)) {
-            if (project.currentPackage().compilerPluginToml().isPresent()) {
-                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
-                        false);
+        // If project is empty
+        if (ProjectUtils.isProjectEmpty(project)) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
+                    false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
-            }
         }
 
         // Validate Settings.toml file
@@ -252,21 +252,10 @@ public class BuildCommand implements BLauncherCmd {
         }
     }
 
-    private boolean isProjectEmpty(Project project) {
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private BuildOptions constructBuildOptions() {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         buildOptionsBuilder
-                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setCloud(cloud)

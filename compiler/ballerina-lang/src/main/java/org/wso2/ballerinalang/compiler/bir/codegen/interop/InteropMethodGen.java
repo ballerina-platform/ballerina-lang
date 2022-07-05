@@ -43,11 +43,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -127,7 +127,7 @@ public class InteropMethodGen {
     static void genJFieldForInteropField(JFieldBIRFunction birFunc, ClassWriter classWriter, PackageID birModule,
                                          JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                          JvmConstantsGen jvmConstantsGen, String moduleClassName,
-                                         AsyncDataCollector asyncDataCollector, CompilerContext compilerContext) {
+                                         AsyncDataCollector asyncDataCollector, Types types) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         indexMap.addIfNotExists("$_strand_$", jvmPackageGen.symbolTable.stringType);
@@ -143,8 +143,7 @@ public class InteropMethodGen {
         int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen, jvmTypeGen,
-                                                          jvmCastGen, jvmConstantsGen, asyncDataCollector,
-                                                          compilerContext);
+                                                          jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         LabelGenerator labelGen = new LabelGenerator();
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, birModule, instGen,
@@ -153,7 +152,7 @@ public class InteropMethodGen {
 
         Label paramLoadLabel = labelGen.getLabel("param_load");
         mv.visitLabel(paramLoadLabel);
-        mv.visitLineNumber(birFunc.pos.lineRange().startLine().line(), paramLoadLabel);
+        mv.visitLineNumber(birFunc.pos.lineRange().startLine().line() + 1, paramLoadLabel);
 
         // birFunc.localVars contains all the function parameters as well as added boolean parameters to indicate the
         //  availability of default values.
@@ -277,7 +276,7 @@ public class InteropMethodGen {
 
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
-        mv.visitLineNumber(birFunc.pos.lineRange().startLine().line(), retLabel);
+        mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
         termGen.genReturnTerm(returnVarRefIndex, birFunc);
         mv.visitMaxs(200, 400);
         mv.visitEnd();
@@ -302,7 +301,7 @@ public class InteropMethodGen {
             // process terminator
             if (!(terminator instanceof BIRTerminator.Return)) {
                 JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
-                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null);
+                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null, -1, -1, null);
                 lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, basicBlock, funcName, labelGen,
                         lastScope, visitedScopesSet);
             }
@@ -310,7 +309,8 @@ public class InteropMethodGen {
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1);
+                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1, -1,
+                        terminator.pos, null, null, -1);
             }
         }
     }

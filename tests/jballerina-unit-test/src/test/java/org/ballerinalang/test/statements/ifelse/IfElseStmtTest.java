@@ -280,6 +280,8 @@ public class IfElseStmtTest {
         Object[] args = {StringUtils.fromString("ballerina")};
         BRunUtil.invoke(result, "testTypeNarrowingWithLambda");
         BRunUtil.invoke(result, "testResetTypeNarrowingForCompoundAssignment");
+        BRunUtil.invoke(result, "testResetTypeNarrowing");
+        BRunUtil.invoke(result, "testResetTypeNarrowingWithBlockStmt");
         Object returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
         
         Assert.assertEquals(returns.toString(), "ballerina");

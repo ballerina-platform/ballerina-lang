@@ -31,3 +31,10 @@ function testMethodUsage() {
     testproject:PersonObj p = new("John", 20);
     string s = p.getName();
 }
+
+function testMethodsInAbstractObject() {
+    testproject:HumanObj ho = testproject:loadHuman();
+    string eatResult = ho.eatFunction();
+    int walkResult = ho.walkFunction();
+    int age = ho.age;
+}

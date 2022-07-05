@@ -64,6 +64,7 @@ public class CyclicTypeDefinitionsTest {
                 {"testCastingToImmutableCyclicTuple"},
                 {"recursiveTupleArrayCloneTest"},
                 {"testRecursiveTupleWithRestType"},
+                {"testUnionWithCyclicTuplesHashCode"}
         };
     }
 
@@ -128,8 +129,12 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'J'", 47, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'K'", 50, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'N'", 58, 6);
-        BAssertUtil.validateError(negativeResult, i++, "tuple and expression size does not match", 62, 11);
-        BAssertUtil.validateError(negativeResult, i++, "tuple and expression size does not match", 63, 11);
+        BAssertUtil.validateError(negativeResult, i++,
+                "invalid usage of list constructor: type '[int,L[2],[\"nil\",\"text1\",1,L[1]][1]][2]'" +
+                        " does not have a filler value", 62, 11);
+        BAssertUtil.validateError(negativeResult, i++,
+                "invalid usage of list constructor: type '[int,L[2],[\"nil\",\"text1\",1,L[1]][1]][1]'" +
+                        " does not have a filler value", 63, 11);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'ET', found 'int'", 75, 17);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }

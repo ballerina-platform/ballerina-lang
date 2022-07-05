@@ -21,6 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,6 +37,11 @@ public class LangLibNegativeTest {
     @BeforeClass
     public void setup() {
         negativeResult = BCompileUtil.compile("test-src/langlib_test_negative.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        negativeResult = null;
     }
 
     @Test

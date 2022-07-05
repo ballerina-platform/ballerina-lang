@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -238,7 +239,7 @@ public class TestUtil {
     /**
      * Get the textDocument/definition response.
      *
-     * @param fileUri        Path of the Bal file
+     * @param fileUri         Path of the Bal file
      * @param position        Cursor Position
      * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
@@ -251,7 +252,7 @@ public class TestUtil {
     /**
      * Get the textDocument/reference response.
      *
-     * @param fileUri        URI of the Bal file
+     * @param fileUri         URI of the Bal file
      * @param position        Cursor Position
      * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
@@ -540,13 +541,13 @@ public class TestUtil {
     public static void closeDocument(Endpoint serviceEndpoint, Path filePath) {
         closeDocument(serviceEndpoint, filePath.toUri().toString());
     }
-    
+
     /**
      * Close an already opened document. File URI should be provided separately. Used to simulate scenarios where
      * different URI schemes are used.
      *
      * @param serviceEndpoint Service Endpoint to Language Server
-     * @param fileUri File URI
+     * @param fileUri         File URI
      */
     public static void closeDocument(Endpoint serviceEndpoint, String fileUri) {
         TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
@@ -631,7 +632,7 @@ public class TestUtil {
 
     /**
      * Get the {@link TextDocumentIdentifier} given the file path. Use the one with the URI as the parameter.
-     * 
+     *
      * @param filePath {@link Path}
      * @return {@link TextDocumentIdentifier}
      */
@@ -764,6 +765,26 @@ public class TestUtil {
         DiagnosticResult diagnosticResult = project.get().currentPackage().getCompilation().diagnosticResult();
         diagnostics.addAll(diagnosticResult.diagnostics());
         return diagnostics;
+    }
+
+    public static Optional<Package> compileAndGetPackage(Path sourcePath, WorkspaceManager workspaceManager,
+                                                         LanguageServerContext serverContext) throws IOException,
+                                                         WorkspaceDocumentException {
+        DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
+                workspaceManager,
+                LSContextOperation.TXT_DID_OPEN,
+                serverContext);
+        DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
+        TextDocumentItem textDocument = new TextDocumentItem();
+        textDocument.setUri(sourcePath.toUri().toString());
+        textDocument.setText(new String(Files.readAllBytes(sourcePath)));
+        params.setTextDocument(textDocument);
+        context.workspace().didOpen(sourcePath, params);
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(project.get().currentPackage());
     }
 
     public static LanguageServerBuilder newLanguageServer() {

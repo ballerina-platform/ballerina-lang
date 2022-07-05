@@ -1,0 +1,1 @@
+test_module.tableVar = [{ name = "a", age = { a = "a" } }]

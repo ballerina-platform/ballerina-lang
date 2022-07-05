@@ -368,6 +368,15 @@ function testStringXmlSubtypesAddition() {
     string:Char c = "d";
     xml x1 = xml `efg`;
     xml:Text x2 = xml `text`;
+    string:Char|Strings b = "d";
+    Strings|Baz e = "bar";
+    Bar d = "B";
+    xml l = x2 + b;
+    xml m = x2 + e;
+    xml n = x2 + d;
+    xml o = x1 + b;
+    xml p = x1 + e;
+    xml q = x1 + d;
 
     assertEquality(s + x2, xml `abctext`);
     assertEquality(x2 + s, xml `textabc`);
@@ -375,6 +384,149 @@ function testStringXmlSubtypesAddition() {
     assertEquality(x1 + c, xml `efgd`);
     assertEquality(c + x2, xml `dtext`);
     assertEquality(x2 + c, xml `textd`);
+    assertEquality(l, xml `textd`);
+    assertEquality(m, xml `textbar`);
+    assertEquality(n, xml `textB`);
+    assertEquality(o, xml `efgd`);
+    assertEquality(p, xml `efgbar`);
+    assertEquality(q, xml `efgB`);
+}
+
+type Baz "B"|"bar";
+type Bar Baz|string;
+
+function testStringSubtypesAddition() {
+    string a = "abc";
+    string:Char|Strings b = "d";
+    Strings|Baz c = "bar";
+    Bar d = "B";
+    string:Char e = "e";
+    string f = a + c;
+    string g = a + b;
+    string h = d + e;
+    string i = a + b + a;
+    string j = c + b;
+    string k = a + e;
+    string l = b + e;
+    string m = c + e;
+    string n = b + e + b;
+
+    assertEquality(f, "abcbar");
+    assertEquality(g, "abcd");
+    assertEquality(i, "abcdabc");
+    assertEquality(j, "bard");
+    assertEquality(k, "abce");
+    assertEquality(l, "de");
+    assertEquality(m, "bare");
+    assertEquality(h, "Be");
+    assertEquality(n, "ded");
+}
+
+type Foo xml<'xml:Text>|xml<'xml:Comment> ;
+type Foo2 xml<'xml:Element|'xml:ProcessingInstruction>;
+type Foo3 Foo|Foo2;
+
+function testXmlSubtypesAddition() {
+    xml a = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
+    xml<'xml:Element>|Foo b = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    Foo2 c = xml `<?foo?><?faa?>`;
+    Foo3 d = xml `text1 text2`;
+    xml<'xml:Comment> e = xml `<!--comment1--><!--comment2-->`;
+    xml<'xml:Text|'xml:Comment> f = xml `<!--comment-->`;
+    xml<'xml:Text>|xml<'xml:Comment> g = xml `<!--comment-->`;
+    xml<'xml:Element|'xml:ProcessingInstruction> h = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    xml<'xml:Element>|'xml:Text i = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
+    xml j = a + b;
+    xml k = a + c;
+    xml l = a + d;
+    xml m = c + g;
+    xml n = c + h;
+    xml o = d + f;
+    xml p = g + h;
+    
+    xml result1 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><foo>Anne</foo><fuu>Peter</fuu>`;
+    xml result2 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><?foo ?><?faa ?>`;
+    xml result3 = xml `<foo>foo</foo><?foo ?>text1<!--comment-->text1 text2`;
+    xml result4 = xml `<?foo ?><?faa ?><!--comment-->`;
+    xml result5 = xml `<?foo ?><?faa ?><root> text1<foo>100</foo><foo>200</foo></root><?foo ?>`;
+    xml result6 = xml `text1 text2<!--comment-->`;
+    xml result7 = xml `<!--comment--><root> text1<foo>100</foo><foo>200</foo></root><?foo ?>`;
+    assertEquality(j, result1);
+    assertEquality(k, result2);
+    assertEquality(l, result3);
+    assertEquality(m, result4);
+    assertEquality(n, result5);
+    assertEquality(o, result6);
+    assertEquality(p, result7);
+}
+
+int intVal = 10;
+
+function testNoShortCircuitingInAdditionWithNullable() {
+    int? result = foo() + bar();
+    assertEquality(result, ());
+    assertEquality(intVal, 18);
+
+    result = foo() + 12;
+    assertEquality(result, ());
+    assertEquality(intVal, 20);
+
+    result = 12 + bar();
+    assertEquality(result, ());
+    assertEquality(intVal, 26);
+
+    int? x = 12;
+    result = foo() + x;
+    assertEquality(result, ());
+    assertEquality(intVal, 28);
+
+    result = x + bar();
+    assertEquality(result, ());
+    assertEquality(intVal, 34);
+
+    result = x + bam();
+    assertEquality(result, 17);
+    assertEquality(intVal, 44);
+
+    result = bam() + x;
+    assertEquality(result, 17);
+    assertEquality(intVal, 54);
+
+    result = foo() + bam();
+    assertEquality(result, ());
+    assertEquality(intVal, 66);
+
+    result = bam() + bar();
+    assertEquality(result, ());
+    assertEquality(intVal, 82);
+}
+
+function testNoShortCircuitingInAdditionWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x + bam();
+    assertEquality(result, 15);
+    assertEquality(intVal, 20);
+
+    result = bam() + 12;
+    assertEquality(result, 17);
+    assertEquality(intVal, 30);
+}
+
+function foo() returns int? {
+    intVal += 2;
+    return ();
+}
+
+function bar() returns int? {
+    intVal += 6;
+    return ();
+}
+
+function bam() returns int {
+    intVal += 10;
+    return 5;
 }
 
 function assertEquality(any actual, any expected) {

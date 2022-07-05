@@ -104,22 +104,72 @@ public class ModOperationTest {
 
     @Test(description = "Test mod operation negative scenarios")
     public void testModStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
-        BAssertUtil.validateError(resultNegative, 0, "operator '%' not defined for 'C' and 'string'", 28, 14);
-        BAssertUtil.validateError(resultNegative, 1, "operator '%' not defined for 'C' and '(float|int)'", 29, 14);
-        BAssertUtil.validateError(resultNegative, 2, "operator '%' not defined for 'string' and " +
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'string' and " +
                 "'(string|string:Char)'", 30, 17);
-        BAssertUtil.validateError(resultNegative, 3, "operator '%' not defined for 'float' and 'decimal'", 37, 14);
-        BAssertUtil.validateError(resultNegative, 4, "operator '%' not defined for 'float' and 'decimal'", 38, 14);
-        BAssertUtil.validateError(resultNegative, 5, "operator '%' not defined for 'float' and 'int'", 39, 14);
-        BAssertUtil.validateError(resultNegative, 6, "operator '%' not defined for 'decimal' and 'int'", 40, 14);
-        BAssertUtil.validateError(resultNegative, 7, "operator '%' not defined for 'int' and 'float'", 41, 18);
-        BAssertUtil.validateError(resultNegative, 8, "operator '%' not defined for 'C' and 'float'", 45, 14);
-        BAssertUtil.validateError(resultNegative, 9, "operator '%' not defined for 'C' and 'float'", 46, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'float' and 'decimal'", 37, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'float' and 'decimal'", 38, 14);
+        BAssertUtil.validateError(resultNegative, i++, 
+                "operator '%' not defined for 'int'(dividend) and 'float'(divisor)", 39, 18);
+        BAssertUtil.validateError(resultNegative, i++, 
+                "operator '%' not defined for 'int'(dividend) and 'decimal'(divisor)", 40, 18);
+        BAssertUtil.validateError(resultNegative, i++, "operator '%' not defined for 'C' and 'float'", 44, 14);
+        BAssertUtil.validateError(resultNegative, i, "operator '%' not defined for 'C' and 'float'", 45, 14);
     }
 
     @Test(description = "Test mod of nullable values")
     public void testModNullable() {
         BRunUtil.invoke(result, "testModNullable");
+    }
+
+
+    @Test(dataProvider = "dataToTestModFloatInt", description = "Test float modulo by int")
+    public void testModFloatInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestModFloatInt() {
+        return new Object[]{
+                "testModFloatInt",
+                "testModFloatIntSubTypes",
+                "testModFloatIntWithNullableOperands",
+                "testModFloatIntSubTypeWithNullableOperands",
+                "testResultTypeOfModFloatIntByInfering",
+                "testResultTypeOfModFloatIntForNilableOperandsByInfering",
+        };
+    }
+
+    @Test(dataProvider = "dataToTestModDecimalInt", description = "Test decimal modulo by int")
+    public void testModDecimalInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestModDecimalInt() {
+        return new Object[]{
+                "testModDecimalInt",
+                "testModDecimalIntSubTypes",
+                "testModDecimalIntWithNullableOperands",
+                "testModDecimalIntSubTypeWithNullableOperands",
+                "testResultTypeOfModDecimalIntByInfering",
+                "testResultTypeOfModDecimalIntForNilableOperandsByInfering",
+        };
+    }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInMod")
+    public void testShortCircuitingInMod(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInMod() {
+        return new Object[]{
+                "testNoShortCircuitingInModWithNullable",
+                "testNoShortCircuitingInModWithNonNullable"
+        };
     }
 }

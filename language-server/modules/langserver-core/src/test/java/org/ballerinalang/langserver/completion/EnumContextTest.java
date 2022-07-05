@@ -29,7 +29,8 @@ public class EnumContextTest extends CompletionTest {
     
     @BeforeClass
     @Override
-    public void init() throws InterruptedException {
+    public void init() throws Exception {
+        super.init();
         preLoadAndInit();
     }
     

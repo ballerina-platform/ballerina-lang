@@ -79,6 +79,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "receive_action_source_01.bal", // issue #26376
                 "doc_source_21.bal", // issue #28172
                 "module_var_decl_source_18.bal", // issue #31307
+                "match_stmt_source_21.bal", // issue #35240
+                "func_params_source_27.bal", // issue #35240
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
                 "service_decl_source_20.bal",
@@ -170,7 +172,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal", "record_type_def_source_27.bal",
                 "func_type_source_09.bal", "func_type_source_13.bal", "func_type_source_14.bal",
                 "func_type_source_15.bal", "func_type_source_16.bal", "import_decl_source_24.bal",
-                "member_access_expr_source_11.bal", "float_literal_source_08.bal");
+                "member_access_expr_source_11.bal", "float_literal_source_08.bal", "resiliency_source_05.bal");
     }
 
     @DataProvider(name = "test-file-provider")

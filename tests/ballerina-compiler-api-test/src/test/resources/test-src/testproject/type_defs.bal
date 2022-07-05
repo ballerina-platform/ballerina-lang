@@ -95,3 +95,40 @@ public class EmployeeObj {
         self.age = age;
     }
 }
+
+public type HumanObj readonly & object {
+    public int age;
+    public isolated function eatFunction() returns string;
+    public isolated function walkFunction() returns int;
+};
+
+public readonly class Human {
+    *HumanObj;
+
+    public isolated function init() {
+        self.age = 10;
+    }
+
+    public isolated function eatFunction() returns string {
+        return "Eating";
+    }
+
+    public isolated function walkFunction() returns int {
+        return 0;
+    }
+}
+
+public isolated function loadHuman() returns HumanObj {
+    return new Human();
+}
+
+public type Detail record {
+   int severity;
+};
+
+public type ApplicationResponseError error & error<Detail>;
+
+public function testAnonTypeDefSymbolsIsNotVisible() {
+    ApplicationResponseError err = error("",  severity = 1);
+    Detail _ = err.detail();
+}

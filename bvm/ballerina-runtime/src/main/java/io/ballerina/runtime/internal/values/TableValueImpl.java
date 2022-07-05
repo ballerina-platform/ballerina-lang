@@ -40,6 +40,7 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
@@ -110,7 +111,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.indexToKeyMap = new LinkedHashMap<>();
         this.fieldNames = type.getFieldNames();
         this.keyValues = new LinkedHashMap<>();
-        if (type.getFieldNames() != null) {
+        if (type.getFieldNames().length > 0) {
             this.valueHolder = new KeyHashValueHolder();
         } else {
             this.valueHolder = new ValueHolder();
@@ -127,6 +128,18 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         addData(data);
         if (type.isReadOnly()) {
             this.typedesc = createSingletonTypedesc(this);
+        }
+    }
+
+    // TODO: Might be unnecessary after fixing issue lang/#36721
+    public TableValueImpl(TableType type, ArrayValue fieldNames) {
+        this(type);
+        this.fieldNames = fieldNames.getStringArray();
+
+        if (this.fieldNames.length > 0) {
+            this.valueHolder = new KeyHashValueHolder();
+        } else {
+            this.valueHolder = new ValueHolder();
         }
     }
 
@@ -391,11 +404,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, List<V>>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         StringJoiner keyJoiner = new StringJoiner(",");
-        if (type.getFieldNames() != null) {
-            String[] keysList = type.getFieldNames();
-            for (int i = 0; i < keysList.length; i++) {
-                keyJoiner.add(keysList[i]);
-            }
+        String[] keysList = type.getFieldNames();
+        for (int i = 0; i < keysList.length; i++) {
+            keyJoiner.add(keysList[i]);
         }
         while (itr.hasNext()) {
             Map.Entry<Long, List<V>> struct = itr.next();
@@ -422,6 +433,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
                 return getTableConstraintField(effectiveType, fieldName);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                Type refType = ((BTypeReferenceType) constraintType).getReferredType();
+                return getTableConstraintField(refType, fieldName);
             case TypeTags.UNION_TAG:
                 HashSet<Type> possibleTypes = new HashSet<>();
                 for (Type memberType : ((BUnionType) constraintType).getMemberTypes()) {

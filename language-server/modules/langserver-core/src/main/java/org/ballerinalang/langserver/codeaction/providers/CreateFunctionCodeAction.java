@@ -24,11 +24,12 @@ import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -62,11 +63,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION)) || positionDetails.matchedNode() == null) {
-            return Collections.emptyList();
-        }
-
-        Optional<FunctionCallExpressionNode> callExpr =
+        Optional<FunctionCallExpressionNode> callExpr = 
                 checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
 
         if (callExpr.isEmpty() || isInvalidReturnType(context, callExpr.get())) {
@@ -74,7 +71,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         }
 
         String diagnosticMessage = diagnostic.message();
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         String uri = context.fileUri();
         CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, range);
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -98,6 +95,16 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public boolean validate(Diagnostic diagnostic,
+                            DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        if (!diagnostic.message().startsWith(UNDEFINED_FUNCTION) || positionDetails.matchedNode() == null) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     /**

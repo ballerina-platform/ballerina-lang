@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "createUndefinedFunction5.bal",
   "expected": {
     "result": {
       "edit": {
@@ -28,7 +29,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction addAndPrintTwoIntegers(int a, int b) returns [int, string[][]] {\n    return [0, [[]]];\n}\n"
+                "newText": "\n\nfunction addAndPrintTwoIntegers(int a, int b) returns [int, string[][]] {\n    return [0, []];\n}\n"
               }
             ]
           }

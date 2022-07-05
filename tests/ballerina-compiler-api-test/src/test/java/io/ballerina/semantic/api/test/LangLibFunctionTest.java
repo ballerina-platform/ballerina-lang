@@ -114,7 +114,7 @@ public class LangLibFunctionTest {
                                             "acos", "atan", "atan2", "sinh", "cosh", "tanh", "toHexString", "toBitsInt",
                                             "clone", "cloneReadOnly", "cloneWithType", "isReadOnly", "toString",
                                             "toBalString", "toJson", "toJsonString", "fromJsonWithType", "mergeJson",
-                                            "ensureType", "sum", "min", "max");
+                                            "ensureType", "sum", "min", "max", "toFixedString", "toExpString");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -126,7 +126,7 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), DECIMAL);
 
         List<String> expFunctions = List.of("abs", "max", "min", "sum", "round", "floor", "ceiling", "clone",
-                "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString",
+                "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString", "quantize",
                 "toJson", "toJsonString", "fromJsonWithType", "mergeJson", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
@@ -164,7 +164,7 @@ public class LangLibFunctionTest {
                 "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                 "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
                 "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                "includes", "concat");
+                "includes", "concat", "padStart", "padEnd", "padZero");
 
         assertLangLibList(typeSymbol.langLibMethods(), expFunctions);
     }
@@ -182,7 +182,7 @@ public class LangLibFunctionTest {
                                             "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                                             "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
                                             "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                                            "includes", "concat");
+                                            "includes", "concat", "padStart", "padEnd", "padZero");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -206,7 +206,7 @@ public class LangLibFunctionTest {
         List<String> expFunctions = List.of("length", "iterator", "enumerate", "'map", "forEach", "filter",
                                             "reduce", "slice", "remove", "removeAll", "setLength", "reverse",
                                             "sort", "pop", "push", "shift", "unshift", "toString",
-                                            "toBalString", "toStream", "ensureType");
+                                            "toBalString", "toStream", "ensureType", "some", "every");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -243,7 +243,8 @@ public class LangLibFunctionTest {
 
         List<String> elementFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes",
                                             "getDescendants");
-        List<String> piFuncs = List.of("getTarget");
+        List<String> piFuncs = List.of("getTarget", "getContent");
+        List<String> commentFuncs = List.of("getContent");
 
         return new Object[][]{
                 {67, 8, XML, expFunctions},
@@ -251,7 +252,8 @@ public class LangLibFunctionTest {
                         .collect(Collectors.toList())},
                 {76, 31, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), piFuncs.stream())
                         .collect(Collectors.toList())},
-                {77, 17, TYPE_REFERENCE, expFunctions},
+                {77, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), commentFuncs.stream())
+                        .collect(Collectors.toList())},
                 {78, 14, TYPE_REFERENCE, expFunctions},
         };
     }
@@ -390,7 +392,7 @@ public class LangLibFunctionTest {
                                             "setLength", "slice", "enumerate", "unshift", "'map", "indexOf",
                                             "cloneWithType", "cloneReadOnly", "toBalString", "toJson", "isReadOnly",
                                             "fromJsonWithType", "mergeJson", "clone", "ensureType", "toString",
-                                            "toJsonString");
+                                            "toJsonString", "some", "every");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }

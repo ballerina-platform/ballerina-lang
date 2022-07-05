@@ -18,6 +18,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaDotResourcePath;
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaPathRestParam;
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaPathSegmentList;
@@ -122,6 +124,16 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
 
         this.signature = signature.toString();
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     private BResourceFunction getBResourceFunction(List<BAttachedFunction> methods, BInvokableSymbol internalSymbol) {

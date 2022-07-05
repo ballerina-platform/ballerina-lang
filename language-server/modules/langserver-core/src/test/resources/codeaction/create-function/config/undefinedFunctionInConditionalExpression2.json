@@ -1,0 +1,32 @@
+{
+  "position": {
+    "line": 5,
+    "character": 18
+  },
+  "source": "createUndefinedFunctionInConditionalExpression.bal",
+  "expected": [
+    {
+      "title": "Create function 'getString(...)'",
+      "kind": "quickfix",
+      "command": {
+        "title": "Create function 'getString(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 5,
+                "character": 14
+              },
+              "end": {
+                "line": 5,
+                "character": 28
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

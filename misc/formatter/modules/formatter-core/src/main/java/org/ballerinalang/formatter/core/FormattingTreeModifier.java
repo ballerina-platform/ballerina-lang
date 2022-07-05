@@ -182,6 +182,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
@@ -963,8 +964,8 @@ public class FormattingTreeModifier extends TreeModifier {
     public OnFailClauseNode transform(OnFailClauseNode onFailClauseNode) {
         Token onKeyword = formatToken(onFailClauseNode.onKeyword(), 1, 0);
         Token failKeyword = formatToken(onFailClauseNode.failKeyword(), 1, 0);
-        TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor(), 1, 0);
-        IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName(), 1, 0);
+        TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor().orElse(null), 1, 0);
+        IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName().orElse(null), 1, 0);
         BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
 
@@ -2279,6 +2280,16 @@ public class FormattingTreeModifier extends TreeModifier {
         return spreadFieldNode.modify()
                 .withEllipsis(ellipsis)
                 .withValueExpr(valueExpr)
+                .apply();
+    }
+
+    @Override
+    public SpreadMemberNode transform(SpreadMemberNode spreadMemberNode) {
+        Token ellipsis = formatToken(spreadMemberNode.ellipsis(), 0, 0);
+        ExpressionNode valueExpr = formatNode(spreadMemberNode.expression(), env.trailingWS, env.trailingNL);
+        return spreadMemberNode.modify()
+                .withEllipsis(ellipsis)
+                .withExpression(valueExpr)
                 .apply();
     }
 

@@ -178,6 +178,7 @@ import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUNCTION;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
@@ -194,6 +195,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.model.tree.NodeKind.RECORD_TYPE;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
@@ -227,6 +229,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangMissingNodesHelper missingNodesHelper;
     private PackageCache packageCache;
     private List<BLangNode> intersectionTypes;
+    private Map<BType, BLangTypeDefinition> typeToTypeDef;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -258,9 +261,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
-
-        this.importedPackages = new ArrayList<>();
-        this.unknownTypeRefs = new HashSet<>();
         this.intersectionTypes = new ArrayList<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -289,6 +289,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
         defineFieldsOfClassDef(classNode, env);
+        defineReferencedFieldsOfClassDef(classNode, env);
         defineFunctionsOfClassDef(env, classNode);
         setReadOnlynessOfClassDef(classNode, env);
         defineReadOnlyIncludedFieldsAndMethods(classNode, env);
@@ -336,6 +337,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
+        this.symTable.immutableTypeMaps.remove(Types.getPackageIdString(pkgSymbol.pkgID));
 
         // Add the current package node's ID to the imported package list. This is used to identify cyclic module
         // imports.
@@ -398,7 +400,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-        initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
+        if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
+            initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
+        }
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -431,6 +435,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
+        populateTypeToTypeDefMap(typeAndClassDefs);
+        defineDependentFields(typeAndClassDefs, pkgEnv);
 
         // Calculate error intersections types.
         defineIntersectionTypes(pkgEnv);
@@ -444,7 +450,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
-        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions);
+        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions, pkgNode.packageID);
         defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
 
         // Define service and resource nodes.
@@ -470,6 +476,39 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
+    }
+
+    private void populateTypeToTypeDefMap(List<BLangNode> typeDefNodes) {
+        typeToTypeDef = new HashMap<>(typeDefNodes.size());
+        for (BLangNode typeDef : typeDefNodes) {
+            if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) typeDef;
+                BType type = typeDefNode.typeNode.getBType();
+                typeToTypeDef.put(type, typeDefNode);
+            }
+        }
+    }
+
+    private void defineDependentFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
+        for (BLangNode typeDef : typeDefNodes) {
+            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+                if (isObjectCtor(classDefinition)) {
+                    continue;
+                }
+                defineReferencedFieldsOfClassDef(classDefinition, pkgEnv);
+            } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+                defineReferencedFieldsOfRecordTypeDef((BLangTypeDefinition) typeDef);
+            }
+        }
+    }
+
+    private void defineReferencedFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv pkgEnv) {
+        SymbolEnv typeDefEnv = classDefinition.typeDefEnv;
+        BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
+        BObjectType objType = (BObjectType) tSymbol.type;
+
+        defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
     }
 
     private void defineIntersectionTypes(SymbolEnv env) {
@@ -797,10 +836,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
                     }
-                    if (!types.isAssignable(existingVariable.getBType(), field.type)) {
-                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                                field.name, field.getType(), existingVariable.getBType());
-                    }
                     continue;
                 }
 
@@ -1116,11 +1151,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<BLangCompilationUnit> compUnits, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        for (Name alias : predeclaredModules.keySet()) {
+        for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
+            Name alias = predeclaredModuleEntry.getKey();
+            BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
             int index = 0;
             ScopeEntry entry = this.env.scope.lookup(alias);
             if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
-                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(packageSymbol,
                         new Name(compUnits.get(index++).name)));
                 entry = this.env.scope.lookup(alias);
             }
@@ -1138,7 +1175,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     entry = entry.next;
                 }
                 if (isUndefinedModule) {
-                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(packageSymbol,
                             new Name(compUnitName)), NOT_FOUND_ENTRY);
                 }
             }
@@ -1278,7 +1315,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateUndefinedErrorIntersection(BLangTypeDefinition typeDef, SymbolEnv env) {
-        BErrorType intersectionErrorType = types.createErrorType(null, Flags.PUBLIC, env);
+        long flags = 0;
+        if (typeDef.flagSet.contains(Flag.PUBLIC)) {
+            flags = Flags.PUBLIC;
+        }
+
+        BErrorType intersectionErrorType = types.createErrorType(null, flags, env);
         intersectionErrorType.tsymbol.name = names.fromString(typeDef.name.value);
         defineErrorType(typeDef.pos, intersectionErrorType, env);
 
@@ -2164,7 +2206,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                    getOrigin(funcNode.name.value));
         funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
-        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+        SymbolEnv invokableEnv;
+        NodeKind previousNodeKind = env.node.getKind();
+        if (previousNodeKind == NodeKind.CLASS_DEFN) {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope,
+                    fieldsRemovedEnv(env, ((BLangClassDefinition) env.node).fields));
+        } else if (previousNodeKind == NodeKind.OBJECT_TYPE) {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope,
+                    fieldsRemovedEnv(env, ((BLangObjectTypeNode) env.node).fields));
+        } else {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+        }
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         funcNode.setBType(funcSymbol.type);
 
@@ -2180,6 +2232,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
+    }
+
+    private SymbolEnv fieldsRemovedEnv(SymbolEnv currentEnv, List<BLangSimpleVariable> fields) {
+        if (fields.isEmpty()) {
+            return currentEnv;
+        }
+        Scope currentScope = currentEnv.scope;
+        Scope newScope = new Scope(currentScope.owner);
+        newScope.entries.putAll(currentScope.entries);
+        Map<Name, ScopeEntry> entries = newScope.entries;
+        for (BLangSimpleVariable field : fields) {
+            entries.remove(Names.fromString(field.name.value));
+        }
+        SymbolEnv newEnv = new SymbolEnv(currentEnv.node, newScope);
+        currentEnv.copyTo(newEnv, currentEnv.enclEnv);
+        return newEnv;
     }
 
     private boolean isDeprecated(List<BLangAnnotationAttachment> annAttachments) {
@@ -3273,6 +3341,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 } else {
                     boundVar.setBType(entryField.type);
                 }
+                errorDetailEntry.keySymbol = entryField.symbol;
             } else {
                 if (recordType.sealed) {
                     dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
@@ -3453,16 +3522,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        defineRecordTypeNode(recordTypeNode, typeDefEnv);
+        recordTypeNode.typeDefEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
+        defineRecordTypeNode(recordTypeNode);
     }
 
-    private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
+    private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode) {
         BRecordType recordType = (BRecordType) recordTypeNode.symbol.type;
         recordTypeNode.setBType(recordType);
 
         // Define all the fields
-        resolveFields(recordType, recordTypeNode, env);
+        resolveFields(recordType, recordTypeNode);
+        resolveFieldsIncluded(recordType, recordTypeNode);
 
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
@@ -3517,6 +3587,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(FLOAT)) {
             symTable.langFloatModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(FUNCTION)) {
+            symTable.langFunctionModuleSymbol = packageSymbol;
             return;
         }
         if (langLib.equals(FUTURE)) {
@@ -3809,6 +3883,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             classDefinition.oceEnvData.fieldEnv = typeDefEnv;
         }
 
+        classDefinition.typeDefEnv = typeDefEnv;
+
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
             if (field.expr != null) {
@@ -3820,9 +3896,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
         }
-
-        // todo: check for class fields and object fields
-        defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
     }
 
     private void defineFieldsOfObjectOrRecordTypeDef(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
@@ -3844,14 +3917,47 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         Scope recordScope = structureType.tsymbol.scope;
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, recordScope, pkgEnv);
+        structureTypeNode.typeDefEnv = typeDefEnv;
 
-        // Define all the fields
-        resolveFields(structureType, structureTypeNode, typeDefEnv);
+        resolveFields(structureType, structureTypeNode);
+        if (structureTypeNode.typeRefs.isEmpty()) {
+            defineReferencedFieldsOfRecordTypeDef(typeDef); // update rest type
+        }
+    }
 
+    private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
+        structureType.fields = structureTypeNode.fields.stream()
+                .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
+                .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
+                .map((BLangSimpleVariable field) -> {
+                    field.symbol.isDefaultable = field.expr != null;
+                    return new BField(names.fromIdNode(field.name), field.pos, field.symbol);
+                })
+                .collect(getFieldCollector());
+    }
+
+    private void defineReferencedFieldsOfRecordTypeDef(BLangTypeDefinition typeDef) {
+        if (typeDef.referencedFieldsDefined == true) {
+            return;
+        }
+        NodeKind nodeKind = typeDef.typeNode.getKind();
+        if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
+            return;
+        }
+        resolveReferencedFields(typeDef);
+        resolveRestField(typeDef);
+        typeDef.referencedFieldsDefined = true;
+    }
+
+    private void resolveRestField(BLangTypeDefinition typeDef) {
+        BStructureType structureType = (BStructureType) typeDef.symbol.type;
+        BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
         if (typeDef.symbol.kind == SymbolKind.TYPE_DEF && structureType.tsymbol.kind != SymbolKind.RECORD) {
             return;
         }
 
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
         BRecordType recordType = (BRecordType) structureType;
         recordType.sealed = recordTypeNode.sealed;
@@ -3897,33 +4003,29 @@ public class SymbolEnter extends BLangNodeVisitor {
         recordType.restFieldType = symTable.noType;
     }
 
-    private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
-                               SymbolEnv typeDefEnv) {
-        structureType.fields = structureTypeNode.fields.stream()
-                .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
-                .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
-                .map((BLangSimpleVariable field) -> {
-                    field.symbol.isDefaultable = field.expr != null;
-                    return new BField(names.fromIdNode(field.name), field.pos, field.symbol);
-                })
-                .collect(getFieldCollector());
-
-        // Resolve referenced types and their fields of structural type
-        resolveIncludedFields(structureTypeNode, typeDefEnv);
-
-        // collect resolved type refs from structural type
-        structureType.typeInclusions = new ArrayList<>(structureTypeNode.typeRefs.size());
-        for (BLangType tRef : structureTypeNode.typeRefs) {
-            BType type = tRef.getBType();
-            structureType.typeInclusions.add(type);
-        }
-
-        // Add referenced fields of structural type
-        defineReferencedFields(structureType, structureTypeNode, typeDefEnv);
+    private void resolveReferencedFields(BLangTypeDefinition typeDef) {
+        BStructureType structureType = (BStructureType) typeDef.symbol.type;
+        BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
+        resolveFieldsIncluded(structureType, structureTypeNode);
     }
 
-    private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
-                                        SymbolEnv typeDefEnv) {
+    private void resolveFieldsIncluded(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
+        resolveIncludedFields(structureTypeNode);
+        populateResolvedTypeRefs(structureType, structureTypeNode);
+        defineReferencedFields(structureType, structureTypeNode);
+    }
+
+    private void populateResolvedTypeRefs(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
+        // collect resolved type refs from structural type
+        List<BLangType> typeRefs = structureTypeNode.typeRefs;
+        structureType.typeInclusions = new ArrayList<>(typeRefs.size());
+        for (BLangType tRef : typeRefs) {
+            structureType.typeInclusions.add(tRef.getBType());
+        }
+    }
+
+    private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         for (BLangSimpleVariable field : structureTypeNode.includedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
@@ -4037,7 +4139,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void validateIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes) {
+    private void validateIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes, PackageID packageID) {
         Set<BType> loggedTypes = new HashSet<>();
 
         for (BLangTypeDefinition typeDefNode : typeDefNodes) {
@@ -4063,7 +4165,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         continue;
                     }
                     // If constituent type is error, we have already validated error intersections.
-                    if (!types.isSelectivelyImmutableType(constituentType, true)
+                    if (!types.isSelectivelyImmutableType(constituentType, true, packageID)
                             && Types.getReferredType(constituentType).tag != TypeTags.ERROR) {
 
                         hasNonReadOnlyElement = true;
@@ -4104,7 +4206,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (!types.isSelectivelyImmutableType(mutableType, true)) {
+            if (!types.isSelectivelyImmutableType(mutableType, true, packageID)) {
                 dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, typeDefNode.name);
                 typeNode.setBType(symTable.semanticError);
             }
@@ -4198,7 +4300,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // We reach here for `readonly object`s.
                 // We now validate if it is a valid `readonly object` - i.e., all the fields are compatible readonly
                 // types.
-                if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {
+                if (!types.isSelectivelyImmutableType(objectType, new HashSet<>(), pkgEnv.enclPkg.packageID)) {
                     dlog.error(pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_TYPE, objectType);
                     return;
                 }
@@ -4285,7 +4387,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Location pos = classDef.pos;
 
         if (Symbols.isFlagOn(classDef.getBType().flags, Flags.READONLY)) {
-            if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {
+            if (!types.isSelectivelyImmutableType(objectType, new HashSet<>(), pkgEnv.enclPkg.packageID)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_TYPE, objectType);
                 return;
             }
@@ -4542,10 +4644,18 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangLambdaFunction lambdaFn : env.enclPkg.lambdaFunctions) {
             LineRange workerBodyPos = lambdaFn.function.pos.lineRange();
+            Location targetRangePos = env.node.pos;
+
+            // TODO: targetRangePos is null, because we create a block stmt to group the statement after a If block
+            //  without en else block. Its pos is not set. Setting the pos requires the exact positions of start
+            //  and end after the if block. When the pos is set we can remove this check
+            if (targetRangePos == null) {
+                targetRangePos = env.enclInvokable.pos;
+            }
 
             if (worker.name.value.equals(lambdaFn.function.defaultWorkerName.value)
-                    && withinRange(workerVarPos, env.node.pos.lineRange())
-                    && withinRange(workerBodyPos, env.node.pos.lineRange())) {
+                    && withinRange(workerVarPos, targetRangePos.lineRange())
+                    && withinRange(workerBodyPos, targetRangePos.lineRange())) {
                 worker.setAssociatedFuncSymbol(lambdaFn.function.symbol);
                 return;
             }
@@ -4792,9 +4902,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return docAttachment;
     }
 
-    private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
-        Set<BSymbol> referencedTypes = new HashSet<>();
-        List<BLangType> invalidTypeRefs = new ArrayList<>();
+    private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode) {
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
+        List<BLangType> typeRefs = structureTypeNode.typeRefs;
+        int typeRefSize = typeRefs.size();
+        Set<BSymbol> referencedTypes = new HashSet<>(typeRefSize); // provide size to prevent rehashing
+        List<BLangType> invalidTypeRefs = new ArrayList<>(typeRefSize); // provide size to prevent dynamic growing
         // Get the inherited fields from the type references
 
         Map<String, BLangSimpleVariable> fieldNames = new HashMap<>(structureTypeNode.fields.size());
@@ -4802,7 +4915,27 @@ public class SymbolEnter extends BLangNodeVisitor {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
 
-        structureTypeNode.includedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
+        for (BLangType typeRef : typeRefs) {
+            BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
+            referredType = Types.getReferredType(referredType);
+            if (referredType == symTable.semanticError) {
+                continue;
+            }
+            if (referredType.tag != TypeTags.RECORD) {
+                continue;
+            }
+            var fields = ((BStructureType) referredType).fields.values();
+            for (BField field : fields) {
+                BType type = field.type;
+                BLangTypeDefinition typeDefinition = typeToTypeDef.get(type);
+                if (typeDefinition != null && typeDefinition.typeNode != null &&
+                        typeDefinition.typeNode.getKind() == RECORD_TYPE) {
+                    defineReferencedFieldsOfRecordTypeDef(typeDefinition);
+                }
+            }
+        }
+
+        structureTypeNode.includedFields = typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             referredType = Types.getReferredType(referredType);
             if (referredType == symTable.semanticError) {
@@ -4870,10 +5003,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         dlog.error(existingVariable.pos,
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
-                    }
-                    if (!types.isAssignable(existingVariable.getBType(), f.type)) {
-                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                                f.name, f.getType(), existingVariable.getBType());
                     }
                     return false;
                 }
@@ -5065,7 +5194,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType resolvedInvokableType = symResolver.createInvokableType(function.getParameters(),
                 function.restParam,
                 function.returnTypeNode,
-                new SymbolResolver.AnalyzerData(),
+                new SymbolResolver.AnalyzerData(env),
                 Flags.asMask(variable.flagSet),
                 env,
                 function.pos);

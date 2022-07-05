@@ -37,7 +37,7 @@ public class AnydataNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/types/anydata/anydata_negative_test.bal");
         int index = 0;
 
-        assertEquals(result.getErrorCount(), 32);
+        assertEquals(result.getErrorCount(), 36);
 
         // Invalid literal assignments to `anydata`
         validateError(result, index++, "ambiguous type '(anydata|map<int>)'", 36, 29);
@@ -91,7 +91,12 @@ public class AnydataNegativeTest {
         validateError(result, index++, "incompatible types: expected 'anydata', found 'DataType'", 142, 21);
 
         validateError(result, index++, "incompatible types: expected 'anydata', found 'error'", 147, 18);
-        validateError(result, index, "incompatible types: expected 'anydata', found '(anydata|error)[]'", 152, 18);
+        validateError(result, index++, "incompatible types: expected 'anydata', found '(anydata|error)[]'", 152, 18);
+        validateError(result, index++, "incompatible types: expected 'anydata', found 'TANY'", 160, 17);
+        validateError(result, index++, "incompatible types: expected 'anydata', found 'TERR'", 163, 17);
+        validateError(result, index++, "incompatible types: expected 'anydata', found 'table<map>'", 182, 13);
+        validateError(result, index, "incompatible types: expected 'anydata', found 'table<Foo1>'",
+                188, 13);
     }
 
     @Test(description = "Negative test cases for non-anydata closed record assignment")

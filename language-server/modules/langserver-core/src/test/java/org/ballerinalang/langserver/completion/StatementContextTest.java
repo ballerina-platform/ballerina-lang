@@ -52,7 +52,10 @@ public class StatementContextTest extends CompletionTest {
                 "match_stmt_ctx_config8.json",
                 "match_stmt_ctx_config9.json",
                 "match_stmt_ctx_config10.json",
-                "match_stmt_ctx_config11.json"
+                "match_stmt_ctx_config11.json",
+
+                // TODO: Strand type is not identified inside mapping constructor
+                "start_action_ctx_config4a.json"
         );
     }
 

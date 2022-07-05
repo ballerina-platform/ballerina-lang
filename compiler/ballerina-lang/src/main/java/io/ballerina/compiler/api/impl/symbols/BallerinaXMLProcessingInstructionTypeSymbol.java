@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLProcessingInstructionTypeSymbol;
@@ -32,11 +33,10 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractTypeSymbol implements
+public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractXMLSubTypeSymbol implements
                                                                                     XMLProcessingInstructionTypeSymbol {
 
-    public BallerinaXMLProcessingInstructionTypeSymbol(CompilerContext context, ModuleID moduleID,
-                                                       BXMLSubType piType) {
+    public BallerinaXMLProcessingInstructionTypeSymbol(CompilerContext context, BXMLSubType piType) {
         super(context, TypeDescKind.XML_PROCESSING_INSTRUCTION, piType);
     }
 
@@ -53,5 +53,15 @@ public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractTypeSym
     @Override
     public String signature() {
         return "xml:" + Names.STRING_XML_PI;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -6,6 +6,25 @@
   "source": "field_access_expression_context/source/field_access_ctx_source31.bal",
   "items": [
     {
+      "label": "ensureType(typedesc<any> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "ensureType",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "cause()",
       "kind": "Function",
       "detail": "error?",
@@ -124,25 +143,6 @@
       "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ensureType(typedesc<any> t)",
-      "kind": "Function",
-      "detail": "t|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "ensureType",
-      "insertText": "ensureType(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }

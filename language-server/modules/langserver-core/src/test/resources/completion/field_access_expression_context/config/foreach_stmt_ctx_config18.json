@@ -83,7 +83,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `table:Type` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `table:Type`   \n- result of combining the members of parameter `t` using function `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `table:Type` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `table:Type`   \n- result of combining the members of parameter `t` using parameter `func`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -102,12 +102,88 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table.\n\nThe function `func` is applied to each member of parameter `t`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table.\n\nThe parameter `func` is applied to each member of parameter `t`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
       "sortText": "CD",
       "filterText": "forEach",
       "insertText": "forEach(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "put(Employee val)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nAdds a member to a table value, replacing any member with the same key value.\n\nIf parameter `val` replaces an existing member, it will have the same position\nin the order of the members as the existing member;\notherwise, it will be added as the last member.\nIt panics if parameter `val` is inconsistent with the inherent type of parameter `t`.\n  \n**Params**  \n- `Employee` val: the member"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "put",
+      "insertText": "put(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cloneWithType(typedesc<anydata> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "cloneWithType",
+      "insertText": "cloneWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "ensureType(typedesc<any> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "ensureType",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "'map(function () func)",
+      "kind": "Function",
+      "detail": "table<table:MapType1>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1>`   \n- new table containing result of applying parameter `func` to each member  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -130,32 +206,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "put(Employee val)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nAdds a member to a table value, replacing any member with the same key value.\n\nIf parameter `val` replaces an existing member, it will have the same position\nin the order of the members as the existing member;\notherwise, it will be added as the last member.\nIt panics if parameter `val` is inconsistent with the inherent type of parameter `t`.\n  \n**Params**  \n- `Employee` val: the member"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "put",
-      "insertText": "put(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| table:MapType value; |}?;}",
+      "detail": "object {public isolated function next() returns record {|Employee value;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| table:MapType value; |}?;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|Employee value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -192,25 +249,6 @@
       "filterText": "toArray",
       "insertText": "toArray()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "cloneWithType(typedesc<anydata> t)",
-      "kind": "Function",
-      "detail": "t|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "cloneWithType",
-      "insertText": "cloneWithType(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "cloneReadOnly()",
@@ -288,25 +326,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ensureType(typedesc<any> t)",
-      "kind": "Function",
-      "detail": "t|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "ensureType",
-      "insertText": "ensureType(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "toString()",
       "kind": "Function",
       "detail": "string",
@@ -335,25 +354,6 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "'map(function () func)",
-      "kind": "Function",
-      "detail": "table<table:MapType1>",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1>`   \n- new table containing result of applying function `func` to each member  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "'map",
-      "insertText": "'map(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }

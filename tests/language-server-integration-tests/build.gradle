@@ -41,6 +41,9 @@ dependencies {
     implementation project(':ballerina-test-utils')
 
     testCompile 'org.testng:testng'
+    testCompile 'org.mockito:mockito-all'
+    testImplementation 'org.powermock:powermock-mockito-release-full'
+    testImplementation 'org.powermock:powermock-module-testng-common'
 
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
 }

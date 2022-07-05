@@ -40,6 +40,8 @@ public class BLangQueryAction extends BLangExpression implements QueryActionNode
     public List<BLangNode> queryClauseList = new ArrayList<>();
     public BLangDoClause doClause;
 
+    public boolean returnsWithinDoClause;
+
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);

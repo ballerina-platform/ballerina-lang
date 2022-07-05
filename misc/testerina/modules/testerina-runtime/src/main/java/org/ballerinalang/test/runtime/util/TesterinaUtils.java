@@ -371,5 +371,4 @@ public class TesterinaUtils {
     private static String cleanupClassName(String className) {
         return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
     }
-
 }

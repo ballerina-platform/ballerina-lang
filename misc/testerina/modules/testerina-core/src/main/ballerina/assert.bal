@@ -106,7 +106,7 @@ public isolated function assertFalse(boolean condition, string msg = "Assertion 
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public isolated function assertEquals(anydata|error actual, anydata expected, string msg = "Assertion Failed!") {
+public isolated function assertEquals(any|error actual, anydata expected, string msg = "Assertion Failed!") {
     if (actual is error || actual != expected) {
         string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
@@ -133,7 +133,7 @@ public isolated function assertEquals(anydata|error actual, anydata expected, st
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public isolated function assertNotEquals(anydata actual, anydata expected, string msg = "Assertion Failed!") {
+public isolated function assertNotEquals(any actual, anydata expected, string msg = "Assertion Failed!") {
     if (actual == expected) {
         string expectedStr = sprintf("%s", expected);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;

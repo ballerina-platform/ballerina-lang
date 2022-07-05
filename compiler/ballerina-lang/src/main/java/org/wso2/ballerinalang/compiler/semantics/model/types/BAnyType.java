@@ -34,7 +34,6 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
 
     private BIntersectionType intersectionType = null;
     private boolean nullable = true;
-    public BIntersectionType immutableType;
 
     public BAnyType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -83,11 +82,6 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
     }
 
     @Override

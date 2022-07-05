@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -30,8 +31,11 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.List;
+
+import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
 
 /**
  * This class contains a set of utility methods required for runtime api @{@link ErrorCreator} testing.
@@ -61,5 +65,68 @@ public class Errors {
             index++;
         }
         return arrayValue;
+    }
+
+    public static BError getDistinctErrorNegative(BString errorName) {
+        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
+        errorDetails.put(StringUtils.fromString("detail"), "detail error message");
+        return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("msg"),
+                null, errorDetails);
+    }
+
+    public static BError getErrorNegative1(BString msg) {
+        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
+        errorDetails.put(StringUtils.fromString("detail"), "detail error message");
+        return ErrorCreator.createError(msg, errorDetails);
+    }
+
+    public static BError getErrorWithTypeNegative(BString msg) {
+        ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
+        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
+        errorDetails.put(StringUtils.fromString("detail"), "detail error message");
+        return ErrorCreator.createError(bErrorType, msg, null, errorDetails);
+    }
+
+    public static BError getErrorNegative2(BString msg) {
+        String typeIdName = "RuntimeError";
+        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
+        errorDetails.put(StringUtils.fromString("detail"), "this is runtime failure");
+        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, errorDetails);
+    }
+
+    public static BError getDistinctErrorWithNullDetailNegative(BString errorName) {
+        return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("msg"),
+                null, null);
+    }
+
+    public static BError getErrorWithEmptyDetailNegative(BString msg) {
+        BMap<BString, Object> errorDetails = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        return ErrorCreator.createError(msg, errorDetails);
+    }
+
+    public static BError getErrorWithNullDetailNegative(BString msg) {
+        return ErrorCreator.createError(msg, (BMap<BString, Object>) null);
+    }
+
+    public static BError getDistinctErrorWithEmptyDetailNegative2(BString msg) {
+        String typeIdName = "RuntimeError";
+        BMap<BString, Object> errorDetails = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, errorDetails);
+    }
+
+    public static BError getDistinctErrorWithNullDetailNegative2(BString msg) {
+        String typeIdName = "RuntimeError";
+        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, (BMap<BString, Object>) null);
+    }
+
+    public static BError getErrorWithEmptyDetailNegative2(BString msg) {
+        ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
+        BMap<BString, Object> errorDetails = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        return ErrorCreator.createError(bErrorType, msg, null, errorDetails);
+    }
+
+    public static BError getErrorWithNullDetailNegative2(BString msg) {
+        ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
+        return ErrorCreator.createError(bErrorType, msg, null, null);
     }
 }

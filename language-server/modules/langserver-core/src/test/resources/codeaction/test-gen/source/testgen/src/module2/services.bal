@@ -1,34 +1,34 @@
-import ballerina/http;
-import ballerina/io;
+import ballerina/httpx;
+import ballerina/iox;
 //import ballerina/websub;
 
-service httpService on new http:Listener(9090) {
-    resource function sayHello(http:Caller caller, http:Request request) {
+service httpService on new httpx:Listener(9090) {
+    resource function sayHello(httpx:Caller caller, httpx:Request request) {
     }
 }
 
 service httpsService on securedListener {
-    resource function sayHello(http:Caller caller, http:Request request) {
+    resource function sayHello(httpx:Caller caller, httpx:Request request) {
     }
 }
 
-service wsService on new http:WebSocketListener(9094) {
-    resource function onOpen(http:WebSocketCaller caller) {
+service wsService on new httpx:WebSocketListener(9094) {
+    resource function onOpen(httpx:WebSocketCaller caller) {
     }
-    resource function onText(http:WebSocketCaller caller, string text) {
-        io:println("received: " + text);
+    resource function onText(httpx:WebSocketCaller caller, string text) {
+        iox:println("received: " + text);
     }
-    resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
+    resource function onClose(httpx:WebSocketCaller caller, int statusCode, string reason) {
     }
 }
 
 service wssService on securedListener2 {
-    resource function onOpen(http:WebSocketCaller caller) {
+    resource function onOpen(httpx:WebSocketCaller caller) {
     }
-    resource function onText(http:WebSocketCaller caller, string text) {
-        io:println("received: " + text);
+    resource function onText(httpx:WebSocketCaller caller, string text) {
+        iox:println("received: " + text);
     }
-    resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
+    resource function onClose(httpx:WebSocketCaller caller, int statusCode, string reason) {
     }
 }
 
@@ -40,7 +40,7 @@ service wssService on securedListener2 {
 //    }
 //}
 
-listener http:Listener securedListener = new (9092, {
+listener httpx:Listener securedListener = new (9092, {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -53,7 +53,7 @@ listener http:Listener securedListener = new (9092, {
     }
 });
 
-listener http:WebSocketListener securedListener2 = new http:WebSocketListener(9092, {
+listener httpx:WebSocketListener securedListener2 = new httpx:WebSocketListener(9092, {
     host: "0.0.0.0",
     secureSocket: {
         keyStore: {

@@ -20,9 +20,12 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
@@ -34,9 +37,11 @@ public class BasicCasesTest extends BaseTestCase {
     private String projectPath;
 
     @BeforeClass()
-    public void setup() throws BallerinaTestException {
+    public void setup() throws BallerinaTestException, IOException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
+        FileUtils.copyFolder(Paths.get("build/libs"),
+                Paths.get(projectPath, "runtime-api-tests", "libs"));
     }
 
     @Test
@@ -104,6 +109,14 @@ public class BasicCasesTest extends BaseTestCase {
     }
 
     @Test
+    public void testRuntimeApi() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"runtime-api-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "runtime api failure");
+    }
+
+    @Test
     public void testBeforeAfter() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"before-after"});
         String output = balClient.runMainAndReadStdOut("test", args,
@@ -145,10 +158,25 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testIntersectionTypes() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"intersections-type-test"});
+        String[] args = mergeCoverageArgs(new String[]{"intersection-type-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(output, "intersection type failure");
     }
 
+    @Test
+    public void testAnydataType() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"anydata-type-test"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "anydata type failure");
+    }
+
+    @Test
+    public void testAsyncInvocation() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"async"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "async invocation failure");
+    }
 }

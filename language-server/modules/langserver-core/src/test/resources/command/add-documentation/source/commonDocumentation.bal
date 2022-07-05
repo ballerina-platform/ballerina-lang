@@ -1,13 +1,13 @@
-import ballerina/io;
-import ballerina/http;
+import ballerina/iox;
+import ballerina/httpx;
 
 function testDocumentation() {
     
 }
 
-service / on new http:Listener(8080) {
-    resource function get getResource(http:Caller caller, http:Request req) {
-        http:Response res = new;
+service / on new httpx:Listener(8080) {
+    resource function get getResource(httpx:Caller caller, httpx:Request req) {
+        httpx:Response res = new;
         checkpanic caller->respond(res);
     }
 }
@@ -36,4 +36,3 @@ final int testModuleVar2 = 10;
 final int testModuleVar1 = 10;
 
 annotation varAnnotation;
-

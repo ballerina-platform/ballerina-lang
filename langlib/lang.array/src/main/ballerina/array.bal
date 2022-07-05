@@ -119,6 +119,23 @@ public isolated function reduce(Type[] arr, @isolatedParam function(Type1 accum,
     name: "reduce"
 } external;
 
+# Tests whether a function returns true for some member of an array.
+#
+# The parameter `func` is called for each member of parameter `arr` in order unless and until a call returns true.
+# When the array is empty, returns false.
+#
+# + arr - the array
+# + func - function to apply to each member
+# + return - true if applying parameter `func` returns true for some member of `arr`; otherwise, false
+public isolated function some(Type[] arr, @isolatedParam function(Type val) returns boolean func) returns boolean {
+    foreach var item in arr {
+        if func(item) {
+            return true;
+        }
+    }
+    return false;
+}
+
 # Returns a subarray using a start index (inclusive) and an end index (exclusive).
 #
 # + arr - the array
@@ -129,6 +146,23 @@ public isolated function slice(Type[] arr, int startIndex, int endIndex = arr.le
     'class: "org.ballerinalang.langlib.array.Slice",
     name: "slice"
 } external;
+
+# Tests whether a function returns true for every member of an array.
+#
+# The parameter `func` is called for each member of `arr` in order unless and until a call returns false.
+# When the array is empty, returns true.
+#
+# + arr - the array
+# + func - function to apply to each member
+# + return - true if applying parameter func returns true for every member of `arr`; otherwise, false
+public isolated function every(Type[] arr, @isolatedParam function(Type val) returns boolean func) returns boolean {
+    foreach var item in arr {
+        if !func(item) {
+            return false;
+        }
+    }
+    return true;
+}
 
 # Removes a member of an array.
 #

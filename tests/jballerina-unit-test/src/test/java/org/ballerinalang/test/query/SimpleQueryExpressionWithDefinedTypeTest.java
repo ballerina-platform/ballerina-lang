@@ -357,6 +357,11 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BRunUtil.invoke(result, "testWildcardBindingPatternInQueryExpr2");
     }
 
+    @Test
+    public void testUsingAnIntersectionTypeInQueryExpr() {
+        BRunUtil.invoke(result, "testUsingAnIntersectionTypeInQueryExpr");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

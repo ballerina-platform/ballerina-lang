@@ -32,10 +32,11 @@ public class ServiceDeclarationTest extends CompletionTest {
 
     @BeforeClass
     @Override
-    public void init() throws InterruptedException {
+    public void init() throws Exception {
+        super.init();
         preLoadAndInit();
     }
-    
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

@@ -41,14 +41,15 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Override
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
         long start = System.currentTimeMillis();
-        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        String res = TestUtil.getCodeActionResponse(getServiceEndpoint(), sourcePath.toString(), range, 
+                codeActionContext);
         long end = System.currentTimeMillis();
         long actualResponseTime = end - start;
         int expectedResponseTime = PerformanceTestUtils.getCodeActionResponseTimeThreshold();
@@ -61,7 +62,7 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"performance_codeaction.json", "performance_codeaction.bal"},
+                {"performance_codeaction.json"},
         };
     }
 }

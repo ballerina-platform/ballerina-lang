@@ -22,7 +22,7 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class ModuleLoadRequest {
     private final String moduleName;
     private final PackageDependencyScope scope;
     private final DependencyResolutionType dependencyResolvedType;
-    private final Set<Location> locations = new HashSet<>();
+    private final Set<Location> locations;
 
     public ModuleLoadRequest(PackageOrg orgName,
                              String moduleName,
@@ -47,6 +47,7 @@ public class ModuleLoadRequest {
         this.moduleName = moduleName;
         this.scope = scope;
         this.dependencyResolvedType = dependencyResolvedType;
+        this.locations = Collections.emptySet();
     }
 
     public ModuleLoadRequest(PackageOrg orgName,
@@ -58,7 +59,19 @@ public class ModuleLoadRequest {
         this.moduleName = moduleName;
         this.scope = scope;
         this.dependencyResolvedType = dependencyResolvedType;
-        this.locations.add(location);
+        this.locations = Collections.singleton(location);
+    }
+
+    public ModuleLoadRequest(PackageOrg orgName,
+                             String moduleName,
+                             PackageDependencyScope scope,
+                             DependencyResolutionType dependencyResolvedType,
+                             Set<Location> locations) {
+        this.orgName = orgName;
+        this.moduleName = moduleName;
+        this.scope = scope;
+        this.dependencyResolvedType = dependencyResolvedType;
+        this.locations = Collections.unmodifiableSet(locations);
     }
 
     public Optional<PackageOrg> orgName() {

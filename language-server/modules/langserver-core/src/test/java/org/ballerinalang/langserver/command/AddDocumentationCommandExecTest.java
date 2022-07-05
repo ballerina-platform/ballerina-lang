@@ -39,39 +39,41 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
     private static final Logger log = LoggerFactory.getLogger(AddDocumentationCommandExecTest.class);
 
     @Test(dataProvider = "add-doc-data-provider")
-    public void testAddSingleDocumentation(String config, String source) throws IOException {
-        performTest(config, source, AddDocumentationExecutor.COMMAND);
+    public void testAddSingleDocumentation(String config) throws IOException {
+        performTest(config, AddDocumentationExecutor.COMMAND);
     }
 
     // TODO: Enable these tests
     @Test(dataProvider = "add-all-doc-data-provider", enabled = false)
-    public void testAddAllDocumentation(String config, String source) throws IOException {
-        performTest(config, source, AddAllDocumentationExecutor.COMMAND);
+    public void testAddAllDocumentation(String config) throws IOException {
+        performTest(config, AddAllDocumentationExecutor.COMMAND);
     }
 
     @DataProvider(name = "add-doc-data-provider")
     public Object[][] addDocDataProvider() {
         log.info("Test workspace/executeCommand for command {}", AddDocumentationExecutor.COMMAND);
         return new Object[][]{
-                {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
-                {"addSingleFunctionDocumentation2.json", "commonDocumentation.bal"},
-                {"addObjectFunctionDocumentation.json", "commonDocumentation.bal"},
-                {"addSingleServiceDocumentation.json", "commonDocumentation.bal"},
-                {"addSingleRecordDocumentation.json", "commonDocumentation.bal"},
-                {"addSingleObjectDocumentation.json", "commonDocumentation.bal"},
-                {"addSingleModuleVarDocumentation1.json", "commonDocumentation.bal"},
-                {"addSingleModuleVarDocumentation2.json", "commonDocumentation.bal"},
-                {"serviceDocumentationWithAnnotations.json", "serviceDocumentationWithAnnotations.bal"},
-                {"addResourceFunctionDocumentation.json", "addResourceFunctionDocumentation.bal"},
-                {"add_single_documentation_with_deprecated1.json", "add_single_documentation_with_deprecated1.bal"},
-                {"add_single_documentation_with_deprecated2.json", "add_single_documentation_with_deprecated2.bal"},
+                {"addSingleFunctionDocumentation1.json"},
+                {"addSingleFunctionDocumentation2.json"},
+                {"addObjectFunctionDocumentation.json"},
+                {"addSingleServiceDocumentation.json"},
+                {"addSingleRecordDocumentation.json"},
+                {"addSingleObjectDocumentation.json"},
+                {"addSingleModuleVarDocumentation1.json"},
+                {"addSingleModuleVarDocumentation2.json"},
+                {"addSingleAnnotationDocumentation.json"},
+                {"serviceDocumentationWithAnnotations.json"},
+                {"addResourceFunctionDocumentation.json"},
+                {"add_single_documentation_with_deprecated1.json"},
+                {"add_single_documentation_with_deprecated2.json"},
                 // Already documented
-                {"document_already_documented_config1.json", "document_already_documented1.bal"},
-                {"document_already_documented_config2.json", "document_already_documented1.bal"},
-                {"document_already_documented_config3.json", "document_already_documented1.bal"},
-                {"document_already_documented_config4.json", "document_already_documented1.bal"},
-                {"document_already_documented_config5.json", "document_already_documented1.bal"},
-                {"document_already_documented_config6.json", "document_already_documented1.bal"},
+                {"document_already_documented_config1.json"},
+                {"document_already_documented_config2.json"},
+                {"document_already_documented_config3.json"},
+                {"document_already_documented_config4.json"},
+                {"document_already_documented_config5.json"},
+                {"document_already_documented_config6.json"},
+                {"document_already_documented_config7.json"},
         };
     }
 
@@ -79,8 +81,8 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
     public Object[][] addAllDocDataProvider() {
         log.info("Test workspace/executeCommand for command {}", AddAllDocumentationExecutor.COMMAND);
         return new Object[][]{
-                {"addAllDocumentation.json", "commonDocumentation.bal"},
-                {"addAllDocumentationWithAnnotations.json", "addAllDocumentationWithAnnotations.bal"}
+                {"addAllDocumentation.json"},
+                {"addAllDocumentationWithAnnotations.json"}
         };
     }
 

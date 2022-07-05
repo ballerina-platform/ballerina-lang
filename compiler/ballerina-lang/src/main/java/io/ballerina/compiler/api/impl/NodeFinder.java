@@ -102,7 +102,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -401,6 +400,7 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangRetry retryNode) {
         lookupNode(retryNode.retryBody);
         lookupNode(retryNode.retrySpec);
+        lookupNode(retryNode.onFailClause);
     }
 
     @Override
@@ -457,6 +457,7 @@ class NodeFinder extends BaseVisitor {
         lookupNode((BLangNode) foreach.variableDefinitionNode);
         lookupNode(foreach.collection);
         lookupNode(foreach.body);
+        lookupNode(foreach.onFailClause);
     }
 
     @Override
@@ -526,16 +527,19 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangWhile whileNode) {
         lookupNode(whileNode.expr);
         lookupNode(whileNode.body);
+        lookupNode(whileNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         lookupNode(lockNode.body);
+        lookupNode(lockNode.onFailClause);
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
         lookupNode(transactionNode.transactionBody);
+        lookupNode(transactionNode.onFailClause);
     }
 
     @Override
@@ -713,6 +717,11 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        lookupNode(spreadOpExpr.expr);
+    }
+
+    @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
         lookupNode(tableConstructorExpr.tableKeySpecifier);
         lookupNodes(tableConstructorExpr.recordLiteralList);
@@ -872,11 +881,6 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         lookupNodes(queryExpr.queryClauseList);
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        lookupNodes(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
     @Override

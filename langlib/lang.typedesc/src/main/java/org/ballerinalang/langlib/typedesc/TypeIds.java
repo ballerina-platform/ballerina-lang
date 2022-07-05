@@ -34,6 +34,7 @@ import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,6 +95,10 @@ public class TypeIds {
             case TypeTags.INTERSECTION_TAG:
                 BIntersectionType intersectionType = (BIntersectionType) describingType;
                 typeIdSet = getTypeIdSetForType(intersectionType.getEffectiveType());
+                break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                BTypeReferenceType referenceType = (BTypeReferenceType) describingType;
+                typeIdSet = getTypeIdSetForType(referenceType.getReferredType());
                 break;
             default:
                 return null;

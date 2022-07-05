@@ -25,6 +25,7 @@ import java.util.Map;
  */
 public class BLangTestablePackage extends BLangPackage {
 
+    public BLangPackage parent;
     // Semantic Data
     //Map to maintain all the mock functions
     private Map<String, String> mockFunctionNamesMap = new HashMap<>();

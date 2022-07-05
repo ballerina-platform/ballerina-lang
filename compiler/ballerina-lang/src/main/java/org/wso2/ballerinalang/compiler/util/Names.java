@@ -43,6 +43,7 @@ public class Names {
     public static final Name EMPTY = new Name("");
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
+    public static final Name TEST_PACKAGE =  new Name("$test");
     public static final Name BALLERINA_ORG = new Name("ballerina");
     public static final Name BALLERINA_INTERNAL_ORG = new Name("ballerinai");
     public static final Name LANG = new Name("lang");
@@ -53,6 +54,7 @@ public class Names {
     public static final Name DECIMAL = new Name("decimal");
     public static final Name ERROR = new Name("error");
     public static final Name FLOAT = new Name("float");
+    public static final Name FUNCTION = new Name("function");
     public static final Name FUTURE = new Name("future");
     public static final Name INT = new Name("int");
     public static final Name BOOLEAN = new Name("boolean");

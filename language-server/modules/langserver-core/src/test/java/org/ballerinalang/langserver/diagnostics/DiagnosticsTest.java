@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -98,7 +98,8 @@ public class DiagnosticsTest {
 ////             //This will print nice comparable text in IDE
 //            Assert.assertEquals(responseDiags.toString(), expectedDiags.toString(),
 //                    "Failed Test for: " + configJsonPath);
-            Assert.fail("Failed Test for: " + configJsonPath);
+            Assert.fail(String.format("Failed Test for: %s. Expected: %s, actual: %s", 
+                    configJsonPath, expectedDiags, responseDiags));
         }
     }
 
@@ -129,7 +130,7 @@ public class DiagnosticsTest {
     JsonObject unifyResponse(JsonObject response) {
         JsonObject unifiedJson = new JsonObject();
         for (String key : response.keySet()) {
-            Optional<Path> path = CommonUtil.getPathFromURI(key);
+            Optional<Path> path = PathUtil.getPathFromURI(key);
             if (path.isEmpty()) {
                 throw new InvalidPathException("Invalid path found", key);
             }
@@ -142,8 +143,11 @@ public class DiagnosticsTest {
 
     @DataProvider(name = "completion-data-provider")
     public Object[] dataProvider() {
-        return new Object[]{/*"project_diagnostics1",*/ "single_file_diagnostics1",
-                "incomplete_const_expression"};
+        return new Object[]{
+                //"project_diagnostics1",
+                "single_file_diagnostics1",
+                "incomplete_const_expression"
+        };
     }
 
     @AfterClass

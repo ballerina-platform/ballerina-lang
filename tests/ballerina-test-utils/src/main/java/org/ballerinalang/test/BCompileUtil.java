@@ -146,12 +146,17 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath,
-                                                    ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+                                             ProjectEnvironmentBuilder projectEnvironmentBuilder) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
-
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+
+        return compileAndCacheBala(projectPath, repoPath, projectEnvironmentBuilder);
+    }
+
+    public static CompileResult compileAndCacheBala(Path projectPath, Path repoPath,
+                                                    ProjectEnvironmentBuilder projectEnvironmentBuilder) {
         BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
         Project project = ProjectLoader.loadProject(projectPath, projectEnvironmentBuilder, defaultOptions);
 
@@ -211,6 +216,15 @@ public class BCompileUtil {
                                                 String version) throws IOException {
         Path targetPath = balaCachePath(org, pkgName, version, testBuildDirectory.resolve(DIST_CACHE_DIRECTORY))
                 .resolve("any");
+        if (Files.isDirectory(targetPath)) {
+            ProjectUtils.deleteDirectory(targetPath);
+        }
+        ProjectUtils.extractBala(srcPath, targetPath);
+    }
+
+    public static void copyBalaToExtractedDist(Path srcPath, String org, String pkgName, String version,
+                                               Path tempDistPath) throws IOException {
+        Path targetPath = balaCachePath(org, pkgName, version, tempDistPath).resolve("any");
         if (Files.isDirectory(targetPath)) {
             ProjectUtils.deleteDirectory(targetPath);
         }

@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.JsonDataSource;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -757,6 +758,12 @@ public class ValueCreator {
     /**
      * Create a runtime record value with given record type.
      *
+     * <p>This method is used to create a {@link BMap} from the given java
+     * instance of record type which can only be used inside java native code.
+     * If the recordType is defined in the Ballerina code and the created map
+     * value needs to be used in Ballerina, please use createRecordValue APIs
+     * with packageId and recordTypeName to create a {@link BMap}.
+     *
      * @param recordType record type.
      * @return record value
      */
@@ -766,6 +773,12 @@ public class ValueCreator {
 
     /**
      * Create a runtime record value with given initial values and given record type.
+     *
+     * <p>This method is used to create a {@link BMap} from the given java
+     * instance of record type which can only be used inside java native code.
+     * If the recordType is defined in the Ballerina code and the created map
+     * value needs to be used in Ballerina, please use createRecordValue APIs
+     * with packageId and recordTypeName to create a {@link BMap}.
      *
      * @param recordType   record type.
      * @param keyValues initial map values to be populated.
@@ -799,6 +812,8 @@ public class ValueCreator {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
+
+        valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
 
@@ -814,6 +829,7 @@ public class ValueCreator {
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
                                                                   Map<String, Object> valueMap) {
+        valueMap = RuntimeUtils.validateBMapValues(valueMap);
         MapValueImpl<BString, Object> bmap = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
                 packageId, recordTypeName, valueMap);
         bmap.freezeDirect();
@@ -828,6 +844,7 @@ public class ValueCreator {
      * @return value of the record.
      */
     public static BMap<BString, Object> createRecordValue(BMap<BString, Object> record, Object... values) {
+        record = RuntimeUtils.validateBMapValues(record);
         return ValueUtils.createRecordValue(record, values);
     }
 

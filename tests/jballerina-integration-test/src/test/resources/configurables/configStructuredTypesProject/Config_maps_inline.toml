@@ -1,0 +1,115 @@
+user = { name = "Hinduja", occupation = "Software Engineer", city = "Colombo" }
+
+numbers = { one = 1, two = 2, three = 3, four = 4 }
+
+fractions = { quarter = 0.25, half = 0.5, three_quarter = 0.75 }
+
+bits = { on = true, off = false }
+
+numberSet = { set1 = [1, 11, 111], set2 = [2, 22, 222], set3 = [3, 33, 333] }
+
+stringSet = { set1 = [["a", "aa"], ["b", "bb"]], set2 = [["c", "cc"], ["d", "dd"]], set3 = [["e", "ee"], ["f", "ff"]] }
+
+engineerMap = { engineer1 = { id = 11, name = "Anne" }, engineer2 = { id = 22, name = "Bob" }, engineer3 = { id = 33, name = "Charles" } }
+
+lecturerMap = { lecturer1 = { name = "Richard Feynman", department1 = { name = "Physics" }, department3 = { name = "Science" } }, lecturer2 = { name = "Michael Sandel", department1 = { name = "Justice" }, department2 = { name = "Ethics" }, department3 = { name = "Law" } } }
+
+readonlyEngineerMap = { engineer1 = { id = 11, name = "Anne" }, engineer2 = { id = 22, name = "Bob" }, engineer3 = { id = 33, name = "Charles" } }
+
+readonlyLecturerMap = { lecturer1 = { name = "Richard Feynman", department1 = { name = "Physics" }, department3 = { name = "Science" } }, lecturer2 = { name = "Michael Sandel", department1 = { name = "Justice" }, department2 = { name = "Ethics" }, department3 = { name = "Law" } } }
+
+subjects = { Maths = { name = "Mathematics", grade = "grade 8", instructor = "Jane Doe" }, Science = { name = "Science & Technology", grade = "grade 9", instructor = "John Doe" }, English = { name = "English Language", grade = "grade 11", instructor = "Jane Doe" } }
+
+departments = { department1 = [{ name = "Civil Engineering" }], department2 = [{ name = "Computer Science" }], department3 = [{ name = "Electronical Engineering" }] }
+
+intMapArr = [{ int1 = 34, int2 = 78 }, { int3 = 17, int4 = 92 }]
+
+stringMapArr = [{ arr1 = ["hhh", "ggg"], arr2 = ["aaa", "bbb"] }, { arr1 = ["lll", "mmm"], arr2 = ["nnn", "ooo"] }]
+
+engineerMapArr = [{ p1 = { id = 55, name = "Jack" }, p2 = { id = 88, name = "Jill" } }, { p1 = { id = 66, name = "John" }, p2 = { id = 77, name = "Jim" } }]
+
+stringMapTable = [{ name = "Tom", occupation = "Software Engineer", city = "Colombo" }, { name = "Harry", occupation = "Student", city = "Kandy" }]
+
+readonlyTable = [{ name = "James", occupation = "Software Engineer", city = "Colombo" }, { name = "Trevor", occupation = "Student", city = "Kandy" }]
+
+stringMapArrTable = [{ names = ["Tom", "Jerry"], subjects = ["Maths", "Science", "Arts"] }, { cities = ["Colombo", "Galle"], fruits = ["Apple", "Grapes"] }]
+
+engineerMapTable = [{ p1 = { id = 10, name = "Anna" }, p2 = { id = 20, name = "Elsa" } }, { p1 = { id = 30, name = "Diana" }, p2 = { id = 40, name = "Belle" } }]
+
+readonlyEngineerMapTable = [{ p1 = { id = 10, name = "Anna" }, p2 = { id = 20, name = "Elsa" } }, { p1 = { id = 30, name = "Diana" }, p2 = { id = 40, name = "Belle" } }]
+
+intMap = { ten = 10, eleven = 11, twelve = 12 }
+
+studentMap = { student1 = { id = 11, name = "Anne" }, student2 = { id = 22, name = "Bob" }, student3 = { id = 33, name = "Charles" } }
+
+readonlyStudentMap = { student1 = { id = 11, name = "Anne" }, student2 = { id = 22, name = "Bob" }, student3 = { id = 33, name = "Charles" } }
+
+studentMapTable = [{ p1 = { id = 10, name = "Anna" }, p2 = { id = 20, name = "Elsa" } }, { p1 = { id = 30, name = "Diana" }, p2 = { id = 40, name = "Belle" } }]
+
+readonlyStudentMapTable = [{ p1 = { id = 10, name = "Anna" }, p2 = { id = 20, name = "Elsa" } }, { p1 = { id = 30, name = "Diana" }, p2 = { id = 40, name = "Belle" } }]
+
+libIntMap = { fourteen = 14, fifteen = 15, sixteen = 16 }
+
+managerMap = { m1 = { name = "hinduja", id = 111 }, m2 = { name = "waruna", id = 222 } }
+
+readonlyManagerMap = { m1 = { name = "manu", id = 333 }, m2 = { name = "riyafa", id = 444 } }
+
+managerMapTable = [{ m1 = { id = 55, name = "Jack" }, m2 = { id = 88, name = "Jill" } }, { m1 = { id = 66, name = "John" }, m2 = { id = 77, name = "Jim" } }]
+
+readonlyManagerMapTable = [{ m1 = { id = 55, name = "Jack" }, m2 = { id = 88, name = "Jill" } }, { m1 = { id = 66, name = "John" }, m2 = { id = 77, name = "Jim" } }]
+
+configMapType.imported_maps.user = { name = "Hinduja", occupation = "Software Engineer", city = "Colombo" }
+
+configMapType.imported_maps.numbers = { one = 1, two = 2, three = 3, four = 4 }
+
+configMapType.imported_maps.fractions = { quarter = 0.25, half = 0.5, three_quarter = 0.75 }
+
+configMapType.imported_maps.bits = { on = true, off = false }
+
+configMapType.imported_maps.numberSet = { set1 = [1, 11, 111], set2 = [2, 22, 222], set3 = [3, 33, 333] }
+
+configMapType.imported_maps.stringSet = { set1 = [["a", "aa"], ["b", "bb"]], set2 = [["c", "cc"], ["d", "dd"]], set3 = [["e", "ee"], ["f", "ff"]] }
+
+configMapType.imported_maps.doctorMap = { doctor1 = { id = 11, name = "Anne" }, doctor2 = { id = 22, name = "Bob" }, doctor3 = { id = 33, name = "Charles" } }
+
+configMapType.imported_maps.readonlyDoctorMap = { doctor1 = { id = 11, name = "Anne" }, doctor2 = { id = 22, name = "Bob" }, doctor3 = { id = 33, name = "Charles" } }
+
+configMapType.imported_maps.subjects = { Maths = { name = "Mathematics", grade = "grade 8", instructor = "Jane Doe" }, Science = { name = "Science & Technology", grade = "grade 9", instructor = "John Doe" }, English = { name = "English Language", grade = "grade 11", instructor = "Jane Doe" } }
+
+configMapType.imported_maps.departments = { department1 = [{ name = "Civil Engineering" }], department2 = [{ name = "Computer Science" }], department3 = [{ name = "Electronical Engineering" }] }
+
+configMapType.imported_maps.intMapArr = [{ int1 = 34, int2 = 78 }, { int3 = 17, int4 = 92 }]
+
+configMapType.imported_maps.stringMapArr = [{ arr1 = ["hhh", "ggg"], arr2 = ["aaa", "bbb"] }, { arr1 = ["lll", "mmm"], arr2 = ["nnn", "ooo"] }]
+
+configMapType.imported_maps.doctorMapArr = [{ p1 = { id = 55, name = "Jack" }, p2 = { id = 88, name = "Jill" } }, { p1 = { id = 66, name = "John" }, p2 = { id = 77, name = "Jim" } }]
+
+configMapType.imported_maps.stringMapTable = [{ name = "Tom", occupation = "Software Engineer", city = "Colombo" }, { name = "Harry", occupation = "Student", city = "Kandy" }]
+
+configMapType.imported_maps.readonlyTable = [{ name = "James", occupation = "Software Engineer", city = "Colombo" }, { name = "Trevor", occupation = "Student", city = "Kandy" }]
+
+configMapType.imported_maps.stringMapArrTable = [{ names = ["Tom", "Jerry"], subjects = ["Maths", "Science", "Arts"] }, { cities = ["Colombo", "Galle"], fruits = ["Apple", "Grapes"] }]
+
+configMapType.imported_maps.doctorMapTable = [{ p1 = { id = 10, name = "Anna" }, p2 = { id = 20, name = "Elsa" } }, { p1 = { id = 30, name = "Diana" }, p2 = { id = 40, name = "Belle" } }]
+
+configMapType.imported_maps.readonlyDoctorMapTable = [{ p1 = { id = 10, name = "Anna" }, p2 = { id = 20, name = "Elsa" } }, { p1 = { id = 30, name = "Diana" }, p2 = { id = 40, name = "Belle" } }]
+
+configMapType.imported_maps.intMap = { ten = 10, eleven = 11, twelve = 12 }
+
+configMapType.imported_maps.studentMap = { student1 = { id = 11, name = "Anne" }, student2 = { id = 22, name = "Bob" }, student3 = { id = 33, name = "Charles" } }
+
+configMapType.imported_maps.readonlyStudentMap = { student1 = { id = 11, name = "Anne" }, student2 = { id = 22, name = "Bob" }, student3 = { id = 33, name = "Charles" } }
+
+configMapType.imported_maps.studentMapTable = [{ p1 = { id = 10, name = "Anna" }, p2 = { id = 20, name = "Elsa" } }, { p1 = { id = 30, name = "Diana" }, p2 = { id = 40, name = "Belle" } }]
+
+configMapType.imported_maps.readonlyStudentMapTable = [{ p1 = { id = 10, name = "Anna" }, p2 = { id = 20, name = "Elsa" } }, { p1 = { id = 30, name = "Diana" }, p2 = { id = 40, name = "Belle" } }]
+
+configMapType.imported_maps.libIntMap = { fourteen = 14, fifteen = 15, sixteen = 16 }
+
+configMapType.imported_maps.managerMap = { m1 = { name = "hinduja", id = 111 }, m2 = { name = "waruna", id = 222 } }
+
+configMapType.imported_maps.readonlyManagerMap = { m1 = { name = "manu", id = 333 }, m2 = { name = "riyafa", id = 444 } }
+
+configMapType.imported_maps.managerMapTable = [{ m1 = { id = 55, name = "Jack" }, m2 = { id = 88, name = "Jill" } }, { m1 = { id = 66, name = "John" }, m2 = { id = 77, name = "Jim" } }]
+
+configMapType.imported_maps.readonlyManagerMapTable = [{ m1 = { id = 55, name = "Jack" }, m2 = { id = 88, name = "Jill" } }, { m1 = { id = 66, name = "John" }, m2 = { id = 77, name = "Jim" } }]

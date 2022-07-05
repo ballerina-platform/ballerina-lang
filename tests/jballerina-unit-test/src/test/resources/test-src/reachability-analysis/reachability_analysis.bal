@@ -1167,13 +1167,13 @@ function testReachabilityWithQueryAction3() returns string {
 }
 
 function testReachabilityWithQueryAction() {
-    assertEqual(testReachabilityWithQueryAction1(), "c#");
+    assertEqual(testReachabilityWithQueryAction1(), "Hello");
 
     string|error res = trap testReachabilityWithQueryAction2();
     assertEqual(res is error, true);
     assertEqual((<error>res).message(), "Panic!");
 
-    assertEqual(testReachabilityWithQueryAction3(), "c#");
+    assertEqual(testReachabilityWithQueryAction3(), "Hello");
 }
 
 function assertEqual(any actual, any expected) {

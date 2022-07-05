@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
@@ -69,7 +70,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
-import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -309,10 +310,23 @@ public class JvmCodeGenUtil {
         return getPackageNameWithSeparator(packageID, "/");
     }
 
+    public static String getSourcePackageName(PackageID packageID) {
+        return getPackageNameWithSeparator(packageID, "/", true);
+    }
+
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
+        return getPackageNameWithSeparator(packageID, separator, false);
+    }
+
+    private static String getPackageNameWithSeparator(PackageID packageID, String separator, boolean isSource) {
         String packageName = "";
         String orgName = Utils.encodeNonFunctionIdentifier(packageID.orgName.value);
-        String moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
+        String moduleName;
+        if (!packageID.isTestPkg || isSource) {
+            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
+        } else {
+            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value) + Names.TEST_PACKAGE.value;
+        }
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
             if (!packageID.version.value.equals("")) {
                 packageName = getMajorVersion(packageID.version.value) + separator;
@@ -603,15 +617,41 @@ public class JvmCodeGenUtil {
     }
 
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
-                                     String funcName, int localVarOffset) {
+                                     String funcName, int localVarOffset, int yieldLocationVarIndex,
+                                     Location terminatorPos, String fullyQualifiedFuncName,
+                                     String yieldStatus, int yieldStatusVarIndex) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
-        Label yieldLabel = labelGen.getLabel(funcName + "yield");
-        mv.visitJumpInsn(IFNE, yieldLabel);
+        generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
+                fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
 
         // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
+                                                   int yieldLocationVarIndex, Location terminatorPos,
+                                                   String fullyQualifiedFuncName, String yieldStatus,
+                                                   int yieldStatusVarIndex) {
+        Label yieldLocationLabel = new Label();
+        mv.visitJumpInsn(IFEQ, yieldLocationLabel);
+
+        if (yieldLocationVarIndex != -1) {
+            StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
+            if (terminatorPos != null) {
+                yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
+                        .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
+            }
+            mv.visitLdcInsn(yieldLocationData.toString());
+            mv.visitVarInsn(ASTORE, yieldLocationVarIndex);
+            mv.visitLdcInsn(yieldStatus);
+            mv.visitVarInsn(ASTORE, yieldStatusVarIndex);
+        }
+
+        Label yieldLabel = labelGen.getLabel(funcName + "yield");
+        mv.visitJumpInsn(GOTO, yieldLabel);
+        mv.visitLabel(yieldLocationLabel);
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {
@@ -756,5 +796,9 @@ public class JvmCodeGenUtil {
     }
 
     private JvmCodeGenUtil() {
+    }
+
+    public static String getRefTypeConstantName(BTypeReferenceType type) {
+        return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
     }
 }

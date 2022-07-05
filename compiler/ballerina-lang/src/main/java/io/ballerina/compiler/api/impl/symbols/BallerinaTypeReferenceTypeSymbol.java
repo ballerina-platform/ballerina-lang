@@ -17,6 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -57,8 +59,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     public BType referredType;
 
 
-    public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
-                                            BSymbol tSymbol, boolean fromIntersectionType) {
+    public BallerinaTypeReferenceTypeSymbol(CompilerContext context, BType bType, BSymbol tSymbol,
+                                            boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
         referredType = getReferredType(bType);
         this.definitionName = tSymbol.getOriginalName().getValue();
@@ -159,6 +161,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
                 (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina")) ||
                 this.getBType().tag == TypeTags.PARAMETERIZED_TYPE) {
             this.signature = this.definitionName;
+        } else if (moduleID.moduleName().equals("lang.xml") && moduleID.orgName().equals("ballerina")) {
+            this.signature = "xml:" + this.definitionName;
         } else {
             this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
                     moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
@@ -167,6 +171,16 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     private boolean isAnonOrg(ModuleID moduleID) {

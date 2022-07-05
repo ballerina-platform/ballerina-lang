@@ -101,6 +101,71 @@ function testCaptureBindingPattern4() {
     assertEquals("OTHER", captureBindingPattern4(4));
 }
 
+type A [int, string] & readonly;
+type B map<int> & readonly;
+type T A|B;
+
+function captureBindingPattern5(T v) returns string {
+    string s = "No match";
+
+    match v {
+        var [a, b] => {
+            A c = [a, b];
+            s = c.toString();
+        }
+        var {a: x, b: y} => {
+            B c = {a: x, b: y};
+            s = c.toString();
+        }
+    }
+    return s;
+}
+
+function testCaptureBindingPattern5() {
+    assertEquals("[1,\"a\"]", captureBindingPattern5([1, "a"]));
+    assertEquals("{\"a\":1,\"b\":2}", captureBindingPattern5({a: 1, b: 2}));
+    assertEquals("No match", captureBindingPattern5({b: 3}));
+}
+
+function captureBindingPattern6(int|boolean a) returns string {
+    match a {
+        var x if a is int|string => {
+            return x.toString();
+        }
+        var y if a is int|int[] => {
+            return y.toString();
+        }
+        _ => {
+            return "no match";
+        }
+    }
+}
+
+function testCaptureBindingPattern6() {
+    assertEquals(captureBindingPattern6(23), "23");
+    assertEquals(captureBindingPattern6(true), "no match");
+}
+
+function captureBindingPattern7(int|float|boolean a) returns string {
+    match a {
+        var x if a is int|float|string => {
+            return x.toString();
+        }
+        var y if a is int|int[] => {
+            return y.toString();
+        }
+        _ => {
+            return "no match";
+        }
+    }    
+}
+
+function testCaptureBindingPattern7() {
+    assertEquals(captureBindingPattern7(1.2f), "1.2");
+    assertEquals(captureBindingPattern7(22), "22");
+    assertEquals(captureBindingPattern7(true), "no match");
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

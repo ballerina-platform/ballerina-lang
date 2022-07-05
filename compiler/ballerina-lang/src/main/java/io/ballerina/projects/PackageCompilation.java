@@ -40,7 +40,6 @@ import java.util.function.Function;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 
@@ -62,16 +61,9 @@ public class PackageCompilation {
     private volatile boolean compiled;
     private CompilerPluginManager compilerPluginManager;
 
-    private PackageCompilation(PackageContext rootPackageContext) {
-        this.rootPackageContext = rootPackageContext;
-        this.packageResolution = rootPackageContext.getResolution();
-        this.compilationOptions = rootPackageContext.compilationOptions();
-        setupCompilation(rootPackageContext.compilationOptions());
-    }
-
     private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
-        this.packageResolution = rootPackageContext.getResolution(compilationOptions);
+        this.packageResolution = rootPackageContext.getResolution();
         this.compilationOptions = compilationOptions;
         setupCompilation(compilationOptions);
     }
@@ -91,17 +83,10 @@ public class PackageCompilation {
     private void setCompilerOptions(CompilationOptions compilationOptions) {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(OFFLINE, Boolean.toString(compilationOptions.offlineBuild()));
-        options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
-    }
-
-    static PackageCompilation from(PackageContext rootPkgContext) {
-        PackageCompilation compilation = new PackageCompilation(rootPkgContext);
-        return compile(compilation);
-
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {

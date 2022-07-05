@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -38,6 +39,7 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
@@ -102,7 +104,7 @@ public class JsonUtils {
             return null;
         }
 
-        Type elementType = bArray.getElementType();
+        Type elementType = TypeUtils.getReferredType(bArray.getElementType());
         if (elementType == PredefinedTypes.TYPE_INT) {
             return convertIntArrayToJSON(bArray);
         } else if (elementType == PredefinedTypes.TYPE_BOOLEAN) {
@@ -376,7 +378,7 @@ public class JsonUtils {
                     if (jsonValue == valueSpaceItem) {
                         return convertJSON(jsonValue, inputValueType);
                     }
-                    if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem)) {
+                    if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem, true)) {
                         matchedValues.add(valueSpaceItem);
                     }
                 }
@@ -393,6 +395,8 @@ public class JsonUtils {
                 return convertJSONToBArray(jsonValue, (BArrayType) targetType);
             case TypeTags.MAP_TAG:
                 return jsonToMap(jsonValue, (BMapType) targetType);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return convertJSON(jsonValue, ((BTypeReferenceType) targetType).getReferredType());
             case TypeTags.NULL_TAG:
                 if (jsonValue == null) {
                     return null;
@@ -546,7 +550,7 @@ public class JsonUtils {
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
-        Type targetElementType = targetArrayType.getElementType();
+        Type targetElementType = TypeUtils.getReferredType(targetArrayType.getElementType());
         ArrayValue jsonArray = (ArrayValue) json;
         switch (targetElementType.getTag()) {
             case TypeTags.INT_TAG:

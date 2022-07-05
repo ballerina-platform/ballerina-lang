@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import static org.ballerinalang.test.runtime.Main.getClassLoader;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
+import static org.ballerinalang.testerina.natives.mock.MockConstants.ORIGINAL_FUNC_NAME_PREFIX;
 
 /**
  * Class that contains inter-op function related to function mocking.
@@ -34,6 +35,7 @@ public class FunctionMock {
         BObject mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
         BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
         Object returnVal = caseObj.get(StringUtils.fromString("returnValue"));
+
         MockRegistry.getInstance().registerCase(mockFunctionObj, null, args, returnVal);
         return null;
     }
@@ -64,7 +66,8 @@ public class FunctionMock {
                                 mockFunctionClasses,
                                 returnVal.toString(), args);
                     } else if (returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER)) {
-                        return callOriginalFunction(originalFunction, originalFunctionPackage, args);
+                        return callOriginalFunction(ORIGINAL_FUNC_NAME_PREFIX + originalFunction,
+                                originalFunctionPackage, args);
                     }
                 }
                 break;

@@ -20,7 +20,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
@@ -55,6 +55,7 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
                 CodeActionNodeType.RECORD,
                 CodeActionNodeType.OBJECT_FUNCTION,
                 CodeActionNodeType.CLASS_FUNCTION,
+                CodeActionNodeType.ANNOTATION,
                 CodeActionNodeType.MODULE_VARIABLE));
     }
 
@@ -78,7 +79,7 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         CommonUtil.toRange(documentableNode.get().lineRange()));
+                                                         PositionUtil.toRange(documentableNode.get().lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);

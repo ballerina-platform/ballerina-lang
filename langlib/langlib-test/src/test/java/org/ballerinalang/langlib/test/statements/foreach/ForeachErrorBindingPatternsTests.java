@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,6 +41,12 @@ public class ForeachErrorBindingPatternsTests {
     public void setup() {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach_errors.bal");
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_errors_negative.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        program = null;
+        negative = null;
     }
 
     @Test

@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -70,6 +71,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public boolean isObjectContructorDecl = false;
     public BObjectType objectType = null;
     public boolean hasClosureVars;
+    public SymbolEnv typeDefEnv;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();

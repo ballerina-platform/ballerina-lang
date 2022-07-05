@@ -174,6 +174,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
@@ -327,6 +328,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAct
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
@@ -349,7 +351,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -1349,7 +1350,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
-        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode());
+        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode(), true);
         bLangFiniteTypeNode.pos = simpleLiteral.pos;
         bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
         return bLangFiniteTypeNode;
@@ -1980,9 +1981,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         List<BLangExpression> argExprList = new ArrayList<>();
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
-        for (Node expr : listConstructorExprNode.expressions()) {
-            argExprList.add(createExpression(expr));
+
+        for (Node listMember : listConstructorExprNode.expressions()) {
+            BLangExpression memberExpr;
+            if (listMember.kind() == SyntaxKind.SPREAD_MEMBER) {
+                Node spreadMemberExpr = ((SpreadMemberNode) listMember).expression();
+                BLangExpression bLangExpr = createExpression(spreadMemberExpr);
+
+                BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
+                spreadOpExpr.setExpression(bLangExpr);
+                spreadOpExpr.pos = getPosition(spreadMemberExpr);
+                memberExpr = spreadOpExpr;
+            } else {
+                memberExpr = createExpression(listMember);
+            }
+            argExprList.add(memberExpr);
         }
+
         listConstructorExpr.exprs = argExprList;
         listConstructorExpr.pos = getPosition(listConstructorExprNode);
         return listConstructorExpr;
@@ -2226,15 +2241,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         } else if (keys.size() == 1) {
             indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
         } else {
-            BLangTableMultiKeyExpr multiKeyExpr =
-                    (BLangTableMultiKeyExpr) TreeBuilder.createTableMultiKeyExpressionNode();
-            multiKeyExpr.pos = getPosition(keys.get(0), keys.get(keys.size() - 1));
-            List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
+            BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                    TreeBuilder.createListConstructorExpressionNode();
+            listConstructorExpr.pos = getPosition(keys.get(0), keys.get(keys.size() - 1));
+            List<BLangExpression> exprs = new ArrayList<>();
             for (io.ballerina.compiler.syntax.tree.ExpressionNode keyExpr : keys) {
-                multiKeyIndexExprs.add(createExpression(keyExpr));
+                exprs.add(createExpression(keyExpr));
             }
-            multiKeyExpr.multiKeyIndexExprs = multiKeyIndexExprs;
-            indexBasedAccess.indexExpr = multiKeyExpr;
+            listConstructorExpr.exprs = exprs;
+            indexBasedAccess.indexExpr = listConstructorExpr;
         }
 
         Node containerExpr = indexedExpressionNode.containerExpression();
@@ -3485,9 +3500,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Location pos = getPosition(streamTypeDescriptorNode);
         Optional<Node> paramsNode = streamTypeDescriptorNode.streamTypeParamsNode();
 
-        boolean hasConstraint = paramsNode.isPresent();
-        if (!hasConstraint) {
-            constraint = addValueType(pos, TypeKind.ANY);
+        BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
+        if (!paramsNode.isPresent()) {
+            constraint = getbLangUnionTypeNode(pos, TypeKind.ANY, TypeKind.ERROR);
+            error = getbLangUnionTypeNode(pos, TypeKind.NIL, TypeKind.ERROR);
         } else {
             StreamTypeParamsNode params = (StreamTypeParamsNode) paramsNode.get();
             if (params.rightTypeDescNode().isPresent()) {
@@ -3500,7 +3516,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         refType.typeKind = TypeKind.STREAM;
         refType.pos = pos;
 
-        BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
         streamType.type = refType;
         streamType.constraint = constraint;
         streamType.error = error;
@@ -3509,13 +3524,22 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return streamType;
     }
 
+    private BLangUnionTypeNode getbLangUnionTypeNode(Location pos, TypeKind... typeKinds) {
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.pos = pos;
+        for (TypeKind kind : typeKinds) {
+            unionTypeNode.memberTypeNodes.add(addValueType(pos, kind));
+        }
+        return unionTypeNode;
+    }
+
     @Override
     public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        List<BLangExpression> sizes = new ArrayList<>();
         Location position = getPosition(arrayTypeDescriptorNode);
         NodeList<ArrayDimensionNode> dimensionNodes = arrayTypeDescriptorNode.dimensions();
         int dimensionSize = dimensionNodes.size();
-        
+        List<BLangExpression> sizes = new ArrayList<>(dimensionSize);
+
         for (int i = dimensionSize - 1; i >= 0; i--) {
             ArrayDimensionNode dimensionNode = dimensionNodes.get(i);
             if (dimensionNode.arrayLength().isEmpty()) {
@@ -3670,12 +3694,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         boolean isTable = false;
         boolean isStream = false;
+        boolean isMap = false;
 
         Optional<QueryConstructTypeNode> optionalQueryConstructTypeNode = queryExprNode.queryConstructType();
         if (optionalQueryConstructTypeNode.isPresent()) {
             QueryConstructTypeNode queryConstructTypeNode = optionalQueryConstructTypeNode.get();
             isTable = queryConstructTypeNode.keyword().kind() == SyntaxKind.TABLE_KEYWORD;
             isStream = queryConstructTypeNode.keyword().kind() == SyntaxKind.STREAM_KEYWORD;
+            isMap = queryConstructTypeNode.keyword().kind() == SyntaxKind.MAP_KEYWORD;
             if (queryConstructTypeNode.keySpecifier().isPresent()) {
                 for (IdentifierToken fieldNameNode : queryConstructTypeNode.keySpecifier().get().fieldNames()) {
                     queryExpr.fieldNameIdentifierList.add(createIdentifier(getPosition(fieldNameNode), fieldNameNode));
@@ -3684,34 +3710,37 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
         queryExpr.isStream = isStream;
         queryExpr.isTable = isTable;
+        queryExpr.isMap = isMap;
         return queryExpr;
     }
 
     public BLangNode transform(OnFailClauseNode onFailClauseNode) {
         Location pos = getPosition(onFailClauseNode);
-        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) TreeBuilder.
-                createSimpleVariableDefinitionNode();
-        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        boolean isDeclaredWithVar = onFailClauseNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
-        var.isDeclaredWithVar = isDeclaredWithVar;
-        if (!isDeclaredWithVar) {
-            var.setTypeNode(createTypeNode(onFailClauseNode.typeDescriptor()));
-        }
-        var.pos = getPosition(onFailClauseNode);
-        var.setName(this.createIdentifier(onFailClauseNode.failErrorName()));
-        var.name.pos = getPosition(onFailClauseNode.failErrorName());
-        variableDefinitionNode.setVariable(var);
-        variableDefinitionNode.pos = getPosition(onFailClauseNode.typeDescriptor(), onFailClauseNode.failErrorName());
-
-
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
         onFailClause.pos = pos;
-
-        onFailClause.isDeclaredWithVar = isDeclaredWithVar;
-        markVariableWithFlag(variableDefinitionNode.getVariable(), Flag.FINAL);
-        onFailClause.variableDefinitionNode = variableDefinitionNode;
+        onFailClauseNode.typeDescriptor().ifPresent(typeDescriptorNode -> {
+            BLangSimpleVariableDef variableDefinitionNode =
+                    (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+            BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+            boolean isDeclaredWithVar = typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC;
+            var.isDeclaredWithVar = isDeclaredWithVar;
+            if (!isDeclaredWithVar) {
+                var.setTypeNode(createTypeNode(typeDescriptorNode));
+            }
+            var.pos = pos;
+            onFailClauseNode.failErrorName().ifPresent(identifierToken -> {
+                var.setName(this.createIdentifier(identifierToken));
+                var.name.pos = getPosition(identifierToken);
+                variableDefinitionNode.setVariable(var);
+                variableDefinitionNode.pos = getPosition(typeDescriptorNode,
+                        identifierToken);
+            });
+            onFailClause.isDeclaredWithVar = isDeclaredWithVar;
+            markVariableWithFlag(variableDefinitionNode.getVariable(), Flag.FINAL);
+            onFailClause.variableDefinitionNode = variableDefinitionNode;
+        });
         BLangBlockStmt blockNode = (BLangBlockStmt) transform(onFailClauseNode.blockStatement());
-        blockNode.pos = getPosition(onFailClauseNode);
+        blockNode.pos = pos;
         onFailClause.body = blockNode;
         return onFailClause;
     }
@@ -4972,7 +5001,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes, Node endNode) {
-        List<BLangStatement> statements = new ArrayList<>();
+        List<BLangStatement> statements = new ArrayList<>(statementNodes.size());
         return generateAndAddBLangStatements(statementNodes, statements, 0, endNode);
     }
 

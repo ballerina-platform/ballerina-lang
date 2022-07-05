@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -131,7 +132,10 @@ public class TomlProviderTest {
                 {new VariableKey(
                         ROOT_MODULE, "decimalArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(TYPE_DECIMAL), 0, false), true), decimalArrayGetFunction,
-                        expectedDecimalArray}
+                        expectedDecimalArray},
+                {new VariableKey(ROOT_MODULE, "intArrWithSize", new BIntersectionType(ROOT_MODULE, new BType[]{},
+                        TypeCreator.createArrayType(TYPE_INT, 2), 0, false), true), intArrayGetFunction,
+                        new long[]{123456, 987654321}}
         };
     }
 
@@ -724,5 +728,24 @@ public class TomlProviderTest {
             Assert.assertNotNull(value, "value not found for variable : " + key.variable);
             Assert.assertEquals(value, keyEntry.getValue());
         }
+    }
+
+    @Test
+    public void testTupleDefaultableConfig() {
+        TupleType type = TypeCreator.createTupleType(List.of(TYPE_INT, TYPE_STRING), null, 0, true);
+        IntersectionType tupleType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey tupleVar = new VariableKey(ROOT_MODULE, "tupleVar", tupleType, false);
+        VariableKey intVar = new VariableKey(ROOT_MODULE, "intVar", TYPE_INT, false);
+
+        Map<Module, VariableKey[]> configVarMap =
+                Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tupleVar, intVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_First.toml"), configVarMap.keySet())));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+
+        Object value = configValueMap.get(intVar).getValue();
+        Assert.assertEquals(12L, value);
     }
 }

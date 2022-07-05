@@ -32,7 +32,6 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  *
  * @since Swan Lake
  */
-@Test(groups = {"disableOnOldParser"})
 public class InnerQueryTest {
 
     private CompileResult result;
@@ -82,16 +81,40 @@ public class InnerQueryTest {
 
     @Test(description = "Test negative scenarios for inner queries")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 6);
         int i = 0;
         validateError(negativeResult, i++, "undefined symbol 'deptName'", 71, 29);
         validateError(negativeResult, i++, "undefined symbol 'psn'", 88, 16);
-        validateError(negativeResult, i, "undefined symbol 'emp'", 88, 30);
+        validateError(negativeResult, i++, "undefined symbol 'emp'", 88, 30);
+        validateError(negativeResult, i++, "redeclared symbol 'item'", 105, 20);
+        validateError(negativeResult, i++, "redeclared symbol 'item'", 117, 27);
+        validateError(negativeResult, i, "redeclared symbol 'item'", 130, 26);
     }
 
     @Test(description = "Test type test in where clause")
     public void testTypeTestInWhereClause() {
         BRunUtil.invoke(result, "testTypeTestInWhereClause");
+    }
+
+    @Test(description = "Test query expression within select clause")
+    public void testQueryExpWithinSelectClause() {
+        BRunUtil.invoke(result, "testQueryExpWithinSelectClause1");
+        BRunUtil.invoke(result, "testQueryExpWithinSelectClause2");
+    }
+
+    @Test(description = "Test query expression within query action")
+    public void testQueryExpWithinQueryAction() {
+        BRunUtil.invoke(result, "testQueryExpWithinQueryAction");
+    }
+
+    @Test
+    public void testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction() {
+        BRunUtil.invoke(result, "testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction");
+    }
+
+    @Test
+    public void testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() {
+        BRunUtil.invoke(result, "testQueryConstructingTableHavingInnerQueriesWithOnConflictClause");
     }
 
     @AfterClass

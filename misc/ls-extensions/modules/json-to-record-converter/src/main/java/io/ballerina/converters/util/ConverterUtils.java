@@ -35,6 +35,12 @@ public class ConverterUtils {
      */
     public static String convertOpenAPITypeToBallerina(String type) {
         String convertedType;
+
+        //In the case where type is not specified return anydata by default
+        if (type == null || type.length() == 0) {
+            return "anydata";
+        }
+
         switch (type) {
             case Constants.INTEGER:
                 convertedType = "int";

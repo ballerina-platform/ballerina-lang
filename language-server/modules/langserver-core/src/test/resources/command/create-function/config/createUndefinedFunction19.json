@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "createUndefinedFunction9.bal",
   "expected": {
     "result": {
       "edit": {

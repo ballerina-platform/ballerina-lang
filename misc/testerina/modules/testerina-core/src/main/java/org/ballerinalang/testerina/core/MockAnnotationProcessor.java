@@ -17,7 +17,10 @@
  */
 package org.ballerinalang.testerina.core;
 
+import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
@@ -37,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -50,6 +54,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 
 /**
  * Responsible of processing testerina mock annotations. This class is an implementation of the
@@ -72,6 +78,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
     private SymbolResolver symbolResolver;
     private Types typeChecker;
+    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
@@ -123,6 +130,14 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                         bLangTestablePackage.addMockFunction(
                                 functionToMockID + MOCK_ANNOTATION_DELIMITER + annotationValues[1],
                                 mockFnObjectName);
+
+                        if (functionToMockID != null) {
+                            // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
+                            String className = getQualifiedClassName(bLangTestablePackage,
+                                    functionToMockID.toString(), annotationValues[1]);
+                            registry.addMockFunctionsSourceMap(className + MOCK_ANNOTATION_DELIMITER +
+                                            annotationValues[1], mockFnObjectName);
+                        }
                     }
                 } else {
                     // Throw an error saying its not a MockFunction object
@@ -213,12 +228,17 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                             (BLangTestablePackage) ((BLangFunction) functionNode).parent;
                     bLangTestablePackage.addMockFunction(functionToMockID + MOCK_FN_DELIMITER + vals[1],
                             functionName);
+
+                    if (functionToMockID != null) {
+                        // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
+                        String className = getQualifiedClassName(bLangTestablePackage,
+                                functionToMockID.toString(), vals[1]);
+                        registry.addMockFunctionsSourceMap(className + MOCK_FN_DELIMITER + vals[1],
+                                functionName);
+                    }
                 }
-
             }
-
         }
-
     }
 
     /**
@@ -355,4 +375,55 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         return null;
     }
 
+    private String getQualifiedClassName(BLangTestablePackage bLangTestablePackage,
+                             String pkgId, String functionName) {
+        String className;
+        if (bLangTestablePackage.packageID.toString().equals(pkgId)) {
+            if (bLangTestablePackage.symbol.scope.entries.containsKey(new Name(functionName))) {
+                BSymbol symbol = bLangTestablePackage.symbol.scope.entries.get(new Name(functionName)).symbol;
+                className = getClassName(bLangTestablePackage.symbol, symbol.getPosition());
+            } else {
+                BLangPackage parentPkg = bLangTestablePackage.parent;
+                BSymbol symbol = parentPkg.symbol.scope.entries.get(new Name(functionName)).symbol;
+                className = getClassName(parentPkg.symbol, symbol.getPosition());
+            }
+
+        } else {
+            className = getImportedFunctionClassName(bLangTestablePackage,
+                    pkgId, functionName);
+        }
+        return className;
+    }
+
+    private String getImportedFunctionClassName(BLangTestablePackage bLangTestablePackage,
+                                                String pkgId, String functionName) {
+        String className = getClassName(bLangTestablePackage.getImports(), pkgId, functionName);
+
+        if (className == null) {
+            className = getClassName(bLangTestablePackage.parent.getImports(), pkgId, functionName);
+        }
+        return className;
+    }
+
+    private String getClassName(List<BLangImportPackage> imports, String pkgId, String functionName) {
+        for (BLangImportPackage importPackage : imports) {
+            if (importPackage.symbol.pkgID.toString().equals(pkgId)) {
+                BSymbol bInvokableSymbol = importPackage.symbol.scope.entries
+                        .get(new Name(functionName)).symbol;
+                return getClassName(importPackage.symbol, bInvokableSymbol.getPosition());
+            }
+        }
+        return null;
+    }
+
+    private String getClassName(BPackageSymbol bPackageSymbol, Location pos) {
+        return JarResolver.getQualifiedClassName(
+                bPackageSymbol.pkgID.orgName.getValue(),
+                bPackageSymbol.pkgID.name.getValue(),
+                bPackageSymbol.pkgID.version.getValue(),
+                pos.lineRange().filePath()
+                        .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
+                        .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)
+                        .replace("/", ProjectConstants.DOT));
+    }
 }

@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -33,6 +32,7 @@ import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -61,8 +61,7 @@ public class ModuleVariableDeclarationNodeContext extends
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ResolvedContext resolvedContext;
         if (node.initializer().isPresent() && this.withinInitializerContext(ctx, node)) {
-            completionItems.addAll(this.initializerContextCompletions(ctx, node.typedBindingPattern().typeDescriptor(),
-                    node.initializer().get()));
+            completionItems.addAll(this.initializerContextCompletions(ctx, node.initializer().get()));
             resolvedContext = ResolvedContext.INITIALIZER;
         } else if (this.onServiceTypeDescriptorContext(ctx, node)) {
             /*
@@ -73,9 +72,9 @@ public class ModuleVariableDeclarationNodeContext extends
             (3) service <cursor>
             (4) isolated service <cursor>
              */
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) ctx.getNodeAtCursor();
-                List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(ctx, qNameRef,
+                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(ctx, qNameRef,
                         ModulePartNodeContextUtil.serviceTypeDescPredicate());
                 completionItems.addAll(this.getCompletionItemList(moduleContent, ctx));
             } else {
@@ -90,13 +89,13 @@ public class ModuleVariableDeclarationNodeContext extends
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
             resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
         } else if (onSuggestionsAfterQualifiers(ctx, node) &&
-                !QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
+                !QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
             /*
                 Covers the following.
                 (1) <qualifier> <cursor>
-                currently the qualifier can be isolated/transactional/client.
+                currently the qualifier can be isolated/transactional/client/configurable.
                 (2) <qualifier> x<cursor>
-                currently the qualifier can be isolated/transactional/client.
+                currently the qualifier can be isolated/transactional/client/configurable.
             */
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, ctx));
             resolvedContext = ResolvedContext.ON_QUALIFIER;
@@ -185,6 +184,9 @@ public class ModuleVariableDeclarationNodeContext extends
                 break;
             case TRANSACTIONAL_KEYWORD:
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+                break;
+            case CONFIGURABLE_KEYWORD:
+                completionItems.addAll(this.getTypeDescContextItems(context));
                 break;
             default:
         }

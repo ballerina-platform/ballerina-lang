@@ -19,6 +19,7 @@ import ballerina/lang.'int as ints;
 import ballerina/lang.'decimal as decimals;
 import ballerina/lang.'float as floats;
 import ballerina/lang.'string as strings;
+import ballerina/lang.'function as func;
 
 function testSumFunctionInDecimal(decimal p1, decimal p2) returns decimal {
     return 'decimals:sum(p1, p2);
@@ -54,9 +55,14 @@ function testStartsWithFunctionInString() returns boolean {
     return 'strings:startsWith(str, "Hello");
 }
 
+function testCallInFunction()returns any|error {
+    return func:call(testSumFunctionInDecimal, 10.5d, 20.5d);
+}
+
 function testOverriddenPredeclaredModules() {
     decimal d1 = 22.0;
     decimal d2 = 5.7;
+    decimal d3 = 31.0;
     float f1 = 70.35;
     string s1 = "true";
     string s2 = "Ballerina!";
@@ -69,6 +75,7 @@ function testOverriddenPredeclaredModules() {
     assertEquality(true, 'booleans:fromString(s1));
     assertEquality(s2, testSubString());
     assertEquality(true, testStartsWithFunctionInString());
+    assertEquality(d3, testCallInFunction());
 }
 
 function assertEquality(any|error expected, any|error actual) {

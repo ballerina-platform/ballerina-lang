@@ -29,7 +29,14 @@ public enum DiagnosticHintCode implements DiagnosticCode {
 
     UNNECESSARY_CONDITION("BCH2000", "unnecessary.condition"),
     EXPRESSION_ALWAYS_FALSE("BCH2001", "expression.always.false"),
-    UNNECESSARY_CONDITION_FOR_VARIABLE_OF_TYPE_NEVER("BCH2002", "unnecessary.condition.for.variable.of.type.never");
+    UNNECESSARY_CONDITION_FOR_VARIABLE_OF_TYPE_NEVER("BCH2002", "unnecessary.condition.for.variable.of.type.never"),
+
+    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE(
+            "BCH2003", "concurrent.calls.will.not.be.made.to.non.isolated.method.in.non.isolated.service"),
+    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE(
+            "BCH2004", "concurrent.calls.will.not.be.made.to.non.isolated.service"),
+    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD(
+            "BCH2005", "concurrent.calls.will.not.be.made.to.non.isolated.method"),;
 
     private String diagnosticId;
     private String messageKey;

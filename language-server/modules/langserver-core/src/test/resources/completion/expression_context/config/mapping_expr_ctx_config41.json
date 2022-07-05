@@ -23,20 +23,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill Rec3 Required Fields",
-      "kind": "Property",
-      "detail": "Rec3",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "rec3Field2: 0",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "rec3Field2",
       "kind": "Variable",
       "detail": "int",
       "sortText": "F",
       "insertText": "rec3Field2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Rec3 Required Fields",
+      "kind": "Property",
+      "detail": "Rec3",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "rec3Field2: ${1:0}",
       "insertTextFormat": "Snippet"
     }
   ]

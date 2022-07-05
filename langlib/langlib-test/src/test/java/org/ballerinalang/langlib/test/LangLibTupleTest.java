@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -47,6 +48,12 @@ public class LangLibTupleTest {
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/tuplelib_test.bal");
         negativeResult = BCompileUtil.compile("test-src/tuplelib_test_negative.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
     }
 
     @Test
