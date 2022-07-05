@@ -99,8 +99,7 @@ public function validateStringAPI() {
     test:assertTrue(res is error);
     error err = <error>res;
     test:assertEquals(<string>checkpanic err.detail()["message"], "'table<utils_api.jsons:Address>' value cannot be" +
-    " converted to 'json': cannot construct json object from 'table<utils_api.jsons:record {| int a?; " +
-    "string b?; string c?; string d?; |}>' type data");
+    " converted to 'json': cannot construct json object from 'table<map<anydata>>' type data");
     test:assertEquals(err.message(), "{ballerina/lang.value}ConversionError");
 
     err = error("error");
