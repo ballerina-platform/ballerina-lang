@@ -26,6 +26,12 @@ type Obj2 object {
     function apply() returns int;
 };
 
+type Foo int|distinct object { };
+
+type Bar int|distinct object {
+    int i;
+};
+
 function f(Obj0 o) {
 
 }
@@ -47,4 +53,25 @@ function foo() {
     g(o0);
     g(o1);
     g(o2);
+}
+
+public function testDistinctObjectAssignability() {
+    object {} x = object {};
+    Foo _ = x;
+}
+
+public function testDistinctObjectAssignability2() {
+    object {
+        int i;
+    } x = object {
+        int i = 1;
+    };
+
+    Bar _ = x;
+
+    x = object {
+        int i = 10;
+    };
+
+    Bar _ = x;
 }

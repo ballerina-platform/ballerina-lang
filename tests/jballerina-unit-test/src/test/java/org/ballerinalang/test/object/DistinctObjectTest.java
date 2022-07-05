@@ -36,7 +36,14 @@ public class DistinctObjectTest {
         CompileResult result = BCompileUtil.compile("test-src/object/distinct_objects_negative.bal");
         int index = 0;
 
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Obj0', found 'Obj2'", 45, 7);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Obj0'," +
+                " found 'Obj2'", 51, 7);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo'," +
+                " found 'object { }'", 60, 13);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Bar'," +
+                " found 'object { int i; }'", 70, 13);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Bar'," +
+                " found 'object { int i; }'", 76, 13);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
