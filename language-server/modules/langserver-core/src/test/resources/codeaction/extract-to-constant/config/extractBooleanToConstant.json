@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const Constant \u003d true;\n\n"
+          "newText": "const boolean CONSTANT \u003d true;\n\n"
         },
         {
           "range": {
@@ -33,7 +33,7 @@
               "character": 33
             }
           },
-          "newText": "Constant"
+          "newText": "CONSTANT"
         }
       ]
     }

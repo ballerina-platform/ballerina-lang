@@ -1,7 +1,13 @@
 {
-  "position": {
-    "line": 16,
-    "character": 23
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 21
+    },
+    "end": {
+      "line": 1,
+      "character": 23
+    }
   },
   "source": "extractToConstant.bal",
   "expected": [
@@ -12,28 +18,28 @@
         {
           "range": {
             "start": {
-              "line": 13,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line":13,
+              "line": 0,
               "character": 0
             }
           },
-          "newText": "const Constant \u003d 3.14;\n\n"
+          "newText": "const int CONSTANT \u003d 10;\n\n"
         },
         {
           "range": {
             "start": {
-              "line": 16,
-              "character": 18
+              "line": 1,
+              "character": 21
             },
             "end": {
-              "line": 16,
-              "character": 22
+              "line": 1,
+              "character": 23
             }
           },
-          "newText": "Constant"
+          "newText": "CONSTANT"
         }
       ]
     }

@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 26
+    "line": 16,
+    "character": 23
   },
-  "source": "extractToConstant.bal",
+  "source": "extractToConstantNegative.bal",
   "expected": [
     {
       "title": "Extract to constant",
@@ -12,25 +12,25 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 13,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line":13,
               "character": 0
             }
           },
-          "newText": "const int CONSTANT \u003d 0x12;\n\n"
+          "newText": "const float CONSTANT \u003d 3.14;\n\n"
         },
         {
           "range": {
             "start": {
-              "line": 2,
-              "character": 24
+              "line": 16,
+              "character": 18
             },
             "end": {
-              "line": 2,
-              "character": 28
+              "line": 16,
+              "character": 22
             }
           },
           "newText": "CONSTANT"

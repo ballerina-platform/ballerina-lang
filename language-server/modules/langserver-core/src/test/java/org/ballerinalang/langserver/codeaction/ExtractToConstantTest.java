@@ -22,8 +22,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Tests the functionality of
- * {@link org.ballerinalang.langserver.codeaction.providers.docs.NodeBasedUpdateDocumentationCodeAction}.
+ * Test cases for Extract to Constant code action.
  */
 public class ExtractToConstantTest extends AbstractCodeActionTest {
 
@@ -33,20 +32,38 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
         super.test(config);
     }
 
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"extractToConstant1.json"},
-                {"extractToConstant2.json"},
                 {"extractIntToConstant.json"},
                 {"extractHexIntToConstant.json"},
                 {"extractFloatingPointToConstant.json"},
                 {"extractHexFloatingPointToConstant.json"},
                 {"extractBooleanToConstant.json"},
                 {"extractStringToConstant.json"},
+                {"extractReturnStmtToConstant.json"},
+                {"extractClassDefToConstant.json"},
+                {"extractIntRangeToConstant.json"},
+                {"extractExpressionToConstant.json"},
+                {"extractConstDeclToConstant1.json"}
+        };
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
                 {"extractConstDeclToConstant.json"},
-                {"extractInvalidExprStmtToConstant.json"}
+                {"extractInvalidExprStmtToConstant.json"},
+                {"extractExpressionToConstant1.json"},
+                {"extractExpressionToConstant2.json"},
+                {"extractExpressionToConstant3.json"}
         };
     }
 

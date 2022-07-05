@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const Constant \u003d \"abc\";\n\n"
+          "newText": "const string CONSTANT \u003d \"abc\";\n\n"
         },
         {
           "range": {
@@ -33,7 +33,7 @@
               "character": 32
             }
           },
-          "newText": "Constant"
+          "newText": "CONSTANT"
         }
       ]
     }

@@ -7,13 +7,15 @@ function testFunction() {
     string stringLiteral = "abc";
 }
 
-function getArea(int r) returns float {
-	return 3.14 * r * r;
+function getPI() returns float {
+	return 3.14;
 }
 
 class Square {
-	function getArea() {
-	    int r = 3;
-	    float area = 3.14 * r * r;
+	function getArea() returns float {
+	    float area = 3.14 * 3 * 3;
+	    return area;
 	}
 }
+
+const int CONSTANT1 = 10 + 20;

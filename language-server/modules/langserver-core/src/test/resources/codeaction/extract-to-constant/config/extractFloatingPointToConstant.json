@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const Constant \u003d 3.14;\n\n"
+          "newText": "const float CONSTANT \u003d 3.14;\n\n"
         },
         {
           "range": {
@@ -33,7 +33,7 @@
               "character": 37
             }
           },
-          "newText": "Constant"
+          "newText": "CONSTANT"
         }
       ]
     }
