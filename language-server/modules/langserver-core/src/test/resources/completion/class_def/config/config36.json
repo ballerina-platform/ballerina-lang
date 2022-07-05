@@ -1,10 +1,28 @@
 {
   "position": {
-    "line": 2,
-    "character": 8
+    "line": 0,
+    "character": 7
   },
-  "source": "class_def/source/source15.bal",
+  "source": "class_def/source/source36.bal",
   "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "distinct",
+      "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    },
     {
       "label": "isolated",
       "kind": "Keyword",
@@ -21,24 +39,6 @@
       "sortText": "Q",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "distinct",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "distinct",
-      "insertText": "distinct",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "readonly",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "readonly",
-      "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
     {

@@ -17,6 +17,7 @@ package io.ballerina.shell.service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,21 +27,21 @@ import java.util.List;
  * @since 2201.1.1
  */
 public class ConsoleOutCollector extends OutputStream {
-    private List<String> lines;
-    private StringBuilder buffer;
+    private final List<String> lines;
+    private final List<Byte> buffer;
 
     public ConsoleOutCollector() {
         this.lines = new ArrayList<>();
-        this.buffer = new StringBuilder();
+        this.buffer = new ArrayList<>();
     }
 
     @Override
     public void write(int characterInt) throws IOException {
         if (characterInt == '\n') {
-            lines.add(buffer.toString());
-            buffer = new StringBuilder();
+            String buffered = collectFromBuffer();
+            lines.add(buffered);
         } else {
-            buffer.append((char) characterInt);
+            buffer.add((byte) characterInt);
         }
     }
 
@@ -50,6 +51,30 @@ public class ConsoleOutCollector extends OutputStream {
      * @return list of collected strings.
      */
     public List<String> getLines() {
+        // collecting if there is any left in the buffer
+        String buffered = collectFromBuffer();
+        if (!buffered.isEmpty()) {
+            lines.add(buffered);
+        }
+
         return lines;
+    }
+
+    /**
+     * Collects bytes buffered in the buffer and clears the buffer.
+     *
+     * @return buffered string
+     */
+    private String collectFromBuffer() {
+        Byte[] byteObjects = buffer.toArray(new Byte[0]);
+        byte[] bytes = new byte[buffer.size()];
+        int idx = 0;
+        for (Byte byt: byteObjects) {
+            bytes[idx++] = byt;
+        }
+
+        String buffered = new String(bytes, StandardCharsets.UTF_8);
+        buffer.clear();
+        return buffered.trim();
     }
 }
