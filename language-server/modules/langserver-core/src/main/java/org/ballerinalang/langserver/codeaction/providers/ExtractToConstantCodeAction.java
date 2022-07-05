@@ -94,7 +94,7 @@ public class ExtractToConstantCodeAction extends AbstractCodeActionProvider {
         String value = "";
         LineRange replaceRange = null;
         Optional<TypeSymbol> typeSymbol = Optional.empty();
-        switch(node.kind()){
+        switch(node.kind()) {
             case NUMERIC_LITERAL:
             case STRING_LITERAL:
             case BOOLEAN_LITERAL:
@@ -109,6 +109,7 @@ public class ExtractToConstantCodeAction extends AbstractCodeActionProvider {
                 replaceRange = binaryExpressionNode.lineRange();
                 typeSymbol = context.currentSemanticModel().get().typeOf(binaryExpressionNode);
                 break;
+            default:
         }
 
         if (typeSymbol.isEmpty()) {
@@ -120,14 +121,14 @@ public class ExtractToConstantCodeAction extends AbstractCodeActionProvider {
             modPartNode = modPartNode.parent();
         }
         
-        String constDeclStr = String.format("const %s %s = %s;\n\n", typeSymbol.get().signature(), constName, value);
+        String constDeclStr = String.format("const %s %s = %s;%n%n", typeSymbol.get().signature(), constName, value);
         TextEdit constDeclEdit = new TextEdit(new Range(PositionUtil.toPosition(modPartNode.lineRange().startLine()),
                 PositionUtil.toPosition(modPartNode.lineRange().startLine())), constDeclStr);
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
                 PositionUtil.toPosition(replaceRange.endLine())),  constName);
 
-        return Collections.singletonList(createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT, List.of(constDeclEdit, replaceEdit), context.fileUri(),
-                CodeActionKind.RefactorExtract));
+        return Collections.singletonList(createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT, 
+                List.of(constDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract));
     }
 
     @Override
