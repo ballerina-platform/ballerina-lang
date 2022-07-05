@@ -1,4 +1,4 @@
-name: Publish Timestamped Snapshot Artifacts (master)
+name: Publish Timestamped Snapshot Artifacts
 
 on:
   push:
@@ -21,6 +21,11 @@ jobs:
           with:
             distribution: 'temurin'
             java-version: '11'
+
+      -   name: Extract branch name
+          shell: bash
+          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          id: extract_branch
 
       -   name: Initialize Sub Modules
           run: git submodule update --init
@@ -50,7 +55,7 @@ jobs:
             --data "{
               \"event_type\": \"update_timestamped_version\",
               \"client_payload\": {
-                \"branch\": \"master\",
+                \"branch\": \"${{ steps.extract_branch.outputs.branch }}\",
                 \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
               }
             }"
