@@ -60,6 +60,7 @@ import java.util.Optional;
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.jacoco.core.analysis.ICounter.EMPTY;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
 import static org.jacoco.core.analysis.ICounter.PARTLY_COVERED;
@@ -427,10 +428,11 @@ public class CoverageReport {
                 // Use diff utils to analyze the text lines in the doc
                 Patch<String> stringPatch = DiffUtils.diff(originalDocument.textDocument().textLines(),
                         modifiedDocument.textDocument().textLines());
-
                 if (!stringPatch.getDeltas().isEmpty()) {
                     List<AbstractDelta<String>> patchDeltas = stringPatch.getDeltas();
                     List<Integer> insertedLines = new ArrayList();
+                    List<Integer> modifiedLines = new ArrayList<>();
+                    List<Integer> deletedLines = new ArrayList<>();
                     for (AbstractDelta<String> delta : patchDeltas) {
                         // This means that we have to consider the block added
                         if (delta.getType().equals(DeltaType.INSERT)) {
@@ -439,6 +441,15 @@ public class CoverageReport {
                             for (int i = lineNumber; i < lineNumber + size; i++) {
                                 insertedLines.add(i);
                             }
+                        } else if (delta.getType().equals(DeltaType.CHANGE)) {
+                            int lineNumber = delta.getTarget().getPosition();
+                            // Add blank lines to modified lines
+                            if (delta.getSource().getLines().get(0).isBlank()) {
+                                modifiedLines.add(lineNumber);
+                            }
+                        } else if (delta.getType().equals(DeltaType.DELETE)) {
+                            int lineNumber = delta.getSource().getPosition();
+                            deletedLines.add(lineNumber);
                         }
                     }
 
@@ -467,7 +478,16 @@ public class CoverageReport {
                         if (insertedLines.contains(i)) {
                             continue;
                         }
-                        newLineStatus.add(lineStatus.get(i));
+                        // If an empty line was modified or deleted, add the line status as empty
+                        if (modifiedLines.contains(i)) {
+                            newLineStatus.add(EMPTY);
+                        } else {
+                            newLineStatus.add(lineStatus.get(i));
+                        }
+                        // If a deleted line exists
+                        if (deletedLines.contains(i)) {
+                            newLineStatus.add(EMPTY);
+                        }
                     }
 
                     List<Integer> newCoveredLines = new ArrayList<>();
