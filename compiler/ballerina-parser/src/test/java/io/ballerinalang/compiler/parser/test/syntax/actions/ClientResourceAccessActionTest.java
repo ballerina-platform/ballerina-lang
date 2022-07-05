@@ -71,4 +71,16 @@ public class ResourceMethodCallActionTest extends AbstractActionTest {
         testFile("resource-method-call-action/resource_method_call_action_source_07.bal",
                 "resource-method-call-action/resource_method_call_action_assert_07.json");
     }
+
+    @Test
+    public void testResourceAccessPathSegmentOrderValidation() {
+        testFile("client-resource-access-action/client_resource_access_action_source_08.bal",
+                "client-resource-access-action/client_resource_access_action_assert_08.json");
+    }
+
+    @Test
+    public void testRecoveryForExpressionInsideComputedResourceAccessSegment() {
+        testFile("client-resource-access-action/client_resource_access_action_source_09.bal",
+                "client-resource-access-action/client_resource_access_action_assert_09.json");
+    }
 }
