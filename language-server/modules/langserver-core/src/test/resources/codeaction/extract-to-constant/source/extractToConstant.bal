@@ -5,6 +5,7 @@ function testFunction() {
     float hexFloatingPointLiteral = 0xAp1;
     boolean booleanLiteral = true;
     string stringLiteral = "abc";
+    int intExpr = 10 + 20;
 }
 
 function getPI() returns float {

@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 20,
+    "line": 21,
     "character": 23
   },
   "source": "extractToConstant.bal",
@@ -12,11 +12,11 @@
         {
           "range": {
             "start": {
-              "line": 20,
+              "line": 21,
               "character": 0
             },
             "end": {
-              "line": 20,
+              "line": 21,
               "character": 0
             }
           },
@@ -25,11 +25,11 @@
         {
           "range": {
             "start": {
-              "line": 20,
+              "line": 21,
               "character": 22
             },
             "end": {
-              "line": 20,
+              "line": 21,
               "character": 24
             }
           },

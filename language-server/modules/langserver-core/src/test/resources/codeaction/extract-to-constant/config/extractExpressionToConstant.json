@@ -1,12 +1,12 @@
 {
   "range": {
     "start": {
-      "line": 15,
-      "character": 21
+      "line": 7,
+      "character": 18
     },
     "end": {
-      "line": 15,
-      "character": 33
+      "line": 7,
+      "character": 25
     }
   },
   "source": "extractToConstant.bal",
@@ -18,25 +18,25 @@
         {
           "range": {
             "start": {
-              "line": 9,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 9,
+              "line": 0,
               "character": 0
             }
           },
-          "newText": "const float CONSTANT \u003d 3.14;\n\n"
+          "newText": "const int CONSTANT \u003d 10 + 20;\n\n"
         },
         {
           "range": {
             "start": {
-              "line": 10,
-              "character": 8
+              "line": 7,
+              "character": 18
             },
             "end": {
-              "line": 10,
-              "character": 12
+              "line": 7,
+              "character": 25
             }
           },
           "newText": "CONSTANT"
