@@ -394,7 +394,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangResourceFunction funcNode, AnalyzerData data) {
         visit((BLangFunction) funcNode, data);
         BType returnType = funcNode.returnTypeNode.getBType();
-        if (checkForClientObjectTypeOrFunctionType(returnType)) {
+        if (containsClientObjectTypeOrFunctionType(returnType)) {
             dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE);
         }
         for (BLangType pathParamType : funcNode.resourcePathType.memberTypeNodes) {
@@ -415,7 +415,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
-    private boolean checkForClientObjectTypeOrFunctionType(BType type) {
+    private boolean containsClientObjectTypeOrFunctionType(BType type) {
         BType referredType = Types.getReferredType(type);
         if (referredType != symTable.semanticError && Symbols.isFlagOn(referredType.tsymbol.flags, Flags.CLIENT)) {
             return true;
@@ -425,14 +425,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 return true;
             case TypeTags.UNION:
                 for (BType memberType: ((BUnionType) referredType).getMemberTypes()) {
-                    if (checkForClientObjectTypeOrFunctionType(memberType)) {
+                    if (containsClientObjectTypeOrFunctionType(memberType)) {
                         return true;
                     }
                 }
                 break;
             case TypeTags.INTERSECTION:
                 for (BType memberType: ((BIntersectionType) referredType).getConstituentTypes()) {
-                    if (checkForClientObjectTypeOrFunctionType(memberType)) {
+                    if (containsClientObjectTypeOrFunctionType(memberType)) {
                         return true;
                     }
                 }
