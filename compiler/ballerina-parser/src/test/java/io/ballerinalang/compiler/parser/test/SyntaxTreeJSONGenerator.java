@@ -62,10 +62,10 @@ public class SyntaxTreeJSONGenerator {
     /*
      * Change the below two constants as required, depending on the type of test.
      */
-    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
+    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.TOP_LEVEL_NODE;
 
     private static final PrintStream STANDARD_OUT = System.out;
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Paths.get("compiler/ballerina-parser/src/test/resources/");
 
     public static void main(String[] args) throws IOException {
         // Using a string source as input

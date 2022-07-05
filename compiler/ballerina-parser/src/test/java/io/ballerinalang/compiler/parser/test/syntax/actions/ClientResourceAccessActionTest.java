@@ -20,56 +20,56 @@ package io.ballerinalang.compiler.parser.test.syntax.actions;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing resource method call action.
+ * Test parsing client resource access action.
  * 
  * @since 2201.2.0
  */
-public class ResourceMethodCallActionTest extends AbstractActionTest {
+public class ClientResourceAccessActionTest extends AbstractActionTest {
 
     // Valid source tests
 
     @Test
     public void testBasicResourceMethodCall() {
-        testFile("resource-method-call-action/resource_method_call_action_source_01.bal",
-                "resource-method-call-action/resource_method_call_action_assert_01.json");
+        testFile("client-resource-access-action/client_resource_access_action_source_01.bal",
+                "client-resource-access-action/client_resource_access_action_assert_01.json");
     }
 
     @Test
     public void testComplexResourceMethodCallAction() {
-        testFile("resource-method-call-action/resource_method_call_action_source_02.bal",
-                "resource-method-call-action/resource_method_call_action_assert_02.json");
+        testFile("client-resource-access-action/client_resource_access_action_source_02.bal",
+                "client-resource-access-action/client_resource_access_action_assert_02.json");
     }
 
     @Test
     public void testResourceMethodCallActionInDifferentContexts() {
-        testFile("resource-method-call-action/resource_method_call_action_source_03.bal",
-                "resource-method-call-action/resource_method_call_action_assert_03.json");
+        testFile("client-resource-access-action/client_resource_access_action_source_03.bal",
+                "client-resource-access-action/client_resource_access_action_assert_03.json");
     }
     
     // Recovery tests
 
     @Test
     public void testRecoveryForResourceMethodCallActionSlashToken() {
-        testFile("resource-method-call-action/resource_method_call_action_source_04.bal",
-                "resource-method-call-action/resource_method_call_action_assert_04.json");
+        testFile("client-resource-access-action/client_resource_access_action_source_04.bal",
+                "client-resource-access-action/client_resource_access_action_assert_04.json");
     }
 
     @Test
     public void testRecoveryForResourceMethodCallActionRhs() {
-        testFile("resource-method-call-action/resource_method_call_action_source_05.bal",
-                "resource-method-call-action/resource_method_call_action_assert_05.json");
+        testFile("client-resource-access-action/client_resource_access_action_source_05.bal",
+                "client-resource-access-action/client_resource_access_action_assert_05.json");
     }
 
     @Test
     public void testRecoveryForResourceMethodCallActionRhsInDifferentContexts() {
-        testFile("resource-method-call-action/resource_method_call_action_source_06.bal",
-                "resource-method-call-action/resource_method_call_action_assert_06.json");
+        testFile("client-resource-access-action/client_resource_access_action_source_06.bal",
+                "client-resource-access-action/client_resource_access_action_assert_06.json");
     }
 
     @Test
     public void testRecoveryForResourceMethodCallActionhsInExprOnlyCtx() {
-        testFile("resource-method-call-action/resource_method_call_action_source_07.bal",
-                "resource-method-call-action/resource_method_call_action_assert_07.json");
+        testFile("client-resource-access-action/client_resource_access_action_source_07.bal",
+                "client-resource-access-action/client_resource_access_action_assert_07.json");
     }
 
     @Test
