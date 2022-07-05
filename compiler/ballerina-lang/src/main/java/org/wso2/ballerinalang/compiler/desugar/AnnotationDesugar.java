@@ -80,7 +80,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -461,6 +463,8 @@ public class AnnotationDesugar {
 
             if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE) {
                 lambdaFunction = defineAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
+            } else if (typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
+                lambdaFunction = defineTupleAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
             } else {
                 lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, typeEnv, pkgID, owner);
             }
@@ -611,6 +615,47 @@ public class AnnotationDesugar {
                 addInvocationToLiteral(mapLiteral, FIELD + DOT + field.name.value,
                                        field.annAttachments.get(0).pos, paramAnnotLambda);
             }
+        }
+
+        if (annotFunctionDefined) {
+            if (mapLiteral.fields.isEmpty()) {
+                return null;
+            }
+            lambdaFunction = addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
+        }
+
+        return lambdaFunction;
+    }
+
+    private BLangLambdaFunction defineTupleAnnotations(BLangTypeDefinition typeDef, BLangPackage pkgNode, SymbolEnv env,
+                                                  PackageID pkgID, BSymbol owner) {
+        BLangFunction function = null;
+        BLangRecordLiteral mapLiteral = null;
+        BLangLambdaFunction lambdaFunction = null;
+
+        boolean annotFunctionDefined = false;
+
+        if (!typeDef.annAttachments.isEmpty()) {
+            function = defineFunction(typeDef.pos, pkgID, owner);
+            mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+            addAnnotsToLiteral(typeDef.annAttachments, mapLiteral, function, env, false);
+            annotFunctionDefined = true;
+        }
+        int i = 0;
+        for (BLangMemberTypeNode member : ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes) {
+            BLangLambdaFunction paramAnnotLambda = defineAnnotations(member.annAttachments, member.pos, pkgNode, env,
+                    pkgID, owner, false);
+            if (paramAnnotLambda != null) {
+                if (!annotFunctionDefined) {
+                    function = defineFunction(typeDef.pos, pkgID, owner);
+                    mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+                    annotFunctionDefined = true;
+                }
+
+                addInvocationToLiteral(mapLiteral, FIELD + DOT + i,
+                        member.annAttachments.get(0).pos, paramAnnotLambda);
+            }
+            i++;
         }
 
         if (annotFunctionDefined) {

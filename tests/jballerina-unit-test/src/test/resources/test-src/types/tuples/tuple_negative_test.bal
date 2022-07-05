@@ -233,6 +233,11 @@ public function testTupleParamWithExistingArg4() {
 function testFunc3(string i, int... i) {
 }
 
+public const annotation member on field;
+
 function testTupleMemberAnnotations() {
-     [@typeParam int, string] T = [1, "d"];
+     [@typeParam int, string] T1 = [1, "d"];
+     [@annot int, string] T2 = [1, "d"];
+     [@member @annot int, string] T3 = [1, "d"];
+     [@member int, @annot string] T3 = [1, "d"];
 }

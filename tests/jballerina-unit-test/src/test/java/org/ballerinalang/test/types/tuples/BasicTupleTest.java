@@ -16,7 +16,15 @@
  */
 package org.ballerinalang.test.types.tuples;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BAnnotatableType;
+import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -326,12 +334,31 @@ public class BasicTupleTest {
     }
 
     @Test(description = "Test the tuple annotations")
-    public void testTupleAnnotations() {
+    public void testTupleAnnotations1() {
         int i = 44;
+        BAssertUtil.validateError(resultNegative, i++,
+                "annotation 'ballerina/lang.annotations:0.0.0:typeParam' is not allowed on field",
+                239, 7);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                240, 7);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                241, 15);
         BAssertUtil.validateError(resultNegative, i,
-                "annotation 'ballerina/lang.annotations:0.0.0:typeParam' is not allowed on object_field, field",
-                237, 7);
-        // TODO fix other errors thrown here
+                "undefined annotation 'annot'",
+                242, 20);
+    }
+
+    @Test(description = "Test Function invocation using tuples")
+    public void testTupleAnnotations2() {
+        Object returns = BRunUtil.invoke(result, "testTupleMemberAnnotations2", new Object[]{});
+        Type T = TypeUtils.getType(returns);
+
+        Object annot = ((BAnnotatableType) T).getAnnotation(new BmpStringValue("$field$.1"));
+        BMap<BString, Object> expected = ValueCreator.createMapValue();
+        expected.put(StringUtils.fromString("member"), true);
+        Assert.assertEquals(annot, expected);
     }
 
     @AfterClass

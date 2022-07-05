@@ -487,6 +487,15 @@ function testTupleToJSONAssignment() {
      assertEquality(false, K is json);
 }
 
+public const annotation member on field;
+
+type T [int, @member int, string...];
+
+function testTupleMemberAnnotations2() returns T {
+    T x =  [1, 2, "hello", "world"];
+    return x;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
