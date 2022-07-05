@@ -17,6 +17,7 @@ module io.ballerina.LSExtensions.jsonToRecordConverter {
     requires swagger.parser.core;
     requires swagger.parser.v3;
     requires io.ballerina.language.server.commons;
+    requires io.ballerina.jsonmapper;
 
     exports io.ballerina.converters;
     exports io.ballerina.converters.util;
