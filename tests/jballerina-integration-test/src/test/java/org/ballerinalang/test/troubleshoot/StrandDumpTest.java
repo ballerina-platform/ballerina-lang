@@ -128,16 +128,21 @@ public class StrandDumpTest extends BaseTest {
 
     private void verifyObtainedStrandDump(Path expectedOutputFilePath, String obtainedStrandDump)
             throws BallerinaTestException {
-        String expectedOutputRegEx;
+        List<String> expectedOutputRegEx;
         try {
-            expectedOutputRegEx = Files.readString(expectedOutputFilePath);
+            expectedOutputRegEx = Files.lines(expectedOutputFilePath)
+                    .filter(s -> !s.isBlank()).collect(Collectors.toList());
         } catch (IOException e) {
-            throw new BallerinaTestException("Failure to read from expected strand dump output file");
+            throw new BallerinaTestException("Failure to read from the expected strand dump output file");
         }
-        Pattern pattern = Pattern.compile(expectedOutputRegEx);
-        Matcher matcher = pattern.matcher(obtainedStrandDump);
-        if (!matcher.find()) {
-            throw new BallerinaTestException("Failure to obtain the expected strand dump");
+
+        for (String expectedRegEx : expectedOutputRegEx) {
+            Pattern pattern = Pattern.compile(expectedRegEx);
+            Matcher matcher = pattern.matcher(obtainedStrandDump);
+            if (!matcher.find()) {
+                throw new BallerinaTestException("Failure to obtain the expected strand dump.\nExpected regular " +
+                        "expression: " + expectedRegEx + "\nObtained strand dump:\n" + obtainedStrandDump);
+            }
         }
     }
 
