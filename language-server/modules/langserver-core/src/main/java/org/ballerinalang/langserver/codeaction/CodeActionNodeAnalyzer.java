@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
@@ -361,12 +362,19 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(BasicLiteralNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.LITERAL);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
     public void visit(ObjectTypeDescriptorNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(BinaryExpressionNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);

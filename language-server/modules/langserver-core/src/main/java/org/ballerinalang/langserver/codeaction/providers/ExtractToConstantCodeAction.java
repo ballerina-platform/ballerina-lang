@@ -16,11 +16,16 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.ConstantVisitor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -31,7 +36,6 @@ import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -41,16 +45,16 @@ import java.util.stream.Collectors;
 /**
  * Code Action for extracting to a constant.
  *
- * @since 2201.1.2
+ * @since 2201.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ExtractToConstantCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Extract To Constant";
-    private static final String CONSTANT_NAME_PREFIX = "Constant";
+    private static final String CONSTANT_NAME_PREFIX = "CONSTANT";
 
     public ExtractToConstantCodeAction() {
-        super(Collections.singletonList(CodeActionNodeType.LITERAL));
+        super(List.of(CodeActionNodeType.LITERAL, CodeActionNodeType.BINARY_EXPR));
     }
 
     /**
@@ -60,37 +64,67 @@ public class ExtractToConstantCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
         
-        Node node = posDetails.matchedCodeActionNode();
-        if (node.parent().kind() == SyntaxKind.CONST_DECLARATION || 
-                node.parent().kind() == SyntaxKind.INVALID_EXPRESSION_STATEMENT ||
-                (node.kind() != SyntaxKind.NUMERIC_LITERAL && node.kind() != SyntaxKind.STRING_LITERAL && 
-                        node.kind() != SyntaxKind.BOOLEAN_LITERAL)) {
+        if (context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
         }
-
-        BasicLiteralNode basicLiteralNode = (BasicLiteralNode) node;
-        String value = basicLiteralNode.literalToken().toString().strip();
+        Node node = CommonUtil.findNode(context.range(), context.currentSyntaxTree().get());
+        if (node.parent().kind() == SyntaxKind.CONST_DECLARATION ||
+                node.parent().kind() == SyntaxKind.INVALID_EXPRESSION_STATEMENT ||
+                (node.kind() != SyntaxKind.NUMERIC_LITERAL && node.kind() != SyntaxKind.STRING_LITERAL && 
+                        node.kind() != SyntaxKind.BOOLEAN_LITERAL && node.kind() != SyntaxKind.BINARY_EXPRESSION)) {
+            return Collections.emptyList();
+        }
+        
+        // If the node is a BinaryExpressionNode, check whether it contains only BasicLiteralNodes
+        if (node.kind() == SyntaxKind.BINARY_EXPRESSION) {
+            ConstantVisitor constantVisitor = new ConstantVisitor();
+            node.accept(constantVisitor);
+            if (constantVisitor.getInvalidNode()) {
+                return Collections.emptyList();
+            }
+        }
         
         Set<String> visibleSymbolNames = context.visibleSymbols(context.cursorPosition()).stream()
                 .map(Symbol::getName)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-        String name = NameUtil.generateTypeName(CONSTANT_NAME_PREFIX, visibleSymbolNames);
+        String constName = NameUtil.generateTypeName(CONSTANT_NAME_PREFIX, visibleSymbolNames);
+
+        String value = "";
+        LineRange replaceRange = null;
+        Optional<TypeSymbol> typeSymbol = Optional.empty();
+        switch(node.kind()){
+            case NUMERIC_LITERAL:
+            case STRING_LITERAL:
+            case BOOLEAN_LITERAL:
+                BasicLiteralNode basicLiteralNode = (BasicLiteralNode) node;
+                value = basicLiteralNode.toSourceCode().strip();
+                replaceRange = basicLiteralNode.lineRange();
+                typeSymbol = context.currentSemanticModel().get().typeOf(basicLiteralNode);
+                break;
+            case BINARY_EXPRESSION:
+                BinaryExpressionNode binaryExpressionNode = (BinaryExpressionNode) node;
+                value = binaryExpressionNode.toSourceCode().strip();
+                replaceRange = binaryExpressionNode.lineRange();
+                typeSymbol = context.currentSemanticModel().get().typeOf(binaryExpressionNode);
+                break;
+        }
+
+        if (typeSymbol.isEmpty()) {
+            return Collections.emptyList();
+        }
         
         Node modPartNode = node;
         while (modPartNode.parent().kind() != SyntaxKind.MODULE_PART) {
             modPartNode = modPartNode.parent();
         }
         
-        Range declRange = new Range(PositionUtil.toPosition(modPartNode.lineRange().startLine()),
-                PositionUtil.toPosition(modPartNode.lineRange().startLine()));
-        String constDecl = String.format("const %s = %s;\n\n", name, value);
-        TextEdit constDeclEdit = new TextEdit(declRange, constDecl);
-        
-        Range usageRange = new Range(PositionUtil.toPosition(basicLiteralNode.lineRange().startLine()),
-                PositionUtil.toPosition(basicLiteralNode.lineRange().endLine()));
-        TextEdit replaceEdit = new TextEdit(usageRange,  name);
+        String constDeclStr = String.format("const %s %s = %s;\n\n", typeSymbol.get().signature(), constName, value);
+        TextEdit constDeclEdit = new TextEdit(new Range(PositionUtil.toPosition(modPartNode.lineRange().startLine()),
+                PositionUtil.toPosition(modPartNode.lineRange().startLine())), constDeclStr);
+        TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
+                PositionUtil.toPosition(replaceRange.endLine())),  constName);
 
         return Collections.singletonList(createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT, List.of(constDeclEdit, replaceEdit), context.fileUri(),
                 CodeActionKind.RefactorExtract));
