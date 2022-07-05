@@ -6441,7 +6441,7 @@ public class Desugar extends BLangNodeVisitor {
         // After reordering we have one to one mapping from resource access segments to resource path segments
         // We need to select only the arguments that are required as path parameters from the pathParamInvocation and
         // add them to final bLangInvocation.
-        // In the case that the rest arg provides value(requiredArg) for required parameter, 
+        // In the case that the rest arg provides value(requiredArg) for a required parameter, 
         // `reorderArguments` logic will create statement expression which contains a virtual variable referring to 
         // rest arg inside that value. 
         // If that value is not needed by the path parameters, we need to make sure that virtual variable is 
@@ -6456,6 +6456,8 @@ public class Desugar extends BLangNodeVisitor {
                 firstRequiredArgFromRestArg = (BLangStatementExpression) requiredArg;
                 if (resourcePathName.value.equals("*")) {
                     isFirstRequiredArgFromRestArgIncluded = true;
+                    bLangInvocation.requiredArgs.add(requiredArg);
+                    continue;
                 }
             }
 
@@ -6512,7 +6514,7 @@ public class Desugar extends BLangNodeVisitor {
         // a->/path/[1].get("hello")
         // 
         // Generated invokable symbol params: ("path" _, int _)
-        // Generated invocation requiredArgs: ("path, 1)
+        // Generated invocation requiredArgs: ("path", 1)
         //
         // ex:2
         // Target resource function
