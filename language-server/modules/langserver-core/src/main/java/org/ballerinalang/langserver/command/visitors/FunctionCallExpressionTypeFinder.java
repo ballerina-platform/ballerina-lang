@@ -33,6 +33,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
@@ -67,6 +68,7 @@ import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
 import java.util.List;
@@ -82,6 +84,7 @@ import java.util.Optional;
 public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     private final SemanticModel semanticModel;
+    private FunctionCallExpressionNode functionCallExpr;
     private TypeSymbol returnTypeSymbol;
     private TypeDescKind returnTypeDescKind;
     private boolean resultFound = false;
@@ -91,6 +94,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     public void findTypeOf(FunctionCallExpressionNode functionCallExpressionNode) {
+        this.functionCallExpr = functionCallExpressionNode;
         functionCallExpressionNode.accept(this);
     }
 
@@ -382,6 +386,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(BlockStatementNode node) {
+        node.parent().accept(this);
+    }
+
+    @Override
     public void visit(ReturnStatementNode returnStatementNode) {
         this.semanticModel.typeOf(returnStatementNode).ifPresent(this::checkAndSetTypeResult);
         if (resultFound) {
@@ -408,8 +417,13 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
-    public void visit(IfElseStatementNode ifElseStatementNode) {
-        checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+    public void visit(IfElseStatementNode node) {
+        // Set function call type to boolean only if it's in the condition area
+        if (PositionUtil.isWithinLineRange(functionCallExpr.lineRange(), node.condition().lineRange())) {
+            checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+            return;
+        }
+        node.parent().accept(this);
     }
 
     @Override
@@ -419,7 +433,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(WhileStatementNode whileStatementNode) {
-        checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+        if (PositionUtil.isWithinLineRange(functionCallExpr.lineRange(), whileStatementNode.condition().lineRange())) {
+            checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+            return;
+        }
+        whileStatementNode.parent().accept(this);
     }
 
     @Override
