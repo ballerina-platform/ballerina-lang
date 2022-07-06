@@ -31,6 +31,7 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
+    implementation "org.javatuples:javatuples:${project.javaTuples}"
 
     testCompile 'org.testng:testng'
     testCompile project(':formatter:formatter-core')
