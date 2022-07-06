@@ -259,11 +259,15 @@ public class JsonToRecordMapper {
                     .collect(Collectors.toMap(jsonEntry -> escapeIdentifier(jsonEntry.getKey()), Map.Entry::getKey));
             Map.Entry<String, JsonElement> jsonEntry = new AbstractMap.SimpleEntry<>(jsonEscapedFieldToFields
                     .get(entry.getKey()), jsonNodes.get(jsonEscapedFieldToFields.get(entry.getKey())));
-            if (!entry.getValue().getValue0().typeName().toSourceCode().equals(entry.getValue().getValue1().typeName().toSourceCode()) && !isRecordTypeDesc) {
-                List<TypeDescriptorNode> typeDescNodes = List.of((TypeDescriptorNode) entry.getValue().getValue0().typeName(), (TypeDescriptorNode) entry.getValue().getValue1().typeName());
+            if (!entry.getValue().getValue0().typeName().toSourceCode()
+                    .equals(entry.getValue().getValue1().typeName().toSourceCode()) && !isRecordTypeDesc) {
+                List<TypeDescriptorNode> typeDescNodes =
+                        List.of((TypeDescriptorNode) entry.getValue().getValue0().typeName(),
+                                (TypeDescriptorNode) entry.getValue().getValue1().typeName());
                 List<TypeDescriptorNode> typeDescNodesSorted = sortTypeDescriptorNodes(typeDescNodes);
                 TypeDescriptorNode unionTypeDescNode = createUnionTypeDescriptorNode(typeDescNodesSorted);
-                RecordFieldNode recordField = (RecordFieldNode) getRecordField(jsonEntry, false, isOptional, recordToTypeDescNodes);
+                RecordFieldNode recordField =
+                        (RecordFieldNode) getRecordField(jsonEntry, false, isOptional, recordToTypeDescNodes);
                 recordField = recordField.modify().withTypeName(unionTypeDescNode).apply();
                 recordFields.add(recordField);
             } else {
