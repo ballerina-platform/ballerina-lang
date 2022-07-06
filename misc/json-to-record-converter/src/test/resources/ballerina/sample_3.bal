@@ -10,5 +10,5 @@ type NewRecord record {
     string gender;
     int age;
     Address address;
-    any phoneNumber?;
+    anydata phoneNumber?;
 };

@@ -7,7 +7,7 @@ type Address record {
     City city;
     string country;
     string lane;
-    any zip?;
+    anydata zip?;
 };
 
 type NewRecord record {
@@ -15,5 +15,5 @@ type NewRecord record {
     string school;
     int age;
     Address address;
-    any phoneNumber?;
+    anydata phoneNumber?;
 };

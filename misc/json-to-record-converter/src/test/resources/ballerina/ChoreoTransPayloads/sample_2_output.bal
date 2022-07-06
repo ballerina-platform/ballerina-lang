@@ -11,7 +11,7 @@ type TripInformation record {
     decimal Stop;
     int OrderHeader;
     AssetsItem[] Assets;
-    any[] AdditionalDataElements;
+    anydata[] AdditionalDataElements;
 };
 
 type HeaderInformation record {
@@ -22,7 +22,7 @@ type MessageContent record {
     int Response;
     string RedispatchNow;
     string Reason;
-    any[] AdditionalDataElements;
+    anydata[] AdditionalDataElements;
     TripInformation TripInformation;
     HeaderInformation HeaderInformation;
 };

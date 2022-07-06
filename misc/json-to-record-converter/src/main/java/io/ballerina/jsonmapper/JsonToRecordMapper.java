@@ -269,7 +269,7 @@ public class JsonToRecordMapper {
      */
     private static Node getRecordField(Map.Entry<String, JsonElement> entry, boolean isRecordTypeDesc,
                                        boolean optionalField, Map<String, NonTerminalNode> recordToTypeDescNodes) {
-        Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+        Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
         IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
@@ -333,7 +333,7 @@ public class JsonToRecordMapper {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonNull()) {
-                Token tempTypeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+                Token tempTypeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
                 TypeDescriptorNode tempTypeNode = NodeFactory.createBuiltinSimpleNameReferenceNode(null, tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
                         .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
@@ -381,7 +381,7 @@ public class JsonToRecordMapper {
      */
     private static TypeDescriptorNode createUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
         if (typeNames.size() == 0) {
-            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
             return NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
         } else if (typeNames.size() == 1) {
             return typeNames.get(0);
