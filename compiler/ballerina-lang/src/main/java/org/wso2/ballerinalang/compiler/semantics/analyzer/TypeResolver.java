@@ -1,11 +1,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.types.Env;
-import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -21,7 +18,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.types.*;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.*;
@@ -37,6 +33,7 @@ public class TypeResolver {
     private final SymbolTable symTable;
     private final Names names;
     private final SymbolResolver symResolver;
+    private final SymbolEnter symEnter;
     private final BLangDiagnosticLog dlog;
     private final Types types;
     private final SourceDirectory sourceDirectory;
@@ -61,6 +58,7 @@ public class TypeResolver {
         context.put(TYPE_RESOLVER_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.symEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -85,10 +83,10 @@ public class TypeResolver {
         return typeResolver;
     }
 
-    private void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
+    public void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
         Map<String, BLangNode> modTable = new LinkedHashMap<>();
         for (BLangNode typeAndClassDef : moduleDefs) {
-            modTable.put(SymbolEnter.getTypeOrClassName(typeAndClassDef), typeAndClassDef);
+            modTable.put(symEnter.getTypeOrClassName(typeAndClassDef), typeAndClassDef);
         }
         modTable = Collections.unmodifiableMap(modTable);
 

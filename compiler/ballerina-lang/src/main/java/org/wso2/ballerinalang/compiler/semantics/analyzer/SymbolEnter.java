@@ -1560,7 +1560,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private String getTypeOrClassName(BLangNode node) {
+    public String getTypeOrClassName(BLangNode node) {
         if (node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CONSTANT) {
             return ((TypeDefinition) node).getName().getValue();
         } else  {
