@@ -33,11 +33,3 @@ function f1(P|Q v) {
         _ = v; // unreachable
     }
 }
-
-function f2(any|record {| error x; |} d) {
-    if d is any {
-        any _  = d;
-    } else {
-        record {| error x; |} _ = d; // unreachable
-    }
-}
