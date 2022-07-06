@@ -20,6 +20,7 @@ package org.ballerinalang.langserver;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
 import org.ballerinalang.langserver.commons.DiagnosticsExtension;
@@ -27,6 +28,7 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.FormattingExtension;
 import org.ballerinalang.langserver.commons.LanguageExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionItem;
@@ -164,11 +166,29 @@ public class LangExtensionDelegator {
         for (CodeActionExtension ext : codeActionsExtensions) {
             if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
                     && ext.validate(params)) {
-                actions.addAll(ext.execute(params, context, serverContext));
+                List<? extends CodeAction> codeActions = ext.execute(params, context, serverContext);
+                for (CodeAction codeAction : codeActions) {
+                    if (codeAction instanceof ResolvableCodeAction) {
+                        ResolvableCodeAction action = (ResolvableCodeAction) codeAction;
+                        action.getData().setExtName(ext.getClass().getName());
+                    }
+                    actions.add(codeAction);
+                }
             }
         }
 
         return actions;
+    }
+
+    public CodeAction resolveCodeAction(ResolvableCodeAction resolvableCodeAction,
+                                        CodeActionResolveContext resolveContext) {
+        for (CodeActionExtension ext : codeActionsExtensions) {
+            if (ext.getClass().getName().equals(resolvableCodeAction.getData().getExtName())) {
+                return ext.resolve(resolvableCodeAction, resolveContext);
+            }
+        }
+
+        throw new IllegalStateException("Extension not found: " + resolvableCodeAction.getData().getExtName());
     }
 
     /**

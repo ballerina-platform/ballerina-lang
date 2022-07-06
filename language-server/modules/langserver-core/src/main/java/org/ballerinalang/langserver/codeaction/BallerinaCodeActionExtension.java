@@ -20,7 +20,9 @@ package org.ballerinalang.langserver.codeaction;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 
@@ -44,5 +46,10 @@ public class BallerinaCodeActionExtension implements CodeActionExtension {
                                               CodeActionContext context,
                                               LanguageServerContext serverContext) {
         return CodeActionRouter.getAvailableCodeActions(context);
+    }
+
+    public CodeAction resolve(ResolvableCodeAction codeAction,
+                              CodeActionResolveContext resolveContext) {
+        return CodeActionRouter.resolveCodeAction(codeAction, resolveContext);
     }
 }

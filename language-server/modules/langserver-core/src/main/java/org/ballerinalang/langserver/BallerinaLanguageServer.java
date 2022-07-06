@@ -178,6 +178,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
                     HashMap.class);
         }
 
+        CodeActionOptions options = new CodeActionOptions();
+        options.setResolveProvider(true);
+        res.getCapabilities().setCodeActionProvider(options);
+
         // Set AST provider and examples provider capabilities
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
         experimentalServerCapabilities.put(AST_PROVIDER.getValue(), true);

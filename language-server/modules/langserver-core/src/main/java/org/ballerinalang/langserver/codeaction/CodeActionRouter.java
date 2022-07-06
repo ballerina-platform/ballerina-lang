@@ -28,7 +28,10 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.CodeAction;
@@ -133,6 +136,20 @@ public class CodeActionRouter {
                             });
                 });
         return codeActions;
+    }
+
+    public static CodeAction resolveCodeAction(ResolvableCodeAction codeAction,
+                                               CodeActionResolveContext resolveContext) {
+        CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder
+                .getInstance(resolveContext.languageServercontext());
+        Optional<LSCodeActionProvider> provider = codeActionProvidersHolder.getProviderByName(
+                codeAction.getData().getCodeActionName());
+        CodeAction action = codeAction;
+        if (provider.isPresent()) {
+            action = provider.get().resolve(codeAction, resolveContext);
+        }
+
+        return action;
     }
 
     private static Optional<TypeSymbol> getMatchedTypeSymbol(CodeActionContext context, Node node) {

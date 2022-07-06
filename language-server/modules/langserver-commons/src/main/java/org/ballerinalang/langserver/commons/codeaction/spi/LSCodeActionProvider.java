@@ -15,7 +15,10 @@
  */
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
+import org.eclipse.lsp4j.CodeAction;
 
 /**
  * Represents the SPI interface for the Ballerina Code Action Provider.
@@ -48,4 +51,9 @@ public interface LSCodeActionProvider {
      * @return Name of the code action
      */
     String getName();
+
+    default CodeAction resolve(ResolvableCodeAction codeAction,
+                               CodeActionResolveContext resolveContext) {
+        return codeAction;
+    }
 }

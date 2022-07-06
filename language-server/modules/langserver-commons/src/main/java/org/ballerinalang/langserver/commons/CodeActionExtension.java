@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 
@@ -36,5 +37,10 @@ public interface CodeActionExtension
     @Override
     default LanguageFeatureKind kind() {
         return LanguageFeatureKind.CODEACTION;
+    }
+
+    default CodeAction resolve(ResolvableCodeAction codeAction,
+                               CodeActionResolveContext resolveContext) {
+        return codeAction;
     }
 }

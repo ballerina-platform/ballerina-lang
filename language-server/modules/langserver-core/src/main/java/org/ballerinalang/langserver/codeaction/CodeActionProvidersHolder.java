@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
@@ -112,5 +113,29 @@ public class CodeActionProvidersHolder {
                 .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                 .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the provider by code action name.
+     *
+     * @param name code action name
+     * @return provider
+     */
+    public Optional<LSCodeActionProvider> getProviderByName(String name) {
+        Optional<LSCodeActionProvider> diagnosticBasedProvider = diagnosticsBasedProviders.stream().filter(provider ->
+                provider.getName().equals(name)).findFirst();
+        if (diagnosticBasedProvider.isPresent()) {
+            return diagnosticBasedProvider;
+        }
+
+        for (List<LSCodeActionProvider> providerList : nodeBasedProviders.values()) {
+            Optional<LSCodeActionProvider> nodeBasedProvider = providerList.stream().filter(provider ->
+                    provider.getName().equals(name)).findFirst();
+            if (nodeBasedProvider.isPresent()) {
+                return nodeBasedProvider;
+            }
+        }
+
+        return Optional.empty();
     }
 }
