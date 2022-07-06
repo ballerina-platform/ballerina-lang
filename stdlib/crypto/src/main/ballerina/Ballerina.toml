@@ -14,7 +14,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "commons-codec"
-    version = "1.9"
-    path = "./lib/commons-codec-1.9.jar"
+    version = "1.15"
+    path = "./lib/commons-codec-1.15.jar"
     groupId = "commons-codec"
     modules = ["crypto"]
