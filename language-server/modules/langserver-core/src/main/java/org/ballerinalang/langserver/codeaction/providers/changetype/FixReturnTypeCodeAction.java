@@ -31,11 +31,11 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.ReturnStatementFinder;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -55,7 +55,7 @@ import java.util.Set;
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
+public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Fix Return Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE3032");
@@ -70,7 +70,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         //Suggest the code action only if the immediate parent of the matched node is a return statement 
         // and the return statement corresponds to the enclosing function's signature. 
         NonTerminalNode parentNode = positionDetails.matchedNode().parent();
-        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT && 
+        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT &&
                 positionDetails.matchedNode().kind() != SyntaxKind.CHECK_EXPRESSION) {
             return false;
         }
@@ -82,10 +82,10 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
         Optional<TypeSymbol> foundType = Optional.empty();
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
             foundType = positionDetails.diagnosticProperty(CodeActionUtil
@@ -178,7 +178,8 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
             // Add code action
             String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, newType);
-            codeActions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
+            codeActions.add(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
+                    CodeActionKind.QuickFix));
         });
 
         return codeActions;
@@ -203,7 +204,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             // Add each item in the next combinedTypes to the items listed in the typeList
             for (String type : possibleTypes) {
                 for (Set<String> strings : typeList) {
-                    Set<String> combination  = new HashSet<>(strings);
+                    Set<String> combination = new HashSet<>(strings);
                     combination.add(type);
                     updatedTypes.add(combination);
                 }

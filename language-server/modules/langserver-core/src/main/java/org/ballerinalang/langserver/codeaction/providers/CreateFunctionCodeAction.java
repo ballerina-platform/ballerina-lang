@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -50,7 +51,7 @@ import java.util.regex.Matcher;
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
+public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Create Function";
 
@@ -60,10 +61,10 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        Optional<FunctionCallExpressionNode> callExpr = 
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+        Optional<FunctionCallExpressionNode> callExpr =
                 checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
 
         if (callExpr.isEmpty() || isInvalidReturnType(context, callExpr.get())) {
@@ -84,7 +85,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         if (isWithinFile) {
             String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
             Command command = new Command(commandTitle, CreateFunctionExecutor.COMMAND, args);
-            CodeAction action = createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
+            CodeAction action = CodeActionUtil.createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
             action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
             return Collections.singletonList(action);
         }

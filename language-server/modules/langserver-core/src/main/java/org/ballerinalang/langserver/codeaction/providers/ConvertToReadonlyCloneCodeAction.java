@@ -20,10 +20,12 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
@@ -37,27 +39,27 @@ import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_CALL
 
 /**
  * Code action to convert an expression e to e.cloneReadOnly().
- * 
+ *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider {
+public class ConvertToReadonlyCloneCodeAction implements DiagnosticBasedCodeActionProvider {
     private static final String NAME = "Convert to Readonly Clone";
     private static final String CLONE_READONLY_PREFIX = "cloneReadOnly";
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return diagnostic.diagnosticInfo().code()
-                .equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId()) && 
+                .equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId()) &&
                 CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
 
         NonTerminalNode currentNode = positionDetails.matchedNode();
         Optional<TypeSymbol> typeDescriptor = context.currentSemanticModel().get().typeOf(currentNode);
@@ -73,7 +75,7 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
         textEdit.setNewText(newText);
         List<TextEdit> textEdits = Collections.singletonList(textEdit);
 
-        return Collections.singletonList(createCodeAction(CommandConstants.CONVERT_TO_READONLY_CLONE,
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.CONVERT_TO_READONLY_CLONE,
                 textEdits, uri, CodeActionKind.QuickFix));
     }
 

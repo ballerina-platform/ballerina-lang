@@ -21,11 +21,14 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -43,18 +46,21 @@ import java.util.Optional;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateTypeCodeAction extends AbstractCodeActionProvider {
-    
+public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
+
     private static final int DIAG_PROP_UNKNOWN_TYPE_NAME_INDEX = 0;
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        if (!DiagnosticErrorCode.UNKNOWN_TYPE.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DiagnosticErrorCode.UNKNOWN_TYPE.diagnosticId().equals(diagnostic.diagnosticInfo().code())
+                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
 
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Optional<Name> name = positionDetails.diagnosticProperty(DIAG_PROP_UNKNOWN_TYPE_NAME_INDEX);
         Range diagRange = PathUtil.getRange(diagnostic.location());
         Optional<NonTerminalNode> node = context.currentSyntaxTree()
@@ -71,11 +77,11 @@ public class CreateTypeCodeAction extends AbstractCodeActionProvider {
             }
             tlNode = tlNode.parent();
         }
-        
-        Range range = new Range(PositionUtil.toPosition(tlNode.lineRange().startLine()), 
+
+        Range range = new Range(PositionUtil.toPosition(tlNode.lineRange().startLine()),
                 PositionUtil.toPosition(tlNode.lineRange().startLine()));
         String paddingStr = StringUtils.repeat(" ", 4);
-        
+
         // Here, we create a closed record if the unknown type is in the return type descriptor.
         // This is to be aligned with the open-by-default principle where we become conservative 
         // on what we send (return)
@@ -88,7 +94,7 @@ public class CreateTypeCodeAction extends AbstractCodeActionProvider {
         sb.append(CommonUtil.LINE_SEPARATOR);
 
         String title = String.format("Create record '%s'", name.get().getValue());
-        CodeAction codeAction = createCodeAction(title, List.of(new TextEdit(range, sb.toString())),
+        CodeAction codeAction = CodeActionUtil.createCodeAction(title, List.of(new TextEdit(range, sb.toString())),
                 context.fileUri(), CodeActionKind.QuickFix);
         return List.of(codeAction);
     }

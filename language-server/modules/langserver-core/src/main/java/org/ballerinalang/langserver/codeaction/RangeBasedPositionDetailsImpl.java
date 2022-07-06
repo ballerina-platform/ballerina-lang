@@ -17,16 +17,16 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 
 import java.util.Optional;
 
 /**
- * This class holds position details for the node-based code actions.
+ * This class holds position details for the range based code actions.
  *
  * @since 2.0.0
  */
-public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
+public class RangeBasedPositionDetailsImpl implements RangeBasedPositionDetails {
     private final NonTerminalNode matchedTopLevelNode;
     private final NonTerminalNode matchedStmtNode;
     private final NonTerminalNode matchedCodeActionNode;
@@ -34,12 +34,12 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
     private final NonTerminalNode matchedDocumentableNode;
     private final NonTerminalNode enclosingDocumentableNode;
 
-    private NodeBasedPositionDetailsImpl(NonTerminalNode matchedTopLevelNode,
-                                         NonTerminalNode matchedStmtNode,
-                                         NonTerminalNode matchedCodeActionNode,
-                                         TypeSymbol matchedTopLevelTypeSymbol,
-                                         NonTerminalNode matchedDocumentableNode,
-                                         NonTerminalNode enclosingDocumentableNode) {
+    private RangeBasedPositionDetailsImpl(NonTerminalNode matchedTopLevelNode,
+                                          NonTerminalNode matchedStmtNode,
+                                          NonTerminalNode matchedCodeActionNode,
+                                          TypeSymbol matchedTopLevelTypeSymbol,
+                                          NonTerminalNode matchedDocumentableNode,
+                                          NonTerminalNode enclosingDocumentableNode) {
         this.matchedTopLevelNode = matchedTopLevelNode;
         this.matchedStmtNode = matchedStmtNode;
         this.matchedCodeActionNode = matchedCodeActionNode;
@@ -64,7 +64,7 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
     public NonTerminalNode matchedStatementNode() {
         return matchedStmtNode;
     }
-    
+
     @Override
     public NonTerminalNode matchedCodeActionNode() {
         return matchedCodeActionNode;
@@ -131,8 +131,8 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
             return this;
         }
 
-        public NodeBasedPositionDetails build() {
-            return new NodeBasedPositionDetailsImpl(
+        public RangeBasedPositionDetails build() {
+            return new RangeBasedPositionDetailsImpl(
                     this.topLevelNode,
                     this.statementNode,
                     this.codeActionNode,

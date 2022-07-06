@@ -15,10 +15,12 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +37,7 @@ import java.util.stream.Collectors;
  * @since 1.1.1
  */
 public class CodeActionProvidersHolder {
-    private static final Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders = new HashMap<>();
+    private static final Map<SyntaxKind, List<LSCodeActionProvider>> rangeBasedProviders = new HashMap<>();
     private static final List<LSCodeActionProvider> diagnosticsBasedProviders = new ArrayList<>();
     private static final LanguageServerContext.Key<CodeActionProvidersHolder> CODE_ACTION_PROVIDERS_HOLDER_KEY =
             new LanguageServerContext.Key<>();
@@ -60,23 +62,23 @@ public class CodeActionProvidersHolder {
     }
 
     private void loadServices() {
-        if (!CodeActionProvidersHolder.nodeBasedProviders.isEmpty()) {
+        if (!CodeActionProvidersHolder.rangeBasedProviders.isEmpty()) {
             return;
         }
         ServiceLoader<LSCodeActionProvider> serviceLoader = ServiceLoader.load(LSCodeActionProvider.class);
-        for (CodeActionNodeType nodeType : CodeActionNodeType.values()) {
-            CodeActionProvidersHolder.nodeBasedProviders.put(nodeType, new ArrayList<>());
+        for (SyntaxKind nodeType : SyntaxKind.values()) {
+            CodeActionProvidersHolder.rangeBasedProviders.put(nodeType, new ArrayList<>());
         }
         for (LSCodeActionProvider provider : serviceLoader) {
             if (provider == null) {
                 continue;
             }
-            if (provider.isNodeBasedSupported()) {
-                for (CodeActionNodeType nodeType : provider.getCodeActionNodeTypes()) {
-                    CodeActionProvidersHolder.nodeBasedProviders.get(nodeType).add(provider);
+            if (provider instanceof RangeBasedCodeActionProvider) {
+                for (SyntaxKind nodeType : ((RangeBasedCodeActionProvider) provider).getSyntaxKinds()) {
+                    CodeActionProvidersHolder.rangeBasedProviders.get(nodeType).add(provider);
                 }
             }
-            if (provider.isDiagBasedSupported()) {
+            if (provider instanceof DiagnosticBasedCodeActionProvider) {
                 CodeActionProvidersHolder.diagnosticsBasedProviders.add(provider);
             }
         }
@@ -88,9 +90,9 @@ public class CodeActionProvidersHolder {
      * @param nodeType node type
      * @return node based providers
      */
-    List<LSCodeActionProvider> getActiveNodeBasedProviders(CodeActionNodeType nodeType, CodeActionContext ctx) {
-        if (CodeActionProvidersHolder.nodeBasedProviders.containsKey(nodeType)) {
-            return CodeActionProvidersHolder.nodeBasedProviders.get(nodeType).stream()
+    List<LSCodeActionProvider> getActiveRangeBasedProviders(SyntaxKind nodeType, CodeActionContext ctx) {
+        if (CodeActionProvidersHolder.rangeBasedProviders.containsKey(nodeType)) {
+            return CodeActionProvidersHolder.rangeBasedProviders.get(nodeType).stream()
                     .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                     .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                     .collect(Collectors.toList());
