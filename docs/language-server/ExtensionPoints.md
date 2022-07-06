@@ -10,7 +10,7 @@ Ballerina Language Server provides extension points to following editor features
 <a name="SuggestionsAndAutoCompletion"></a>
 
 ## Suggestions and Auto-Completion
-Suggestion and Auto-Completion is triggered while you are typing and also allows you to request suggestions explicitly for a given context with the <kbd>Ctrl</kbd> + <kbd>Space</kbd>. (or <kbd>&#8984; Command</kbd> + <kbd>Space</kbd> in Mac)
+Suggestion and Auto-Completion is triggered while you are typing and also allows you to request suggestions explicitly for a given context with the <kbd>Ctrl</kbd> + <kbd>Space</kbd>. (<kbd>&#8984; Command</kbd> + <kbd>i</kbd> or <kbd>&#8997; option</kbd> + <kbd>esc</kbd> in Mac)
 
 <a name="CodeAction"></a>
 
