@@ -138,8 +138,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGN
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.OBJECT;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.RECORD;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.UNION;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
 /**
