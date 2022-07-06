@@ -5,4 +5,5 @@ type NewRecord record {
     int age;
     record {string streetAddress; string city; string state;} address;
     anydata phoneNumber?;
+    record {string firstName; string lastName; record {int streetAddress; string city; string state;} address;} friend;
 };

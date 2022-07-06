@@ -1,5 +1,6 @@
 type NewRecord record {
-    string fruit;
-    string size;
-    string color;
+    string[] students;
+    int[] mathScores;
+    (decimal|int)[] averages;
+    (decimal|int|string)[] position;
 };

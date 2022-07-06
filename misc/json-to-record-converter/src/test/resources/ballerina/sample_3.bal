@@ -1,7 +1,13 @@
 type Address record {
-    string streetAddress;
+    (int|string) streetAddress;
     string city;
     string state;
+};
+
+type Friend record {
+    string firstName;
+    string lastName;
+    Address address;
 };
 
 type NewRecord record {
@@ -11,4 +17,5 @@ type NewRecord record {
     int age;
     Address address;
     anydata phoneNumber?;
+    Friend friend;
 };

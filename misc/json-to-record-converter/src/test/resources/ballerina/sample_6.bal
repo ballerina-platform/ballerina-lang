@@ -1,6 +1,9 @@
 type SportsItem record {
-    string sport;
-    string position;
+    string sport?;
+    string position?;
+    boolean reserve?;
+    string game?;
+    string 'type?;
 };
 
 type Author record {
@@ -12,6 +15,8 @@ type Author record {
 type BooksItem record {
     string name;
     Author author;
+    int publishedYear?;
+    decimal price?;
 };
 
 type State record {

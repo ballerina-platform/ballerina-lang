@@ -70,13 +70,13 @@ type ProductOrService record {
 };
 
 type UnitPrice record {
-    string currency;
     decimal value;
+    string currency;
 };
 
 type Net record {
-    string currency;
     decimal value;
+    string currency;
 };
 
 type DetailItem record {
@@ -84,6 +84,12 @@ type DetailItem record {
     ProductOrService productOrService;
     UnitPrice unitPrice;
     Net net;
+    Quantity quantity?;
+    decimal factor?;
+};
+
+type Quantity record {
+    int value;
 };
 
 type ItemItem record {

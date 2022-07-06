@@ -1,15 +1,4 @@
 {
-  "name": "John",
-  "school": "Everton High",
-  "age": 17,
-  "address": {
-    "city": {
-      "name": "Colombo",
-      "code": "8000"
-    },
-    "country": "LK",
-    "lane": "L1",
-    "zip": null
-  },
-  "phoneNumber": null
+  "matrix": [[1, 2, 3], [5, 6, 7], [7, 8, 9]],
+  "threeDimensionStr": [[["A", "B"], ["C", "D"]], [["E", "F"], ["G", "H"]]]
 }

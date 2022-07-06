@@ -7,5 +7,6 @@ type PeopleItem record {
 };
 
 type NewRecord record {
-    (PeopleItem|decimal|int)[] people;
+    PeopleItem[] people;
+    anydata[] addresses;
 };
