@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -833,7 +834,7 @@ public class BTestRunner {
                 typeList.add(Boolean.TYPE);
             }
         } else {
-            Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
+            Class<?> type = getArgTypeToClassMapping(TypeUtils.getReferredType(bArray.getElementType()));
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 typeList.add(type);
