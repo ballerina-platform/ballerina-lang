@@ -1,39 +1,9 @@
 {
-    "sports": [
-        {
-            "question": "Which one is correct team name in NBA?",
-            "options": [
-                "New York Bulls",
-                "Los Angeles Kings",
-                "Golden State Warriros",
-                "Huston Rocket",
-                123,
-                [1, "test2"]
-            ],
-            "answer": "Huston Rocket"
-        }
-    ],
-    "maths": [
-        {
-            "question": "5 + 7 = ?",
-            "options": [
-                9,
-                10.5,
-                "11",
-                "12",
-                "13"
-            ],
-            "answer": "12"
-        },
-        {
-            "question": "12 - 8 = ?",
-            "options": [
-                "1",
-                "2",
-                "3",
-                "4"
-            ],
-            "answer": "4"
-        }
-    ]
+    "equationName": "Plank's Constant",
+    "energy": 250,
+    "negativeEnergy": -250,
+    "constant": 6.62607E-34,
+    "negativeConstant": -6.62607E-34,
+    "frequency": 123.34,
+    "negativeFrequency": -123.34
 }

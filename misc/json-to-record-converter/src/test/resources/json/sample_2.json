@@ -1,30 +1,18 @@
 {
   "firstName": "Joe",
-  "lastName": "Jackson",
-  "gender": "male",
-  "age": 28,
+  "lastName": "Root",
   "address": {
-    "streetAddress": "101",
-    "city": "San Diego",
-    "state": "CA"
+    "city": "Liverpool",
+    "zip": 12345,
+    "country": "England"
   },
-  "testList": [
-    [
-      "string"
-    ],
-    [
-      "string",
-      12
-    ],
-    "string",
-    123,
-    12.4,
-    [
-      [
-        123,
-        "string"
-      ]
-    ],
-    []
-  ]
+  "friend": {
+    "firstName": "Joe",
+    "lastName": "Root",
+    "address": {
+      "houseNo": 12,
+      "city": "Liverpool",
+      "country": "England"
+    }
+  }
 }

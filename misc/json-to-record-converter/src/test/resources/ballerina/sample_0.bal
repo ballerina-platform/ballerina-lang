@@ -1,6 +1,7 @@
 type NewRecord record {
     string firstName;
     string lastName;
-    string gender;
+    boolean married;
     int age;
+    anydata phoneNumber?;
 };

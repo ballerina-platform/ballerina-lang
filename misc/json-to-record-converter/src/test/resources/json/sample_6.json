@@ -5,7 +5,8 @@
   "sports": [
     {
       "sport": "Baseball",
-      "position": "Shortstop"
+      "position": "Shortstop",
+      "reserve": false
     },
     {
       "sport": "Football",
@@ -14,6 +15,10 @@
     {
       "sport": "Basketball",
       "position": "Shooting Guard"
+    },
+    {
+      "game": "Carom",
+      "type": "Individual"
     }
   ],
   "books": [
@@ -23,7 +28,8 @@
         "name": "J D Salinger",
         "country": "USA",
         "period": "Early 20th Century"
-      }
+      },
+      "publishedYear": 2018
     },
     {
       "name": "Picture of Dorian Grey",
@@ -47,7 +53,8 @@
         "name": "Chinua Achebe",
         "country": "Nigeria",
         "period": "Mid 20th Century"
-      }
+      },
+      "price": 123.99
     }
   ],
   "year": "Senior",

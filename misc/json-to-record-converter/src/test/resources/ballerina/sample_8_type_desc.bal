@@ -16,5 +16,5 @@ type NewRecord record {
     record {int sequence; record {string reference;} provider;}[] careTeam;
     record {int sequence; record {record {string code; string system?;}[] coding;} diagnosisCodeableConcept;}[] diagnosis;
     record {int sequence; boolean focal; record {string reference;} coverage;}[] insurance;
-    record {int sequence; int[] careTeamSequence; record {record {string code; string system?;}[] coding;} productOrService; string servicedDate; record {decimal value; string currency;} unitPrice; record {decimal value; string currency;} net; record {int sequence; record {record {string code; string system?;}[] coding;} productOrService; record {string currency; decimal value;} unitPrice; record {string currency; decimal value;} net;}[] detail;}[] item;
+    record {int sequence; int[] careTeamSequence; record {record {string code; string system?;}[] coding;} productOrService; string servicedDate; record {decimal value; string currency;} unitPrice; record {decimal value; string currency;} net; record {int sequence; record {record {string code; string system?;}[] coding;} productOrService; record {decimal value; string currency;} unitPrice; record {decimal value; string currency;} net; record {int value;} quantity?; decimal factor?;}[] detail;}[] item;
 };

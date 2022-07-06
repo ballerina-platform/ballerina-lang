@@ -1,6 +1,7 @@
 {
   "firstName": "Joe",
   "lastName": "Jackson",
-  "gender": "male",
-  "age": 28
+  "married": false,
+  "age": 28,
+  "phoneNumber": null
 }

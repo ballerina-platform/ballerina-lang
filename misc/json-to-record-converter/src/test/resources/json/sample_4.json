@@ -1,7 +1,5 @@
 {
   "people" : [
-    10,
-    12.5,
     {
        "firstName": "Joe",
        "lastName": "Jackson",
@@ -23,5 +21,6 @@
        "age": 24,
        "number": "456754675"
     }
-  ]
+  ],
+  "addresses": []
 }

@@ -8,5 +8,14 @@
     "city": "San Diego",
     "state": "CA"
   },
-  "phoneNumber": null
+  "phoneNumber": null,
+  "friend": {
+    "firstName": "Joe",
+    "lastName": "Root",
+    "address": {
+      "streetAddress": 12,
+      "city": "Liverpool",
+      "state": "England"
+    }
+  }
 }

@@ -1,8 +1,19 @@
 type NewRecord record {
     string firstName;
     string lastName;
-    string gender;
-    int age;
-    record {string streetAddress; string city; string state;} address;
-    (decimal|int|string|(int|string)[]|anydata[]|string[]|(int|string)[][])[] testList;
+    record {
+        string city;
+        int zip;
+        string country;
+    } address;
+    record {
+        string firstName;
+        string lastName;
+        record {
+            string city;
+            string country;
+            int zip?;
+            int houseNo?;
+        } address;
+    } friend;
 };
