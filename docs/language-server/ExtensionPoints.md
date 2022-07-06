@@ -66,7 +66,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
 <a name="CodeActionRange"></a>
 
 #### 2. Range Based Code Action
-* Whenever the syntaxKind of the selected range(highlighted code range) matches pre-defined set of scenarios, these type of code-actions are getting triggered.
+* Whenever the syntaxKind of the selected range(highlighted code range) matches pre-declared set of syntax kinds, these type of code-actions are getting triggered.
 
 * Can be implemented using [interface](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/RangeBasedCodeActionProvider.java) `RangeBasedCodeActionProvider`
   and loaded using Java Service loader [interface]((https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java)) `LSCodeActionProvider`.
