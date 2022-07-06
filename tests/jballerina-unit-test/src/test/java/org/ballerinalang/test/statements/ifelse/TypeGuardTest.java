@@ -817,28 +817,6 @@ public class TypeGuardTest {
                 "(int[]|boolean[])'", 575, 23);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(boolean[]|xml)', found '" +
                 "(int[]|boolean[]|xml)'", 585, 27);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found " +
-                "'record {| anydata...; |}'", 602, 20);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|Utc)', found 'record {| " +
-                "anydata...; |}'", 609, 24);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'Utc'", 615, 20);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|Utc)', " +
-                "found '(Utc|record {| anydata...; |})'", 622, 24);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '(Utc|record {| anydata...; |})', " +
-                "found '(record {| anydata...; |}|byte[])'", 630, 27);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'Utc'", 639, 20);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'record {| anydata...; |}', found '" +
-                "([int,decimal]|record {| anydata...; |}|byte[])'", 649, 23);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int,decimal]', found '" +
-                "(byte[]|[int,decimal])'", 656, 32);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|[int,decimal])', found " +
-                "'record {| anydata...; |}'", 660, 35);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int,decimal]', found '([int," +
-                "decimal]|byte[])'", 666, 28);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '([int,decimal]|record {| anydata.." +
-                ".; |})', found '([int,decimal]|record {| anydata...; |}|byte[])'", 672, 38);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|record {| anydata...; |})'," +
-                " found '([int,decimal]|record {| anydata...; |}|byte[])'", 678, 30);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
@@ -856,11 +834,8 @@ public class TypeGuardTest {
                 38, 8);
         BAssertUtil.validateError(result, index++, "unreachable code", 41, 9);
         BAssertUtil.validateError(result, index++,
-                "expression of type 'never' or equivalent to type 'never' not allowed here",
-                41, 35);
-        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
-                69, 15);
-        BAssertUtil.validateError(result, index++, "unreachable code", 72, 5);
+                                  "expression of type 'never' or equivalent to type 'never' not allowed here",
+                                  41, 35);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 

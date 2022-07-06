@@ -1854,7 +1854,7 @@ public class Types {
         if (bLangInputClause.varType.tag == TypeTags.SEMANTIC_ERROR || collectionType.tag == OBJECT) {
             return;
         }
-        
+
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
                 names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BUnionType nextMethodReturnType =
@@ -1908,7 +1908,7 @@ public class Types {
                     bLangInputClause.nillableResultType = symTable.semanticError;
                     break;
                 }
-                
+
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     bLangInputClause.resultType = getRecordType(nextMethodReturnType);
@@ -4849,8 +4849,7 @@ public class Types {
                                                                                                       true)));
                 if (typeRemovedFromOriginalUnionType == symTable.nullSet ||
                         isSubTypeOfReadOnly(typeRemovedFromOriginalUnionType, env) ||
-                        isSubTypeOfReadOnly(remainingType, env) ||
-                        narrowsToUnionOfImmutableTypesOrDistinctBasicTypes(remainingType, typeToRemove, env)) {
+                        isSubTypeOfReadOnly(remainingType, env)) {
                     return remainingType;
                 }
 
@@ -5006,45 +5005,6 @@ public class Types {
             }
         }
         return true;
-    }
-
-    private boolean narrowsToUnionOfImmutableTypesOrDistinctBasicTypes(BType remainingType, BType typeToRemove,
-                                                                       SymbolEnv env) {
-        BType referredRemainingType = getReferredType(remainingType);
-        if (referredRemainingType.tag != UNION) {
-            return false;
-        }
-
-        LinkedHashSet<BType> mutableRemainingTypes =
-                filterMutableMembers(((BUnionType) referredRemainingType).getMemberTypes(), env);
-        remainingType = mutableRemainingTypes.size() == 1 ? mutableRemainingTypes.iterator().next() :
-                BUnionType.create(null, mutableRemainingTypes);
-
-        BType referredTypeToRemove = getReferredType(typeToRemove);
-
-        if (referredTypeToRemove.tag == UNION) {
-            LinkedHashSet<BType> mutableTypesToRemove =
-                    filterMutableMembers(((BUnionType) referredTypeToRemove).getMemberTypes(), env);
-            typeToRemove = mutableTypesToRemove.size() == 1 ? mutableTypesToRemove.iterator().next() :
-                    BUnionType.create(null, mutableTypesToRemove);
-        } else {
-            typeToRemove = referredTypeToRemove;
-        }
-
-        return removesDistinctBasicTypes(typeToRemove, remainingType);
-    }
-
-    private LinkedHashSet<BType> filterMutableMembers(LinkedHashSet<BType> types, SymbolEnv env) {
-        LinkedHashSet<BType> remainingMemberTypes = new LinkedHashSet<>();
-
-        for (BType type : types) {
-            BType referredType = getReferredType(type);
-            if (!isSubTypeOfReadOnly(referredType, env)) {
-                remainingMemberTypes.add(referredType);
-            }
-        }
-
-        return remainingMemberTypes;
     }
 
     // TODO: now only works for error. Probably we need to properly define readonly types here.
