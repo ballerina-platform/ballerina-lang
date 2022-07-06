@@ -22,7 +22,9 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.FunctionDiff;
+import io.ballerina.semver.checker.diff.ModuleConstantDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
+import io.ballerina.semver.checker.diff.ModuleVarDiff;
 import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeListDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
@@ -243,6 +245,10 @@ public class DiffUtils {
             return getFunctionName((FunctionDiff) diff);
         } else if (diff instanceof ServiceDiff) {
             return getServiceName((ServiceDiff) diff);
+        } else if (diff instanceof ModuleVarDiff) {
+            return getModuleVariableName((ModuleVarDiff) diff);
+        } else if (diff instanceof ModuleConstantDiff) {
+            return getModuleConstantName((ModuleConstantDiff) diff);
         } else {
             return "unknown";
         }
@@ -256,6 +262,10 @@ public class DiffUtils {
             return "module";
         } else if (diff instanceof ServiceDiff) {
             return "service";
+        } else if (diff instanceof ModuleVarDiff) {
+            return "module variable";
+        } else if (diff instanceof ModuleConstantDiff) {
+            return "module constant";
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
             if (functionDiff.isResource()) {
@@ -276,6 +286,10 @@ public class DiffUtils {
         } else if (diff instanceof ModuleDiff) {
             return " ".repeat(2);
         } else if (diff instanceof ServiceDiff) {
+            return " ".repeat(4);
+        } else if (diff instanceof ModuleVarDiff) {
+            return " ".repeat(4);
+        } else if (diff instanceof ModuleConstantDiff) {
             return " ".repeat(4);
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
@@ -298,9 +312,9 @@ public class DiffUtils {
      */
     private static String getFunctionName(FunctionDiff functionDiff) {
         if (functionDiff.getNewNode().isPresent()) {
-            return functionDiff.getNewNode().get().functionName().text();
+            return SyntaxTreeUtils.getFunctionIdentifier(functionDiff.getNewNode().get());
         } else if (functionDiff.getOldNode().isPresent()) {
-            return functionDiff.getOldNode().get().functionName().text();
+            return SyntaxTreeUtils.getFunctionIdentifier(functionDiff.getOldNode().get());
         } else {
             return "unknown";
         }
@@ -316,6 +330,36 @@ public class DiffUtils {
             return SyntaxTreeUtils.getServiceIdentifier(serviceDiff.getNewNode().get()).orElse("unknown");
         } else if (serviceDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getServiceIdentifier(serviceDiff.getOldNode().get()).orElse("unknown");
+        } else {
+            return "unknown";
+        }
+    }
+
+    /**
+     * Retrieves function name of the given {@link FunctionDiff} instance.
+     *
+     * @param moduleVarDiff FunctionDiff instance
+     */
+    private static String getModuleVariableName(ModuleVarDiff moduleVarDiff) {
+        if (moduleVarDiff.getNewNode().isPresent()) {
+            return SyntaxTreeUtils.getModuleVarIdentifier(moduleVarDiff.getNewNode().get());
+        } else if (moduleVarDiff.getOldNode().isPresent()) {
+            return SyntaxTreeUtils.getModuleVarIdentifier(moduleVarDiff.getOldNode().get());
+        } else {
+            return "unknown";
+        }
+    }
+
+    /**
+     * Retrieves function name of the given {@link FunctionDiff} instance.
+     *
+     * @param moduleConstantDiff FunctionDiff instance
+     */
+    private static String getModuleConstantName(ModuleConstantDiff moduleConstantDiff) {
+        if (moduleConstantDiff.getNewNode().isPresent()) {
+            return SyntaxTreeUtils.getConstIdentifier(moduleConstantDiff.getNewNode().get());
+        } else if (moduleConstantDiff.getOldNode().isPresent()) {
+            return SyntaxTreeUtils.getConstIdentifier(moduleConstantDiff.getOldNode().get());
         } else {
             return "unknown";
         }

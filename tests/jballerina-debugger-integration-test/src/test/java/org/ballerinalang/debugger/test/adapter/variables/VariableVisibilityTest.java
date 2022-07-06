@@ -328,7 +328,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "letVar", "\"Hello Ballerina!\"", "string");
     }
 
-    @Test(description = "Child variable visibility test for local variables at the last line of main() method")
+    @Test(enabled = false, description = "Child variable visibility test for local variables at the last line of main" +
+            "() method")
     public void localVariableChildrenVisibilityTest() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 326));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);

@@ -20,10 +20,10 @@
   {
     "source": "1/0",
     "result": {
-      "errors":["panic: error(\"{ballerina}DivisionByZero\",message\u003d\" / by zero\")"],
+      "errors":[],
       "diagnostics":["Execution aborted due to unhandled runtime error."],
       "metaInfo":{"definedVars":[],"moduleDclns":[]},
-      "consoleOut":""
+      "consoleOut":"panic: {ballerina}DivisionByZero {\"message\":\" / by zero\"}"
     }
   },
   {
