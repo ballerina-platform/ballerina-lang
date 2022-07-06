@@ -42,6 +42,7 @@ public class ProjectBasedRunInTerminalTest {
     @Test(description = "Debug launch test in integrated terminal for project based source")
     public void testRunInIntegratedTerminal() throws BallerinaTestException {
         String integratedTerminal = "integrated";
+        debugTestRunner.setClientSupportsRunInTerminal(true);
         didRunInIntegratedTerminal = debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN,
                 integratedTerminal);
         Assert.assertTrue(didRunInIntegratedTerminal);
@@ -50,6 +51,7 @@ public class ProjectBasedRunInTerminalTest {
     @Test(description = "Debug launch test in external terminal for project based source")
     public void testRunInExternalTerminal() throws BallerinaTestException {
         String externalTerminal = "external";
+        debugTestRunner.setClientSupportsRunInTerminal(true);
         didRunInIntegratedTerminal = debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN,
                 externalTerminal);
 
@@ -61,6 +63,7 @@ public class ProjectBasedRunInTerminalTest {
     @Test(description = "Debug launch test with invalid terminal kind")
     public void testRunInInvalidTerminal() throws BallerinaTestException {
         String invalidTerminalKind = "internal";
+        debugTestRunner.setClientSupportsRunInTerminal(true);
         didRunInIntegratedTerminal = debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN,
                 invalidTerminalKind);
 
@@ -69,8 +72,21 @@ public class ProjectBasedRunInTerminalTest {
         Assert.assertFalse(didRunInIntegratedTerminal);
     }
 
+    @Test(description = "Debug launch test where the user has set the terminal config, but the client does not " +
+            "support the request")
+    public void testRunInUnsupportedClient() throws BallerinaTestException {
+        String integratedTerminal = "integrated";
+        debugTestRunner.setClientSupportsRunInTerminal(false);
+        didRunInIntegratedTerminal = debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN,
+                integratedTerminal);
+
+        // returned value should be false since the client does not support the run in terminal feature
+        Assert.assertFalse(didRunInIntegratedTerminal);
+    }
+
     @Test(description = "Debug launch test without runinterminal config")
     public void testLaunchWithoutConfig() throws BallerinaTestException {
+        debugTestRunner.setClientSupportsRunInTerminal(true);
         didRunInIntegratedTerminal = debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN,
                 "");
 

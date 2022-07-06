@@ -66,6 +66,7 @@ public class DAPClientConnector {
     private ConnectionState myConnectionState;
     private final DebugServerEventHolder serverEventHolder;
     private final int debugAdapterPort;
+    private final boolean supportsRunInTerminalRequest;
 
     private static final String CONFIG_SOURCE = "script";
     private static final String CONFIG_DEBUGEE_HOST = "debuggeeHost";
@@ -73,16 +74,19 @@ public class DAPClientConnector {
     private static final String CONFIG_BAL_HOME = "ballerina.home";
     private static final String CONFIG_IS_TEST_CMD = "debugTests";
 
-    public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, int port) {
-        this(balHome, projectPath, entryFilePath, "localhost", port);
+    public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, int port,
+                              boolean supportsRunInTerminalRequest) {
+        this(balHome, projectPath, entryFilePath, "localhost", port, supportsRunInTerminalRequest);
     }
 
-    public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, String host, int port) {
+    public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, String host, int port,
+                              boolean supportsRunInTerminalRequest) {
         this.balHome = balHome;
         this.projectPath = projectPath;
         this.entryFilePath = entryFilePath;
         this.host = host;
         this.port = port;
+        this.supportsRunInTerminalRequest = supportsRunInTerminalRequest;
         this.debugAdapterPort = DebugUtils.findFreePort();
         myConnectionState = ConnectionState.NOT_CONNECTED;
         serverEventHolder = new DebugServerEventHolder();
@@ -132,7 +136,7 @@ public class DAPClientConnector {
 
             InitializeRequestArguments initParams = new InitializeRequestArguments();
             initParams.setAdapterID("BallerinaDebugClient");
-            initParams.setSupportsRunInTerminalRequest(true);
+            initParams.setSupportsRunInTerminalRequest(this.supportsRunInTerminalRequest);
 
             debugServer.initialize(initParams).thenApply(res -> {
                 initializeResult = res;

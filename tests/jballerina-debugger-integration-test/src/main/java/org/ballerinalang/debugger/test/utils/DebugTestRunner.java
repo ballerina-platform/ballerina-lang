@@ -89,6 +89,7 @@ public class DebugTestRunner {
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
     private final boolean isProjectBasedTest;
+    private boolean clientSupportsRunInTerminal;
 
     private static final int SCHEDULER_INTERVAL_MS = 1000;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
@@ -208,7 +209,7 @@ public class DebugTestRunner {
                                  int port, Map<String, Object> launchArgs) throws BallerinaTestException {
 
         debugClientConnector = new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
-                port);
+                port, clientSupportsRunInTerminal);
         debugClientConnector.createConnection();
         if (debugClientConnector.isConnected()) {
             isConnected = true;
@@ -870,6 +871,10 @@ public class DebugTestRunner {
 
     public void endSoftAssertions() {
         softAsserter.assertAll();
+    }
+
+    public void setClientSupportsRunInTerminal(boolean clientSupportsRunInTerminal) {
+        this.clientSupportsRunInTerminal = clientSupportsRunInTerminal;
     }
 
     /**
