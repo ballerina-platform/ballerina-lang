@@ -4,6 +4,7 @@ module io.ballerina.jsonmapper {
     requires io.ballerina.formatter.core;
     requires io.ballerina.tools.api;
     requires org.apache.commons.lang3;
+    requires javatuples;
 
     exports io.ballerina.jsonmapper;
 }
