@@ -20,8 +20,8 @@ type Content record {
     string IgnitionStatus;
     decimal Odometer;
     string Description;
-    any AdditionalDataElements?;
-    any TripInformation?;
+    anydata AdditionalDataElements?;
+    anydata TripInformation?;
     HeaderInformation HeaderInformation;
 };
 

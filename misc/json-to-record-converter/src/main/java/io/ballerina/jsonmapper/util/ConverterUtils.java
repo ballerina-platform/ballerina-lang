@@ -41,7 +41,7 @@ public final class ConverterUtils {
 
     private ConverterUtils() {}
 
-    private static List<String> keywords = SyntaxInfo.keywords();
+    private static final List<String> keywords = SyntaxInfo.keywords();
 
     /**
      * This method returns the identifiers with special characters.
@@ -131,7 +131,7 @@ public final class ConverterUtils {
     private static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
         int totalDimensions = arrayNode.dimensions().size();
         if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
-            totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());;
+            totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
         }
         return totalDimensions;
     }

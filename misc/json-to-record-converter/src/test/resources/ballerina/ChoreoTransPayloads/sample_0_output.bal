@@ -17,7 +17,7 @@ type TripInformation record {
     decimal Stop;
     decimal OrderHeader;
     AssetsItem[] Assets;
-    any[] AdditionalDataElements;
+    anydata[] AdditionalDataElements;
 };
 
 type HeaderInformation record {

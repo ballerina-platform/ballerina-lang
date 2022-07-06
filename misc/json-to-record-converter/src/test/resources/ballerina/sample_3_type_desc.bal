@@ -4,5 +4,5 @@ type NewRecord record {
     string gender;
     int age;
     record {string streetAddress; string city; string state;} address;
-    any phoneNumber?;
+    anydata phoneNumber?;
 };

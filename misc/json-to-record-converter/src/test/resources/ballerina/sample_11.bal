@@ -1,6 +1,6 @@
 type Contributions record {
-    any[] donations;
-    any subscription?;
+    anydata[] donations;
+    anydata subscription?;
 };
 
 type NewRecord record {

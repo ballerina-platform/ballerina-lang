@@ -16,7 +16,7 @@ type TripInformation record {
     decimal Stop;
     decimal OrderHeader;
     AssetsItem[] Assets;
-    any[] AdditionalDataElements;
+    anydata[] AdditionalDataElements;
 };
 
 type HeaderInformation record {
@@ -24,7 +24,7 @@ type HeaderInformation record {
 };
 
 type MessageContent record {
-    any[] Assets;
+    anydata[] Assets;
     string StatusDate;
     int Speed;
     int Heading;
@@ -32,10 +32,10 @@ type MessageContent record {
     string Description;
     string IgnitionStatus;
     int Odometer;
-    any Zip?;
-    any City?;
-    any State?;
-    any Distance?;
+    anydata Zip?;
+    anydata City?;
+    anydata State?;
+    anydata Distance?;
     TripInformation TripInformation;
     HeaderInformation HeaderInformation;
 };
