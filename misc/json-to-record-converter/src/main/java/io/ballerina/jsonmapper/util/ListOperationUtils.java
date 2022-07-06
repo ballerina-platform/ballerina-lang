@@ -18,7 +18,7 @@
 
 package io.ballerina.jsonmapper.util;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -38,7 +38,7 @@ public final class ListOperationUtils {
      * @return {@link Map} Intersection of first and second set of Key Value pairs
      */
     public static <K, V> Map<K, V> intersection(Map<K, V> mapOne, Map<K, V> mapTwo) {
-        Map<K, V> intersection = new HashMap<>();
+        Map<K, V> intersection = new LinkedHashMap<>();
         for (Map.Entry<K, V> key: mapOne.entrySet()) {
             if (mapTwo.containsKey(key.getKey())) {
                 intersection.put(key.getKey(), mapOne.get(key.getKey()));
@@ -55,7 +55,7 @@ public final class ListOperationUtils {
      * @return {@link Map} Union of first and second set of Key Value pairs
      */
     public static <K, V> Map<K, V> union(Map<K, V> mapOne, Map<K, V> mapTwo) {
-        Map<K, V> union = new HashMap<>(mapOne);
+        Map<K, V> union = new LinkedHashMap<>(mapOne);
         for (Map.Entry<K, V> key: mapTwo.entrySet()) {
             if (!mapOne.containsKey(key.getKey())) {
                 union.put(key.getKey(), mapTwo.get(key.getKey()));

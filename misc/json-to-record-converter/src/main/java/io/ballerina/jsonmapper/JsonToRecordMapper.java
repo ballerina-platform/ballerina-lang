@@ -53,6 +53,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -159,17 +160,41 @@ public class JsonToRecordMapper {
 
         List<Node> recordFields = new ArrayList<>();
         if (recordToTypeDescNodes.containsKey(recordName)) {
-            RecordTypeDescriptorNode lastRecordTypeDescriptorNode =
+            for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                if (entry.getValue().isJsonObject()) {
+                    String elementKey = entry.getKey();
+                    String type = StringUtils.capitalize(elementKey);
+                    if (!type.equals(recordName)) {
+                        generateRecords(entry.getValue().getAsJsonObject(), type, isRecordTypeDesc, isClosed,
+                                recordToTypeDescNodes, jsonNodes, diagnosticMessages);
+                    }
+                } else if (entry.getValue().isJsonArray()) {
+                    for (JsonElement element : entry.getValue().getAsJsonArray()) {
+                        if (element.isJsonObject()) {
+                            String elementKey = entry.getKey();
+                            String type = StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX;
+                            if (!type.equals(recordName)) {
+                                generateRecords(element.getAsJsonObject(), type, isRecordTypeDesc, isClosed,
+                                        recordToTypeDescNodes, jsonNodes, diagnosticMessages);
+                            }
+                        }
+                    }
+                }
+                jsonNodes.put(entry.getKey(), entry.getValue());
+            }
+            RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
                     (RecordTypeDescriptorNode) recordToTypeDescNodes.get(recordName);
-            List<RecordFieldNode> lastRecordFields = lastRecordTypeDescriptorNode.fields().stream()
+            List<RecordFieldNode> previousRecordFields = previousRecordTypeDescriptorNode.fields().stream()
                     .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
-            Map<String, RecordFieldNode> previousRecordFieldToNodes = lastRecordFields.stream()
-                    .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
+            Map<String, RecordFieldNode> previousRecordFieldToNodes = previousRecordFields.stream()
+                    .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
+                            (val1, val2) -> val1, LinkedHashMap::new));
             Map<String, RecordFieldNode> newRecordFieldToNodes = jsonObject.entrySet().stream()
                     .map(entry -> (RecordFieldNode) getRecordField(entry, isRecordTypeDesc, false,
                             recordToTypeDescNodes))
                     .collect(Collectors.toList()).stream()
-                    .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
+                    .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
+                            (val1, val2) -> val1, LinkedHashMap::new));
             updateRecordFields(jsonObject, isRecordTypeDesc, recordToTypeDescNodes, jsonNodes, diagnosticMessages,
                     recordFields, previousRecordFieldToNodes, newRecordFieldToNodes);
         } else {
@@ -186,7 +211,6 @@ public class JsonToRecordMapper {
                             String type = StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX;
                             generateRecords(element.getAsJsonObject(), type, isRecordTypeDesc, isClosed,
                                     recordToTypeDescNodes, jsonNodes, diagnosticMessages);
-                            break;
                         }
                     }
                 }
@@ -231,8 +255,10 @@ public class JsonToRecordMapper {
 
         for (Map.Entry<String, RecordFieldNode> entry : intersectingRecordFields.entrySet()) {
             boolean isOptional = entry.getValue().questionMarkToken().isPresent();
+            Map<String, String> jsonEscapedFieldToFields = jsonNodes.entrySet().stream()
+                    .collect(Collectors.toMap(jsonEntry -> escapeIdentifier(jsonEntry.getKey()), Map.Entry::getKey));
             Map.Entry<String, JsonElement> jsonEntry =
-                    new AbstractMap.SimpleEntry<>(entry.getKey(), jsonNodes.get(entry.getKey()));
+                    new AbstractMap.SimpleEntry<>(jsonEscapedFieldToFields.get(entry.getKey()), jsonNodes.get(jsonEscapedFieldToFields.get(entry.getKey())));
             Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
             recordFields.add(recordField);
         }
@@ -242,7 +268,7 @@ public class JsonToRecordMapper {
             JsonElement jsonElement = jsonNodes.get(jsonField);
             Map.Entry<String, JsonElement> jsonEntry = jsonElement != null ?
                     new AbstractMap.SimpleEntry<>(jsonField, jsonElement) :
-                    jsonObject.entrySet().stream().filter(elementEntry -> elementEntry.getKey().equals(jsonField))
+                    jsonObject.entrySet().stream().filter(elementEntry -> escapeIdentifier(elementEntry.getKey()).equals(jsonField))
                             .findFirst().orElse(null);
             if (jsonEntry != null) {
                 Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, true, recordToTypeDescNodes);
@@ -299,7 +325,6 @@ public class JsonToRecordMapper {
                     new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().getAsJsonArray());
             ArrayTypeDescriptorNode arrayTypeName =
                     getArrayTypeDescriptorNode(jsonArrayEntry, isRecordTypeDesc, recordToTypeDescNodes);
-
             recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                     arrayTypeName, fieldName,
                     optionalFieldToken, semicolonToken);
