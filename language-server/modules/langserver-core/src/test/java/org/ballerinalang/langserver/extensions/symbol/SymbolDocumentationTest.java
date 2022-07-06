@@ -50,7 +50,7 @@ public class SymbolDocumentationTest {
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Position functionPos = new Position();
-        functionPos.setLine(15);
+        functionPos.setLine(16);
         functionPos.setCharacter(19);
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
@@ -76,7 +76,7 @@ public class SymbolDocumentationTest {
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Position functionPos = new Position();
-        functionPos.setLine(16);
+        functionPos.setLine(17);
         functionPos.setCharacter(20);
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
@@ -104,7 +104,7 @@ public class SymbolDocumentationTest {
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Position functionPos = new Position();
-        functionPos.setLine(17);
+        functionPos.setLine(18);
         functionPos.setCharacter(20);
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
@@ -120,7 +120,7 @@ public class SymbolDocumentationTest {
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Position functionPos = new Position();
-        functionPos.setLine(18);
+        functionPos.setLine(19);
         functionPos.setCharacter(15);
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
@@ -140,7 +140,7 @@ public class SymbolDocumentationTest {
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Position functionPos = new Position();
-        functionPos.setLine(19);
+        functionPos.setLine(20);
         functionPos.setCharacter(27);
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
@@ -161,7 +161,7 @@ public class SymbolDocumentationTest {
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Position functionPos = new Position();
-        functionPos.setLine(20);
+        functionPos.setLine(21);
         functionPos.setCharacter(28);
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
@@ -182,12 +182,76 @@ public class SymbolDocumentationTest {
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Position functionPos = new Position();
-        functionPos.setLine(21);
+        functionPos.setLine(22);
         functionPos.setCharacter(19);
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
 
         Assert.assertEquals(symbolInfoResponse.getDocumentation(), null);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
+    @Test(description = "test lang-lib documentation with filtered first param")
+    public void testLangLibDocumentation() throws IOException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        Position functionPos = new Position();
+        functionPos.setLine(23);
+        functionPos.setCharacter(22);
+        SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
+                inputFile.toString(), functionPos, this.serviceEndpoint);
+
+        Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
+                "Returns the length of the string.\n");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
+                "the number of characters (code points) in parameter `str`");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters(), null);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
+    @Test(description = "test lang-lib documentation with qualified identifier")
+    public void testLangLibDocumentationWithQualifiedIdentifier() throws IOException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        Position functionPos = new Position();
+        functionPos.setLine(24);
+        functionPos.setCharacter(26);
+        SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
+                inputFile.toString(), functionPos, this.serviceEndpoint);
+
+        Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
+                "Returns the length of the string.\n");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
+                "the number of characters (code points) in parameter `str`");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getName(), "str");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getDescription(),
+                "the string");
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
+    @Test(description = "test documentation for remote-method-calls")
+    public void testDocumentationForRemoteActionMethodCall() throws IOException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        Position functionPos = new Position();
+        functionPos.setLine(26);
+        functionPos.setCharacter(30);
+        SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
+                inputFile.toString(), functionPos, this.serviceEndpoint);
+
+        Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
+                "Set the Id of the student\n");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
+                "Student id");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getName(), "id");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getDescription(),
+                "Id of the student");
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
 

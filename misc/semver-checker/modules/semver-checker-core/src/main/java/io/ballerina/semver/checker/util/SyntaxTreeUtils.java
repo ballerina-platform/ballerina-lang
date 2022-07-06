@@ -17,7 +17,9 @@
  */
 package io.ballerina.semver.checker.util;
 
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
@@ -48,7 +50,7 @@ public class SyntaxTreeUtils {
     }
 
     /**
-     * Returns the service identifier of the given service node.
+     * Returns the identifier for a given service node.
      *
      * @param serviceNode service declaration syntax node
      * @return the service identifier
@@ -61,6 +63,27 @@ public class SyntaxTreeUtils {
                     .collect(Collectors.joining("_")));
         }
         return Optional.empty();
+    }
+
+    /**
+     * Returns the identifier for a given module variable declaration node.
+     *
+     * @param moduleVarNode module variable declaration syntax node
+     * @return the service identifier
+     */
+    public static String getModuleVarIdentifier(ModuleVariableDeclarationNode moduleVarNode) {
+        // Todo: implement a separate identifier capturing logics for each binding pattern type (high priority)
+        return moduleVarNode.typedBindingPattern().bindingPattern().toSourceCode().trim();
+    }
+
+    /**
+     * Returns the identifier for a given constant declaration node.
+     *
+     * @param constNode constant declaration syntax node
+     * @return the service identifier
+     */
+    public static String getConstIdentifier(ConstantDeclarationNode constNode) {
+        return constNode.variableName().text().trim();
     }
 
     /**

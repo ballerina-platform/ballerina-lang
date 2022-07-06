@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 20,
+  "position": {
+    "line": 1,
+    "character": 20
+  },
+  "source": "remove_unused_import_source2.bal",
   "expected": [
     {
       "title": "Remove all unused imports",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +26,7 @@
     },
     {
       "title": "Remove unused import 'ballerina/module1'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

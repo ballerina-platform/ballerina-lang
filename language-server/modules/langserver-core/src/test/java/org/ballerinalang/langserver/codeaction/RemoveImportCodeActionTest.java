@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2201.1.1
  */
 public class RemoveImportCodeActionTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "remove-import";
@@ -36,24 +37,24 @@ public class RemoveImportCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"remove_unused_import_config1.json", "remove_unused_import_source1.bal"},
-                {"remove_unused_import_config2.json", "remove_unused_import_source2.bal"},
-                {"remove_unused_import_config3.json", "remove_unused_import_source3.bal"},
-                {"remove_unused_import_config4.json", "remove_unused_import_source4.bal"},
-                {"remove_unused_import_config5.json", "remove_unused_import_source5.bal"},
-                {"remove_unused_import_config6.json", "remove_unused_import_source6.bal"},
-                {"remove_unused_import_config7.json", "remove_unused_import_source7.bal"},
-                {"remove_unused_import_config8.json", "remove_unused_import_source8.bal"},
-                {"remove_unused_import_config9.json", "remove_unused_import_source9.bal"},
-                {"remove_redeclared_import_config.json", "remove_redeclared_import_source.bal"}
+                {"remove_unused_import_config1.json"},
+                {"remove_unused_import_config2.json"},
+                {"remove_unused_import_config3.json"},
+                {"remove_unused_import_config4.json"},
+                {"remove_unused_import_config5.json"},
+                {"remove_unused_import_config6.json"},
+                {"remove_unused_import_config7.json"},
+                {"remove_unused_import_config8.json"},
+                {"remove_unused_import_config9.json"},
+                {"remove_redeclared_import_config.json"}
         };
     }
 }

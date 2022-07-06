@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 18,
+  "position": {
+    "line": 1,
+    "character": 18
+  },
+  "source": "on_fail_codeaction_for_check_stmt_source5.bal",
   "expected": [
     {
       "title": "Surround with do/on-fail",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
