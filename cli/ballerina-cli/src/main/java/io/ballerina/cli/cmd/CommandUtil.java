@@ -278,13 +278,12 @@ public class CommandUtil {
             List<Path> icon = pathStream
                     .filter(FileSystems.getDefault().getPathMatcher("glob:**.png")::matches)
                     .collect(Collectors.toList());
-            if (icon.isEmpty()) {
-                return;
+            if (!icon.isEmpty()) {
+                Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
+                Files.createDirectory(projectDocsDir);
+                Path projectIconPath = projectDocsDir.resolve(Optional.of(icon.get(0).getFileName()).get());
+                Files.copy(icon.get(0), projectIconPath, StandardCopyOption.REPLACE_EXISTING);
             }
-            Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
-            Files.createDirectory(projectDocsDir);
-            Path projectIconPath = projectDocsDir.resolve(Optional.of(icon.get(0).getFileName()).get());
-            Files.copy(icon.get(0), projectIconPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             printError(errStream,
                     "Error while retrieving the icon: " + e.getMessage(),

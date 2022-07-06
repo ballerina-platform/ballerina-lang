@@ -173,7 +173,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "func_type_source_09.bal", "func_type_source_13.bal", "func_type_source_14.bal",
                 "func_type_source_15.bal", "func_type_source_16.bal", "import_decl_source_24.bal",
                 "member_access_expr_source_11.bal", "float_literal_source_08.bal", "object_type_def_source_47.bal", 
-                "resource_method_call_action_source_05.bal", "resource_method_call_action_source_06.bal", 
+                "client_resource_access_action_source_05.bal", "client_resource_access_action_source_06.bal", 
                 "resiliency_source_05.bal");
     }
 

@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -151,7 +152,7 @@ public class Option {
             return true;
         } else if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(paramName, (ArrayType) fieldType);
-            Type elementType = bArray.getElementType();
+            Type elementType = TypeUtils.getReferredType(bArray.getElementType());
             if (isABoolean(elementType)) {
                 bArray.append(true);
                 return true;
@@ -185,7 +186,7 @@ public class Option {
     private boolean isSupportedArrayType(BString key, Type fieldType) {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(key, (ArrayType) fieldType);
-            Type elementType = bArray.getElementType();
+            Type elementType = TypeUtils.getReferredType(bArray.getElementType());
             if (CliUtil.isSupportedType(elementType.getTag())) {
                 if (recordVal.get(key) == null) {
                     recordVal.put(key, bArray);
@@ -233,7 +234,7 @@ public class Option {
 
     private void handleArrayParameter(BString paramName, String val, ArrayType fieldType) {
         BArray bArray = getBArray(paramName, fieldType);
-        Type arrayType = bArray.getElementType();
+        Type arrayType = TypeUtils.getReferredType(bArray.getElementType());
         bArray.append(CliUtil.getBValue(arrayType, val, paramName.getValue()));
     }
 

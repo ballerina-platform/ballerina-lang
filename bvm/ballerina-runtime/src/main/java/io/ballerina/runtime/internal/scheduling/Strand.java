@@ -32,6 +32,7 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +47,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.CURRENT_TRANSACTION_CONTEXT_PROPERTY;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_ON_AND_YIELD;
+import static io.ballerina.runtime.internal.scheduling.State.DONE;
 import static io.ballerina.runtime.internal.scheduling.State.RUNNABLE;
 import static io.ballerina.runtime.internal.scheduling.State.YIELD;
 
@@ -57,13 +59,13 @@ import static io.ballerina.runtime.internal.scheduling.State.YIELD;
 
 public class Strand {
 
-    private static AtomicInteger nextStrandId = new AtomicInteger(0);
+    private static final AtomicInteger nextStrandId = new AtomicInteger(0);
 
-    private int id;
-    private String name;
-    private StrandMetadata metadata;
+    private final int id;
+    private final String name;
+    private final StrandMetadata metadata;
 
-    public Stack<Object> frames;
+    public Stack<FunctionFrame> frames;
     public int resumeIndex;
     public Object returnValue;
     public BError panic;
@@ -397,6 +399,14 @@ public class Strand {
         return id;
     }
 
+    public int getStrandGroupId() {
+        return strandGroup.getId();
+    }
+
+    public boolean isStrandGroupScheduled() {
+        return strandGroup.isScheduled();
+    }
+
     /**
      * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
      * call or function pointer variable name.
@@ -414,6 +424,70 @@ public class Strand {
      */
     public StrandMetadata getMetadata() {
         return metadata;
+    }
+
+    public String dumpState() {
+        StringBuilder strandInfo = new StringBuilder("\tstrand " + this.id);
+        if (this.name != null && this.getName().isPresent()) {
+            strandInfo.append(" \"").append(this.getName().get()).append("\"");
+        }
+
+        strandInfo.append(" [");
+        strandInfo.append(this.metadata.getModuleOrg()).append(".").append(this.metadata.getModuleName()).append(".")
+                .append(this.metadata.getModuleVersion()).append(":").append(this.metadata.getParentFunctionName());
+        if (this.parent != null) {
+            strandInfo.append("][").append(this.parent.getId());
+        }
+        strandInfo.append("] [");
+
+        String closingBracketWithNewLines = "]\n\n";
+        if (this.isYielded()) {
+            getInfoFromYieldedState(strandInfo, closingBracketWithNewLines);
+        } else if (this.getState().equals(DONE)) {
+            strandInfo.append(DONE).append(closingBracketWithNewLines);
+        } else {
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+        }
+
+        return strandInfo.toString();
+    }
+
+    private void getInfoFromYieldedState(StringBuilder strandInfo, String closingBracketWithNewLines) {
+        Stack<FunctionFrame> strandFrames = this.frames;
+        if ((strandFrames == null) || (strandFrames.isEmpty())) {
+            // this means the strand frames is changed, hence the state is runnable
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+            return;
+        }
+
+        StringBuilder frameStackTrace = new StringBuilder();
+        String stringPrefix = "\t\tat\t";
+        String yieldStatus = "BLOCKED";
+        boolean noPickedYieldStatus = true;
+        try {
+            for (FunctionFrame frame : strandFrames) {
+                if (noPickedYieldStatus) {
+                    yieldStatus = frame.getYieldStatus();
+                    noPickedYieldStatus = false;
+                }
+                String yieldLocation = frame.getYieldLocation();
+                frameStackTrace.append(stringPrefix).append(yieldLocation);
+                frameStackTrace.append("\n");
+                stringPrefix = "\t\t  \t";
+            }
+        } catch (ConcurrentModificationException ce) {
+            // this exception can be thrown when frames get added or removed while it is being iterated
+            // that means now the strand state is changed from yielded state to runnable state
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+            return;
+        }
+        if (!this.isYielded() || noPickedYieldStatus) {
+            // if frames have got empty, noPickedYieldStatus is true, then the state has changed to runnable
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+            return;
+        }
+        strandInfo.append(yieldStatus).append("]:\n");
+        strandInfo.append(frameStackTrace).append("\n");
     }
 
     /**

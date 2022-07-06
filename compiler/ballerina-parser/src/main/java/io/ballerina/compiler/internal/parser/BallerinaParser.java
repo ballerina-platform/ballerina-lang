@@ -9030,7 +9030,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 return consume();
             case OPEN_BRACKET_TOKEN:
-                return parseComputedOrResourceAccessRestSegment();
+                return parseComputedOrResourceAccessRestSegment(consume());
             default:
                 recover(nextToken, ParserRuleContext.RESOURCE_ACCESS_PATH_SEGMENT);
                 return parseResourceAccessSegment();
@@ -9045,10 +9045,10 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * resource-access-rest-segment := "[" "..." expression "]"
      * </code>
+     * @param openBracket Open bracket token
      * @return Parsed node
      */
-    private STNode parseComputedOrResourceAccessRestSegment() {
-        STNode openBracket = parseOpenBracket();
+    private STNode parseComputedOrResourceAccessRestSegment(STNode openBracket) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case ELLIPSIS_TOKEN:
@@ -9066,7 +9066,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 
                 recover(nextToken, ParserRuleContext.COMPUTED_SEGMENT_OR_REST_SEGMENT);
-                return parseComputedOrResourceAccessRestSegment();
+                return parseComputedOrResourceAccessRestSegment(openBracket);
         }
     }
 
