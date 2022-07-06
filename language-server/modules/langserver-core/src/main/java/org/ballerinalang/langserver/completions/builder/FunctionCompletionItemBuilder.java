@@ -92,7 +92,12 @@ public final class FunctionCompletionItemBuilder {
                     getFunctionInvocationSignature(functionSymbol, funcName, context);
             item.setInsertText(functionSignature.getLeft());
             item.setLabel(functionSignature.getRight());
-            item.setFilterText(funcName);
+            if (functionSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
+                item.setFilterText(getFilterTextForResourceMethod((ResourceMethodSymbol) functionSymbol));
+            } else {
+                item.setFilterText(funcName);
+            }
+
         }
         return item;
     }
@@ -159,6 +164,19 @@ public final class FunctionCompletionItemBuilder {
         item.setFilterText("self." + funcName);
 
         return item;
+    }
+
+    private static String getFilterTextForResourceMethod(ResourceMethodSymbol resourceMethodSymbol) {
+        ResourcePath resourcePath = resourceMethodSymbol.resourcePath();
+        if (resourcePath.kind() == ResourcePath.Kind.DOT_RESOURCE_PATH
+                || resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
+            return resourceMethodSymbol.getName().orElse("");
+        }
+        List<PathSegment> pathSegmentList = ((PathSegmentList) resourcePath).list();
+        return pathSegmentList.stream()
+                .filter(pathSegment -> pathSegment.pathSegmentKind() == PathSegment.Kind.NAMED_SEGMENT)
+                .map(pathSegment -> ((NamedPathSegment) pathSegment).name()).collect(Collectors.joining("|"))
+                + "|" + resourceMethodSymbol.getName().orElse("");
     }
 
     private static void setMeta(CompletionItem item, FunctionSymbol functionSymbol, BallerinaCompletionContext ctx) {
@@ -375,7 +393,7 @@ public final class FunctionCompletionItemBuilder {
         List<String> funcArguments = CommonUtil.getFuncArguments(resourceMethodSymbol, ctx);
         if (!funcArguments.isEmpty()) {
             signature.append("(").append(String.join(", ", funcArguments)).append(")");
-            insertText.append("(${1})");
+            insertText.append("(${" + placeHolderIndex + "})");
         }
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
