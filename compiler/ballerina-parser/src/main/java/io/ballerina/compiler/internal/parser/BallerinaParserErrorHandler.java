@@ -824,7 +824,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.IDENTIFIER, ParserRuleContext.OPEN_BRACKET };
     
     private static final ParserRuleContext[] COMPUTED_SEGMENT_OR_REST_SEGMENT = 
-            { ParserRuleContext.ELLIPSIS, ParserRuleContext.EXPRESSION };
+            { ParserRuleContext.EXPRESSION, ParserRuleContext.ELLIPSIS };
     
     private static final ParserRuleContext[] RESOURCE_ACCESS_SEGMENT_RHS = 
             { ParserRuleContext.SLASH, ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_METHOD };
