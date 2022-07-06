@@ -6066,12 +6066,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private boolean checkIfAnonymous(Node node) {
         SyntaxKind parentKind = node.parent().kind();
-        if (parentKind == SyntaxKind.DISTINCT_TYPE_DESC) {
+        if (node.kind() == SyntaxKind.OBJECT_TYPE_DESC && parentKind == SyntaxKind.DISTINCT_TYPE_DESC) {
             if (node.parent().parent() != null) {
                 return node.parent().parent().kind() != SyntaxKind.TYPE_DEFINITION;
             }
         }
-        return parentKind != SyntaxKind.TYPE_DEFINITION;
+        return parentKind != SyntaxKind.DISTINCT_TYPE_DESC && parentKind != SyntaxKind.TYPE_DEFINITION;
     }
 
     private boolean ifInLocalContext(Node parent) {

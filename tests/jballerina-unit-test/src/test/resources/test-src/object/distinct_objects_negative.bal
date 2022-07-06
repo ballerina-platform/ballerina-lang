@@ -57,7 +57,7 @@ function foo() {
 
 public function testDistinctObjectAssignability() {
     object {} x = object {};
-    Foo _ = x;
+    Foo _ = x; // error: incompatible types: expected 'Foo', found 'object { }'
 }
 
 public function testDistinctObjectAssignability2() {
@@ -67,11 +67,11 @@ public function testDistinctObjectAssignability2() {
         int i = 1;
     };
 
-    Bar _ = x;
+    Bar _ = x; // error: incompatible types: expected 'Bar', found 'object { int i; }'
 
     x = object {
         int i = 10;
     };
 
-    Bar _ = x;
+    Bar _ = x; // error: incompatible types: expected 'Bar', found 'object { int i; }'
 }

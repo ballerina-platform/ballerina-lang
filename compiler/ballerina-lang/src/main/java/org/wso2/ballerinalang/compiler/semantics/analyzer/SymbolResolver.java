@@ -1494,6 +1494,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         errorType.typeIdSet = BTypeIdSet.emptySet();
 
+        if (errorTypeNode.isAnonymous && errorTypeNode.flagSet.contains(Flag.DISTINCT)) {
+            errorType.typeIdSet.add(
+                    BTypeIdSet.from(packageID, anonymousModelHelper.getNextAnonymousTypeId(packageID), true));
+        }
+
         return errorType;
     }
 
