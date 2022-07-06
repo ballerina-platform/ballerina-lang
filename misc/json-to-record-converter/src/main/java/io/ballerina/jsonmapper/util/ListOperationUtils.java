@@ -18,8 +18,6 @@
 
 package io.ballerina.jsonmapper.util;
 
-import io.ballerina.jsonmapper.JsonToRecordResponse;
-
 import java.util.HashMap;
 import java.util.Map;
 

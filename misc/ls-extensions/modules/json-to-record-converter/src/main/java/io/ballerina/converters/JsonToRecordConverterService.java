@@ -62,8 +62,9 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                     response = JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
                 } else {
                     response = new JsonToRecordResponse();
-                    response.setCodeBlock(JsonToRecordMapper
-                            .convert(jsonString, recordName, isRecordTypeDesc, isClosed).getCodeBlock());
+                    String codeBloc = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed)
+                            .getCodeBlock();
+                    response.setCodeBlock(codeBloc == null ? "" : codeBloc);
                 }
             } catch (IOException | JsonToRecordConverterException | FormatterException e) {
                 response = new JsonToRecordResponse();
