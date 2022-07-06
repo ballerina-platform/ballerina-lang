@@ -29,8 +29,6 @@ import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
-import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.CodeAction;
@@ -89,11 +87,10 @@ public class CodeActionRouter {
                     // in order to avoid unnecessary calculations
                     ctx.checkCancelled();
 
-                    RangeBasedCodeActionProvider rangeBasedProvider = (RangeBasedCodeActionProvider) provider;
-                    if (!rangeBasedProvider.validate(ctx, posDetails)) {
+                    if (!provider.validate(ctx, posDetails)) {
                         return;
                     }
-                    List<CodeAction> codeActionsOut = rangeBasedProvider.getCodeActions(ctx, posDetails);
+                    List<CodeAction> codeActionsOut = provider.getCodeActions(ctx, posDetails);
                     if (codeActionsOut != null) {
                         codeActionsOut.forEach(codeAction ->
                                 TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, provider));
@@ -119,12 +116,10 @@ public class CodeActionRouter {
                                     // in order to avoid unnecessary calculations
                                     ctx.checkCancelled();
 
-                                    DiagnosticBasedCodeActionProvider diagBasedProvider
-                                            = (DiagnosticBasedCodeActionProvider) provider;
-                                    if (!diagBasedProvider.validate(diagnostic, positionDetails, ctx)) {
+                                    if (!provider.validate(diagnostic, positionDetails, ctx)) {
                                         return;
                                     }
-                                    List<CodeAction> codeActionsOut = diagBasedProvider
+                                    List<CodeAction> codeActionsOut = provider
                                             .getCodeActions(diagnostic, positionDetails, ctx);
                                     codeActionsOut.forEach(codeAction ->
                                             TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction,

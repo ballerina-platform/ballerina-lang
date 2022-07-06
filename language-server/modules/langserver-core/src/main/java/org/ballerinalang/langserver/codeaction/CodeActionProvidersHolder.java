@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
  * @since 1.1.1
  */
 public class CodeActionProvidersHolder {
-    private static final Map<SyntaxKind, List<LSCodeActionProvider>> rangeBasedProviders = new HashMap<>();
-    private static final List<LSCodeActionProvider> diagnosticsBasedProviders = new ArrayList<>();
+    private static final Map<SyntaxKind, List<RangeBasedCodeActionProvider>> rangeBasedProviders = new HashMap<>();
+    private static final List<DiagnosticBasedCodeActionProvider> diagnosticsBasedProviders = new ArrayList<>();
     private static final LanguageServerContext.Key<CodeActionProvidersHolder> CODE_ACTION_PROVIDERS_HOLDER_KEY =
             new LanguageServerContext.Key<>();
 
@@ -74,12 +74,14 @@ public class CodeActionProvidersHolder {
                 continue;
             }
             if (provider instanceof RangeBasedCodeActionProvider) {
-                for (SyntaxKind nodeType : ((RangeBasedCodeActionProvider) provider).getSyntaxKinds()) {
-                    CodeActionProvidersHolder.rangeBasedProviders.get(nodeType).add(provider);
+                RangeBasedCodeActionProvider codeActionProvider = (RangeBasedCodeActionProvider) provider;
+                for (SyntaxKind nodeType : codeActionProvider.getSyntaxKinds()) {
+                    CodeActionProvidersHolder.rangeBasedProviders.get(nodeType).add(codeActionProvider);
                 }
             }
             if (provider instanceof DiagnosticBasedCodeActionProvider) {
-                CodeActionProvidersHolder.diagnosticsBasedProviders.add(provider);
+                DiagnosticBasedCodeActionProvider codeActionProvider = (DiagnosticBasedCodeActionProvider) provider;
+                CodeActionProvidersHolder.diagnosticsBasedProviders.add(codeActionProvider);
             }
         }
     }
@@ -90,7 +92,7 @@ public class CodeActionProvidersHolder {
      * @param nodeType node type
      * @return node based providers
      */
-    List<LSCodeActionProvider> getActiveRangeBasedProviders(SyntaxKind nodeType, CodeActionContext ctx) {
+    List<RangeBasedCodeActionProvider> getActiveRangeBasedProviders(SyntaxKind nodeType, CodeActionContext ctx) {
         if (CodeActionProvidersHolder.rangeBasedProviders.containsKey(nodeType)) {
             return CodeActionProvidersHolder.rangeBasedProviders.get(nodeType).stream()
                     .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
@@ -105,7 +107,7 @@ public class CodeActionProvidersHolder {
      *
      * @return diagnostic based providers
      */
-    List<LSCodeActionProvider> getActiveDiagnosticsBasedProviders(CodeActionContext ctx) {
+    List<DiagnosticBasedCodeActionProvider> getActiveDiagnosticsBasedProviders(CodeActionContext ctx) {
         return CodeActionProvidersHolder.diagnosticsBasedProviders.stream()
                 .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                 .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
