@@ -290,10 +290,13 @@ public class BallerinaParser extends AbstractParser {
      */
     public STNode parseAsObjectMember() {
         startContext(ParserRuleContext.COMP_UNIT);
-        startContext(ParserRuleContext.VAR_DECL_STMT);
-        startContext(ParserRuleContext.OBJECT_CONSTRUCTOR);
+        startContext(ParserRuleContext.SERVICE_DECL);
+        startContext(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
         STNode objectMember = parseObjectMember(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
 
+        if (objectMember == null) {
+            objectMember = createMissingSimpleObjectField();
+        }
         objectMember = invalidateRestAndAddToTrailingMinutiae(objectMember);
         return objectMember;
     }
@@ -4838,6 +4841,11 @@ public class BallerinaParser extends AbstractParser {
 
         return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList,
                 simpleNameRef, identifier, emptyNode, emptyNode, semicolon);
+    }
+
+    private STNode createMissingSimpleObjectField() {
+        List<STNode> qualifiers = new ArrayList<>();
+        return createMissingSimpleObjectField(null,  qualifiers, false);
     }
 
     private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
