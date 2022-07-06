@@ -70,6 +70,16 @@ public class SingleFileRunInTerminalTest extends BaseTestCase {
         Assert.assertFalse(didRunInIntegratedTerminal);
     }
 
+    @Test(description = "Debug launch test without runinterminal config")
+    public void testLaunchWithoutConfig() throws BallerinaTestException {
+        didRunInIntegratedTerminal = debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN,
+                "");
+
+        // returned value should be false since the runinterminal kind config wasn't set to launch the program in a
+        // separate terminal
+        Assert.assertFalse(didRunInIntegratedTerminal);
+    }
+
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();
