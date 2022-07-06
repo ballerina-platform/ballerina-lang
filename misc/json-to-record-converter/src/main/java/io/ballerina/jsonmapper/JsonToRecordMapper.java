@@ -46,6 +46,7 @@ import io.ballerina.jsonmapper.diagnostic.DiagnosticUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.javatuples.Pair;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -53,7 +54,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -248,19 +248,29 @@ public class JsonToRecordMapper {
                                            List<DiagnosticMessage> diagnosticMessages, List<Node> recordFields,
                                            Map<String, RecordFieldNode> previousRecordFieldToNodes,
                                            Map<String, RecordFieldNode> newRecordFieldToNodes) {
-        Map<String, RecordFieldNode> intersectingRecordFields =
+        Map<String, Pair<RecordFieldNode, RecordFieldNode>> intersectingRecordFields =
                 intersection(previousRecordFieldToNodes, newRecordFieldToNodes);
         Map<String, RecordFieldNode> differencingRecordFields =
                 difference(previousRecordFieldToNodes, newRecordFieldToNodes);
 
-        for (Map.Entry<String, RecordFieldNode> entry : intersectingRecordFields.entrySet()) {
-            boolean isOptional = entry.getValue().questionMarkToken().isPresent();
+        for (Map.Entry<String, Pair<RecordFieldNode, RecordFieldNode>> entry : intersectingRecordFields.entrySet()) {
+            boolean isOptional = entry.getValue().getValue0().questionMarkToken().isPresent();
             Map<String, String> jsonEscapedFieldToFields = jsonNodes.entrySet().stream()
                     .collect(Collectors.toMap(jsonEntry -> escapeIdentifier(jsonEntry.getKey()), Map.Entry::getKey));
-            Map.Entry<String, JsonElement> jsonEntry =
-                    new AbstractMap.SimpleEntry<>(jsonEscapedFieldToFields.get(entry.getKey()), jsonNodes.get(jsonEscapedFieldToFields.get(entry.getKey())));
-            Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
-            recordFields.add(recordField);
+            Map.Entry<String, JsonElement> jsonEntry = new AbstractMap.SimpleEntry<>(jsonEscapedFieldToFields
+                    .get(entry.getKey()), jsonNodes.get(jsonEscapedFieldToFields.get(entry.getKey())));
+            if (!entry.getValue().getValue0().typeName().toSourceCode().equals(entry.getValue().getValue1().typeName().toSourceCode()) && !isRecordTypeDesc) {
+                List<TypeDescriptorNode> typeDescNodes = List.of((TypeDescriptorNode) entry.getValue().getValue0().typeName(), (TypeDescriptorNode) entry.getValue().getValue1().typeName());
+                List<TypeDescriptorNode> typeDescNodesSorted = sortTypeDescriptorNodes(typeDescNodes);
+                TypeDescriptorNode unionTypeDescNode = createUnionTypeDescriptorNode(typeDescNodesSorted);
+                RecordFieldNode recordField = (RecordFieldNode) getRecordField(jsonEntry, false, isOptional, recordToTypeDescNodes);
+                recordField = recordField.modify().withTypeName(unionTypeDescNode).apply();
+                recordFields.add(recordField);
+            } else {
+                Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
+
+                recordFields.add(recordField);
+            }
         }
 
         for (Map.Entry<String, RecordFieldNode> entry : differencingRecordFields.entrySet()) {
@@ -268,8 +278,8 @@ public class JsonToRecordMapper {
             JsonElement jsonElement = jsonNodes.get(jsonField);
             Map.Entry<String, JsonElement> jsonEntry = jsonElement != null ?
                     new AbstractMap.SimpleEntry<>(jsonField, jsonElement) :
-                    jsonObject.entrySet().stream().filter(elementEntry -> escapeIdentifier(elementEntry.getKey()).equals(jsonField))
-                            .findFirst().orElse(null);
+                    jsonObject.entrySet().stream().filter(elementEntry -> escapeIdentifier(elementEntry.getKey())
+                            .equals(jsonField)).findFirst().orElse(null);
             if (jsonEntry != null) {
                 Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, true, recordToTypeDescNodes);
                 recordFields.add(recordField);
