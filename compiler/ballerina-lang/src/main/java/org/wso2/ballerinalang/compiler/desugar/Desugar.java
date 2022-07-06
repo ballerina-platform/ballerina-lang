@@ -7338,7 +7338,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression addNilType(BType exprType, BLangExpression expr) {
-        LinkedHashSet<BType> members = new LinkedHashSet<>();
+        LinkedHashSet<BType> members = new LinkedHashSet<>(2);
         members.add(exprType);
         members.add(new BNilType());
         BUnionType unionType = new BUnionType(null, members, true, false);

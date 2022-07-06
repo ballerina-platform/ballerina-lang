@@ -6228,6 +6228,10 @@ public class Types {
                 boolean allMembersOrdered = false;
                 BType firstTypeInUnion = getTypeWithEffectiveIntersectionTypes(getReferredType(
                         memberTypes.stream().filter(m -> !isNil(m)).findFirst().orElse(memberTypes.iterator().next())));
+                if (isNil(firstTypeInUnion)) {
+                    // Union contains only the nil type.
+                    return true;
+                }
                 boolean isFirstTypeInUnionFinite = firstTypeInUnion.tag == TypeTags.FINITE;
                 for (BType memType : memberTypes) {
                     memType = getEffectiveTypeForIntersection(getReferredType(memType));
@@ -6244,7 +6248,7 @@ public class Types {
                             continue;
                         }
                         return false;
-                    } else if (memType.tag != firstTypeInUnion.tag && !isNil(firstTypeInUnion) && !isNil(memType) &&
+                    } else if (memType.tag != firstTypeInUnion.tag && !isNil(memType) &&
                             !isIntOrStringType(memType.tag, firstTypeInUnion.tag)) {
                         return false;
                     }
