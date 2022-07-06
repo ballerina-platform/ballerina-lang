@@ -31,6 +31,7 @@ import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -44,7 +45,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,8 +53,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -276,7 +274,8 @@ public abstract class BalaWriter {
         List<String> includePatterns = this.packageContext.packageManifest().includes();
         List<Path> includePaths = new ArrayList<>();
         for (String includePattern : includePatterns) {
-            includePaths.addAll(getPathsMatchingIncludePattern(includePattern));
+            includePaths.addAll(ProjectUtils.getPathsMatchingIncludePattern(includePattern,
+                    this.packageContext.project().sourceRoot()));
         }
         for (Path includePath: includePaths) {
             includePath = includePath.toAbsolutePath();
@@ -308,21 +307,16 @@ public abstract class BalaWriter {
         }
     }
 
-    private List<Path> getPathsMatchingIncludePattern(String pattern) throws IOException {
-        try (Stream<Path> pathStream = Files.walk(this.packageContext.project().sourceRoot())) {
-            return pathStream.filter(
-                    FileSystems.getDefault().getPathMatcher("glob:" + pattern)::matches).collect(Collectors.toList());
-        }
-    }
-
     private Path getPathRelativeToPackageRoot(Path absolutePath) {
         URI packagePathURI = this.packageContext.project().sourceRoot().toUri();
         URI relativePathURI = packagePathURI.relativize(absolutePath.toUri());
         Path relativePath = Paths.get(relativePathURI.getPath());
-        return updateModuleDirectory(relativePath);
+        return updateModuleDirectoryToMatchNamingInBala(relativePath);
     }
 
-    private Path updateModuleDirectory(Path relativePath) {
+    private Path updateModuleDirectoryToMatchNamingInBala(Path relativePath) {
+        // a project with non-default module dir modules/<submodule_name> when packed into a BALA has the structure
+        // modules/<package_name>.<submodule_name>
         Path moduleRootPath = Path.of(MODULES_ROOT);
         if (relativePath.startsWith(moduleRootPath)) {
             String packageName = this.packageContext.packageName().toString();

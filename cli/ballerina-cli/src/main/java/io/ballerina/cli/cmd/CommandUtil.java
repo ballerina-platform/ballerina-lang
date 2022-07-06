@@ -301,12 +301,15 @@ public class CommandUtil {
 
     private static void copyIncludeFiles(Path balaPath, Path projectPath, PackageJson templatePackageJson)
             throws IOException {
-        // TODO: fix to match the patterns
-        // TODO: update the tests to match
         if (templatePackageJson.getInclude() != null) {
-            for (String includeFileString : templatePackageJson.getInclude()) {
-                Path fromIncludeFilePath = balaPath.resolve(includeFileString);
-                Path toIncludeFilePath = projectPath.resolve(includeFileString);
+            List<Path> includePaths = new ArrayList<>();
+            for (String includePattern : templatePackageJson.getInclude()) {
+                includePaths.addAll(ProjectUtils.getPathsMatchingIncludePattern(includePattern, balaPath));
+            }
+            for(Path includePath: includePaths) {
+                Path includePathRelativeToRoot = balaPath.relativize(includePath);
+                Path fromIncludeFilePath = balaPath.resolve(includePathRelativeToRoot);
+                Path toIncludeFilePath = projectPath.resolve(includePathRelativeToRoot);
                 if (Files.notExists(toIncludeFilePath)) {
                     Files.createDirectories(toIncludeFilePath);
                     Files.walkFileTree(fromIncludeFilePath, new FileUtils.Copy(fromIncludeFilePath, toIncludeFilePath));

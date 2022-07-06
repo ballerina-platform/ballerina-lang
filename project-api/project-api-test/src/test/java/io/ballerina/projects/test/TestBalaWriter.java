@@ -142,8 +142,8 @@ public class TestBalaWriter {
 
             Assert.assertFalse(packageJson.getInclude().isEmpty());
             Assert.assertEquals(packageJson.getInclude().get(0), "**/include-file.*");
-            Assert.assertEquals(packageJson.getInclude().get(1), "**/file");
-            Assert.assertEquals(packageJson.getInclude().get(2), "**/*-module-include-*");
+            Assert.assertEquals(packageJson.getInclude().get(1), "**/*module-include/file");
+            Assert.assertEquals(packageJson.getInclude().get(2), "**/*-module-include-dir");
 
             Assert.assertEquals(packageJson.getVisibility(), "private");
 

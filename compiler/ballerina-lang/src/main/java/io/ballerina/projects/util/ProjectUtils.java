@@ -62,6 +62,7 @@ import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -82,6 +83,8 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -998,5 +1001,21 @@ public class ProjectUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * Given a pattern in include field, find the directories and files in the package that match the pattern.
+     *
+     * @param pattern string pattern to be matched
+     * @return the list of matching paths
+     */
+    public static List<Path> getPathsMatchingIncludePattern(String pattern, Path packageRoot) {
+        try (Stream<Path> pathStream = Files.walk(packageRoot)) {
+            return pathStream.filter(
+                    FileSystems.getDefault().getPathMatcher("glob:" + pattern)::matches).collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read files matching the include pattern '" + pattern + "': " +
+                    e.getMessage(), e);
+        }
     }
 }

@@ -11,8 +11,8 @@ visibility = "private"
 icon = "./resources/samplePng01.png"
 include = [
     "**/include-file.*",
-    "**/file",
-    "**/*-module-include-*",
+    "**/*module-include/file",
+    "**/*-module-include-dir",
     ]
 
 [[platform.java11.dependency]]
