@@ -224,6 +224,7 @@ import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.TUPLE_TYPE_NODE;
 
 /**
  * @since 0.94
@@ -448,6 +449,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
             ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol).returnTypeAnnots.addAll(
                     getAnnotationAttachmentSymbols(funcNode.returnTypeAnnAttachments));
+            if (returnTypeNode.getKind() == TUPLE_TYPE_NODE) {
+                for (BLangMemberTypeNode memberTypeNode : ((BLangTupleTypeNode) returnTypeNode).memberTypeNodes) {
+                    for (BLangAnnotationAttachment annotationAttachment : memberTypeNode.annAttachments) {
+                        annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
+                        this.analyzeDef(annotationAttachment, data);
+                    }
+                }
+            }
         }
 
         boolean inIsolatedFunction = funcNode.flagSet.contains(Flag.ISOLATED);
