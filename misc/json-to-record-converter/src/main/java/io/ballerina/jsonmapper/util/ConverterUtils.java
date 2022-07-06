@@ -55,7 +55,7 @@ public final class ConverterUtils {
         } else if (!identifier.matches("\\b[_a-zA-Z]\\w*\\b")
                 || keywords.stream().anyMatch(identifier::equals)) {
 
-            identifier = identifier.replaceAll(Constants.ESCAPE_PATTERN, "\\\\$1");
+            identifier = identifier.replaceAll(Constants.IDENTIFIER_ESCAPE_PATTERN, "\\\\$1");
             if (identifier.endsWith("?")) {
                 if (identifier.charAt(identifier.length() - 2) == '\\') {
                     StringBuilder stringBuilder = new StringBuilder(identifier);

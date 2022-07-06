@@ -27,5 +27,5 @@ public final class Constants {
 
     private Constants() {}
 
-    public static final String ESCAPE_PATTERN = "([\\[\\]\\\\?!<>@#&~`*-=^+();:\\_{}\\s|.$])";
+    public static final String IDENTIFIER_ESCAPE_PATTERN = "([\\[\\]\\\\?!<>@#&~`*-=^+();:{}\\s|.$])";
 }
