@@ -753,7 +753,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'B', found '(A|B)'", 29, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'B', found '(A|B)'", 37, 11);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'D', found 'E'", 54, 15);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '(X|Y)', found '(W|X|Y)'", 204, 17);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(X|Y)', found '(V|W|X|Y)'", 204, 17);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '([int]|[string])'",
                 222, 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '[string]', " +
@@ -798,7 +798,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(Z|stream<int>)', found '" +
                 "(Z|json|stream<int>)'", 431, 27);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'record {| stream<int> s; |}', " +
-                "found '(anydata|record {| stream<int> s; |})'", 439, 41);
+                "found '(anydata|record {| stream<int> s; |}|future<string>)'", 439, 41);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(anydata|future<string>)', " +
                 "found '(anydata|record {| stream<int> s; |}|future<string>)'", 445, 36);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(map<int>|xml)', found '" +
@@ -807,16 +807,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(A2|A3)', found '(A|A2|A3)'", 486,
                 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'A5', found '(A4|A5)'", 508, 16);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'xml', found '(json|xml)'", 543, 17);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'json', found '(json|xml)'", 550, 18);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'stream<string[],error?>', found '" +
-                "(xml|stream<string[],error?>)'", 557, 38);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'boolean[]', found '" +
-                "(int[]|boolean[])'", 567, 23);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'boolean[]', found '" +
-                "(int[]|boolean[])'", 575, 23);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '(boolean[]|xml)', found '" +
-                "(int[]|boolean[]|xml)'", 585, 27);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'A6', found '(A|A6|boolean)'", 532,
+                                  16);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 

@@ -436,7 +436,7 @@ function f25() {
     if c is anydata|future<string> {
         anydata|future<string> _ = c; // OK
     } else {
-        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |})'
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |}|future<string>)'
     }
 
     if c is record {| stream<int> s; |} {
@@ -529,61 +529,6 @@ function f28() {
     if w is A|boolean {
         A|boolean _ = w;
     } else {
-        A6 _ = w; // OK
-    }
-}
-
-function f29() {
-    json|xml|stream<string[], error?> content = 1;
-
-    if content is string[][] || content is stream<string[], error?> {
-        stream<string[], error?>|string[][] _ = content; // OK
-    } else {
-        json|xml _ = content; // OK
-        xml _ = content; // error incompatible types: expected 'xml', found '(json|xml)'
-    }
-
-    if content is string[][]|stream<string[], error?> {
-        stream<string[], error?>|string[][] _ = content; // OK
-    } else {
-        json|xml _ = content; // OK
-        json _ = content; // error incompatible types: expected 'json', found '(json|xml)'
-    }
-
-    if content is json {
-        json _ = content; // OK
-    } else {
-        xml|stream<string[], error?> _  = content; // OK
-        stream<string[], error?> _ = content; // error incompatible types: expected 'stream<string[],error?>', found '(xml|stream<string[],error?>)'
-    }
-}
-
-function f30() {
-    int[]|boolean[]|stream<string[], error?> content = [1, 2];
-
-    if content is int[] || content is stream<string[], error?> {
-        int[]|stream<string[], error?> _ = content; // OK
-    } else {
-        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(int[]|boolean[])'
-        boolean[]|int[] _ = content; // OK
-    }
-
-    if content is int[]|stream<string[], error?> {
-        int[]|stream<string[], error?> _ = content; // OK
-    } else {
-        boolean[]|int[] _ = content; // OK
-        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(int[]|boolean[])'
-    }
-}
-
-function f31() {
-    int[]|boolean[]|xml content = [1];
-
-    if content is int[]|float[] {
-        int[] _ = content; // OK
-    } else {
-        boolean[]|xml _ = content; // error incompatible types: expected '(boolean[]|xml)', found '(int[]|boolean[]|xml)'
-        anydata[]|xml _ = content; // OK
-        boolean[]|xml|int[] _ = content; // OK
+        A6 _ = w; // OK, not yet allowed.
     }
 }
