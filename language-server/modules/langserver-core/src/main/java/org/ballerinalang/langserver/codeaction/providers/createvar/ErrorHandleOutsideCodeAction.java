@@ -22,7 +22,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -58,9 +57,9 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
     }
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) && 
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
                 CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
@@ -68,9 +67,9 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         String uri = context.fileUri();
 
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
@@ -95,7 +94,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
                 positionDetails.matchedNode(), context));
 
         String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
-        return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(commandTitle, edits, uri,
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, uri,
                 CodeActionKind.QuickFix));
     }
 

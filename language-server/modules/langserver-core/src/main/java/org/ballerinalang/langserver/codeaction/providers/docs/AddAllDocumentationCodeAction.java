@@ -17,12 +17,11 @@ package org.ballerinalang.langserver.codeaction.providers.docs;
 
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -39,28 +38,27 @@ import java.util.List;
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
+public class AddAllDocumentationCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Add All Documentation";
 
-    public AddAllDocumentationCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.FUNCTION,
-                CodeActionNodeType.OBJECT,
-                CodeActionNodeType.CLASS,
-                CodeActionNodeType.SERVICE,
-                CodeActionNodeType.RESOURCE,
-                CodeActionNodeType.RECORD,
-                CodeActionNodeType.OBJECT_FUNCTION,
-                CodeActionNodeType.ANNOTATION,
-                CodeActionNodeType.CLASS_FUNCTION));
+    @Override
+    public List<SyntaxKind> getSyntaxKinds() {
+        return Arrays.asList(SyntaxKind.FUNCTION_DEFINITION,
+                SyntaxKind.OBJECT_TYPE_DESC,
+                SyntaxKind.CLASS_DEFINITION,
+                SyntaxKind.SERVICE_DECLARATION,
+                SyntaxKind.RECORD_TYPE_DESC,
+                SyntaxKind.OBJECT_METHOD_DEFINITION,
+                SyntaxKind.ANNOTATION_DECLARATION);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context,
+                                           RangeBasedPositionDetails posDetails) {
         // We don't show 'Document All' for nodes other than top level nodes
         if (posDetails.matchedDocumentableNode().isEmpty()
                 || posDetails.matchedDocumentableNode().get().parent().kind() != SyntaxKind.MODULE_PART) {

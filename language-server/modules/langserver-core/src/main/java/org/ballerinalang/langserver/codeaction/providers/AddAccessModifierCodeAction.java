@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -31,7 +32,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,38 +42,37 @@ import java.util.Optional;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddAccessModifierCodeAction extends AbstractCodeActionProvider {
+public class AddAccessModifierCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Add Access Modifier";
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC.diagnosticId().equals(diagnostic.diagnosticInfo().code()) 
+        return DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC.diagnosticId().equals(diagnostic.diagnosticInfo().code())
                 && CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, 
-                                                    DiagBasedPositionDetails positionDetails, 
-                                                    CodeActionContext context) {
-        
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
         Optional<FunctionDefinitionNode> funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
         if (funcDef.isEmpty()) {
             return Collections.emptyList();
         }
         Position funcBodyStart = PositionUtil.toPosition(funcDef.get().functionKeyword().lineRange().startLine());
-        
+
         String editText = "public ";
-        List<TextEdit> edits = Arrays.asList(new TextEdit(new Range(funcBodyStart, funcBodyStart), editText));
+        List<TextEdit> edits = List.of(new TextEdit(new Range(funcBodyStart, funcBodyStart), editText));
         String commandTitle = CommandConstants.CONVERT_FUNCTION_TO_PUBLIC;
-        List<CodeAction> codeActions = Arrays.asList(createCodeAction(commandTitle, edits, context.fileUri(),
+        return List.of(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
-        return codeActions;
     }
 
     @Override
     public String getName() {
-        return NAME; 
+        return NAME;
     }
 }

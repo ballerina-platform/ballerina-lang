@@ -20,7 +20,9 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -31,16 +33,22 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
@@ -53,16 +61,25 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
+import org.ballerinalang.model.Name;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -508,12 +525,12 @@ public class CodeActionUtil {
     /**
      * Get the top level node type at the cursor line.
      *
-     * @param cursorPos  {@link Position}
+     * @param range      {@link Range}
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link String}   Top level node
      */
-    public static Optional<NonTerminalNode> getTopLevelNode(Position cursorPos, SyntaxTree syntaxTree) {
-        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(cursorPos, syntaxTree);
+    public static Optional<NonTerminalNode> getTopLevelNode(Range range, SyntaxTree syntaxTree) {
+        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(range, syntaxTree);
         return analyzer.getCodeActionNode();
     }
 
@@ -658,7 +675,7 @@ public class CodeActionUtil {
         int startOffset;
         int textOffset;
         if (initNode.isEmpty()) {
-            LinePosition linePosition =  ((ClassDefinitionNode) objectFieldNode.parent()).
+            LinePosition linePosition = ((ClassDefinitionNode) objectFieldNode.parent()).
                     members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
                     lineRange().endLine();
             startLine = linePosition.line();
@@ -701,7 +718,7 @@ public class CodeActionUtil {
     }
 
     public static boolean isFunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
-        for (Node node: ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
+        for (Node node : ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
             if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
                 if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
                     return true;
@@ -713,7 +730,7 @@ public class CodeActionUtil {
     }
 
     public static Optional<ObjectFieldNode> getObjectFieldNode(CodeActionContext context,
-                                                        NodeBasedPositionDetails posDetails) {
+                                                               RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedNode = posDetails.matchedCodeActionNode();
         if (!(matchedNode.kind() == SyntaxKind.OBJECT_FIELD) || matchedNode.hasDiagnostics()) {
             return Optional.empty();
@@ -728,7 +745,7 @@ public class CodeActionUtil {
     }
 
     public static boolean isImmutableObjectField(ObjectFieldNode objectFieldNode) {
-        return  objectFieldNode.qualifierList().stream()
+        return objectFieldNode.qualifierList().stream()
                 .anyMatch(qualifiers -> qualifiers.toString().strip().equals("final") ||
                         qualifiers.toString().strip().equals("readonly"));
     }
@@ -749,5 +766,195 @@ public class CodeActionUtil {
             return Optional.ofNullable((T) diagnosticProperty.value());
         };
         return filterFunction;
+    }
+
+    /**
+     * Returns a Code Action for commands.
+     *
+     * @param commandTitle   title of the code action
+     * @param command        command
+     * @param codeActionKind kind of the code action
+     * @return {@link CodeAction}
+     */
+    public static CodeAction createCodeAction(String commandTitle, Command command, String codeActionKind) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        CodeAction action = new CodeAction(commandTitle);
+        action.setKind(codeActionKind);
+        action.setCommand(command);
+        action.setDiagnostics(toDiagnostics(diagnostics));
+        return action;
+    }
+
+    /**
+     * Returns a Code action.
+     *
+     * @param commandTitle title of the code action
+     * @param edits        edits to be added in the code action
+     * @param uri          uri
+     * @return {@link CodeAction}
+     */
+    public static CodeAction createCodeAction(String commandTitle, List<TextEdit> edits, String uri) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        CodeAction action = new CodeAction(commandTitle);
+        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
+        action.setDiagnostics(toDiagnostics(diagnostics));
+        return action;
+    }
+
+    /**
+     * Returns a Code action.
+     *
+     * @param commandTitle   title of the code action
+     * @param edits          edits to be added in the code action
+     * @param uri            uri
+     * @param codeActionKind kind of the code action
+     * @return {@link CodeAction}
+     */
+    public static CodeAction createCodeAction(String commandTitle, List<TextEdit> edits, String uri,
+                                              String codeActionKind) {
+        CodeAction action = createCodeAction(commandTitle, edits, uri);
+        action.setKind(codeActionKind);
+        return action;
+    }
+
+    /**
+     * Returns a list of text edits based on diagnostics.
+     *
+     * @param positionDetails {@link DiagBasedPositionDetails}
+     * @param context         code action context
+     * @return list of Text Edits
+     */
+    public static List<TextEdit> getDiagBasedTextEditsForImplementMethod(DiagBasedPositionDetails positionDetails,
+                                                                         CodeActionContext context) {
+        final int diagPropertyNameIndex = 0;
+        final int diagPropertySymbolIndex = 1;
+
+        Optional<Name> methodName = positionDetails.diagnosticProperty(diagPropertyNameIndex);
+        Optional<TypeSymbol> optionalSymbol = positionDetails.diagnosticProperty(diagPropertySymbolIndex);
+        if (context.currentSyntaxTree().isEmpty() || methodName.isEmpty() || optionalSymbol.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        TypeSymbol rawType = CommonUtil.getRawType(optionalSymbol.get());
+        if (rawType.typeKind() != TypeDescKind.OBJECT) {
+            return Collections.emptyList();
+        }
+
+        ObjectTypeSymbol classSymbol = (ObjectTypeSymbol) rawType;
+        if (!classSymbol.methods().containsKey(methodName.get().getValue())) {
+            return Collections.emptyList();
+        }
+
+        Optional<NonTerminalNode> matchedNode = CommonUtil.findNode(classSymbol, context.currentSyntaxTree().get());
+        if (matchedNode.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        LinePosition editPosition;
+        NodeList<Node> members;
+        if (matchedNode.get().kind() == SyntaxKind.CLASS_DEFINITION) {
+            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) matchedNode.get();
+            members = classDefinitionNode.members();
+            editPosition = classDefinitionNode.closeBrace().lineRange().startLine();
+        } else if (matchedNode.get().kind() == SyntaxKind.SERVICE_DECLARATION) {
+            ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) matchedNode.get();
+            members = serviceDeclarationNode.members();
+            editPosition = serviceDeclarationNode.closeBraceToken().lineRange().startLine();
+        } else if (matchedNode.get().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+            ObjectConstructorExpressionNode objConstructor = (ObjectConstructorExpressionNode) matchedNode.get();
+            members = objConstructor.members();
+            editPosition = objConstructor.closeBraceToken().lineRange().startLine();
+        } else {
+            return Collections.emptyList();
+        }
+
+        MethodSymbol unimplMethod = classSymbol.methods().get(methodName.get().getValue());
+        List<FunctionDefinitionNode> concreteMethods = members.stream()
+                .filter(member -> member.kind() == SyntaxKind.FUNCTION_DEFINITION)
+                .map(member -> (FunctionDefinitionNode) member)
+                .collect(Collectors.toList());
+
+        String offsetStr;
+        int enclosingNodeOffset;
+        int closeBraceOffset = editPosition.offset();
+        Optional<Token> closeBraceToken = findCloseBraceTokenOfEnclosingNode(matchedNode.get());
+        enclosingNodeOffset = closeBraceToken.map(token -> token.lineRange().startLine().offset()).orElse(0);
+        if (!concreteMethods.isEmpty()) {
+            // If other methods exist, inherit offset
+            FunctionDefinitionNode funcDefNode = concreteMethods.get(0);
+            offsetStr = StringUtils.repeat(' ', funcDefNode.location().lineRange().endLine().offset());
+        } else {
+            if (matchedNode.get().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+                offsetStr = StringUtils.repeat(' ', enclosingNodeOffset + 8);
+                closeBraceOffset = enclosingNodeOffset + 4;
+            } else {
+                // Or else, adjust offset according to the parent class
+                offsetStr = StringUtils.repeat(' ', matchedNode.get().location().lineRange().startLine().offset() + 4);
+            }
+        }
+
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor, unimplMethod.signature(), context);
+        List<TextEdit> edits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
+
+        String returnStmt = "";
+        if (unimplMethod.typeDescriptor().returnTypeDescriptor().isPresent()) {
+            TypeSymbol returnTypeSymbol = unimplMethod.typeDescriptor().returnTypeDescriptor().get();
+            if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+                Optional<String> defaultReturnValueForType = DefaultValueGenerationUtil
+                        .getDefaultValueForType(returnTypeSymbol);
+                if (defaultReturnValueForType.isPresent()) {
+                    String defaultReturnValue = defaultReturnValueForType.get();
+                    if (defaultReturnValue.equals(CommonKeys.PARANTHESES_KEY)) {
+                        returnStmt = "return;";
+                    } else {
+                        returnStmt = "return " + defaultReturnValue + CommonKeys.SEMI_COLON_SYMBOL_KEY;
+                    }
+                }
+            }
+        }
+
+        int padding = 4;
+        String paddingStr = StringUtils.repeat(" ", padding);
+        StringBuilder editText = new StringBuilder();
+        editText.append(LINE_SEPARATOR)
+                .append(offsetStr)
+                .append(typeName)
+                .append(" ")
+                .append(CommonKeys.OPEN_BRACE_KEY)
+                .append(LINE_SEPARATOR)
+                .append(offsetStr)
+                .append(paddingStr)
+                .append(returnStmt)
+                .append(LINE_SEPARATOR)
+                .append(offsetStr)
+                .append(CommonKeys.CLOSE_BRACE_KEY)
+                .append(LINE_SEPARATOR)
+                .append(StringUtils.repeat(' ', closeBraceOffset));
+        Position editPos = PositionUtil.toPosition(editPosition);
+        edits.add(new TextEdit(new Range(editPos, editPos), editText.toString()));
+        return edits;
+    }
+
+    /**
+     * Given a node, finds the close brace token of the immediate enclosing block node.
+     *
+     * @param node node.
+     * @return {@link Optional<Token>} close brace token.
+     */
+
+    private static Optional<Token> findCloseBraceTokenOfEnclosingNode(Node node) {
+        NonTerminalNode referenceNode = node.parent();
+        while (referenceNode != null) {
+            if (referenceNode.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
+                return Optional.of(((FunctionBodyBlockNode) referenceNode).closeBraceToken());
+            }
+            if (referenceNode.kind() == SyntaxKind.BLOCK_STATEMENT) {
+                return Optional.of(((BlockStatementNode) referenceNode).closeBraceToken());
+            }
+            referenceNode = referenceNode.parent();
+        }
+        return Optional.empty();
     }
 }

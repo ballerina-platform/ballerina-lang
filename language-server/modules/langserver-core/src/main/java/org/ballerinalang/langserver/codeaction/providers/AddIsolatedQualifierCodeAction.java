@@ -24,12 +24,14 @@ import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -48,30 +50,30 @@ import java.util.Set;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
+public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeActionProvider {
     public static final String NAME = "Add Isolated Qualifier";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE3946", "BCE3947");
 
     @Override
-    public boolean validate(Diagnostic diagnostic, 
-                            DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic,
+                            DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
-                || context.currentSemanticModel().isEmpty()) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())
+                && CodeActionNodeValidator.validate(context.nodeAtCursor())
+                && context.currentSyntaxTree().isPresent()
+                && context.currentSemanticModel().isPresent();
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Range diagnosticRange = PositionUtil.toRange(diagnostic.location().lineRange());
+        // isPresent() check is done in the validator
         NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
-        
+
         if (nonTerminalNode.kind() == SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION) {
-            return getExplicitAnonFuncExpressionCodeAction((ExplicitAnonymousFunctionExpressionNode) nonTerminalNode, 
+            return getExplicitAnonFuncExpressionCodeAction((ExplicitAnonymousFunctionExpressionNode) nonTerminalNode,
                     context);
         }
         Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(nonTerminalNode);
@@ -88,13 +90,13 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<NonTerminalNode> node = CommonUtil.findNode(symbol.get(), 
+        Optional<NonTerminalNode> node = CommonUtil.findNode(symbol.get(),
                 context.workspace().syntaxTree(filePath.get()).get());
         if (node.isEmpty() || !node.get().kind().equals(SyntaxKind.FUNCTION_DEFINITION)) {
             return Collections.emptyList();
         }
 
-        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get(); 
+        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get();
         Position position = PositionUtil.toPosition(functionDefinitionNode.functionKeyword().lineRange().startLine());
 
         Range range = new Range(position, position);
@@ -102,11 +104,11 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
         TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
         String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, symbol.get().getName().orElse(""));
-        return Collections.singletonList(createCodeAction(commandTitle, editList, filePath.get().toUri().toString(), 
-                CodeActionKind.QuickFix));
+        return Collections.singletonList(CodeActionUtil
+                .createCodeAction(commandTitle, editList, filePath.get().toUri().toString(), CodeActionKind.QuickFix));
     }
 
-    private List<CodeAction> getExplicitAnonFuncExpressionCodeAction(ExplicitAnonymousFunctionExpressionNode node, 
+    private List<CodeAction> getExplicitAnonFuncExpressionCodeAction(ExplicitAnonymousFunctionExpressionNode node,
                                                                      CodeActionContext context) {
         Position position = PositionUtil.toPosition(node.functionKeyword().lineRange().startLine());
         Range range = new Range(position, position);
@@ -114,13 +116,8 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
         TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
         String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, "Anonymous function expression");
-        return Collections.singletonList(createCodeAction(commandTitle, editList, context.fileUri(),
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, editList, context.fileUri(),
                 CodeActionKind.QuickFix));
-    }
-
-    @Override
-    public int priority() {
-        return super.priority();
     }
 
     @Override

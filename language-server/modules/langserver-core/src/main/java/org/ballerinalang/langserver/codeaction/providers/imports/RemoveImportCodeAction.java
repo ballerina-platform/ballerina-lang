@@ -22,11 +22,12 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
@@ -44,21 +45,21 @@ import java.util.stream.Collectors;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class RemoveImportCodeAction extends AbstractCodeActionProvider {
+public class RemoveImportCodeAction implements DiagnosticBasedCodeActionProvider {
     public static final String NAME = "remove import";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2002", "BCE2004");
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) 
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())
                 && CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails, 
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Optional<ImportDeclarationNode> importDeclarationNode = getImportDeclarationNode(positionDetails.matchedNode());
         if (importDeclarationNode.isEmpty() || context.currentDocument().isEmpty()) {
             return Collections.emptyList();
@@ -68,10 +69,10 @@ public class RemoveImportCodeAction extends AbstractCodeActionProvider {
                 importDeclNode.textRangeWithMinutiae().endOffset(), (context.currentDocument().get().textDocument()));
         List<TextEdit> edits = List.of(new TextEdit(range, ""));
         String pkgName = getPackageName(importDeclNode);
-        String commandTitle = "BCE2002".equals(diagnostic.diagnosticInfo().code()) 
-                ? String.format(CommandConstants.REMOVE_UNUSED_IMPORT, pkgName) 
+        String commandTitle = "BCE2002".equals(diagnostic.diagnosticInfo().code())
+                ? String.format(CommandConstants.REMOVE_UNUSED_IMPORT, pkgName)
                 : String.format(CommandConstants.REMOVE_REDECLARED_IMPORT, pkgName);
-        return List.of(createCodeAction(commandTitle, edits, context.fileUri(),
+        return List.of(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
     }
 
@@ -80,7 +81,7 @@ public class RemoveImportCodeAction extends AbstractCodeActionProvider {
             return importDeclNode.prefix().get().prefix().text();
         }
         return (importDeclNode.orgName().isPresent() ? importDeclNode.orgName().get().toString() : "")
-                    + importDeclNode.moduleName().stream().map(Node::toString).collect(Collectors.joining("."));
+                + importDeclNode.moduleName().stream().map(Node::toString).collect(Collectors.joining("."));
     }
 
     private Optional<ImportDeclarationNode> getImportDeclarationNode(NonTerminalNode node) {
