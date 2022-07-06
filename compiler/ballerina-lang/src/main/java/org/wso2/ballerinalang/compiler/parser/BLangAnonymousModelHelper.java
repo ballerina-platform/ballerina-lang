@@ -109,23 +109,15 @@ public class BLangAnonymousModelHelper {
     }
 
     private String createAnonTypeName(Stack<String> suffixes, PackageID pkgId) {
-        String name = ANON_TYPE;
+        StringBuilder name = new StringBuilder(ANON_TYPE);
         for (int i = suffixes.size() - 1; i >= 0; i--) {
-            name = name.concat(suffixes.elementAt(i) + DOLLAR);
+            name.append(suffixes.elementAt(i)).append(DOLLAR);
         }
-        if (!anonTypesNamesPerPkg.containsKey(pkgId)) {
-            Map<String, Integer> anonTypesName = new HashMap<>();
-            anonTypesName.put(name, 1);
-            anonTypesNamesPerPkg.put(pkgId, anonTypesName);
-            return name + UNDERSCORE + 0;
-        }
-        Map<String, Integer> anonTypesNames = anonTypesNamesPerPkg.get(pkgId);
-        if (!anonTypesNames.containsKey(name)) {
-            anonTypesNames.put(name, 1);
-            return name + UNDERSCORE + 0;
-        }
-        Integer id = anonTypesNames.get(name);
-        anonTypesNames.put(name, id + 1);
+        Map<String, Integer> anonTypesNames = anonTypesNamesPerPkg.computeIfAbsent(pkgId, key -> new HashMap<>());
+        String nameStr = name.toString();
+        anonTypesNames.putIfAbsent(nameStr, 0);
+        Integer id = anonTypesNames.get(nameStr);
+        anonTypesNames.put(nameStr, id + 1);
         return name + UNDERSCORE + id;
     }
 
