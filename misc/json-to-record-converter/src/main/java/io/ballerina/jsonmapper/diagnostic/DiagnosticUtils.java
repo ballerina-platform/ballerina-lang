@@ -42,8 +42,8 @@ public final class DiagnosticUtils {
         return response;
     }
 
-    public static String transformJsonSyntaxErrorMessage(String jsonSyntaxErrorMessage) {
+    public static String extractJsonSyntaxErrorMessage(String jsonSyntaxErrorMessage) {
         String[] splitMessage = jsonSyntaxErrorMessage.split(":");
-        return splitMessage[1].trim();
+        return (splitMessage.length > 1) ? splitMessage[1].trim() : jsonSyntaxErrorMessage;
     }
 }

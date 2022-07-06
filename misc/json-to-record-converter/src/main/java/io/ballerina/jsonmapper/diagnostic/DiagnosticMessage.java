@@ -61,7 +61,7 @@ public final class DiagnosticMessage {
         if (args != null) {
             return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_100",
                     String.format("Provided JSON is invalid : %s", DiagnosticUtils.
-                            transformJsonSyntaxErrorMessage((String) args[0])), DiagnosticSeverity.ERROR,
+                            extractJsonSyntaxErrorMessage((String) args[0])), DiagnosticSeverity.ERROR,
                     Arrays.copyOfRange(args, 1, args.length));
         }
         return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_100",
@@ -80,7 +80,7 @@ public final class DiagnosticMessage {
 
     public static DiagnosticMessage jsonToRecordConverter103(Object[] args) {
         return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_103",
-                "There is no JSON entry be found for the field name %s. This is a serious issue.",
+                "There is no JSON entry could be found for the field name %s.",
                 DiagnosticSeverity.WARNING, args);
     }
 }
