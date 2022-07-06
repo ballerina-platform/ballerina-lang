@@ -18,6 +18,8 @@
 
 package io.ballerina.jsonmapper.util;
 
+import io.ballerina.jsonmapper.JsonToRecordResponse;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +32,13 @@ public final class ListOperationUtils {
 
     private ListOperationUtils() {}
 
+    /**
+     * This method returns the intersection of Key, Value pairs based on the keys of the pairs.
+     *
+     * @param mapOne First set of Key, Value pairs to be compared with other
+     * @param mapTwo Second set of Key, Value pairs to be compared with other
+     * @return {@link Map} Intersection of first and second set of Key Value pairs
+     */
     public static <K, V> Map<K, V> intersection(Map<K, V> mapOne, Map<K, V> mapTwo) {
         Map<K, V> intersection = new HashMap<>();
         for (Map.Entry<K, V> key: mapOne.entrySet()) {
@@ -40,6 +49,13 @@ public final class ListOperationUtils {
         return intersection;
     }
 
+    /**
+     * This method returns the union of Key, Value pairs based on the keys of the pairs.
+     *
+     * @param mapOne First set of Key, Value pairs to be compared with other
+     * @param mapTwo Second set of Key, Value pairs to be compared with other
+     * @return {@link Map} Union of first and second set of Key Value pairs
+     */
     public static <K, V> Map<K, V> union(Map<K, V> mapOne, Map<K, V> mapTwo) {
         Map<K, V> union = new HashMap<>(mapOne);
         for (Map.Entry<K, V> key: mapTwo.entrySet()) {
@@ -50,6 +66,13 @@ public final class ListOperationUtils {
         return union;
     }
 
+    /**
+     * This method returns the difference of Key, Value pairs based on the keys of the pairs.
+     *
+     * @param mapOne First set of Key, Value pairs to be compared with other
+     * @param mapTwo Second set of Key, Value pairs to be compared with other
+     * @return {@link Map} Difference of first and second set of Key Value pairs
+     */
     public static <K, V> Map<K, V> difference(Map<K, V> mapOne, Map<K, V> mapTwo) {
         Map<K, V> unionMap = union(mapOne, mapTwo);
         Map<K, V> intersectionMap = intersection(mapOne, mapTwo);

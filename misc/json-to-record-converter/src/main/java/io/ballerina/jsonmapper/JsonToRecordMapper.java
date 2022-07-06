@@ -63,7 +63,7 @@ import static io.ballerina.jsonmapper.util.ListOperationUtils.difference;
 import static io.ballerina.jsonmapper.util.ListOperationUtils.intersection;
 
 /**
- * API for converting JSON string to Ballerina Records directly.
+ * APIs for direct conversion from JSON strings to Ballerina records.
  *
  * @since 2201.2.0
  */
