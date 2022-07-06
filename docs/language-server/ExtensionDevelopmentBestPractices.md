@@ -16,7 +16,7 @@ experience. At the moment following extension points are provided.
 __NOTE__: Formatting and Diagnostic extensions are not used currently.
 
 In order to compose an extension, the developer should have an understanding of the underlying supporting APIs which
-being used heavily in the existing implementations. Following are the main APIs being used in the implementation.
+are being used heavily in the existing implementations. Following are the main APIs being used in the implementation.
 
 1. Project API
 2. Syntax Tree API
@@ -126,6 +126,6 @@ Better option would be to use the offset approach_
 **Answer:** _Use the `toSourceCode` API. **NEVER** use the `toString` API_
 
 **6. How to traverse the Syntax Tree**  
-**Answer:** _Best and recomended optionis to use a node visitor. The `NodeVisitor` facilitates this. Each `visit` method
+**Answer:** _Best and recomended option is to use a node visitor. The `NodeVisitor` facilitates this. Each `visit` method
 will be there for each node and will return `void`. If you need to capture a value with the visit and return a value,
 use `NodeTransformer` instead_
