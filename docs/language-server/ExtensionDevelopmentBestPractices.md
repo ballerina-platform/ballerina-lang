@@ -10,7 +10,7 @@ experience. At the moment following extension points are provided.
 2. [Compiler Plugin Code Actions](CompilerPluginCodeActions.md)
 3. Code Action Extension (Java SPI)
 4. Completion Extension (Java SPI)
-5. ~~Formattin Extenstion (Java SPI)~~
+5. ~~Formatting Extension (Java SPI)~~
 6. ~~Diagnostic Extension (Java SPI)~~
 
 __NOTE__: Formatting and Diagnostic extensions are not used currently.
