@@ -24,11 +24,14 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -49,24 +52,29 @@ import java.util.Set;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
+public class IgnoreUnusedVariableCodeAction implements DiagnosticBasedCodeActionProvider {
 
     private static final String NAME = "IGNORE_VARIABLE";
 
-    /** Interested diagnostic codes of this code action. */
+    /**
+     * Interested diagnostic codes of this code action.
+     */
     private static final Set<String> DIAGNOSTIC_CODES = Set.of(
             DiagnosticWarningCode.UNUSED_LOCAL_VARIABLE.diagnosticId(),
             DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT.diagnosticId()
     );
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())
+                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
 
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         Optional<NonTerminalNode> nonTerminalNode = context.currentSyntaxTree()
                 .flatMap(syntaxTree -> Optional.ofNullable(CommonUtil.findNode(range, syntaxTree)));
@@ -138,12 +146,12 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        return List.of(createCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
+        return List.of(CodeActionUtil.createCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
                 List.of(textEdit), context.fileUri(), CodeActionKind.QuickFix));
     }
 
     @Override
     public String getName() {
-        return null;
+        return NAME;
     }
 }

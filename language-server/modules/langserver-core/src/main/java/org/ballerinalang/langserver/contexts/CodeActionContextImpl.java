@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
@@ -165,10 +164,13 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     public Node nodeAtCursor() {
         if (this.nodeAtCursor == null) {
             SyntaxTree syntaxTree = this.currentSyntaxTree().orElseThrow();
-            NonTerminalNode matchedNode = CommonUtil.findNode(new Range(this.cursorPosition(),
-                    this.cursorPosition()), syntaxTree);
-            this.nodeAtCursor = matchedNode;
+            this.nodeAtCursor = CommonUtil.findNode(range(), syntaxTree);
         }
         return this.nodeAtCursor;
+    }
+
+    @Override
+    public Range range() {
+        return this.params.getRange();
     }
 }

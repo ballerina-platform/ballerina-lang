@@ -22,11 +22,13 @@ import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -43,7 +45,7 @@ import java.util.Optional;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProvider {
+public class MakeAnnotationDeclConstantCodeAction implements DiagnosticBasedCodeActionProvider {
     public static final String NAME = "Make Annotation Declaration Constant";
     public static final String DIAGNOSTIC_CODE = "BCE2638";
 
@@ -55,12 +57,12 @@ public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProv
                 context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
                 CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
-    
+
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -75,18 +77,13 @@ public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProv
         AnnotationDeclarationNode annotationDeclarationNode = (AnnotationDeclarationNode) node;
         Position position = PositionUtil.toPosition(annotationDeclarationNode.annotationKeyword().lineRange()
                 .startLine());
-        
-        TextEdit textEdit = new TextEdit(new Range(position, position), SyntaxKind.CONST_KEYWORD.stringValue() 
-                + " ");
-        String commandTitle = String.format(CommandConstants.MAKE_ANNOT_DECL_CONST, 
-                annotationDeclarationNode.annotationTag().toString().strip());
-        return Collections.singletonList(createCodeAction(commandTitle, List.of(textEdit), context.fileUri(),
-                CodeActionKind.QuickFix));
-    }
 
-    @Override
-    public int priority() {
-        return super.priority();
+        TextEdit textEdit = new TextEdit(new Range(position, position), SyntaxKind.CONST_KEYWORD.stringValue()
+                + " ");
+        String commandTitle = String.format(CommandConstants.MAKE_ANNOT_DECL_CONST,
+                annotationDeclarationNode.annotationTag().toString().strip());
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, List.of(textEdit),
+                context.fileUri(), CodeActionKind.QuickFix));
     }
 
     @Override

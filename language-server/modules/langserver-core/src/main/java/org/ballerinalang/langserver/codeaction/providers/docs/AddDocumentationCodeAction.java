@@ -16,14 +16,14 @@
 package org.ballerinalang.langserver.codeaction.providers.docs;
 
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
@@ -42,21 +42,19 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.h
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
+public class AddDocumentationCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Add Documentation";
 
-    public AddDocumentationCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.FUNCTION,
-                CodeActionNodeType.OBJECT,
-                CodeActionNodeType.CLASS,
-                CodeActionNodeType.SERVICE,
-                CodeActionNodeType.RESOURCE,
-                CodeActionNodeType.RECORD,
-                CodeActionNodeType.OBJECT_FUNCTION,
-                CodeActionNodeType.CLASS_FUNCTION,
-                CodeActionNodeType.ANNOTATION,
-                CodeActionNodeType.MODULE_VARIABLE));
+    public List<SyntaxKind> getSyntaxKinds() {
+        return Arrays.asList(SyntaxKind.FUNCTION_DEFINITION,
+                SyntaxKind.OBJECT_TYPE_DESC,
+                SyntaxKind.CLASS_DEFINITION,
+                SyntaxKind.SERVICE_DECLARATION,
+                SyntaxKind.RECORD_TYPE_DESC,
+                SyntaxKind.OBJECT_METHOD_DEFINITION,
+                SyntaxKind.ANNOTATION_DECLARATION,
+                SyntaxKind.MODULE_VAR_DECL);
     }
 
     @Override
@@ -68,18 +66,18 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context,
+                                           RangeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
         Optional<NonTerminalNode> documentableNode = posDetails.matchedDocumentableNode();
-        
+
         if (documentableNode.isEmpty() || hasDocs(documentableNode.get())) {
             return Collections.emptyList();
         }
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         PositionUtil.toRange(documentableNode.get().lineRange()));
+                PositionUtil.toRange(documentableNode.get().lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);

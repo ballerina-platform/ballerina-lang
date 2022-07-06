@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -40,7 +39,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -59,20 +57,18 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
 
     public AddCheckCodeAction() {
         super();
-        this.codeActionNodeTypes = Arrays.asList(CodeActionNodeType.LOCAL_VARIABLE,
-                CodeActionNodeType.ASSIGNMENT);
     }
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
                 CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         //Check if there is a check expression already present.
         MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
@@ -123,11 +119,11 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             WaitActionNode waitActionNode = (WaitActionNode) expressionNode.get();
             Optional<TypeSymbol> tSymbol = context.currentSemanticModel().get().typeOf(waitActionNode.waitFutureExpr());
             if (tSymbol.map(CommonUtil::getRawType).filter(t -> t.typeKind() != TypeDescKind.FUTURE).isPresent()) {
-                return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
+                return Collections.singletonList(CodeActionUtil.createCodeAction(
                         CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
             }
         }
-        return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
+        return Collections.singletonList(CodeActionUtil.createCodeAction(
                 CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri(), CodeActionKind.QuickFix));
     }
 

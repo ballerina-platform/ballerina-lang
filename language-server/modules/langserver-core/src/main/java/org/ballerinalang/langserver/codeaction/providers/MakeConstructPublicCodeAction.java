@@ -25,12 +25,14 @@ import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -49,7 +51,7 @@ import java.util.Optional;
  * @since 2201.0.4
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
+public class MakeConstructPublicCodeAction implements DiagnosticBasedCodeActionProvider {
     public static final String NAME = "Make Construct Public";
     public static final String DIAGNOSTIC_CODE = "BCE2038";
 
@@ -62,10 +64,10 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
         Range diagnosticRange = PositionUtil.toRange(diagnostic.location().lineRange());
         if (!DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
                 || context.currentSemanticModel().isEmpty()) {
@@ -102,7 +104,8 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
         TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
         String commandTitle = String.format(CommandConstants.MAKE_CONSTRUCT_PUBLIC, symbol.get().getName().orElse(""));
-        return List.of(createCodeAction(commandTitle, editList, uri.toString(), CodeActionKind.QuickFix));
+        return List.of(CodeActionUtil.createCodeAction(commandTitle, editList, uri.toString(),
+                CodeActionKind.QuickFix));
     }
 
     private static Optional<Position> getStartPosition(Node node) {
@@ -124,11 +127,6 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
             return Optional.of(startPosition);
         }
         return Optional.empty();
-    }
-
-    @Override
-    public int priority() {
-        return super.priority();
     }
 
     @Override

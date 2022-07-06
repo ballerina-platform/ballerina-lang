@@ -42,45 +42,47 @@ Language Client(eg.VSCode)       Language Server
 ### Code Action Attachment Points
 
 1. <a href="#CodeActionDiagnostic">Diagnostics based Code Actions</a>
-2. <a href="#CodeActionNodeType">Code Action Node-Type</a>
+2. <a href="#CodeActionRange">Range based Code Actions</a>
 3. <a href="#CodeActionCompilerPlugin">Compiler plugin based Code Actions</a>
 
 <a name="CodeActionDiagnostic"></a>
 
 #### 1. Diagnostic Based Code Action
-* Whenever there's a diagnostics message in the current cursor position these type of code-actions are getting triggered.
+* Whenever there's a diagnostics message in the current cursor position(or within the highlighted range) these type of code-actions are getting triggered.
 
-* Can be implemented using Java Service loader interface `LSCodeActionProvider` [here](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java).
+* Can be implemented using [interface](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/DiagnosticBasedCodeActionProvider.java) `DiagnosticBasedCodeActionProvider`
+and loaded using Java Service loader [interface]((https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java)) `LSCodeActionProvider`.
 ##### Diagnostic Based Code Action Sample
 ```java
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateVariableCodeAction extends AbstractCodeActionProvider {
+public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvider {
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         // return list of code-actions
     }
 }
 ```
-<a name="CodeActionNodeType"></a>
+<a name="CodeActionRange"></a>
 
-#### 2. Node Type Based Code Action
-* Whenever the node-type of the current cursor position matches pre-declared node-types, these type of code-actions are getting triggered.
+#### 2. Range Based Code Action
+* Whenever the syntaxKind of the selected range(highlighted code range) matches pre-defined set of scenarios, these type of code-actions are getting triggered.
 
-* Supported node-types includes variables, functions, objects, classes, services...etc. The complete list can be found in [here](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/CodeActionNodeType.java)
+* Can be implemented using [interface](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/RangeBasedCodeActionProvider.java) `RangeBasedCodeActionProvider`
+  and loaded using Java Service loader [interface]((https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java)) `LSCodeActionProvider`.
 
-* Can be implemented using the same Java Service loader interface `LSCodeActionProvider` [here](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java).
-#####  Node Type Based Code Action Sample
+#####  Range Based Code Action Sample
 ```java
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
-    public AddDocumentationCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.FUNCTION, CodeActionNodeType.OBJECT));
+public class AddDocumentationCodeAction extends RangeBasedCodeActionProvider {
+    public getSyntaxKinds() {
+        return Arrays.asList(SyntaxKind.FUNCTION_DEFINITION, SyntaxKind.OBJECT_TYPE_DESC);
     }
 
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
+    public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
         // return list of code-actions
     }
+}
 ```
 <a name="CodeActionCompilerPlugin"></a>
 

@@ -20,12 +20,14 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -41,19 +43,25 @@ import java.util.Optional;
 /**
  * Code Action provider for automatic data mapping.
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider")
+public class AIDataMapperCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "AI Data Mapper";
     public static final String GENERATE_MAPPING_FUNCTION = "Generate mapping function";
+
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (diagnostic.message().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
             getAIDataMapperCommand(diagnostic, positionDetails, context).map(actions::add);
@@ -101,8 +109,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 if (fEdits.isEmpty()) {
                     return Optional.empty();
                 }
-                CodeAction action = createCodeAction(GENERATE_MAPPING_FUNCTION, fEdits, context.fileUri(), 
-                        CodeActionKind.QuickFix);
+                CodeAction action = CodeActionUtil.createCodeAction(GENERATE_MAPPING_FUNCTION, fEdits,
+                        context.fileUri(), CodeActionKind.QuickFix);
                 return Optional.of(action);
             }
         } catch (IOException e) {
