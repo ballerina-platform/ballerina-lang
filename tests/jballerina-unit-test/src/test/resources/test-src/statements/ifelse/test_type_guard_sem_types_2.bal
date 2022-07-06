@@ -41,35 +41,3 @@ function f2(any|record {| error x; |} d) {
         record {| error x; |} _ = d; // unreachable
     }
 }
-
-public type Seconds decimal;
-public type Utc readonly & [int, decimal];
-
-public type ValueType int|float|string|boolean|Utc|Seconds|record {}|()|byte[];
-
-isolated function f3(ValueType anyMessage) returns string {
-    if anyMessage is float {
-
-    } else if anyMessage is int {
-
-    } else if anyMessage is string {
-
-    } else if anyMessage is byte[] {
-
-    } else if anyMessage is boolean {
-
-    } else if anyMessage is Utc {
-
-    } else if anyMessage is Seconds {
-
-    } else if anyMessage is () {
-
-    } else if anyMessage is record {||} {
-
-    } else if anyMessage is record {} {
-        return externGetNameFromRecord(anyMessage);
-    }
-    return "";
-}
-
-isolated function externGetNameFromRecord(record {} rec) returns string = external;
