@@ -4832,11 +4832,6 @@ public class Types {
 
     public BType getRemainingType(BType originalType, BType typeToRemove, SymbolEnv env) {
         BType remainingType = originalType;
-
-        if (originalType.tag == TypeTags.INTERSECTION) {
-            originalType = ((BIntersectionType) originalType).effectiveType;
-        }
-
         switch (originalType.tag) {
             case TypeTags.UNION:
                 remainingType = getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove, true));
@@ -4844,8 +4839,9 @@ public class Types {
                 BType typeRemovedFromOriginalType = getReferredType(getRemainingType((BUnionType) originalType,
                                                                       getAllTypes(remainingType, true)));
                 if (typeRemovedFromOriginalType == symTable.nullSet ||
-                        isSubTypeOfReadOnly(typeRemovedFromOriginalType, env) ||
-                        isSubTypeOfReadOnly(remainingType, env)) {
+                        (isInherentlyImmutableType(typeRemovedFromOriginalType) ||
+                        (isSelectivelyImmutableType(typeRemovedFromOriginalType, env.enclPkg.packageID) &&
+                                Symbols.isFlagOn(typeRemovedFromOriginalType.flags, Flags.READONLY)))) {
                     return remainingType;
                 }
 
