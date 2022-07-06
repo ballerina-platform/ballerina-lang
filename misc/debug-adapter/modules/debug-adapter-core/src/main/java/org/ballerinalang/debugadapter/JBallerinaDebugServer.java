@@ -604,17 +604,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             int tryCounter = 0;
 
             // attach to target VM
-            while (context.getDebuggeeVM() == null && tryCounter < 6) {
+            while (context.getDebuggeeVM() == null && tryCounter < 10) {
                 try {
+                    TimeUnit.SECONDS.sleep(3);
                     attachToRemoteVM("", clientConfigHolder.getDebuggePort());
                 } catch (IOException ignored) {
-                    try {
-                        tryCounter++;
-                        TimeUnit.SECONDS.sleep(10);
-                    } catch (Exception exception) {
-                        throw new RuntimeException(exception);
-                    }
-                } catch (IllegalConnectorArgumentsException | ClientConfigurationException e) {
+                    tryCounter++;
+                } catch (IllegalConnectorArgumentsException | ClientConfigurationException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
