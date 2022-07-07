@@ -58,6 +58,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.ballerina.jsonmapper.util.ConverterUtils.escapeIdentifier;
+import static io.ballerina.jsonmapper.util.ConverterUtils.extractTypeDescriptorNodes;
 import static io.ballerina.jsonmapper.util.ConverterUtils.getPrimitiveTypeName;
 import static io.ballerina.jsonmapper.util.ConverterUtils.sortTypeDescriptorNodes;
 import static io.ballerina.jsonmapper.util.ListOperationUtils.difference;
@@ -164,19 +165,15 @@ public class JsonToRecordMapper {
                 if (entry.getValue().isJsonObject()) {
                     String elementKey = entry.getKey();
                     String type = StringUtils.capitalize(elementKey);
-                    if (!type.equals(recordName)) {
-                        generateRecords(entry.getValue().getAsJsonObject(), type, isRecordTypeDesc, isClosed,
-                                recordToTypeDescNodes, jsonNodes, diagnosticMessages);
-                    }
+                    generateRecords(entry.getValue().getAsJsonObject(), type, isRecordTypeDesc, isClosed,
+                            recordToTypeDescNodes, jsonNodes, diagnosticMessages);
                 } else if (entry.getValue().isJsonArray()) {
                     for (JsonElement element : entry.getValue().getAsJsonArray()) {
                         if (element.isJsonObject()) {
                             String elementKey = entry.getKey();
                             String type = StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX;
-                            if (!type.equals(recordName)) {
-                                generateRecords(element.getAsJsonObject(), type, isRecordTypeDesc, isClosed,
-                                        recordToTypeDescNodes, jsonNodes, diagnosticMessages);
-                            }
+                            generateRecords(element.getAsJsonObject(), type, isRecordTypeDesc, isClosed,
+                                    recordToTypeDescNodes, jsonNodes, diagnosticMessages);
                         }
                     }
                 }
@@ -264,7 +261,8 @@ public class JsonToRecordMapper {
                 List<TypeDescriptorNode> typeDescNodes =
                         List.of((TypeDescriptorNode) entry.getValue().getValue0().typeName(),
                                 (TypeDescriptorNode) entry.getValue().getValue1().typeName());
-                List<TypeDescriptorNode> typeDescNodesSorted = sortTypeDescriptorNodes(typeDescNodes);
+                List<TypeDescriptorNode> typeDescNodesSorted =
+                        sortTypeDescriptorNodes(extractTypeDescriptorNodes(typeDescNodes));
                 TypeDescriptorNode unionTypeDescNode = createUnionTypeDescriptorNode(typeDescNodesSorted);
                 RecordFieldNode recordField =
                         (RecordFieldNode) getRecordField(jsonEntry, false, isOptional, recordToTypeDescNodes);
@@ -272,7 +270,6 @@ public class JsonToRecordMapper {
                 recordFields.add(recordField);
             } else {
                 Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
-
                 recordFields.add(recordField);
             }
         }
