@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
@@ -276,6 +277,20 @@ public class SortingUtil {
      * @return True if assignable
      */
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() == TypeDescKind.TYPEDESC && completionItem.getType() == SYMBOL) {
+            Optional<Symbol> optionalSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
+            if (optionalSymbol.isPresent()) {
+                if (optionalSymbol.get().kind() == SymbolKind.TYPE_DEFINITION
+                        || optionalSymbol.get().kind() == SymbolKind.TYPE) {
+                    TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) typeSymbol;
+                    if (typeDescTypeSymbol.typeParameter().isPresent()) {
+                        Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
+                        return optionalTypeSymbol.isPresent()
+                                && optionalTypeSymbol.get().subtypeOf(typeDescTypeSymbol.typeParameter().get());
+                    }
+                }
+            }
+        }
         if (completionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter) {
             return false;
         }
