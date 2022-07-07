@@ -3078,7 +3078,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (!recordType.sealed) {
             BType restFieldType = recordType.restFieldType;
-            if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType)) {
+            if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType) &&
+                    (restFieldType.tag != TypeTags.NONE)) {
                 constraintTypes.add(restFieldType);
             }
         }
@@ -3091,7 +3092,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             restConstraintType = BUnionType.create(null, constraintTypes);
         }
-        return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
+        return (restVarSymbolMapType.tag == TypeTags.NONE) ?
+                restConstraintType : this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
     BRecordType createRecordTypeForRestField(Location pos, SymbolEnv env, BRecordType recordType,
