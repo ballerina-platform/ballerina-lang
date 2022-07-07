@@ -429,8 +429,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(ConditionalExpressionNode conditionalExpressionNode) {
 
-        if (this.functionCallExpressionNode != null &&
-                PositionUtil.isWithinLineRange(this.functionCallExpressionNode.lineRange(),
+        if (PositionUtil.isWithinLineRange(this.functionCallExpressionNode.lineRange(),
                 conditionalExpressionNode.lhsExpression().lineRange())) {
             checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
             return;
