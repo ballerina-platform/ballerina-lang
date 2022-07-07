@@ -60,7 +60,9 @@ public class NodeBasedUpdateDocumentationCodeAction implements RangeBasedCodeAct
                 SyntaxKind.OBJECT_TYPE_DESC,
                 SyntaxKind.CLASS_DEFINITION,
                 SyntaxKind.SERVICE_DECLARATION,
+                SyntaxKind.RESOURCE_ACCESSOR_DEFINITION,
                 SyntaxKind.RECORD_TYPE_DESC,
+                SyntaxKind.METHOD_DECLARATION,
                 SyntaxKind.OBJECT_METHOD_DEFINITION);
     }
 
