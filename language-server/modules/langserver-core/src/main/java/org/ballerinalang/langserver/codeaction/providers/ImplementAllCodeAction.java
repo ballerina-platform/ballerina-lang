@@ -51,8 +51,9 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
     public List<SyntaxKind> getSyntaxKinds() {
         return Arrays.asList(SyntaxKind.CLASS_DEFINITION,
                 SyntaxKind.SERVICE_DECLARATION,
-                SyntaxKind.MODULE_VAR_DECL,
                 SyntaxKind.OBJECT_METHOD_DEFINITION,
+                SyntaxKind.MODULE_VAR_DECL,
+                SyntaxKind.METHOD_DECLARATION,
                 SyntaxKind.LOCAL_VAR_DECL);
     }
 
