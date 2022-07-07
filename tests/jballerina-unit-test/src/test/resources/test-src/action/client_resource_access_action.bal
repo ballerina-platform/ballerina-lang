@@ -484,6 +484,46 @@ function testResourceAccessOfAnObjectConstructedViaObjectCons() {
     assertEquality(a12, 4);
 }
 
+client class MyClient7 {
+    resource isolated function get customers\-json() returns string {
+        return "response1";
+    }
+
+    resource isolated function get '955() returns string {
+        return "response2";
+    }
+
+    resource isolated function get A\u{0042}() returns string {
+        return "response3";
+    }
+
+    resource isolated function post AB() returns string {
+        return "response4";
+    }
+}
+
+function testResourceAccessContainingSpecialChars() {
+    MyClient7 myClient = new;
+
+    string a = myClient->/customers\-json;
+    assertEquality(a, "response1");
+
+    string b = myClient->/'customers\-json;
+    assertEquality(b, "response1");
+
+    string c = myClient->/'955;
+    assertEquality(c, "response2");
+
+    string d = myClient->/A\u{0042};
+    assertEquality(d, "response3");
+
+    string e = myClient->/AB;
+    assertEquality(e, "response3");
+
+    string f = myClient->/A\u{0042}.post;
+    assertEquality(f, "response4");
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

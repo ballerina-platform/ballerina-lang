@@ -53,7 +53,8 @@ public class ClientResourceAccessActionTest {
                 {"testWithResourceAccessRestSegment"},
                 {"testResourceAccessWithArguments"},
                 {"testStaticTypeOfClientResourceAccessAction"},
-                {"testResourceAccessOfAnObjectConstructedViaObjectCons"}
+                {"testResourceAccessOfAnObjectConstructedViaObjectCons"},
+                {"testResourceAccessContainingSpecialChars"}
         };
     }
 }

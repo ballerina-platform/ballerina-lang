@@ -4232,8 +4232,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     pathSegments.add(spreadMemberExpr);
                     break;
                 default:
-                    Token resourceSegmentName = (Token) resourceAccessSegment;
-                    pathSegments.add(createStringLiteral(resourceSegmentName.text(), getPosition(resourceSegmentName)));
+                    pathSegments.add(createSimpleLiteral(resourceAccessSegment));
             }
         }
 
