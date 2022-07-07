@@ -28,9 +28,11 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.ballerina.identifier.Utils.escapeSpecialCharacters;
+import static io.ballerina.identifier.Utils.unescapeUnicodeCodepoints;
 
 /**
  * Util methods for JSON to record direct converter.
@@ -41,7 +43,9 @@ public final class ConverterUtils {
 
     private ConverterUtils() {}
 
-    private static final List<String> keywords = SyntaxInfo.keywords();
+    private static final String QUOTED_IDENTIFIER_PREFIX = "'";
+    private static final String ESCAPE_NUMERIC_PATTERN = "\\b\\d.*";
+    private static final List<String> KEYWORDS = SyntaxInfo.keywords();
 
     /**
      * This method returns the identifiers with special characters.
@@ -50,31 +54,20 @@ public final class ConverterUtils {
      * @return {@link String} Special characters escaped identifier.
      */
     public static String escapeIdentifier(String identifier) {
-        if (identifier.matches("\\b\\d*\\b")) {
+        if (KEYWORDS.stream().anyMatch(identifier::equals)) {
             return "'" + identifier;
-        } else if (!identifier.matches("\\b[_a-zA-Z]\\w*\\b")
-                || keywords.stream().anyMatch(identifier::equals)) {
-
-            identifier = identifier.replaceAll(Constants.IDENTIFIER_ESCAPE_PATTERN, "\\\\$1");
-            if (identifier.endsWith("?")) {
-                if (identifier.charAt(identifier.length() - 2) == '\\') {
-                    StringBuilder stringBuilder = new StringBuilder(identifier);
-                    stringBuilder.deleteCharAt(identifier.length() - 2);
-                    identifier = stringBuilder.toString();
-                }
-                if (keywords.stream().anyMatch(Optional.ofNullable(identifier)
-                        .filter(sStr -> sStr.length() != 0)
-                        .map(sStr -> sStr.substring(0, sStr.length() - 1))
-                        .orElse(identifier)::equals)) {
-                    identifier = "'" + identifier;
-                } else {
-                    return identifier;
-                }
-            } else {
-                identifier = "'" + identifier;
+        } else {
+            if (identifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
+                identifier = identifier.substring(1);
             }
+            identifier = unescapeUnicodeCodepoints(identifier);
+            // TODO: Escape Special Character does not escapes backslashes. Refer - https://github.com/ballerina-platform/ballerina-lang/issues/36912
+            identifier = escapeSpecialCharacters(identifier);
+            if (identifier.matches(ESCAPE_NUMERIC_PATTERN)) {
+                identifier = "\\" + identifier;
+            }
+            return identifier;
         }
-        return identifier;
     }
 
     /**
