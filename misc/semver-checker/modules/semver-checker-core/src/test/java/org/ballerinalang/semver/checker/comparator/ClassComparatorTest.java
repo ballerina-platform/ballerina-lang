@@ -76,175 +76,175 @@ public class ClassComparatorTest {
     private static final String REMOTE_METHOD_RETURN_TESTCASE = REMOTE_METHOD_TEST_ROOT + "returnType.json";
 
     private static final String RESOURCE_METHOD_ANNOTATION_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "annotation.json";
-    private static final String RESOURCE_METHOD_DOCUMENTATION_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "documentation.json";
+    private static final String RESOURCE_METHOD_DOC_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "documentation.json";
     private static final String RESOURCE_METHOD_BODY_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "body.json";
     private static final String RESOURCE_METHOD_IDENTIFIER_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "identifier.json";
     private static final String RESOURCE_METHOD_PARAMETER_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "parameter.json";
     private static final String RESOURCE_METHOD_QUALIFIER_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "qualifier.json";
     private static final String RESOURCE_METHOD_RETURN_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "returnType.json";
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassAnnotation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassDocumentation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassIdentifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testAdvanceClass(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMemberObjectFieldAnnotation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMemberObjectFieldDocumentation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMemberObjectFieldIdentifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMemberObjectFieldQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMemberObjectFieldType(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMemberObjectFieldValue(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMethodAnnotation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMethodDocumentation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMethodBody(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMethodIdentifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMethodParameter(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMethodQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassMethodReturn(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassRemoteMethodAnnotation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassRemoteMethodDocumentation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassRemoteMethodBody(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassRemoteMethodIdentifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassRemoteMethodParameter(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassRemoteMethodQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassRemoteMethodReturn(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassResourceMethodAnnotation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassResourceMethodDocumentation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassResourceMethodBody(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassResourceMethodIdentifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassResourceMethodParameter(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassResourceMethodQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "ClassTestDataProvider")
+    @Test(dataProvider = "classTestDataProvider")
     public void testClassResourceMethodReturn(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @DataProvider(name = "ClassTestDataProvider")
-    public Object[] ClassTestDataProvider(Method method) throws SemverTestException {
+    @DataProvider(name = "classTestDataProvider")
+    public Object[] classTestDataProvider(Method method) throws SemverTestException {
         String filePath;
         switch (method.getName()) {
             case "testClassAnnotation":
@@ -262,7 +262,6 @@ public class ClassComparatorTest {
             case "testAdvanceClass":
                 filePath = ADVANCE_CLASS_TESTCASE;
                 break;
-
 
             case "testClassMemberObjectFieldAnnotation":
                 filePath = OBJECT_FIELD_ANNOTATION_TESTCASE;
@@ -328,7 +327,7 @@ public class ClassComparatorTest {
                 break;
 
             case "testClassResourceMethodDocumentation":
-                filePath = RESOURCE_METHOD_DOCUMENTATION_TESTCASE;
+                filePath = RESOURCE_METHOD_DOC_TESTCASE;
                 break;
             case "testClassResourceMethodBody":
                 filePath = RESOURCE_METHOD_BODY_TESTCASE;
