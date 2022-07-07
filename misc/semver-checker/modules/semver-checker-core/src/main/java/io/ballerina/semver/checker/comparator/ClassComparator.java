@@ -33,6 +33,7 @@ import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
+import io.ballerina.semver.checker.diff.ObjectFieldDiff;
 import io.ballerina.semver.checker.diff.SemverImpact;
 
 import java.util.ArrayList;
@@ -246,18 +247,18 @@ public class ClassComparator extends NodeComparator<ClassDefinitionNode> {
                 functions.getValue()).computeDiff().ifPresent(memberDiffs::add));
 
         DiffExtractor<ObjectFieldNode> varDiffExtractor = new DiffExtractor<>(newClassFields, oldClassFields);
-        varDiffExtractor.getAdditions().forEach((name, variable) -> {
-            NodeDiffBuilder classVarDiffBuilder = new NodeDiffImpl.Builder<>(variable, null);
+        varDiffExtractor.getAdditions().forEach((name, field) -> {
+            NodeDiffBuilder classVarDiffBuilder = new ObjectFieldDiff.Builder(field, null);
             classVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).withKind(DiffKind.OBJECT_FIELD).build()
                     .ifPresent(memberDiffs::add);
         });
-        varDiffExtractor.getRemovals().forEach((name, variable) -> {
-            NodeDiffBuilder classVarDiffBuilder = new NodeDiffImpl.Builder<>(null, variable);
+        varDiffExtractor.getRemovals().forEach((name, field) -> {
+            NodeDiffBuilder classVarDiffBuilder = new ObjectFieldDiff.Builder(null, field);
             classVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).withKind(DiffKind.OBJECT_FIELD).build()
                     .ifPresent(memberDiffs::add);
         });
-        varDiffExtractor.getCommons().forEach((name, classVars) -> new ObjectFieldComparator(classVars.getKey(),
-                classVars.getValue()).computeDiff().ifPresent(diff -> memberDiffs.addAll(diff.getChildDiffs())));
+        varDiffExtractor.getCommons().forEach((name, classFields) -> new ObjectFieldComparator(classFields.getKey(),
+                classFields.getValue()).computeDiff().ifPresent(memberDiffs::add));
 
         return memberDiffs;
     }
@@ -277,9 +278,9 @@ public class ClassComparator extends NodeComparator<ClassDefinitionNode> {
                 case OBJECT_FIELD:
                     ObjectFieldNode objectField = (ObjectFieldNode) member;
                     if (isNewClass) {
-                        newClassFields.put(objectField.fieldName().toSourceCode(), objectField);
+                        newClassFields.put(objectField.fieldName().text().trim(), objectField);
                     } else {
-                        oldClassFields.put(objectField.fieldName().toSourceCode(), objectField);
+                        oldClassFields.put(objectField.fieldName().text().trim(), objectField);
                     }
                     break;
                 default:

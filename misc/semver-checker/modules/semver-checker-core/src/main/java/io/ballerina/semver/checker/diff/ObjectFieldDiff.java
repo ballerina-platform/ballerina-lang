@@ -18,20 +18,20 @@
 
 package io.ballerina.semver.checker.diff;
 
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Represents the diff in between two versions of a Ballerina module variable declaration.
+ * Represents the diff in between two versions of a Ballerina object field.
  *
  * @since 2201.2.0
  */
-public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
+public class ObjectFieldDiff extends NodeDiffImpl<ObjectFieldNode> {
 
-    private ModuleVarDiff(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
+    private ObjectFieldDiff(ObjectFieldNode newNode, ObjectFieldNode oldNode) {
         super(newNode, oldNode);
     }
 
@@ -39,13 +39,13 @@ public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
     public void computeVersionImpact() {
         boolean isPublic = isPublic();
         if (newNode != null && oldNode == null) {
-            // if the module variable is newly added
+            // if the object field is newly added
             versionImpact = isPublic ? SemverImpact.MINOR : SemverImpact.PATCH;
         } else if (newNode == null && oldNode != null) {
-            // if the module variable is removed
+            // if the object field is removed
             versionImpact = isPublic ? SemverImpact.MAJOR : SemverImpact.PATCH;
         } else {
-            // if the variable is modified, checks if variable declaration is public and if its not, all the
+            // if the object field is modified, checks if object field is public and if its not, all the
             // children-level changes can be considered as patch-compatible changes.
             if (isPublic) {
                 super.computeVersionImpact();
@@ -67,24 +67,24 @@ public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
     /**
      * Function diff builder implementation.
      */
-    public static class Builder extends NodeDiffImpl.Builder<ModuleVariableDeclarationNode> {
+    public static class Builder extends NodeDiffImpl.Builder<ObjectFieldNode> {
 
-        private final ModuleVarDiff moduleVarDiff;
+        private final ObjectFieldDiff fieldDiff;
 
-        public Builder(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
+        public Builder(ObjectFieldNode newNode, ObjectFieldNode oldNode) {
             super(newNode, oldNode);
-            moduleVarDiff = new ModuleVarDiff(newNode, oldNode);
+            fieldDiff = new ObjectFieldDiff(newNode, oldNode);
         }
 
         @Override
-        public Optional<ModuleVarDiff> build() {
-            moduleVarDiff.setKind(DiffKind.MODULE_VAR);
-            if (!moduleVarDiff.getChildDiffs().isEmpty()) {
-                moduleVarDiff.computeVersionImpact();
-                moduleVarDiff.setType(DiffType.MODIFIED);
-                return Optional.of(moduleVarDiff);
-            } else if (moduleVarDiff.getType() == DiffType.NEW || moduleVarDiff.getType() == DiffType.REMOVED) {
-                return Optional.of(moduleVarDiff);
+        public Optional<ObjectFieldDiff> build() {
+            fieldDiff.setKind(DiffKind.OBJECT_FIELD);
+            if (!fieldDiff.getChildDiffs().isEmpty()) {
+                fieldDiff.computeVersionImpact();
+                fieldDiff.setType(DiffType.MODIFIED);
+                return Optional.of(fieldDiff);
+            } else if (fieldDiff.getType() == DiffType.NEW || fieldDiff.getType() == DiffType.REMOVED) {
+                return Optional.of(fieldDiff);
             }
 
             return Optional.empty();
@@ -92,31 +92,31 @@ public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
 
         @Override
         public NodeDiffBuilder withType(DiffType diffType) {
-            moduleVarDiff.setType(diffType);
+            fieldDiff.setType(diffType);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withVersionImpact(SemverImpact versionImpact) {
-            moduleVarDiff.setVersionImpact(versionImpact);
+            fieldDiff.setVersionImpact(versionImpact);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withMessage(String message) {
-            moduleVarDiff.setMessage(message);
+            fieldDiff.setMessage(message);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withChildDiff(Diff childDiff) {
-            moduleVarDiff.childDiffs.add(childDiff);
+            fieldDiff.childDiffs.add(childDiff);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withChildDiffs(Collection<? extends Diff> childDiffs) {
-            moduleVarDiff.childDiffs.addAll(childDiffs);
+            fieldDiff.childDiffs.addAll(childDiffs);
             return this;
         }
     }
