@@ -16,10 +16,10 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -118,7 +118,7 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
     public boolean onPreValidation(BallerinaCompletionContext context, FromClauseNode node) {
         return !node.fromKeyword().isMissing();
     }
-    
+
     @Override
     public void sort(BallerinaCompletionContext context,
                      FromClauseNode node,
@@ -140,13 +140,13 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
         Optional<TypeSymbol> finalOptionalTypeSymbol = optionalTypeSymbol;
 
         completionItems.forEach(lsCItem -> {
-            String sortText = SortingUtil.genSortText(3) + 
+            String sortText = SortingUtil.genSortText(3) +
                     SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             if (finalOptionalInKeyword.isPresent() && context.getCursorPositionInTree() > finalOptionalInKeyword.get()
                     && finalOptionalTypeSymbol.isPresent()
                     && finalOptionalTypeSymbol.get().typeKind() != TypeDescKind.COMPILATION_ERROR
-                    && lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL ) {
-                Optional<Symbol> optionalSymbol = ((SymbolCompletionItem)lsCItem).getSymbol();
+                    && lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                Optional<Symbol> optionalSymbol = ((SymbolCompletionItem) lsCItem).getSymbol();
                 if (optionalSymbol.isPresent()) {
                     Optional<TypeSymbol> lsCItemTypeSymbol = SymbolUtil.getTypeDescriptor(optionalSymbol.get());
                     if (lsCItemTypeSymbol.isPresent() && lsCItemTypeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
@@ -166,8 +166,7 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
                         }
                     }
                 }
-            }
-            else if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
+            } else if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
                 sortText = SortingUtil.genSortText(1)
                         + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             } else if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL &&
