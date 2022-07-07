@@ -76,7 +76,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddDocumentationCodeAction extends RangeBasedCodeActionProvider {
     public getSyntaxKinds() {
-        return Arrays.asList(SyntaxKind.FUNCTION_DEFINITION, SyntaxKind.OBJECT_TYPE_DESC);
+        return List.of(SyntaxKind.FUNCTION_DEFINITION, SyntaxKind.OBJECT_TYPE_DESC);
     }
 
     public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {

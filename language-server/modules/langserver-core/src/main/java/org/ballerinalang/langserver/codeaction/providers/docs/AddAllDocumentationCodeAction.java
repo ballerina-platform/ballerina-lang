@@ -48,9 +48,11 @@ public class AddAllDocumentationCodeAction implements RangeBasedCodeActionProvid
                 SyntaxKind.OBJECT_TYPE_DESC,
                 SyntaxKind.CLASS_DEFINITION,
                 SyntaxKind.SERVICE_DECLARATION,
+                SyntaxKind.RESOURCE_ACCESSOR_DEFINITION,
                 SyntaxKind.RECORD_TYPE_DESC,
-                SyntaxKind.OBJECT_METHOD_DEFINITION,
-                SyntaxKind.ANNOTATION_DECLARATION);
+                SyntaxKind.METHOD_DECLARATION,
+                SyntaxKind.ANNOTATION_DECLARATION,
+                SyntaxKind.OBJECT_METHOD_DEFINITION);
     }
 
     /**
