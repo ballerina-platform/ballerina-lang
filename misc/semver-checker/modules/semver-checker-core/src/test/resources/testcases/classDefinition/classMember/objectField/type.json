@@ -1,8 +1,8 @@
 [
   {
-    "description": "Change object field type",
-    "oldCode": "service /demo on new http:Listener(8080){\npublic int x=5;\n\t}",
-    "newCode": "service /demo on new http:Listener(8080){\n\tpublic float x=5;\n\t}",
+    "description": "Change object field type (int to float) in a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\tpublic float n;\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -14,7 +14,7 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "service",
+              "kind": "class",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
@@ -22,7 +22,14 @@
                   "kind": "object field",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "object field type changed from 'int' to 'float'"
+                  "childDiffs": [
+                    {
+                      "kind": "object field",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "object field type changed from 'int' to 'float'"
+                    }
+                  ]
                 }
               ]
             }
@@ -32,9 +39,9 @@
     }
   },
   {
-    "description": "Change the object field type",
-    "oldCode": "service /demo on new http:Listener(8080){\nint x = 2;\n\t}",
-    "newCode": "service /demo on new http:Listener(8080){\n\tstring x = \"2\";\n\t}",
+    "description": "Change object field type (int to string) in a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\tpublic string n;\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -46,7 +53,7 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "service",
+              "kind": "class",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
@@ -54,13 +61,14 @@
                   "kind": "object field",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "object field type changed from 'int' to 'string'"
-                },
-                {
-                  "kind": "object field expression",
-                  "type": "modified",
-                  "versionImpact": "ambiguous",
-                  "message": "object field expression is modified"
+                  "childDiffs": [
+                    {
+                      "kind": "object field",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "object field type changed from 'int' to 'string'"
+                    }
+                  ]
                 }
               ]
             }

@@ -1,8 +1,8 @@
 [
   {
-    "description": "Change made on Listener expression list  in a service declaration",
-    "oldCode": "service /demo on new http:Listener(8080){}",
-    "newCode": "service /demo on new udp:Listener(8080){}",
+    "description": "Change object field value",
+    "oldCode": "public class counter{\n\tpublic int n = 1;\n}",
+    "newCode": "public class counter{\n\tpublic int n = 2;\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -14,15 +14,22 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "service",
+              "kind": "class",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "service listener expression",
+                  "kind": "object field",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "service listener expression is modified"
+                  "childDiffs": [
+                    {
+                      "kind": "object field expression",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "object field expression is modified"
+                    }
+                  ]
                 }
               ]
             }
@@ -32,9 +39,9 @@
     }
   },
   {
-    "description": "Change the port number of a service declaration",
-    "oldCode": "service /demo on new http:Listener(8080){}",
-    "newCode": "service /demo on new udp:Listener(8000){}",
+    "description": "Non affecting value change",
+    "oldCode": "public class counter{\n\tpublic int n = 2;\n}",
+    "newCode": "public class counter{\n\tpublic int n = 1+1;\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -46,15 +53,22 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "service",
+              "kind": "class",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "service listener expression",
+                  "kind": "object field",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "service listener expression is modified"
+                  "childDiffs": [
+                    {
+                      "kind": "object field expression",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "object field expression is modified"
+                    }
+                  ]
                 }
               ]
             }
@@ -64,9 +78,9 @@
     }
   },
   {
-    "description": "Change the hardcoded port number into a variable reference",
-    "oldCode": "service /demo on new http:Listener(8080){}",
-    "newCode": "int port = 8080;\nservice /demo on new udp:Listener(port){}",
+    "description": "Initialize a object field",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\tpublic int n = 2;\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -78,22 +92,24 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "service",
+              "kind": "class",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "service listener expression",
+                  "kind": "object field",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "service listener expression is modified"
+                  "childDiffs": [
+                    {
+                      "kind": "object field expression",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "a new object field expression is added"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "kind": "module variable",
-              "type": "new",
-              "versionImpact": "minor"
             }
           ]
         }
