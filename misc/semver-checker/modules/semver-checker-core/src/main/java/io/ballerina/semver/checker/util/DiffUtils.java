@@ -47,6 +47,7 @@ public class DiffUtils {
     public static final String DIFF_ATTR_MESSAGE = "message";
     public static final String DIFF_ATTR_VERSION_IMPACT = "versionImpact";
     public static final String DIFF_ATTR_CHILDREN = "childDiffs";
+    private static final String UNKNOWN = "unknown";
 
     /**
      * Returns the summary of changes in string format based on the current version, last published version and the set
@@ -175,7 +176,7 @@ public class DiffUtils {
                 } else if (packageDiff.getOldPackage().isPresent()) {
                     return packageDiff.getOldPackage().orElseThrow().packageName().value();
                 } else {
-                    return "unknown";
+                    return UNKNOWN;
                 }
         }
     }
@@ -199,7 +200,7 @@ public class DiffUtils {
                 } else if (moduleDiff.getOldModule().isPresent()) {
                     return moduleDiff.getOldModule().orElseThrow().moduleName().toString();
                 } else {
-                    return "unknown";
+                    return UNKNOWN;
                 }
         }
     }
@@ -253,7 +254,7 @@ public class DiffUtils {
         } else if (diff instanceof ClassDiff) {
             return getModuleClassName((ClassDiff) diff);
         } else {
-            return "unknown";
+            return UNKNOWN;
         }
     }
 
@@ -281,7 +282,7 @@ public class DiffUtils {
                 return "function";
             }
         } else {
-            return "unknown";
+            return UNKNOWN;
         }
     }
 
@@ -323,7 +324,7 @@ public class DiffUtils {
         } else if (functionDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getFunctionIdentifier(functionDiff.getOldNode().get());
         } else {
-            return "unknown";
+            return UNKNOWN;
         }
     }
 
@@ -334,11 +335,11 @@ public class DiffUtils {
      */
     private static String getServiceName(ServiceDiff serviceDiff) {
         if (serviceDiff.getNewNode().isPresent()) {
-            return SyntaxTreeUtils.getServiceIdentifier(serviceDiff.getNewNode().get()).orElse("unknown");
+            return SyntaxTreeUtils.getServiceIdentifier(serviceDiff.getNewNode().get()).orElse(UNKNOWN);
         } else if (serviceDiff.getOldNode().isPresent()) {
-            return SyntaxTreeUtils.getServiceIdentifier(serviceDiff.getOldNode().get()).orElse("unknown");
+            return SyntaxTreeUtils.getServiceIdentifier(serviceDiff.getOldNode().get()).orElse(UNKNOWN);
         } else {
-            return "unknown";
+            return UNKNOWN;
         }
     }
 
@@ -353,7 +354,7 @@ public class DiffUtils {
         } else if (moduleVarDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getModuleVarIdentifier(moduleVarDiff.getOldNode().get());
         } else {
-            return "unknown";
+            return UNKNOWN;
         }
     }
 
@@ -368,7 +369,7 @@ public class DiffUtils {
         } else if (moduleConstantDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getConstIdentifier(moduleConstantDiff.getOldNode().get());
         } else {
-            return "unknown";
+            return UNKNOWN;
         }
     }
 
@@ -383,7 +384,7 @@ public class DiffUtils {
         } else if (classDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getClassIdentifier(classDiff.getOldNode().get());
         } else {
-            return "unknown";
+            return UNKNOWN;
         }
     }
 }
