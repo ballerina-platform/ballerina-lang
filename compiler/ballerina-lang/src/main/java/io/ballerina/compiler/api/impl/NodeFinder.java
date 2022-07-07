@@ -352,7 +352,11 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         lookupNode(annAttachmentNode.expr);
-        setEnclosingNode(annAttachmentNode, annAttachmentNode.annotationName.pos);
+        if (enclosingNode != null && enclosingNode instanceof RecordLiteralNode
+                && ((RecordLiteralNode) enclosingNode).getFields().size() == 0) {
+            enclosingNode = null;
+        }
+        setEnclosingNode(annAttachmentNode, annAttachmentNode.pos);
     }
 
     @Override
@@ -657,6 +661,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+        lookupNodes(actionInvocationExpr.annAttachments);
         lookupNodes(actionInvocationExpr.argExprs);
         lookupNodes(actionInvocationExpr.restArgs);
         lookupNode(actionInvocationExpr.expr);
