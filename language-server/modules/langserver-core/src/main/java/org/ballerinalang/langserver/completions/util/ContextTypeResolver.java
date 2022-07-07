@@ -44,6 +44,7 @@ import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -80,7 +81,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
@@ -90,7 +90,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -367,7 +366,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return SymbolUtil.getTypeDescriptor(funcSymbol.get());
         }
 
-        return TypeResolverUtil.resolveParameterTypeSymbol(((FunctionSymbol) funcSymbol.get()).typeDescriptor(), 
+        return TypeResolverUtil.resolveParameterTypeSymbol(((FunctionSymbol) funcSymbol.get()).typeDescriptor(),
                 context, node.arguments());
     }
 
@@ -672,7 +671,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 .filter(tSymbol -> tSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR)
                 .or(() -> node.parent().apply(this))
                 .filter(tSymbol -> tSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR);
-        
+
         if (optionalTypeSymbol.isEmpty()) {
             return Optional.empty();
         }
@@ -682,7 +681,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             // We have got the row type already
             return Optional.of(typeSymbol);
         }
-        
+
         if (node.keySpecifier().isPresent() &&
                 node.keySpecifier().get().textRange().startOffset() < context.getCursorPositionInTree() &&
                 context.getCursorPositionInTree() < node.keySpecifier().get().textRange().endOffset()) {
@@ -694,7 +693,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             // NOTE: We don't check if the typeSymbol's type desc kind to be TABLE because, it cannot be otherwise.
             typeSymbol = ((TableTypeSymbol) typeSymbol).rowTypeParameter();
         }
-        
+
         return Optional.of(typeSymbol);
     }
 
@@ -711,7 +710,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<Symbol> optionalSymbol = context.currentSemanticModel().get()
                 .symbol(fromClauseNode.typedBindingPattern().bindingPattern());
 
-        if(optionalSymbol.isEmpty()) {
+        if (optionalSymbol.isEmpty()) {
             return Optional.empty();
         }
 
@@ -833,7 +832,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (methodSymbol.isEmpty()) {
             return Optional.empty();
         }
-        return TypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(), context, 
+        return TypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(), context,
                 argumentNodes);
     }
 }
