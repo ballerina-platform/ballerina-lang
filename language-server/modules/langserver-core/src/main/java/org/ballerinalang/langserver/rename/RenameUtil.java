@@ -88,7 +88,7 @@ public class RenameUtil {
     public static Optional<Range> prepareRename(PrepareRenameContext context) {
         fillTokenInfoAtCursor(context);
         context.checkCancelled();
-
+        
         // Token at cursor is checked at cursor position and cursor position - 1 column due to left associativity.
         //      Ex: int val<cursor>;
         // Here, the token at cursor will be ";", but user expects "val". To achieve this, we try col-1.
@@ -101,18 +101,18 @@ public class RenameUtil {
                 })
                 .orElse(null);
         // Check if token at cursor is an identifier
-        if (!(tokenAtCursor instanceof IdentifierToken) || SyntaxInfo.isKeyword(tokenAtCursor.text())
+        if (!(tokenAtCursor instanceof IdentifierToken) || SyntaxInfo.isKeyword(tokenAtCursor.text()) 
                 || isSelfClassSymbol(context)) {
             return Optional.empty();
         }
-
+        
         // Check if symbol at cursor is empty
         Optional<Symbol> symbolAtCursor = ReferencesUtil.getSymbolAtCursor(context);
         if (symbolAtCursor.isEmpty()
                 || symbolAtCursor.get().kind() == SymbolKind.RESOURCE_METHOD) {
             return Optional.empty();
         }
-
+        
         Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
             return Optional.empty();
@@ -124,7 +124,7 @@ public class RenameUtil {
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Optional.empty();
         }
-
+        
         // If the node at cursor is qualified name reference with no matching import, we don't allow it to be renamed
         if (QNameRefCompletionUtil.onModulePrefix(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) nodeAtCursor;
@@ -216,7 +216,7 @@ public class RenameUtil {
                 }
             }
         }
-
+        
         return changes;
     }
 
@@ -258,7 +258,7 @@ public class RenameUtil {
         return importPrefixNode.prefix().textRange().startOffset() <= cursor &&
                 cursor <= importPrefixNode.prefix().textRange().endOffset();
     }
-
+    
     private static Optional<FieldBindingPatternVarnameNode> getFieldBindingPatternVarNameNode(NonTerminalNode node) {
         if (node.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE ||
                 node.parent().kind() != SyntaxKind.FIELD_BINDING_PATTERN) {
@@ -437,7 +437,7 @@ public class RenameUtil {
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         context.setCursorPositionInTree(txtPos);
     }
-
+    
     private static boolean isSelfClassSymbol(ReferencesContext context) {
         Optional<Document> srcFile = context.currentDocument();
         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
