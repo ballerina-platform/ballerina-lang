@@ -183,7 +183,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 return;
             }
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD || symbol.kind() == RESOURCE_METHOD) {
-                completionItems.addAll(populateBallerinaFunctionCompletionItems((FunctionSymbol) symbol, ctx));
+                FunctionSymbol functionSymbol = (FunctionSymbol) symbol;
+                if (functionSymbol.getName().isPresent() && !functionSymbol.getName().get().contains("$")) {
+                    completionItems.addAll(populateBallerinaFunctionCompletionItems((FunctionSymbol) symbol, ctx));
+                }
             } else if (symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, constantCItem));
@@ -199,7 +202,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                  */
                 String typeName = (typeDesc == null || typeDesc.typeKind() == null) ? "" :
                         NameUtil.getModifiedTypeName(ctx, typeDesc);
-                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, 
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol,
                         varSymbol.getName().orElse(""), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
 
@@ -359,7 +362,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
-        List<LSPackageLoader.PackageInfo> packages = 
+        List<LSPackageLoader.PackageInfo> packages =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
@@ -421,7 +424,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context completion context
      * @param node    node to evaluate upon
      * @return {@link Boolean}
-     * @deprecated Use {@link QNameRefCompletionUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)} 
+     * @deprecated Use {@link QNameRefCompletionUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)}
      * instead
      */
     @Deprecated(forRemoval = true)
