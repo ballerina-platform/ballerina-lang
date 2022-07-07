@@ -96,9 +96,14 @@ public class JarLibrary extends PlatformLibrary {
         if (other == null || getClass() != other.getClass()) {
             return false;
         }
-
         JarLibrary that = (JarLibrary) other;
-        return path().toFile().getName().equals(that.path().toFile().getName());
+        if (this.groupId == null || this.artifactId == null || this.version == null) {
+            return Optional.of(this.path().getFileName()).get().equals(Optional.of(that.path().getFileName()).get());
+        }
+        if (that.groupId == null || that.artifactId == null || that.version == null) {
+            return Optional.of(this.path().getFileName()).get().equals(Optional.of(that.path().getFileName()).get());
+        }
+        return groupId.equals(that.groupId) && artifactId.equals(that.artifactId);
     }
 
     @Override
