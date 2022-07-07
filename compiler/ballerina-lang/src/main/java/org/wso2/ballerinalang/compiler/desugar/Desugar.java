@@ -5039,6 +5039,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void swapAndResetEnclosingOnFail(BLangOnFailClause onFailClause) {
+        if (this.onFailClause != null && this.onFailClause.parent != null &&
+                this.onFailClause.parent.getKind() == NodeKind.DO_STMT && !this.onFailClause.desugared) {
+            BLangDo doNode = (BLangDo) this.onFailClause.parent;
+            doNode.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
+        }
         this.enclosingOnFailClause.remove(onFailClause);
         this.onFailClause = onFailClause;
     }
@@ -5059,6 +5064,7 @@ public class Desugar extends BLangNodeVisitor {
                 }
             } else {
                 rewrite(onFailClause, env);
+                onFailClause.desugared = false;
             }
         }
     }
@@ -7730,6 +7736,7 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 result = createOnFailInvocation(onFailClause, failNode);
             }
+            this.onFailClause.desugared = true;
         } else {
             BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failNode.pos, rewrite(failNode.expr, env));
             stmt.desugared = true;
