@@ -1,8 +1,8 @@
 [
   {
-    "description": "Change the constant value",
-    "oldCode": "public const int id = 10;",
-    "newCode": "public const int id = 11;",
+    "description": "Add annotation",
+    "oldCode": "public class Employee{}",
+    "newCode": "@deprecated\npublic class Employee{}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -14,16 +14,18 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "class",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
-                {
-                  "kind": "module constant initializer",
-                  "type": "modified",
-                  "versionImpact": "ambiguous",
-                  "message": "module constant initializer is modified"
-                }
+                [
+                  {
+                    "type": "new",
+                    "versionImpact": "ambiguous",
+                    "kind": "unknown",
+                    "message": "a new service annotation list is added"
+                  }
+                ]
               ]
             }
           ]
@@ -32,9 +34,9 @@
     }
   },
   {
-    "description": "Change the expression of a constant but doesn't change the value (Non affecting change)",
-    "oldCode": "public const int id = 10;",
-    "newCode": "public const int id = 5+5;",
+    "description": "Remove annotation",
+    "oldCode": "@deprecated\npublic class Employee{}",
+    "newCode": "public class Employee{}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -46,16 +48,18 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "class",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
-                {
-                  "kind": "module constant initializer",
-                  "type": "modified",
-                  "versionImpact": "ambiguous",
-                  "message": "module constant initializer is modified"
-                }
+                [
+                  {
+                    "type": "removed",
+                    "versionImpact": "ambiguous",
+                    "kind": "unknown",
+                    "message": "an existing service annotation list is removed"
+                  }
+                ]
               ]
             }
           ]
@@ -64,9 +68,9 @@
     }
   },
   {
-    "description": "Non affecting change in expression",
-    "oldCode": "public const boolean alive = false;",
-    "newCode": "public const boolean alive = !true;",
+    "description": "Modify annotation",
+    "oldCode": "@deprecated\npublic class Employee{}",
+    "newCode": "@display{\n\tlabel:””\n}\npublic class Employee{}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -78,16 +82,18 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "class",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
-                {
-                  "kind": "module constant initializer",
-                  "type": "modified",
-                  "versionImpact": "ambiguous",
-                  "message": "module constant initializer is modified"
-                }
+                [
+                  {
+                    "type": "modified",
+                    "versionImpact": "ambiguous",
+                    "kind": "unknown",
+                    "message": "service annotation list is modified"
+                  }
+                ]
               ]
             }
           ]

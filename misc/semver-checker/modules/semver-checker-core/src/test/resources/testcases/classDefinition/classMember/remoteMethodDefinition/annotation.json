@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Add annotation to a function",
+    "oldCode": "public class Employee{\nremote function transform(){}\n}",
+    "newCode": "public class Employee{\n@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \nremote function transform(){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove annotation from a function",
+    "oldCode": "public class Employee{\n@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \nremote function transform(){}\n}\n",
+    "newCode": "public class Employee{\nremote function transform(){}\n}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify annotation in a function",
+    "oldCode": "public class Employee{\n@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \nremote function transform(){}\n}\n",
+    "newCode": "public class Employee{\n@test:Config{\n}\nremote function transform(){}\n}",
+    "expectedOutput": {}
+  }
+]
