@@ -21,11 +21,14 @@ package io.ballerina.jsonmapper.util;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -91,6 +94,46 @@ public final class ConverterUtils {
             }
         }
         return AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
+    }
+
+    /**
+     * This method extracts TypeDescriptorNodes within any UnionTypeDescriptorNodes or ParenthesisedTypeDescriptorNode.
+     *
+     * @param typeDescNodes List of Union and Parenthesised TypeDescriptorNodes
+     * @return {@link List<TypeDescriptorNode>} Extracted SimpleNameReferenceNodes.
+     */
+    public static List<TypeDescriptorNode> extractTypeDescriptorNodes(List<TypeDescriptorNode> typeDescNodes) {
+        List<TypeDescriptorNode> extractedTypeNames = new ArrayList<>();
+        for (TypeDescriptorNode typeDescNode : typeDescNodes) {
+            TypeDescriptorNode extractedTypeDescNode = extractParenthesisedTypeDescNode(typeDescNode);
+            if (extractedTypeDescNode instanceof UnionTypeDescriptorNode) {
+                List<TypeDescriptorNode> childTypeDescNodes =
+                        List.of(((UnionTypeDescriptorNode) extractedTypeDescNode).leftTypeDesc(),
+                                ((UnionTypeDescriptorNode) extractedTypeDescNode).rightTypeDesc());
+                addIfNotExist(extractedTypeNames, extractTypeDescriptorNodes(childTypeDescNodes));
+            } else {
+                addIfNotExist(extractedTypeNames, List.of(extractedTypeDescNode));
+            }
+        }
+        return extractedTypeNames;
+    }
+
+    private static TypeDescriptorNode extractParenthesisedTypeDescNode(TypeDescriptorNode typeDescNode) {
+        if (typeDescNode instanceof ParenthesisedTypeDescriptorNode) {
+            return extractParenthesisedTypeDescNode(((ParenthesisedTypeDescriptorNode) typeDescNode).typedesc());
+        } else {
+            return typeDescNode;
+        }
+    }
+
+    private static void addIfNotExist(List<TypeDescriptorNode> typeDescNodes,
+                                      List<TypeDescriptorNode> typeDescNodesToBeInserted) {
+        for (TypeDescriptorNode typeDescNodeToBeInserted : typeDescNodesToBeInserted) {
+            if (typeDescNodes.stream().noneMatch(typeDescNode -> typeDescNode.toSourceCode()
+                    .equals(typeDescNodeToBeInserted.toSourceCode()))) {
+                typeDescNodes.add(typeDescNodeToBeInserted);
+            }
+        }
     }
 
     /**
