@@ -107,6 +107,11 @@ public class JsonToRecordMapperTests {
     private final Path sample10TypeDescBal = RES_DIR.resolve("ballerina")
             .resolve("sample_10_type_desc.bal");
 
+    private final Path sample11Json = RES_DIR.resolve("json")
+            .resolve("sample_11.json");
+    private final Path sample11Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_11.bal");
+
     @Test(description = "Test for primitive and null types")
     public void testForPrimitiveAndNullTypes() throws IOException {
         String jsonFileContent = Files.readString(sample0Json);
@@ -266,6 +271,15 @@ public class JsonToRecordMapperTests {
         String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample10TypeDescBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test for JSON field names with special characters")
+    public void testForJsonFieldsOfSpecialChars() throws IOException {
+        String jsonFileContent = Files.readString(sample11Json);
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample11Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
