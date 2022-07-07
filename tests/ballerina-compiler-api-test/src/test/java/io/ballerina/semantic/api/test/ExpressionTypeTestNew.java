@@ -509,6 +509,7 @@ public class ExpressionTypeTestNew {
                 {220, 37, 220, 42, STRING},
                 {220, 70, 220, 78, STRING},
                 {220, 83, 220, 88, INT},
+                {362, 24, 362, 24, null},
         };
     }
 
