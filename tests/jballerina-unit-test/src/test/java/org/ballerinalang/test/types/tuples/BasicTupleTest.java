@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -353,12 +353,25 @@ public class BasicTupleTest {
     @Test(description = "Test Function invocation using tuples")
     public void testTupleAnnotations2() {
         Object returns = BRunUtil.invoke(result, "testTupleMemberAnnotations2", new Object[]{});
-        Type T = TypeUtils.getType(returns);
+        TupleValueImpl returnTuple = (TupleValueImpl) returns;
 
-        Object annot = ((BAnnotatableType) T).getAnnotation(new BmpStringValue("$field$.1"));
+        Type T1 = TypeUtils.getType(returnTuple.get(0));
+        Type T2 = TypeUtils.getType(returnTuple.get(1));
+        Type T3 = TypeUtils.getType(returnTuple.get(2));
+        Type T4 = TypeUtils.getType(returnTuple.get(3));
+
+        Object annot1 = ((BAnnotatableType) T1).getAnnotation(StringUtils.fromString("$field$.1"));
+        Object annot2 = ((BAnnotatableType) T2).getAnnotation(StringUtils.fromString("$field$.1"));
+        Object annot3 = ((BAnnotatableType) T3).getAnnotation(StringUtils.fromString("$field$.0"));
+        Object annot4 = ((BAnnotatableType) T4).getAnnotation(StringUtils.fromString("$field$.0"));
+
         BMap<BString, Object> expected = ValueCreator.createMapValue();
         expected.put(StringUtils.fromString("member"), true);
-        Assert.assertEquals(annot, expected);
+
+        Assert.assertEquals(annot1, expected);
+        Assert.assertEquals(annot2, expected);
+        Assert.assertEquals(annot3, expected);
+        Assert.assertEquals(annot4, expected);
     }
 
     @AfterClass
