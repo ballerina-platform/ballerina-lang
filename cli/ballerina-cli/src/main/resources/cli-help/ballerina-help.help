@@ -1,5 +1,5 @@
 NAME
-       Ballerina's build system and package manager
+       The build system and package manager of Ballerina
 
 SYNOPSIS
        bal <command> [args]
