@@ -1152,11 +1152,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             return objectTypeNode;
         }
 
-        BLangType objectTypeBLangNode = objectTypeNode;
         if (objTypeDescNode.parent().kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
-            objectTypeBLangNode.flagSet.add(Flag.DISTINCT);
+            ((BLangType) objectTypeNode).flagSet.add(Flag.DISTINCT);
         }
-        return deSugarTypeAsUserDefType(objectTypeBLangNode);
+        return deSugarTypeAsUserDefType(objectTypeNode);
     }
 
     public BLangClassDefinition transformObjectCtorExpressionBody(NodeList<Node> members) {
