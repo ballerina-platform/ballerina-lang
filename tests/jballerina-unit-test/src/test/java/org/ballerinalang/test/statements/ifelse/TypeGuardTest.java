@@ -747,15 +747,6 @@ public class TypeGuardTest {
     }
 
     @Test
-    public void testTypeGuardsAccountingForSemTypes6() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_6.bal");
-        int index = 0;
-        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
-                22, 15);
-        Assert.assertEquals(result.getDiagnostics().length, index);
-    }
-
-    @Test
     public void testTypeGuardTypeNarrowing1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_type_narrow_1.bal");
         int index = 0;
