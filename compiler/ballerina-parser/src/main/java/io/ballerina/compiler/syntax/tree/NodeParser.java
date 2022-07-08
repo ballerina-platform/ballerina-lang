@@ -130,7 +130,7 @@ public class NodeParser {
      * Parses the input as an object member.
      *
      * @param text the input
-     * @return a {@code TypeDescriptorNode}
+     * @return a {@code Node}
      */
     public static Node parseObjectMember(String text) {
         BallerinaParser parser = ParserFactory.getParser(text);

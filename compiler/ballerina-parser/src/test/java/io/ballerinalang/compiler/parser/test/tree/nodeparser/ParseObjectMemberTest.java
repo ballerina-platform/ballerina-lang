@@ -31,6 +31,8 @@ import java.util.List;
  */
 public class ParseObjectMemberTest {
 
+    // Valid syntax tests
+
     @Test
     public void testRemoteDef() {
         String remoteDef = "remote function bar() {\n" +
@@ -71,6 +73,8 @@ public class ParseObjectMemberTest {
         Assert.assertEquals(objectMemberNode.kind(), SyntaxKind.OBJECT_FIELD);
         Assert.assertFalse(objectMemberNode.hasDiagnostics());
     }
+
+    // Invalid syntax tests
 
     @Test
     public void testEmptyString() {
