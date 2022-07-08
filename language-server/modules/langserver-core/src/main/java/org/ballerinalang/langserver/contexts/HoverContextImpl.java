@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.HoverContext;
@@ -36,8 +37,12 @@ import javax.annotation.Nonnull;
 public class HoverContextImpl extends AbstractDocumentServiceContext implements HoverContext {
 
     private Token tokenAtCursor;
-    
+
     private final Position cursorPosition;
+
+    private int cursorPositionInTree = -1;
+
+    private NonTerminalNode nodeAtCursor;
 
     HoverContextImpl(LSOperation operation,
                      String fileUri,
@@ -64,8 +69,34 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
     }
 
     @Override
+    public void setCursorPositionInTree(int offset) {
+        if (this.cursorPositionInTree > -1) {
+            throw new RuntimeException("Setting the cursor offset more than once is not allowed");
+        }
+        this.cursorPositionInTree = offset;
+    }
+
+    @Override
+    public int getCursorPositionInTree() {
+        return this.cursorPositionInTree;
+    }
+
+    @Override
     public Position getCursorPosition() {
         return this.cursorPosition;
+    }
+
+    @Override
+    public void setNodeAtCursor(NonTerminalNode node) {
+        if (this.nodeAtCursor != null) {
+            throw new RuntimeException("Setting the node more than once is not allowed");
+        }
+        this.nodeAtCursor = node;
+    }
+
+    @Override
+    public NonTerminalNode getNodeAtCursor() {
+        return this.nodeAtCursor;
     }
 
     /**
@@ -74,7 +105,7 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
      * @since 2.0.0
      */
     protected static class HoverContextBuilder extends AbstractContextBuilder<HoverContextBuilder> {
-        
+
         private Position cursorPosition;
 
         public HoverContextBuilder(LanguageServerContext serverContext) {
@@ -89,7 +120,7 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
                     this.serverContext,
                     this.cancelChecker);
         }
-        
+
         public HoverContextBuilder withPosition(Position cursorPosition) {
             this.cursorPosition = cursorPosition;
             return self();

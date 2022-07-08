@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "createUndefinedFunctionInCheckExpression2.bal",
   "expected": {
     "result": {
       "edit": {

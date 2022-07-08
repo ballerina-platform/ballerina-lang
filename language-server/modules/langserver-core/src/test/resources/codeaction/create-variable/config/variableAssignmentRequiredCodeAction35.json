@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 68,
-    "character": 4,
-    "expected": [
+    "character": 4
+  },
+  "source": "createVariable5.bal",
+  "kind": "quickfix",
+  "expected": [
+    {
+      "title": "Create variable with \u0027map\u003cany\u003e[]\u0027",
+      "edits": [
         {
-            "title": "Create variable with 'map<any>[]'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 68,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 68,
-                            "character": 4
-                        }
-                    },
-                    "newText": "map<any>[] listResult = "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 68,
+              "character": 4
+            },
+            "end": {
+              "line": 68,
+              "character": 4
+            }
+          },
+          "newText": "map\u003cany\u003e[] listResult \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

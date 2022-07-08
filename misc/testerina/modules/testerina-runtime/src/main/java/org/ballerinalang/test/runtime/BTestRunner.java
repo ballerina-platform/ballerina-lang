@@ -33,10 +33,12 @@ import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -702,8 +704,8 @@ public class BTestRunner {
     private void stopSuite(Scheduler scheduler, Class<?> initClazz) {
         TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class},
-                new Object[]{scheduler.getListenerRegistry()});
+        stop.directInvoke(new Class<?>[]{RuntimeRegistry.class},
+                new Object[]{scheduler.getRuntimeRegistry()});
     }
 
     private Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,
@@ -833,7 +835,7 @@ public class BTestRunner {
                 typeList.add(Boolean.TYPE);
             }
         } else {
-            Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
+            Class<?> type = getArgTypeToClassMapping(TypeUtils.getReferredType(bArray.getElementType()));
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 typeList.add(type);

@@ -1,0 +1,98 @@
+[
+  {
+    "description": "Change the value.",
+    "oldCode": "public int id = 10;",
+    "newCode": "public int id = 5;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the expression but doesn't change the value (Non affecting change)",
+    "oldCode": "public int id = 10;",
+    "newCode": "public int id = 5+5;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Non affecting change in expression",
+    "oldCode": "public boolean alive = false;",
+    "newCode": "public boolean alive = !true;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

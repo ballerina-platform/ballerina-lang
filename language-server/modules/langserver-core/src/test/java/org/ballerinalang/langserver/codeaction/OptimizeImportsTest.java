@@ -36,16 +36,16 @@ public class OptimizeImportsTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"optimizeImports.json", "optimizeImports.bal"},
-                {"optimizeImports1.json", "optimizeImports1.bal"},
+                {"optimizeImports.json"},
+                {"optimizeImports1.json"},
         };
     }
 }

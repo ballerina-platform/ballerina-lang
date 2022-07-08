@@ -1,9 +1,14 @@
 {
-  "line": 1,
-  "character": 20,
+  "line": 0,
+  "character": 0,
+  "position": {
+    "line": 1,
+    "character": 20
+  },
+  "source": "negative_add_check_codeaction_source1.bal",
   "expected": [
     {
-      "title": "Add 'check' error"
+      "title": "Add \u0027check\u0027 error"
     }
   ]
 }
