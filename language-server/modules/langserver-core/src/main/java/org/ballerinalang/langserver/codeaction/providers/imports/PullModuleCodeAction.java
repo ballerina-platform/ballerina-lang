@@ -51,7 +51,7 @@ public class PullModuleCodeAction implements DiagnosticBasedCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

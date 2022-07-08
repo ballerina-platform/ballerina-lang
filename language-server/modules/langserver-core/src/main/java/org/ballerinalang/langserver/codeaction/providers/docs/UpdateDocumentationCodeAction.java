@@ -87,7 +87,7 @@ public class UpdateDocumentationCodeAction implements DiagnosticBasedCodeActionP
 
         String code = diagnostic.diagnosticInfo().code();
         return DIAGNOSTIC_IDS.stream().anyMatch(id -> id.equals(code)) &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

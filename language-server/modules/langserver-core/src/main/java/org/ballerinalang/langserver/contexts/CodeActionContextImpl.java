@@ -53,7 +53,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     private int cursorPositionInTree = -1;
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
-    private Node nodeAtCursor;
+    private Node nodeAtRange;
 
     @Deprecated(forRemoval = true)
     public CodeActionContextImpl(LSOperation operation,
@@ -161,12 +161,12 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     }
 
     @Override
-    public Node nodeAtCursor() {
-        if (this.nodeAtCursor == null) {
+    public Node nodeAtRange() {
+        if (this.nodeAtRange == null) {
             SyntaxTree syntaxTree = this.currentSyntaxTree().orElseThrow();
-            this.nodeAtCursor = CommonUtil.findNode(range(), syntaxTree);
+            this.nodeAtRange = CommonUtil.findNode(range(), syntaxTree);
         }
-        return this.nodeAtCursor;
+        return this.nodeAtRange;
     }
 
     @Override

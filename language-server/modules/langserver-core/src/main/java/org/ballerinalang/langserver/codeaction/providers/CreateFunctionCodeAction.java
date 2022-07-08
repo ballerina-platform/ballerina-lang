@@ -105,7 +105,7 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         if (!diagnostic.message().startsWith(UNDEFINED_FUNCTION) || positionDetails.matchedNode() == null) {
             return false;
         }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**

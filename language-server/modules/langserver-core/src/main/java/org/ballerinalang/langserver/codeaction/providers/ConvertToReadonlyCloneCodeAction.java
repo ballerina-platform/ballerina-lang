@@ -52,7 +52,7 @@ public class ConvertToReadonlyCloneCodeAction implements DiagnosticBasedCodeActi
                             CodeActionContext context) {
         return diagnostic.diagnosticInfo().code()
                 .equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId()) &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

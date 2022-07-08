@@ -46,7 +46,7 @@ public class RemoveUnreachableCodeCodeAction implements DiagnosticBasedCodeActio
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return DiagnosticErrorCode.UNREACHABLE_CODE.diagnosticId().equals(diagnostic.diagnosticInfo().code()) &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

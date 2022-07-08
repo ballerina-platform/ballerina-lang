@@ -58,7 +58,7 @@ public class AddOnFailCodeAction implements DiagnosticBasedCodeActionProvider {
                 .equals(diagnostic.diagnosticInfo().code()) ||
                 DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
                         .equals(diagnostic.diagnosticInfo().code()))
-                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override
