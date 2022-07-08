@@ -6533,9 +6533,9 @@ public class Desugar extends BLangNodeVisitor {
                 resourceAccessInvocation.symbol.tag,
                 resourceAccessInvocation.symbol.flags,
                 resourceAccessInvocation.symbol.name,
-                resourceAccessInvocation.symbol.scope.owner.pkgID,
+                resourceAccessInvocation.symbol.pkgID,
                 resourceAccessInvocation.symbol.type,
-                resourceAccessInvocation.symbol.scope.owner,
+                resourceAccessInvocation.symbol,
                 resourceAccessInvocation.symbol.pos, VIRTUAL);
 
         BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;

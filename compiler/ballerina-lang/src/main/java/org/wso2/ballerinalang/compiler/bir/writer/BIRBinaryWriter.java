@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
@@ -213,6 +214,8 @@ public class BIRBinaryWriter {
         // Function type as a CP Index
         writeType(buf, birFunction.type);
 
+        writePathParameters(buf, birFunction);
+        
         // Store annotations here...
         writeAnnotAttachments(buf, birFunction.annotAttachments);
 
@@ -315,6 +318,33 @@ public class BIRBinaryWriter {
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+    
+    private void writePathParameters(ByteBuf buf, BIRNode.BIRFunction birFunction) {
+        if (birFunction.resourcePath != null) {
+            List<BIRNode.BIRVariableDcl> pathParams = birFunction.pathParams;
+            buf.writeInt(pathParams.size());
+            for (BIRNode.BIRVariableDcl pathParam : pathParams) {
+                buf.writeInt(addStringCPEntry(pathParam.metaVarName));
+                writeType(buf, pathParam.type);
+            }
+
+            BIRNode.BIRVariableDcl restPathParam = birFunction.restPathParam;
+            buf.writeBoolean(restPathParam != null);
+            if (restPathParam != null) {
+                buf.writeInt(addStringCPEntry(restPathParam.metaVarName));
+                writeType(buf, restPathParam.type);
+            }
+
+            List<Name> resourcePath = birFunction.resourcePath;
+            buf.writeInt(resourcePath.size());
+            for (Name resourcePathSegment : resourcePath) {
+                buf.writeInt(addStringCPEntry(resourcePathSegment.value));
+            }
+
+            buf.writeInt(addStringCPEntry(birFunction.accessor.value));
+            writeType(buf, birFunction.resourcePathType);
+        }
     }
 
     private void writeFunctionsGlobalVarDependency(ByteBuf buf, BIRNode.BIRFunction birFunction) {
