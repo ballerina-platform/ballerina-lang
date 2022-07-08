@@ -1,4 +1,5 @@
 # Writing Extended Services for Language Server
+
 - <a href="#WhatIsAService">What is a Service?</a>
 - <a href="#ComponentsOfAService">Components of a Service</a>
     - <a href="#ServiceImplementation">Service Implementation</a>
@@ -53,8 +54,7 @@ This will ensure the default behaviour without exposing context information for 
 
 #### Initialization option-1
 ```Java
-default void init(LanguageServer langServer,
-                    WorkspaceManager workspaceManager) {
+default void init(LanguageServer langServer, WorkspaceManager workspaceManager) {
     // access and store the parameters
 }
 ```
@@ -64,8 +64,8 @@ Exposes the language server instance and the default workspace manager.
 ```Java
 default void init(LanguageServer langServer,
                     WorkspaceManager workspaceManager,
-                    LanguageServerContext serverContext) {
-    // access and store the parameters
+                    LanguageServerContext serverContext){
+        // access and store the parameters
 }
 ```
 Additionally exposes the `LanguageServerContext`
@@ -84,7 +84,7 @@ Instead of the `WorkspaceManager`, this exposes the `WorkspaceManagerProxy`. The
 ### Server Capability Registration
 Once the service implementation is registered, it is important to register the server capabilities. The server capability registration allows the server to notify the clients on the operation capabilities exposed with a particular custom service.
 
-The speccific server capabilities data model represents the signature of the server capabilities of the particular service implementation. The data types of the specific operation related fields should be serializable.
+The specific server capabilities data model represents the signature of the server capabilities of the particular service implementation. The data types of the specific operation related fields should be serializable.
 
 ```Java
 public class CustomServiceServerCapabilities extends BallerinaServerCapability {
@@ -126,7 +126,7 @@ public class CustomServiceServerCapabilitySetter
 ### Client Capability Registration
 Once the service implementation is registered, it is important to register the client capabilities. The client capability registration allows the client to notify the server on the operation capabilities supported by the client.
 
-The speccific client capabilities data model represents the signature of the client capabilities of the particular service implementation. The data types of the specific operation related fields should be serializable.
+The specific client capabilities data model represents the signature of the client capabilities of the particular service implementation. The data types of the specific operation related fields should be serializable.
 
 ```Java
 public class CustomServiceClientCapabilities extends BallerinaClientCapability {    
