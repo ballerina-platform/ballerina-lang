@@ -184,14 +184,12 @@ public class StringUtils {
      */
     public static String convertUnicodeToCharacter(String toConvert) {
         Matcher matcher = Pattern.compile("\\\\u\\{([\\da-fA-F]*)}").matcher(toConvert);
-
         StringBuilder stringBuilder = new StringBuilder();
         int currentPosition = 0;
         while (matcher.find()) {
             stringBuilder.append(toConvert, currentPosition, matcher.start());
             int code = Integer.parseInt(matcher.group(1), 16);
-            char[] chars = Character.toChars(code);
-            stringBuilder.append(chars);
+            stringBuilder.append(Character.toChars(code));
             currentPosition = matcher.end();
         }
 
