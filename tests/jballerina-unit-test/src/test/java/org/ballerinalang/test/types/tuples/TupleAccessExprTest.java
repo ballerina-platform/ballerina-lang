@@ -201,6 +201,14 @@ public class TupleAccessExprTest {
         BRunUtil.invoke(compileResult, "testTupleAccessUsingUnionWithFiniteTypesNegative");
     }
 
+    @Test
+    public void testTupleAccessUsingCustomTypes() {
+        BRunUtil.invoke(compileResult, "testTupleAccessWithCustomType");
+        BRunUtil.invoke(compileResult, "testTupleAccessWithCustomType2");
+        BRunUtil.invoke(compileResult, "testTupleAccessWithCustomUnionTypes");
+        BRunUtil.invoke(compileResult, "testTupleAccessWithCustomReadonlyUnionTypes");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

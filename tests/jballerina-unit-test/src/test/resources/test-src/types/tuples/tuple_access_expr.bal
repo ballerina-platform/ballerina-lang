@@ -277,3 +277,152 @@ function testTupleAccessUsingUnionWithFiniteTypesNegative() {
     string|boolean f1 = tuple[index0];
     var f2 = tuple[index1];
 }
+
+type IntTuple [int...];
+type StringTuple [string...];
+type BooleanTuple [boolean...];
+type CustomTuple [int, string, boolean];
+
+const int index = 0;
+
+[int...] expectedIntTuple = [1, 2, 3];
+[string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+[boolean...] expectedBooleanTuple = [true, false, true];
+
+public function testTupleAccessWithCustomType() {
+    IntTuple intTuple = [1, 2, 3];
+    StringTuple stringTuple = ["string 1", "string 2", "string 3"];
+    BooleanTuple booleanTuple = [true, false, true];
+    CustomTuple customTuple = [1, "string 1", true];
+
+    assertEquals(intTuple[index], 1);
+    assertEquals(intTuple[index + 1], 2);
+    assertEquals(intTuple[index + 2], 3);
+
+    assertEquals(stringTuple[index], "string 1");
+    assertEquals(stringTuple[index + 1], "string 2");
+    assertEquals(stringTuple[index + 2], "string 3");
+
+    assertEquals(booleanTuple[index], true);
+    assertEquals(booleanTuple[index + 1], false);
+    assertEquals(booleanTuple[index + 2], true);
+
+    assertEquals(customTuple[index], 1);
+    assertEquals(customTuple[index + 1], "string 1");
+    assertEquals(customTuple[index + 2], true);
+
+    foreach var i in 0 ..< intTuple.length() {
+        assertEquals(intTuple[i], expectedIntTuple[i]);
+        assertEquals(stringTuple[i], expectedStringTuple[i]);
+        assertEquals(booleanTuple[i], expectedBooleanTuple[i]);
+    }
+}
+
+type IntTuple2 [int, int, int];
+type StringTuple2 [string, string, string];
+type BooleanTuple2 [boolean, boolean, boolean];
+type CustomTuple2 [int, string, boolean];
+
+public function testTupleAccessWithCustomType2() {
+    IntTuple2 intTuple = [1, 2, 3];
+    StringTuple2 stringTuple = ["string 1", "string 2", "string 3"];
+    BooleanTuple2 booleanTuple = [true, false, true];
+    CustomTuple2 customTuple = [1, "string 1", true];
+
+    assertEquals(intTuple[index], 1);
+    assertEquals(intTuple[index + 1], 2);
+    assertEquals(intTuple[index + 2], 3);
+
+    assertEquals(stringTuple[index], "string 1");
+    assertEquals(stringTuple[index + 1], "string 2");
+    assertEquals(stringTuple[index + 2], "string 3");
+
+    assertEquals(booleanTuple[index], true);
+    assertEquals(booleanTuple[index + 1], false);
+    assertEquals(booleanTuple[index + 2], true);
+
+    assertEquals(customTuple[index], 1);
+    assertEquals(customTuple[index + 1], "string 1");
+    assertEquals(customTuple[index + 2], true);
+
+    foreach var i in 0 ..< intTuple.length() {
+        assertEquals(intTuple[i], expectedIntTuple[i]);
+        assertEquals(stringTuple[i], expectedStringTuple[i]);
+        assertEquals(booleanTuple[i], expectedBooleanTuple[i]);
+    }
+}
+
+type IntUnionStringTuple [int...]|[string...];
+type StringUnionBooleanTuple [boolean...]|[string...];
+type BooleanUnionIntTuple [boolean...]|[int...];
+type CustomUnionTuple [int...]|[string...]|[int, string, boolean]|[boolean...];
+
+public function testTupleAccessWithCustomUnionTypes() {
+    IntUnionStringTuple intUnionStringTuple = [1, 2, 3];
+    StringUnionBooleanTuple stringUnionBooleanTuple = ["string 1", "string 2", "string 3"];
+    BooleanUnionIntTuple booleanUnionIntTuple = [true, false, true];
+    CustomUnionTuple customUnionTuple = [1, "string 1", true];
+
+    assertEquals(intUnionStringTuple[index], 1);
+    assertEquals(intUnionStringTuple[index + 1], 2);
+    assertEquals(intUnionStringTuple[index + 2], 3);
+
+    assertEquals(stringUnionBooleanTuple[index], "string 1");
+    assertEquals(stringUnionBooleanTuple[index + 1], "string 2");
+    assertEquals(stringUnionBooleanTuple[index + 2], "string 3");
+
+    assertEquals(booleanUnionIntTuple[index], true);
+    assertEquals(booleanUnionIntTuple[index + 1], false);
+    assertEquals(booleanUnionIntTuple[index + 2], true);
+
+    assertEquals(customUnionTuple[index], 1);
+    assertEquals(customUnionTuple[index + 1], "string 1");
+    assertEquals(customUnionTuple[index + 2], true);
+
+    foreach var i in 0 ..< intUnionStringTuple.length() {
+        assertEquals(intUnionStringTuple[i], expectedIntTuple[i]);
+        assertEquals(stringUnionBooleanTuple[i], expectedStringTuple[i]);
+        assertEquals(booleanUnionIntTuple[i], expectedBooleanTuple[i]);
+    }
+}
+
+type IntReadonlyTuple ([int...] & readonly)|[string...];
+type StringReadonlyTuple [boolean...]|([string...] & readonly);
+type BooleanReadonlyTuple ([boolean...] & readonly)|[int...];
+type CustomReadonlyTuple [int...]|[string...]|([int, string, boolean] & readonly)|[boolean...];
+
+public function testTupleAccessWithCustomReadonlyUnionTypes() {
+    IntReadonlyTuple intReadonlyTuple = [1, 2, 3];
+    StringReadonlyTuple stringReadonlyTuple = ["string 1", "string 2", "string 3"];
+    BooleanReadonlyTuple booleanReadonlyTuple = [true, false, true];
+    CustomReadonlyTuple customReadonlyTuple = [1, "string 1", true];
+
+    assertEquals(intReadonlyTuple[index], 1);
+    assertEquals(intReadonlyTuple[index + 1], 2);
+    assertEquals(intReadonlyTuple[index + 2], 3);
+
+    assertEquals(stringReadonlyTuple[index], "string 1");
+    assertEquals(stringReadonlyTuple[index + 1], "string 2");
+    assertEquals(stringReadonlyTuple[index + 2], "string 3");
+
+    assertEquals(booleanReadonlyTuple[index], true);
+    assertEquals(booleanReadonlyTuple[index + 1], false);
+    assertEquals(booleanReadonlyTuple[index + 2], true);
+
+    assertEquals(customReadonlyTuple[index], 1);
+    assertEquals(customReadonlyTuple[index + 1], "string 1");
+    assertEquals(customReadonlyTuple[index + 2], true);
+
+    foreach var i in 0 ..< intReadonlyTuple.length() {
+        assertEquals(intReadonlyTuple[i], expectedIntTuple[i]);
+        assertEquals(stringReadonlyTuple[i], expectedStringTuple[i]);
+        assertEquals(booleanReadonlyTuple[i], expectedBooleanTuple[i]);
+    }
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error(string `expected [${expected.toString()}], found [${actual.toString()}]`);
+}
