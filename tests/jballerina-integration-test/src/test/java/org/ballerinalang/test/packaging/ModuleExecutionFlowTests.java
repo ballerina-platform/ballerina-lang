@@ -113,7 +113,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         runAssertDynamicListener(projectPath);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultipleDynamicListenersWithAsyncCall() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging",
                 "dynamic_listener_async_call_test_project");
