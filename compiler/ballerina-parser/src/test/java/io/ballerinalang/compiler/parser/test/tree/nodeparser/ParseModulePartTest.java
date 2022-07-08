@@ -51,12 +51,11 @@ public class ParseModulePartTest {
         Assert.assertFalse(modulePartNode.hasDiagnostics());
     }
 
-
     // Invalid syntax tests
 
     @Test
     public void testInvalidImport() {
-        String invalidImport = "int x = 1 " +
+        String invalidImport = "int x = 1; " +
                 "import y;";
         ModulePartNode modulePartNode = NodeParser.parseModulePart(invalidImport);
         Assert.assertEquals(modulePartNode.kind(), SyntaxKind.MODULE_PART);

@@ -307,7 +307,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     public STNode parseAsModulePart() {
-        startContext(ParserRuleContext.COMP_UNIT);
         STNode modulePart = parseCompUnit();
 
         modulePart = invalidateRestAndAddToTrailingMinutiae(modulePart);
