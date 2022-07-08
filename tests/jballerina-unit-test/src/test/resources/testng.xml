@@ -148,6 +148,8 @@
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.xml.*" />
 
+            <package name="org.ballerinalang.test.sandbox.*" />
+
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
