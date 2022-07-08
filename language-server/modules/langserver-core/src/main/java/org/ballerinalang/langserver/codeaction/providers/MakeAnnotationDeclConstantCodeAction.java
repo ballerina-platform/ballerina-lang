@@ -55,7 +55,7 @@ public class MakeAnnotationDeclConstantCodeAction implements DiagnosticBasedCode
                             CodeActionContext context) {
         return DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) &&
                 context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

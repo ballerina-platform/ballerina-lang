@@ -58,7 +58,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
                             CodeActionContext context) {
 
         return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

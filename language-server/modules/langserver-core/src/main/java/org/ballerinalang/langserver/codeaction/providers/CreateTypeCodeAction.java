@@ -54,7 +54,7 @@ public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return DiagnosticErrorCode.UNKNOWN_TYPE.diagnosticId().equals(diagnostic.diagnosticInfo().code())
-                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

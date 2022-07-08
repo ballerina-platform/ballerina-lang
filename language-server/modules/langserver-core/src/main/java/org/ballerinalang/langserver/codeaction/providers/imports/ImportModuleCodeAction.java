@@ -58,7 +58,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return diagnostic.message().startsWith(UNDEFINED_MODULE)
-                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

@@ -62,11 +62,11 @@ public interface CodeActionContext extends DocumentServiceContext {
     int cursorPositionInTree();
 
     /**
-     * Get the node at cursor.
+     * Get the node at selected range.
      *
-     * @return {@link Integer} offset of the cursor
+     * @return {@link Node}
      */
-    Node nodeAtCursor();
+    Node nodeAtRange();
 
     /**
      * Get the selected range.

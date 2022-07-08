@@ -57,7 +57,7 @@ public class AddExplicitReturnToFunctionCodeAction implements DiagnosticBasedCod
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId())
-                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

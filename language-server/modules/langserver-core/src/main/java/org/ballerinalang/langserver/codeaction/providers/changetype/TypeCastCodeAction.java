@@ -66,7 +66,7 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
