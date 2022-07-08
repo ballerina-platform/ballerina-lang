@@ -746,12 +746,6 @@ public class TypeGuardTest {
         BRunUtil.invoke(result, "testTypeTestingInReadonlyRecord");
     }
 
-//    @Test
-//    public void testTypeGuardsAccountingForSemTypes5() {
-//        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_5.bal");
-//        Assert.assertEquals(result.getDiagnostics().length, 0);
-//    }
-
     @Test
     public void testTypeGuardsAccountingForSemTypes6() {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_6.bal");
@@ -990,6 +984,131 @@ public class TypeGuardTest {
                 BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_type_narrow_positive.bal");
         Object returns = BRunUtil.invoke(result, "testTypeGuardTypeNarrow");
         Assert.assertTrue((Boolean) returns);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForCells1() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_cells_1.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '[string]'",
+                                  222, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '[string]'",
+                                  231, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int] & readonly', " +
+                "found '([string] & readonly)'", 241, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[string]', found '[int]'", 253, 22);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int] & readonly', found '[int]'",
+                                  260, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[string] & readonly', " +
+                "found '[int]'", 261, 33);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', " +
+                "found '([string] & readonly)'", 272, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '[string] & " +
+                "readonly'", 278, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '([string] & " +
+                "readonly)'", 292, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found 'string[]'",
+                                  301, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[] & readonly', " +
+                "found '(string[] & readonly)'", 313, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found '(string[] & " +
+                "readonly)'", 323, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found '(string[] & " +
+                "readonly)'", 333, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[]', " +
+                "found '(int|string)[] & readonly'", 344, 22);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[] & readonly', " +
+                "found '(int|string)[] & readonly'", 345, 33);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', " +
+                "found '(int|string)[] & readonly'", 354, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[] & readonly', " +
+                "found '(int|string)[] & readonly'", 355, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(json|Z)', found '" +
+                                          "(json|stream<int>)'", 425, 20);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected " +
+                "'(anydata|record {| stream<int> s; |})', found '(anydata|future<string>)'", 445, 49);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'xml', found '(json|xml)'", 543, 17);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'json', found '(json|xml)'", 550, 18);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'stream<string[],error?>', found '" +
+                "(xml|stream<string[],error?>)'", 557, 38);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found 'boolean[]'",
+                                  575, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'boolean[]', found '(boolean[]|xml)'",
+                                  585, 23);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found " +
+                "'record {| anydata...; |}'", 602, 20);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|Utc)', found 'record {| " +
+                "anydata...; |}'", 609, 24);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'Utc'", 615, 20);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|Utc)', " +
+                "found '(Utc|record {| anydata...; |})'", 622, 24);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(Utc|record {| anydata...; |})', " +
+                "found '(record {| anydata...; |}|byte[])'", 630, 27);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'Utc'", 639, 20);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int,int]', found '" +
+                "[int,decimal]'", 656, 28);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|[int,decimal])', found " +
+                "'record {| anydata...; |}'", 660, 35);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '([int,int]|record {| anydata...; " +
+                "|})', found '([int,decimal]|record {| anydata...; |})'", 672, 34);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForCells2() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_cells_2.bal");
+        int index = 0;
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 30, 8);
+        BAssertUtil.validateError(result, index++, "unreachable code", 33, 9);
+        BAssertUtil.validateError(result, index++,
+                                  "expression of type 'never' or equivalent to type 'never' not allowed here",
+                                  33, 13);
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 38, 8);
+        BAssertUtil.validateError(result, index++, "unreachable code", 41, 9);
+        BAssertUtil.validateError(result, index++,
+                                  "expression of type 'never' or equivalent to type 'never' not allowed here",
+                                  41, 35);
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 69, 15);
+        BAssertUtil.validateError(result, index++, "unreachable code", 72, 5);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForCells3() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_cells_3.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForCells4() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_cells_4.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForCells5() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_cells_5.bal");
+
+        int index = 0;
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 22, 15);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForCells6() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_cells_6.bal");
+
+        int index = 0;
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 22, 15);
+        BAssertUtil.validateError(result, index++, "unreachable code", 25, 9);
+        // Invalid
+        BAssertUtil.validateError(result, index++, "this function must return a result", 28, 1);
+        Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
     @AfterClass
