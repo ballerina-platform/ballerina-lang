@@ -263,6 +263,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         if (!data.unreachableBlock) {
             data.statementReturnsPanicsOrFails = true;
         }
+        data.hasPanicStatement = true;
     }
 
     @Override
@@ -327,6 +328,16 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             }
 
             if (data.booleanConstCondition == symTable.semanticError) {
+                if (data.loopCount > 0) {
+                    if (elseStmt.getKind() == NodeKind.IF) {
+                        data.loopTerminatedOrContinued = data.loopTerminatedOrContinued && (ifStmtReturnsPanicsOrFails
+                                || ifStmtBreakAsLastStatement || ifStmtContinueAsLastStatement);
+                    } else {
+                        data.loopTerminatedOrContinued = (ifStmtReturnsPanicsOrFails || ifStmtBreakAsLastStatement
+                                || ifStmtContinueAsLastStatement) && (data.statementReturnsPanicsOrFails
+                                || data.breakAsLastStatement || data.continueAsLastStatement);
+                    }
+                }
                 data.statementReturnsPanicsOrFails = ifStmtReturnsPanicsOrFails && data.statementReturnsPanicsOrFails;
                 data.errorThrown = currentErrorThrown && data.errorThrown;
                 data.breakAsLastStatement = ifStmtBreakAsLastStatement && data.breakAsLastStatement;
@@ -384,6 +395,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean prevContinueAsLastStatement = data.continueAsLastStatement;
         boolean prevBreakStmtFound = data.breakStmtFound;
         boolean failureHandled = data.failureHandled;
+        boolean prevLoopTerminatedOrContinued = data.loopTerminatedOrContinued;
 
         checkStatementExecutionValidity(foreach, data);
 
@@ -406,6 +418,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         data.breakAsLastStatement = prevBreakAsLastStatement;
         data.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
         data.breakStmtFound = prevBreakStmtFound;
+        data.loopTerminatedOrContinued = prevLoopTerminatedOrContinued;
 
         analyzeOnFailClause(foreach.onFailClause, data);
 
@@ -549,7 +562,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn &&
-                    !data.statementReturnsPanicsOrFails) {
+                    !data.statementReturnsPanicsOrFails && !data.hasPanicStatement) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
@@ -625,6 +638,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean prevContinueAsLastStatement = data.continueAsLastStatement;
         boolean prevBreakStmtFound = data.breakStmtFound;
         boolean failureHandled = data.failureHandled;
+        boolean prevLoopTerminatedOrContinued = data.loopTerminatedOrContinued;
 
         checkStatementExecutionValidity(whileNode, data);
 
@@ -654,6 +668,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             data.statementReturnsPanicsOrFails = true;
         }
         data.breakStmtFound = prevBreakStmtFound;
+        data.loopTerminatedOrContinued = prevLoopTerminatedOrContinued;
 
         analyzeOnFailClause(whileNode.onFailClause, data);
 
@@ -727,7 +742,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         // This is to support when let expressions are used in return statements
         // Since variable declarations are visited after return node, this stops false positive unreachable code error
         boolean returnStateBefore = data.statementReturnsPanicsOrFails;
-        data.statementReturnsPanicsOrFails = false;
+        resetStatementReturnsPanicsOrFails(data);
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             analyzeReachability((BLangNode) letVariable.definitionNode, data);
         }
@@ -771,11 +786,15 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             data.skipFurtherAnalysisInUnreachableBlock = true;
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             resetUnreachableBlock(data);
+        } else if (data.loopTerminatedOrContinued) {
+            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            data.loopTerminatedOrContinued = false;
         }
     }
 
     private void resetStatementReturnsPanicsOrFails(AnalyzerData data) {
         data.statementReturnsPanicsOrFails = false;
+        data.hasPanicStatement = false;
     }
 
     private void resetLastStatement(AnalyzerData data) {
@@ -988,6 +1007,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean failureHandled;
         boolean returnedWithinQuery;
         boolean skipFurtherAnalysisInUnreachableBlock;
+        boolean hasPanicStatement;
+        boolean loopTerminatedOrContinued;
         int loopCount;
         int loopAndDoClauseCount;
         BType booleanConstCondition;
