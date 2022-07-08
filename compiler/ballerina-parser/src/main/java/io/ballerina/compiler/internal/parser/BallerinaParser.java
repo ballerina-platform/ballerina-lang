@@ -302,6 +302,19 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as an object member.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsModulePart() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        STNode modulePart = parseCompUnit();
+
+        modulePart = invalidateRestAndAddToTrailingMinutiae(modulePart);
+        return modulePart;
+    }
+
+    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
@@ -4844,8 +4857,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode createMissingSimpleObjectField() {
+        STNode metadata = STNodeFactory.createEmptyNode();
         List<STNode> qualifiers = new ArrayList<>();
-        return createMissingSimpleObjectField(null,  qualifiers, false);
+        return createMissingSimpleObjectField(metadata,  qualifiers, false);
     }
 
     private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {

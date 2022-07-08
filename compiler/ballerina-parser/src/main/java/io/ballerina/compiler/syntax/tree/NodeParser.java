@@ -136,4 +136,15 @@ public class NodeParser {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parseAsObjectMember().createUnlinkedFacade();
     }
+
+    /**
+     * Parses the input as a module part.
+     *
+     * @param text the input
+     * @return a {@code ModulePartNode}
+     */
+    public static ModulePartNode parseModulePart(String text) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsModulePart().createUnlinkedFacade();
+    }
 }
