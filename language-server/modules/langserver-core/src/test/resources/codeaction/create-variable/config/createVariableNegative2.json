@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character":16
+    "line": 3,
+    "character":27
   },
-  "source": "createVariableNegative1.bal",
+  "source": "createVariableNegative2.bal",
   "expected": [
     {
       "title": "Create variable"
