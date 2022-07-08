@@ -65,4 +65,9 @@
     <Match>>
         <Package name="io.ballerina.cli.launcher"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Method name="copyIcon" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
 </FindBugsFilter>

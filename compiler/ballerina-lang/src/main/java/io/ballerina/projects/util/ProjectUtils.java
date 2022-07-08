@@ -102,6 +102,7 @@ import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -1004,18 +1005,51 @@ public class ProjectUtils {
     }
 
     /**
-     * Given a pattern in include field, find the directories and files in the package that match the pattern.
+     * Given a list of patterns in include field, find the directories and files in the package that match the patterns.
      *
-     * @param pattern string pattern to be matched
+     * @param patterns list of string patterns to be matched
      * @return the list of matching paths
      */
-    public static List<Path> getPathsMatchingIncludePattern(String pattern, Path packageRoot) {
-        try (Stream<Path> pathStream = Files.walk(packageRoot)) {
-            return pathStream.filter(
-                    FileSystems.getDefault().getPathMatcher("glob:" + pattern)::matches).collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read files matching the include pattern '" + pattern + "': " +
-                    e.getMessage(), e);
+    public static List<Path> getPathsMatchingIncludePatterns(List<String> patterns, Path packageRoot) {
+        List<Path> relativePaths = new ArrayList<>();
+        for (String pattern : patterns) {
+            String globPattern = pattern;
+            String patternPrefix = pattern.startsWith("/") ? "**" : "**/";
+            List<Path> absolutePathsOfPattern;
+            if (pattern.startsWith("!")) {
+                globPattern = pattern.substring(1);
+                Stream<Path> pathStream = relativePaths.stream();
+                absolutePathsOfPattern = pathStream.filter(
+                        FileSystems.getDefault().getPathMatcher("glob:" + patternPrefix + globPattern)::matches)
+                        .collect(Collectors.toList());
+                relativePaths.removeAll(absolutePathsOfPattern);
+                continue;
+            }
+            if (pattern.endsWith("/")) {
+                globPattern = pattern.substring(0, pattern.length() - 1);
+            }
+            try (Stream<Path> pathStream = Files.walk(packageRoot)) {
+                absolutePathsOfPattern = pathStream.filter(
+                                FileSystems.getDefault().getPathMatcher("glob:" + patternPrefix + globPattern)::matches)
+                        .collect(Collectors.toList());
+                for (Path absolutePath : absolutePathsOfPattern) {
+                    Path relativePath = packageRoot.relativize(absolutePath);
+                    if (relativePath.startsWith(TARGET_DIR_NAME)) {
+                        continue;
+                    }
+                    if (pattern.startsWith("/") && !packageRoot.equals(absolutePath.getParent())) {
+                        continue;
+                    }
+                    if (pattern.endsWith("/") && absolutePath.toFile().isFile()) {
+                        continue;
+                    }
+                    relativePaths.add(relativePath);
+                }
+            } catch (IOException e) {
+                throw new ProjectException("Failed to read files matching the include pattern '" + pattern + "': " +
+                        e.getMessage(), e);
+            }
         }
+        return relativePaths;
     }
 }

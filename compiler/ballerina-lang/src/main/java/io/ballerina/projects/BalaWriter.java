@@ -42,7 +42,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -54,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
@@ -270,20 +270,25 @@ public abstract class BalaWriter {
     }
 
     private void addIncludes(ZipOutputStream balaOutputStream) throws IOException {
-        // adds all the includes to the root dir
         List<String> includePatterns = this.packageContext.packageManifest().includes();
-        List<Path> includePaths = new ArrayList<>();
-        for (String includePattern : includePatterns) {
-            includePaths.addAll(ProjectUtils.getPathsMatchingIncludePattern(includePattern,
-                    this.packageContext.project().sourceRoot()));
-        }
+        List<Path> includePaths = ProjectUtils.getPathsMatchingIncludePatterns(
+                includePatterns, this.packageContext.project().sourceRoot());
+
         for (Path includePath: includePaths) {
-            includePath = includePath.toAbsolutePath();
-            Path includeInBala = getPathRelativeToPackageRoot(includePath);
-            if (includePath.toFile().isDirectory()) {
-                putDirectoryToZipFile(includePath, includeInBala, balaOutputStream);
-            } else {
-                putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includePath)));
+            Path includePathInPackage = this.packageContext.project().sourceRoot().resolve(includePath)
+                    .toAbsolutePath();
+            Path includeInBala = updateModuleDirectoryToMatchNamingInBala(includePath);
+            try {
+                if (includePathInPackage.toFile().isDirectory()) {
+                    putDirectoryToZipFile(includePathInPackage, includeInBala, balaOutputStream);
+                } else {
+                    putZipEntry(balaOutputStream, includeInBala,
+                            new FileInputStream(String.valueOf(includePathInPackage)));
+                }
+            } catch (ZipException e) {
+                if (!e.getMessage().contains("duplicate entry")) {
+                    throw e;
+                }
             }
         }
     }
@@ -305,13 +310,6 @@ public abstract class BalaWriter {
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
-    }
-
-    private Path getPathRelativeToPackageRoot(Path absolutePath) {
-        URI packagePathURI = this.packageContext.project().sourceRoot().toUri();
-        URI relativePathURI = packagePathURI.relativize(absolutePath.toUri());
-        Path relativePath = Paths.get(relativePathURI.getPath());
-        return updateModuleDirectoryToMatchNamingInBala(relativePath);
     }
 
     private Path updateModuleDirectoryToMatchNamingInBala(Path relativePath) {

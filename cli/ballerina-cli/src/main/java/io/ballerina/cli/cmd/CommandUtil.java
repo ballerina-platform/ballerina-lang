@@ -302,11 +302,10 @@ public class CommandUtil {
     private static void copyIncludeFiles(Path balaPath, Path projectPath, PackageJson templatePackageJson)
             throws IOException {
         if (templatePackageJson.getInclude() != null) {
-            List<Path> includePaths = new ArrayList<>();
-            for (String includePattern : templatePackageJson.getInclude()) {
-                includePaths.addAll(ProjectUtils.getPathsMatchingIncludePattern(includePattern, balaPath));
-            }
-            for(Path includePath: includePaths) {
+            List<Path> includePaths = ProjectUtils.getPathsMatchingIncludePatterns(
+                    templatePackageJson.getInclude(), balaPath);
+
+            for (Path includePath : includePaths) {
                 Path includePathRelativeToRoot = balaPath.relativize(includePath);
                 Path fromIncludeFilePath = balaPath.resolve(includePathRelativeToRoot);
                 Path toIncludeFilePath = projectPath.resolve(includePathRelativeToRoot);

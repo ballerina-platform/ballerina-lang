@@ -411,7 +411,7 @@
     </Match>
     <Match>
         <Class name="io.ballerina.projects.util.ProjectUtils" />
-        <Method name="getPathsMatchingIncludePattern" />
+        <Method name="getPathsMatchingIncludePatterns" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
 </FindBugsFilter>
