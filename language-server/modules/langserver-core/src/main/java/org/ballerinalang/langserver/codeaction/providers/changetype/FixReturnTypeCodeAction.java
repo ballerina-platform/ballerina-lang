@@ -75,7 +75,7 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             return false;
         }
 
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**

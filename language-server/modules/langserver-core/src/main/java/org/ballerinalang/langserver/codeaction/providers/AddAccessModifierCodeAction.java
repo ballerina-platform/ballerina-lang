@@ -50,7 +50,7 @@ public class AddAccessModifierCodeAction implements DiagnosticBasedCodeActionPro
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC.diagnosticId().equals(diagnostic.diagnosticInfo().code())
-                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override

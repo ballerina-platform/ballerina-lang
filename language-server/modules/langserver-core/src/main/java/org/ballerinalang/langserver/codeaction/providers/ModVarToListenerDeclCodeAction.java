@@ -65,7 +65,7 @@ public class ModVarToListenerDeclCodeAction implements DiagnosticBasedCodeAction
                             CodeActionContext context) {
         return DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT.diagnosticId()
                 .equals(diagnostic.diagnosticInfo().code()) && positionDetails.matchedNode() != null &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override
