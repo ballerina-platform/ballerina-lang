@@ -17,9 +17,11 @@ package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -279,15 +281,13 @@ public class SortingUtil {
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
         if (typeSymbol.typeKind() == TypeDescKind.TYPEDESC && completionItem.getType() == SYMBOL) {
             Optional<Symbol> optionalSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
-            if (optionalSymbol.isPresent()) {
-                if (optionalSymbol.get().kind() == SymbolKind.TYPE_DEFINITION
-                        || optionalSymbol.get().kind() == SymbolKind.TYPE) {
-                    TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) typeSymbol;
-                    if (typeDescTypeSymbol.typeParameter().isPresent()) {
-                        Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
-                        return optionalTypeSymbol.isPresent()
-                                && optionalTypeSymbol.get().subtypeOf(typeDescTypeSymbol.typeParameter().get());
-                    }
+            if (optionalSymbol.isPresent() && (optionalSymbol.get().kind() == SymbolKind.TYPE_DEFINITION
+                    || optionalSymbol.get().kind() == SymbolKind.TYPE)) {
+                Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(typeSymbol);
+                if (optionalTypeParamTypeSymbol.isPresent()) {
+                    Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
+                    return optionalTypeSymbol.isPresent() 
+                            && optionalTypeSymbol.get().subtypeOf(optionalTypeParamTypeSymbol.get());
                 }
             }
         }
@@ -296,6 +296,28 @@ public class SortingUtil {
         }
         Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
         return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
+    }
+
+    /**
+     * Get the type symbol of the type parameter from the given type symbol.
+     * 
+     * @param typeSymbol Type Symbol
+     * @return Type Symbol or Empty if type parameter is not present
+     */
+    public static Optional<TypeSymbol> getTypeParameterFromTypeSymbol(TypeSymbol typeSymbol) {
+        Optional<TypeSymbol> optionalTypeSymbol;
+        switch (typeSymbol.typeKind()) {
+            case TYPEDESC:
+                optionalTypeSymbol = ((TypeDescTypeSymbol) typeSymbol).typeParameter();
+                break;
+            case FUTURE:
+                optionalTypeSymbol = ((FutureTypeSymbol) typeSymbol).typeParameter();
+                break;
+            default:
+                optionalTypeSymbol = Optional.empty();
+                break;
+        }
+        return optionalTypeSymbol;
     }
 
     /**
