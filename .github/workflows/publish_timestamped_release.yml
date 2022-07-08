@@ -19,11 +19,6 @@ jobs:
             distribution: 'temurin'
             java-version: '11'
 
-      -   name: Extract branch name
-          shell: bash
-          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-          id: extract_branch
-
       -   name: Initialize Sub Modules
           run: git submodule update --init
 

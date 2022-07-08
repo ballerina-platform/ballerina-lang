@@ -2,28 +2,29 @@ name: Publish Timestamped Snapshot Artifacts
 
 on:
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: '0 0 * * *'
 
 jobs:
   publish-ballerina-lang:
     name: Build and Publish Ballerina Lang
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        branch: ['master', '2201.0.x', '2201.1.x', '2201.2.x']
     timeout-minutes: 240
     if: github.repository_owner == 'ballerina-platform'
     steps:
       -   name: Checkout Repository
           uses: actions/checkout@v2
+          with:
+            ref: ${{ matrix.branch }}
 
       -   name: Set up JDK 11
           uses: actions/setup-java@v2
           with:
             distribution: 'temurin'
             java-version: '11'
-
-      -   name: Extract branch name
-          shell: bash
-          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-          id: extract_branch
 
       -   name: Initialize Sub Modules
           run: git submodule update --init
@@ -53,7 +54,7 @@ jobs:
             --data "{
               \"event_type\": \"update_timestamped_version\",
               \"client_payload\": {
-                \"branch\": \"${{ steps.extract_branch.outputs.branch }}\",
+                \"branch\": \"${{ matrix.branch }}\",
                 \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
               }
             }"
