@@ -95,7 +95,8 @@ public class ReachabilityAnalysisTest {
                 "testUnreachablePanicStmt8",
                 "testUnreachablePanicStmt9",
                 "testUnreachablePanicStmt10",
-                "testReachabilityWithQueryAction"
+                "testReachabilityWithQueryAction",
+                "testReachabilityWithIfElseHavingUnreachablePanic"
         };
     }
 
@@ -413,8 +414,16 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1465, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1477, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1489, 9);
-        Assert.assertEquals(result.getErrorCount(), i - 38 - 19);
-        Assert.assertEquals(result.getHintCount(), 38);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1498, 15);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1504, 5);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1510, 8);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1516, 5);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1524, 15);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1530, 5);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1538, 15);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1544, 5);
+        Assert.assertEquals(result.getErrorCount(), i - 42 - 19);
+        Assert.assertEquals(result.getHintCount(), 42);
         Assert.assertEquals(result.getWarnCount(), 19);
     }
 
