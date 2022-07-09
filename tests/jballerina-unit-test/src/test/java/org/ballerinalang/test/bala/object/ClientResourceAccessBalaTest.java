@@ -56,7 +56,7 @@ public class ClientResourceAccessBalaTest {
                 {"testWithResourceAccessRestSegment"},
                 {"testResourceAccessWithArguments"},
                 {"testStaticTypeOfClientResourceAccessAction"},
-//                {"testResourceAccessOfAnObjectConstructedViaObjectCons"},
+                {"testResourceAccessOfAnObjectConstructedViaObjectCons"},
                 {"testResourceAccessContainingSpecialChars"}
         };
     }

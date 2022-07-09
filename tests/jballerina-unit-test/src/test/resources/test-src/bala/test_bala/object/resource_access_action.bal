@@ -285,42 +285,41 @@ function testStaticTypeOfClientResourceAccessAction() {
     assertEquality(a014, 1.0003d);
 }
 
+function testResourceAccessOfAnObjectConstructedViaObjectCons() {
+    string[][] a1 = cli:myClinet->/;
+    assertEquality(a1, <string[][]>[[], []]);
 
-//function testResourceAccessOfAnObjectConstructedViaObjectCons() {
-//    string[][] a1 = cli:myClinet->/;
-//    assertEquality(a1, <string[][]>[[], []]);
-//
-//    string[][] a2 = cli:myClinet->/books/books2;
-//    assertEquality(a2, <string[][]>[["books", "books2"], []]);
-//
-//    string[][] a3 = cli:myClinet->/("books", "pen");
-//    assertEquality(a3, <string[][]>[[], ["books", "pen"]]);
-//
-//    string[][] a41 = cli:myClinet->/["a"]/[...["b", "c"]](...["d", "e"]);
-//    assertEquality(a41, <string[][]>[["a", "b", "c"], ["d", "e"]]);
-//
-//    int a5 = cli:myClinet->/a.get1(5, 6);
-//    assertEquality(a5, 5);
-//
-//    int a7 = cli:myClinet->/[...["car"]].get1(3, 6);
-//    assertEquality(a7, 3);
-//
-//    [int, string, int[]] a8 = cli:myClinet->/path/[1]/path2/path3("book", 6);
-//    assertEquality(a8, <[int, string, int[]]>[1, "book", [6]]);
-//
-//    "path2"[2] pathArray = ["path2", "path2"];
-//    [int, string, int[]] a9 = cli:myClinet->/path/[1]/[...pathArray]("book", 6);
-//    assertEquality(a9, <[int, string, int[]]>[1, "book", [6]]);
-//
-//    int[2] a10 = cli:myClinet->/[5].put(1, 6);
-//    assertEquality(a10, <int[2]>[1, 6]);
-//
-//    int[2] a11 = cli:myClinet->/[5].put(1);
-//    assertEquality(a11, <int[2]>[1, 5]);
-//
-//    int a12 = cli:myClinet->/[cli:PATH]/path.put(4);
-//    assertEquality(a12, 4);
-//}
+    string[][] a2 = cli:myClinet->/books/books2;
+    assertEquality(a2, <string[][]>[["books", "books2"], []]);
+
+    string[][] a3 = cli:myClinet->/("books", "pen");
+    assertEquality(a3, <string[][]>[[], ["books", "pen"]]);
+
+    string[][] a41 = cli:myClinet->/["a"]/[...["b", "c"]](...["d", "e"]);
+    assertEquality(a41, <string[][]>[["a", "b", "c"], ["d", "e"]]);
+
+    int a5 = cli:myClinet->/a.get1(5, 6);
+    assertEquality(a5, 5);
+
+    int a7 = cli:myClinet->/[...["car"]].get1(3, 6);
+    assertEquality(a7, 3);
+
+    [int, string, int[]] a8 = cli:myClinet->/path/[1]/path2/path3("book", 6);
+    assertEquality(a8, <[int, string, int[]]>[1, "book", [6]]);
+
+    "path2"[2] pathArray = ["path2", "path2"];
+    [int, string, int[]] a9 = cli:myClinet->/path/[1]/[...pathArray]("book", 6);
+    assertEquality(a9, <[int, string, int[]]>[1, "book", [6]]);
+
+    int[2] a10 = cli:myClinet->/[5].put(1, 6);
+    assertEquality(a10, <int[2]>[1, 6]);
+
+    int[2] a11 = cli:myClinet->/[5].put(1);
+    assertEquality(a11, <int[2]>[1, 5]);
+
+    int a12 = cli:myClinet->/[cli:PATH]/path.put(4);
+    assertEquality(a12, 4);
+}
 
 function testResourceAccessContainingSpecialChars() {
     cli:MyClient7 myClient = new;

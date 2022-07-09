@@ -3563,7 +3563,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation, AnalyzerData data) {
         // Find the lhs expression type
         checkExpr(resourceAccessInvocation.expr, data);
-        BType lhsExprType = resourceAccessInvocation.expr.getBType();
+        BType lhsExprType = Types.getReferredType(resourceAccessInvocation.expr.getBType());
         
         if (lhsExprType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(lhsExprType.tsymbol.flags, Flags.CLIENT)) {
             dlog.error(resourceAccessInvocation.expr.pos, 
