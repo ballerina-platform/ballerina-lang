@@ -1169,12 +1169,7 @@ public class Desugar extends BLangNodeVisitor {
         if (generatedInitFunction.restParam != null) {
             BLangSimpleVarRef restVarRef = ASTBuilderUtil.createVariableRef(location,
                     generatedInitFunction.restParam.symbol);
-            BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
-            bLangRestArgsExpression.expr = restVarRef;
-            bLangRestArgsExpression.pos = generatedInitFunction.pos;
-            bLangRestArgsExpression.setBType(generatedInitFunction.restParam.getBType());
-            bLangRestArgsExpression.expectedType = bLangRestArgsExpression.getBType();
-            invocation.restArgs.add(bLangRestArgsExpression);
+            invocation.restArgs.add(createRestArgsExpression(restVarRef));
         }
         invocation.exprSymbol =
                 objectTypeSymbol.generatedInitializerFunc.symbol.receiverSymbol;
@@ -6129,12 +6124,7 @@ public class Desugar extends BLangNodeVisitor {
             funcSymbol.scope.define(restParam.symbol.name, restParam.symbol);
 
             BLangSimpleVarRef restArg = createVariableRef(pos, restParam.symbol);
-            BLangRestArgsExpression restArgExpr = new BLangRestArgsExpression();
-            restArgExpr.expr = restArg;
-            restArgExpr.pos = pos;
-            restArgExpr.setBType(restSym.type);
-            restArgExpr.expectedType = restArgExpr.getBType();
-            restArgs.add(restArgExpr);
+            restArgs.add(createRestArgsExpression(restArg));
         }
 
         BLangIdentifier field = fieldAccessExpr.field;
@@ -6564,8 +6554,8 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = 0;  i < resourceAccessPathSegments.size(); i++) {
             BLangExpression resourceAccessPathSeg = resourceAccessPathSegments.get(i);
             if (resourceAccessPathSeg.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
-                bLangInvocation.restArgs.add(createRestArgsExpressionFromSpreadExpr(
-                        (BLangListConstructorSpreadOpExpr) resourceAccessPathSeg));
+                bLangInvocation.restArgs.add(createRestArgsExpression(
+                        ((BLangListConstructorSpreadOpExpr) resourceAccessPathSeg).expr));
             } else if (i > invocationParams.size() - 1) {
                 bLangInvocation.restArgs.add(resourceAccessPathSeg);
             } else {
@@ -6576,9 +6566,7 @@ public class Desugar extends BLangNodeVisitor {
         return bLangInvocation;
     }
     
-    private BLangRestArgsExpression createRestArgsExpressionFromSpreadExpr(
-            BLangListConstructorSpreadOpExpr spreadOpExpr) {
-        BLangExpression expr = spreadOpExpr.expr;
+    private BLangRestArgsExpression createRestArgsExpression(BLangExpression expr) {
         BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
         bLangRestArgsExpression.expr = expr;
         bLangRestArgsExpression.pos = expr.pos;
