@@ -23,12 +23,14 @@ import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.comparator.ClassComparator;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
 import io.ballerina.semver.checker.comparator.ModuleConstantComparator;
 import io.ballerina.semver.checker.comparator.ModuleVariableComparator;
 import io.ballerina.semver.checker.comparator.ServiceComparator;
+import io.ballerina.semver.checker.comparator.TypeDefComparator;
 
 import java.util.List;
 import java.util.Optional;
@@ -188,6 +190,20 @@ public class ModuleDiff extends DiffImpl {
 
         public void withClassModified(ClassDefinitionNode newClass, ClassDefinitionNode oldClass) {
             new ClassComparator(newClass, oldClass).computeDiff().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withTypeDefAdded(TypeDefinitionNode classNode) {
+            TypeDefinitionDiff.Builder constantDiffBuilder = new TypeDefinitionDiff.Builder(classNode, null);
+            constantDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withTypeDefRemoved(TypeDefinitionNode classNode) {
+            TypeDefinitionDiff.Builder constantDiffBuilder = new TypeDefinitionDiff.Builder(null, classNode);
+            constantDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withTypeDefModified(TypeDefinitionNode newTypeDef, TypeDefinitionNode oldTypeDef) {
+            new TypeDefComparator(newTypeDef, oldTypeDef).computeDiff().ifPresent(moduleDiff.childDiffs::add);
         }
     }
 }

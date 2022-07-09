@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.diff.DiffExtractor;
 import io.ballerina.semver.checker.diff.ModuleDiff;
@@ -41,6 +42,7 @@ import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getConstIdentifie
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getFunctionIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getModuleVarIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getServiceIdentifier;
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getTypeDefIdentifier;
 
 /**
  * Comparator implementation for Ballerina modules.
@@ -61,6 +63,8 @@ public class ModuleComparator implements Comparator {
     private final Map<String, ConstantDeclarationNode> oldConstants = new HashMap<>();
     private final Map<String, ClassDefinitionNode> newClasses = new HashMap<>();
     private final Map<String, ClassDefinitionNode> oldClasses = new HashMap<>();
+    private final Map<String, TypeDefinitionNode> newTypes = new HashMap<>();
+    private final Map<String, TypeDefinitionNode> oldTypes = new HashMap<>();
 
     public ModuleComparator(Module newModule, Module oldModule) {
         this.newModule = newModule;
@@ -122,6 +126,14 @@ public class ModuleComparator implements Comparator {
                 clazz.getValue()));
     }
 
+    private void extractTypeDefinitionDiffs(ModuleDiff.Builder diffModifier) {
+        DiffExtractor<TypeDefinitionNode> constDiffExtractor = new DiffExtractor<>(newTypes, oldTypes);
+        constDiffExtractor.getAdditions().forEach((name, type) -> diffModifier.withTypeDefAdded(type));
+        constDiffExtractor.getRemovals().forEach((name, type) -> diffModifier.withTypeDefRemoved(type));
+        constDiffExtractor.getCommons().forEach((name, types) -> diffModifier.withTypeDefModified(types.getKey(),
+                types.getValue()));
+    }
+
     private void extractModuleLevelDefinitions(Module module, boolean isNewModule) {
         module.documentIds().forEach(documentId -> {
             SyntaxTree documentST = module.document(documentId).syntaxTree();
@@ -180,6 +192,14 @@ public class ModuleComparator implements Comparator {
                         }
                         break;
                     case TYPE_DEFINITION:
+                        TypeDefinitionNode typeNode = (TypeDefinitionNode) member;
+                        if (isNewModule) {
+                            newTypes.put(getTypeDefIdentifier(typeNode), typeNode);
+                        } else {
+                            oldTypes.put(getTypeDefIdentifier(typeNode), typeNode);
+                        }
+                        break;
+                    case LISTENER_DECLARATION:
                     case ENUM_DECLARATION:
                     default:
                         // Todo: implement

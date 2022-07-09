@@ -18,20 +18,20 @@
 
 package io.ballerina.semver.checker.diff;
 
-import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 
 import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Represents the diff in between two versions of a Ballerina class definition.
+ * Represents the diff in between two versions of a Ballerina type definition.
  *
  * @since 2201.2.0
  */
-public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
+public class TypeDefinitionDiff extends NodeDiffImpl<TypeDefinitionNode> {
 
-    private ClassDiff(ClassDefinitionNode newNode, ClassDefinitionNode oldNode) {
+    private TypeDefinitionDiff(TypeDefinitionNode newNode, TypeDefinitionNode oldNode) {
         super(newNode, oldNode);
     }
 
@@ -39,13 +39,13 @@ public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
     public void computeVersionImpact() {
         boolean isPublic = isPublic();
         if (newNode != null && oldNode == null) {
-            // if the class is newly added
+            // if the type is newly added
             versionImpact = isPublic ? SemverImpact.MINOR : SemverImpact.PATCH;
         } else if (newNode == null && oldNode != null) {
-            // if the class is removed
+            // if the type is removed
             versionImpact = isPublic ? SemverImpact.MAJOR : SemverImpact.PATCH;
         } else {
-            // if the class is modified, checks if class definition is public and if its not, all the
+            // if the type is modified, checks if type definition is public and if its not, all the
             // children-level changes can be considered as patch-compatible changes.
             if (isPublic) {
                 super.computeVersionImpact();
@@ -65,26 +65,26 @@ public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
     }
 
     /**
-     * Class diff builder implementation.
+     * Type definition diff builder implementation.
      */
-    public static class Builder extends NodeDiffImpl.Builder<ClassDefinitionNode> {
+    public static class Builder extends NodeDiffImpl.Builder<TypeDefinitionNode> {
 
-        private final ClassDiff classDiff;
+        private final TypeDefinitionDiff moduleConstDiff;
 
-        public Builder(ClassDefinitionNode newNode, ClassDefinitionNode oldNode) {
+        public Builder(TypeDefinitionNode newNode, TypeDefinitionNode oldNode) {
             super(newNode, oldNode);
-            classDiff = new ClassDiff(newNode, oldNode);
+            moduleConstDiff = new TypeDefinitionDiff(newNode, oldNode);
         }
 
         @Override
-        public Optional<ClassDiff> build() {
-            classDiff.setKind(DiffKind.CLASS);
-            if (!classDiff.getChildDiffs().isEmpty()) {
-                classDiff.computeVersionImpact();
-                classDiff.setType(DiffType.MODIFIED);
-                return Optional.of(classDiff);
-            } else if (classDiff.getType() == DiffType.NEW || classDiff.getType() == DiffType.REMOVED) {
-                return Optional.of(classDiff);
+        public Optional<TypeDefinitionDiff> build() {
+            moduleConstDiff.setKind(DiffKind.TYPE_DEFINITION);
+            if (!moduleConstDiff.getChildDiffs().isEmpty()) {
+                moduleConstDiff.computeVersionImpact();
+                moduleConstDiff.setType(DiffType.MODIFIED);
+                return Optional.of(moduleConstDiff);
+            } else if (moduleConstDiff.getType() == DiffType.NEW || moduleConstDiff.getType() == DiffType.REMOVED) {
+                return Optional.of(moduleConstDiff);
             }
 
             return Optional.empty();
@@ -92,31 +92,31 @@ public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
 
         @Override
         public NodeDiffBuilder withType(DiffType diffType) {
-            classDiff.setType(diffType);
+            moduleConstDiff.setType(diffType);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withVersionImpact(SemverImpact versionImpact) {
-            classDiff.setVersionImpact(versionImpact);
+            moduleConstDiff.setVersionImpact(versionImpact);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withMessage(String message) {
-            classDiff.setMessage(message);
+            moduleConstDiff.setMessage(message);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withChildDiff(Diff childDiff) {
-            classDiff.childDiffs.add(childDiff);
+            moduleConstDiff.childDiffs.add(childDiff);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withChildDiffs(Collection<? extends Diff> childDiffs) {
-            classDiff.childDiffs.addAll(childDiffs);
+            moduleConstDiff.childDiffs.addAll(childDiffs);
             return this;
         }
     }
