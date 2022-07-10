@@ -61,12 +61,14 @@ public interface CodeActionContext extends DocumentServiceContext {
      */
     int cursorPositionInTree();
 
+
     /**
-     * Get the node at selected range.
+     * Get the node at cursor.
      *
-     * @return {@link Node}
+     * @return {@link Node} node at the cursor
      */
-    Node nodeAtRange();
+    @Deprecated(forRemoval = true)
+    Node nodeAtCursor();
 
     /**
      * Get the selected range.
@@ -74,4 +76,11 @@ public interface CodeActionContext extends DocumentServiceContext {
      * @return {@link Range}
      */
     Range range();
+
+    /**
+     * Get the node at selected range.
+     *
+     * @return {@link Node}
+     */
+    Node nodeAtRange();
 }
