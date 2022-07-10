@@ -2722,16 +2722,21 @@ public class Types {
             Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.getMemberTypes().size());
             Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.getMemberTypes().size());
 
-            sourceTypes.add(sUnionType);
+            if (sUnionType.isCyclic) {
+                sourceTypes.add(sUnionType);
+            }
+            if (tUnionType.isCyclic) {
+                targetTypes.add(tUnionType);
+            }
+
             sourceTypes.addAll(sUnionType.getMemberTypes());
-            targetTypes.add(tUnionType);
             targetTypes.addAll(tUnionType.getMemberTypes());
 
             boolean notSameType = sourceTypes
                     .stream()
                     .map(sT -> targetTypes
                             .stream()
-                            .anyMatch(it -> isSameType(it, sT, this.unresolvedTypes)))
+                            .anyMatch(it -> isSameType(it, sT, new HashSet<>(this.unresolvedTypes))))
                     .anyMatch(foundSameType -> !foundSameType);
             return !notSameType;
         }
