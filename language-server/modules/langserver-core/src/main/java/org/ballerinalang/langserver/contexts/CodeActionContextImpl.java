@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
@@ -53,6 +54,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     private int cursorPositionInTree = -1;
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
+    private Node nodeAtCursor;
     private Node nodeAtRange;
 
     @Deprecated(forRemoval = true)
@@ -161,16 +163,27 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     }
 
     @Override
+    public Node nodeAtCursor() {
+        if (this.nodeAtCursor == null) {
+            SyntaxTree syntaxTree = this.currentSyntaxTree().orElseThrow();
+            NonTerminalNode matchedNode = CommonUtil.findNode(new Range(this.cursorPosition(),
+                    this.cursorPosition()), syntaxTree);
+            this.nodeAtCursor = matchedNode;
+        }
+        return this.nodeAtCursor;
+    }
+
+    @Override
+    public Range range() {
+        return this.params.getRange();
+    }
+
+    @Override
     public Node nodeAtRange() {
         if (this.nodeAtRange == null) {
             SyntaxTree syntaxTree = this.currentSyntaxTree().orElseThrow();
             this.nodeAtRange = CommonUtil.findNode(range(), syntaxTree);
         }
         return this.nodeAtRange;
-    }
-
-    @Override
-    public Range range() {
-        return this.params.getRange();
     }
 }
