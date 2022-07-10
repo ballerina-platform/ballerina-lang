@@ -1739,7 +1739,7 @@ public class BIRPackageSymbolEnter {
     private BType getType(BType readShape, SymbolEnv pkgEnv, Name name) {
         BType type = symbolResolver.lookupSymbolInMainSpace(pkgEnv, name).type;
 
-        if (type != symTable.noType && (!name.value.contains(ANON_PREFIX) || types.isSameType(readShape, type))) {
+        if (type != symTable.noType && (!name.value.contains(ANON_PREFIX) || types.isSameBIRShape(readShape, type))) {
             return type;
         }
 
@@ -1751,7 +1751,7 @@ public class BIRPackageSymbolEnter {
                 if (typeDefName.contains(ANON_PREFIX)) {
                     BType anonType = symbol.type;
 
-                    if (types.isSameType(readShape, anonType)) {
+                    if (types.isSameBIRShape(readShape, anonType)) {
                         return anonType;
                     }
                 } else if (typeDefName.equals(name.value)) {
@@ -1765,7 +1765,7 @@ public class BIRPackageSymbolEnter {
                 if (value.getKey().value.contains(ANON_PREFIX)) {
                     BType anonType = symbol.type;
 
-                    if (types.isSameType(readShape, anonType)) {
+                    if (types.isSameBIRShape(readShape, anonType)) {
                         return anonType;
                     }
                 }
