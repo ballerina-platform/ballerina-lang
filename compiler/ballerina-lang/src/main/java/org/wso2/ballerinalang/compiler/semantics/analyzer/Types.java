@@ -350,24 +350,17 @@ public class Types {
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
-        TypePair pair = null;
-        if (!isValueType(target) && !isValueType(source)) {
-            pair = new TypePair(source, target);
-            if (!unresolvedTypes.add(pair)) {
-                return true;
-            }
+        TypePair pair = new TypePair(source, target);
+        if (!unresolvedTypes.add(pair)) {
+            return true;
         }
 
         BTypeVisitor<BType, Boolean> sameTypeVisitor = new BSameTypeVisitor(unresolvedTypes);
-
         if (target.accept(sameTypeVisitor, source)) {
             return true;
         }
 
-        if (pair != null) {
-            unresolvedTypes.remove(pair);
-        }
-
+        unresolvedTypes.remove(pair);
         return false;
     }
 
