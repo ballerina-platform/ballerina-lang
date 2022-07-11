@@ -158,3 +158,22 @@ function dataGen9() returns map<CodeFragment>|error {
     }
     return tests;
 }
+
+type Feed record {
+    int responseCode;
+    string message;
+};
+
+@test:Config{ dataProvider:getStateResponseDataProvider }
+function testGetState(Feed dataFeed) {
+    test:assertEquals(200, dataFeed.responseCode);
+    test:assertEquals("Hello World!!!", dataFeed.message);
+}
+
+function getStateResponseDataProvider() returns Feed[][] {
+     return [
+            [{responseCode:200, message:"Hello World!!!"}],
+            [{responseCode:20, message:"Hello World!!!"}]
+     ];
+}
+
