@@ -589,6 +589,12 @@ public class BTestRunner {
                             // run the after tests
                             executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest,
                                     failedAfterFuncTests);
+                        } else {
+                            // If the test function is skipped lets add it to the failed test list
+                            failedOrSkippedTests.add(test.getTestName());
+                            // report the test result
+                            functionResult = new TesterinaResult(test.getTestName(), false, true, null);
+                            tReport.addFunctionResult(packageName, functionResult);
                         }
                     }
                 }
@@ -613,6 +619,12 @@ public class BTestRunner {
                             // run the after tests
                             executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest,
                                     failedAfterFuncTests);
+                        } else {
+                            // If the test function is skipped lets add it to the failed test list
+                            failedOrSkippedTests.add(test.getTestName());
+                            // report the test result
+                            functionResult = new TesterinaResult(test.getTestName(), false, true, null);
+                            tReport.addFunctionResult(packageName, functionResult);
                         }
                     }
                 }
