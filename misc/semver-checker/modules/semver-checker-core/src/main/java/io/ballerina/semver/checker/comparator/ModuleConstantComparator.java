@@ -144,7 +144,7 @@ public class ModuleConstantComparator extends NodeComparator<ConstantDeclaration
     private List<Diff> compareExpression(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
         List<Diff> exprDiffs = new LinkedList<>();
         DumbNodeComparator<Node> exprComparator = new DumbNodeComparator<>(newNode.initializer(),
-                oldNode.initializer(), DiffKind.MODULE_CONST_INIT.toString());
+                oldNode.initializer(), DiffKind.MODULE_CONST_INIT);
         exprComparator.computeDiff().ifPresent(exprDiffs::add);
 
         return exprDiffs;

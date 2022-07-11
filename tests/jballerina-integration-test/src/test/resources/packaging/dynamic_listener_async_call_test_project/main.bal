@@ -16,16 +16,6 @@
 
 import ballerina/lang.runtime;
 
-public function main() {
-    ListenerObject1 ep = new ListenerObject1("ModDynA");
-    runtime:registerListener(ep);
-    runtime:registerListener(lo);
-    checkpanic ep.gracefulStop();
-    runtime:deregisterListener(ep);
-    checkpanic lo.gracefulStop();
-    runtime:deregisterListener(lo);
-}
-
 public class ListenerObject1 {
 
     private string name = "";
@@ -54,18 +44,13 @@ public class ListenerObject1 {
     }
 }
 
-listener ListenerObject1 ep = new ListenerObject1("ModA");
-
-final ListenerObj2 lo = new ListenerObj2();
-
-
-public class ListenerObj2 {
+public class ListenerObject2 {
     public function init() {}
 
     public function 'start() returns error? {}
 
     public function gracefulStop() returns error? {
-        runtime:sleep(2);
+        runtime:sleep(1);
     }
 
     public function immediateStop() returns error? {}
@@ -75,4 +60,42 @@ public class ListenerObj2 {
 
     public function detach(service object {} s) returns error? {
     }
+}
+
+public class ListenerObject3 {
+
+    private string name = "";
+
+    public function init(string name){
+        self.name = name;
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+}
+
+final ListenerObject1 ep = new ListenerObject1("ModA");
+final ListenerObject2 lo2 = new ListenerObject2();
+final ListenerObject3 lo3 = new ListenerObject3("ListenerObject3");
+
+public function main() {
+    runtime:registerListener(ep);
+    runtime:registerListener(lo2);
+    runtime:registerListener(lo3);
+    runtime:sleep(2);
+    runtime:deregisterListener(ep);
+    runtime:deregisterListener(lo2);
+    runtime:deregisterListener(lo3);
 }

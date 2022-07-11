@@ -25,7 +25,7 @@
                   "message": "'public' qualifier is added to module constant 'id'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module constant initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module constant initializer is modified"
@@ -155,7 +155,7 @@
                   "message": "'public' qualifier is removed from module constant 'id'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module constant initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module constant initializer is modified"
