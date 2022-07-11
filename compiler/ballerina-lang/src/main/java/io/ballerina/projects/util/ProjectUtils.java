@@ -949,8 +949,17 @@ public class ProjectUtils {
      */
     public static boolean isProjectUpdated(Project project) {
         // If observability included and Syntax Tree Json not in the caches, return true
+        Path observeJarCachePath = project.targetDir()
+                .resolve(CACHES_DIR_NAME)
+                .resolve(project.currentPackage().packageOrg().value())
+                .resolve(project.currentPackage().packageName().value())
+                .resolve(project.currentPackage().packageVersion().value().toString())
+                .resolve("observe")
+                .resolve(project.currentPackage().packageOrg().value() + "-"
+                        + project.currentPackage().packageName().value()
+                        + "-observability-symbols.jar");
         if (project.buildOptions().observabilityIncluded() &&
-                !project.targetDir().resolve(CACHES_DIR_NAME).resolve("syntax-tree.json").toFile().exists()) {
+                !observeJarCachePath.toFile().exists()) {
             return true;
         }
 

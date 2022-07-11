@@ -26,7 +26,6 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.observability.anaylze.model.DocumentHolder;
@@ -36,6 +35,7 @@ import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -47,6 +47,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 
 /**
  * Default implementation of {@link ObservabilitySymbolCollector}.
@@ -118,21 +122,23 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
 
             // Writing Syntax Tree Json
             String syntaxTreeDataString;
-            Path syntaxTreeJsonCachePath = project.targetDir()
-                    .resolve(ProjectConstants.CACHES_DIR_NAME).resolve(SYNTAX_TREE_FILE_NAME);
             if (ProjectUtils.isProjectUpdated(project)) {
                 syntaxTreeDataString = generateCanonicalJsonString(packageHolder);
-                // Cache Syntax Tree Json to use when project has not updated
-                try {
-                    if (!syntaxTreeJsonCachePath.toFile().exists()) {
-                        Files.createFile(syntaxTreeJsonCachePath);
-                    }
-                    Files.write(syntaxTreeJsonCachePath, syntaxTreeDataString.getBytes(StandardCharsets.UTF_8));
-                } catch (IOException e) {
-                    out.println("error: failed to write '" + SYNTAX_TREE_FILE_NAME + "' to " + syntaxTreeJsonCachePath);
-                }
             } else {
-                syntaxTreeDataString = new String(Files.readAllBytes(syntaxTreeJsonCachePath));
+                // When project is not updated read Syntax Tree Json from Observability Symbols Jar
+                Path observeJarCachePath = project.targetDir()
+                        .resolve(CACHES_DIR_NAME)
+                        .resolve(project.currentPackage().packageOrg().value())
+                        .resolve(project.currentPackage().packageName().value())
+                        .resolve(project.currentPackage().packageVersion().value().toString())
+                        .resolve("observe")
+                        .resolve(project.currentPackage().packageOrg().value() + "-"
+                                + project.currentPackage().packageName().value()
+                                + "-observability-symbols.jar");
+                JarFile observeSymbolsJar = new JarFile(String.valueOf(observeJarCachePath));
+                ZipEntry syntaxTreeJsonEntry = observeSymbolsJar.getEntry("syntax-tree/syntax-tree.json");
+                InputStream syntaxTreeJsonStream = observeSymbolsJar.getInputStream(syntaxTreeJsonEntry);
+                syntaxTreeDataString = new String(syntaxTreeJsonStream.readAllBytes(), StandardCharsets.UTF_8);
             }
             Files.write(syntaxTreeDirPath.resolve(SYNTAX_TREE_FILE_NAME),
                     syntaxTreeDataString.getBytes(StandardCharsets.UTF_8));

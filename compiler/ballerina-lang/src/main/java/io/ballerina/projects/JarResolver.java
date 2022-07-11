@@ -28,17 +28,21 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
@@ -105,6 +109,19 @@ public class JarResolver {
                 ObservabilitySymbolCollector observabilitySymbolCollector
                         = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
                 observabilitySymbolCollector.writeToExecutable(observabilityJarPath, rootPackageContext.project());
+                // Cache observability jar in target
+                Path observeJarCachePath = rootPackageContext.project().targetDir()
+                        .resolve(CACHES_DIR_NAME)
+                        .resolve(rootPackageContext.packageOrg().value())
+                        .resolve(rootPackageContext.packageName().value())
+                        .resolve(rootPackageContext.packageVersion().value().toString())
+                        .resolve("observe")
+                        .resolve(rootPackageContext.packageOrg().value() + "-"
+                                + rootPackageContext.packageName().value()
+                                + "-observability-symbols.jar");
+                Path observeCachePath = Optional.of(observeJarCachePath.getParent()).orElseThrow();
+                Files.createDirectories(observeCachePath);
+                Files.copy(observabilityJarPath, observeJarCachePath, StandardCopyOption.REPLACE_EXISTING);
 
                 jarFiles.add(new JarLibrary(observabilityJarPath, PlatformLibraryScope.DEFAULT,
                         getPackageName(rootPackageContext)));
