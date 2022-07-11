@@ -1212,7 +1212,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 lookahead++;
                 isEntryPoint = false;
             }
-          
             currentCtx = getNextRule(currentCtx, lookahead);
         }
 
@@ -3593,7 +3592,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SIGNED_INT_OR_FLOAT_RHS:
                 return getNextRuleForExpr();
             case TUPLE_TYPE_DESC_START:
-                return ParserRuleContext.TUPLE_MEMBER;
+                return ParserRuleContext.TUPLE_MEMBERS;
             case WORKER_NAME_OR_METHOD_NAME:
                 return ParserRuleContext.WORKER_NAME_OR_METHOD_NAME;
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
