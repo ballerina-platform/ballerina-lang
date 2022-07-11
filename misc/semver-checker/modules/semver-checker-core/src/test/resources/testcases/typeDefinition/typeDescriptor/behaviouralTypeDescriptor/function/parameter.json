@@ -1,0 +1,68 @@
+[
+  {
+    "description": "Change a parameter type in a function\n",
+    "oldCode": "public type Person function(int x, int y);\n",
+    "newCode": "public type Person function(int x , String y);\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change a parameter in a function\n",
+    "oldCode": "public type Person function(int x, int y);\n",
+    "newCode": "public type Person function(int x , String z);\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove a parameter in a function\n",
+    "oldCode": "public type Person function(int x, int y);\n",
+    "newCode": "public type Person function(int x );\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a new parameter to the function\n",
+    "oldCode": "public type Person function(int x, int y);\n",
+    "newCode": "public type Person function(int x , int y , int z);\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the order of a parameter in function\n",
+    "oldCode": "public type Person function(int x, String y);\n",
+    "newCode": "public type Person function(String y, int x);\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a default value for a required parameter in function definition",
+    "oldCode": "public type Person function(int x);\n",
+    "newCode": "public type Person function( int x =  7);\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the default value parameter as a required parameter in function definition",
+    "oldCode": "public type Person function( int y = 7);\n",
+    "newCode": "public type Person function(int y);\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the default value parameter to another default value in function definition",
+    "oldCode": "public type Person function(int y = 7 );\n",
+    "newCode": "public type Person function(int y = 5 );\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add parameter annotation to a function.\n",
+    "oldCode": "public type Person function(string name);\n",
+    "newCode": "public type Person function(@untainted string name);\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove parameter annotation from a function.\n",
+    "oldCode": "public type Person function(@untainted string name);\n",
+    "newCode": "public type Person function(string name);\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify parameter annotation in a function",
+    "oldCode": "public type Person function(@untainted string name);\n",
+    "newCode": "public type Person function(@tainted string name);\n",
+    "expectedOutput": {}
+  }
+]
