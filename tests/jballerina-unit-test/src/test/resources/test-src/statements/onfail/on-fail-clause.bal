@@ -488,6 +488,15 @@ service S / on new Listener() {
             }
         };
     }
+
+    resource isolated function get packages() returns string? {
+        do {
+            string[] packages = [];
+            return "packages";
+        } on fail var e {
+            return e.toString();
+        }
+    }
 }
 
 function getService() returns object {} = @java:Method {
@@ -530,8 +539,6 @@ function testOnFailWithinInLineServiceObj() {
                 (checkpanic (wait callMethod(<service object {}>getService(), "$get$bar")));
     string str2 = <string>(checkpanic (wait callMethod(serviceObj2, "$get$bar")));
     assertEquality(str2, "Error thrown from on-fail: Custom Error");
-
-    reset();
 }
 
 function testOnFailInAnonFunctionExpr() returns error? {
@@ -562,6 +569,33 @@ function testOnFailInAnonFunctionExpr() returns error? {
         }
     });
     assertEquality((<error>result2).detail().get("message"), "'string' value 'a2' cannot be converted to 'int'");
+}
+//-------------------------------------------------------------------------------
+
+function testOnFailWithoutFail() {
+    testServiceFunction();
+    testDoFailFunction();
+    reset();
+}
+
+function testDoFailFunction() {
+    any|error result = getString();
+    assertTrue(result is ());
+}
+
+function getString() {
+    do {
+        int a = 8;
+    } on fail var e {
+        string msg = " error - ";
+        panic error(e.toString() + msg);
+    }
+}
+
+function testServiceFunction() {
+    any|error result = wait callMethod(<service object {}>getService(), "$get$packages");
+    assertTrue(result is string);
+    assertEquality(result, "packages");
 }
 
 //-------------------------------------------------------------------------------

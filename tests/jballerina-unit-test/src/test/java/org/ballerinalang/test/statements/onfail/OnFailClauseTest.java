@@ -65,6 +65,11 @@ public class OnFailClauseTest {
         BAssertUtil.validateError(negativeResult, 1, "unreachable code", 23, 5);
     }
 
+    @Test(description = "Test on-fail clause without a fail statement inside do clause")
+    public void testOnFailClauseWithoutFailStatement() {
+        BRunUtil.invoke(result, "testOnFailWithoutFail");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
