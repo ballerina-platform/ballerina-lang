@@ -437,6 +437,7 @@ public class BTestRunner {
 
     private void executeBeforeFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
                                        AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest)  {
+        if (!shouldSkip.get()) {
             // run before tests
             String errorMsg;
             try {
@@ -453,6 +454,7 @@ public class BTestRunner {
                         test, formatErrorMessage(e));
                 errStream.println(errorMsg);
             }
+        }
     }
 
     /**
