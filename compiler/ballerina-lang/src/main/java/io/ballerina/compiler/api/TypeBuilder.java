@@ -717,8 +717,24 @@ public abstract class TypeBuilder {
         }
     }
 
+    /**
+     * Represents the methods required to build the Union type symbol of a Union type descriptor.
+     */
     public interface UNION {
+
+        /**
+         * Sets the member type parameters used to build the Union type descriptor.
+         *
+         * @param memberTypes     The array of member type symbols
+         * @return The {@link UNION} instance with the member type parameters being set.
+         */
         UNION withMemberTypes(TypeSymbol... memberTypes);
+
+        /**
+         * Build the Union type descriptor and returns the Union type symbol.
+         *
+         * @return The built {@link UnionTypeSymbol}
+         */
         UnionTypeSymbol build();
     }
 }

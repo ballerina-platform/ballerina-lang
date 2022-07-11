@@ -25,6 +25,11 @@ import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 
+/**
+ * The implementation of the methods used to build the Union type descriptor in Types API.
+ *
+ * @since 2201.2.1
+ */
 public class BallerinaUnionTypeBuilder implements TypeBuilder.UNION {
 
     private final TypesFactory typesFactory;
@@ -36,6 +41,9 @@ public class BallerinaUnionTypeBuilder implements TypeBuilder.UNION {
         symTable = SymbolTable.getInstance(context);
     }
 
+    /**
+     * {@inheritDoc}
+    * */
     @Override
     public TypeBuilder.UNION withMemberTypes(TypeSymbol... memberTypes) {
         this.memberTypes.clear();
@@ -44,9 +52,11 @@ public class BallerinaUnionTypeBuilder implements TypeBuilder.UNION {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public UnionTypeSymbol build() {
-
         BTypeSymbol unionSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
 
