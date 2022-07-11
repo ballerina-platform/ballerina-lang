@@ -323,7 +323,7 @@ public class CommandUtil {
         Path absoluteIncludePath = balaPath.resolve(includePath);
         if (absoluteIncludePath.startsWith(modulesDirPath)) {
             Path moduleRootPath = modulesDirPath.relativize(absoluteIncludePath).subpath(0, 1);
-            String moduleDirName = Optional.of(moduleRootPath.getFileName().toString()).get();
+            String moduleDirName = Optional.of(moduleRootPath.getFileName()).get().toString();
             String destinationDirName = moduleDirName.split(templatePkgName + ProjectConstants.DOT, 2)[1];
             Path includePathRelativeToModuleRoot = modulesDirPath.resolve(moduleRootPath)
                     .relativize(absoluteIncludePath);

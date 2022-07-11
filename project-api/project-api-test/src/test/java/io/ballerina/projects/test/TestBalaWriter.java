@@ -590,7 +590,7 @@ public class TestBalaWriter {
         Assert.assertTrue(rangePatternMatchingFile6.toFile().exists());
         Path rangePatternMatchingFile7 = balaExportPath.resolve("include-resources2/range/freds");
         Assert.assertTrue(rangePatternMatchingFile7.toFile().exists());
-        Path rangePatternNotMatchingFile8 = balaExportPath.resolve("include-resources2/range/fredp");
+        Path rangePatternNotMatchingFile8 = balaExportPath.resolve("include-resources2/range/fredt");
         Assert.assertFalse(rangePatternNotMatchingFile8.toFile().exists());
 
         // **/grault/garply
