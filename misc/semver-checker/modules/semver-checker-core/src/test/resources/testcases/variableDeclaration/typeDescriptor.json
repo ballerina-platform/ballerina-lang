@@ -57,7 +57,7 @@
                   "message": "module variable type changed from 'int' to 'string'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module variable initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module variable initializer is modified"

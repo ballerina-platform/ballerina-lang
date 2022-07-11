@@ -39,10 +39,10 @@ public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
     public void computeVersionImpact() {
         boolean isPublic = isPublic();
         if (newNode != null && oldNode == null) {
-            // if the function is newly added
+            // if the module variable is newly added
             versionImpact = isPublic ? SemverImpact.MINOR : SemverImpact.PATCH;
         } else if (newNode == null && oldNode != null) {
-            // if the function is removed
+            // if the module variable is removed
             versionImpact = isPublic ? SemverImpact.MAJOR : SemverImpact.PATCH;
         } else {
             // if the variable is modified, checks if variable declaration is public and if its not, all the
