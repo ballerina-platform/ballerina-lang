@@ -18,8 +18,6 @@
 
 package io.ballerina.converters;
 
-//import com.fasterxml.jackson.databind.JsonNode;
-//import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -80,26 +78,6 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                 response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
             }
             return response;
-
-//            try {
-//                JsonElement parsedJson = JsonParser.parseString(jsonString);
-//
-//                ObjectMapper objectMapper = new ObjectMapper();
-//                JsonNode inputJson = objectMapper.readTree(jsonString);
-//                if (inputJson.has("$schema")) {
-//                    response.setCodeBlock(JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc,
-//                            isClosed).getCodeBlock());
-//                } else {
-//                    String codeBloc = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed)
-//                            .getCodeBlock();
-//                    response.setCodeBlock("codeBloc");
-//                    response.setDiagnostics(List.of("run"));
-//                }
-//            } catch (IOException | JsonToRecordConverterException | FormatterException e) {
-//                response.setCodeBlock("exception");
-//                response.setDiagnostics(List.of("run exception"));
-//            }
-//            return response;
         });
     }
 
