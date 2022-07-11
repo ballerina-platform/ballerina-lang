@@ -19,6 +19,7 @@ package io.ballerina.converters;
 
 import io.ballerina.converters.exception.JsonToRecordConverterException;
 import io.ballerina.converters.util.ConverterUtils;
+import io.ballerina.jsonmapper.JsonToRecordResponse;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -33,7 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
 /**
  * Tests for JsonToRecordConverter.
  */
@@ -323,7 +323,7 @@ public class JsonToRecordConverterTests {
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
                 false, false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
-        JsonToRecordResponse response = (JsonToRecordResponse) result.get();
+        io.ballerina.jsonmapper.JsonToRecordResponse response = (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(basicObjectBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -337,7 +337,7 @@ public class JsonToRecordConverterTests {
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
                 false, false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
-        JsonToRecordResponse response = (JsonToRecordResponse) result.get();
+        io.ballerina.jsonmapper.JsonToRecordResponse response = (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(nullObjectDirectConversionBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
