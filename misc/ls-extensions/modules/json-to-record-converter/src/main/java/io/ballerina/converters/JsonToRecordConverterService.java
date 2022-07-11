@@ -18,10 +18,16 @@
 
 package io.ballerina.converters;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.JsonNode;
+//import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.converters.exception.JsonToRecordConverterException;
 import io.ballerina.jsonmapper.JsonToRecordMapper;
+import io.ballerina.jsonmapper.JsonToRecordResponse;
+import io.ballerina.jsonmapper.diagnostic.DiagnosticMessage;
+import io.ballerina.jsonmapper.diagnostic.DiagnosticUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
@@ -29,6 +35,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -49,28 +56,50 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
     @JsonRequest
     public CompletableFuture<JsonToRecordResponse> convert(JsonToRecordRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            JsonToRecordResponse response;
-            try {
-                String jsonString = request.getJsonString();
-                String recordName = request.getRecordName();
-                boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
-                boolean isClosed = request.getIsClosed();
+            JsonToRecordResponse response = new JsonToRecordResponse();
 
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode inputJson = objectMapper.readTree(jsonString);
-                if (inputJson.has("$schema")) {
-                    response = JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
+            String jsonString = request.getJsonString();
+            String recordName = request.getRecordName();
+            boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
+            boolean isClosed = request.getIsClosed();
+
+            try {
+                JsonElement parsedJson = JsonParser.parseString(jsonString);
+                if (parsedJson.isJsonObject() && parsedJson.getAsJsonObject().has("$schema")) {
+                    try {
+                        response.setCodeBlock(JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc,
+                                isClosed).getCodeBlock());
+                    } catch (IOException | JsonToRecordConverterException | FormatterException e) {
+                        DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(null);
+                        return DiagnosticUtils.getDiagnosticResponse(List.of(message), response);
+                    }
                 } else {
-                    response = new JsonToRecordResponse();
-                    String codeBloc = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed)
-                            .getCodeBlock();
-                    response.setCodeBlock(codeBloc == null ? "" : codeBloc);
+                    response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
                 }
-            } catch (IOException | JsonToRecordConverterException | FormatterException e) {
-                response = new JsonToRecordResponse();
-                response.setCodeBlock("");
+            } catch (JsonSyntaxException e) {
+                response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
             }
             return response;
+
+//            try {
+//                JsonElement parsedJson = JsonParser.parseString(jsonString);
+//
+//                ObjectMapper objectMapper = new ObjectMapper();
+//                JsonNode inputJson = objectMapper.readTree(jsonString);
+//                if (inputJson.has("$schema")) {
+//                    response.setCodeBlock(JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc,
+//                            isClosed).getCodeBlock());
+//                } else {
+//                    String codeBloc = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed)
+//                            .getCodeBlock();
+//                    response.setCodeBlock("codeBloc");
+//                    response.setDiagnostics(List.of("run"));
+//                }
+//            } catch (IOException | JsonToRecordConverterException | FormatterException e) {
+//                response.setCodeBlock("exception");
+//                response.setDiagnostics(List.of("run exception"));
+//            }
+//            return response;
         });
     }
 

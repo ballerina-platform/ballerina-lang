@@ -45,7 +45,7 @@ public class JsonToRecordMapperDiagnostic extends Diagnostic {
         this.diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.location = location;
         this.properties = Collections.emptyList();
-        this.message = MessageFormat.format(diagnosticInfo.messageFormat(), args);
+        this.message = MessageFormat.format(message, args);
     }
 
     @Override
