@@ -1011,45 +1011,80 @@ public class ProjectUtils {
      * @return the list of matching paths
      */
     public static List<Path> getPathsMatchingIncludePatterns(List<String> patterns, Path packageRoot) {
-        List<Path> relativePaths = new ArrayList<>();
+        List<Path> allMatchingPaths = new ArrayList<>();
         for (String pattern : patterns) {
-            String globPattern = pattern;
-            String patternPrefix = pattern.startsWith("/") ? "**" : "**/";
-            List<Path> absolutePathsOfPattern;
             if (pattern.startsWith("!")) {
-                globPattern = pattern.substring(1);
-                Stream<Path> pathStream = relativePaths.stream();
-                absolutePathsOfPattern = pathStream.filter(
-                        FileSystems.getDefault().getPathMatcher("glob:" + patternPrefix + globPattern)::matches)
-                        .collect(Collectors.toList());
-                relativePaths.removeAll(absolutePathsOfPattern);
-                continue;
-            }
-            if (pattern.endsWith("/")) {
-                globPattern = pattern.substring(0, pattern.length() - 1);
-            }
-            try (Stream<Path> pathStream = Files.walk(packageRoot)) {
-                absolutePathsOfPattern = pathStream.filter(
-                                FileSystems.getDefault().getPathMatcher("glob:" + patternPrefix + globPattern)::matches)
-                        .collect(Collectors.toList());
-                for (Path absolutePath : absolutePathsOfPattern) {
-                    Path relativePath = packageRoot.relativize(absolutePath);
-                    if (relativePath.startsWith(TARGET_DIR_NAME)) {
-                        continue;
-                    }
-                    if (pattern.startsWith("/") && !packageRoot.equals(absolutePath.getParent())) {
-                        continue;
-                    }
-                    if (pattern.endsWith("/") && absolutePath.toFile().isFile()) {
-                        continue;
-                    }
-                    relativePaths.add(relativePath);
-                }
-            } catch (IOException e) {
-                throw new ProjectException("Failed to read files matching the include pattern '" + pattern + "': " +
-                        e.getMessage(), e);
+                removeNegatedIncludePaths(pattern.substring(1), allMatchingPaths);
+            } else {
+                addMatchingIncludePaths(pattern, allMatchingPaths, packageRoot);
             }
         }
-        return relativePaths;
+        return allMatchingPaths;
+    }
+
+    private static void removeNegatedIncludePaths(String pattern, List<Path> allMatchingPaths) {
+        String combinedPattern = getGlobFormatPattern(pattern);
+        Stream<Path> pathStream = allMatchingPaths.stream();
+        List<Path> patternPaths = filterPathStream(pathStream, combinedPattern);
+        allMatchingPaths.removeAll(patternPaths);
+    }
+
+    private static void addMatchingIncludePaths(String pattern, List<Path> allMatchingPaths, Path packageRoot) {
+        String combinedPattern = getGlobFormatPattern(pattern);
+        try (Stream<Path> pathStream = Files.walk(packageRoot)) {
+            List<Path> patternPaths = filterPathStream(pathStream, combinedPattern);
+            for (Path absolutePath : patternPaths) {
+                if (isCorrectPatternPathMatch(absolutePath, packageRoot, pattern)) {
+                    Path relativePath = packageRoot.relativize(absolutePath);
+                    allMatchingPaths.add(relativePath);
+                }
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read files matching the include pattern '" + pattern + "': " +
+                    e.getMessage(), e);
+        }
+    }
+
+    private static boolean isCorrectPatternPathMatch(Path absolutePath, Path packageRoot, String pattern) {
+        Path relativePath = packageRoot.relativize(absolutePath);
+        boolean correctMatch = true;
+        if (relativePath.startsWith(TARGET_DIR_NAME)) {
+            // ignore paths inside target directory
+            correctMatch = false;
+        } else if (pattern.startsWith("/") && !packageRoot.equals(absolutePath.getParent())) {
+            // ignore non-root level paths if the pattern is root directory only
+            correctMatch = false;
+        } else if (pattern.endsWith("/") && absolutePath.toFile().isFile()) {
+            // ignore files if the pattern is directory only
+            correctMatch = false;
+        }
+        return correctMatch;
+    }
+
+    private static List<Path> filterPathStream(Stream<Path> pathStream, String combinedPattern) {
+        return pathStream.filter(
+                        FileSystems.getDefault().getPathMatcher("glob:" + combinedPattern)::matches)
+                .collect(Collectors.toList());
+    }
+
+    private static String getGlobFormatPattern(String pattern) {
+        String patternPrefix = getPatternPrefix(pattern);
+        String globPattern = removeTrailingSlashes(pattern);
+        return patternPrefix + globPattern;
+    }
+
+    private static String getPatternPrefix(String pattern) {
+        // if the pattern already contains '/', only "**" should be added for the glob to work.
+        if (pattern.startsWith("/")) {
+            return "**";
+        }
+        return "**/";
+    }
+
+    private static String removeTrailingSlashes(String pattern) {
+        while (pattern.endsWith("/")) {
+            pattern = pattern.substring(0, pattern.length() - 1);
+        }
+        return pattern;
     }
 }
