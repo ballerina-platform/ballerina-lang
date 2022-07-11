@@ -107,6 +107,10 @@
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Match>
     <Match>
+        <Class name="io.ballerina.compiler.api.TypeBuilder" />
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
+    </Match>
+    <Match>
         <Class name = "org.ballerinalang.toml.model.Library"/>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>

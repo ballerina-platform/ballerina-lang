@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "create_function_in_error_constructor2.bal",
   "expected": {
     "result": {
       "edit": {

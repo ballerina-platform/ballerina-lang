@@ -1,9 +1,13 @@
 {
-  "line": 8,
-  "character": 4,
+  "position": {
+    "line": 8,
+    "character": 4
+  },
+  "source": "createVariableForOptionalFieldAccess2.bal",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "T t = "
+          "newText": "T t \u003d "
         }
       ]
     }

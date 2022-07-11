@@ -406,6 +406,8 @@ public class Desugar extends BLangNodeVisitor {
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
+    // Reuse the strand annotation in isolated workers and start action
+    private BLangAnnotationAttachment strandAnnotAttachement;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -812,6 +814,11 @@ public class Desugar extends BLangNodeVisitor {
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
+        addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+    }
+
+    private void addInitFunctionForRecordTypeNodeInTypeDef(BLangPackage pkgNode,
+                                                         List<BLangTypeDefinition> prevTypeDefinitions) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             if (prevTypeDefinitions.contains(typeDef)) {
                 continue;
@@ -5061,15 +5068,18 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.stmts.addAll(onFailClause.body.stmts);
         env.scope.entries.putAll(onFailClause.body.scope.entries);
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        BVarSymbol onFailErrorVariableSymbol =
-                ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
-        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                onFailErrorVariableSymbol);
-        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-        env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-        onFailBody.stmts.add(0, errorVarDef);
+        if (onFailVarDefNode != null) {
+            BVarSymbol onFailErrorVariableSymbol =
+                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
+            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                    onFailErrorVariableSymbol);
+            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+            env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+            onFailBody.stmts.add(0, errorVarDef);
+        }
 
         if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {
@@ -5096,15 +5106,18 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.scope = onFailClause.body.scope;
         onFailBody.mapSymbol = onFailClause.body.mapSymbol;
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        BVarSymbol onFailErrorVariableSymbol =
-                ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
-        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                onFailErrorVariableSymbol);
-        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-        onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-        onFailBody.stmts.add(0, errorVarDef);
+        if (onFailVarDefNode != null) {
+            BVarSymbol onFailErrorVariableSymbol =
+                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
+            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                    onFailErrorVariableSymbol);
+            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+            onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+            onFailBody.stmts.add(0, errorVarDef);
+        }
 
         int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
         int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
@@ -6356,7 +6369,30 @@ public class Desugar extends BLangNodeVisitor {
         if (!actionInvocation.async && actionInvocation.invokedInsideTransaction) {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
+
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action or
+        // isolated named worker declaration.
+        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(actionInvocation);
+        }
+
         rewriteInvocation(actionInvocation, actionInvocation.async);
+    }
+
+    private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
+        if (this.strandAnnotAttachement == null) {
+            BLangPackage pkgNode = env.enclPkg;
+            List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+            // Create strand annotation once and reuse it for all isolated start-actions and named workers.
+            this.strandAnnotAttachement =
+                    annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            // Add init function for record type node in type def introduced for internally added strand annotation.
+            addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+        }
+
+        actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
+        ((BInvokableSymbol) actionInvocation.symbol)
+                .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
     }
 
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
@@ -8717,8 +8753,8 @@ public class Desugar extends BLangNodeVisitor {
         boolean tupleTypedVararg = false;
 
         if (varargRef != null) {
-            varargType = varargRef.getBType();
-            tupleTypedVararg = Types.getReferredType(varargType).tag == TypeTags.TUPLE;
+            varargType = Types.getReferredType(varargRef.getBType());
+            tupleTypedVararg = varargType.tag == TypeTags.TUPLE;
         }
 
         // Iterate over the required args.

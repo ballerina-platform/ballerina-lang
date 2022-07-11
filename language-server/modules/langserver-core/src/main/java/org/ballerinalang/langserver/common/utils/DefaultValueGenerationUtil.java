@@ -294,6 +294,12 @@ public class DefaultValueGenerationUtil {
                 valueString = rawType.signature();
                 valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                 break;
+            case JSON:
+            case NIL:
+            case ANY:
+                valueString = "()";
+                valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
+                break;
             default:
                 Optional<String> value = getDefaultValueForTypeDescKind(typeKind);
                 if (value.isEmpty()) {

@@ -680,11 +680,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "service on test:MockListener",
+      "label": "service on lang.test:MockListener",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "E",
-      "filterText": "service_test_MockListener",
+      "filterText": "service_lang_test_MockListener",
       "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -702,16 +702,6 @@
           "newText": "import ballerina/lang.test;\n"
         }
       ]
-    },
-    {
-      "label": "service on Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "E",
-      "filterText": "service_Listener",
-      "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
     },
     {
       "label": "test/project1",
@@ -816,6 +806,24 @@
       "sortText": "B",
       "filterText": "null",
       "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service on Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_Listener",
+      "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        return;\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]

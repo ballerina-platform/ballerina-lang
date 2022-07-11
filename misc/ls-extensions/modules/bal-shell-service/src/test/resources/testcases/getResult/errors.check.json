@@ -34,10 +34,10 @@
   {
     "source": "int y2 = check parse(\"12.12\")",
     "result": {
-      "errors":["panic: error(\"{ballerina/lang.int}NumberParsingError\",message\u003d\"\u0027string\u0027 value \u002712.12\u0027 cannot be converted to \u0027int\u0027\")"],
+      "errors":[],
       "diagnostics":["Execution aborted due to unhandled runtime error."],
       "metaInfo":{"definedVars":[],"moduleDclns":[]},
-      "consoleOut":""
+      "consoleOut":"panic: {ballerina/lang.int}NumberParsingError {\"message\":\"\u0027string\u0027 value \u002712.12\u0027 cannot be converted to \u0027int\u0027\"}"
     }
   }
 ]

@@ -72,6 +72,10 @@ public class AbstractSnippet<T extends Node> implements Snippet {
         return rootNode.toSourceCode();
     }
 
+    public Node getRootNode() {
+        return rootNode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

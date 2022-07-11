@@ -28,6 +28,10 @@ under the License.
         </groups>
         <classes>
             <class name="org.ballerinalang.semver.checker.comparator.FunctionComparatorTest"/>
+            <class name="org.ballerinalang.semver.checker.comparator.ServiceComparatorTest"/>
+            <class name="org.ballerinalang.semver.checker.comparator.ConstantComparatorTest"/>
+            <class name="org.ballerinalang.semver.checker.comparator.VariableComparatorTest"/>
+            <class name="org.ballerinalang.semver.checker.comparator.ClassComparatorTest"/>
         </classes>
     </test>
 </suite>

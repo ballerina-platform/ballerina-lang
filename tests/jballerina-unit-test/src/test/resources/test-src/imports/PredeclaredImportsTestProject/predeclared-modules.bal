@@ -53,9 +53,14 @@ function testTrxInfoRecordTypeUse() returns boolean {
     return true;
 }
 
+function testCallInFunction()returns any|error {
+    return function:call(testSumFunctionInDecimal, 10.5d, 20.5d);
+}
+
 function testPredeclaredModules() {
     decimal d1 = 22.0;
     decimal d2 = 5.7;
+    decimal d3 = 31.0;
     float f1 = 70.35;
     string s1 = "true";
     string s2 = "Ballerina!";
@@ -69,6 +74,7 @@ function testPredeclaredModules() {
     assertEquality(s2, testSubString());
     assertEquality(true, testStartsWithFunctionInString());
     assertEquality(true, testTrxInfoRecordTypeUse());
+    assertEquality(d3, testCallInFunction());
 }
 
 function testPredeclaredModules2() {

@@ -467,23 +467,6 @@ type FooRec record {
 };
 
 public function testSpreadFieldInConstructor() {
-    string expected = "[{\"x\":1001,\"y\":20},{\"x\":1002,\"y\":30}]";
-    FooRec spreadField1 = {x: 1002, y: 30};
-
-    table<FooRec> tb1 = table key(x) [
-            {x: 1001, y: 20},
-            {...spreadField1}
-        ];
-    assertEquality(expected, tb1.toString());
-
-    var spreadField2 = {x: 1002, y: 30};
-
-    var tb2 = table key(x) [
-            {x: 1001, y: 20},
-            {...spreadField2}
-        ];
-    assertEquality(expected, tb2.toString());
-
     var spreadField3 = {id: 2, name: "Jo", age: 12};
     var tb3 = table [
             {id: 1, name: "Mary", salary: 100.0},

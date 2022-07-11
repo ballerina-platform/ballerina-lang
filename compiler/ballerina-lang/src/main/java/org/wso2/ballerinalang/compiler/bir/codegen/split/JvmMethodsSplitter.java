@@ -53,6 +53,7 @@ public class JvmMethodsSplitter {
     }
 
     public void generateMethods(Map<String, byte[]> jarEntries) {
+        jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen.symbolTable);
         jvmCreateTypeGen.generateTypeClass(jvmPackageGen, module, jarEntries, moduleInitClass,
                 jvmPackageGen.symbolTable);
         jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, moduleInitClass, jarEntries,

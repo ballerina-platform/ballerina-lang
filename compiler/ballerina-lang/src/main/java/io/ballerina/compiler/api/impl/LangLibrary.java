@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -180,11 +181,9 @@ public class LangLibrary {
             BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
-                    (!invSymbol.params.isEmpty()
-                            && basicType.compareToIgnoreCase(Types.getReferredType(invSymbol.params.get(0).type)
-                            .getKind().name()) == 0 || invSymbol.restParam != null
-                            && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
-                            .eType.tsymbol.getName().getValue()) == 0)) {
+                    (!invSymbol.params.isEmpty() && equalsToBasicType(invSymbol.params.get(0).type, basicType) ||
+                            invSymbol.restParam != null &&
+                                    equalsToBasicType(((BArrayType) invSymbol.restParam.type).eType, basicType))) {
                 methods.put(invSymbol.name.value, invSymbol);
             }
         }
@@ -234,5 +233,19 @@ public class LangLibrary {
     private static boolean isLangLibModule(PackageID moduleID) {
         return Names.BALLERINA_ORG.equals(moduleID.orgName)
                 && (moduleID.nameComps.size() == 2 && Names.LANG.equals(moduleID.nameComps.get(0)));
+    }
+
+    private static boolean equalsToBasicType(BType type, String basicType) {
+        if (type.getKind() == TypeKind.UNION) {
+            LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            for (BType memberType : memberTypes) {
+                if (basicType.compareToIgnoreCase(Types.getReferredType(memberType).getKind().name()) != 0) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return basicType.compareToIgnoreCase(Types.getReferredType(type).getKind().name()) == 0;
+        }
     }
 }

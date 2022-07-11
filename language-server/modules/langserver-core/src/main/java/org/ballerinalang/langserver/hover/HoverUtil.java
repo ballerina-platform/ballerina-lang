@@ -24,15 +24,21 @@ import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.util.MarkupUtils;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
@@ -57,6 +63,8 @@ public class HoverUtil {
         if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return HoverUtil.getHoverObject("");
         }
+        //Fill node and token info at cursor
+        fillTokenInfoAtCursor(context);
 
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
@@ -67,6 +75,8 @@ public class HoverUtil {
         context.checkCancelled();
 
         HoverObjectResolver provider = new HoverObjectResolver(context);
+        Hover hoverObj = HoverUtil.getHoverObject("");
+
         //Handles new expression
         if (symbolAtCursor.isEmpty()) {
             Range nodeRange = new Range(context.getCursorPosition(), context.getCursorPosition());
@@ -75,12 +85,38 @@ public class HoverUtil {
                 MatchedExpressionNodeResolver expressionResolver = new MatchedExpressionNodeResolver(nodeAtCursor);
                 Optional<ExpressionNode> expr = expressionResolver.findExpression(nodeAtCursor);
                 if (expr.isPresent()) {
-                    return provider.getHoverObjectForExpression(expr.get());
+                    hoverObj = provider.getHoverObjectForExpression(expr.get());
                 }
             }
-            return HoverUtil.getHoverObject("");
+        } else {
+            hoverObj = provider.getHoverObjectForSymbol(symbolAtCursor.get());
         }
-        return provider.getHoverObjectForSymbol(symbolAtCursor.get());
+        //Add reference to APIDocs.
+        if (hoverObj.getContents().isRight()) {
+            MarkupContent markupContent = hoverObj.getContents().getRight();
+            String content = markupContent.getValue();
+
+            HoverSymbolResolver symbolResolver =
+                    new HoverSymbolResolver(context, semanticModel.get());
+            Optional<Symbol> symbol = context.getNodeAtCursor().apply(symbolResolver);
+            if (!symbolResolver.isSymbolReferable()) {
+                return hoverObj;
+            }
+
+            Optional<ModuleID> moduleID = symbol.flatMap(Symbol::getModule).map(ModuleSymbol::id);
+            Optional<HoverConstructKind> constructKind = symbolResolver.getConstructKind();
+            if (moduleID.isEmpty() || symbol.get().getName().isEmpty() || constructKind.isEmpty()) {
+                return hoverObj;
+            }
+            String url = APIDocReference.from(moduleID.get().orgName(),
+                    moduleID.get().moduleName(), moduleID.get().version(), constructKind.get(),
+                    symbol.get().getName().get());
+            markupContent.setValue((content.isEmpty() ? "" : content + MarkupUtils.getHorizontalSeparator())
+                    + "[View API Docs](" + url + ")");
+            hoverObj.setContents(markupContent);
+        }
+        
+        return hoverObj;
     }
 
     /**
@@ -169,5 +205,22 @@ public class HoverUtil {
             description = documentation.description().get();
         }
         return HoverUtil.getHoverObject(description);
+    }
+
+    public static void fillTokenInfoAtCursor(HoverContext context) {
+        Optional<Token> tokenAtCursor = PositionUtil.findTokenAtPosition(context, context.getCursorPosition());
+        Optional<Document> document = context.currentDocument();
+        if (document.isEmpty() || tokenAtCursor.isEmpty()) {
+            throw new RuntimeException("Could not find a valid document/token");
+        }
+        context.setTokenAtCursor(tokenAtCursor.get());
+        TextDocument textDocument = document.get().textDocument();
+
+        Position position = context.getCursorPosition();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        context.setCursorPositionInTree(txtPos);
+        TextRange range = TextRange.from(txtPos, 0);
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) document.get().syntaxTree().rootNode()).findNode(range);
+        context.setNodeAtCursor(nonTerminalNode);
     }
 }

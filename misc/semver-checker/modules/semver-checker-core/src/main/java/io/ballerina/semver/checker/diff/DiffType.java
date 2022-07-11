@@ -19,7 +19,7 @@
 package io.ballerina.semver.checker.diff;
 
 /**
- * Represents the change status.
+ * Represents the change type.
  *
  * @since 2201.2.0
  */
