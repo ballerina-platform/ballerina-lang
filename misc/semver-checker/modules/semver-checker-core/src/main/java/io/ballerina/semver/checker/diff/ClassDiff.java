@@ -32,7 +32,7 @@ import java.util.Optional;
 public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
 
     private ClassDiff(ClassDefinitionNode newNode, ClassDefinitionNode oldNode) {
-        super(newNode, oldNode);
+        super(newNode, oldNode, DiffKind.CLASS);
     }
 
     @Override
@@ -78,7 +78,6 @@ public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
 
         @Override
         public Optional<ClassDiff> build() {
-            classDiff.setKind(DiffKind.CLASS);
             if (!classDiff.getChildDiffs().isEmpty()) {
                 classDiff.computeVersionImpact();
                 classDiff.setType(DiffType.MODIFIED);

@@ -58,12 +58,17 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     protected String message;
 
     protected NodeDiffImpl(T newNode, T oldNode) {
-        this(newNode, oldNode, SemverImpact.UNKNOWN);
+        this(newNode, oldNode, DiffKind.UNKNOWN);
     }
 
-    private NodeDiffImpl(T newNode, T oldNode, SemverImpact versionImpact) {
+    protected NodeDiffImpl(T newNode, T oldNode, DiffKind diffKind) {
+        this(newNode, oldNode, diffKind, SemverImpact.UNKNOWN);
+    }
+
+    private NodeDiffImpl(T newNode, T oldNode, DiffKind diffKind, SemverImpact versionImpact) {
         this.newNode = newNode;
         this.oldNode = oldNode;
+        this.diffKind = diffKind;
         this.versionImpact = versionImpact;
         this.childDiffs = new ArrayList<>();
         this.message = null;

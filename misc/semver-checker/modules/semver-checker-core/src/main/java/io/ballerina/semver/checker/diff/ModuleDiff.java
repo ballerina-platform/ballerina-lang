@@ -49,6 +49,7 @@ public class ModuleDiff extends DiffImpl {
     private ModuleDiff(Module newModule, Module oldModule) {
         this.newModule = newModule;
         this.oldModule = oldModule;
+        this.diffKind = DiffKind.MODULE;
 
         if (newModule != null && oldModule == null) {
             this.diffType = DiffType.NEW;

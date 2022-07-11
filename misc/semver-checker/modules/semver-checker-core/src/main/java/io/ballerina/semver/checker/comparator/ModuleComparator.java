@@ -82,6 +82,7 @@ public class ModuleComparator implements Comparator {
         extractModuleVarDiffs(moduleDiffBuilder);
         extractConstantDiffs(moduleDiffBuilder);
         extractClassDiffs(moduleDiffBuilder);
+        extractTypeDefinitionDiffs(moduleDiffBuilder);
         // Todo: implement analyzers for other module-level definitions
         return moduleDiffBuilder.build();
     }
