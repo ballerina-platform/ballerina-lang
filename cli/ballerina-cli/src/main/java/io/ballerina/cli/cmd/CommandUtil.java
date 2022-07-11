@@ -302,19 +302,36 @@ public class CommandUtil {
     private static void copyIncludeFiles(Path balaPath, Path projectPath, PackageJson templatePackageJson)
             throws IOException {
         if (templatePackageJson.getInclude() != null) {
+            String templatePkgName = templatePackageJson.getName();
             List<Path> includePaths = ProjectUtils.getPathsMatchingIncludePatterns(
                     templatePackageJson.getInclude(), balaPath);
 
             for (Path includePath : includePaths) {
-                Path includePathRelativeToRoot = balaPath.relativize(includePath);
-                Path fromIncludeFilePath = balaPath.resolve(includePathRelativeToRoot);
-                Path toIncludeFilePath = projectPath.resolve(includePathRelativeToRoot);
+                Path moduleNameUpdatedIncludePath = updateModuleDirectoryNaming(includePath, balaPath, templatePkgName);
+                Path fromIncludeFilePath = balaPath.resolve(includePath);
+                Path toIncludeFilePath = projectPath.resolve(moduleNameUpdatedIncludePath);
                 if (Files.notExists(toIncludeFilePath)) {
                     Files.createDirectories(toIncludeFilePath);
                     Files.walkFileTree(fromIncludeFilePath, new FileUtils.Copy(fromIncludeFilePath, toIncludeFilePath));
                 }
             }
         }
+    }
+
+    private static Path updateModuleDirectoryNaming(Path includePath, Path balaPath, String templatePkgName) {
+        Path modulesDirPath = balaPath.resolve(ProjectConstants.MODULES_ROOT);
+        Path absoluteIncludePath = balaPath.resolve(includePath);
+        if (absoluteIncludePath.startsWith(modulesDirPath)) {
+            Path moduleRootPath = modulesDirPath.relativize(absoluteIncludePath).subpath(0, 1);
+            String moduleDirName = Optional.of(moduleRootPath.getFileName().toString()).get();
+            String destinationDirName = moduleDirName.split(templatePkgName + ProjectConstants.DOT, 2)[1];
+            Path includePathRelativeToModuleRoot = modulesDirPath.resolve(moduleRootPath)
+                    .relativize(absoluteIncludePath);
+            Path updatedIncludePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(destinationDirName)
+                    .resolve(includePathRelativeToModuleRoot);
+            return updatedIncludePath;
+        }
+        return includePath;
     }
 
     /**
