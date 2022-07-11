@@ -321,7 +321,9 @@ public class BIRBinaryWriter {
     }
     
     private void writePathParameters(ByteBuf buf, BIRNode.BIRFunction birFunction) {
-        if (birFunction.resourcePath != null) {
+        boolean isResourceFunction = birFunction.resourcePath != null;
+        buf.writeBoolean(isResourceFunction);
+        if (isResourceFunction) {
             List<BIRNode.BIRVariableDcl> pathParams = birFunction.pathParams;
             buf.writeInt(pathParams.size());
             for (BIRNode.BIRVariableDcl pathParam : pathParams) {

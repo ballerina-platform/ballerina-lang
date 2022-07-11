@@ -409,6 +409,8 @@ public class BIRPackageSymbolEnter {
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
+        boolean isResourceFunction = dataInStream.readBoolean();
+        
         if (this.currentStructure != null) {
             BType attachedType = Types.getReferredType(this.currentStructure.type);
 
@@ -418,8 +420,7 @@ public class BIRPackageSymbolEnter {
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
-                
-                if ((flags & Flags.RESOURCE) == Flags.RESOURCE) {
+                if (isResourceFunction) {
                     int pathParamCount = dataInStream.readInt();
                     List<BVarSymbol> pathParams = new ArrayList<>(pathParamCount);
                     for (int i = 0; i < pathParamCount; i++) {
