@@ -145,6 +145,6 @@ public class NodeParser {
      */
     public static ModulePartNode parseModulePart(String text) {
         BallerinaParser parser = ParserFactory.getParser(text);
-        return parser.parseAsModulePart().createUnlinkedFacade();
+        return parser.parse().createUnlinkedFacade();
     }
 }

@@ -302,18 +302,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Completely parses a given input as an object member.
-     *
-     * @return Parsed node
-     */
-    public STNode parseAsModulePart() {
-        STNode modulePart = parseCompUnit();
-
-        modulePart = invalidateRestAndAddToTrailingMinutiae(modulePart);
-        return modulePart;
-    }
-
-    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
