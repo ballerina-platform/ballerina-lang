@@ -113,9 +113,9 @@ public class StrandDumpTest extends BaseTest {
                 env.put(entry.getKey(), entry.getValue());
             }
             Process process = processBuilder.start();
-            Thread.sleep(5000);
+            Thread.sleep(6000);
             Runtime.getRuntime().exec("kill -SIGTRAP " + process.pid());
-            Thread.sleep(5000);
+            Thread.sleep(4000);
             Runtime.getRuntime().exec("kill -SIGINT " + process.pid());
 
             String obtainedStrandDump = getStdOutAsString(process);
