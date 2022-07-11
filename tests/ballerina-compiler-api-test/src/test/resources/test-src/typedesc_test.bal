@@ -275,9 +275,26 @@ function testFixedArrays() {
     (Bar & readonly)[1][2][3] f;
 }
 
+const string greeting = "Hello" + ;
+
+type FOO "foo1" | "foo2";
+FOO foo1;
+
+Thread thread;
+
 // utils
 type ReturnIntFunctionType function () returns int;
 
 function returnIntFunc() returns int {
     return 1;
+}
+
+function testInferredArrays() {
+    int[*] a;
+    string[1][*][2][*][3] b;
+    int[][2][*] c;
+    int[2][*][3] d;
+    string[*][*] e;
+    (int|string)[][*][] f;
+    (Bar & readonly)[*][2][*] g;
 }

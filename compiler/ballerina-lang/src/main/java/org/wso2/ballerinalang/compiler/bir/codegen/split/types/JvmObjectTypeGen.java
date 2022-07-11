@@ -167,7 +167,7 @@ public class JvmObjectTypeGen {
                 symbolTable);
         addResourceMethods(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, bType,
                 symbolTable);
-        jvmCreateTypeGen.addImmutableType(mv, bType);
+        jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
         BTypeIdSet objTypeIdSet = bType.typeIdSet;
         if (!objTypeIdSet.isEmpty()) {
             mv.visitInsn(DUP);

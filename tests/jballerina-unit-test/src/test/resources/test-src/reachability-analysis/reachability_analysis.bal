@@ -1176,6 +1176,73 @@ function testReachabilityWithQueryAction() {
     assertEqual(testReachabilityWithQueryAction3(), "Hello");
 }
 
+function fn1(float? v) returns int {
+    int y = 0;
+
+    if v is () {
+        return 1;
+    } else if v is float {
+
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function fn2(float? v) returns int {
+    int y = 0;
+
+    if v is float? {
+
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function fn3(float? v) returns int|error {
+    int y = 0;
+
+    if v is () {
+        fail error("Err");
+    } else if v is float {
+
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function fn4(float? v) returns int {
+    int y = 0;
+
+    if v is () {
+        panic error("Error");
+    } else if v is float {
+
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function testReachabilityWithIfElseHavingUnreachablePanic() {
+    assertEqual(fn1(10.0), 0);
+    assertEqual(fn2(10.0), 0);
+
+    int|error res = fn3(10.0);
+    assertEqual(res is int, true);
+    if res is int {
+        assertEqual(res, 0);
+    }
+
+    assertEqual(fn4(10.0), 0);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

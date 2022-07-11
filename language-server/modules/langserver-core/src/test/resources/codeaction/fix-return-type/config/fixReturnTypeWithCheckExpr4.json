@@ -1,0 +1,28 @@
+{
+    "position": {
+        "line": 1,
+        "character": 20
+    },
+    "source": "fixReturnTypeWithCheckExpr4.bal",
+    "expected": [
+        {
+            "title": "Change return type to 'int?|error'",
+            "kind": "quickfix",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 0,
+                            "character": 31
+                        },
+                        "end": {
+                            "line": 0,
+                            "character": 35
+                        }
+                    },
+                    "newText": "int?|error"
+                }
+            ]
+        }
+    ]
+}

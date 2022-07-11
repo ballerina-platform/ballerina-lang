@@ -1,9 +1,14 @@
 {
+  "line": 0,
+  "character": 0,
+  "position": {
     "line": 1,
-    "character": 12,
-    "expected": [
-        {
-            "title": "Add type cast to assignment"
-        }
-    ]
+    "character": 12
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast"
+    }
+  ]
 }

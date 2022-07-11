@@ -27,11 +27,11 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -66,8 +66,8 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
             /*
             Covers the completions when the cursor is within the parameter context
              */
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-                List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context,
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+                List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context,
                         ((QualifiedNameReferenceNode) nodeAtCursor));
                 completionItems.addAll(this.getCompletionItemList(typesInModule, context));
             } else {

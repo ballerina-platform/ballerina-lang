@@ -43,6 +43,13 @@ public interface NodeBasedPositionDetails {
     NonTerminalNode matchedStatementNode();
 
     /**
+     * Get the syntax tree node for which we should suggest code actions for under the current context.
+     *
+     * @return Node for which we are going to provide code actions
+     */
+    NonTerminalNode matchedCodeActionNode();
+
+    /**
      * Returns matched type of scoped node for the current position.
      *
      * @return {@link NonTerminalNode}

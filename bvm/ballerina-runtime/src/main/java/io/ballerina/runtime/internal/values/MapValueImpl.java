@@ -63,6 +63,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
@@ -105,13 +106,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl(Type type) {
         super();
-        this.type = type;
+        this.type = getReferredType(type);
         this.typedesc = getTypedescValue(type, this);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
-        this.type = type;
+        this.type = getReferredType(type);
         populateInitialValues(initialValues);
         if (!type.isReadOnly()) {
             this.typedesc = new TypedescValueImpl(type);

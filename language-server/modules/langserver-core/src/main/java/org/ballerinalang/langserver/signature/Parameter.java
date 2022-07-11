@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.SignatureContext;
 
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class Parameter {
     }
 
     public String getType() {
-        String type = CommonUtil.getModifiedTypeName(this.signatureContext, parameterSymbol.typeDescriptor());
+        String type = NameUtil.getModifiedTypeName(this.signatureContext, parameterSymbol.typeDescriptor());
         if (this.isRestArg && !type.isEmpty()) {
             // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
             if (type.endsWith("[]")) {

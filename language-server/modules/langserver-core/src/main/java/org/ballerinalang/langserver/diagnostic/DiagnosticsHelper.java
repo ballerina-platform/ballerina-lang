@@ -19,7 +19,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
@@ -76,7 +76,7 @@ public class DiagnosticsHelper {
      * Schedule the diagnostics publishing.
      * In general the diagnostics publishing is done for document open, close and change events. When the document
      * change events are triggered frequently in subsequent edits, we do compilations and diagnostic calculation for
-     * each of the change event. This is time consuming for the large projects and from the user experience point of
+     * each of the change event. This is time-consuming for the large projects and from the user experience point of
      * view, we can publish the diagnostics after a delay. The default delay specified in {@link #DIAGNOSTIC_DELAY}
      *
      * @param client  Language client
@@ -91,7 +91,7 @@ public class DiagnosticsHelper {
     /**
      * Schedule the diagnostics publishing for a project specified with the given project root.
      * This particular diagnostics publishing API is used for publishing diagnostics through the workspace service.
-     * This is time consuming for the large projects and from the user experience point of
+     * This is time-consuming for the large projects and from the user experience point of
      * view, we can publish the diagnostics after a delay. The default delay specified in {@link #DIAGNOSTIC_DELAY}
      *
      * @param client      Language client
@@ -114,7 +114,6 @@ public class DiagnosticsHelper {
      * @param client  Language server client
      * @param context LS context
      */
-    @Deprecated(forRemoval = true)
     public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context) {
         // Compile diagnostics
         Optional<Project> project = context.workspace().project(context.filePath());
@@ -240,7 +239,7 @@ public class DiagnosticsHelper {
                     ? projectRoot.resolve(lineRange.filePath())
                     : projectRoot;
             String resolvedUri = resolvedPath.toUri().toString();
-            String fileURI = CommonUtil.getModifiedUri(workspaceManager, resolvedUri);
+            String fileURI = PathUtil.getModifiedUri(workspaceManager, resolvedUri);
             List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }
@@ -257,7 +256,6 @@ public class DiagnosticsHelper {
         Executor delayedExecutor = CompletableFuture.delayedExecutor(DIAGNOSTIC_DELAY, TimeUnit.SECONDS);
         CompletableFuture<Boolean> scheduledFuture = CompletableFuture.supplyAsync(() -> true, delayedExecutor);
         latestScheduled = scheduledFuture;
-
         scheduledFuture
                 .thenApplyAsync((bool) -> workspaceManager.waitAndGetPackageCompilation(projectRoot))
                 .thenAccept(compilation ->

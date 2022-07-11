@@ -37,84 +37,100 @@ public class CreateVariableTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
+    }
+
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"variableAssignmentRequiredCodeAction1.json", "createVariable.bal"},
-                {"variableAssignmentRequiredCodeAction2.json", "createVariable.bal"},
-                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
-                {"variableAssignmentRequiredCodeAction4.json", "createVariable.bal"},
-                {"variableAssignmentRequiredCodeAction5.json", "createVariable2.bal"},
-                {"variableAssignmentRequiredCodeAction6.json", "createVariable2.bal"},
-                {"variableAssignmentRequiredCodeAction7.json", "createVariable2.bal"},
-                {"variableAssignmentRequiredCodeAction8.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction9.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction10.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction11.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction12.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction13.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction14.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction15.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction16.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction17.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction18.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction19.json", "createVariable3.bal"},
-                {"variableAssignmentRequiredCodeAction20.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction21.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction22.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction23.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction24.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction25.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction26.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction27.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction28.json", "createVariable4.bal"},
-                {"variableAssignmentRequiredCodeAction29.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction30.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction31.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction32.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction33.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction34.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction35.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction36.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction37.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction38.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction39.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction40.json", "createVariable5.bal"},
-                {"variableAssignmentRequiredCodeAction41.json", "createVariable6.bal"},
-                {"variableAssignmentRequiredCodeAction42.json", "createVariable7.bal"},
-                {"variableAssignmentRequiredCodeAction43.json", "createVariable7.bal"},
-                {"variableAssignmentRequiredCodeAction44.json", "createVariable8.bal"},
-                {"variableAssignmentRequiredCodeAction45.json", "createVariable8.bal"},
-                {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
-                {"projectVariableAssignmentRequiredCodeAction1.json", "testproject/main.bal"},
-                {"projectVariableAssignmentRequiredCodeAction2.json", "testproject/main.bal"},
-                {"projectVariableAssignmentRequiredCodeAction3.json", "testproject/modules/module1/module1.bal"},
-                {"createVariableInClassMethod.json", "createVariableInClassMethod.bal"},
-                {"createVariableInServiceMethod.json", "createVariableInServiceMethod.bal"},
-                {"createVariableInServiceRemoteMethod.json", "createVariableInServiceMethod.bal"},
-                {"createVariableWithUnionType.json", "createVariableWithUnionType.bal"},
-                {"createVariableWithIntersectionType.json", "createVariableWithIntersectionType.bal"},
-                {"createVariableWithIntersectionType2.json", "createVariableWithIntersectionType.bal"},
-                {"createVariableForOptionalFieldAccess1.json", "createVariableForOptionalFieldAccess1.bal"},
-                {"createVariableForOptionalFieldAccess2.json", "createVariableForOptionalFieldAccess2.bal"},
-                {"createVariableWithTypeDesc.json", "createVariableWithTypeDesc.bal"},
+                {"variableAssignmentRequiredCodeAction1.json"},
+                {"variableAssignmentRequiredCodeAction2.json"},
+                {"variableAssignmentRequiredCodeAction3.json"},
+                {"variableAssignmentRequiredCodeAction4.json"},
+                {"variableAssignmentRequiredCodeAction5.json"},
+                {"variableAssignmentRequiredCodeAction6.json"},
+                {"variableAssignmentRequiredCodeAction7.json"},
+                {"variableAssignmentRequiredCodeAction8.json"},
+                {"variableAssignmentRequiredCodeAction9.json"},
+                {"variableAssignmentRequiredCodeAction10.json"},
+                {"variableAssignmentRequiredCodeAction11.json"},
+                {"variableAssignmentRequiredCodeAction12.json"},
+                {"variableAssignmentRequiredCodeAction13.json"},
+                {"variableAssignmentRequiredCodeAction14.json"},
+                {"variableAssignmentRequiredCodeAction15.json"},
+                {"variableAssignmentRequiredCodeAction16.json"},
+                {"variableAssignmentRequiredCodeAction17.json"},
+                {"variableAssignmentRequiredCodeAction18.json"},
+                {"variableAssignmentRequiredCodeAction19.json"},
+                {"variableAssignmentRequiredCodeAction20.json"},
+                {"variableAssignmentRequiredCodeAction21.json"},
+                {"variableAssignmentRequiredCodeAction22.json"},
+                {"variableAssignmentRequiredCodeAction23.json"},
+                {"variableAssignmentRequiredCodeAction24.json"},
+                {"variableAssignmentRequiredCodeAction25.json"},
+                {"variableAssignmentRequiredCodeAction26.json"},
+                {"variableAssignmentRequiredCodeAction27.json"},
+                {"variableAssignmentRequiredCodeAction28.json"},
+                {"variableAssignmentRequiredCodeAction29.json"},
+                {"variableAssignmentRequiredCodeAction30.json"},
+                {"variableAssignmentRequiredCodeAction31.json"},
+                {"variableAssignmentRequiredCodeAction32.json"},
+                {"variableAssignmentRequiredCodeAction33.json"},
+                {"variableAssignmentRequiredCodeAction34.json"},
+                {"variableAssignmentRequiredCodeAction35.json"},
+                {"variableAssignmentRequiredCodeAction36.json"},
+                {"variableAssignmentRequiredCodeAction37.json"},
+                {"variableAssignmentRequiredCodeAction38.json"},
+                {"variableAssignmentRequiredCodeAction39.json"},
+                {"variableAssignmentRequiredCodeAction40.json"},
+                {"variableAssignmentRequiredCodeAction41.json"},
+                {"variableAssignmentRequiredCodeAction42.json"},
+                {"variableAssignmentRequiredCodeAction43.json"},
+                {"variableAssignmentRequiredCodeAction44.json"},
+                {"variableAssignmentRequiredCodeAction45.json"},
+                {"ignoreReturnValueCodeAction.json"},
+                {"projectVariableAssignmentRequiredCodeAction1.json"},
+                {"projectVariableAssignmentRequiredCodeAction2.json"},
+                {"projectVariableAssignmentRequiredCodeAction3.json"},
+                {"createVariableInClassMethod.json"},
+                {"createVariableInServiceMethod.json"},
+                {"createVariableInServiceRemoteMethod.json"},
+                {"createVariableWithUnionType.json"},
+                {"createVariableWithIntersectionType.json"},
+                {"createVariableWithIntersectionType2.json"},
+                {"createVariableForOptionalFieldAccess1.json"},
+                {"createVariableForOptionalFieldAccess2.json"},
+                {"createVariableWithTypeDesc.json"},
 
                 // Tuple related
-                {"createVariableWithTuple1.json", "createVariableWithTuple1.bal"},
+                {"createVariableWithTuple1.json"},
 
                 // Create variables of function/invocable type
-                {"createVariableWithFunctionType1.json", "createVariableWithFunctionType1.bal"},
-                {"createVariableWithFunctionType2.json", "createVariableWithFunctionType1.bal"},
+                {"createVariableWithFunctionType1.json"},
+                {"createVariableWithFunctionType2.json"},
 
-                {"createVariableWithFunctionCall1.json", "createVariableWithFunctionCall1.bal"},
-                {"createVariableWithFunctionCall2.json", "createVariableWithFunctionCall2.bal"},
-                {"createVariableNegative1.json", "createVariableNegative1.bal"},
-                {"createVariableWithRemoteMethodInvocation.json", "createVariable9.bal"}
+                {"createVariableWithFunctionCall1.json"},
+                {"createVariableWithFunctionCall2.json"},
+                {"createVariableWithRemoteMethodInvocation.json"},
+
+                // Async send action
+                {"createVarInSendAction1.json"}
+        };
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"createVariableNegative1.json"},
+                {"createVariableNegative2.json"}
         };
     }
 }

@@ -24,12 +24,12 @@ import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -52,9 +52,9 @@ public class SpreadFieldNodeContext extends AbstractCompletionProvider<SpreadFie
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
                                                  SpreadFieldNode node) throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-            List<Symbol> moduleEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> moduleEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(moduleEntries, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context, node));

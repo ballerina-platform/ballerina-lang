@@ -30,13 +30,13 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -80,9 +80,9 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             (2) service mod:<cursor>
             function ...
              */
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getTokenAtCursor().parent())) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getTokenAtCursor().parent())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getTokenAtCursor().parent();
-                List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
+                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef,
                         ModulePartNodeContextUtil.serviceTypeDescPredicate());
 
                 completionItems.addAll(this.getCompletionItemList(moduleContent, context));
@@ -113,9 +113,9 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             Predicate<Symbol> predicate = symbol -> symbol instanceof VariableSymbol
                     && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER);
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 // Covers the use-case 3
-                List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context,
+                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context,
                         (QualifiedNameReferenceNode) nodeAtCursor, predicate);
                 completionItems.addAll(this.getCompletionItemList(moduleContent, context));
             } else {

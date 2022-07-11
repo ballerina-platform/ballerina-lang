@@ -25,12 +25,12 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.ProviderFactory;
-import org.ballerinalang.langserver.util.TokensUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionTriggerKind;
 import org.eclipse.lsp4j.Position;
@@ -129,7 +129,7 @@ public class CompletionUtil {
      * Find the token at cursor.
      */
     public static void fillTokenInfoAtCursor(BallerinaCompletionContext context) {
-        Optional<Token> tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition());
+        Optional<Token> tokenAtCursor = PositionUtil.findTokenAtPosition(context, context.getCursorPosition());
         Optional<Document> document = context.currentDocument();
         if (document.isEmpty() || tokenAtCursor.isEmpty()) {
             throw new RuntimeException("Could not find a valid document/token");

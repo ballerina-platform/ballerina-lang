@@ -263,7 +263,8 @@ public function main() {
             maths: 80,
             physics: 75,
             chemistry: 65
-        }
+        },
+        "course": "ballerina"
     };
 
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};

@@ -108,6 +108,8 @@ public class TableNegativeTest {
                 "is not found in table constraint type 'CustomerDetail'", 230, 35);
         validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
                 "a constant expression", 237, 9);
+        validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
+                "a constant expression", 240, 9);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>',"
                 + " found 'table<record {| (string|int|boolean) name?; (int|boolean)...; |}>'", 254, 41);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
@@ -151,6 +153,31 @@ public class TableNegativeTest {
                         "found 'CustomerEmptyKeyedTbl'", 424, 23);
         validateError(compileResult, index++, "member access is not supported for keyless table 'tbl2'", 433, 9);
         validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 434, 5);
+        validateError(compileResult, index++, "incompatible types: expected '(table<Student>|int)', " +
+                "found 'table<record {| readonly int id; string firstName; string lastName; |}>'", 444, 28);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 458, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,string,string]'",
+                472, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int,int]'", 479, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 488, 21);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                501, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                502, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                506, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                507, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                519, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
+                519, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                520, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
+                520, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'z' must be a constant expression",
+                520, 5);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 

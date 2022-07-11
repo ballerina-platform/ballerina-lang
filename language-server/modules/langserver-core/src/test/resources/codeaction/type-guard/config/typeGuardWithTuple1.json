@@ -1,6 +1,9 @@
 {
-  "line": 1,
-  "character": 9,
+  "position": {
+    "line": 1,
+    "character": 9
+  },
+  "source": "typeGuardWithTuple1.bal",
   "expected": [
     {
       "title": "Create variable and type guard",

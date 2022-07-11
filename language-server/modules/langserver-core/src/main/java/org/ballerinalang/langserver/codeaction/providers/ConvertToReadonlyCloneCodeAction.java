@@ -21,7 +21,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -64,7 +64,7 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
         if (typeDescriptor.isEmpty() || !isCloneReadonlyAvailable(typeDescriptor.get())) {
             return Collections.emptyList();
         }
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         String newText = getNewText(currentNode);
         String uri = context.filePath().toUri().toString();
 

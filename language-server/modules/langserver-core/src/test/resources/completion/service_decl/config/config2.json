@@ -403,6 +403,14 @@
           "newText": "import test/local_project2;\n"
         }
       ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "A",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

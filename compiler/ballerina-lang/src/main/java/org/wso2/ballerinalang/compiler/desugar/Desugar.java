@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -183,7 +184,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangT
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -299,6 +299,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -391,7 +392,7 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
-    private boolean skipFailStmtRewrite;
+    private boolean isVisitingQuery;
 
     // Safe navigation related variables
     private Stack<BLangMatchStatement> matchStmtStack = new Stack<>();
@@ -403,6 +404,10 @@ public class Desugar extends BLangNodeVisitor {
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
+    private List<BLangXMLNS> inlineXMLNamespaces;
+    private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
+    // Reuse the strand annotation in isolated workers and start action
+    private BLangAnnotationAttachment strandAnnotAttachement;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -809,6 +814,11 @@ public class Desugar extends BLangNodeVisitor {
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
+        addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+    }
+
+    private void addInitFunctionForRecordTypeNodeInTypeDef(BLangPackage pkgNode,
+                                                         List<BLangTypeDefinition> prevTypeDefinitions) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             if (prevTypeDefinitions.contains(typeDef)) {
                 continue;
@@ -1367,6 +1377,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        Map<Name, BLangStatement> prevXmlnsDecls = this.stmtsToBePropagatedToQuery;
+        if (!funcNode.flagSet.contains(Flag.QUERY_LAMBDA)) {
+            this.stmtsToBePropagatedToQuery = new HashMap<>();
+        }
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         if (!funcNode.interfaceFunction) {
             addReturnIfNotPresent(funcNode);
@@ -1387,7 +1401,7 @@ public class Desugar extends BLangNodeVisitor {
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
         }
-
+        this.stmtsToBePropagatedToQuery = prevXmlnsDecls;
         result = funcNode;
     }
 
@@ -3373,6 +3387,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl, env);
+        // need to propagate the local namespace to be used at the query clauses
+        this.stmtsToBePropagatedToQuery.put(xmlnsStmtNode.xmlnsDecl.symbol.name, xmlnsStmtNode);
         result = xmlnsStmtNode;
     }
 
@@ -5028,7 +5044,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void resetSkipFailStmtRewrite() {
-        this.skipFailStmtRewrite = false;
+        this.isVisitingQuery = false;
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
@@ -5052,15 +5068,18 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.stmts.addAll(onFailClause.body.stmts);
         env.scope.entries.putAll(onFailClause.body.scope.entries);
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        BVarSymbol onFailErrorVariableSymbol =
-                ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
-        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                onFailErrorVariableSymbol);
-        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-        env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-        onFailBody.stmts.add(0, errorVarDef);
+        if (onFailVarDefNode != null) {
+            BVarSymbol onFailErrorVariableSymbol =
+                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
+            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                    onFailErrorVariableSymbol);
+            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+            env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+            onFailBody.stmts.add(0, errorVarDef);
+        }
 
         if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {
@@ -5087,15 +5106,18 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.scope = onFailClause.body.scope;
         onFailBody.mapSymbol = onFailClause.body.mapSymbol;
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        BVarSymbol onFailErrorVariableSymbol =
-                ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
-        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                onFailErrorVariableSymbol);
-        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-        onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-        onFailBody.stmts.add(0, errorVarDef);
+        if (onFailVarDefNode != null) {
+            BVarSymbol onFailErrorVariableSymbol =
+                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
+            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                    onFailErrorVariableSymbol);
+            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+            onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+            onFailBody.stmts.add(0, errorVarDef);
+        }
 
         int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
         int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
@@ -5868,6 +5890,8 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
+        BType type = varRefExpr.getBType();
+
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
                 Types.getReferredType(varRefExpr.symbol.type).tag == TypeTags.INVOKABLE) {
@@ -5875,6 +5899,9 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((varRefExpr.symbol.tag & SymTag.TYPE) == SymTag.TYPE &&
                 !((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT)) {
             genVarRefExpr = new BLangTypeLoad(varRefExpr.symbol);
+            if (varRefExpr.symbol.tag == SymTag.TYPE_DEF) {
+                type = ((BTypeDefinitionSymbol) varRefExpr.symbol).referenceType;
+            }
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
                 (ownerSymbol.tag & SymTag.LET) == SymTag.LET) {
             // Local variable in a function/resource/action/worker/let
@@ -5909,7 +5936,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        genVarRefExpr.setBType(varRefExpr.getBType());
+        genVarRefExpr.setBType(type);
         genVarRefExpr.pos = varRefExpr.pos;
 
         if ((varRefExpr.isLValue)
@@ -6289,15 +6316,6 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                      indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.TABLE) {
-            if (targetVarRef.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY) {
-                BLangTupleLiteral listConstructorExpr = new BLangTupleLiteral();
-                listConstructorExpr.exprs = ((BLangTableMultiKeyExpr) indexAccessExpr.indexExpr).multiKeyIndexExprs;
-                List<BType> memberTypes = new ArrayList<>();
-                ((BLangTableMultiKeyExpr) indexAccessExpr.indexExpr).multiKeyIndexExprs.
-                        forEach(expression -> memberTypes.add(expression.getBType()));
-                listConstructorExpr.setBType(new BTupleType(memberTypes));
-                indexAccessExpr.indexExpr = listConstructorExpr;
-            }
             targetVarRef = new BLangTableAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
@@ -6305,12 +6323,6 @@ public class Desugar extends BLangNodeVisitor {
         targetVarRef.isLValue = indexAccessExpr.isLValue;
         targetVarRef.setBType(indexAccessExpr.getBType());
         result = targetVarRef;
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        rewriteExprs(tableMultiKeyExpr.multiKeyIndexExprs);
-        result = tableMultiKeyExpr;
     }
 
     @Override
@@ -6357,7 +6369,30 @@ public class Desugar extends BLangNodeVisitor {
         if (!actionInvocation.async && actionInvocation.invokedInsideTransaction) {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
+
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action or
+        // isolated named worker declaration.
+        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(actionInvocation);
+        }
+
         rewriteInvocation(actionInvocation, actionInvocation.async);
+    }
+
+    private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
+        if (this.strandAnnotAttachement == null) {
+            BLangPackage pkgNode = env.enclPkg;
+            List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+            // Create strand annotation once and reuse it for all isolated start-actions and named workers.
+            this.strandAnnotAttachement =
+                    annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            // Add init function for record type node in type def introduced for internally added strand annotation.
+            addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+        }
+
+        actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
+        ((BInvokableSymbol) actionInvocation.symbol)
+                .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
     }
 
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
@@ -7409,9 +7444,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        xmlElementLiteral.startTagName = rewriteExpr(xmlElementLiteral.startTagName);
-        xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
-        xmlElementLiteral.modifiedChildren = rewriteExprs(xmlElementLiteral.modifiedChildren);
         xmlElementLiteral.attributes = rewriteExprs(xmlElementLiteral.attributes);
 
         // Separate the in-line namepsace declarations and attributes.
@@ -7436,6 +7468,18 @@ public class Desugar extends BLangNodeVisitor {
             xmlElementLiteral.inlineNamespaces.add(xmlns);
         }
 
+        List<BLangXMLNS> prevInlineNamespaces = this.inlineXMLNamespaces;
+        if (isVisitingQuery && this.inlineXMLNamespaces != null) {
+            // if xml has an interpolated query, the inline namespace should be propagated
+            xmlElementLiteral.inlineNamespaces.addAll(this.inlineXMLNamespaces);
+        }
+        this.inlineXMLNamespaces = xmlElementLiteral.inlineNamespaces;
+
+        xmlElementLiteral.startTagName = rewriteExpr(xmlElementLiteral.startTagName);
+        xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
+        xmlElementLiteral.modifiedChildren = rewriteExprs(xmlElementLiteral.modifiedChildren);
+
+        this.inlineXMLNamespaces = prevInlineNamespaces;
         result = xmlElementLiteral;
     }
 
@@ -7680,7 +7724,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
-        if (this.onFailClause != null && !this.skipFailStmtRewrite) {
+        if (this.onFailClause != null && !this.isVisitingQuery) {
             if (this.onFailClause.bodyContainsFail) {
                 result = rewriteNestedOnFail(this.onFailClause, failNode);
             } else {
@@ -8040,20 +8084,28 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        boolean prevSkipFailStmtRewrite = this.skipFailStmtRewrite;
-        this.skipFailStmtRewrite = true;
-        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env);
+        boolean prevIsVisitingQuery = this.isVisitingQuery;
+        this.isVisitingQuery = true;
+        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, getVisibleXMLNSStmts(env));
         result = rewrite(stmtExpr, env);
-        this.skipFailStmtRewrite = prevSkipFailStmtRewrite;
+        this.isVisitingQuery = prevIsVisitingQuery;
+    }
+
+    List<BLangStatement> getVisibleXMLNSStmts(SymbolEnv env) {
+        Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(env);
+        return nameBXMLNSSymbolMap.keySet().stream()
+                .map(key -> this.stmtsToBePropagatedToQuery.get(key))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        boolean prevSkipFailStmtRewrite = this.skipFailStmtRewrite;
-        this.skipFailStmtRewrite = true;
-        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env);
+        boolean prevIsVisitingQuery = this.isVisitingQuery;
+        this.isVisitingQuery = true;
+        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env, getVisibleXMLNSStmts(env));
         result = rewrite(stmtExpr, env);
-        this.skipFailStmtRewrite = prevSkipFailStmtRewrite;
+        this.isVisitingQuery = prevIsVisitingQuery;
     }
 
     @Override
@@ -8701,8 +8753,8 @@ public class Desugar extends BLangNodeVisitor {
         boolean tupleTypedVararg = false;
 
         if (varargRef != null) {
-            varargType = varargRef.getBType();
-            tupleTypedVararg = Types.getReferredType(varargType).tag == TypeTags.TUPLE;
+            varargType = Types.getReferredType(varargRef.getBType());
+            tupleTypedVararg = varargType.tag == TypeTags.TUPLE;
         }
 
         // Iterate over the required args.

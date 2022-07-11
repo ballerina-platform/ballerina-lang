@@ -58,7 +58,7 @@ class PackageContext {
     private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
     private Set<PackageDependency> packageDependencies;
-    private DependencyGraph<ModuleId> moduleDependencyGraph;
+    private DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
     private PackageResolution packageResolution;
     private PackageCompilation packageCompilation;
 
@@ -200,7 +200,7 @@ class PackageContext {
         throw new IllegalStateException("Default module not found. This is a bug in the Project API");
     }
 
-    DependencyGraph<ModuleId> moduleDependencyGraph() {
+    DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
         return moduleDependencyGraph;
     }
 
@@ -265,10 +265,10 @@ class PackageContext {
         // TODO Figure out a way to handle concurrent modifications
 
         // This dependency graph should only contain modules in this package.
-        DependencyGraphBuilder<ModuleId> moduleDepGraphBuilder = DependencyGraphBuilder.getBuilder();
+        DependencyGraphBuilder<ModuleDescriptor> moduleDepGraphBuilder = DependencyGraphBuilder.getBuilder();
         Set<PackageDependency> packageDependencies = new HashSet<>();
         for (ModuleContext moduleContext : this.moduleContextMap.values()) {
-            moduleDepGraphBuilder.add(moduleContext.moduleId());
+            moduleDepGraphBuilder.add(moduleContext.descriptor());
             resolveModuleDependencies(moduleContext, dependencyResolution,
                     moduleDepGraphBuilder, packageDependencies);
         }
@@ -279,14 +279,14 @@ class PackageContext {
 
     private void resolveModuleDependencies(ModuleContext moduleContext,
                                            DependencyResolution dependencyResolution,
-                                           DependencyGraphBuilder<ModuleId> moduleDepGraphBuilder,
+                                           DependencyGraphBuilder<ModuleDescriptor> moduleDepGraphBuilder,
                                            Set<PackageDependency> packageDependencies) {
         moduleContext.resolveDependencies(dependencyResolution);
         for (ModuleDependency moduleDependency : moduleContext.dependencies()) {
             // Check whether this dependency is in this package
             if (moduleDependency.packageDependency().packageId() == this.packageId()) {
                 // Module dependency graph contains only the modules in this package
-                moduleDepGraphBuilder.addDependency(moduleContext.moduleId(), moduleDependency.moduleId());
+                moduleDepGraphBuilder.addDependency(moduleContext.descriptor(), moduleDependency.descriptor());
             } else {
                 // Capture the package dependency if it is different from this package
                 packageDependencies.add(moduleDependency.packageDependency());

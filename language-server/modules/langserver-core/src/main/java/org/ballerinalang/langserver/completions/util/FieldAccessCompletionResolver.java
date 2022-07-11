@@ -53,7 +53,6 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -149,7 +148,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         String functionName;
         if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameRef;
-            visibleEntries = QNameReferenceUtil.getModuleContent(this.context, qNameRef,
+            visibleEntries = QNameRefCompletionUtil.getModuleContent(this.context, qNameRef,
                     fSymbolPredicate.or(fPointerPredicate));
             functionName = qNameRef.identifier().text();
         } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {

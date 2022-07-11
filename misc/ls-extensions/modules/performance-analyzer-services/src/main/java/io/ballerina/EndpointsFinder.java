@@ -83,6 +83,10 @@ public class EndpointsFinder {
                 nodeVisitor.setDocument(document);
                 syntaxTree.rootNode().accept(nodeVisitor);
             }
+            if (!nodeVisitor.canGivePrediction()) {
+                return json;
+            }
+
             GsonBuilder builder = new GsonBuilder();
             builder.serializeNulls();
             Gson gson = builder.create();

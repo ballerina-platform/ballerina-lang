@@ -896,3 +896,41 @@ type MyTypeTwo int|boolean;
 service class ServiceClass {
 
 }
+
+public annotation v22 on type;
+public const annotation v23 on source const;
+public annotation v24 on class;
+
+@v23 // error
+public enum Color1 {
+    RED,
+    BLUE
+}
+
+@v22
+@v23 // error
+public enum Color2 {
+    RED,
+    BLUE
+}
+
+@v23 // error
+@v24 // error
+public enum Color3 {
+    RED,
+    BLUE
+}
+
+@v23 // error
+public enum Color4 {
+    @v23
+    WHITE,
+    YELLOW
+}
+
+@v23 // error
+public enum Color5 {
+    @v22 // error
+    ORANGE,
+    GREEN
+}
