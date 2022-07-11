@@ -37,7 +37,6 @@ public class ClientResourceAccessBalaTest {
 
     @BeforeClass
     public void setup() {
-        int i = 0;
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/client_test_project");
         result = BCompileUtil.compile("test-src/bala/test_bala/object/resource_access_action.bal");
     }

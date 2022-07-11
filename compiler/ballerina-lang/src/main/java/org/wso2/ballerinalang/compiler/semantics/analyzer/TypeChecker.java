@@ -3563,16 +3563,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation, AnalyzerData data) {
         // Find the lhs expression type
         checkExpr(resourceAccessInvocation.expr, data);
-        BType lhsExprType = Types.getReferredType(resourceAccessInvocation.expr.getBType());
+        BType lhsExprType = resourceAccessInvocation.expr.getBType();
+        BType referredLhsExprType = Types.getReferredType(lhsExprType);
         
-        if (lhsExprType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(lhsExprType.tsymbol.flags, Flags.CLIENT)) {
+        if (referredLhsExprType.tag != TypeTags.OBJECT || 
+                !Symbols.isFlagOn(referredLhsExprType.tsymbol.flags, Flags.CLIENT)) {
             dlog.error(resourceAccessInvocation.expr.pos, 
                     DiagnosticErrorCode.CLIENT_RESOURCE_ACCESS_ACTION_IS_ONLY_ALLOWED_ON_CLIENT_OBJECTS);
             data.resultType = symTable.semanticError;
             return;
         }
         
-        BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) lhsExprType.tsymbol;
+        BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) referredLhsExprType.tsymbol;
 
         validateResourceAccessPathSegmentTypes(resourceAccessInvocation.resourceAccessPathSegments, data);
                 
