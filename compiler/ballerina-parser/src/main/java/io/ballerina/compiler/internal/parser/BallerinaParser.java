@@ -17030,7 +17030,8 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case OPEN_BRACKET_TOKEN:
                 reportInvalidQualifierList(qualifiers);
-                return parseMemberBracketedList();
+                return createMemberOrRestNode(STNodeFactory.createEmptyNodeList(),
+                        parseMemberBracketedList());
             case IDENTIFIER_TOKEN:
                 reportInvalidQualifierList(qualifiers);
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
@@ -17193,7 +17194,8 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case OPEN_BRACKET_TOKEN:
                 // we don't know which one
-                return parseTupleTypeDescOrListConstructor(annots);
+                return createMemberOrRestNode(STNodeFactory.createEmptyNodeList(),
+                        parseTupleTypeDescOrListConstructor(annots));
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
                 // we don't know which one can be array type desc or expr
