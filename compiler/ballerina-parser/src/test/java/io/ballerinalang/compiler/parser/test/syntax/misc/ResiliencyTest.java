@@ -47,4 +47,9 @@ public class ResiliencyTest extends AbstractMiscTest {
     public void testResiliencyForTokenBufferOverflow() {
         testFile("resiliency/resiliency_source_04.bal", "resiliency/resiliency_assert_04.json");
     }
+
+    @Test
+    public void testResiliencyForRecursiveLetClauseRecovery() {
+        testFile("resiliency/resiliency_source_05.bal", "resiliency/resiliency_assert_05.json");
+    }
 }

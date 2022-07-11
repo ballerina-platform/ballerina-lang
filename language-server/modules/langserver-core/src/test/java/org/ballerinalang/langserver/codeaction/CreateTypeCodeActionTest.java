@@ -30,16 +30,16 @@ public class CreateTypeCodeActionTest extends AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
     @Override
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"create_type_in_return_type1.json", "create_type_in_return_type1.bal"},
-                {"create_type_in_function_body1.json", "create_type_in_function_body1.bal"}
+                {"create_type_in_return_type1.json"},
+                {"create_type_in_function_body1.json"}
         };
     }
 

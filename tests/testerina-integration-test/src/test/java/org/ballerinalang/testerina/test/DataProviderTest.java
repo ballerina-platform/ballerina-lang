@@ -181,4 +181,16 @@ public class DataProviderTest extends BaseTestCase {
             }
         }
     }
+
+    @Test
+    public void testMapValueDataProvider() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "1 failing";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testGetState", "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to multi module single test exec failure with array based data provider.");
+        }
+    }
 }

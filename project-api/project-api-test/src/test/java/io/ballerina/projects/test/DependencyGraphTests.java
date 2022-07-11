@@ -22,6 +22,7 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
@@ -44,6 +45,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -56,7 +58,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -605,5 +612,178 @@ public class DependencyGraphTests extends BaseTest {
         Assert.assertEquals(packageMetadataResponse.resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(packageMetadataResponse.resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
+    }
+
+    @Test
+    public void testTopologicalSortOfModuleDescriptor() {
+        PackageName packageName = PackageName.from("package");
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, packageName, PackageVersion.from("0.0.1"));
+
+        ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(ModuleName.from(packageName), packageDescriptor);
+        ModuleDescriptor moduleADescriptor = ModuleDescriptor.from(
+                ModuleName.from(packageName, "module_a"), packageDescriptor);
+        ModuleDescriptor moduleBDescriptor = ModuleDescriptor.from(
+                ModuleName.from(packageName, "module_b"), packageDescriptor);
+        ModuleDescriptor moduleCDescriptor = ModuleDescriptor.from(
+                ModuleName.from(packageName, "module_c"), packageDescriptor);
+
+        DependencyGraph<ModuleDescriptor> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put(moduleADescriptor, new LinkedHashSet<>() {{
+                add(moduleBDescriptor);
+            }});
+            put(moduleDescriptor, new LinkedHashSet<>() {{
+                add(moduleBDescriptor);
+                add(moduleADescriptor);
+                add(moduleCDescriptor);
+            }});
+            put(moduleBDescriptor, new LinkedHashSet<>());
+            put(moduleCDescriptor, new LinkedHashSet<>());
+        }});
+
+        Assert.assertEquals(dependencyGraph.toTopologicallySortedList(), new LinkedList<>() {{
+            add(moduleBDescriptor);
+            add(moduleADescriptor);
+            add(moduleCDescriptor);
+            add(moduleDescriptor);
+        }});
+    }
+
+    @Test
+    public void testTopologicalSortOfPackageDescriptor() {
+        PackageVersion packageVersion = PackageVersion.from("0.0.1");
+        PackageName packageName = PackageName.from("package_c");
+
+        PackageDescriptor firstPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, PackageName.from("package_a"), packageVersion);
+        PackageDescriptor secondPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, PackageName.from("package_b"), packageVersion);
+        PackageDescriptor thirdPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, packageName, packageVersion);
+        PackageDescriptor forthPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_X_ORG, packageName, packageVersion);
+        PackageDescriptor fifthPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, packageName, PackageVersion.from("0.0.2"));
+
+        DependencyGraph<PackageDescriptor> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put(secondPackageDescriptor, new LinkedHashSet<>() {{
+                add(fifthPackageDescriptor);
+            }});
+            put(firstPackageDescriptor, new LinkedHashSet<>() {{
+                add(forthPackageDescriptor);
+                add(secondPackageDescriptor);
+                add(thirdPackageDescriptor);
+            }});
+            put(fifthPackageDescriptor, new LinkedHashSet<>());
+            put(thirdPackageDescriptor, new LinkedHashSet<>());
+            put(forthPackageDescriptor, new LinkedHashSet<>());
+        }});
+
+        Assert.assertEquals(dependencyGraph.toTopologicallySortedList(), new LinkedList<>() {{
+            add(fifthPackageDescriptor);
+            add(secondPackageDescriptor);
+            add(thirdPackageDescriptor);
+            add(forthPackageDescriptor);
+            add(firstPackageDescriptor);
+        }});
+    }
+
+    @Test(dataProvider = "provideDependenciesInDifferentOrder")
+    public void testTopologicalSortConsistency(Map<String, Set<String>> dependencies) {
+        DependencyGraph<String> dependencyGraph = DependencyGraph.from(dependencies);
+        Assert.assertEquals(dependencyGraph.toTopologicallySortedList(), new LinkedList<>() {{
+            add("package7");
+            add("package8");
+            add("package6");
+            add("package3");
+            add("package4");
+            add("package5");
+            add("package1");
+            add("package2");
+        }});
+    }
+
+    @DataProvider(name = "provideDependenciesInDifferentOrder")
+    public Object[][] provideDependenciesInDifferentOrder() {
+        return new Object[][]{
+                {new LinkedHashMap<>() {{
+                    put("package1", new LinkedHashSet<>() {{
+                        add("package3");
+                        add("package4");
+                        add("package5");
+                    }});
+                    put("package2", new LinkedHashSet<>() {{
+                        add("package5");
+                    }});
+                    put("package3", new LinkedHashSet<>() {{
+                        add("package6");
+                        add("package7");
+                    }});
+                    put("package4", new LinkedHashSet<>() {{
+                        add("package6");
+                    }});
+                    put("package5", new LinkedHashSet<>() {{
+                        add("package8");
+                    }});
+                    put("package6", new LinkedHashSet<>() {{
+                        add("package7");
+                        add("package8");
+                    }});
+                    put("package7", new LinkedHashSet<>());
+                    put("package8", new LinkedHashSet<>());
+                }}},
+                {new LinkedHashMap<>() {{
+                    put("package8", new LinkedHashSet<>());
+                    put("package7", new LinkedHashSet<>());
+                    put("package6", new LinkedHashSet<>() {{
+                        add("package8");
+                        add("package7");
+                    }});
+                    put("package4", new LinkedHashSet<>() {{
+                        add("package6");
+                    }});
+                    put("package5", new LinkedHashSet<>() {{
+                        add("package8");
+                    }});
+                    put("package3", new LinkedHashSet<>() {{
+                        add("package7");
+                        add("package6");
+                    }});
+                    put("package2", new LinkedHashSet<>() {{
+                        add("package5");
+                    }});
+                    put("package1", new LinkedHashSet<>() {{
+                        add("package5");
+                        add("package4");
+                        add("package3");
+                    }});
+                }}},
+                {new LinkedHashMap<>() {{
+                    put("package4", new LinkedHashSet<>() {{
+                        add("package6");
+                    }});
+                    put("package3", new LinkedHashSet<>() {{
+                        add("package6");
+                        add("package7");
+                    }});
+                    put("package2", new LinkedHashSet<>() {{
+                        add("package5");
+                    }});
+                    put("package1", new LinkedHashSet<>() {{
+                        add("package5");
+                        add("package3");
+                        add("package4");
+                    }});
+                    put("package8", new LinkedHashSet<>());
+                    put("package7", new LinkedHashSet<>());
+                    put("package6", new LinkedHashSet<>() {{
+                        add("package8");
+                        add("package7");
+                    }});
+                    put("package5", new LinkedHashSet<>() {{
+                        add("package8");
+                    }});
+                }}}
+        };
     }
 }

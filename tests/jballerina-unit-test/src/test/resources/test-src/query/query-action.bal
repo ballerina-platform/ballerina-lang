@@ -535,6 +535,61 @@ function testQueryExpWithinQueryAction() returns error? {
     assertEquality(8, sumOfEven);
 }
 
+function returnErrorOrNil1() returns error? {
+    return ();
+}
+
+function foo1() returns string|error? {
+    check from int _ in [1, 3, 5]
+    do {        
+        check returnErrorOrNil1();
+        return "str1";
+    };
+    return "str2";
+}
+
+function returnErrorOrNil2() returns error? {
+    return error("New error");
+}
+
+function foo2() returns string|error? {
+    check from int _ in [1, 3, 5]
+    do {        
+        check returnErrorOrNil2();
+        return "str1";
+    };
+    return "str2";
+}
+
+function foo3() returns string|error? {
+    check from int _ in []
+    do {        
+        check returnErrorOrNil1();
+        return "str1";
+    };
+    return "str2";
+}
+
+function foo4() returns string|error? {
+    check from int _ in []
+    do {        
+        check returnErrorOrNil2();
+        return "str1";
+    };
+    return "str2";
+}
+
+function testQueryActionWithDoClauseContainsCheck() {
+    string|error? res = foo1();
+    assertTrue(res is string && res == "str1");
+    res = foo2();
+    assertTrue(res is error && res.message() == "New error");
+    res = foo3();
+    assertTrue(res is string && res == "str2");
+    res = foo4();
+    assertTrue(res is string && res == "str2");
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

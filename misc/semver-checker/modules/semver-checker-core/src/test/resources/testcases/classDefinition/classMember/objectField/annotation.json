@@ -1,0 +1,125 @@
+[
+  {
+    "description": "Add annotation",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\t@display{\n\t\tlabel:””\n}\n\tpublic int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    [
+                      {
+                        "type": "new",
+                        "versionImpact": "ambiguous",
+                        "kind": "unknown",
+                        "message": "a new annotation list is added"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove annotation",
+    "oldCode": "public class counter{\n\t@display{\n\t\tlabel:””\n}\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    [
+                      {
+                        "type": "removed",
+                        "versionImpact": "ambiguous",
+                        "kind": "unknown",
+                        "message": "an existing annotation list is removed"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify annotation",
+    "oldCode": "public class counter{\n\t@display{\n\t\tlabel:””\n}\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\t@display{\n\t\tlabel:”label”\n}\n\tpublic int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    [
+                      {
+                        "type": "modified",
+                        "versionImpact": "ambiguous",
+                        "kind": "unknown",
+                        "message": "annotation list is modified"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

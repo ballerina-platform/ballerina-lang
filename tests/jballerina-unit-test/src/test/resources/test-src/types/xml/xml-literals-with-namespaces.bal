@@ -166,3 +166,131 @@ function testXmlLiteralUsingXmlNamespacePrefix() {
         panic error("Assertion error", expected = expectedStr, found=s);
     }
 }
+
+xmlns "http://www.so2w.org" as globalNS;
+
+function testXmlInterpolationWithQuery() returns error? {
+    xml x1 = xml `<empRecords xmlns:inlineNS="http://www.so2w.org">
+         ${from int i in 1 ... 3
+        select xml `<empRecord employeeId="${i}"><inlineNS:id>${i}</inlineNS:id></empRecord>`}
+      </empRecords>;`;
+    xml x2 = x1/<empRecord>[0];
+    string s1 = x2.toString();
+    string expectedStr1 = "<empRecord employeeId=\"1\"><inlineNS:id xmlns:inlineNS=\"http://www.so2w.org\">1</inlineNS:id></empRecord>";
+    if (s1 != expectedStr1) {
+        panic error("Assertion error", expected = expectedStr1, found = s1);
+    }
+
+    xmlns "http://www.so2w.org" as localNS;
+    xml x3 = xml `<empRecords>
+         ${from int i in 1 ... 3
+        select xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`}
+      </empRecords>;`;
+    xml x4 = x3/<empRecord>[0]/<localNS:id>;
+    string s2 = x4.toString();
+    string expectedStr2 = "<localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id>";
+    if (s2 != expectedStr2) {
+        panic error("Assertion error", expected = expectedStr2, found = s2);
+    }
+
+    xml x5 = from int i in [1]
+        select xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`;
+    string s3 = x5.toString();
+    string expectedStr3 = "<empRecord employeeId=\"1\"><localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id></empRecord>";
+    if (s3 != expectedStr3) {
+        panic error("Assertion error", expected = expectedStr3, found = s3);
+    }
+
+    xml x6 = xml `<empRecords>
+         ${from int i in 1 ... 3
+        select xml `<empRecord employeeId="${i}"><globalNS:id>${i}</globalNS:id></empRecord>`}
+      </empRecords>;`;
+    xml x7 = x6/<empRecord>[0]/<globalNS:id>;
+    string s4 = x7.toString();
+    string expectedStr4 = "<globalNS:id xmlns:globalNS=\"http://www.so2w.org\">1</globalNS:id>";
+    if (s4 != expectedStr4) {
+        panic error("Assertion error", expected = expectedStr4, found = s4);
+    }
+
+    xml x8 = xml ``;
+    check from int i in [1]
+        do {
+            x8 = xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`;
+        };
+    string s5 = x8.toString();
+    if (s5 != expectedStr3) {
+        panic error("Assertion error", expected = expectedStr3, found = s5);
+    }
+
+    xml x9 = xml ``;
+    check from int i in [1]
+        do {
+            error? ign = from int j in [1]
+                do {
+                    x9 = xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`;
+                };
+        };
+    string s6 = x9.toString();
+    if (s6 != expectedStr3) {
+        panic error("Assertion error", expected = expectedStr3, found = s6);
+    }
+
+    xml x10 = from int i in [1]
+        let xml y = xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`
+        select xml `<record>${y}</record>`;
+    string s7 = x10.toString();
+    string expectedStr5 = "<record><empRecord employeeId=\"1\"><localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id></empRecord></record>";
+    if (s7 != expectedStr5) {
+        panic error("Assertion error", expected = expectedStr3, found = s7);
+    }
+
+    xml x11 = from xml x in (from int j in [1]
+            select xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`)
+        select xml `<record>${x}</record>`;
+    string s8 = x11.toString();
+    if (s8 != expectedStr5) {
+        panic error("Assertion error", expected = expectedStr3, found = s7);
+    }
+
+    xml x12 = from int i in [1]
+        join int j in [1]
+    on xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`
+    equals xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`
+        select xml `<record>${i}</record>`;
+    string s9 = x12.toString();
+    string expectedStr6 = "<record>1</record>";
+    if (s9 != expectedStr6) {
+        panic error("Assertion error", expected = expectedStr3, found = s7);
+    }
+
+    xml expectedXml = xml `<empRecord employeeId="1"><localNS:id>1</localNS:id></empRecord>`;
+    xml x13 = from int i in [1]
+        where xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>` == expectedXml
+        select xml `<record>${expectedXml}</record>`;
+    string s10 = x13.toString();
+    if (s10 != expectedStr5) {
+        panic error("Assertion error", expected = expectedStr5, found = s10);
+    }
+
+    do {
+        xmlns "http://www.so2w1.org" as doNS;
+        xml x14 = from int i in [1]
+            select xml `<localNS:empRecord employeeId="${i}"><doNS:id>${i}</doNS:id></localNS:empRecord>`;
+        string s11 = x14.toString();
+        string expectedStr7 = "<localNS:empRecord xmlns:localNS=\"http://www.so2w.org\" employeeId=\"1\"><doNS:id xmlns:doNS=\"http://www.so2w1.org\">1</doNS:id></localNS:empRecord>";
+        if (s11 != expectedStr7) {
+            panic error("Assertion error", expected = expectedStr7, found = s11);
+        }
+    }
+
+    do {
+        xmlns "http://www.so2w2.org" as doNS;
+        xml x15 = from int i in [1]
+            select xml `<localNS:empRecord employeeId="${i}"><doNS:id>${i}</doNS:id></localNS:empRecord>`;
+        string s12 = x15.toString();
+        string expectedStr8 = "<localNS:empRecord xmlns:localNS=\"http://www.so2w.org\" employeeId=\"1\"><doNS:id xmlns:doNS=\"http://www.so2w2.org\">1</doNS:id></localNS:empRecord>";
+        if (s12 != expectedStr8) {
+            panic error("Assertion error", expected = expectedStr8, found = s12);
+        }
+    }
+}

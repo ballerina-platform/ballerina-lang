@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -33,6 +34,14 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 public class IsolatedParamTest {
     private static final String NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR =
             "incompatible types: expected an 'isolated' function";
+
+    private CompileResult result;
+
+    @BeforeClass
+    private void setup() {
+        result = BCompileUtil.compile("test-src/isolated-param/isolated_param.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
 
     @Test
     public void testIsolatedParamSemanticNegative() {
@@ -66,9 +75,12 @@ public class IsolatedParamTest {
     }
 
     @Test
-    public void testIsolatedParam() {
-        CompileResult result = BCompileUtil.compile("test-src/isolated-param/isolated_param.bal");
-        Assert.assertEquals(result.getErrorCount(), 0);
+    public void testIsolatedFunctionArgForIsolatedParam() {
         BRunUtil.invoke(result, "testIsolatedFunctionArgForIsolatedParam");
+    }
+
+    @Test
+    public void testIsolatedParamWithTypeRefTypedRestArg() {
+        BRunUtil.invoke(result, "testIsolatedParamWithTypeRefTypedRestArg");
     }
 }

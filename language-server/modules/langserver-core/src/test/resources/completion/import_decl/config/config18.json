@@ -204,6 +204,14 @@
       "sortText": "C",
       "insertText": "ballerina/lang.'typedesc;",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'function;",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

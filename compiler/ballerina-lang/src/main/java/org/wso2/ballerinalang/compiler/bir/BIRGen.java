@@ -2171,7 +2171,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        visitTypedesc(typeLoad.pos, typeLoad.symbol.type, Collections.emptyList());
+        BType type = typeLoad.symbol.tag == SymTag.TYPE_DEF ?
+                ((BTypeDefinitionSymbol) typeLoad.symbol).referenceType : typeLoad.symbol.type;
+        visitTypedesc(typeLoad.pos, type, Collections.emptyList());
     }
 
     private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls) {

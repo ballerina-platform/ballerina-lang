@@ -21,7 +21,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -67,17 +67,17 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
 
-        if (posDetails.matchedTopLevelNode().kind() != SyntaxKind.CLASS_DEFINITION
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.MODULE_VAR_DECL
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.LOCAL_VAR_DECL
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
+        if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.CLASS_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.MODULE_VAR_DECL
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.LOCAL_VAR_DECL
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
             return Collections.emptyList();
         }
 
         List<Diagnostic> diags = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> CommonUtil
-                        .isWithinRange(context.cursorPosition(), CommonUtil.toRange(diag.location().lineRange()))
+                .filter(diag -> PositionUtil
+                        .isWithinRange(context.cursorPosition(), PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .filter(diagnostic -> DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()))
                 .collect(Collectors.toList());

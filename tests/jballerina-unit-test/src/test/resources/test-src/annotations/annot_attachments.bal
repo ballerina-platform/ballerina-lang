@@ -279,3 +279,18 @@ public const annotation map<int> v26 on type;
 @v26
 type MyType2 int[]|string;
 
+public annotation v27 on type;
+public const annotation v28 on source const;
+
+@v27
+public enum Color1 {
+    RED,
+    BLUE
+}
+
+@v27
+public enum Color2 {
+    @v28
+    RED,
+    BLUE
+}

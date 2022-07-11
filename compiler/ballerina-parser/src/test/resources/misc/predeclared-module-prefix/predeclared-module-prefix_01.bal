@@ -22,6 +22,7 @@ public function foo() returns int:c {
     // Using module prefix with predeclared prefix
     int a = int:sum(1, 2, 3);
     int b = int:b;
+    any|error c = function:call(value, 2, 3);
     // Predeclared prefix in new expression
     Person p = new int:myClass();
     // Predeclared prefix in object constructor expression

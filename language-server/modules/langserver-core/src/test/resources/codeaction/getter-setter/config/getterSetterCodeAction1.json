@@ -1,0 +1,77 @@
+{
+  "position": {
+    "line": 2,
+    "character": 18
+  },
+  "source": "getterSetter1.bal",
+  "expected": [
+    {
+      "title": "Create a setter for 'count'",
+      "kind": "source",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 27
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          },
+          "newText": "\n\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }"
+        }
+      ]
+    },
+    {
+      "title": "Create a getter for 'count'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 27
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          },
+          "newText": "\n\n    public function getCount() returns int { \n        return self.count;\n    }"
+        }
+      ]
+    },
+    {
+      "title": "Create getter and setter for 'count'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 27
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          },
+          "newText": "\n\n    public function getCount() returns int { \n        return self.count;\n    }"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 27
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          },
+          "newText": "\n\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }"
+        }
+      ]
+    }
+  ]
+}

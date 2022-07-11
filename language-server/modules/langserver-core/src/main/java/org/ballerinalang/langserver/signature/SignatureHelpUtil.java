@@ -48,8 +48,8 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.SignatureContext;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
@@ -228,7 +228,7 @@ public class SignatureHelpUtil {
         if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameReferenceNode;
             funcName = (qNameRef).identifier().text();
-            filteredContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
+            filteredContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef,
                     symbolPredicate
                             .and(symbol -> symbol.getName().orElse("")
                                     .equals(funcName)));
@@ -399,7 +399,7 @@ public class SignatureHelpUtil {
             functionSymbols.add(((ClassSymbol) rawType).initMethod().get());
         }
         if (rawType.typeKind() == TypeDescKind.UNION) {
-            ((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream()
+            ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
                     .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
                     .findFirst().ifPresent(objectMember ->
                     functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));

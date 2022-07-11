@@ -1,0 +1,131 @@
+[
+  {
+    "description": "Change the type of return type in a method",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) returns string {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) returns int {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "return type is changed from 'string ' to 'int '"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove return and make it as a non return method",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) returns string {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name)  {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "kind": "resource function",
+                  "childDiffs": [
+                    {
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "kind": "unknown",
+                      "message": "return type is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change a method as a return method",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) returns int {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "kind": "resource function",
+                  "childDiffs": [
+                    {
+                      "type": "new",
+                      "versionImpact": "major",
+                      "kind": "unknown",
+                      "message": "return type is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add return type annotation to a method.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) returns int {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) returns @tainted int {} \n}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Modify return type annotation from a method.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) returns @tainted int {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string name) returns @untainted int {} \n}",
+    "expectedOutput":{}
+  }
+]

@@ -42,12 +42,15 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.component.ActionInvocationNode;
 import io.ballerina.component.EndPointNode;
@@ -86,6 +89,10 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     private Document document;
     private boolean withinRange = false;
     private int uuid;
+    private boolean withinWorker = false;
+    private boolean isWorkerExists = false;
+    private boolean isWorkerWaiting = false;
+    private boolean isWorkersHaveConnectorCalls = false;
 
     public PerformanceAnalyzerNodeVisitor(SemanticModel model, String file, Range range) {
 
@@ -307,6 +314,41 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         assignmentStatementNode.expression().accept(this);
     }
 
+    @Override
+    public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+
+        if (withinRange) {
+            withinWorker = true;
+            if (!isWorkerExists) {
+                isWorkerExists = namedWorkerDeclarationNode != null;
+            }
+            if (namedWorkerDeclarationNode != null) {
+                namedWorkerDeclarationNode.workerBody().accept(this);
+            }
+            withinWorker = false;
+        }
+    }
+
+    @Override
+    public void visit(WaitActionNode waitActionNode) {
+
+        waitActionNode.waitFutureExpr().accept(this);
+    }
+
+    @Override
+    public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+
+        if (withinRange) {
+            Optional<Symbol> waitNode = model.symbol(simpleNameReferenceNode);
+            if (waitNode.isEmpty() || waitNode.get().getLocation().isEmpty()) {
+                return;
+            }
+            if (!isWorkerWaiting) {
+                isWorkerWaiting = waitNode.get().kind() == SymbolKind.WORKER;
+            }
+        }
+    }
+
     private void setChildNode(Node node) {
 
         this.currentNode.setNextNode(node);
@@ -374,6 +416,9 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
             LineRange lineRange = location.get().lineRange();
 
             if (withinRange) {
+                if (withinWorker) {
+                    isWorkersHaveConnectorCalls = true;
+                }
                 String pos = actionPos.filePath() + "/" + actionPos;
                 ActionInvocationNode actionNode = new ActionInvocationNode(getUUID(lineRange),
                         actionName, actionPath, pos);
@@ -523,5 +568,10 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);
         invocationInfo.put(ACTION_INVOCATION_KEY, this.startNode);
         return invocationInfo;
+    }
+
+    public boolean canGivePrediction() {
+
+        return !(isWorkerExists && isWorkerWaiting && isWorkersHaveConnectorCalls);
     }
 }

@@ -103,10 +103,15 @@ class PersonObj2 {
     }
 }
 
-function test2DObjectArrays2() returns PersonObj2[][] {
+function test2DObjectArrays2() {
     PersonObj2[][] arr = [];
     arr[2][1] = new;
-    return arr;
+
+    test:assertEquals(arr[0], []);
+    test:assertEquals(arr[1], []);
+    test:assertEquals(arr[2].length(), 2);
+    test:assertEquals(arr[2][0].name, "Pubudu");
+    test:assertEquals(arr[2][1].name, "Pubudu");
 }
 
 class PersonObj3 {
@@ -121,6 +126,22 @@ function test2DObjectArrays3() returns PersonObj3[][] {
     PersonObj3[][] arr = [];
     arr[2][1] = new("Pubudu");
     return arr;
+}
+
+class PersonObj4 {
+    int id;
+    string name;
+
+    public function init(int id, string name = "Alex") {
+        self.id = id;
+        self.name = name;
+    }
+}
+
+function testObjectArrays2() {
+    PersonObj4 p = new(1001);
+    PersonObj4[] arr = [];
+    arr[1] = p;
 }
 
 type Foo record {

@@ -161,6 +161,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
                 (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina")) ||
                 this.getBType().tag == TypeTags.PARAMETERIZED_TYPE) {
             this.signature = this.definitionName;
+        } else if (moduleID.moduleName().equals("lang.xml") && moduleID.orgName().equals("ballerina")) {
+            this.signature = "xml:" + this.definitionName;
         } else {
             this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
                     moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +

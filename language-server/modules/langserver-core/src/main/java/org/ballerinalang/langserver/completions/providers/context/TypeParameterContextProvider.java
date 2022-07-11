@@ -30,12 +30,12 @@ import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -81,7 +81,7 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
 
     private Collection<? extends LSCompletionItem> getOtherTypeDescSymbols(BallerinaCompletionContext context, T node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode refNode = (QualifiedNameReferenceNode) nodeAtCursor;
             /*
             Covers the following
@@ -89,7 +89,7 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
             (2) [typedesc | map | future]<mod:x*cursor*>
             (3) table<R1> key<mod:*cursor*>
              */
-            List<Symbol> moduleContent = QNameReferenceUtil.getTypesInModule(context, refNode);
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getTypesInModule(context, refNode);
             return this.getCompletionItemList(moduleContent, context);
         } else {
             /*
@@ -113,14 +113,14 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
                     rawType.typeKind() == TypeDescKind.RECORD || CommonUtil.isUnionOfType(rawType, TypeDescKind.RECORD);
         };
 
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode refNode = (QualifiedNameReferenceNode) nodeAtCursor;
             /*
             Covers the following
             (1) table<mod:*cursor*>
             (2) table<mod:x*cursor*>
              */
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, refNode, predicate);
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, refNode, predicate);
             return this.getCompletionItemList(moduleContent, context);
         } else {
             /*
@@ -163,8 +163,8 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
                     || CommonUtil.getRawType(typeDesc).typeKind() == TypeDescKind.RECORD);
         };
         List<Symbol> mappingTypes;
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            mappingTypes = QNameReferenceUtil.getModuleContent(context, (QualifiedNameReferenceNode) nodeAtCursor,
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            mappingTypes = QNameRefCompletionUtil.getModuleContent(context, (QualifiedNameReferenceNode) nodeAtCursor,
                     predicate);
             completionItems.addAll(this.getCompletionItemList(mappingTypes, context));
         } else {
@@ -195,14 +195,14 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
                     .isPresent();
         });
 
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode refNode = (QualifiedNameReferenceNode) nodeAtCursor;
             /*
             Covers the following
             (1) xml<mod:*cursor*>
             (2) xml<mod:x*cursor*>
              */
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, refNode, predicate);
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, refNode, predicate);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             /*

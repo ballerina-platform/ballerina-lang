@@ -25,6 +25,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -83,11 +84,19 @@ public class SingleFileProject extends Project {
     }
 
     @Override
+    public void clearCaches() {
+        resetPackage(this);
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
+    }
+
+    @Override
     public Project duplicate() {
         BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         SingleFileProject singleFileProject = new SingleFileProject(
                 ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
-        return cloneProject(singleFileProject);
+        return resetPackage(singleFileProject);
     }
 
     @Override

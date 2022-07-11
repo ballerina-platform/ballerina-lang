@@ -488,6 +488,8 @@ types:
         repeat-expr: service_decls_size
   golbal_var:
     seq:
+      - id: position
+        type: position
       - id: kind
         type: s1
       - id: name_cp_index
