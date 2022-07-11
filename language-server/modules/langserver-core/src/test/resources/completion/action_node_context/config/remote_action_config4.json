@@ -23,6 +23,25 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "/path1/[string id1]/path2/[string... ids].post(string str, string... ids2)",
+      "kind": "Function",
+      "detail": "mod:Response",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource method.\n  \n**Params**  \n- `string` id1: Path parameter  \n- `string[]` ids: Rest path parameter  \n- `string` str: Argument  \n- `string[]` ids2: Rest argument  \n  \n**Return** `mod:Response`   \n- The response for the request  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "path1|path2|post",
+      "insertText": "/path1/[${2:\"\"}]/path2/[${4:\"\"}].post(${5})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

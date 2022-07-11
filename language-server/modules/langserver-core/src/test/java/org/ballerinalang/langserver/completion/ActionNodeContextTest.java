@@ -20,6 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,7 +46,6 @@ public class ActionNodeContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        // Issue: #36891
-        return List.of("remote_action_config3.json", "client_resource_access_action_config8.json");
+        return Collections.emptyList();
     }
 }
