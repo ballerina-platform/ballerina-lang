@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 3,
-    "character":27
+    "character": 27
   },
   "source": "createVariableNegative2.bal",
   "expected": [

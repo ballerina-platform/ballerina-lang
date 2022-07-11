@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
@@ -76,7 +77,6 @@ import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFGT;
-import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.IFNONNULL;
 import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.ILOAD;
@@ -222,12 +222,13 @@ public class JvmTerminatorGen {
     }
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                             int localVarOffset) {
+                                             int localVarOffset, int yieldLocationVarIndex, int yieldStatusVarIndex,
+                                             String fullyQualifiedFuncName, Location terminatorPos) {
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
-        Label yieldLabel = labelGen.getLabel(funcName + "yield");
-        mv.visitJumpInsn(IFNE, yieldLabel);
+        JvmCodeGenUtil.generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex,
+                terminatorPos, fullyQualifiedFuncName, "WAITING FOR LOCK", yieldStatusVarIndex);
     }
 
     private void loadDefaultValue(MethodVisitor mv, BType type) {
@@ -317,11 +318,13 @@ public class JvmTerminatorGen {
     }
 
     public void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
-                              String funcName, int localVarOffset, int returnVarRefIndex, BType attachedType) {
+                              String funcName, int localVarOffset, int returnVarRefIndex, BType attachedType,
+                              int yieldLocationVarIndex, int yieldStatusVarIndex, String fullyQualifiedFuncName) {
 
         switch (terminator.kind) {
             case LOCK:
-                this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
+                this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset, yieldLocationVarIndex,
+                        terminator.pos, fullyQualifiedFuncName, yieldStatusVarIndex);
                 return;
             case UNLOCK:
                 this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName);
@@ -388,7 +391,8 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
+    private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset, int yieldLocationVarIndex,
+                             Location terminatorPos, String fullyQualifiedFuncName, int yieldStatusVarIndex) {
 
         Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
         String lockStore = "L" + LOCK_STORE + ";";
@@ -400,7 +404,8 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", LOCK, false);
         this.mv.visitInsn(POP);
-        genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
+        genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset, yieldLocationVarIndex,
+                yieldStatusVarIndex, fullyQualifiedFuncName, terminatorPos);
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
