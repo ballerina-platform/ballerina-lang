@@ -326,7 +326,7 @@ public class FormattingTreeModifier extends TreeModifier {
         } else {
             typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 0, 0);
         }
-        
+
         Token ellipsisToken;
         if (resourcePathParameterNode.paramName().isPresent()) {
             ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
@@ -3519,8 +3519,8 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expressionNode = formatNode(clientResourceAccessActionNode.expression(), 0, 0);
         Token rightArrowToken  = formatNode(clientResourceAccessActionNode.rightArrowToken(), 0, 0);
         Token slashToken;
-        if (clientResourceAccessActionNode.resourceAccessPath().isEmpty() && 
-                clientResourceAccessActionNode.methodName().isEmpty() && 
+        if (clientResourceAccessActionNode.resourceAccessPath().isEmpty() &&
+                clientResourceAccessActionNode.methodName().isEmpty() &&
                 clientResourceAccessActionNode.arguments().isEmpty()) {
             slashToken = formatNode(clientResourceAccessActionNode.slashToken(), env.trailingWS, env.trailingNL);
         } else {
@@ -3528,27 +3528,27 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         SeparatedNodeList<Node> resourceAccessPath;
-        if (clientResourceAccessActionNode.methodName().isEmpty() && 
+        if (clientResourceAccessActionNode.methodName().isEmpty() &&
                 clientResourceAccessActionNode.arguments().isEmpty()) {
-            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
+            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0,
                     0, 0, 0, env.trailingWS, env.trailingNL);
         } else {
-            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
+            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0,
                     0, 0, 0, 0, 0);
         }
 
         SimpleNameReferenceNode methodName;
         if (clientResourceAccessActionNode.arguments().isEmpty()) {
-            methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 
+            methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null),
                     env.trailingWS, env.trailingNL);
         } else {
             methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 0, 0);
         }
 
         Token dotToken = formatToken(clientResourceAccessActionNode.dotToken().orElse(null), 0, 0);
-        ParenthesizedArgList argumentNode = 
+        ParenthesizedArgList argumentNode =
                 formatNode(clientResourceAccessActionNode.arguments().orElse(null), env.trailingWS, env.trailingNL);
-        
+
         return clientResourceAccessActionNode.modify()
                 .withExpression(expressionNode)
                 .withRightArrowToken(rightArrowToken)
@@ -3559,7 +3559,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withArguments(argumentNode)
                 .apply();
     }
-    
+
     @Override
     public ComputedResourceAccessSegmentNode transform(
             ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
@@ -3567,7 +3567,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expressionNode = formatNode(computedResourceAccessSegmentNode.expression(), 0, 0);
         Token closeBracket = formatToken(computedResourceAccessSegmentNode.closeBracketToken(), env.trailingWS,
                 env.trailingNL);
-        
+
         return computedResourceAccessSegmentNode.modify()
                 .withOpenBracketToken(openBracket)
                 .withExpression(expressionNode)
@@ -3590,7 +3590,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withCloseBracketToken(closeBracket)
                 .apply();
     }
-    
+
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
         return formatToken(identifier, env.trailingWS, env.trailingNL);
@@ -3640,7 +3640,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
             node = (T) node.apply(this);
 
-            if (options.getLineWrapping() && shouldWrapLine(oldNode, parent)) {
+            if (shouldWrapLine(oldNode, parent) && options.getLineWrapping()) {
                 node = wrapLine(oldNode, parent);
             }
 
@@ -4078,7 +4078,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 return true;
 
             // Template literals are multi line tokens, and newline are
-            // part of the content. Hence, we cannot wrap those.
+            // part of the content. Hence we cannot wrap those.
             case XML_TEMPLATE_EXPRESSION:
             case STRING_TEMPLATE_EXPRESSION:
             case TEMPLATE_STRING:
