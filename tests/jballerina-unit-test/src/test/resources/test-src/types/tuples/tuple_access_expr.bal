@@ -285,15 +285,27 @@ type CustomTuple [int, string, boolean];
 
 const int index = 0;
 
-[int...] expectedIntTuple = [1, 2, 3];
-[string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
-[boolean...] expectedBooleanTuple = [true, false, true];
+[int...] moduleLevelIntTuple = [1, 2, 3];
+[string...] moduleLevelStringTuple = ["string 1", "string 2", "string 3"];
+[boolean...] moduleLevelBooleanTuple = [true, true, true];
+
+public function testModuleLevelTupleAccessWithCustomType() {
+    foreach int i in 0 ..< 3 {
+        assertEquals(moduleLevelIntTuple[i], i + 1);
+        assertEquals(moduleLevelStringTuple[i], string `string ${i + 1}`);
+        assertEquals(moduleLevelBooleanTuple[i], true);
+    }
+}
 
 public function testTupleAccessWithCustomType() {
     IntTuple intTuple = [1, 2, 3];
     StringTuple stringTuple = ["string 1", "string 2", "string 3"];
     BooleanTuple booleanTuple = [true, false, true];
     CustomTuple customTuple = [1, "string 1", true];
+
+    [int...] expectedIntTuple = [1, 2, 3];
+    [string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+    [boolean...] expectedBooleanTuple = [true, false, true];
 
     assertEquals(intTuple[index], 1);
     assertEquals(intTuple[index + 1], 2);
@@ -329,6 +341,10 @@ public function testTupleAccessWithCustomType2() {
     BooleanTuple2 booleanTuple = [true, false, true];
     CustomTuple2 customTuple = [1, "string 1", true];
 
+    [int...] expectedIntTuple = [1, 2, 3];
+    [string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+    [boolean...] expectedBooleanTuple = [true, false, true];
+
     assertEquals(intTuple[index], 1);
     assertEquals(intTuple[index + 1], 2);
     assertEquals(intTuple[index + 2], 3);
@@ -363,6 +379,10 @@ public function testTupleAccessWithCustomUnionTypes() {
     BooleanUnionIntTuple booleanUnionIntTuple = [true, false, true];
     CustomUnionTuple customUnionTuple = [1, "string 1", true];
 
+    [int...] expectedIntTuple = [1, 2, 3];
+    [string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+    [boolean...] expectedBooleanTuple = [true, false, true];
+
     assertEquals(intUnionStringTuple[index], 1);
     assertEquals(intUnionStringTuple[index + 1], 2);
     assertEquals(intUnionStringTuple[index + 2], 3);
@@ -396,6 +416,10 @@ public function testTupleAccessWithCustomReadonlyUnionTypes() {
     StringReadonlyTuple stringReadonlyTuple = ["string 1", "string 2", "string 3"];
     BooleanReadonlyTuple booleanReadonlyTuple = [true, false, true];
     CustomReadonlyTuple customReadonlyTuple = [1, "string 1", true];
+
+    [int...] expectedIntTuple = [1, 2, 3];
+    [string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+    [boolean...] expectedBooleanTuple = [true, false, true];
 
     assertEquals(intReadonlyTuple[index], 1);
     assertEquals(intReadonlyTuple[index + 1], 2);
