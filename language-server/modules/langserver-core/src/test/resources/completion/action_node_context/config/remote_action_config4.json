@@ -36,7 +36,7 @@
       },
       "sortText": "CC",
       "filterText": "path1|path2|post",
-      "insertText": "/path1/[${2:\"\"}]/path2/[${4:\"\"}].post(${5})",
+      "insertText": "/path1/[${1:\"\"}]/path2/[${2:\"\"}].post(${3})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

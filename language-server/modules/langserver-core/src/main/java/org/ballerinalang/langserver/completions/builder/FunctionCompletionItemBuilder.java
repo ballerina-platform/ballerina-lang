@@ -373,7 +373,9 @@ public final class FunctionCompletionItemBuilder {
                         getResourceAccessPartForSegment(pathSegment, placeHolderIndex, ctx);
                 signature.append("/").append(resourceAccessPart.getLeft());
                 insertText.append("/").append(resourceAccessPart.getRight());
-                placeHolderIndex += 1;
+                if (pathSegment.pathSegmentKind() != PathSegment.Kind.NAMED_SEGMENT) {
+                    placeHolderIndex += 1;
+                }
             }
         } else if (resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
             PathRestParam pathRestParam = (PathRestParam) resourcePath;
