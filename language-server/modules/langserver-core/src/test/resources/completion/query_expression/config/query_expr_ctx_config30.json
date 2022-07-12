@@ -701,6 +701,14 @@
       "sortText": "CB",
       "insertText": "customerStrArray",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "CR",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
