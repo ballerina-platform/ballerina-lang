@@ -1,0 +1,15 @@
+{
+  "source": {
+    "file": "rename_resource_method_path_segment.bal"
+  },
+  "position": {
+    "line": 39,
+    "character": 33
+  },
+  "prepareRename": {
+    "valid": false
+  },
+  "result": {
+    "changes": {}
+  }
+}
