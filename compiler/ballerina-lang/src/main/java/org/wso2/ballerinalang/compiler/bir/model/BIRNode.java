@@ -352,6 +352,7 @@ public abstract class BIRNode {
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
         // Below fields will only be available on resource functions
+        // TODO: consider creating a sub class for resource functions issue: #36964
         public List<BIRVariableDcl> pathParams;
         
         public BIRVariableDcl restPathParam;
