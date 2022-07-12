@@ -50,7 +50,7 @@ public class ListenerObject2 {
     public function 'start() returns error? {}
 
     public function gracefulStop() returns error? {
-        runtime:sleep(2);
+        runtime:sleep(1);
     }
 
     public function immediateStop() returns error? {}
@@ -94,7 +94,7 @@ public function main() {
     runtime:registerListener(ep);
     runtime:registerListener(lo2);
     runtime:registerListener(lo3);
-    runtime:sleep(3);
+    runtime:sleep(2);
     runtime:deregisterListener(ep);
     runtime:deregisterListener(lo2);
     runtime:deregisterListener(lo3);

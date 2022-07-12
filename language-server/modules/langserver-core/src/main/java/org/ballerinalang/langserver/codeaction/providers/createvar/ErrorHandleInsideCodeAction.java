@@ -67,8 +67,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
 
-        Optional<TypeSymbol> typeDescriptor = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        Optional<TypeSymbol> typeDescriptor = getExpectedTypeSymbol(positionDetails);
         if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }

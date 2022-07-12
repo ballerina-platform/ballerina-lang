@@ -4,5 +4,9 @@
     "character": 16
   },
   "source": "createVariableNegative1.bal",
-  "expected": []
+  "expected": [
+    {
+      "title": "Create variable"
+    }
+  ]
 }

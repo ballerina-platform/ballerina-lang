@@ -18,10 +18,16 @@
 
 package io.ballerina.semver.checker.diff;
 
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.projects.Module;
+import io.ballerina.semver.checker.comparator.ClassComparator;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
+import io.ballerina.semver.checker.comparator.ModuleConstantComparator;
+import io.ballerina.semver.checker.comparator.ModuleVariableComparator;
 import io.ballerina.semver.checker.comparator.ServiceComparator;
 
 import java.util.List;
@@ -140,6 +146,48 @@ public class ModuleDiff extends DiffImpl {
 
         public void withServiceChanged(ServiceDeclarationNode newService, ServiceDeclarationNode oldService) {
             new ServiceComparator(newService, oldService).computeDiff().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withModuleVarAdded(ModuleVariableDeclarationNode moduleVar) {
+            ModuleVarDiff.Builder moduleVarDiffBuilder = new ModuleVarDiff.Builder(moduleVar, null);
+            moduleVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withModuleVarRemoved(ModuleVariableDeclarationNode moduleVar) {
+            ModuleVarDiff.Builder moduleVarDiffBuilder = new ModuleVarDiff.Builder(null, moduleVar);
+            moduleVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withModuleVarChanged(ModuleVariableDeclarationNode newVar, ModuleVariableDeclarationNode oldVar) {
+            new ModuleVariableComparator(newVar, oldVar).computeDiff().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withConstantAdded(ConstantDeclarationNode constant) {
+            ModuleConstantDiff.Builder constantDiffBuilder = new ModuleConstantDiff.Builder(constant, null);
+            constantDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withConstantRemoved(ConstantDeclarationNode constant) {
+            ModuleConstantDiff.Builder constantDiffBuilder = new ModuleConstantDiff.Builder(null, constant);
+            constantDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withConstantChanged(ConstantDeclarationNode newConstant, ConstantDeclarationNode oldConstant) {
+            new ModuleConstantComparator(newConstant, oldConstant).computeDiff().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withClassAdded(ClassDefinitionNode classNode) {
+            ClassDiff.Builder constantDiffBuilder = new ClassDiff.Builder(classNode, null);
+            constantDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withClassRemoved(ClassDefinitionNode classNode) {
+            ClassDiff.Builder constantDiffBuilder = new ClassDiff.Builder(null, classNode);
+            constantDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withClassModified(ClassDefinitionNode newClass, ClassDefinitionNode oldClass) {
+            new ClassComparator(newClass, oldClass).computeDiff().ifPresent(moduleDiff.childDiffs::add);
         }
     }
 }

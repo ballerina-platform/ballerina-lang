@@ -19,7 +19,7 @@
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "unknown",
+                  "kind": "service listener expression",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "service listener expression is modified"
@@ -51,7 +51,7 @@
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "unknown",
+                  "kind": "service listener expression",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "service listener expression is modified"
@@ -83,12 +83,17 @@
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "unknown",
+                  "kind": "service listener expression",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "service listener expression is modified"
                 }
               ]
+            },
+            {
+              "kind": "module variable",
+              "type": "new",
+              "versionImpact": "minor"
             }
           ]
         }

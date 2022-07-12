@@ -73,8 +73,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
                                                     CodeActionContext context) {
         String uri = context.fileUri();
 
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }

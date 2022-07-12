@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.semver.checker.util.DiffUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -168,7 +169,9 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
             sb.append(stringifyDiff(this));
         } else {
             // Todo: Add the rest of module-level definition types
-            if (this instanceof FunctionDiff || this instanceof ServiceDiff) {
+            if (this instanceof FunctionDiff || this instanceof ServiceDiff || this instanceof ModuleVarDiff
+                    || this instanceof ModuleConstantDiff || this instanceof ClassDiff
+                    || this instanceof ObjectFieldDiff) {
                 sb.append(stringifyDiff(this));
             }
             childDiffs.forEach(diff -> sb.append(diff.getAsString()));
@@ -182,7 +185,10 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         JsonObject jsonObject = new JsonObject();
 
         // Todo: Add the rest of module-level definition types
-        if (childDiffs == null || childDiffs.isEmpty() || this instanceof FunctionDiff || this instanceof ServiceDiff) {
+        if (childDiffs == null || childDiffs.isEmpty() || this instanceof FunctionDiff || this instanceof ServiceDiff
+                || this instanceof ModuleVarDiff || this instanceof ModuleConstantDiff || this instanceof ClassDiff
+                || this instanceof ObjectFieldDiff) {
+            jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
             jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.ENGLISH)));
             jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()
                     .toLowerCase(Locale.ENGLISH)));

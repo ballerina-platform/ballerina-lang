@@ -29,6 +29,7 @@ import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
+import io.ballerina.semver.checker.diff.ObjectFieldDiff;
 import io.ballerina.semver.checker.diff.SemverImpact;
 
 import java.util.ArrayList;
@@ -53,8 +54,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
 
     @Override
     public Optional<? extends Diff> computeDiff() {
-        NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode)
-                .withKind(DiffKind.SERVICE_FIELD)
+        NodeDiffBuilder diffBuilder = new ObjectFieldDiff.Builder(newNode, oldNode)
                 .withChildDiffs(compareObjectFieldMetadata(newNode, oldNode))
                 .withChildDiffs(compareObjectFieldQualifiers(newNode, oldNode))
                 .withChildDiffs(compareObjectFieldType(newNode, oldNode))
@@ -99,7 +99,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // public qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newPublicQual.get(), null);
             qualifierDiffBuilder
-                    .withKind(DiffKind.SERVICE_FIELD)
+                    .withKind(DiffKind.OBJECT_FIELD)
                     .withVersionImpact(SemverImpact.MINOR)
                     .withMessage("'public' qualifier is added to object field '" + getObjectFieldName() + "'")
                     .build()
@@ -108,7 +108,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // public qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldPublicQual.get());
             qualifierDiffBuilder
-                    .withKind(DiffKind.SERVICE_FIELD)
+                    .withKind(DiffKind.OBJECT_FIELD)
                     .withVersionImpact(SemverImpact.MAJOR)
                     .withMessage("'public' qualifier is removed from object field '" + getObjectFieldName() + "'")
                     .build()
@@ -122,7 +122,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // private qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newIsolatedQual.get(), null);
             qualifierDiffBuilder
-                    .withKind(DiffKind.SERVICE_FIELD)
+                    .withKind(DiffKind.OBJECT_FIELD)
                     .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("'private' qualifier is added to object field '" + getObjectFieldName() + "'")
                     .build()
@@ -131,7 +131,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // private qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldIsolatedQual.get());
             qualifierDiffBuilder
-                    .withKind(DiffKind.SERVICE_FIELD)
+                    .withKind(DiffKind.OBJECT_FIELD)
                     .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("'private' qualifier is removed from object field '" + getObjectFieldName() + "'")
                     .build()
@@ -145,7 +145,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // transactional qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newTransactionalQual.get(), null);
             qualifierDiffBuilder
-                    .withKind(DiffKind.SERVICE_FIELD)
+                    .withKind(DiffKind.OBJECT_FIELD)
                     .withVersionImpact(SemverImpact.AMBIGUOUS) // TODO: determine compatibility
                     .withMessage("'final' qualifier is added to object field '" + getObjectFieldName() + "'")
                     .build()
@@ -154,7 +154,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // final qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldTransactionalQual.get());
             qualifierDiffBuilder
-                    .withKind(DiffKind.SERVICE_FIELD)
+                    .withKind(DiffKind.OBJECT_FIELD)
                     .withVersionImpact(SemverImpact.PATCH) // TODO: determine compatibility
                     .withMessage("'final' qualifier is removed from object field '" + getObjectFieldName() + "'")
                     .build()
@@ -174,7 +174,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
         } else if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
             NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newType, oldType);
-            diffBuilder.withKind(DiffKind.SERVICE_FIELD)
+            diffBuilder.withKind(DiffKind.OBJECT_FIELD)
                     .withVersionImpact(SemverImpact.AMBIGUOUS)
                     .withMessage(String.format("object field type changed from '%s' to '%s'",
                             oldType.toSourceCode().trim(), newType.toSourceCode().trim()))
@@ -187,16 +187,16 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
     private List<Diff> compareObjectFieldExpression(ObjectFieldNode newNode, ObjectFieldNode oldNode) {
         List<Diff> exprDiffs = new LinkedList<>();
         DumbNodeComparator<Node> exprComparator = new DumbNodeComparator<>(newNode.expression().orElse(null),
-                oldNode.expression().orElse(null));
+                oldNode.expression().orElse(null), DiffKind.OBJECT_FIELD_EXPR);
         exprComparator.computeDiff().ifPresent(exprDiffs::add);
 
         return exprDiffs;
     }
 
     private boolean isPublic() {
-        boolean isNewPublic = newNode != null && newNode.qualifierList().stream().anyMatch(qualifier ->
+        boolean isNewPublic = newNode != null && newNode.visibilityQualifier().stream().anyMatch(qualifier ->
                 qualifier.kind() == SyntaxKind.PUBLIC_KEYWORD);
-        boolean isOldPublic = oldNode != null && oldNode.qualifierList().stream().anyMatch(qualifier ->
+        boolean isOldPublic = oldNode != null && oldNode.visibilityQualifier().stream().anyMatch(qualifier ->
                 qualifier.kind() == SyntaxKind.PUBLIC_KEYWORD);
 
         return isNewPublic || isOldPublic;
