@@ -1,6 +1,7 @@
 package io.ballerina.cli.utils;
 
 import java.io.PrintStream;
+import java.util.Locale;
 import java.util.Objects;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -42,8 +43,8 @@ public class DebugUtils {
                     "on JRE version '%s'%n", javaVersion, COMPATIBLE_JRE_VERSION);
         }
 
-        if (System.getProperty(SYSTEM_PROP_DEBUG_SUSPEND_MODE) != null &&
-                Objects.equals(System.getProperty(SYSTEM_PROP_DEBUG_SUSPEND_MODE), "false")) {
+        if (System.getProperty(SYSTEM_PROP_DEBUG_SUSPEND_MODE) != null && Objects.equals(
+                System.getProperty(SYSTEM_PROP_DEBUG_SUSPEND_MODE).toLowerCase(Locale.ENGLISH), "false")) {
             return String.format("%s,address=*:%s", DEBUG_UNSUSPEND_ARGS_JAVA11,
                     System.getProperty(SYSTEM_PROP_BAL_DEBUG));
         } else {

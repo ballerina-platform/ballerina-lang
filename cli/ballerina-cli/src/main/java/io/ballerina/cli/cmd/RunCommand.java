@@ -101,7 +101,7 @@ public class RunCommand implements BLauncherCmd {
     private Path targetDir;
 
     private static final String runCmd =
-            "bal run [--debug <port>] [--debugSuspend <flag>] <executable-jar> \n" +
+            "bal run [--debug <port>] [--debugSuspend <true|false>] <executable-jar> \n" +
             "    bal run [--offline]\n" +
             "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
@@ -229,7 +229,7 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal run [--debug <port>] <executable-jar>\n");
+        out.append("  bal run [--debug <port>] [--debugSuspend <true|false>] <executable-jar>\n");
         out.append("  bal run [--offline] [<balfile> | <project-path>]\n" +
                 "[--] [args...] \n");
     }
