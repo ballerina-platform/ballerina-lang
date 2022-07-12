@@ -180,11 +180,17 @@ public class TableNegativeTest {
                 520, 5);
         validateError(compileResult, index++, "incompatible types: expected " +
                 "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
-                "found 'table<Employee2>'", 549, 9);
+                "found 'table<Employee2>'", 533, 9);
         validateError(compileResult, index++, "incompatible types: expected " +
                 "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
-                "found 'table<Employee2>'", 550, 9);
-        validateError(compileResult, index++, "incompatible types: expected 'never', found 'int'", 552, 29);
+                "found 'table<Employee2>'", 539, 9);
+        validateError(compileResult, index++, "incompatible types: expected 'never', found 'int'", 551, 29);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'table<record {| int id; string name; |}>'", 563, 9);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'table<record {| int id; |}>'", 566, 9);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
