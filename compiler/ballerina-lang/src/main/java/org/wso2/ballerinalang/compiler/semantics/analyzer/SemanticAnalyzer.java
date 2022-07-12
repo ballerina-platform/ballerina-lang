@@ -290,7 +290,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         data.env = pkgEnv;
-        int originalTopLevelNodeSize = pkgNode.topLevelNodes.size();
+
+        // To keep track of original top level nodes to resolve user defined types independent of the assumptions that
+        // new elements are added to the end of the list and the data structure is always going to be sequential.
+        List<TopLevelNode> copyOfOriginalTopLevelNodes = new ArrayList<>(pkgNode.topLevelNodes);
 
         // Visit constants first.
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
@@ -305,9 +308,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateEnumMemberMetadata(pkgNode.constants);
 
         // Then resolve user defined types without analyzing type definitions that get added while analyzing other nodes
-        for (int i = 0; i < originalTopLevelNodeSize; i++)  {
-            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
-                analyzeDef((BLangNode) pkgNode.topLevelNodes.get(i), data);
+        for (int i = 0; i < copyOfOriginalTopLevelNodes.size(); i++)  {
+            if (copyOfOriginalTopLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
+                analyzeDef((BLangNode) copyOfOriginalTopLevelNodes.get(i), data);
             }
         }
 
@@ -332,8 +335,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 continue;
             }
 
-            // Analyze type definitions that get added while analyzing other nodes
-            if (pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION && i < originalTopLevelNodeSize) {
+            // To skip already analyzed type definitions and analyze the ones that get added while analyzing other nodes
+            if (kind == NodeKind.TYPE_DEFINITION && copyOfOriginalTopLevelNodes.contains(pkgLevelNode)) {
                 continue;
             }
 

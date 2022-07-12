@@ -532,7 +532,7 @@ public class Types {
             objectValueInUnary = Long.parseLong(strValueInUnary);
         } else if (objectValueInUnary instanceof Double) {
             objectValueInUnary = Double.parseDouble(strValueInUnary);
-        } else if (objectValueInUnary instanceof String) {
+        } else {
             objectValueInUnary = strValueInUnary;
         }
 
