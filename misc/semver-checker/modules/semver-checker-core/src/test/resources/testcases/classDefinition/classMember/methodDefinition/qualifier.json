@@ -1,0 +1,500 @@
+[
+  {
+    "description": "Remove the public qualifier from a method definition",
+    "oldCode": "public class Employee{ \npublic function add(){}\n}",
+    "newCode": "public class Employee{\nfunction add(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "'public' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add public qualifier to a method definition",
+    "oldCode": "public class Employee{\nfunction foo(){}\n}",
+    "newCode": "public class Employee{\npublic function foo(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "minor",
+                      "message": "'public' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify qualifier type public to transactional",
+    "oldCode": "public class Employee{\npublic function doUpdate(){}\n}",
+    "newCode": "public class Employee{\ntransactional function doUpdate(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "'public' qualifier is removed"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": " Remove the isolated qualifier",
+    "oldCode": "public class Employee{\nisolated function add(){}\n}",
+    "newCode": "public class Employee{\nfunction add(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add isolated qualifier",
+    "oldCode": "public class Employee{\nfunction foo(){}\n}",
+    "newCode": "public class Employee{\nisolated function foo(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove the transactional qualifier",
+    "oldCode": "public class Employee{\ntransactional function add(){}\n}",
+    "newCode": "public class Employee{\nfunction add(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add transactional qualifier",
+    "oldCode": "public class Employee{\nfunction foo(){}\n}",
+    "newCode": "public class Employee{\ntransactional function foo(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add another qualifier for a public function.",
+    "oldCode": "public class Employee{\npublic function add(){}\n}",
+    "newCode": "public class Employee{\npublic isolated function add(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove public qualifier from a public isolated function",
+    "oldCode": "public class Employee{\npublic isolated  function add(){}\n}",
+    "newCode": "public class Employee{\npublic function add(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove qualifiers from a public isolated function",
+    "oldCode": "public class Employee{\npublic isolated  function add(){}\n}",
+    "newCode": "public class Employee{\nfunction add(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "'public' qualifier is removed"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": " Modify a qualifier from a public isolated function",
+    "oldCode": "public class Employee{\npublic isolated  function add(){}\n}",
+    "newCode": "public class Employee{\npublic transactional function add(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "add more than 1 qualifier to a function",
+    "oldCode": "public class Employee{\nfunction add(){}\n}",
+    "newCode": "public class Employee{\npublic isolated transactional function add(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "minor",
+                      "message": "'public' qualifier is added"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
