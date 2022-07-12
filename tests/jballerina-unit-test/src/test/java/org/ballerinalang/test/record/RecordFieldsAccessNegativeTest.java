@@ -32,15 +32,22 @@ public class RecordFieldsAccessNegativeTest {
     public void testRecordPrivateFieldsAccess1() {
         CompileResult result = BCompileUtil.compile("test-src/record/record_project_access_neg_1");
 
-        Assert.assertEquals(result.getErrorCount(), 8);
+        Assert.assertEquals(result.getWarnCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        String expectedWarnMsg = "attempt to expose non-public symbol ";
+        String expectedErrMsg = "attempt to refer to non-accessible symbol ";
         int i = 0;
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'ChildFoo'", 4, 5);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 16, 44);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 20, 1);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 1);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 72);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
-        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 20, 5);
+
+        // Validate warnings
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'ChildFoo'", 4, 5);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'PrivatePerson'", 16, 44);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'PrivatePerson'", 20, 1);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'PrivatePerson'", 24, 1);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'PrivatePerson'", 24, 72);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'FooFamily'", 12, 5);
+
+        // Validating errors
+        BAssertUtil.validateError(result, i++, expectedErrMsg + "'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(result, i, "unknown type 'PrivatePerson'", 20, 5);
     }
 
@@ -48,15 +55,22 @@ public class RecordFieldsAccessNegativeTest {
     public void testRecordPrivateFieldsAccess2() {
         CompileResult result = BCompileUtil.compile("test-src/record/record_project_access_neg_2");
 
-        Assert.assertEquals(result.getErrorCount(), 8);
+        Assert.assertEquals(result.getWarnCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        String expectedWarnMsg = "attempt to expose non-public symbol ";
+        String expectedErrMsg = "attempt to refer to non-accessible symbol ";
         int i = 0;
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'ChildFoo'", 4, 5);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 16, 44);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 20, 1);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 1);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 72);
-        BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
-        BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'FooFamily'", 5, 13);
-        BAssertUtil.validateError(result, i, "attempt to refer to non-accessible symbol 'FooFamily'", 10, 13);
+
+        // Validate warnings
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'ChildFoo'", 4, 5);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'PrivatePerson'", 16, 44);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'PrivatePerson'", 20, 1);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'PrivatePerson'", 24, 1);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'PrivatePerson'", 24, 72);
+        BAssertUtil.validateWarning(result, i++, expectedWarnMsg + "'FooFamily'", 12, 5);
+
+        // Validate errors
+        BAssertUtil.validateError(result, i++, expectedErrMsg + "'FooFamily'", 5, 13);
+        BAssertUtil.validateError(result, i, expectedErrMsg + "'FooFamily'", 10, 13);
     }
 }
