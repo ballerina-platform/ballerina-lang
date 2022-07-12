@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 82,
-    "character": 20,
-    "expected": [
+    "character": 20
+  },
+  "source": "createVariable5.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Create variable",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 82,
-                            "character": 20
-                        },
-                        "end": {
-                            "line": 82,
-                            "character": 20
-                        }
-                    },
-                    "newText": "int intResult = "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 82,
+              "character": 20
+            },
+            "end": {
+              "line": 82,
+              "character": 20
+            }
+          },
+          "newText": "int intResult \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

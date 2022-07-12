@@ -62,11 +62,11 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
 
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context, NodeBasedPositionDetails posDetails) {
-        if (posDetails.matchedTopLevelNode().kind() != SyntaxKind.RECORD_TYPE_DESC) {
+        if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.RECORD_TYPE_DESC) {
             return Collections.emptyList();
         }
 
-        RecordTypeDescriptorNode node = (RecordTypeDescriptorNode) posDetails.matchedTopLevelNode();
+        RecordTypeDescriptorNode node = (RecordTypeDescriptorNode) posDetails.matchedCodeActionNode();
         if (node.parent().kind() == SyntaxKind.TYPE_DEFINITION || context.currentSyntaxTree().isEmpty()) {
             return Collections.emptyList();
         }

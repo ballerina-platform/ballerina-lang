@@ -242,6 +242,27 @@ public class TypedescriptorTest {
         };
     }
 
+    @Test(dataProvider = "InferredArrayVarPosProvider")
+    public void testInferredArrayType(int line, int col, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), ARRAY);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "InferredArrayVarPosProvider")
+    public Object[][] getInferredArrayVarPos() {
+        return new Object[][] {
+                {292, 11, "int[*]"},
+                {293, 26, "string[1][*][2][*][3]"},
+                {294, 16, "int[][2][*]"},
+                {295, 17, "int[2][*][3]"},
+                {296, 17, "string[*][*]"},
+                {297, 24, "(int|string)[][*][]"},
+                {298, 30, "(Bar & readonly)[*][2][*]"},
+        };
+    }
+
     @Test
     public void testMapType() {
         Symbol symbol = getSymbol(49, 16);

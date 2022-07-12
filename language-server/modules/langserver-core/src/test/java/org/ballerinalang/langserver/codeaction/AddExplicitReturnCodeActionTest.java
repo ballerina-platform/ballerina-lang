@@ -28,21 +28,21 @@ public class AddExplicitReturnCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"add_explicit_return_config1.json", "add_explicit_return_source1.bal"},
-                {"add_explicit_return_config2.json", "add_explicit_return_source1.bal"},
-                {"add_explicit_return_config3.json", "add_explicit_return_source1.bal"},
-                {"add_explicit_return_config4.json", "add_explicit_return_source1.bal"},
-                {"add_explicit_return_config5.json", "add_explicit_return_source1.bal"},
-                {"add_explicit_return_config6.json", "add_explicit_return_source1.bal"},
-                {"add_explicit_return_config7.json", "add_explicit_return_source1.bal"},
+                {"add_explicit_return_config1.json"},
+                {"add_explicit_return_config2.json"},
+                {"add_explicit_return_config3.json"},
+                {"add_explicit_return_config4.json"},
+                {"add_explicit_return_config5.json"},
+                {"add_explicit_return_config6.json"},
+                {"add_explicit_return_config7.json"},
         };
     }
 

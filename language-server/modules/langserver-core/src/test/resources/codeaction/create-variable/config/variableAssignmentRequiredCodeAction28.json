@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 11,
-    "character": 4,
-    "expected": [
+    "character": 4
+  },
+  "source": "createVariable4.bal",
+  "expected": [
+    {
+      "title": "Create variable with \u0027Tuple\u0027",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Create variable with 'Tuple'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 11,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 11,
-                            "character": 4
-                        }
-                    },
-                    "newText": "[int, int, int] listResult = "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "[int, int, int] listResult \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

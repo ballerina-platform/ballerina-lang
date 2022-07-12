@@ -456,7 +456,7 @@ function test28(L|N r) {
     if r is L {
         L _ = r;
     } else {
-        M _ = r; // error incompatible types: expected 'M', found '(L|N)'
+        M _ = r; // OK
     }
 
     L _ = r; // error incompatible types: expected 'L', found '(L|N)'
@@ -467,14 +467,14 @@ function test29(L|N r) {
         return;
     }
 
-    N _ = r; // error incompatible types: expected 'N', found '(L|N)'
+    N _ = r; // OK
 }
 
 function test30(M|N r) {
     if r is N {
         N _ = r;
     } else {
-        M _ = r; // should not narrow. issue #33722
+        M _ = r; // OK
     }
 
     N _ = r; // error incompatible types: expected 'N', found '(M|N)'
