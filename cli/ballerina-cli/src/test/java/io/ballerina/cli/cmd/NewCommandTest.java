@@ -523,7 +523,6 @@ public class NewCommandTest extends BaseCommandTest {
         // /bar
         Assert.assertTrue(Files.exists(packageDir.resolve("bar")));
         Assert.assertFalse(Files.exists(packageDir.resolve("include-resources/bar")));
-//        Assert.assertFalse(Files.exists(packageDir.resolve("modules/services/include-resources/bar/temp.txt")));
 
         // baz/
         Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/baz")));
