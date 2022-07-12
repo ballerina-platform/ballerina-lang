@@ -150,6 +150,9 @@ public function testUndefineResourcePath() {
     int _ = successClient->/booleanRestPath/[...intPathParameters];
     var _ = successClient->/[xy].get(1);
     var _ = successClient->/[five].get("test");
+    var _ = successClient->/path/[...five].get("test");
+    var _ = successClient->/path/[...true].get("test");
+    var _ = successClient->/path/[...varString];
 }
 
 function getIntOrNilArgument() returns int? {

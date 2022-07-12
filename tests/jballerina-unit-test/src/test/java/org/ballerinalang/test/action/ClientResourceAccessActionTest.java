@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.action;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -56,5 +58,16 @@ public class ClientResourceAccessActionTest {
                 {"testResourceAccessOfAnObjectConstructedViaObjectCons"},
                 {"testResourceAccessContainingSpecialChars"}
         };
+    }
+
+    @Test
+    public void testDeprecatedConstructUsageAtRuntimeWithWarning() {
+        int index = 0;
+        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.get' is deprecated", 547, 16);
+        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.get' is deprecated", 550, 20);
+        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.post' is deprecated", 553, 16);
+        Assert.assertEquals(result.getWarnCount(), index);
+        
+        BRunUtil.invoke(result, "testAccessingDeprecatedResource");
     }
 }

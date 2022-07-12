@@ -3576,7 +3576,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         
         BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) referredLhsExprType.tsymbol;
 
-        validateResourceAccessPathSegmentTypes(resourceAccessInvocation.resourceAccessPathSegments, data);
+        if (!validateResourceAccessPathSegmentTypes(resourceAccessInvocation.resourceAccessPathSegments, data)) {
+            // Should not resolve the target resource method if the resource path segment types are invalid
+            return;
+        }
                 
         // Filter all the resource methods defined on target resource path
         List<BResourceFunction> resourceFunctions = new ArrayList<>();
@@ -3618,10 +3621,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
     }
-    
-    public void validateResourceAccessPathSegmentTypes(BLangListConstructorExpr rAPathSegments, AnalyzerData data) {
+
+    /**
+     * Validate resource access path segment types.
+     * 
+     * @return true if the path segment types are valid. False otherwise
+     */
+    public boolean validateResourceAccessPathSegmentTypes(BLangListConstructorExpr rAPathSegments, AnalyzerData data) {
         // We should type check `pathSegments` against the resourcePathType. This method is just to validate
         // allowed types for resource access segments hence use clones of nodes
+        boolean isValidResourceAccessPathSegmentTypes = true;
         BLangListConstructorExpr clonedRAPathSegments = nodeCloner.cloneNode(rAPathSegments);
         for (BLangExpression pathSegment : clonedRAPathSegments.exprs) {
             BLangExpression clonedPathSegment = nodeCloner.cloneNode(pathSegment);
@@ -3631,6 +3640,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (!types.isAssignable(pathSegmentType, new BArrayType(symTable.pathParamAllowedType))) {
                     dlog.error(clonedPathSegment.getPosition(),
                             DiagnosticErrorCode.UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE, pathSegmentType);
+                    isValidResourceAccessPathSegmentTypes = false;
                 }
                 continue;
             }
@@ -3639,8 +3649,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (!types.isAssignable(pathSegmentType, symTable.pathParamAllowedType)) {
                 dlog.error(clonedPathSegment.getPosition(), 
                         DiagnosticErrorCode.UNSUPPORTED_COMPUTED_RESOURCE_ACCESS_PATH_SEGMENT_TYPE, pathSegmentType);
+                isValidResourceAccessPathSegmentTypes = false;
             }
         }
+
+        return isValidResourceAccessPathSegmentTypes;
     }
     
     public void checkResourceAccessParamAndReturnType(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvoc,

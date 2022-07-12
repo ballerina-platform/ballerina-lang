@@ -524,6 +524,36 @@ function testResourceAccessContainingSpecialChars() {
     assertEquality(f, "response4");
 }
 
+client class MyClient8 {
+    @deprecated
+    resource isolated function get .() returns string {
+        return "response1";
+    }
+
+    @deprecated
+    resource isolated function get A\u{0042}() returns int|string {
+        return "response3";
+    }
+
+    @deprecated
+    resource isolated function post AB/[string a]() returns string {
+        return a;
+    }
+}
+
+public function testAccessingDeprecatedResource() {
+    MyClient8 myClient = new;
+    // TODO: improve the warning message for accessing a deprecated resource #36977
+    string a = myClient->/;
+    assertEquality(a, "response1");
+
+    int|string b = myClient->/AB;
+    assertEquality(b, "response3");
+
+    string c = myClient->/AB/[PATH].post;
+    assertEquality(c, "someLongPathSegment");
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

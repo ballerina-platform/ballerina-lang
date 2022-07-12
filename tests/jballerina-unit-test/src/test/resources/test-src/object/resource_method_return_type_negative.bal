@@ -110,7 +110,7 @@ public function testErrorInResourceMethodReturningCustomFunctionType() {
             return testFunction;
         }
 
-        resource function get readonlyFunctionReturnPath() returns CustomType2 & readonly {
+        resource function get readonlyFunctionReturnPath() returns readonly & CustomType2 {
             return testFunction;
         }
 
