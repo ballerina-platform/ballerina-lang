@@ -41,73 +41,87 @@ public class TypeComparatorTest {
 
     private static final String TEST_ROOT = "src/test/resources/testcases/typeDefinition/";
     private static final String TYPE_TEST_ROOT = TEST_ROOT + "typeDescriptor/";
-    private static final String BEHAVIOURAL_TYPE_TEST_ROOT = TYPE_TEST_ROOT + "behaviouralTypeDescriptor/";
-    private static final String SEQUENCE_TYPE_TEST_ROOT = TYPE_TEST_ROOT + "sequenceTypeDescriptor/";
-    private static final String SIMPLE_TYPE_TEST_ROOT = TYPE_TEST_ROOT + "simpleTypeDescriptor/";
-    private static final String STRUCTURAL_TYPE_TEST_ROOT = TYPE_TEST_ROOT + "structuredTypeDescriptor/";
-    private static final String OTHER_TYPE_TEST_ROOT = TYPE_TEST_ROOT + "otherTypeDescriptor/";
-    private static final String BEHAVIOURAL_FUNCTION_TEST_ROOT = BEHAVIOURAL_TYPE_TEST_ROOT + "function/";
-    private static final String BEHAVIOURAL_OBJECT_TEST_ROOT = BEHAVIOURAL_TYPE_TEST_ROOT + "object/";
-    private static final String BEHAVIOURAL_OBJECT_METHOD_TEST_ROOT = BEHAVIOURAL_OBJECT_TEST_ROOT + "methodDefinition/";
-    private static final String BEHAVIOURAL_OBJECT_FIELD_TEST_ROOT = BEHAVIOURAL_OBJECT_TEST_ROOT + "objectField/";
+    private static final String BEHAVIOURAL_TEST_ROOT = TYPE_TEST_ROOT + "behaviouralTypeDescriptor/";
+    private static final String SEQUENCE_TEST_ROOT = TYPE_TEST_ROOT + "sequenceTypeDescriptor/";
+    private static final String SIMPLE_TEST_ROOT = TYPE_TEST_ROOT + "simpleTypeDescriptor/";
+    private static final String STRUCTURAL_TEST_ROOT = TYPE_TEST_ROOT + "structuredTypeDescriptor/";
+    private static final String OTHER_TEST_ROOT = TYPE_TEST_ROOT + "otherTypeDescriptor/";
+    private static final String BEHAVIOURAL_FUNCTION_TEST_ROOT = BEHAVIOURAL_TEST_ROOT + "function/";
+    private static final String BEHAVIOURAL_OBJ_TEST_ROOT = BEHAVIOURAL_TEST_ROOT + "object/";
+    private static final String BEHAVIOURAL_OBJ_METHOD_TEST_ROOT = BEHAVIOURAL_OBJ_TEST_ROOT + "methodDefinition/";
+    private static final String BEHAVIOURAL_OBJ_FIELD_TEST_ROOT = BEHAVIOURAL_OBJ_TEST_ROOT + "objectField/";
 
     private static final String TYPE_ANNOTATION_TESTCASE = TEST_ROOT + "annotation.json";
     private static final String TYPE_DOCUMENTATION_TESTCASE = TEST_ROOT + "documentation.json";
     private static final String TYPE_IDENTIFIER_TESTCASE = TEST_ROOT + "identifier.json";
     private static final String TYPE_QUALIFIER_TESTCASE = TEST_ROOT + "qualifier.json";
-    private static final String ADVANCE_TYPE_TESTCASE = TEST_ROOT + "advanceType.json";
+    private static final String ADVANCE_TESTCASE = TEST_ROOT + "advanceType.json";
 
-    private static final String SIMPLE_TYPE_BOOLEAN_TESTCASE = SIMPLE_TYPE_TEST_ROOT + "boolean.json";
-    private static final String SIMPLE_TYPE_FLOAT_TESTCASE = SIMPLE_TYPE_TEST_ROOT + "float.json";
-    private static final String SIMPLE_TYPE_INT_TESTCASE = SIMPLE_TYPE_TEST_ROOT + "int.json";
-    private static final String SIMPLE_TYPE_NIL_TESTCASE = SIMPLE_TYPE_TEST_ROOT + "nil.json";
+    private static final String SIMPLE_BOOLEAN_TESTCASE = SIMPLE_TEST_ROOT + "boolean.json";
+    private static final String SIMPLE_FLOAT_TESTCASE = SIMPLE_TEST_ROOT + "float.json";
+    private static final String SIMPLE_INT_TESTCASE = SIMPLE_TEST_ROOT + "int.json";
+    private static final String SIMPLE_NIL_TESTCASE = SIMPLE_TEST_ROOT + "nil.json";
 
-    private static final String SEQUENCE_TYPE_STRING_TESTCASE = SEQUENCE_TYPE_TEST_ROOT + "string.json";
-    private static final String SEQUENCE_TYPE_XML_TESTCASE = SEQUENCE_TYPE_TEST_ROOT + "xml.json";
+    private static final String SEQUENCE_STRING_TESTCASE = SEQUENCE_TEST_ROOT + "string.json";
+    private static final String SEQUENCE_XML_TESTCASE = SEQUENCE_TEST_ROOT + "xml.json";
 
-    private static final String STRUCTURED_TYPE_LIST_TESTCASE = STRUCTURAL_TYPE_TEST_ROOT + "list.json";
-    private static final String STRUCTURED_TYPE_MAP_TESTCASE = STRUCTURAL_TYPE_TEST_ROOT + "map.json";
-    private static final String STRUCTURED_TYPE_TABLE_TESTCASE = STRUCTURAL_TYPE_TEST_ROOT + "table.json";
+    private static final String STRUCTURED_LIST_TESTCASE = STRUCTURAL_TEST_ROOT + "list.json";
+    private static final String STRUCTURED_MAP_TESTCASE = STRUCTURAL_TEST_ROOT + "map.json";
+    private static final String STRUCTURED_TABLE_TESTCASE = STRUCTURAL_TEST_ROOT + "table.json";
 
-    private static final String BEHAVIOURAL_TYPE_ERROR_TESTCASE = BEHAVIOURAL_TYPE_TEST_ROOT + "error.json";
-    private static final String BEHAVIOURAL_TYPE_FUTURE_TESTCASE = BEHAVIOURAL_TYPE_TEST_ROOT + "future.json";
-    private static final String BEHAVIOURAL_TYPE_HANDLE_TESTCASE = BEHAVIOURAL_TYPE_TEST_ROOT + "handle.json";
-    private static final String BEHAVIOURAL_TYPE_STREAM_TESTCASE = BEHAVIOURAL_TYPE_TEST_ROOT + "stream.json";
-    private static final String BEHAVIOURAL_TYPE_TYPE_DESC_TESTCASE = BEHAVIOURAL_TYPE_TEST_ROOT + "typeDesc.json";
+    private static final String BEHAVIOURAL_ERROR_TESTCASE = BEHAVIOURAL_TEST_ROOT + "error.json";
+    private static final String BEHAVIOURAL_FUTURE_TESTCASE = BEHAVIOURAL_TEST_ROOT + "future.json";
+    private static final String BEHAVIOURAL_HANDLE_TESTCASE = BEHAVIOURAL_TEST_ROOT + "handle.json";
+    private static final String BEHAVIOURAL_STREAM_TESTCASE = BEHAVIOURAL_TEST_ROOT + "stream.json";
+    private static final String BEHAVIOURAL_TYPE_DESC_TESTCASE = BEHAVIOURAL_TEST_ROOT + "typeDesc.json";
 
-    private static final String BEHAVIOURAL_FUNCTION_PARAMETER_TESTCASE = BEHAVIOURAL_FUNCTION_TEST_ROOT + "parameter.json";
-    private static final String BEHAVIOURAL_FUNCTION_QUALIFIER_TESTCASE = BEHAVIOURAL_FUNCTION_TEST_ROOT + "qualifier.json";
-    private static final String BEHAVIOURAL_FUNCTION_RETURN_TESTCASE = BEHAVIOURAL_FUNCTION_TEST_ROOT + "returnType.json";
+    private static final String BEHAVIOURAL_FUNCTION_PARAMETER_TESTCASE = BEHAVIOURAL_FUNCTION_TEST_ROOT
+            + "parameter.json";
+    private static final String BEHAVIOURAL_FUNCTION_QUALIFIER_TESTCASE = BEHAVIOURAL_FUNCTION_TEST_ROOT
+            + "qualifier.json";
+    private static final String BEHAVIOURAL_FUNCTION_RETURN_TESTCASE = BEHAVIOURAL_FUNCTION_TEST_ROOT
+            + "returnType.json";
 
-    private static final String BEHAVIOURAL_OBJECT_METHOD_ANNOTATION_TESTCASE = BEHAVIOURAL_OBJECT_METHOD_TEST_ROOT + "annotation.json";
-    private static final String BEHAVIOURAL_OBJECT_METHOD_DOCUMENTATION_TESTCASE = BEHAVIOURAL_OBJECT_METHOD_TEST_ROOT + "documentation.json";
-    private static final String BEHAVIOURAL_OBJECT_METHOD_BODY_TESTCASE = BEHAVIOURAL_OBJECT_METHOD_TEST_ROOT + "body.json";
-    private static final String BEHAVIOURAL_OBJECT_METHOD_IDENTIFIER_TESTCASE = BEHAVIOURAL_OBJECT_METHOD_TEST_ROOT + "identifier.json";
-    private static final String BEHAVIOURAL_OBJECT_METHOD_PARAMETER_TESTCASE = BEHAVIOURAL_OBJECT_METHOD_TEST_ROOT + "parameter.json";
-    private static final String BEHAVIOURAL_OBJECT_METHOD_QUALIFIER_TESTCASE = BEHAVIOURAL_OBJECT_METHOD_TEST_ROOT + "qualifier.json";
-    private static final String BEHAVIOURAL_OBJECT_METHOD_RETURN_TESTCASE = BEHAVIOURAL_OBJECT_METHOD_TEST_ROOT + "returnType.json";
+    private static final String BEHAVIOURAL_OBJ_METHOD_ANNOTATION_TESTCASE = BEHAVIOURAL_OBJ_METHOD_TEST_ROOT +
+            "annotation.json";
+    private static final String BEHAVIOURAL_OBJ_METHOD_DOCUMENTATION_TESTCASE = BEHAVIOURAL_OBJ_METHOD_TEST_ROOT +
+            "documentation.json";
+    private static final String BEHAVIOURAL_OBJ_METHOD_BODY_TESTCASE = BEHAVIOURAL_OBJ_METHOD_TEST_ROOT +
+            "body.json";
+    private static final String BEHAVIOURAL_OBJ_METHOD_IDENTIFIER_TESTCASE = BEHAVIOURAL_OBJ_METHOD_TEST_ROOT +
+            "identifier.json";
+    private static final String BEHAVIOURAL_OBJ_METHOD_PARAMETER_TESTCASE = BEHAVIOURAL_OBJ_METHOD_TEST_ROOT +
+            "parameter.json";
+    private static final String BEHAVIOURAL_OBJ_METHOD_QUALIFIER_TESTCASE = BEHAVIOURAL_OBJ_METHOD_TEST_ROOT +
+            "qualifier.json";
+    private static final String BEHAVIOURAL_OBJ_METHOD_RETURN_TESTCASE = BEHAVIOURAL_OBJ_METHOD_TEST_ROOT +
+            "returnType.json";
 
-    private static final String BEHAVIOURAL_OBJECT_FIELD_ANNOTATION_TESTCASE = BEHAVIOURAL_OBJECT_FIELD_TEST_ROOT + "annotation.json";
-    private static final String BEHAVIOURAL_OBJECT_FIELD_DOCUMENTATION_TESTCASE = BEHAVIOURAL_OBJECT_FIELD_TEST_ROOT + "documentation.json";
-    private static final String BEHAVIOURAL_OBJECT_FIELD_IDENTIFIER_TESTCASE = BEHAVIOURAL_OBJECT_FIELD_TEST_ROOT + "identifier.json";
-    private static final String BEHAVIOURAL_OBJECT_FIELD_QUALIFIER_TESTCASE = BEHAVIOURAL_OBJECT_FIELD_TEST_ROOT + "qualifier.json";
-    private static final String BEHAVIOURAL_OBJECT_FIELD_TYPE_TESTCASE = BEHAVIOURAL_OBJECT_FIELD_TEST_ROOT + "type.json";
+    private static final String BEHAVIOURAL_OBJ_FIELD_ANNOTATION_TESTCASE = BEHAVIOURAL_OBJ_FIELD_TEST_ROOT +
+            "annotation.json";
+    private static final String BEHAVIOURAL_OBJ_FIELD_DOCUMENTATION_TESTCASE = BEHAVIOURAL_OBJ_FIELD_TEST_ROOT +
+            "documentation.json";
+    private static final String BEHAVIOURAL_OBJ_FIELD_IDENTIFIER_TESTCASE = BEHAVIOURAL_OBJ_FIELD_TEST_ROOT +
+            "identifier.json";
+    private static final String BEHAVIOURAL_OBJ_FIELD_QUALIFIER_TESTCASE = BEHAVIOURAL_OBJ_FIELD_TEST_ROOT +
+            "qualifier.json";
+    private static final String BEHAVIOURAL_OBJ_FIELD_TESTCASE = BEHAVIOURAL_OBJ_FIELD_TEST_ROOT + "type.json";
 
-    private static final String BEHAVIOURAL_TYPE_OBJECT_QUALIFIER_TESTCASE = BEHAVIOURAL_OBJECT_TEST_ROOT + "qualifier.json";
+    private static final String BEHAVIOURAL_OBJ_QUALIFIER_TESTCASE = BEHAVIOURAL_OBJ_TEST_ROOT + "qualifier.json";
 
-    private static final String OTHER_TYPE_ANY_DATA_TESTCASE = OTHER_TYPE_TEST_ROOT + "anyData.json";
-    private static final String OTHER_TYPE_ANY_TYPE_TESTCASE = OTHER_TYPE_TEST_ROOT + "anyType.json";
-    private static final String OTHER_TYPE_BYTE_TESTCASE = OTHER_TYPE_TEST_ROOT + "byte.json";
-    private static final String OTHER_TYPE_DISTINCT_TESTCASE = OTHER_TYPE_TEST_ROOT + "distinct.json";
-    private static final String OTHER_TYPE_INTERSECTION_TESTCASE = OTHER_TYPE_TEST_ROOT + "intersection.json";
-    private static final String OTHER_TYPE_JSON_TYPE_TESTCASE = OTHER_TYPE_TEST_ROOT + "jsonType.json";
-    private static final String OTHER_TYPE_NEVER_TYPE_TESTCASE = OTHER_TYPE_TEST_ROOT + "neverType.json";
-    private static final String OTHER_TYPE_OPTIONAL_TESTCASE = OTHER_TYPE_TEST_ROOT + "optional.json";
-    private static final String OTHER_TYPE_READ_ONLY_TESTCASE = OTHER_TYPE_TEST_ROOT + "readOnly.json";
-    private static final String OTHER_TYPE_RECORD_TESTCASE = OTHER_TYPE_TEST_ROOT + "record.json";
-    private static final String OTHER_TYPE_SINGLETON_TESTCASE = OTHER_TYPE_TEST_ROOT + "singleton.json";
-    private static final String OTHER_TYPE_TYPE_REFERENCE_TESTCASE = OTHER_TYPE_TEST_ROOT + "typeReference.json";
-    private static final String OTHER_TYPE_UNION_TESTCASE = OTHER_TYPE_TEST_ROOT + "union.json";
+    private static final String OTHER_ANY_DATA_TESTCASE = OTHER_TEST_ROOT + "anyData.json";
+    private static final String OTHER_ANY_TESTCASE = OTHER_TEST_ROOT + "anyType.json";
+    private static final String OTHER_BYTE_TESTCASE = OTHER_TEST_ROOT + "byte.json";
+    private static final String OTHER_DISTINCT_TESTCASE = OTHER_TEST_ROOT + "distinct.json";
+    private static final String OTHER_INTERSECTION_TESTCASE = OTHER_TEST_ROOT + "intersection.json";
+    private static final String OTHER_JSON_TESTCASE = OTHER_TEST_ROOT + "jsonType.json";
+    private static final String OTHER_NEVER_TESTCASE = OTHER_TEST_ROOT + "neverType.json";
+    private static final String OTHER_OPTIONAL_TESTCASE = OTHER_TEST_ROOT + "optional.json";
+    private static final String OTHER_READ_ONLY_TESTCASE = OTHER_TEST_ROOT + "readOnly.json";
+    private static final String OTHER_RECORD_TESTCASE = OTHER_TEST_ROOT + "record.json";
+    private static final String OTHER_SINGLETON_TESTCASE = OTHER_TEST_ROOT + "singleton.json";
+    private static final String OTHER_TYPE_REFERENCE_TESTCASE = OTHER_TEST_ROOT + "typeReference.json";
+    private static final String OTHER_UNION_TESTCASE = OTHER_TEST_ROOT + "union.json";
 
     @Test(dataProvider = "serviceTestDataProvider")
     public void testTypeAnnotation(JsonElement testData) throws Exception {
@@ -366,53 +380,53 @@ public class TypeComparatorTest {
                 filePath = TYPE_QUALIFIER_TESTCASE;
                 break;
             case "testAdvanceType":
-                filePath = ADVANCE_TYPE_TESTCASE;
+                filePath = ADVANCE_TESTCASE;
                 break;
 
             case "testSimpleTypeBoolean":
-                filePath = SIMPLE_TYPE_BOOLEAN_TESTCASE;
+                filePath = SIMPLE_BOOLEAN_TESTCASE;
                 break;
             case "testSimpleTypeFloat":
-                filePath = SIMPLE_TYPE_FLOAT_TESTCASE;
+                filePath = SIMPLE_FLOAT_TESTCASE;
                 break;
             case "testSimpleTypeInt":
-                filePath = SIMPLE_TYPE_INT_TESTCASE;
+                filePath = SIMPLE_INT_TESTCASE;
                 break;
             case "testSimpleTypeNil":
-                filePath = SIMPLE_TYPE_NIL_TESTCASE;
+                filePath = SIMPLE_NIL_TESTCASE;
                 break;
 
             case "testSequenceTypeString":
-                filePath = SEQUENCE_TYPE_STRING_TESTCASE;
+                filePath = SEQUENCE_STRING_TESTCASE;
                 break;
             case "testSequenceTypeXml":
-                filePath = SEQUENCE_TYPE_XML_TESTCASE;
+                filePath = SEQUENCE_XML_TESTCASE;
                 break;
 
             case "testStructuredTypeList":
-                filePath = STRUCTURED_TYPE_LIST_TESTCASE;
+                filePath = STRUCTURED_LIST_TESTCASE;
                 break;
             case "testStructuredTypeMap":
-                filePath = STRUCTURED_TYPE_MAP_TESTCASE;
+                filePath = STRUCTURED_MAP_TESTCASE;
                 break;
             case "testStructuredTypeTable":
-                filePath = STRUCTURED_TYPE_TABLE_TESTCASE;
+                filePath = STRUCTURED_TABLE_TESTCASE;
                 break;
 
             case "testBehaviouralTypeError":
-                filePath = BEHAVIOURAL_TYPE_ERROR_TESTCASE;
+                filePath = BEHAVIOURAL_ERROR_TESTCASE;
                 break;
             case "testBehaviouralTypeFuture":
-                filePath = BEHAVIOURAL_TYPE_FUTURE_TESTCASE;
+                filePath = BEHAVIOURAL_FUTURE_TESTCASE;
                 break;
             case "testBehaviouralTypeHandle":
-                filePath = BEHAVIOURAL_TYPE_HANDLE_TESTCASE;
+                filePath = BEHAVIOURAL_HANDLE_TESTCASE;
                 break;
             case "testBehaviouralTypeStream":
-                filePath = BEHAVIOURAL_TYPE_STREAM_TESTCASE;
+                filePath = BEHAVIOURAL_STREAM_TESTCASE;
                 break;
             case "testBehaviouralTypeTypeDesc":
-                filePath = BEHAVIOURAL_TYPE_TYPE_DESC_TESTCASE;
+                filePath = BEHAVIOURAL_TYPE_DESC_TESTCASE;
                 break;
 
             case "testBehaviouralTypeFunctionParameter":
@@ -426,85 +440,85 @@ public class TypeComparatorTest {
                 break;
 
             case "testBehaviouralTypeObjectMethodAnnotation":
-                filePath = BEHAVIOURAL_OBJECT_METHOD_ANNOTATION_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_METHOD_ANNOTATION_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectMethodDocumentation":
-                filePath = BEHAVIOURAL_OBJECT_METHOD_DOCUMENTATION_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_METHOD_DOCUMENTATION_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectMethodBody":
-                filePath = BEHAVIOURAL_OBJECT_METHOD_BODY_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_METHOD_BODY_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectMethodIdentifier":
-                filePath = BEHAVIOURAL_OBJECT_METHOD_IDENTIFIER_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_METHOD_IDENTIFIER_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectMethodParameter":
-                filePath = BEHAVIOURAL_OBJECT_METHOD_PARAMETER_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_METHOD_PARAMETER_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectMethodQualifier":
-                filePath = BEHAVIOURAL_OBJECT_METHOD_QUALIFIER_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_METHOD_QUALIFIER_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectMethodReturn":
-                filePath = BEHAVIOURAL_OBJECT_METHOD_RETURN_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_METHOD_RETURN_TESTCASE;
                 break;
 
             case "testBehaviouralTypeObjectFieldAnnotation":
-                filePath = BEHAVIOURAL_OBJECT_FIELD_ANNOTATION_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_FIELD_ANNOTATION_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectFieldDocumentation":
-                filePath = BEHAVIOURAL_OBJECT_FIELD_DOCUMENTATION_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_FIELD_DOCUMENTATION_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectFieldIdentifier":
-                filePath = BEHAVIOURAL_OBJECT_FIELD_IDENTIFIER_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_FIELD_IDENTIFIER_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectFieldQualifier":
-                filePath = BEHAVIOURAL_OBJECT_FIELD_QUALIFIER_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_FIELD_QUALIFIER_TESTCASE;
                 break;
             case "testBehaviouralTypeObjectFieldType":
-                filePath = BEHAVIOURAL_OBJECT_FIELD_TYPE_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_FIELD_TESTCASE;
                 break;
 
             case "testBehaviouralTypeObjectQualifier":
-                filePath = BEHAVIOURAL_TYPE_OBJECT_QUALIFIER_TESTCASE;
+                filePath = BEHAVIOURAL_OBJ_QUALIFIER_TESTCASE;
                 break;
 
             case "testOtherTypeAnyData":
-                filePath = OTHER_TYPE_ANY_DATA_TESTCASE;
+                filePath = OTHER_ANY_DATA_TESTCASE;
                 break;
             case "testOtherTypeAnyType":
-                filePath = OTHER_TYPE_ANY_TYPE_TESTCASE;
+                filePath = OTHER_ANY_TESTCASE;
                 break;
             case "testOtherTypeByte":
-                filePath = OTHER_TYPE_BYTE_TESTCASE;
+                filePath = OTHER_BYTE_TESTCASE;
                 break;
             case "testOtherTypeDistinct":
-                filePath = OTHER_TYPE_DISTINCT_TESTCASE;
+                filePath = OTHER_DISTINCT_TESTCASE;
                 break;
             case "testOtherTypeIntersection":
-                filePath = OTHER_TYPE_INTERSECTION_TESTCASE;
+                filePath = OTHER_INTERSECTION_TESTCASE;
                 break;
             case "testOtherTypeJsonType":
-                filePath = OTHER_TYPE_JSON_TYPE_TESTCASE;
+                filePath = OTHER_JSON_TESTCASE;
                 break;
             case "testOtherTypeNeverType":
-                filePath = OTHER_TYPE_NEVER_TYPE_TESTCASE;
+                filePath = OTHER_NEVER_TESTCASE;
                 break;
             case "testOtherTypeOptional":
-                filePath = OTHER_TYPE_OPTIONAL_TESTCASE;
+                filePath = OTHER_OPTIONAL_TESTCASE;
                 break;
             case "testOtherTypeReadOnly":
-                filePath = OTHER_TYPE_READ_ONLY_TESTCASE;
+                filePath = OTHER_READ_ONLY_TESTCASE;
                 break;
             case "testOtherTypeRecord":
-                filePath = OTHER_TYPE_RECORD_TESTCASE;
+                filePath = OTHER_RECORD_TESTCASE;
                 break;
             case "testOtherTypeSingleton":
-                filePath = OTHER_TYPE_SINGLETON_TESTCASE;
+                filePath = OTHER_SINGLETON_TESTCASE;
                 break;
             case "testOtherTypeTypeReference":
-                filePath = OTHER_TYPE_TYPE_REFERENCE_TESTCASE;
+                filePath = OTHER_TYPE_REFERENCE_TESTCASE;
                 break;
             case "testOtherTypeUnion":
-                filePath = OTHER_TYPE_UNION_TESTCASE;
+                filePath = OTHER_UNION_TESTCASE;
                 break;
 
             default:
