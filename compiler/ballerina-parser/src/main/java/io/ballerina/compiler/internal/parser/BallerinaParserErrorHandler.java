@@ -5634,6 +5634,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
             case IMPORT_SUB_VERSION:
             case OBJECT_FIELD_RHS:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
                 return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;

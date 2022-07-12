@@ -15247,7 +15247,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isDefiniteExpr(SyntaxKind kind) {
-        if (kind == SyntaxKind.QUALIFIED_NAME_REFERENCE || kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        if (kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }
 
@@ -16330,6 +16330,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypedBindingPatternTypeRhs(STNode typeDesc, ParserRuleContext context, boolean isRoot) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
+            case SEMICOLON_TOKEN:
             case IDENTIFIER_TOKEN: // Capture/error binding pattern: T x, error T(..)
             case OPEN_BRACE_TOKEN: // Map binding pattern: T { }
             case ERROR_KEYWORD: // Error binding pattern: error T(..)
