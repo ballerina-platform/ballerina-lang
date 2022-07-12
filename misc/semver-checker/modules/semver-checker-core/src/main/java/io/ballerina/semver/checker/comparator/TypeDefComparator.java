@@ -81,7 +81,7 @@ public class TypeDefComparator extends NodeComparator<TypeDefinitionNode> {
     }
 
     /**
-     * Analyzes and returns the diff for changes on `public` qualifier.¬
+     * Analyzes and returns the diff for changes on `public` qualifier.
      */
     private List<Diff> compareTypeDefQualifiers() {
         List<Diff> qualifierDiffs = new ArrayList<>();
