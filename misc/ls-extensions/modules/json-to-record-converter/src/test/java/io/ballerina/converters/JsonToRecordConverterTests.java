@@ -65,6 +65,8 @@ public class JsonToRecordConverterTests {
             .resolve("null_object.json");
     private final Path nullObjectBal = RES_DIR.resolve("ballerina")
             .resolve("null_object.bal");
+    private final Path nullObjectDirectConversionBal = RES_DIR.resolve("ballerina")
+            .resolve("null_object_direct_conversion.bal");
 
     private final Path sample1Json = RES_DIR.resolve("json")
             .resolve("sample_1.json");
@@ -337,7 +339,7 @@ public class JsonToRecordConverterTests {
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         JsonToRecordResponse response = (JsonToRecordResponse) result.get();
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(nullObjectBal).replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(nullObjectDirectConversionBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 

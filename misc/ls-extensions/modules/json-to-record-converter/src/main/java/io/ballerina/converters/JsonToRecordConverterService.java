@@ -15,9 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.converters;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ballerina.converters.exception.JsonToRecordConverterException;
+import io.ballerina.jsonmapper.JsonToRecordMapper;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
@@ -51,7 +55,17 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                 String recordName = request.getRecordName();
                 boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
                 boolean isClosed = request.getIsClosed();
-                response = JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode inputJson = objectMapper.readTree(jsonString);
+                if (inputJson.has("$schema")) {
+                    response = JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
+                } else {
+                    response = new JsonToRecordResponse();
+                    String codeBloc = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed)
+                            .getCodeBlock();
+                    response.setCodeBlock(codeBloc == null ? "" : codeBloc);
+                }
             } catch (IOException | JsonToRecordConverterException | FormatterException e) {
                 response = new JsonToRecordResponse();
                 response.setCodeBlock("");
