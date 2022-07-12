@@ -24,12 +24,12 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateVariableCodeAction extends AbstractCodeActionProvider {
+public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Create Variable";
 
@@ -64,17 +64,17 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE) {
             return Collections.emptyList();
@@ -98,7 +98,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 String typeLabel = isTuple && type.length() > 10 ? "Tuple" : type;
                 commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
-            actions.add(createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix));
+            actions.add(CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix));
         }
         return actions;
     }
@@ -109,7 +109,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     }
 
     protected CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,
-                                                 TypeSymbol typeDescriptor, CodeActionContext context) {
+                                                           TypeSymbol typeDescriptor, CodeActionContext context) {
         Symbol matchedSymbol = positionDetails.matchedSymbol();
 
         Position position = PositionUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
