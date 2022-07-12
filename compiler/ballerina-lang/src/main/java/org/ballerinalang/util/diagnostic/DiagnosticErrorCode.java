@@ -505,7 +505,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     TABLE_KEY_SPECIFIER_MISMATCH("BCE3301", "table.key.specifier.mismatch"),
     KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("BCE3302", "key.specifier.size.mismatch.with.key.constraint"),
     KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("BCE3303", "key.specifier.mismatch.with.key.constraint"),
-    MEMBER_ACCESS_NOT_SUPPORT_FOR_TABLE("BCE3305", "member.access.not.supported.table"),
+    MEMBER_ACCESS_NOT_SUPPORTED_FOR_TABLE("BCE3305", "member.access.not.supported.for.table"),
     INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("BCE3306", "invalid.field.name.in.key.specifier"),
     MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("BCE3307", "multi.key.member.access.not.supported"),
     KEY_SPECIFIER_FIELD_MUST_BE_READONLY("BCE3308", "key.specifier.field.must.be.readonly"),

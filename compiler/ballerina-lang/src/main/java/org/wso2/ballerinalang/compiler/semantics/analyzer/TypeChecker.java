@@ -8541,7 +8541,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 if (keyTypeConstraint == symTable.semanticError) {
                     dlog.error(indexBasedAccessExpr.pos,
-                               DiagnosticErrorCode.MEMBER_ACCESS_NOT_SUPPORT_FOR_TABLE,
+                               DiagnosticErrorCode.MEMBER_ACCESS_NOT_SUPPORTED_FOR_TABLE,
                                indexBasedAccessExpr.expr);
                     return symTable.semanticError;
                 }
