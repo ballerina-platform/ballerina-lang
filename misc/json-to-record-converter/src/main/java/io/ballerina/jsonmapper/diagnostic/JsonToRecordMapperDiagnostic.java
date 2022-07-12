@@ -39,6 +39,7 @@ public class JsonToRecordMapperDiagnostic extends Diagnostic {
     private final Location location;
     private final List<DiagnosticProperty<?>> properties;
     private final String message;
+    private final String severity;
 
     public JsonToRecordMapperDiagnostic(String code, String message, DiagnosticSeverity severity,
                                         Location location, Object[] args) {
@@ -46,6 +47,7 @@ public class JsonToRecordMapperDiagnostic extends Diagnostic {
         this.location = location;
         this.properties = Collections.emptyList();
         this.message = MessageFormat.format(message, args);
+        this.severity = severity.name();
     }
 
     @Override
@@ -66,6 +68,10 @@ public class JsonToRecordMapperDiagnostic extends Diagnostic {
     @Override
     public List<DiagnosticProperty<?>> properties() {
         return this.properties;
+    }
+
+    public String getSeverity() {
+        return this.severity;
     }
 
     @Override

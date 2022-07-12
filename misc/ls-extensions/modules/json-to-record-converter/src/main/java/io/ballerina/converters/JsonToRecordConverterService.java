@@ -67,7 +67,8 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                     try {
                         response.setCodeBlock(JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc,
                                 isClosed).getCodeBlock());
-                    } catch (IOException | JsonToRecordConverterException | FormatterException e) {
+                    } catch (IOException | JsonToRecordConverterException | FormatterException |
+                             NullPointerException e) {
                         DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(null);
                         return DiagnosticUtils.getDiagnosticResponse(List.of(message), response);
                     }
@@ -75,7 +76,8 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                     response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
                 }
             } catch (JsonSyntaxException e) {
-                response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
+                DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(new String[]{e.getMessage()});
+                return DiagnosticUtils.getDiagnosticResponse(List.of(message), response);
             }
             return response;
         });
