@@ -1681,7 +1681,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
-            dlog.error(pos, DiagnosticErrorCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
+            dlog.warning(pos, DiagnosticWarningCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
