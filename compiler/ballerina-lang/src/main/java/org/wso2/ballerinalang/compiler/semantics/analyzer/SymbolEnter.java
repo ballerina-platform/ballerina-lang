@@ -178,6 +178,7 @@ import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUNCTION;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
@@ -1314,7 +1315,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateUndefinedErrorIntersection(BLangTypeDefinition typeDef, SymbolEnv env) {
-        BErrorType intersectionErrorType = types.createErrorType(null, Flags.PUBLIC, env);
+        long flags = 0;
+        if (typeDef.flagSet.contains(Flag.PUBLIC)) {
+            flags = Flags.PUBLIC;
+        }
+
+        BErrorType intersectionErrorType = types.createErrorType(null, flags, env);
         intersectionErrorType.tsymbol.name = names.fromString(typeDef.name.value);
         defineErrorType(typeDef.pos, intersectionErrorType, env);
 
@@ -3581,6 +3587,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(FLOAT)) {
             symTable.langFloatModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(FUNCTION)) {
+            symTable.langFunctionModuleSymbol = packageSymbol;
             return;
         }
         if (langLib.equals(FUTURE)) {

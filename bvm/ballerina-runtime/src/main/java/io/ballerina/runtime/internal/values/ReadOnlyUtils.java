@@ -38,6 +38,7 @@ import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -146,7 +147,8 @@ public class ReadOnlyUtils {
 
     private static BIntersectionType setImmutableIntersectionType(Type type, Set<Type> unresolvedTypes) {
 
-        Type immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
+        Type immutableType = type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG ? null :
+                ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType != null) {
             return (BIntersectionType) immutableType;
         }
@@ -270,6 +272,11 @@ public class ReadOnlyUtils {
                                                           originalField.getFieldName(), originalField.getFlags()));
                 }
                 return objectIntersectionType;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                BTypeReferenceType bType = (BTypeReferenceType) type;
+                BTypeReferenceType refType = new BTypeReferenceType(bType.getName(), bType.getPkg());
+                refType.setReferredType(getImmutableType(bType.getReferredType(), unresolvedTypes));
+                return createAndSetImmutableIntersectionType(bType, refType);
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
             case TypeTags.JSON_TAG:

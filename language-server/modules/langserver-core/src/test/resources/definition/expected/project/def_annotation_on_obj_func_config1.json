@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "defAnnotationOnObjectFunc1.bal"
+  },
+  "position": {
+    "line": 8,
+    "character": 9
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 25
+        },
+        "end": {
+          "line": 4,
+          "character": 34
+        }
+      },
+      "uri": "defAnnotationOnObjectFunc1.bal"
+    }
+  ]
+}

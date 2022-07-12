@@ -428,7 +428,7 @@ public class BJSONValueTest {
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();
-        Assert.assertEquals(errorMsg, "'json[]' value cannot be converted to 'json[][][]': " +
+        Assert.assertEquals(errorMsg, "'json[]' value cannot be converted to 'Json3DArray': " +
                 "\n\t\tarray element '[0][0]' should be of type 'json[]', found '1'" +
                 "\n\t\tarray element '[0][1]' should be of type 'json[]', found '2'" +
                 "\n\t\tarray element '[0][2]' should be of type 'json[]', found '3'" +
@@ -500,7 +500,7 @@ public class BJSONValueTest {
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.value\\}ConversionError " +
-                    "\\{\"message\":\"cannot convert '\\(\\)' to type 'map<json>'.*")
+                    "\\{\"message\":\"cannot convert '\\(\\)' to type 'JsonMap'.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");
     }

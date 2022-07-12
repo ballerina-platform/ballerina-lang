@@ -431,7 +431,6 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
-        Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
@@ -452,7 +451,6 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
-        Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
@@ -474,7 +472,6 @@ public class TestBuildProject extends BaseTest {
                 "version = \"0.1.0\"\n" +
                 "\n" +
                 "[build-options]\n" +
-                "experimental=true\n" +
                 "observabilityIncluded = true\n" +
                 "skipTests=true\n" +
                 "offline=false\n" +
@@ -485,7 +482,6 @@ public class TestBuildProject extends BaseTest {
         // Test when build option provided only in Ballerina TOML
         Assert.assertTrue(newPackage.project().buildOptions().codeCoverage());
         Assert.assertTrue(newPackage.project().buildOptions().observabilityIncluded());
-        Assert.assertTrue(newPackage.project().buildOptions().experimental());
         Assert.assertTrue(newPackage.project().buildOptions().skipTests());
     }
 
@@ -1309,7 +1305,7 @@ public class TestBuildProject extends BaseTest {
 
         // 3) Compile the package
         PackageCompilation compilation = currentPackage.getCompilation();
-        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 4);
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 5);
 
         // 4) Edit a module that is used by another module
         Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
@@ -1318,12 +1314,17 @@ public class TestBuildProject extends BaseTest {
 
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2);
 
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        Diagnostic firstDiagnostic = diagnosticIterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "cyclic module imports detected " +
+                "'foo/myproject.schema:0.1.0 -> foo/myproject.storage:0.1.0 -> foo/myproject.schema:0.1.0'");
+
+        Diagnostic secondDiagnostic = diagnosticIterator.next();
+        Assert.assertEquals(secondDiagnostic.location().lineRange().filePath(),
                 Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
-        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
-                .contains("unknown type 'PersonalDetails'"));
+        Assert.assertTrue(secondDiagnostic.message().contains("unknown type 'PersonalDetails'"));
     }
 
     /**
@@ -1792,8 +1793,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testProjectDuplicate() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder()
-                .setCodeCoverage(true).setExperimental(true);
+        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder().setCodeCoverage(true);
         Project project = loadProject(projectPath, optionsBuilder.build());
 
         Project duplicate = project.duplicate();
@@ -1811,7 +1811,6 @@ public class TestBuildProject extends BaseTest {
 
         Assert.assertEquals(project.sourceRoot().toString(), duplicate.sourceRoot().toString());
         Assert.assertTrue(duplicate.buildOptions().codeCoverage());
-        Assert.assertTrue(duplicate.buildOptions().experimental());
         Assert.assertFalse(duplicate.buildOptions().testReport());
 
         Assert.assertNotSame(project.currentPackage(), duplicate.currentPackage());
@@ -2041,6 +2040,7 @@ public class TestBuildProject extends BaseTest {
                 {numericPkgDir, content10, warnings10},
         };
     }
+
     @Test(description = "tests build project with uncompleted package information in Ballerina.toml",
             dataProvider = "provideBallerinaTomlContentForUpdates")
     public void testBuildProjectWithUncompletedPackageInformation(String projectDir, String balTomlContent,
@@ -2076,71 +2076,82 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
     }
 
-    @Test (description = "tests jar resolution for Build Project")
-    public void testConflictingJars() {
-        Path dep1Path = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibPkg1").toAbsolutePath();
-        Path dep2Path = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibPkg2").toAbsolutePath();
-        Path customUserHome = Paths.get("build", "userHome");
-        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
-        ProjectEnvironmentBuilder envBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+    @Test(description = "tests the order of module documents")
+    public void testDocumentsOrder() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_documents");
+        String sourceFileName = "types.bal";
+        String testFileName = "tests/types.bal";
+        String newFileContent = "type Integer 1|2";
 
-        CompileResult compileResult = BCompileUtil.compileAndCacheBala(dep1Path.toString(), CENTRAL_CACHE, envBuilder);
-        if (compileResult.getDiagnosticResult().hasErrors()) {
-            Assert.fail("unexpected diagnostics found when caching platformLibPkg1:\n"
-                    + getErrorsAsString(compileResult.getDiagnosticResult()));
-        }
-        compileResult = BCompileUtil.compileAndCacheBala(dep2Path.toString(), CENTRAL_CACHE, envBuilder);
-        if (compileResult.getDiagnosticResult().hasErrors()) {
-            Assert.fail("unexpected diagnostics found when caching platformLibPkg2:\n"
-                    + getErrorsAsString(compileResult.getDiagnosticResult()));
-        }
+        // Initialize the project and load the package
+        BuildProject project = loadBuildProject(projectPath);
+        Package currentPackage = project.currentPackage();
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibPkg3");
-        BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
-        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
-            Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
-        }
-        Collection<JarLibrary> jarLibraries =
-                jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
-        Assert.assertEquals(jarLibraries.size(), 9);
+        // Obtain the service module and check the documents order at project creation
+        Module serviceModule = currentPackage.module(ModuleName.from(currentPackage.packageName(), "services"));
+        List<String> expectedServiceFileNames = Arrays.asList("auth.bal", "subscribe.bal", "update.bal");
+        List<String> actualServiceFileNames = getDocumentFileNames(serviceModule, serviceModule.documentIds());
 
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java11/platform/java11/native1.txt"),
-                PlatformLibraryScope.DEFAULT, "native1", "org.ballerina", "1.0.1", "ballerina/platformLibPkg2")));
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg1/0.1.0/java11/platform/java11/lib1.txt"),
-                PlatformLibraryScope.DEFAULT, "lib1", "org.apache", "2.0.0", "ballerina/platformLibPkg1")));
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg1/0.1.0/java11/platform/java11/lib2.txt"),
-                PlatformLibraryScope.DEFAULT))
-                || jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java11/platform/java11/lib2.txt"),
-                PlatformLibraryScope.DEFAULT)));
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java11/platform/java11/lib3.txt"),
-                PlatformLibraryScope.DEFAULT,
-                "lib3", "org.apache", "2.0.1", "ballerina/platformLibPkg2")));
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java11/platform/java11/lib4.txt"),
-                PlatformLibraryScope.DEFAULT)));
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                Paths.get("src/test/resources/conflicting_jars_test/platformLibPkg3/" +
-                        "target/cache/user/platformLibPkg3/0.1.0/java11/user-platformLibPkg3-0.1.0.jar"),
-                PlatformLibraryScope.DEFAULT)));
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve(System.getProperty("project.version") +
-                        "/ballerina/platformLibPkg1/0.1.0/java11/ballerina-platformLibPkg1-0.1.0.jar"),
-                PlatformLibraryScope.DEFAULT)));
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve(System.getProperty("project.version") +
-                        "/ballerina/platformLibPkg2/0.1.0/java11/ballerina-platformLibPkg2-0.1.0.jar"),
-                PlatformLibraryScope.DEFAULT)));
-        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve(System.getProperty("ballerina.home") +
-                        "bre/lib/ballerina-rt-" + System.getProperty("project.version") + ".jar"),
-                PlatformLibraryScope.DEFAULT)));
+        assertEquals(actualServiceFileNames.size(), 3);
+        assertEquals(actualServiceFileNames, expectedServiceFileNames);
+
+        // Obtain the modifier of the default module
+        Module oldDefaultModule = currentPackage.getDefaultModule();
+        Module.Modifier oldDefaultModuleModifier = oldDefaultModule.modify();
+
+        // Add types.bal and test_types.bal to the module
+        oldDefaultModuleModifier.addDocument(DocumentConfig.from(DocumentId.create(
+                sourceFileName, oldDefaultModule.moduleId()), newFileContent, sourceFileName));
+
+        oldDefaultModuleModifier.addTestDocument(DocumentConfig.from(DocumentId.create(
+                testFileName, oldDefaultModule.moduleId()), newFileContent, testFileName));
+
+        Module newDefaultModule = oldDefaultModuleModifier.apply();
+
+        // Check the documents order after adding documents to a module
+        // Check the order of source documents
+        List<String> expectedSourceFileNames = Arrays.asList("main.bal", sourceFileName, "utils.bal");
+        List<String> actualSourceFileNames = getDocumentFileNames(newDefaultModule, newDefaultModule.documentIds());
+
+        assertEquals(actualSourceFileNames.size(), 3);
+        assertEquals(actualSourceFileNames, expectedSourceFileNames);
+
+        // Check the order of test documents
+        List<String> expectedTestFileNames = Arrays.asList(
+                "tests/main_test.bal",
+                testFileName,
+                "tests/utils_test.bal");
+        List<String> actualTestFileNames = getDocumentFileNames(newDefaultModule, newDefaultModule.testDocumentIds());
+
+        assertEquals(actualTestFileNames.size(), 3);
+        assertEquals(actualTestFileNames, expectedTestFileNames);
+
+        // Check the order of diagnostics
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        List<String> actualDiagnosticPaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
+                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+
+        List<String> expectedDiagnosticPaths = Arrays.asList(
+                "main.bal", Paths.get("tests").resolve("main_test.bal").toString(),
+                Paths.get("tests").resolve("utils_test.bal").toString(), "utils.bal",
+                Paths.get("modules").resolve("services").resolve("auth.bal").toString(),
+                Paths.get("modules").resolve("services").resolve("subscribe.bal").toString(),
+                Paths.get("modules").resolve("services").resolve("update.bal").toString(),
+                Paths.get("modules").resolve("storage").resolve("db.bal").toString(),
+                Paths.get("modules").resolve("storage").resolve("tests").resolve("db_test.bal").toString(),
+                Paths.get("modules").resolve("utils").resolve("utils.bal").toString());
+
+        assertEquals(actualDiagnosticPaths.size(), 10);
+        assertEquals(actualDiagnosticPaths, expectedDiagnosticPaths);
+    }
+
+    private List<String> getDocumentFileNames(Module module, Collection<DocumentId> documentIds) {
+        List<String> actualFileNames = new ArrayList<>();
+        for (DocumentId documentId : documentIds) {
+            actualFileNames.add(module.document(documentId).name());
+        }
+        return actualFileNames;
     }
 
     @AfterClass (alwaysRun = true)

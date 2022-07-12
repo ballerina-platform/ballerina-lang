@@ -104,7 +104,7 @@ task runLSSimulator(type: JavaExec) {
 
     jvmArgs = ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=$rootDir/dump.hprof"]
 
-    maxHeapSize "1024m"
+    maxHeapSize "1536m"
     group = "Execution"
     description = "Run the main class with JavaExecTask"
     classpath = sourceSets.main.runtimeClasspath

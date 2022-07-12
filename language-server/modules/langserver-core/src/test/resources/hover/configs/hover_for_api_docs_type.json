@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 28,
+    "character": 16
+  },
+  "source": {
+    "file": "hover_for_api_docs.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "[View API Docs](https://lib.ballerina.io/ballerina\\/module1\\/0.1.0\\/types#TestMap2)"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

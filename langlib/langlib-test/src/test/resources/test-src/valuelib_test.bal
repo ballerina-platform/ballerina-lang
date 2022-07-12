@@ -653,7 +653,7 @@ function testCloneWithTypeAmbiguousTargetType() {
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
     assert(bbe.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': \n\t\t" +
+    assert(messageString, "'Foo' value cannot be converted to 'BarOrBaz': \n\t\t" +
     "value '{\"s\":\"test string\"}' cannot be converted to '(Bar|Baz)': ambiguous target type");
 }
 
@@ -1909,7 +1909,7 @@ function testCloneWithTypeNestedStructuredTypesNegative() {
         "\n\t\tmap field '[1][1].second' should be of type 'Journey', found '2'" +
         "\n\t\tarray element '[2][2]' should be of type '()', found '0'" +
         "\n\t\ttuple element '[3]' should be of type 'int', found '\"1234567890123456789...'";
-    string errorMsg = "'json[]' value cannot be converted to '[map<float>,[Journey,map<Journey>],()[],int...]': " +
+    string errorMsg = "'json[]' value cannot be converted to 'tupleType': " +
         errorMsgContent2;
     assert(<string> checkpanic err.detail()["message"], errorMsg);
     assert(err.message(),"{ballerina/lang.value}ConversionError");

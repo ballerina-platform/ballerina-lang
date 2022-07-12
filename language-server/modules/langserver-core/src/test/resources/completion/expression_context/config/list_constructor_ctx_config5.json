@@ -642,6 +642,14 @@
       "sortText": "ARR",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "ARR",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

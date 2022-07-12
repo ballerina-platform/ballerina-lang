@@ -1,0 +1,381 @@
+[
+  {
+    "description": "Remove the public qualifier from a function definition",
+    "oldCode": "public function add(){}",
+    "newCode": "function add(){}",
+    "expectedOutput":  {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "major",
+                "message": "'public' qualifier is removed"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Add public qualifier to a function definition",
+    "oldCode": "function foo(){}",
+    "newCode": "public function foo(){}",
+    "expectedOutput":  {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "minor",
+                "message": "'public' qualifier is added"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Modify qualifier type public to transactional in function definition.",
+    "oldCode": "public function doUpdate(){}",
+    "newCode": "transactional function doUpdate(){}",
+    "expectedOutput":  {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "major",
+                "message": "'public' qualifier is removed"
+              },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'transactional' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Remove the transactional qualifier from a function definition",
+    "oldCode": "transactional function add(){}",
+    "newCode": "function add(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "ambiguous",
+                "message": "'transactional' qualifier is removed"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Add transactional qualifier to a function definition",
+    "oldCode": "function foo(){}",
+    "newCode": "transactional function foo(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "ambiguous",
+                "message": "'transactional' qualifier is added"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Add isolated qualifier to a function definition",
+    "oldCode": "function foo(){}",
+    "newCode": "isolated function foo(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "ambiguous",
+                "message": "'isolated' qualifier is added"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Remove isolated qualifier in a function.",
+    "oldCode": "isolated function add(){}",
+    "newCode": "function add(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "ambiguous",
+                "message": "'isolated' qualifier is removed"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Add another qualifier for a public function.",
+    "oldCode": "public function add(){}",
+    "newCode": "public isolated function add(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "ambiguous",
+                "message": "'isolated' qualifier is added"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Remove isolated qualifier from a public isolated function",
+    "oldCode": "public isolated  function add(){}",
+    "newCode": "public function add(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "ambiguous",
+                "message": "'isolated' qualifier is removed"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Remove qualifiers from a public isolated function",
+    "oldCode": "public isolated  function add(){}",
+    "newCode": "function add(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "major",
+                "message": "'public' qualifier is removed"
+              },
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "ambiguous",
+                  "message": "'isolated' qualifier is removed"
+                }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Modify a qualifier from a public isolated function",
+    "oldCode": "public isolated  function add(){}",
+    "newCode": "public transactional function add(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "ambiguous",
+                "message": "'isolated' qualifier is removed"
+              },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'transactional' qualifier is added"
+                }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "add more than 1 qualifier to a function",
+    "oldCode": "function add(){}",
+    "newCode": "public isolated transactional function add(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "minor",
+                "message": "'public' qualifier is added"
+              },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'isolated' qualifier is added"
+                },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'transactional' qualifier is added"
+                }]
+            }
+          ]
+        }]
+    }
+  }
+]

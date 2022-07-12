@@ -1,0 +1,286 @@
+[
+  {
+    "source": "type Employee record { string name; int id; }; type Person record { string name; };",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Employee","Person"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "final Employee moduleEmployee = {name: \"John\", id: 2102};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["moduleEmployee"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function getModuleEmployee() returns Employee { return moduleEmployee; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["getModuleEmployee"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int i1 = 1;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["i1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int i2 = 1;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["i2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "i1 == i2",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int i3 = 2;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["i3"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "i1 != i3;",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "[string|int, float, boolean] t1 = [1, 1.0, false]; [int, float|string, boolean] t2 = [1, 1.0, false];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["t1", "t2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "t1 == t2",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "[int, float|string, boolean] t3 = [11, 1.0, true];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["t3"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "t1 != t3",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee e1 = {name: \"Jane\", id: 1100};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["e1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee e2 = {name: \"Jane\", id: 1100};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["e2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "e1 != e2",
+    "result": {
+      "shellValue": {
+        "value":"false",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee e3 = {name: \"Anne\", id: 1100};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["e3"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "e1 == e3",
+    "result": {
+      "shellValue": {
+        "value":"false",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee e4 = getModuleEmployee();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["e4"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Person e5 = getModuleEmployee();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["e5"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "e4 === e5",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "e4 = {name: \"John\", id: 2102};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "e4 !== e5",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "float f1 = 1.1; float f2 = 1.1;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["f1", "f2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "f1 === f2",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "f2 = 12.1;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "f1 !== f2;",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

@@ -1,0 +1,25 @@
+[
+  {
+    "source": "xmlns \"http://ballerina.com/aa\" as ns0; xmlns \"http://ballerina.com/bb\" as ns1;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["ns1","ns0"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "ns0:foo;",
+    "result": {
+      "shellValue": {
+        "value":"\"{http://ballerina.com/aa}foo\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

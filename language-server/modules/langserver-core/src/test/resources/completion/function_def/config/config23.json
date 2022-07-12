@@ -555,7 +555,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _malintha/projectls:0.1.0_  \n  \n  \n**Params**  \n- `string` a  \n- `int` b(Defaultable)  \n  \n**Return** `string`   \n  \n"
+          "value": "**Package:** _chiran/projectls:0.1.0_  \n  \n  \n**Params**  \n- `string` a  \n- `int` b(Defaultable)  \n  \n**Return** `string`   \n  \n"
         }
       },
       "sortText": "G",
@@ -585,7 +585,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _malintha/projectls:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+          "value": "**Package:** _chiran/projectls:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
       "sortText": "AC",
@@ -761,6 +761,14 @@
           "newText": "import test/local_project1;\n"
         }
       ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
