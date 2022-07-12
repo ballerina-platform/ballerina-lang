@@ -260,7 +260,9 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     @Override
     public void visit(BLangPanic panicNode, AnalyzerData data) {
-        data.statementReturnsPanicsOrFails = true;
+        if (!data.unreachableBlock) {
+            data.statementReturnsPanicsOrFails = true;
+        }
     }
 
     @Override

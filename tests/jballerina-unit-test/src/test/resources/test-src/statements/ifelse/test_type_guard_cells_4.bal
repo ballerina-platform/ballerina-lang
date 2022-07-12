@@ -78,6 +78,6 @@ function f3(VarRefExpr|WILDCARD|OtherExpr lValue) {
     } else if lValue is WILDCARD {
 
     } else {
-        OtherExpr _ = lValue; // error incompatible types: expected 'OtherExpr', found '(VarRefExpr|OtherExpr)'
+        OtherExpr _ = lValue; // OK
     }
 }
