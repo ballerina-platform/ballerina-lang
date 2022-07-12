@@ -107,4 +107,14 @@ public class VarDeclarationTest extends AbstractStatementTest {
     public void testLocalVarDeclWithQualifiersOnly() {
         testFile("var-decl-stmt/local_var_decl_source_16.bal", "var-decl-stmt/local_var_decl_assert_16.json");
     }
+
+    @Test
+    public void testLocalVarReferenceWithoutSemicolon() {
+        testFile("var-decl-stmt/local_var_decl_source_17.bal", "var-decl-stmt/local_var_decl_assert_17.json");
+    }
+
+    @Test
+    public void testLocalVarReferenceWithSemicolon() {
+        testFile("var-decl-stmt/local_var_decl_source_18.bal", "var-decl-stmt/local_var_decl_assert_18.json");
+    }
 }
