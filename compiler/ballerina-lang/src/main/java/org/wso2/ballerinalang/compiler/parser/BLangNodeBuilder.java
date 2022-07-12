@@ -746,8 +746,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     if (!param.name.value.equals(Names.EMPTY.value)) {
                         params.add(param);
                         bLFunction.addPathParam(param);
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
+                    } else {
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$*"));
                     }
-                    bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
+
                     tupleTypeNode.memberTypeNodes.add(param.typeNode);
                     break;
                 case RESOURCE_PATH_REST_PARAM:
@@ -755,8 +758,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     if (!restParam.name.value.equals(Names.EMPTY.value)) {
                         params.add(restParam);
                         bLFunction.setRestPathParam(restParam);
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
+                    } else {
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$**"));
                     }
-                    bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
+                    
                     tupleTypeNode.restParamType = ((BLangArrayType) restParam.typeNode).elemtype;
                     break;
                 case DOT_TOKEN:
@@ -4207,6 +4213,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
         BLangInvocation.BLangResourceAccessInvocation resourceInvocation = TreeBuilder.createResourceAccessInvocation();
+        resourceInvocation.pos = getPosition(clientResourceAccessActionNode);
         resourceInvocation.expr = createExpression(clientResourceAccessActionNode.expression());
 
         SeparatedNodeList<Node> resourceAccessPath = clientResourceAccessActionNode.resourceAccessPath();
@@ -4225,8 +4232,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     pathSegments.add(spreadMemberExpr);
                     break;
                 default:
-                    Token resourceSegmentName = (Token) resourceAccessSegment;
-                    pathSegments.add(createStringLiteral(resourceSegmentName.text(), getPosition(resourceSegmentName)));
+                    pathSegments.add(createSimpleLiteral(resourceAccessSegment));
             }
         }
 
@@ -4245,7 +4251,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         if (clientResourceAccessActionNode.methodName().isPresent()) {
             resourceInvocation.name = createIdentifier(clientResourceAccessActionNode.methodName().get().name());
         } else {
-            resourceInvocation.name = createIdentifier(null, "get");
+            resourceInvocation.name = createIdentifier(resourceInvocation.pos, "get");
         }
 
         if (clientResourceAccessActionNode.arguments().isPresent()) {
@@ -4260,7 +4266,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             resourceInvocation.pkgAlias = this.createIdentifier(symTable.builtinPos, "");
         }
         
-        resourceInvocation.pos = getPosition(clientResourceAccessActionNode);
         return resourceInvocation;
     }
 

@@ -7,7 +7,7 @@ type SType service object {
     remote function foo(int i) returns int;
 };
 
-class Person {
+public class Person {
     final string name;
     final int age;
 

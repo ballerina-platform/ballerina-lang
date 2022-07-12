@@ -182,7 +182,7 @@ public class ClientResourceAccessActionNegativeTest {
                         "returns (string); resource function get y(int?) returns (string?); resource " +
                         "function get 5(string) returns (string); resource function get 6(string?) " +
                         "returns (string?); }'",
-                112, 13);
+                112, 34);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -842,6 +842,9 @@ public class ClientResourceAccessActionNegativeTest {
         BAssertUtil.validateError(clientTransactionalResourceNegative, index++,
                 "invoking transactional function outside transactional scope is prohibited",
                 23, 13);
+        BAssertUtil.validateError(clientTransactionalResourceNegative, index++,
+                "invoking transactional function outside transactional scope is prohibited",
+                26, 13);
         Assert.assertEquals(clientTransactionalResourceNegative.getErrorCount(), index);
     }
 }
