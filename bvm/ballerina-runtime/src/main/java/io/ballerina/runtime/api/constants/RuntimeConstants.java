@@ -125,6 +125,8 @@ public class RuntimeConstants {
 
     // Name of the system property to hold the debug port
     public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
+    // Name of the system property to hold whether the debugger is in suspended mode or not
+    public static final String SYSTEM_PROP_DEBUG_SUSPEND_MODE = "debugSuspendMode";
 
     // Transaction constants
     public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";

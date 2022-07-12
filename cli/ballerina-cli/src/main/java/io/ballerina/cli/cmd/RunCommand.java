@@ -43,6 +43,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_DEBUG_SUSPEND_MODE;
 
 /**
  * This class represents the "run" command and it holds arguments and flags specified by the user.
@@ -73,6 +74,8 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
+    @CommandLine.Option(names = "--debugSuspend", hidden = true)
+    private String debugSuspend;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
@@ -98,7 +101,7 @@ public class RunCommand implements BLauncherCmd {
     private Path targetDir;
 
     private static final String runCmd =
-            "bal run [--debug <port>] <executable-jar> \n" +
+            "bal run [--debug <port>] [--debugSuspend <flag>] <executable-jar> \n" +
             "    bal run [--offline]\n" +
             "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
@@ -136,6 +139,10 @@ public class RunCommand implements BLauncherCmd {
         // executable jar in a separate JVM process.
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
+
+            if (this.debugSuspend != null) {
+                System.setProperty(SYSTEM_PROP_DEBUG_SUSPEND_MODE, this.debugSuspend);
+            }
         }
 
         String[] args = new String[0];

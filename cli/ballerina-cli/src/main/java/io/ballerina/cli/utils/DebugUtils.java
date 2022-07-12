@@ -1,8 +1,10 @@
 package io.ballerina.cli.utils;
 
 import java.io.PrintStream;
+import java.util.Objects;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_DEBUG_SUSPEND_MODE;
 
 /**
  * Utilities related to ballerina program debugging.
@@ -11,7 +13,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  */
 public class DebugUtils {
 
-    private static final String DEBUG_ARGS_JAVA11 = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y";
+    private static final String DEBUG_SUSPEND_ARGS_JAVA11 = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y";
+    private static final String DEBUG_UNSUSPEND_ARGS_JAVA11 = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n";
     private static final String JAVA_VERSION_PROP = "java.version";
     private static final String COMPATIBLE_JRE_VERSION = "11";
 
@@ -38,6 +41,14 @@ public class DebugUtils {
             errorStream.printf("WARNING: Incompatible JRE version '%s' found. Ballerina program debugging supports " +
                     "on JRE version '%s'%n", javaVersion, COMPATIBLE_JRE_VERSION);
         }
-        return String.format("%s,address=*:%s", DEBUG_ARGS_JAVA11, System.getProperty(SYSTEM_PROP_BAL_DEBUG));
+
+        if (System.getProperty(SYSTEM_PROP_DEBUG_SUSPEND_MODE) != null &&
+                Objects.equals(System.getProperty(SYSTEM_PROP_DEBUG_SUSPEND_MODE), "false")) {
+            return String.format("%s,address=*:%s", DEBUG_UNSUSPEND_ARGS_JAVA11,
+                    System.getProperty(SYSTEM_PROP_BAL_DEBUG));
+        } else {
+            return String.format("%s,address=*:%s", DEBUG_SUSPEND_ARGS_JAVA11,
+                    System.getProperty(SYSTEM_PROP_BAL_DEBUG));
+        }
     }
 }
