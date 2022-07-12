@@ -3564,15 +3564,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Find the lhs expression type
         checkExpr(resourceAccessInvocation.expr, data);
         BType lhsExprType = resourceAccessInvocation.expr.getBType();
+        BType referredLhsExprType = Types.getReferredType(lhsExprType);
         
-        if (lhsExprType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(lhsExprType.tsymbol.flags, Flags.CLIENT)) {
+        if (referredLhsExprType.tag != TypeTags.OBJECT || 
+                !Symbols.isFlagOn(referredLhsExprType.tsymbol.flags, Flags.CLIENT)) {
             dlog.error(resourceAccessInvocation.expr.pos, 
                     DiagnosticErrorCode.CLIENT_RESOURCE_ACCESS_ACTION_IS_ONLY_ALLOWED_ON_CLIENT_OBJECTS);
             data.resultType = symTable.semanticError;
             return;
         }
         
-        BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) lhsExprType.tsymbol;
+        BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) referredLhsExprType.tsymbol;
 
         validateResourceAccessPathSegmentTypes(resourceAccessInvocation.resourceAccessPathSegments, data);
                 
@@ -3602,7 +3604,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessInvocation.name.value));
         int targetResourceFuncCount = resourceFunctions.size();
         if (targetResourceFuncCount == 0) {
-            dlog.error(resourceAccessInvocation.pos, 
+            dlog.error(resourceAccessInvocation.name.pos, 
                     DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessInvocation.name, lhsExprType);
             data.resultType = symTable.semanticError;
         } else if (targetResourceFuncCount > 1) {
@@ -3610,8 +3612,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.resultType = symTable.semanticError;
         } else {
             BResourceFunction targetResourceFunc = resourceFunctions.get(0);
-            resourceAccessInvocation.symbol = targetResourceFunc.symbol;
             checkExpr(resourceAccessInvocation.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
+            resourceAccessInvocation.symbol = targetResourceFunc.symbol;
+            resourceAccessInvocation.targetResourceFunc = targetResourceFunc;
             checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
     }
