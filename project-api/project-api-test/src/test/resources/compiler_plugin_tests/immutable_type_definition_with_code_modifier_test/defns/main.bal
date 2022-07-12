@@ -29,3 +29,14 @@ public type RecordTwo record {
 };
 
 public type TupleTwo RecordTwo|map<RecordTwo>;
+
+public type Foo record {
+    readonly Bar a;
+    record {
+        Bar d;
+    } b;
+};
+
+public type Bar record {
+    int[] c;
+};

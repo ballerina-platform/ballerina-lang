@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -116,9 +117,22 @@ public class LSPackageLoader {
      * @return {@link List} packages
      */
     public List<PackageInfo> getAllVisiblePackages(DocumentServiceContext ctx) {
-        List<PackageInfo> packagesList = new ArrayList<>();
-        packagesList.addAll(this.getDistributionRepoPackages());
+        Map<String, PackageInfo> packagesList = new HashMap<>();
+        this.getDistributionRepoPackages().forEach(packageInfo ->
+                packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+        List<PackageInfo> repoPackages = this.getPackagesFromBallerinaUserHome(ctx);
+        repoPackages.stream().filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
+                .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+        return new ArrayList<>(packagesList.values());
+    }
 
+    /**
+     * Returns the list of packages that reside in the BallerinaUserHome (.ballerina) directory.
+     * @param ctx Document service context.
+     * @return {@link List<PackageInfo>} List of package info.
+     */
+    public List<PackageInfo> getPackagesFromBallerinaUserHome(DocumentServiceContext ctx) {
+        List<PackageInfo> packagesList = new ArrayList<>();
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -171,11 +185,14 @@ public class LSPackageLoader {
         private PackageVersion packageVersion;
         private Path sourceRoot;
 
+        private String packageIdentifier;
+
         public PackageInfo(Package pkg) {
             this.packageOrg = pkg.packageOrg();
             this.packageName = pkg.packageName();
             this.packageVersion = pkg.packageVersion();
             this.sourceRoot = pkg.project().sourceRoot();
+            this.packageIdentifier = packageOrg.toString() + "/" + packageName.toString();
         }
 
         public PackageName packageName() {
@@ -192,6 +209,10 @@ public class LSPackageLoader {
 
         public Path sourceRoot() {
             return sourceRoot;
+        }
+
+        public String packageIdentifier() {
+            return packageIdentifier;
         }
     }
 }

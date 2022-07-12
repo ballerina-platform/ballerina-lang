@@ -180,7 +180,7 @@ public class BMainInstance implements BMain {
                 envProperties, clientArgs, leechers, sourceRoot);
     }
 
-    private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    public synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);

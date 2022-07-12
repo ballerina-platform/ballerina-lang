@@ -94,25 +94,13 @@
       "endColumn": 16
     },
     "leadingMinutiae": [],
-    "trailingMinutiae": [
-      {
-        "kind": "END_OF_LINE_MINUTIAE",
-        "minutiae": "\r\n",
-        "isInvalid": false
-      }
-    ]
+    "trailingMinutiae": []
   },
-  "source": "string fullName;\r\n",
+  "source": "string fullName;",
   "kind": "LocalVarDecl",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
-  "trailingMinutiae": [
-    {
-      "kind": "END_OF_LINE_MINUTIAE",
-      "minutiae": "\r\n",
-      "isInvalid": false
-    }
-  ],
+  "trailingMinutiae": [],
   "position": {
     "startLine": 0,
     "startColumn": 0,

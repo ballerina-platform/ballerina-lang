@@ -22,9 +22,10 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -55,7 +56,7 @@ public class CreateTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         Optional<Name> name = positionDetails.diagnosticProperty(DIAG_PROP_UNKNOWN_TYPE_NAME_INDEX);
-        Range diagRange = ReferencesUtil.getRange(diagnostic.location());
+        Range diagRange = PathUtil.getRange(diagnostic.location());
         Optional<NonTerminalNode> node = context.currentSyntaxTree()
                 .map(syntaxTree -> CommonUtil.findNode(diagRange, syntaxTree));
         if (node.isEmpty() || name.isEmpty()) {
@@ -71,8 +72,8 @@ public class CreateTypeCodeAction extends AbstractCodeActionProvider {
             tlNode = tlNode.parent();
         }
         
-        Range range = new Range(CommonUtil.toPosition(tlNode.lineRange().startLine()), 
-                CommonUtil.toPosition(tlNode.lineRange().startLine()));
+        Range range = new Range(PositionUtil.toPosition(tlNode.lineRange().startLine()), 
+                PositionUtil.toPosition(tlNode.lineRange().startLine()));
         String paddingStr = StringUtils.repeat(" ", 4);
         
         // Here, we create a closed record if the unknown type is in the return type descriptor.

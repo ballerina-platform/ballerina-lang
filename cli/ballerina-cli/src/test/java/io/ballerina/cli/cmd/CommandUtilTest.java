@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.PackageJson;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -36,7 +37,9 @@ import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.cli.cmd.CommandUtil.writeBallerinaToml;
+import static io.ballerina.cli.cmd.CommandUtil.writeDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 
 /**
  * Unit tests for @code{CommandUtil} class used in commands.
@@ -67,8 +70,39 @@ public class CommandUtilTest {
                 readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve("expected-ballerina.toml")));
     }
 
+    @Test(description = "Test write new project Dependencies.toml from template dependency-graph.json")
+    public void testWriteDependenciesToml() throws IOException {
+        // Read sample package.json
+        PackageJson templatePackageJson;
+        try (InputStream inputStream = new FileInputStream(
+                String.valueOf(COMMAND_UTIL_RESOURCE_DIR.resolve("test-write-deps-package.json")))) {
+            Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+            templatePackageJson = new Gson().fromJson(fileReader, PackageJson.class);
+        }
+
+        // Read sample dependency-graph.json
+        DependencyGraphJson templateDependencyGraphJson;
+        try (InputStream inputStream = new FileInputStream(
+                String.valueOf(COMMAND_UTIL_RESOURCE_DIR.resolve("test-write-deps-dependency-graph.json")))) {
+            Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+            templateDependencyGraphJson = new Gson().fromJson(fileReader, DependencyGraphJson.class);
+        }
+
+        // Create empty Dependencies.toml
+        Path projectPath = COMMAND_UTIL_RESOURCE_DIR.resolve("hello_template_project");
+        Files.createFile(projectPath.resolve(DEPENDENCIES_TOML));
+
+        // Test writeBallerinaToml method
+        writeDependenciesToml(projectPath, templateDependencyGraphJson, templatePackageJson);
+        String expected = readFileAsString(
+                projectPath.resolve("test-write-deps-expected-dependencies.toml"));
+        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)),
+                expected);
+    }
+
     @AfterMethod
     public void tearDown() throws IOException {
         Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve(BALLERINA_TOML));
+        Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve(DEPENDENCIES_TOML));
     }
 }

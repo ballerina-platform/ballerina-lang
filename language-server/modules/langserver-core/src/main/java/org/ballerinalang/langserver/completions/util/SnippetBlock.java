@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.util;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.completions.builder.CompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
@@ -76,8 +77,8 @@ public class SnippetBlock extends CompletionItemBuilder {
         if (imports != null) {
             List<TextEdit> importTextEdits = new ArrayList<>();
             for (Pair<String, String> pair : imports) {
-                Optional<ImportDeclarationNode> matchedImport = CommonUtil.matchingImportedModule(ctx, pair.getLeft(),
-                        pair.getRight());
+                Optional<ImportDeclarationNode> matchedImport = ModuleUtil.matchingImportedModule(ctx, 
+                        pair.getLeft(), pair.getRight());
                 if (matchedImport.isEmpty()) {
                     importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(pair.getLeft(), pair.getRight(), ctx));
                 } else if (matchedImport.get().prefix().isPresent()) {

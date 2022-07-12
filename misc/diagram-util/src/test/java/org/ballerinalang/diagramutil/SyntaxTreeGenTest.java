@@ -607,7 +607,7 @@ public class SyntaxTreeGenTest {
                 "fourthFunc");
         JsonObject fourthFunctionBody = fourthFunction.get("functionBody").getAsJsonObject();
         JsonArray fourthFunctionVEp = fourthFunctionBody.get("VisibleEndpoints").getAsJsonArray();
-        Assert.assertTrue(fourthFunctionVEp.size() == 2);
+        Assert.assertTrue(fourthFunctionVEp.size() == 3);
 
         // Verify fourthFunc function visible endpoints
         Assert.assertEquals(fourthFunctionVEp.get(0).getAsJsonObject().get("name").getAsString(), "exEp0");
@@ -625,5 +625,18 @@ public class SyntaxTreeGenTest {
         JsonObject exEpP2Position = exEpP2.get("position").getAsJsonObject();
         Assert.assertEquals(exEpP2Position.get("startLine").getAsInt(), 61);
         Assert.assertEquals(exEpP2Position.get("endLine").getAsInt(), 61);
+
+        JsonObject exEp10 = fourthFunctionVEp.get(2).getAsJsonObject();
+        Assert.assertEquals(exEp10.get("name").getAsString(), "exEp10");
+        Assert.assertEquals(exEp10.get("typeName").getAsString(), "ExternalClient");
+        Assert.assertEquals(exEp10.get("orgName").getAsString(), "gayanOrg");
+        Assert.assertEquals(exEp10.get("packageName").getAsString(), "testEps");
+        Assert.assertEquals(exEp10.get("moduleName").getAsString(), "testEps");
+        Assert.assertEquals(exEp10.get("version").getAsString(), "0.1.0");
+        Assert.assertEquals(exEp10.get("isModuleVar").getAsBoolean(), false);
+        Assert.assertEquals(exEp10.get("isExternal").getAsBoolean(), false);
+        JsonObject exEp10Position = exEp10.get("position").getAsJsonObject();
+        Assert.assertEquals(exEp10Position.get("startLine").getAsInt(), 65);
+        Assert.assertEquals(exEp10Position.get("endLine").getAsInt(), 65);
     }
 }

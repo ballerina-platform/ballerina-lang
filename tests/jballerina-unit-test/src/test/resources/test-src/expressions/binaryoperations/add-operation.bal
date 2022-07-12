@@ -460,6 +460,75 @@ function testXmlSubtypesAddition() {
     assertEquality(p, result7);
 }
 
+int intVal = 10;
+
+function testNoShortCircuitingInAdditionWithNullable() {
+    int? result = foo() + bar();
+    assertEquality(result, ());
+    assertEquality(intVal, 18);
+
+    result = foo() + 12;
+    assertEquality(result, ());
+    assertEquality(intVal, 20);
+
+    result = 12 + bar();
+    assertEquality(result, ());
+    assertEquality(intVal, 26);
+
+    int? x = 12;
+    result = foo() + x;
+    assertEquality(result, ());
+    assertEquality(intVal, 28);
+
+    result = x + bar();
+    assertEquality(result, ());
+    assertEquality(intVal, 34);
+
+    result = x + bam();
+    assertEquality(result, 17);
+    assertEquality(intVal, 44);
+
+    result = bam() + x;
+    assertEquality(result, 17);
+    assertEquality(intVal, 54);
+
+    result = foo() + bam();
+    assertEquality(result, ());
+    assertEquality(intVal, 66);
+
+    result = bam() + bar();
+    assertEquality(result, ());
+    assertEquality(intVal, 82);
+}
+
+function testNoShortCircuitingInAdditionWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x + bam();
+    assertEquality(result, 15);
+    assertEquality(intVal, 20);
+
+    result = bam() + 12;
+    assertEquality(result, 17);
+    assertEquality(intVal, 30);
+}
+
+function foo() returns int? {
+    intVal += 2;
+    return ();
+}
+
+function bar() returns int? {
+    intVal += 6;
+    return ();
+}
+
+function bam() returns int {
+    intVal += 10;
+    return 5;
+}
+
 function assertEquality(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

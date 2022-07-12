@@ -19,6 +19,7 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -49,6 +50,9 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML_ATTRIBUTES;
  * @since 2.0.0
  */
 public class TypeUtils {
+
+    private TypeUtils() {
+    }
 
     public static boolean isValueType(Type type) {
         if (type == TYPE_INT || type == TYPE_BYTE ||
@@ -134,4 +138,19 @@ public class TypeUtils {
     public static boolean isSameType(Type sourceType, Type targetType) {
         return TypeChecker.isSameType(sourceType, targetType);
     }
+
+    /**
+     * Retrieve the referred type if a given type is a type reference type.
+     *
+     * @param type type to retrieve referred
+     * @return the referred type if provided with a type reference type, else returns the original type
+     */
+    public static Type getReferredType(Type type) {
+        Type constraint = type;
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            constraint = getReferredType(((ReferenceType) type).getReferredType());
+        }
+        return constraint;
+    }
+
 }

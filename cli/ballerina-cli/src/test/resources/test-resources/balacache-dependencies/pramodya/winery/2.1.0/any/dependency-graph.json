@@ -1,0 +1,21 @@
+{
+  "packages": [
+    {
+      "org": "pramodya",
+      "name": "winery",
+      "version": "2.1.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "pramodya",
+      "package_name": "winery",
+      "version": "2.1.0",
+      "module_name": "winery",
+      "dependencies": []
+    }
+  ]
+}

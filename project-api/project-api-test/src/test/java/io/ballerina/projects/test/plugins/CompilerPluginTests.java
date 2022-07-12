@@ -159,10 +159,10 @@ public class CompilerPluginTests {
         Package currentPackage = loadPackage("package_test_inbuilt_plugin");
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 3,
                 "Unexpected number of compilation diagnostics");
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
-        Assert.assertEquals(diagnosticResult.warningCount(), 1);
+        Assert.assertEquals(diagnosticResult.warningCount(), 2);
 
         Path logFilePath = Paths.get("build/logs/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));

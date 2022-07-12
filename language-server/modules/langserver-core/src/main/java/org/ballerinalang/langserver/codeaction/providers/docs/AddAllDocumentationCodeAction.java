@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
                 CodeActionNodeType.RESOURCE,
                 CodeActionNodeType.RECORD,
                 CodeActionNodeType.OBJECT_FUNCTION,
+                CodeActionNodeType.ANNOTATION,
                 CodeActionNodeType.CLASS_FUNCTION));
     }
 
@@ -71,6 +73,7 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
 
         CodeAction action = new CodeAction(CommandConstants.ADD_ALL_DOC_TITLE);
         action.setCommand(new Command(CommandConstants.ADD_ALL_DOC_TITLE, AddAllDocumentationExecutor.COMMAND, args));
+        action.setKind(CodeActionKind.Source);
         return Collections.singletonList(action);
     }
 

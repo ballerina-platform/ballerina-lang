@@ -116,6 +116,62 @@ function testFromBytes() returns string|error {
     return strings:fromBytes(bytes);
 }
 
+function testFromBytesInvalidValues() {
+
+    byte[] bytes = [
+        72,
+        101,
+        108,
+        108,
+        111,
+        33,
+        126,
+        63,
+        194,
+        163,
+        195,
+        159,
+        208,
+        175,
+        206,
+        187,
+        226,
+        152,
+        131,
+        226,
+        156,
+        136,
+        224,
+        175,
+        184,
+        240,
+        159,
+        152,
+        128,
+        240,
+        159,
+        132,
+        176,
+        240,
+        159,
+        141,
+        186
+    ];
+    string result = checkpanic strings:fromBytes(bytes);
+    assertEquals("Hello!~?£ßЯλ☃✈௸😀🄰🍺", result);
+
+    bytes = [237, 159, 191];
+    result = checkpanic strings:fromBytes(bytes);
+    assertEquals("퟿", result);
+
+    bytes = [237, 160, 191];
+    string|error negativeResult = strings:fromBytes(bytes);
+    assertEquals(true, negativeResult is error);
+    error err = <error>negativeResult;
+    assertEquals("FailedToDecodeBytes", err.message());
+    assertEquals("array contains invalid UTF-8 byte value", <string>checkpanic err.detail()["message"]);
+}
+
 function testJoin() returns string {
     string[] days = ["Sunday", "Monday", "Tuesday"];
     return strings:'join(", ", ...days);

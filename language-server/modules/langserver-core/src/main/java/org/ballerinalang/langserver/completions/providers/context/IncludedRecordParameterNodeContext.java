@@ -24,12 +24,12 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -59,9 +59,9 @@ public class IncludedRecordParameterNodeContext extends AbstractCompletionProvid
                 .typeKind() == TypeDescKind.RECORD;
         List<Symbol> recordTypes;
 
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            recordTypes = QNameReferenceUtil.getModuleContent(ctx, nameRef, predicate);
+            recordTypes = QNameRefCompletionUtil.getModuleContent(ctx, nameRef, predicate);
         } else {
             List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
             recordTypes = visibleSymbols.stream()

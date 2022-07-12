@@ -25,8 +25,10 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -50,13 +52,17 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
     private static final String NAME = "Add Explicit Return Statement";
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        return diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId()) 
+                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId())) {
-            return Collections.emptyList();
-        }
-
+        
         NonTerminalNode currentNode = positionDetails.matchedNode();
         Optional<FunctionDefinitionNode> functionDefinition = getFunctionDefinition(currentNode);
         if (functionDefinition.isEmpty()
@@ -66,7 +72,7 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
         FunctionBodyBlockNode functionBody = (FunctionBodyBlockNode) functionDefinition.get().functionBody();
         Token closeBraceToken = functionBody.closeBraceToken();
 
-        Range range = CommonUtil.toRange(closeBraceToken.lineRange());
+        Range range = PositionUtil.toRange(closeBraceToken.lineRange());
         String newText = getNewText(functionDefinition.get());
         String uri = context.filePath().toUri().toString();
 

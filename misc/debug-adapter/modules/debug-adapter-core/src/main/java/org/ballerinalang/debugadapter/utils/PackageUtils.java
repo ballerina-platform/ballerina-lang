@@ -329,7 +329,7 @@ public class PackageUtils {
         }
 
         String moduleNamePart = document.module().moduleName().moduleNamePart();
-        return moduleNamePart != null ? packageNamePart + "." + encodeModuleName(moduleNamePart) : packageNamePart;
+        return moduleNamePart != null ? encodeModuleName(packageNamePart + "." + moduleNamePart) : packageNamePart;
     }
 
     private static String replaceSeparators(String path) {

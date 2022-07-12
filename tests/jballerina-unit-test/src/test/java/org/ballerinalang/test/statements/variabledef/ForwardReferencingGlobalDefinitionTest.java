@@ -140,7 +140,7 @@ public class ForwardReferencingGlobalDefinitionTest {
                 compile("test-src/statements/variabledef/globalcycle/viaServiceProject");
         Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 2);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 20, 1);
-        BAssertUtil.validateWarning(resultNegativeCycleFound, 1, "concurrent calls will not be made to this method " +
+        BAssertUtil.validateHint(resultNegativeCycleFound, 1, "concurrent calls will not be made to this method " +
                 "since the method is not an 'isolated' method", 32, 5);
     }
 }

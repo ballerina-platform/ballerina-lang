@@ -1,0 +1,99 @@
+{
+  "position": {
+    "line": 2,
+    "character": 61
+  },
+  "source": "query_expression/source/query_expr_ctx_let_clause_source15.bal",
+  "items": [
+    {
+      "label": "where",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "where",
+      "insertText": "where ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "let",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "let",
+      "insertText": "let",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "let clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "let",
+      "insertText": "let ${1:var} ${2:varName} = ${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "outer",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "outer",
+      "insertText": "outer ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "join",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "join",
+      "insertText": "join ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "join clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "join",
+      "insertText": "join ${1:var} ${2:varName} in ${3:expr} on ${4:onExpr} equals ${5:equalsExpr}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "order by",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "order by",
+      "insertText": "order by ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "limit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "limit",
+      "insertText": "limit ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "do",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "do",
+      "insertText": "do {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "select",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "select",
+      "insertText": "select ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

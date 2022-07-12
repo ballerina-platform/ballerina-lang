@@ -41,6 +41,11 @@ public class DoStatementTest extends AbstractStatementTest {
         testFile("do-stmt/do_stmt_source_03.bal", "do-stmt/do_stmt_assert_03.json");
     }
 
+    @Test
+    public void testDoWithOnFailClauseWithoutVariable() {
+        testFile("do-stmt/do_stmt_source_09.bal", "do-stmt/do_stmt_assert_09.json");
+    }
+
     // Recovery test
 
     @Test

@@ -19,7 +19,9 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -47,7 +49,9 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  * @since 2.0.0
  */
 public class NewCommandTest extends BaseCommandTest {
-    private Path homeCache;
+
+    Path testResources;
+    Path centralCache;
 
     @DataProvider(name = "invalidProjectNames")
     public Object[][] provideInvalidProjectNames() {
@@ -60,13 +64,17 @@ public class NewCommandTest extends BaseCommandTest {
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        Path testResources = Paths.get("src/test/resources/test-resources");
-        homeCache = Paths.get("build", "userHome");
-        Path centralCache = homeCache.resolve("repositories/central.ballerina.io").resolve("bala");
+        testResources = Paths.get("src/test/resources/test-resources");
+        centralCache = homeCache.resolve("repositories/central.ballerina.io").resolve("bala");
         Files.createDirectories(centralCache);
 
         Path testTemplatesDir = testResources.resolve("balacache-template");
         Files.walkFileTree(testTemplatesDir, new Copy(testTemplatesDir, centralCache));
+    }
+
+    @AfterClass
+    public void afterClass() {
+        ProjectUtils.deleteDirectory(centralCache);
     }
 
     @Test(description = "Create a new project")
@@ -418,6 +426,73 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new package"));
+    }
+
+    @Test(description = "Test new command by pulling a central template having a central dependency")
+    public void testNewCommandCentralPullWithCentralDependency() throws IOException {
+        // Cache dependency to central --> pramodya/winery:0.1.0
+        cacheBalaToCentralRepository(testResources.resolve("balacache-dependencies").resolve("pramodya")
+                .resolve("winery").resolve("0.1.0").resolve("any"), "pramodya", "winery", "0.1.0", "any");
+
+        // Publish template has dependency
+        // pramodya/template_lib_project:1.0.0 --> pramodya/winery:0.1.0
+        cacheBalaToCentralRepository(testResources.resolve("balacache-dependencies").resolve("pramodya")
+                        .resolve("template_lib_project").resolve("1.0.0").resolve("any"), "pramodya",
+                "template_lib_project", "1.0.0", "any");
+
+        // Cache updated dependency to central --> pramodya/winery:2.1.0
+        cacheBalaToCentralRepository(testResources.resolve("balacache-dependencies").resolve("pramodya")
+                .resolve("winery").resolve("2.1.0").resolve("any"), "pramodya", "winery", "2.1.0", "any");
+
+        // Create a new package using `template_lib_project` template
+        String templateArg = "pramodya/template_lib_project:1.0.0";
+        String packageName = "sample_lib_project";
+        String[] args = {packageName, "-t", templateArg};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Path packageDir = tmpDir.resolve(packageName);
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(readOutput().contains("Created new package"));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String depsTomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML), StandardCharsets.UTF_8);
+        Assert.assertTrue(depsTomlContent.contains("[[package]]\n" +
+                "org = \"pramodya\"\n" +
+                "name = \"winery\"\n" +
+                "version = \"0.1.0\""));
+    }
+
+    @Test(description = "Test new command by pulling a central template that has includes")
+    public void testNewCommandTemplateWithIncludes() throws IOException {
+        // Publish template to the central
+        cacheBalaToCentralRepository(testResources.resolve("balacache-dependencies").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("any"), "foo", "winery", "0.1.0", "any");
+
+        // Create a new package with the foo/winery:0.1.0 template
+        String packageName = "sample_project";
+        String[] args = {packageName, "-t", "foo/winery:0.1.0"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        // Check if the package directory is created
+        Path packageDir = tmpDir.resolve(packageName);
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML)));
+
+        // Check if the include files are copied
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-file.json")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include/file")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include-dir/include_text_file.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include-dir/include_image.png")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/services/non-default-module-include/file")));
+        Assert.assertTrue(Files.exists(
+                packageDir.resolve("modules/services/non-default-module-include-dir/include_text_file.txt")));
+        Assert.assertTrue(Files.exists(
+                packageDir.resolve("modules/services/non-default-module-include-dir/include_image.png")));
     }
 
     @Test(description = "Test new command without arguments")

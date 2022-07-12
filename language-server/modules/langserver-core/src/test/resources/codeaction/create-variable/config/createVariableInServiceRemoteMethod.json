@@ -1,9 +1,13 @@
 {
-  "line": 14,
-  "character": 8,
+  "position": {
+    "line": 14,
+    "character": 8
+  },
+  "source": "createVariableInServiceMethod.bal",
   "expected": [
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -29,12 +33,13 @@
               "character": 8
             }
           },
-          "newText": "int|error intWithError = "
+          "newText": "int|error intWithError \u003d "
         }
       ]
     },
     {
       "title": "Create variable and check error",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -47,7 +52,7 @@
               "character": 8
             }
           },
-          "newText": "int intWithError = "
+          "newText": "int intWithError \u003d "
         },
         {
           "range": {
@@ -79,6 +84,7 @@
     },
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -91,7 +97,7 @@
               "character": 8
             }
           },
-          "newText": "int|error intWithError = "
+          "newText": "int|error intWithError \u003d "
         }
       ]
     }

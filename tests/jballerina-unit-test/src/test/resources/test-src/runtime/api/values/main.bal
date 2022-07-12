@@ -17,6 +17,7 @@
 import testorg/runtime_api.records;
 import testorg/runtime_api.objects;
 import testorg/runtime_api.maps;
+import testorg/runtime_api.enums;
 import ballerina/lang.test as test;
 
 public function main() {
@@ -63,4 +64,5 @@ public function main() {
 
     maps:validateAPI();
     records:validateAPI();
+    enums:validateAPI();
 }

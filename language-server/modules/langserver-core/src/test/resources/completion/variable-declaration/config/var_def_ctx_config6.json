@@ -163,7 +163,10 @@
       "label": "Signed32",
       "kind": "TypeParameter",
       "detail": "Signed32",
-      "sortText": "AN",
+      "documentation": {
+        "left": "Built-in subtype that allows signed integers that can be represented in 32 bits using two's complement.\nThis allows an int between -2^31 and 2^31 - 1 inclusive,\ni.e., between -2,147,483,648 and 2,147,483,647 inclusive."
+      },
+      "sortText": "R",
       "insertText": "Signed32",
       "insertTextFormat": "Snippet"
     },
@@ -171,7 +174,10 @@
       "label": "Signed16",
       "kind": "TypeParameter",
       "detail": "Signed16",
-      "sortText": "AN",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 16 bits using two's complement.\nThis allows an int between -2^15 and 2^15 - 1 inclusive,\ni.e., between -32,768 and 32,767 inclusive."
+      },
+      "sortText": "R",
       "insertText": "Signed16",
       "insertTextFormat": "Snippet"
     },
@@ -179,7 +185,10 @@
       "label": "Signed8",
       "kind": "TypeParameter",
       "detail": "Signed8",
-      "sortText": "AN",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 8 bits using two's complement.\nThis allows an int between -2^7 and 2^7 - 1 inclusive,\ni.e., between -128 and 127 inclusive."
+      },
+      "sortText": "R",
       "insertText": "Signed8",
       "insertTextFormat": "Snippet"
     },
@@ -187,7 +196,10 @@
       "label": "Unsigned32",
       "kind": "TypeParameter",
       "detail": "Unsigned32",
-      "sortText": "AN",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 32 bits.\nThis allows an int between 0 and 2^32 - 1 inclusive,\ni.e., between 0 and 4,294,967,295 inclusive."
+      },
+      "sortText": "R",
       "insertText": "Unsigned32",
       "insertTextFormat": "Snippet"
     },
@@ -195,7 +207,10 @@
       "label": "Unsigned16",
       "kind": "TypeParameter",
       "detail": "Unsigned16",
-      "sortText": "AN",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 16 bits.\nThis allows an int between 0 and 2^16 - 1 inclusive,\ni.e., between 0 and 65,535 inclusive."
+      },
+      "sortText": "R",
       "insertText": "Unsigned16",
       "insertTextFormat": "Snippet"
     },
@@ -203,7 +218,10 @@
       "label": "Unsigned8",
       "kind": "TypeParameter",
       "detail": "Unsigned8",
-      "sortText": "AN",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 8 bits.\nThis allows an int between 0 and 2^8 - 1 inclusive,\ni.e., between 0 and 255 inclusive.\nThis is the same as `byte`."
+      },
+      "sortText": "R",
       "insertText": "Unsigned8",
       "insertTextFormat": "Snippet"
     },
@@ -252,7 +270,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the maximum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `x` and all of parameter `xs`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the maximum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `n` and all of parameter `ns`  \n  \n"
         }
       },
       "sortText": "AA",
@@ -290,7 +308,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the integer of a string that represents in decimal.\n\nReturns error if parameter `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of function `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Return** `int|error`   \n- int representation of the argument or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the integer of a string that represents in decimal.\n\nReturns error if parameter `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of function ``value:toString`` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Return** `int|error`   \n- int representation of the argument or error  \n  \n"
         }
       },
       "sortText": "E",

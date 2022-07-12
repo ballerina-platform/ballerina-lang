@@ -255,6 +255,17 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 updateVisibleEP(node, rawType, false);
             }
         }
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;
+            unionTypeSymbol.memberTypeDescriptors().forEach(member -> {
+                TypeSymbol memberRawType = getRawType(member);
+                if (memberRawType.typeKind() == TypeDescKind.OBJECT
+                        && ((ObjectTypeSymbol) memberRawType).qualifiers().contains(Qualifier.CLIENT)) {
+                    symbolJson.addProperty("isEndpoint", true);
+                    updateVisibleEP(node, memberRawType, false);
+                }
+            });
+        }
     }
 
     private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node,

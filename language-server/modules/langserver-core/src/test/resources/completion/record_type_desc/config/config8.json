@@ -487,7 +487,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "AN",
+      "sortText": "R",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -737,6 +737,14 @@
           "newText": "import test/local_project1;\n"
         }
       ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

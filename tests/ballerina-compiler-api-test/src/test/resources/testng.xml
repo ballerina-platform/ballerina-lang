@@ -41,6 +41,7 @@
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
             <class name="io.ballerina.semantic.api.test.VisitorAPITest" />
             <class name="io.ballerina.semantic.api.test.TypesTest" />
+            <class name="io.ballerina.semantic.api.test.TypeBuildersTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />

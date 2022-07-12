@@ -26,7 +26,10 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.bala.DependencyGraphJson;
+import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
+import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -64,6 +67,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
+import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -178,11 +184,14 @@ public class CommandUtil {
     private static void addModules(Path balaPath, Path projectPath, String packageName, String platform)
             throws IOException {
         Gson gson = new Gson();
-        Path packageJsonPath = balaPath.resolve("package.json");
-        PackageJson packageJson = null;
+        Path packageJsonPath = balaPath.resolve(PACKAGE_JSON);
+        Path dependencyGraphJsonPath = balaPath.resolve(DEPENDENCY_GRAPH_JSON);
+        PackageJson templatePackageJson = null;
+        DependencyGraphJson templateDependencyGraphJson = null;
+
         try (InputStream inputStream = new FileInputStream(String.valueOf(packageJsonPath))) {
             Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-            packageJson = gson.fromJson(fileReader, PackageJson.class);
+            templatePackageJson = gson.fromJson(fileReader, PackageJson.class);
         } catch (IOException e) {
             printError(errStream,
                     "Error while reading the package json file: " + e.getMessage(),
@@ -191,7 +200,20 @@ public class CommandUtil {
             getRuntime().exit(1);
         }
 
-        if (!packageJson.getTemplate()) {
+        if (dependencyGraphJsonPath.toFile().exists()) {
+            try (InputStream inputStream = new FileInputStream(String.valueOf(dependencyGraphJsonPath))) {
+                Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                templateDependencyGraphJson = gson.fromJson(fileReader, DependencyGraphJson.class);
+            } catch (IOException e) {
+                printError(errStream,
+                        "Error while reading the dependency graph json file: " + e.getMessage(),
+                        null,
+                        false);
+                getRuntime().exit(1);
+            }
+        }
+
+        if (!templatePackageJson.getTemplate()) {
             throw createLauncherException("unable to create the package: " +
                     "specified package is not a template");
         }
@@ -200,7 +222,14 @@ public class CommandUtil {
         Path ballerinaToml = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createDirectories(projectPath);
         Files.createFile(ballerinaToml);
-        writeBallerinaToml(ballerinaToml, packageJson, packageName, platform);
+        writeBallerinaToml(ballerinaToml, templatePackageJson, packageName, platform);
+
+        if (dependencyGraphJsonPath.toFile().exists()) {
+            // Create Dependencies.toml
+            Path dependenciesToml = projectPath.resolve(DEPENDENCIES_TOML);
+            Files.createFile(dependenciesToml);
+            writeDependenciesToml(projectPath, templateDependencyGraphJson, templatePackageJson);
+        }
 
         // Create Package.md
         Path packageMDFilePath = balaPath.resolve("docs")
@@ -216,7 +245,7 @@ public class CommandUtil {
         createDefaultDevContainer(projectPath);
 
         // Create modules
-        String templatePkgName = packageJson.getName();
+        String templatePkgName = templatePackageJson.getName();
         Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
         List<Path> modulesList;
         try (Stream<Path> pathStream = Files.list(modulesRoot)) {
@@ -249,19 +278,30 @@ public class CommandUtil {
             List<Path> icon = pathStream
                     .filter(FileSystems.getDefault().getPathMatcher("glob:**.png")::matches)
                     .collect(Collectors.toList());
-            if (icon.isEmpty()) {
-                return;
+            if (!icon.isEmpty()) {
+                Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
+                Files.createDirectory(projectDocsDir);
+                Path projectIconPath = projectDocsDir.resolve(Optional.of(icon.get(0).getFileName()).get());
+                Files.copy(icon.get(0), projectIconPath, StandardCopyOption.REPLACE_EXISTING);
             }
-            Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
-            Files.createDirectory(projectDocsDir);
-            Path projectIconPath = projectDocsDir.resolve(Optional.of(icon.get(0).getFileName()).get());
-            Files.copy(icon.get(0), projectIconPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             printError(errStream,
                     "Error while retrieving the icon: " + e.getMessage(),
                     null,
                     false);
             getRuntime().exit(1);
+        }
+
+        // Copy include files
+        if (templatePackageJson.getInclude() != null) {
+            for (String includeFileString : templatePackageJson.getInclude()) {
+                Path fromIncludeFilePath = balaPath.resolve(includeFileString);
+                Path toIncludeFilePath = projectPath.resolve(includeFileString);
+                if (Files.notExists(toIncludeFilePath)) {
+                    Files.createDirectories(toIncludeFilePath);
+                    Files.walkFileTree(fromIncludeFilePath, new FileUtils.Copy(fromIncludeFilePath, toIncludeFilePath));
+                }
+            }
         }
     }
 
@@ -410,6 +450,135 @@ public class CommandUtil {
                         StandardOpenOption.APPEND);
             }
         }
+    }
+
+    public static void writeDependenciesToml(Path projectPath, DependencyGraphJson templateDependencyGraphJson,
+                                             PackageJson templatePackageJson)
+            throws IOException {
+        Path depsTomlPath = projectPath.resolve(DEPENDENCIES_TOML);
+        String autoGenCode = "# AUTO-GENERATED FILE. DO NOT MODIFY.\n" +
+                "\n" +
+                "# This file is auto-generated by Ballerina for managing dependency versions.\n" +
+                "# It should not be modified by hand.\n" +
+                "\n";
+        Files.writeString(depsTomlPath, autoGenCode, StandardOpenOption.APPEND);
+        String balTomlVersion = "[ballerina]\n" +
+                "dependencies-toml-version = \"" + ProjectConstants.DEPENDENCIES_TOML_VERSION + "\"\n" +
+                "\n";
+        Files.writeString(depsTomlPath, balTomlVersion, StandardOpenOption.APPEND);
+
+        // Get current package module dependencies from dependency graph modules list
+        List<ModuleDependency> currentPkgModules = new ArrayList<>();
+        for (ModuleDependency module : templateDependencyGraphJson.getModuleDependencies()) {
+            if (module.getOrg().equals(templatePackageJson.getOrganization())
+                    && module.getPackageName().equals(templatePackageJson.getName())) {
+                List<ModuleDependency> currentPkgModuleDeps = module.getDependencies();
+                currentPkgModules.addAll(currentPkgModuleDeps);
+            }
+        }
+
+        StringBuilder pkgDesc = new StringBuilder();
+        for (Dependency packageDependency : templateDependencyGraphJson.getPackageDependencyGraph()) {
+            // Current package
+            if (templatePackageJson.getOrganization().equals(packageDependency.getOrg())
+                    && templatePackageJson.getName().equals(packageDependency.getName())) {
+                pkgDesc.append("[[package]]\n")
+                        .append("org = \"").append(packageDependency.getOrg()).append("\"\n")
+                        .append("name = \"").append(ProjectUtils.defaultName(projectPath)).append("\"\n")
+                        .append("version = \"").append(packageDependency.getVersion()).append("\"\n");
+                // write `dependencies` array content
+                pkgDesc.append(getDependenciesArrayContent(packageDependency));
+                // Get current package modules from dependency graph modules list
+                // Write them to the `modules` array
+                pkgDesc.append(getDependencyModulesArrayContent(
+                        templateDependencyGraphJson.getModuleDependencies(), true, projectPath));
+            } else {
+                // Not current package
+                pkgDesc.append("[[package]]\n")
+                        .append("org = \"").append(packageDependency.getOrg()).append("\"\n")
+                        .append("name = \"").append(packageDependency.getName()).append("\"\n")
+                        .append("version = \"").append(packageDependency.getVersion()).append("\"\n");
+                // write `dependencies` array content
+                pkgDesc.append(getDependenciesArrayContent(packageDependency));
+                // Check this package dependency has current package modules
+                // If yes, add to `packageDependencyModules` list to write to the `modules` array
+                List<ModuleDependency> packageDependencyModules = new ArrayList<>();
+                for (ModuleDependency module : currentPkgModules) {
+                    if (packageDependency.getOrg().equals(module.getOrg())
+                            && packageDependency.getName().equals(module.getPackageName())) {
+                        packageDependencyModules.add(module);
+                    }
+                }
+                // Write `packageDependencyModules` to `modules` array
+                if (!packageDependencyModules.isEmpty()) {
+                    pkgDesc.append(getDependencyModulesArrayContent(packageDependencyModules, false, projectPath));
+                }
+            }
+            pkgDesc.append("\n");
+        }
+        Files.writeString(depsTomlPath, pkgDesc.toString(), StandardOpenOption.APPEND);
+    }
+
+    /**
+     * Get formatted dependencies array content for Dependencies.toml dependency.
+     *
+     * @param packageDependency package dependency
+     * @return formatted dependencies array content
+     */
+    private static String getDependenciesArrayContent(Dependency packageDependency) {
+        StringBuilder dependenciesContent = new StringBuilder();
+        if (!packageDependency.getDependencies().isEmpty()) {
+            for (Dependency dependency : packageDependency.getDependencies()) {
+                dependenciesContent.append("\t{org = \"").append(dependency.getOrg())
+                        .append("\", name = \"").append(dependency.getName())
+                        .append("\"},\n");
+            }
+            String dependenciesPart = dependenciesContent.toString();
+            dependenciesPart = removeLastCharacter(trimStartingWhitespaces(dependenciesPart));
+            return "dependencies = [\n"
+                    + dependenciesPart
+                    + "\n]\n";
+        }
+        return "";
+    }
+
+    /**
+     * Get formatted modules array content for Dependencies.toml dependency.
+     * <code>
+     * modules = [
+     * {org = "ballerinax", packageName = "redis", moduleName = "redis"}
+     * ]
+     * </code>
+     *
+     * @param dependencyModules modules of the given dependency package
+     * @param isCurrentPackage  is modules array generating for current package
+     * @param projectPath       project path
+     * @return formatted modules array content
+     */
+    private static String getDependencyModulesArrayContent(List<ModuleDependency> dependencyModules,
+                                                           boolean isCurrentPackage, Path projectPath) {
+        StringBuilder modulesContent = new StringBuilder();
+        if (isCurrentPackage) {
+            for (ModuleDependency module : dependencyModules) {
+                String currentPkgName = ProjectUtils.defaultName(projectPath).value();
+                String modulePkgPart = module.getModuleName().split("\\.")[0];
+                String currentPkgModuleName = module.getModuleName().replaceFirst(modulePkgPart, currentPkgName);
+                modulesContent.append("\t{org = \"").append(module.getOrg())
+                        .append("\", packageName = \"").append(currentPkgName)
+                        .append("\", moduleName = \"").append(currentPkgModuleName)
+                        .append("\"},\n");
+            }
+        } else {
+            for (ModuleDependency module : dependencyModules) {
+                modulesContent.append("\t{org = \"").append(module.getOrg())
+                        .append("\", packageName = \"").append(module.getPackageName())
+                        .append("\", moduleName = \"").append(module.getModuleName())
+                        .append("\"},\n");
+            }
+        }
+        String modulesPart = modulesContent.toString();
+        modulesPart = removeLastCharacter(trimStartingWhitespaces(modulesPart));
+        return "modules = [\n" + modulesPart + "\n]\n";
     }
 
     /**
@@ -640,7 +809,7 @@ public class CommandUtil {
         // replace manifest distribution with a guessed value
         defaultManifest = defaultManifest
                 .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, packageName)
+                .replaceAll(PKG_NAME, guessPkgName(packageName, "app"))
                 .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
@@ -652,7 +821,7 @@ public class CommandUtil {
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
         // replace manifest org and name with a guessed value.
         defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, packageName)
+                .replaceAll(PKG_NAME, guessPkgName(packageName, "lib"))
                 .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
 
         write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
@@ -715,5 +884,25 @@ public class CommandUtil {
             }
         });
         return availableVersions;
+    }
+
+    /**
+     * Remove starting whitespaces of a string.
+     *
+     * @param str given string
+     * @return starting whitespaces removed string
+     */
+    private static String trimStartingWhitespaces(String str) {
+        return str.replaceFirst("\\s++$", "");
+    }
+
+    /**
+     * Remove last character of a string.
+     *
+     * @param str given string
+     * @return last character removed string
+     */
+    private static String removeLastCharacter(String str) {
+        return str.substring(0, str.length() - 1);
     }
 }

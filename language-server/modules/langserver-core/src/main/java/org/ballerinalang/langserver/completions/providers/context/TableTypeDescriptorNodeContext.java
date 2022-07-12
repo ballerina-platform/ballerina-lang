@@ -82,7 +82,10 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
         }
 
         TypeSymbol typeSymbol = CommonUtil.getRawType((TypeSymbol) symbol.get());
+
         // key specifier or key constraint not allowed for map types
-        return typeSymbol.typeKind() == TypeDescKind.RECORD;
+        // Check if type is a union of records
+        return typeSymbol.typeKind() == TypeDescKind.RECORD || 
+                CommonUtil.isUnionOfType(typeSymbol, TypeDescKind.RECORD);
     }
 }

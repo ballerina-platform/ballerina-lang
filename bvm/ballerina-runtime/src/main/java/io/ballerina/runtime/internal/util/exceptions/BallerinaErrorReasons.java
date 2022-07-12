@@ -72,6 +72,7 @@ public class BallerinaErrorReasons {
     public static final String INVALID_UPDATE_ERROR_IDENTIFIER = "InvalidUpdate";
     public static final String INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER = "IndexOutOfRange";
     public static final String INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER = "InherentTypeViolation";
+    public static final String INCOMPATIBLE_ARGUMENTS = "IncompatibleArguments";
     public static final String OPERATION_NOT_SUPPORTED_IDENTIFIER = "OperationNotSupported";
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
     public static final String INVALID_TYPE_TO_SORT = "SortOperationError";
@@ -117,6 +118,7 @@ public class BallerinaErrorReasons {
             "UnsupportedDecimalError"));
 
     public static final String INVALID_FRACTION_DIGITS_ERROR = "InvalidFractionDigits";
+    public static final BString FAILED_TO_DECODE_BYTES = StringUtils.fromString("FailedToDecodeBytes");
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

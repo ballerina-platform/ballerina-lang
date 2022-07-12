@@ -31,7 +31,11 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.RecordUtil;
+import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -69,9 +73,10 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
         if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
-                !CommonUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) ||
-                (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                        !CommonUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node))) {
+                !TypeResolverUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) 
+                || (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
+                        !TypeResolverUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) 
+                                node))) {
             super.sort(context, node, completionItems);
             return;
         }
@@ -98,7 +103,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                                                             FunctionSymbol functionSymbol,
                                                             SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (!CommonUtil.isValidNamedArgContext(context, argumentNodeList)) {
+        if (!isValidNamedArgContext(context, argumentNodeList)) {
             return completionItems;
         }
         FunctionTypeSymbol functionTypeSymbol = functionSymbol.typeDescriptor();
@@ -107,7 +112,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             return Collections.emptyList();
         }
 
-        List<String> existingNamedArgs = CommonUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
+        List<String> existingNamedArgs = NameUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
         for (ParameterSymbol parameterSymbol : params.get()) {
             if (parameterSymbol.paramKind() == ParameterKind.REQUIRED ||
                     parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE) {
@@ -126,7 +131,8 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                     continue;
                 }
                 RecordTypeSymbol includedRecordType = (RecordTypeSymbol) typeSymbol;
-                List<RecordFieldSymbol> recordFields = CommonUtil.getMandatoryRecordFields(includedRecordType);
+                List<RecordFieldSymbol> recordFields = RecordUtil
+                        .getMandatoryRecordFields(includedRecordType);
                 recordFields.forEach(recordFieldSymbol -> {
                     Optional<String> fieldName = recordFieldSymbol.getName();
                     if (fieldName.isEmpty() || fieldName.get().isEmpty() || 
@@ -141,5 +147,28 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             }
         }
         return completionItems;
+    }
+
+
+    /**
+     * Check if the cursor is positioned in call expression context so that named arg
+     * completions can be suggested.
+     *
+     * @param context          completion context.
+     * @param argumentNodeList argument node list.
+     * @return {@link Boolean} whether the cursor is positioned so that the named arguments can  be suggested.
+     */
+    private boolean isValidNamedArgContext(BallerinaCompletionContext context,
+                                                 SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        int cursorPosition = context.getCursorPositionInTree();
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            if (startOffset > cursorPosition
+                    && child.kind() == SyntaxKind.POSITIONAL_ARG || child.kind() == SyntaxKind.REST_ARG) {
+                return false;
+            }
+        }
+        return true;
     }
 }

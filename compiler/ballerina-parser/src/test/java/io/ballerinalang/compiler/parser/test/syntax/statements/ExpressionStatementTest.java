@@ -37,4 +37,10 @@ public class ExpressionStatementTest extends AbstractStatementTest {
     public void testExpressionStmtForListConstructor() {
         testFile("expression-stmt/expression_stmt_source_02.bal", "expression-stmt/expression_stmt_assert_02.json");
     }
+
+    @Test
+    public void testExpressionStmtForQueryConstructsMap() {
+        test("map from int i in y let int a = i * 2 where a < 10 select a on conflict error(\"Error\");\n",
+                "expression-stmt/expression_stmt_assert_03.json");
+    }
 }

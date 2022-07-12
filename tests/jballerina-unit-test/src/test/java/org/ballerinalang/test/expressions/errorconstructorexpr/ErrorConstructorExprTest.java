@@ -87,13 +87,12 @@ public class ErrorConstructorExprTest {
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 29, 34);
         validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 30, 47);
         validateError(negativeSemanticResult, i++, "undefined error type descriptor 'MyError'", 36, 26);
-        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'c', expected " +
-                "'string', found 'int'", 37, 46);
-        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'j', expected " +
-                "'string', found 'int'", 42, 33);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'" , 37, 50);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'", 42, 37);
         validateError(negativeSemanticResult, i++,
                 "error constructor does not accept additional detail args 'k' when error detail type " +
                         "'record {| int i; string j; anydata...; |}' contains individual field descriptors", 42, 40);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'anydata', found 'error'", 42, 44);
         validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 43, 14);
         validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(ErrorA|ErrorB)'", 50, 20);
         validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(ErrorA|ErrorB)'", 51, 20);
@@ -105,6 +104,14 @@ public class ErrorConstructorExprTest {
                 66, 18);
         validateError(negativeSemanticResult, i++, "compatible type for error constructor expression not " +
                 "found in type '(int|string)'", 67, 16);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'id'", 95, 82);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'user'", 95, 82);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'name'", 96, 99);
+        validateError(negativeSemanticResult, i++, "missing identifier", 97, 82);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'id'", 98, 83);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'user'", 98, 83);
+        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'application'," +
+                " expected 'StringType', found 'record {| |} & readonly'", 99, 68);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 

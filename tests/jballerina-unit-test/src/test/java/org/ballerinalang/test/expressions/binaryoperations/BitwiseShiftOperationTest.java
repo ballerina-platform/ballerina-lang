@@ -22,6 +22,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -57,6 +58,23 @@ public class BitwiseShiftOperationTest {
     @Test(description = "Test bitwise operations for nullable values")
     public void testBitWiseOperationsForNullable() {
         BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOp");
+    }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInBitwiseShiftOp")
+    public void testShortCircuitingInBitwiseShiftOp(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInBitwiseShiftOp() {
+        return new Object[]{
+                "testNoShortCircuitingInBitwiseLeftShiftWithNullable",
+                "testNoShortCircuitingInBitwiseLeftShiftWithNonNullable",
+                "testNoShortCircuitingInBitwiseSignedRightShiftWithNullable",
+                "testNoShortCircuitingInBitwiseSignedRightShiftWithNonNullable",
+                "testNoShortCircuitingInBitwiseUnsignedRightShiftWithNullable",
+                "testNoShortCircuitingInBitwiseUnsignedRightShiftWithNonNullable"
+        };
     }
 
     @Test(description = "Test bitwise shift operation negative scenarios")

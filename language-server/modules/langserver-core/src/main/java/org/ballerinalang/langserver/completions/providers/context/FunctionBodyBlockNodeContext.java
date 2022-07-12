@@ -18,11 +18,11 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletions(context, node));
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (!QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (!QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
         }
         this.sort(context, node, completionItems);

@@ -57,31 +57,37 @@ public class PerformanceAnalyzerTest {
     @Test(description = "Test performance analyzer")
     public void testFunction() throws IOException, ExecutionException, InterruptedException {
 
-        compare("main.bal", "main.json");
+        compare(Path.of("project",  "main.bal").toString(), "main.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testIfElse() throws IOException, ExecutionException, InterruptedException {
 
-        compare("ifElse.bal", "ifElse.json");
+        compare(Path.of("project",  "ifElse.bal").toString(), "ifElse.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testNoData() throws IOException, ExecutionException, InterruptedException {
 
-        compare("noData.bal", "noData.json");
+        compare(Path.of("project",  "noData.bal").toString(), "noData.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testForEach() throws IOException, ExecutionException, InterruptedException {
 
-        compare("forEach.bal", "forEach.json");
+        compare(Path.of("project",  "forEach.bal").toString(), "forEach.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testWhile() throws IOException, ExecutionException, InterruptedException {
 
-        compare("while.bal", "while.json");
+        compare(Path.of("project",  "while.bal").toString(), "while.json");
+    }
+
+    @Test(description = "Test performance analyzer worker support")
+    public void testWorker() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("worker",  "main.bal").toString(), "worker.json");
     }
 
     private void compare(String balFile, String jsonFile) throws IOException, InterruptedException,

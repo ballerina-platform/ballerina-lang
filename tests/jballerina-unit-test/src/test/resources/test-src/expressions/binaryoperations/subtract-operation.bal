@@ -284,6 +284,75 @@ function testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
     assertEqual(a6, 15.0d);
 }
 
+int intVal = 10;
+
+function testNoShortCircuitingInSubtractionWithNullable() {
+    int? result = foo() - bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 18);
+
+    result = foo() - 12;
+    assertEqual(result, ());
+    assertEqual(intVal, 20);
+
+    result = 12 - bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 26);
+
+    int? x = 12;
+    result = foo() - x;
+    assertEqual(result, ());
+    assertEqual(intVal, 28);
+
+    result = x - bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 34);
+
+    result = x - bam();
+    assertEqual(result, 7);
+    assertEqual(intVal, 44);
+
+    result = bam() - x;
+    assertEqual(result, -7);
+    assertEqual(intVal, 54);
+
+    result = foo() - bam();
+    assertEqual(result, ());
+    assertEqual(intVal, 66);
+
+    result = bam() - bar();
+    assertEqual(result, ());
+    assertEqual(intVal, 82);
+}
+
+function testNoShortCircuitingInSubtractionWithNonNullable() {
+    intVal = 10;
+    int x = 10;
+
+    int result = x - bam();
+    assertEqual(result, 5);
+    assertEqual(intVal, 20);
+
+    result = bam() - 12;
+    assertEqual(result, -7);
+    assertEqual(intVal, 30);
+}
+
+function foo() returns int? {
+    intVal += 2;
+    return ();
+}
+
+function bar() returns int? {
+    intVal += 6;
+    return ();
+}
+
+function bam() returns int {
+    intVal += 10;
+    return 5;
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

@@ -159,4 +159,17 @@ public class ModOperationTest {
                 "testResultTypeOfModDecimalIntForNilableOperandsByInfering",
         };
     }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInMod")
+    public void testShortCircuitingInMod(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInMod() {
+        return new Object[]{
+                "testNoShortCircuitingInModWithNullable",
+                "testNoShortCircuitingInModWithNonNullable"
+        };
+    }
 }

@@ -113,6 +113,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -380,6 +381,9 @@ public class BIRPackageSymbolEnter {
         BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
         //TODO: after bala_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
+        if (importPackageSymbol == null) {
+            throw new BLangCompilerException("cannot resolve module " + importPkgID);
+        }
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
         this.env.pkgSymbol.imports.add(importPackageSymbol);
     }
@@ -430,11 +434,16 @@ public class BIRPackageSymbolEnter {
         }
 
         // Read annotation attachments
-        // Skip annotation attachments for now
-        dataInStream.skip(dataInStream.readLong());
+        defineAnnotAttachmentSymbols(dataInStream, invokableSymbol);
 
-        // Skip return type annotations
-        dataInStream.skip(dataInStream.readLong());
+        BTypeSymbol tsymbol = invokableSymbol.type.tsymbol;
+        if (tsymbol == null) {
+            // Skip return type annotations
+            dataInStream.skip(dataInStream.readLong());
+        } else {
+            ((BInvokableTypeSymbol) tsymbol).returnTypeAnnots.addAll(readAnnotAttachmentSymbols(dataInStream,
+                                                                                                invokableSymbol));
+        }
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
@@ -475,9 +484,14 @@ public class BIRPackageSymbolEnter {
         BTypeReferenceType referenceType = null;
         boolean hasReferenceType = dataInStream.readBoolean();
         if (hasReferenceType) {
-            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, flags, names.fromString(typeDefName),
-                    this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
-            referenceType = new BTypeReferenceType(type, typeSymbol, flags);
+            if (type.tag == TypeTags.TYPEREFDESC && Objects.equals(type.tsymbol.name.value, typeDefName)
+                    && type.tsymbol.owner == this.env.pkgSymbol) {
+                referenceType = (BTypeReferenceType) type;
+            } else {
+                BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, flags, names.fromString(typeDefName),
+                        this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
+                referenceType = new BTypeReferenceType(type, typeSymbol, flags);
+            }
         }
 
         if (type.tag == TypeTags.INVOKABLE) {
@@ -822,6 +836,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
+        Location pos = readPosition(dataInStream);
         dataInStream.readByte(); // Read and ignore the kind as it is anyway global variable
         String varName = getStringCPEntryValue(dataInStream);
         var flags = dataInStream.readLong();
@@ -853,6 +868,7 @@ public class BIRPackageSymbolEnter {
                 varSymbol.tag = SymTag.ENDPOINT;
             }
         }
+        varSymbol.pos = pos;
 
         this.globalVarMap.put(varName, varSymbol);
 
@@ -913,18 +929,24 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineAnnotAttachmentSymbols(DataInputStream dataInStream, Annotatable owner) throws IOException {
+        ((List<BAnnotationAttachmentSymbol>) owner.getAnnotations()).addAll(readAnnotAttachmentSymbols(dataInStream,
+                                                                                                     (BSymbol) owner));
+    }
+
+    private List<BAnnotationAttachmentSymbol> readAnnotAttachmentSymbols(DataInputStream dataInStream, BSymbol owner)
+            throws IOException {
         dataInStream.readLong(); // Read and skip annotation symbol info length.
         int annotSymbolCount = dataInStream.readInt();
 
         if (annotSymbolCount == 0) {
-            return;
+            return new ArrayList<>(0);
         }
 
-        List<BAnnotationAttachmentSymbol> annotationAttachmentSymbols =
-                (List<BAnnotationAttachmentSymbol>) owner.getAnnotations();
+        List<BAnnotationAttachmentSymbol> annotationAttachmentSymbols = new ArrayList<>(annotSymbolCount);
         for (int j = 0; j < annotSymbolCount; j++) {
-            annotationAttachmentSymbols.add(defineAnnotationAttachmentSymbol(dataInStream, (BSymbol) owner));
+            annotationAttachmentSymbols.add(defineAnnotationAttachmentSymbol(dataInStream, owner));
         }
+        return annotationAttachmentSymbols;
     }
 
     /**

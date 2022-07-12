@@ -78,3 +78,37 @@ type FO "fo";
 type I "i";
 
 type O "o";
+
+type Strings "A"|"foo";
+
+function errorFunction(string:Char|xml a, xml:Element|Strings b, xml<xml:Comment|xml:Text>|string c) {
+    xml _ = a + a; 
+    xml _ = a + b; 
+    xml _ = a + c; 
+    xml _ = b + b; 
+    xml _ = b + c; 
+    xml _ = c + c; 
+}
+
+function errorFunction2(int|float a, float|int b, byte|float c) {
+    int _ = a + a; 
+    int _ = a + b; 
+    int _ = a + c; 
+    int _ = b + b; 
+    int _ = b + c; 
+    int _ = c + c; 
+}
+
+function errorFunction3(decimal|float a, decimal|float b) {
+    decimal _ = a + a; 
+    decimal _ = a + b; 
+    decimal _ = b + b; 
+}
+
+type ints 1|2;
+
+function errorFunction4(int|float a, ints|float b) {
+    int _ = a + a; 
+    int _ = a + b;  
+    int _ = b + b; 
+}

@@ -124,7 +124,9 @@ public enum RuntimeErrors implements DiagnosticCode {
     LARGE_EXPONENTS_IN_DECIMAL("large.number.of.exponents.in.decimal", "RUNTIME_0096"),
     UNSUPPORTED_DECIMAL_VALUE("unsupported.decimal.value", "RUNTIME_0097"),
     CONFIG_SIZE_MISMATCH("config.size.mismatch", "RUNTIME_0098"),
-    INVALID_FRACTION_DIGITS("invalid.fraction.digits", "RUNTIME_0099");
+    INVALID_FRACTION_DIGITS("invalid.fraction.digits", "RUNTIME_0099"),
+    INVALID_UTF_8_BYTE_ARRAY_VALUE("invalid.utf8.byte.array.value", "RUNTIME_0100"),
+    INCOMPATIBLE_ARGUMENTS("incompatible.arguments", "RUNTIME_0101");
 
     private String errorMsgKey;
     private String errorCode;

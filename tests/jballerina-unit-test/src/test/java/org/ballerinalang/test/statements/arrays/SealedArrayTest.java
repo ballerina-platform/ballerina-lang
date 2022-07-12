@@ -242,10 +242,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(listExprNegative, 14,
                                   "invalid usage of list constructor: type '(map<FooBar>|map<string>)[2]' does not" +
                                           " have a filler value", 155, 38);
-        BAssertUtil.validateError(listExprNegative, 15,
-                                  "invalid usage of list constructor: type 'LiteralConstAndIntType[2]' does not have " +
-                                          "a filler value", 162, 35);
-        Assert.assertEquals(listExprNegative.getErrorCount(), 16);
+        Assert.assertEquals(listExprNegative.getErrorCount(), 15);
     }
 
     @Test

@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.command.docs.DocumentationGenerator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
@@ -76,7 +77,7 @@ public abstract class AbstractDocumentationExecutor implements LSCommandExecutor
             }
         }
 
-        Optional<Path> filePath = CommonUtil.getPathFromURI(documentUri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(documentUri);
         if (filePath.isEmpty() || nodeRange == null) {
             return Collections.emptyList();
         }

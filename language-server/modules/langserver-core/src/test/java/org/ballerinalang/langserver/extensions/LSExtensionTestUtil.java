@@ -29,8 +29,11 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSynta
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
@@ -54,6 +57,7 @@ public class LSExtensionTestUtil {
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
     private static final String SYNTAX_TREE_BY_NAME = "ballerinaDocument/syntaxTreeByName";
+    private static final String GET_SYMBOL = "ballerinaSymbol/getSymbol";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -186,6 +190,23 @@ public class LSExtensionTestUtil {
                 .resolve(UUID.randomUUID() + ".bal");
         Files.copy(filePath, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
         return tempFilePath;
+    }
+
+    /**
+     * Get the ballerinaDocument/getSymbol response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @param position        Position of the function to get documentation
+     * @return {@link String}   Response as String
+     */
+    public static SymbolInfoResponse getSymbolDocumentation(String filePath, Position position,
+                                                            Endpoint serviceEndpoint) {
+        SymbolInfoRequest symbolInfoRequest = new SymbolInfoRequest();
+        symbolInfoRequest.setPosition(position);
+        symbolInfoRequest.setTextDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture result = serviceEndpoint.request(GET_SYMBOL, symbolInfoRequest);
+        return GSON.fromJson(getResult(result), SymbolInfoResponse.class);
     }
 
 }

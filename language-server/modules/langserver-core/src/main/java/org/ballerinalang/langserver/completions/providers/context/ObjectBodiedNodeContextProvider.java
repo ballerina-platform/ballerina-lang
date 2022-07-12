@@ -23,12 +23,12 @@ import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -53,9 +53,9 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
      */
     protected List<LSCompletionItem> getBodyContextItems(BallerinaCompletionContext context, Node node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
             return this.getCompletionItemList(typesInModule, context);
         }
         

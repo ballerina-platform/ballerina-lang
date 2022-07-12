@@ -101,6 +101,19 @@ public class SubtractOperationTest {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInSubtract");
     }
 
+    @Test(dataProvider = "dataToTestShortCircuitingInSubtraction")
+    public void testShortCircuitingInSubtraction(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInSubtraction() {
+        return new Object[]{
+                "testNoShortCircuitingInSubtractionWithNullable",
+                "testNoShortCircuitingInSubtractionWithNonNullable"
+        };
+    }
+
     @Test(description = "Test subtract statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);

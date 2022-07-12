@@ -33,6 +33,7 @@ import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
@@ -84,7 +85,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             SyntaxApiCallsResponse reply = new SyntaxApiCallsResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
                 return reply;
             }
@@ -122,7 +123,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
     public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTree(BallerinaSyntaxTreeRequest request) {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
-        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
         if (filePath.isEmpty()) {
             return CompletableFuture.supplyAsync(() -> reply);
         }
@@ -157,7 +158,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
                 return reply;
             }
@@ -198,7 +199,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
                 return reply;
             }
@@ -241,7 +242,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
     public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeModify(BallerinaSyntaxTreeModifyRequest request) {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
-        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
         if (filePath.isEmpty()) {
             reply.setParseSuccess(false);
             return CompletableFuture.supplyAsync(() -> reply);
@@ -269,7 +270,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
     public CompletableFuture<BallerinaSyntaxTreeResponse> triggerModify(BallerinaTriggerModifyRequest request) {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
-        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
         if (filePath.isEmpty()) {
             return CompletableFuture.supplyAsync(() -> reply);
         }
@@ -388,7 +389,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaProject ballerinaProject = new BallerinaProject();
             try {
-                Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
+                Optional<Path> filePath = PathUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
                     return ballerinaProject;
                 }
@@ -439,7 +440,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             SyntaxTreeNodeResponse syntaxTreeNodeResponse = new SyntaxTreeNodeResponse();
             try {
-                Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
+                Optional<Path> filePath = PathUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
                     return syntaxTreeNodeResponse;
                 }
@@ -471,7 +472,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             ExecutorPositionsResponse response = new ExecutorPositionsResponse();
             try {
                 String fileUri = params.getDocumentIdentifier().getUri();
-                Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+                Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
                 if (filePath.isEmpty()) {
                     return response;
                 }
@@ -497,7 +498,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
                 return reply;
             }
