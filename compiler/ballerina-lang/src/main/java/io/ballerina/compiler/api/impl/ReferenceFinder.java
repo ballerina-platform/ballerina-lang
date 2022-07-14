@@ -178,6 +178,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -1126,6 +1127,12 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         find(tupleTypeNode.memberTypeNodes);
         find(tupleTypeNode.restParamType);
+    }
+
+    @Override
+    public void visit(BLangMemberTypeNode memberTypeNode) {
+        find(memberTypeNode.annAttachments);
+        find(memberTypeNode.typeNode);
     }
 
     @Override

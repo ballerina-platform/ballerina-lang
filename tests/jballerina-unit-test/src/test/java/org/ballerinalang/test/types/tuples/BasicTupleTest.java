@@ -355,15 +355,15 @@ public class BasicTupleTest {
         Object returns = BRunUtil.invoke(result, "testTupleMemberAnnotations2", new Object[]{});
         TupleValueImpl returnTuple = (TupleValueImpl) returns;
 
-        Type T1 = TypeUtils.getType(returnTuple.get(0));
-        Type T2 = TypeUtils.getType(returnTuple.get(1));
-        Type T3 = TypeUtils.getType(returnTuple.get(2));
-        Type T4 = TypeUtils.getType(returnTuple.get(3));
+        Type t1 = TypeUtils.getType(returnTuple.get(0));
+        Type t2 = TypeUtils.getType(returnTuple.get(1));
+        Type t3 = TypeUtils.getType(returnTuple.get(2));
+        Type t4 = TypeUtils.getType(returnTuple.get(3));
 
-        Object annot1 = ((BAnnotatableType) T1).getAnnotation(StringUtils.fromString("$field$.1"));
-        Object annot2 = ((BAnnotatableType) T2).getAnnotation(StringUtils.fromString("$field$.1"));
-        Object annot3 = ((BAnnotatableType) T3).getAnnotation(StringUtils.fromString("$field$.0"));
-        Object annot4 = ((BAnnotatableType) T4).getAnnotation(StringUtils.fromString("$field$.0"));
+        Object annot1 = ((BAnnotatableType) t1).getAnnotation(StringUtils.fromString("$field$.1"));
+        Object annot2 = ((BAnnotatableType) t2).getAnnotation(StringUtils.fromString("$field$.1"));
+        Object annot3 = ((BAnnotatableType) t3).getAnnotation(StringUtils.fromString("$field$.0"));
+        Object annot4 = ((BAnnotatableType) t4).getAnnotation(StringUtils.fromString("$field$.0"));
 
         BMap<BString, Object> expected = ValueCreator.createMapValue();
         expected.put(StringUtils.fromString("member"), true);

@@ -312,7 +312,7 @@ public class Type {
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
                     Type.fromNode(memberType, semanticModel)).collect(Collectors.toList()));
             type.isTuple = true;
-        } else if (node instanceof MemberTypeDescriptorNode){
+        } else if (node instanceof MemberTypeDescriptorNode) {
             MemberTypeDescriptorNode member = (MemberTypeDescriptorNode) node;
             type = fromNode(member.typeDescriptor(), semanticModel);
         } else if (node instanceof RecordRestDescriptorNode) {
