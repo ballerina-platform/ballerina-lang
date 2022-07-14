@@ -343,6 +343,39 @@ function testResourceAccessContainingSpecialChars() {
     assertEquality(f, "response4");
 }
 
+function testAccessingDeprecatedResource() {
+    cli:MyClient8 myClient = new;
+
+    string a = myClient->/;
+    assertEquality(a, "response1");
+
+    int|string b = myClient->/AB;
+    assertEquality(b, "response3");
+
+    string c = myClient->/AB/[cli:PATH].post;
+    assertEquality(c, "someLongPathSegment");
+}
+
+function testClosuresFromPathParams() {
+    cli:MyClient9 myClient = new;
+
+    string a = myClient->/closureTest1("status1");
+    assertEquality(a, "status1");
+
+    int|string b = myClient->/closureTest2/[2]/path;
+    assertEquality(b, 2);
+
+    int intVar = 2;
+    int[] c = myClient->/closureTest3/[1]/[intVar];
+    assertEquality(c, <int[]>[1, 2]);
+
+    string d = myClient->/test/closureTest4;
+    assertEquality(d, "test");
+
+    int e = myClient->/closureTest2/[2]/path.post;
+    assertEquality(e, 12);
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

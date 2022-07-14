@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.bala.object;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -56,7 +58,23 @@ public class ClientResourceAccessBalaTest {
                 {"testResourceAccessWithArguments"},
                 {"testStaticTypeOfClientResourceAccessAction"},
                 {"testResourceAccessOfAnObjectConstructedViaObjectCons"},
-                {"testResourceAccessContainingSpecialChars"}
+                {"testResourceAccessContainingSpecialChars"},
+                {"testClosuresFromPathParams"}
         };
+    }
+
+    @Test
+    public void testDeprecatedConstructUsageAtRuntimeWithWarning() {
+        int index = 0;
+        // TODO: improve the warning message for accessing a deprecated resource #36977
+        BAssertUtil.validateWarning(result, index++,
+                "usage of construct 'testorg/client_classes:0.1.0:MyClient8.get' is deprecated", 349, 16);
+        BAssertUtil.validateWarning(result, index++,
+                "usage of construct 'testorg/client_classes:0.1.0:MyClient8.get' is deprecated", 352, 20);
+        BAssertUtil.validateWarning(result, index++,
+                "usage of construct 'testorg/client_classes:0.1.0:MyClient8.post' is deprecated", 355, 16);
+        Assert.assertEquals(result.getWarnCount(), index);
+
+        BRunUtil.invoke(result, "testAccessingDeprecatedResource");
     }
 }

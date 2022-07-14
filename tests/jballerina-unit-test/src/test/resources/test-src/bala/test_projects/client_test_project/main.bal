@@ -204,3 +204,58 @@ public client class MyClient7 {
         return "response4";
     }
 }
+
+public client class MyClient8 {
+    @deprecated
+    resource isolated function get .() returns string {
+        return "response1";
+    }
+
+    @deprecated
+    resource isolated function get A\u{0042}() returns int|string {
+        return "response3";
+    }
+
+    @deprecated
+    resource isolated function post AB/[string a]() returns string {
+        return a;
+    }
+}
+
+public client class MyClient9 {
+    int flags = 10;
+    resource function get closureTest1(string status) returns string {
+        var addFunc = function(int funcInt) returns string {
+            return status;
+        };
+        return addFunc(1);
+    }
+
+    resource function get closureTest2/[int a]/path() returns int {
+        var addFunc = function() returns int {
+            return a;
+        };
+        return addFunc();
+    }
+
+    resource function post closureTest2/[int a]/path() returns int {
+        var addFunc = function() returns int {
+            return a + self.flags;
+        };
+        return addFunc();
+    }
+
+    resource function get closureTest3/[int... a]() returns int[] {
+        var addFunc = function() returns int[] {
+            return a;
+        };
+        return addFunc();
+    }
+
+    resource function get [string path]/closureTest4() returns string {
+        var addFunc = function(int funcInt) returns string {
+            return path;
+        };
+        return addFunc(1);
+    }
+}
