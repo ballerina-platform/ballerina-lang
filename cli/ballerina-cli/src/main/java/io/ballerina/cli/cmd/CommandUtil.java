@@ -247,6 +247,7 @@ public class CommandUtil {
         // Create modules
         String templatePkgName = templatePackageJson.getName();
         Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
+        Path moduleMdDirRoot = balaPath.resolve("docs").resolve(ProjectConstants.MODULES_ROOT);
         List<Path> modulesList;
         try (Stream<Path> pathStream = Files.list(modulesRoot)) {
             modulesList = pathStream.collect(Collectors.toList());
@@ -262,6 +263,13 @@ public class CommandUtil {
                 Files.createDirectories(destDir);
             }
             Files.walkFileTree(moduleRoot, new FileUtils.Copy(moduleRoot, destDir));
+
+            // Copy Module.md
+            Path moduleMdSource = moduleMdDirRoot.resolve(moduleDir).resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+            if (Files.exists(moduleMdSource)) {
+                Files.copy(moduleMdSource, destDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
         }
 
         // Copy platform libraries
