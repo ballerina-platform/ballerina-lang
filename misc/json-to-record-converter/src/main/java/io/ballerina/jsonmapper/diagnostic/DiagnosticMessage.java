@@ -21,6 +21,7 @@ package io.ballerina.jsonmapper.diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Contains diagnostic messages of the JSON to Record converter.
@@ -54,7 +55,7 @@ public final class DiagnosticMessage {
     }
 
     public Object[] getArgs() {
-        return this.args.clone();
+        return Objects.requireNonNullElse(this.args, new Object[0]).clone();
     }
 
     public static DiagnosticMessage jsonToRecordConverter100(Object[] args) {
