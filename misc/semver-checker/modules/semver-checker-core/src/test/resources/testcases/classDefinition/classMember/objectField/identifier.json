@@ -1,0 +1,75 @@
+[
+  {
+    "description": "Add new object field to a class",
+    "oldCode": "public class counter{\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove object field to a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "removed",
+                  "versionImpact": "major"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Rename object field to a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\tpublic int a;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "new",
+                  "versionImpact": "minor"
+                },
+                {
+                  "kind": "object field",
+                  "type": "removed",
+                  "versionImpact": "major"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

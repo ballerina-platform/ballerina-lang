@@ -17,7 +17,9 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -134,16 +136,38 @@ public class JarResolver {
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
 
-        List<String> fileNames = new ArrayList();
-        libraryPaths.stream().forEach(e -> fileNames.add(e.path().toFile().getName()));
-
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-            if (!fileNames.contains(otherJarDependency.path().toFile().getName())) {
+            JarLibrary newEntry = (JarLibrary) otherJarDependency;
+
+            if (newEntry.groupId().isEmpty() || newEntry.artifactId().isEmpty() || newEntry.version().isEmpty()) {
                 libraryPaths.add(new JarLibrary(otherJarDependency.path(), scope, getPackageName(packageContext)));
+                continue;
             }
+            if (libraryPaths.contains(newEntry)) {
+                JarLibrary existingEntry = libraryPaths.stream().filter(jarLibrary1 ->
+                        jarLibrary1.equals(newEntry)).findAny().orElseThrow();
+
+                ComparableVersion existingVersion = new ComparableVersion(existingEntry.version().orElseThrow());
+                ComparableVersion newVersion = new ComparableVersion(newEntry.version().get());
+
+                if (existingVersion.compareTo(newVersion) >= 0) {
+                    if (!newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
+                        // TODO: issue a warning. For this we need to design diagnostic reporting in JarResolver
+                    }
+                    continue;
+                }
+                libraryPaths.remove(existingEntry);
+            }
+
+            libraryPaths.add(new JarLibrary(
+                    newEntry.path(),
+                    scope,
+                    newEntry.artifactId().orElseThrow(),
+                    newEntry.groupId().orElseThrow(),
+                    newEntry.version().orElseThrow(),
+                    newEntry.packageName().orElseThrow()));
         }
     }
-
 
     public Collection<JarLibrary> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         // 1) Get all the jars excepts for test scope package and platform-specific dependencies

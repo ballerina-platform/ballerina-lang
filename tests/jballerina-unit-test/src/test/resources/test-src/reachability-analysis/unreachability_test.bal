@@ -1489,3 +1489,57 @@ function testUnreachableStatementInQueryAction30() returns error? {
         int _ = 2; // unreachable code
     };
 }
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic(float? v) returns int {
+    int y = 0;
+
+    if v is () {
+        return 1;
+    } else if v is float {
+        return 2;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // unreachable code
+}
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic2(float? v) returns int {
+    int y = 0;
+
+    if v is float? {
+        return 1;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // unreachable code
+}
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic3(float? v) returns int|error {
+    int y = 0;
+
+    if v is () {
+        fail error("Err");
+    } else if v is float {
+        return 1;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // unreachable code
+}
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic4(float? v) returns int {
+    int y = 0;
+
+    if v is () {
+        panic error("Error");
+    } else if v is float {
+        return 1;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // unreachable code
+}

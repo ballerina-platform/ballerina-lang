@@ -43,8 +43,11 @@ public enum DiffKind {
     MODULE_VAR_ANNOTATION("module variable annotation"),
     MODULE_VAR_INIT("module variable initializer"),
     DOCUMENTATION("documentation"),
-    UNKNOWN("unknown");
+    UNKNOWN("unknown"),
 
+    CLASS("class"),
+    OBJECT_FIELD("object field"),
+    OBJECT_FIELD_EXPR("object field expression");
     public final String name;
 
     DiffKind(String name) {
