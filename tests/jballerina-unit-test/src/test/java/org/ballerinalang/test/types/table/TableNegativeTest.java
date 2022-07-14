@@ -184,7 +184,8 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "incompatible types: expected " +
                 "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
                 "found 'table<Employee2>'", 539, 9);
-        validateError(compileResult, index++, "incompatible types: expected 'never', found 'int'", 551, 29);
+        validateError(compileResult, index++, "undefined function 'remove' in type 'table<Employee2> key<never>'",
+                551, 22);
         validateError(compileResult, index++, "incompatible types: expected " +
                 "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
                 "found 'table<record {| int id; string name; |}>'", 563, 9);

@@ -6864,6 +6864,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         SymbolEnv enclEnv = data.env;
         data.env = SymbolEnv.createInvocationEnv(iExpr, data.env);
         iExpr.argExprs.add(0, iExpr.expr);
+
+        if (Types.getReferredType(bType).tag == TypeTags.TABLE) {
+            BType keyconstraint = ((BTableType) Types.getReferredType(iExpr.expr.getBType())).keyTypeConstraint;
+            if (keyconstraint != null && keyconstraint.tag == TypeTags.NEVER) {
+                switch (funcName.value){
+                    case "remove":
+                    case "filter":
+                    case "get":
+                    case "removeIfHasKey":
+                    case "hasKey":
+                    case "keys":
+                    case "nextKey":
+                        data.resultType = symTable.semanticError;
+                        return symTable.notFoundSymbol;
+                }
+            }
+        }
         checkInvocationParamAndReturnType(iExpr, data);
         data.env = enclEnv;
 
