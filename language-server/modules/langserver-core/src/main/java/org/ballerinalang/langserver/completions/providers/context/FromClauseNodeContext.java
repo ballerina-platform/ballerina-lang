@@ -131,7 +131,7 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
 
         Optional<TypeSymbol> optionalTypeSymbol = Optional.empty();
         Optional<Integer> optionalInKeyword = Optional.empty();
-        if (context.getNodeAtCursor() instanceof FromClauseNode) {
+        if (context.getNodeAtCursor().kind() == SyntaxKind.FROM_CLAUSE) {
             FromClauseNode fromClauseNode = (FromClauseNode) context.getNodeAtCursor();
             optionalTypeSymbol = fromClauseNode.apply(new ContextTypeResolver(context));
             optionalInKeyword = Optional.of(fromClauseNode.inKeyword().textRange().endOffset());
