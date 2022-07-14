@@ -43,6 +43,7 @@ import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
@@ -311,6 +312,9 @@ public class Type {
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
                     Type.fromNode(memberType, semanticModel)).collect(Collectors.toList()));
             type.isTuple = true;
+        } else if (node instanceof MemberTypeDescriptorNode) {
+            MemberTypeDescriptorNode member = (MemberTypeDescriptorNode) node;
+            type = fromNode(member.typeDescriptor(), semanticModel);
         } else if (node instanceof RecordRestDescriptorNode) {
             RecordRestDescriptorNode recordRestDescriptorNode = (RecordRestDescriptorNode) node;
             type.isRestParam = true;
