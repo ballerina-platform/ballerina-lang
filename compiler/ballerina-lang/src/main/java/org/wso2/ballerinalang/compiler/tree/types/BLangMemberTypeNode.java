@@ -33,7 +33,7 @@ import java.util.Set;
 
 
 /**
- * {@code BLangUnionTypeNode} represents a non-rest member of a tuple
+ * {@code BLangUnionTypeNode} represents a non-rest member of a tuple.
  *
  * @since 2201.2.0
  */
