@@ -8590,6 +8590,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         memberTypes.add(memberType);
                     }
                 });
+        if (tupleType.restType != null) {
+            memberTypes.add(tupleType.restType);
+        }
         return memberTypes;
     }
 

@@ -283,7 +283,7 @@ type StringTuple [string...];
 type BooleanTuple [boolean...];
 type CustomTuple [int, string, boolean];
 
-const int index = 0;
+int index = 0;
 
 [int...] moduleLevelIntTuple = [1, 2, 3];
 [string...] moduleLevelStringTuple = ["string 1", "string 2", "string 3"];
@@ -442,6 +442,67 @@ public function testTupleAccessWithCustomReadonlyUnionTypes() {
         assertEquals(stringReadonlyTuple[i], expectedStringTuple[i]);
         assertEquals(booleanReadonlyTuple[i], expectedBooleanTuple[i]);
     }
+}
+
+function testTupleWithRestTypesAccess() {
+    [int...] t1 = [1, 2, 3, 5];
+    [int, string, boolean...] t2 = [1, "a", true, true];
+
+    var x1 = t1[0];
+    int x2 = x1;
+    assertEquals(x2, 1);
+
+    var x3 = t2[0];
+    int x4 = x3;
+    assertEquals(x4, 1);
+
+    var x5 = t2[3];
+    boolean x6 = x5;
+    assertEquals(x6, true);
+
+    var x7 = t1[index];
+    int x8 = x1;
+    assertEquals(x8, 1);
+
+    var x9 = t2[index];
+    int x10 = x3;
+    assertEquals(x10, 1);
+
+    var x11 = t2[index + 2];
+    boolean x12 = x5;
+    assertEquals(x12, true);
+}
+
+type CustomTupleWithRestTypes1 [int...];
+type CustomTupleWithRestTypes2 [int, string, boolean...];
+
+function testCustomTupleWithRestTypesAccess() {
+    CustomTupleWithRestTypes1 t1 = [1, 2, 3, 5];
+    CustomTupleWithRestTypes2 t2 = [1, "a", true, true];
+
+    var x1 = t1[0];
+    int x2 = x1;
+    assertEquals(x2, 1);
+
+    var x3 = t2[0];
+    int x4 = x3;
+    assertEquals(x4, 1);
+
+    var x5 = t2[3];
+    boolean x6 = x5;
+    assertEquals(x6, true);
+
+    var x7 = t1[index];
+    int x8 = x1;
+    assertEquals(x8, 1);
+
+    var x9 = t2[index];
+    int x10 = x3;
+    assertEquals(x10, 1);
+
+    var x11 = t2[index + 2];
+    boolean x12 = x5;
+    assertEquals(x12, true);
 }
 
 function assertEquals(anydata expected, anydata actual) {
