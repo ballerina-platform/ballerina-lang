@@ -120,7 +120,7 @@ public class CommonUtil {
 
     public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
-            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
+            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD, SyntaxKind.CONFIGURABLE_KEYWORD);
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
@@ -289,8 +289,8 @@ public class CommonUtil {
     /**
      * Check if the provided union type is a union of members of provided type desc kind.
      *
-     * @param typeSymbol Union type symbol
-     * @param typeDescKind    Type desc kind
+     * @param typeSymbol   Union type symbol
+     * @param typeDescKind Type desc kind
      * @return true if provided union contains members of provided type desc kind
      */
     public static boolean isUnionOfType(TypeSymbol typeSymbol, TypeDescKind typeDescKind) {
