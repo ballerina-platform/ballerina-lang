@@ -1212,6 +1212,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 lookahead++;
                 isEntryPoint = false;
             }
+
             currentCtx = getNextRule(currentCtx, lookahead);
         }
 
