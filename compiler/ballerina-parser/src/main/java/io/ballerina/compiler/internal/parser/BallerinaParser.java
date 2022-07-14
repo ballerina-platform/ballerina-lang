@@ -11363,12 +11363,12 @@ public class BallerinaParser extends AbstractParser {
         return parseTupleTypeMembers(typeDesc, typeDescList);
     }
 
-    private STNode parseTupleTypeMembers(STNode firsrMember, List<STNode> memberList) {
+    private STNode parseTupleTypeMembers(STNode firstMember, List<STNode> memberList) {
         STNode tupleMemberRhs;
         // Parse the remaining type descs
         while (!isEndOfTypeList(peek().kind)) {
-            if (firsrMember.kind == SyntaxKind.REST_TYPE) {
-                firsrMember = invalidateTypeDescAfterRestDesc(firsrMember);
+            if (firstMember.kind == SyntaxKind.REST_TYPE) {
+                firstMember = invalidateTypeDescAfterRestDesc(firstMember);
                 break;
             }
 
@@ -11376,12 +11376,12 @@ public class BallerinaParser extends AbstractParser {
             if (tupleMemberRhs == null) {
                 break;
             }
-            memberList.add(firsrMember);
+            memberList.add(firstMember);
             memberList.add(tupleMemberRhs);
-            firsrMember = parseTupleMember();
+            firstMember = parseTupleMember();
         }
 
-        memberList.add(firsrMember);
+        memberList.add(firstMember);
         return STNodeFactory.createNodeList(memberList);
     }
 
