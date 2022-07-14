@@ -626,7 +626,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             } else {
                 varString = String.format("(%s) %s %s = %s",
                         entry.getVariableName().getUnicodeConvertedName(), entry.getType(),
-                        entry.getVariableName(), value);
+                        entry.getVariableName().getUnicodeConvertedName(), value);
                 variablesDeclarations.add(varString);
             }
         }
