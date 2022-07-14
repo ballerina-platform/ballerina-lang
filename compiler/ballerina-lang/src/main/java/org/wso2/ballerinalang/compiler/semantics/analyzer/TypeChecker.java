@@ -6868,7 +6868,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (Types.getReferredType(bType).tag == TypeTags.TABLE) {
             BType keyconstraint = ((BTableType) Types.getReferredType(iExpr.expr.getBType())).keyTypeConstraint;
             if (keyconstraint != null && keyconstraint.tag == TypeTags.NEVER) {
-                switch (funcName.value){
+                switch (funcName.value) {
                     case "remove":
                     case "filter":
                     case "get":
