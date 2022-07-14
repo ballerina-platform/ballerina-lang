@@ -123,32 +123,30 @@ public class ClientResourceAccessActionNegativeTest {
                 "too many arguments in call to 'post()'", 90, 13);
         validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'post()'", 91, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 145, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 146, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 147, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 148, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 149, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 150, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 151, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 152, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 153, 13);
+        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
+                "supported when the corresponding resource method is ambiguous", 154, 13);
         validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 145, 13);
+                "resource methods are only allowed in 'service' or 'client' object types", 159, 9);
         validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 146, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 147, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 148, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 149, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 150, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 151, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 152, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 153, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 154, 13);
-        validateError(clientResourceAccessNegative, index++,
-                "resource functions are only allowed in network object types",
-                159, 9);
-        validateError(clientResourceAccessNegative, index++,
-                "client resource access action is only allowed on client objects",
-                163, 13);
+                "client resource access action is only allowed on client objects", 163, 13);
         Assert.assertEquals(clientResourceAccessNegative.getErrorCount(), index);
     }
 

@@ -4794,7 +4794,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcNode.symbol.flags |= Flags.PUBLIC;
 
         if (!isNetworkQualified(objectSymbol)) {
-            this.dlog.error(funcNode.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_IN_NON_NETWORK_OBJECT);
+            this.dlog.error(funcNode.pos, 
+                    DiagnosticErrorCode.RESOURCE_METHODS_ARE_ONLY_ALLOWED_IN_SERVICE_OR_CLIENT_OBJECTS);
         }
     }
 

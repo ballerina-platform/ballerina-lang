@@ -227,7 +227,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("BCE2408", "endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("BCE2409", "endpoint.spi.invalid.function"),
 
-    RESOURCE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE2411", "resource.function.in.non.network.object"),
+    RESOURCE_METHODS_ARE_ONLY_ALLOWED_IN_SERVICE_OR_CLIENT_OBJECTS(
+            "BCE2411", "resource.methods.are.only.allowed.in.service.or.client.objects"),
     RESOURCE_FUNCTION_INVALID_RETURN_TYPE("BCE2412", "resource.function.invalid.return.type"),
     REMOTE_IN_NON_OBJECT_FUNCTION("BCE2413", "remote.in.non.object.function"),
     INVALID_LISTENER_VARIABLE("BCE2414", "invalid.listener.var"),
