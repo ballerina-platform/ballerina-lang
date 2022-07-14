@@ -17389,6 +17389,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_BINDING_PATTERN:
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case QUALIFIED_NAME_REFERENCE: // a qualified-name-ref can only be a type-ref
+                return SyntaxKind.TUPLE_TYPE_DESC;
             case LIST_CONSTRUCTOR:
             case MAPPING_CONSTRUCTOR:
             case SPREAD_MEMBER:
@@ -18638,6 +18639,7 @@ public class BallerinaParser extends AbstractParser {
         if (isEmpty(ambiguousNode)) {
             return ambiguousNode;
         }
+
         switch (ambiguousNode.kind) {
             case WILDCARD_BINDING_PATTERN:
             case CAPTURE_BINDING_PATTERN:
