@@ -28,8 +28,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Misc functionality testing of evaluator.
@@ -116,20 +118,14 @@ public class EvaluatorMiscTest {
         evaluate("string t = \"Hello\"", evaluator);
         evaluate("var f = function () returns int {return 1;}", evaluator);
         evaluate("int a = 1; string b = \"World\"", evaluator);
-        evaluate("string 'unicode_\\u{2324} = \"Jane doe\"", evaluator);
-        evaluate("string 'unicode_\\u{1F600} = \"John doe\"", evaluator);
-        evaluate("string 'unicode_\\u{1F600}\\u{2324} = \"John\"", evaluator);
-        Assert.assertEquals(new HashSet<>(evaluator.availableVariables()),
+        Assert.assertEquals(new HashSet<>(filterAvailableVariables(evaluator)),
                 Set.of(
                         "(a) int a = 1",
                         "(k) string? k = ()",
                         "(t) string t = \"Hello\"",
                         "(f) function () returns int f = function isolated function () returns (int)",
                         "(i) int i = 23",
-                        "(b) string b = \"World\"",
-                        "('unicode_⌤) string 'unicode_⌤ = \"Jane doe\"",
-                        "('unicode_😀) string 'unicode_😀 = \"John doe\"",
-                        "('unicode_😀⌤) string 'unicode_😀⌤ = \"John\""
+                        "(b) string b = \"World\""
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 0);
@@ -149,18 +145,24 @@ public class EvaluatorMiscTest {
         Assert.assertEquals(new HashSet<>(evaluator.availableModuleDeclarations()),
                 Set.of(
                         "(a) function a() {}",
-                        "(t) const t = 100;",
                         "(A) class A{}",
                         "(B) enum B{C, D}"
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 0);
-        Assert.assertTrue(evaluator.availableVariables().isEmpty());
+        Assert.assertFalse(evaluator.availableVariables().isEmpty());
     }
 
     private String evaluate(String source, Evaluator evaluator) throws  BallerinaShellException {
         ShellCompilation shellCompilation = evaluator.getCompilation(source);
         Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
         return evaluator.getValue(compilation).get().getResult();
+    }
+
+    private List<String> filterAvailableVariables(Evaluator evaluator) {
+        return evaluator.availableVariables().stream().filter(s -> !s.equals("Variable declarations")
+                                                                && !s.equals("Final variable declarations")
+                                                                && !s.equals("Constant Variable Declarations"))
+                                                                .collect(Collectors.toList());
     }
 }

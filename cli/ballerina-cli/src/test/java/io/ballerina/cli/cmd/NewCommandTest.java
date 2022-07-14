@@ -352,6 +352,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path packageDir = tmpDir.resolve("sample-multi_module");
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("natives.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("libs/protobuf-native-1.0.1.txt")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.timestamp")));
@@ -359,6 +360,8 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/int.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/string.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/" +
+                ProjectConstants.MODULE_MD_FILE_NAME)));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String expectedTomlContent = "[package]\n" +
