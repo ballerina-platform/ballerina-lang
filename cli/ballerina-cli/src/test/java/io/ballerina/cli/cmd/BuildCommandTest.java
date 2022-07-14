@@ -832,6 +832,9 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBirCachedProjectBuildPerformance() {
         Path projectPath = this.testResources.resolve("noClassDefProject");
         System.setProperty("user.dir", projectPath.toString());
+
+        cleanTarget(projectPath);
+
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -840,6 +843,27 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand secondBuildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(secondBuildCommand).parse();
         secondBuildCommand.execute();
+        long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
+
+        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
+                "second code gen duration is greater than the expected value");
+    }
+
+    @Test(description = "Test bir cached project build performance followed by a test command")
+    public void testBirCachedProjectBuildPerformanceAfterTestCommand() {
+        Path projectPath = this.testResources.resolve("noClassDefProject");
+        System.setProperty("user.dir", projectPath.toString());
+
+        cleanTarget(projectPath);
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parse();
+        testCommand.execute();
+        long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
         long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
         Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
@@ -880,5 +904,11 @@ public class BuildCommandTest extends BaseCommandTest {
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
             return FileVisitResult.CONTINUE;
         }
+    }
+
+    private void cleanTarget(Path projectPath) {
+        CleanCommand cleanCommand = new CleanCommand(projectPath, false);
+        new CommandLine(cleanCommand).parse();
+        cleanCommand.execute();
     }
 }
