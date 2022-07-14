@@ -53,6 +53,7 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"changeVarType1.json"},
                 {"changeVarType2.json"},
+                {"changeVarType_int_to_float.json"}
         };
     }
 

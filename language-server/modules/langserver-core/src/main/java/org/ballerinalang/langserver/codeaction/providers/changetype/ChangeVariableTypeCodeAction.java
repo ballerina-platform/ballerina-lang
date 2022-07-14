@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -161,6 +162,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             case LOCAL_VAR_DECL:
                 return Optional.of(
                         ((VariableDeclarationNode) matchedNode).typedBindingPattern().typeDescriptor());
+            case MODULE_VAR_DECL:
+                 return Optional.of(
+                         ((ModuleVariableDeclarationNode) matchedNode).typedBindingPattern().typeDescriptor());
+
             case ASSIGNMENT_STATEMENT:
                 Optional<VariableSymbol> optVariableSymbol = getVariableSymbol(context, matchedNode);
                 if (optVariableSymbol.isEmpty()) {
@@ -188,6 +193,14 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 }
                 CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPatternNode;
                 return Optional.of(captureBindingPatternNode.variableName().text());
+            case MODULE_VAR_DECL:
+                 ModuleVariableDeclarationNode mVariableDeclrNode = (ModuleVariableDeclarationNode) matchedNode;
+                 BindingPatternNode mBindingPatternNode = mVariableDeclrNode.typedBindingPattern().bindingPattern();
+                 if (mBindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
+                     return Optional.empty();
+                 }
+                 CaptureBindingPatternNode mCaptureBindingPatternNode = (CaptureBindingPatternNode) mBindingPatternNode;
+                 return Optional.of(mCaptureBindingPatternNode.variableName().text());
             case ASSIGNMENT_STATEMENT:
                 AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
                 Node varRef = assignmentStmtNode.varRef();
