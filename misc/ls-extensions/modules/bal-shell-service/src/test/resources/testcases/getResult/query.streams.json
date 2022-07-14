@@ -1,0 +1,52 @@
+[
+  {
+    "source": "class EvenNumberGenerator { int i = 0; public isolated function next() returns record {| int value; |}|error? { self.i += 2; return { value: self.i }; }}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["EvenNumberGenerator"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type ResultValue record {|int value;|};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["ResultValue"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "EvenNumberGenerator evenGen = new();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["evenGen"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "stream<int, error?> evenNumberStream = new(evenGen);",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["evenNumberStream"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "evenNumberStream.next()",
+    "result": {
+      "shellValue": {
+        "value":"{\"value\":2}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"lang.__internal:narrowType"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

@@ -901,6 +901,14 @@
       "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        return;\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3($CompilationError$|int arg1) returns $CompilationError$ {\n        ${4}\n    }\n\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

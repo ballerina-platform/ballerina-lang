@@ -34,32 +34,37 @@ Extensible metadata enables easy integration of Ballerina programs with cloud pl
 You could directly generate Docker and Kubernetes artifacts straight away from
 the source code.
 
-## Getting started
+## Get started
 
 You can use one of the following options to try out Ballerina.
 
-* [Setting up Ballerina](https://ballerina.io/learn/installing-ballerina/setting-up-ballerina/)
-* [Ballerina by Example](https://ballerina.io/learn/by-example/) 
+* [Set up Ballerina](https://ballerina.io/learn/install-ballerina/set-up-ballerina/)
 * [Ballerina Playground](https://play.ballerina.io/)
 
-## Downloading and installing
+You can use following resources to learn Ballerina.
+
+* [Ballerina by Example](https://ballerina.io/learn/by-example/)
+* [Ballerina learn pages and guides](https://ballerina.io/learn/)
+
+## Download and install
 
 For instructions on downloading and installing, see [Ballerina Downloads](https://ballerina.io/downloads/).
 
-## Installation options
+### Installation options
 
-For more installation options, see [Installation options](https://ballerina.io/learn/installing-ballerina/installation-options/).
+For more installation options, see [Installation options](https://ballerina.io/learn/install-ballerina/installation-options/).
 
-## Get the VS Code extension
+### Get the VS Code extension
 
-Try out Ballerina's development capabilities using [the Ballerina extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina).
+Try out Ballerina's development capabilities using the [Ballerina extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina).
 
-## Reporting issues and security flaws
+## Report issues and security flaws
 
 Report an issue in the relevant repo out of the GitHub repos listed below. 
 
 >**Tip:** If you are unsure whether you have found a bug, search the existing issues in the corresponding repo on 
 > GitHub and raise it in the [Ballerina Slack channel](https://ballerina-platform.slack.com/).
+
   - Compiler, runtime, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
   - Standard library: <a href="https://github.com/ballerina-platform/ballerina-standard-library/issues">ballerina-standard-library</a> repo
   - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
@@ -67,11 +72,11 @@ Report an issue in the relevant repo out of the GitHub repos listed below.
   - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security/">security policy</a>.
 
 
-## Contributing to Ballerina
+## Contribute to Ballerina
 
 As an open source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
 
-Check the issue tracker for open issues that interest you. We look forward to receiving your contributions.
+We look forward to receiving your contributions.
 
 ## License
 
@@ -79,7 +84,7 @@ Ballerina code is distributed under [Apache license 2.0](https://github.com/ball
 
 ## Useful links
 
-* The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
-* Chat live with us on our [Slack channel](https://ballerina.io/community/slack/) and engage with the [Ballerina community](https://ballerina.io/community/).
-* Technical questions should be posted on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
-* Ballerina performance test results are available [here](performance/benchmarks/summary.md).
+* Join [Ballerina-Dev](https://groups.google.com/g/ballerina-dev) group for technical discussions related to the Ballerina project.
+* Chat live with us on our [Slack channel](https://ballerina-platform.slack.com/) and get an invitation [here](https://ballerina.io/community/#ballerina-slack-community).
+* Post technical questions on the Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
+* For more details on how to engage with the community, see [Community](https://ballerina.io/community/).

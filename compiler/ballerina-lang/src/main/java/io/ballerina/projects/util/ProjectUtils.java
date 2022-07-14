@@ -23,6 +23,7 @@ import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
@@ -32,6 +33,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
@@ -980,5 +982,21 @@ public class ProjectUtils {
             // Find the latest version
             return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
         }
+    }
+
+    /**
+     * Checks if a given project does not contain ballerina source files or test files.
+     *
+     * @param project project for checking for emptiness
+     * @return true if the project is empty
+     */
+    public static boolean isProjectEmpty(Project project) {
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

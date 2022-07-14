@@ -92,6 +92,7 @@ dependencies {
     dist project(':ballerina-lang:decimal')
     dist project(':ballerina-lang:error')
     dist project(':ballerina-lang:floatingpoint')
+    dist project(':ballerina-lang:function')
     dist project(':ballerina-lang:future')
     dist project(':ballerina-lang:integer')
     dist project(':ballerina-lang:map')

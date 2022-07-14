@@ -1,0 +1,134 @@
+[
+  {
+    "source": "type Details record {| string name; int id; |};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Details"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type Student record {| int 'class; Details details; map<int> marks; |};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Student"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function addEntryToMap(map<string|int> m, string key, string|int value) { m[key] = value; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["addEntryToMap"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Details & readonly immutableDetails = { name: \"May\", id: 112233 };",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["immutableDetails"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Student & readonly student = { 'class: 12, details: immutableDetails, marks: { math: 80, physics: 85, chemistry: 75 } };",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["student"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "map<string|int> m1 = {stringVal: \"str\", intVal: 1};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["m1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "map<string|int> m2 = m1.cloneReadOnly();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["m2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "m1 === m2",
+    "result": {
+      "shellValue": {
+        "value":"false",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "map<string|int> m3 = m2.cloneReadOnly();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["m3"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "m2 === m3",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "map<string|int> m4 = {valueType: \"map\", constraint: \"string\"};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["m4"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "var immutableClonedVal = m4.cloneReadOnly();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["immutableClonedVal"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "immutableClonedVal is map<string>",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

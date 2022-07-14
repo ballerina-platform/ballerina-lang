@@ -69,6 +69,7 @@ public class RuntimeConstants {
     public static final String TYPEDESC_LANG_LIB = "lang.typedesc";
     public static final String VALUE_LANG_LIB = "lang.value";
     public static final String XML_LANG_LIB = "lang.xml";
+    public static final String FUNCTION_LANG_LIB = "lang.function";
     public static final String FUTURE_LANG_LIB = "lang.future";
     public static final String OBJECT_LANG_LIB = "lang.object";
     public static final String TABLE_LANG_LIB = "lang.table";

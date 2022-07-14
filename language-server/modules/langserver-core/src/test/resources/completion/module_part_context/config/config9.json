@@ -395,6 +395,14 @@
           "newText": "import test/local_project2;\n"
         }
       ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

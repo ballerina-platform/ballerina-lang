@@ -40,6 +40,7 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
@@ -127,6 +128,18 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         addData(data);
         if (type.isReadOnly()) {
             this.typedesc = createSingletonTypedesc(this);
+        }
+    }
+
+    // TODO: Might be unnecessary after fixing issue lang/#36721
+    public TableValueImpl(TableType type, ArrayValue fieldNames) {
+        this(type);
+        this.fieldNames = fieldNames.getStringArray();
+
+        if (this.fieldNames.length > 0) {
+            this.valueHolder = new KeyHashValueHolder();
+        } else {
+            this.valueHolder = new ValueHolder();
         }
     }
 
@@ -420,6 +433,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
                 return getTableConstraintField(effectiveType, fieldName);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                Type refType = ((BTypeReferenceType) constraintType).getReferredType();
+                return getTableConstraintField(refType, fieldName);
             case TypeTags.UNION_TAG:
                 HashSet<Type> possibleTypes = new HashSet<>();
                 for (Type memberType : ((BUnionType) constraintType).getMemberTypes()) {

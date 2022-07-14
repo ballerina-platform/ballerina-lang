@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
@@ -111,7 +112,7 @@ public class FromJsonWithType {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
-        Type matchingType = convertibleTypes.get(0);
+        Type matchingType = TypeUtils.getReferredType(convertibleTypes.get(0));
 
         Object newValue;
         switch (sourceType.getTag()) {

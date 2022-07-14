@@ -680,6 +680,14 @@
       "filterText": "function1",
       "insertText": "module1:function1()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "D",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
