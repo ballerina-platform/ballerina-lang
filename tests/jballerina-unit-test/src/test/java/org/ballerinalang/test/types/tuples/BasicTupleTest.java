@@ -190,7 +190,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 44);
+        Assert.assertEquals(resultNegative.getErrorCount(), 49);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++,
