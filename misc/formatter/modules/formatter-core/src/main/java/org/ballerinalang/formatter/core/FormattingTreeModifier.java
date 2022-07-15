@@ -3520,7 +3520,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
             node = (T) node.apply(this);
 
-            if (shouldWrapLine(oldNode, parent) && options.getLineWrapping()) {
+            if (options.getLineWrapping() && shouldWrapLine(oldNode, parent)) {
                 node = wrapLine(oldNode, parent);
             }
 
