@@ -96,7 +96,7 @@
       },
       "sortText": "C",
       "filterText": "path1|path2|get",
-      "insertText": "/path1/[${2:\"\"}]/path2",
+      "insertText": "/path1/[${1:\"\"}]/path2",
       "insertTextFormat": "Snippet"
     },
     {
