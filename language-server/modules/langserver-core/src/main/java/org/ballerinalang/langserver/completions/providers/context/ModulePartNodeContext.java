@@ -143,6 +143,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 break;
             case CONFIGURABLE_KEYWORD:
                 completionItems.addAll(this.getTypeDescContextItems(context));
+                break;
             default:
                 break;
         }
