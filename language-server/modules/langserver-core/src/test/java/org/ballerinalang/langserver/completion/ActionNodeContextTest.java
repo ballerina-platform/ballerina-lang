@@ -46,7 +46,6 @@ public class ActionNodeContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        // Issue: #36382
-        return Collections.singletonList("remote_action_config3.json");
+        return Collections.emptyList();
     }
 }

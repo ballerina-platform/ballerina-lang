@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 5,
-    "character": 26
+    "character": 10
   },
-  "source": "action_node_context/source/remote_action_source5.bal",
+  "source": "action_node_context/source/client_resource_access_action_source8.bal",
   "items": [
     {
       "label": "post(string path, module1:RequestMessage message, string targetType)",
