@@ -65,6 +65,18 @@ public class MockTest extends BaseTestCase {
         }
     }
 
+    @Test
+    public void testFunctionMockingLegacy() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "0 failing";
+        String[] args = mergeCoverageArgs(new String[]{"legacy-function-mocking-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to function mocking failure in test framework..\nOutput:\n" + output);
+        }
+    }
+
     @Test()
     public void testObjectMocking() throws BallerinaTestException {
         String msg1 = "9 passing";
