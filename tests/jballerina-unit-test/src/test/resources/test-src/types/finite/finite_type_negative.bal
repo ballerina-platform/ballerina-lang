@@ -232,6 +232,20 @@ function testNullFiniteType() {
     "null" _ = null; // error
 }
 
+type UnaryType1 -2;
+type UnaryType2 string|-3;
+type UnaryType3 UnaryType1|-3;
+
+function testFiniteTypeWithUnaryMinus() {
+    UnaryType2 x1 = -2;
+    UnaryType3 x2 = -5;
+}
+
+function testFiniteTypeWithOutOfRangeValues() {
+    1|5.4 _ = 92233720368547758078;
+    1 _ = 92233720368547758078;
+}
+
 type IntOne 1;
 type FloatOne 1.0;
 type DecimalOne 1.0d;
@@ -256,4 +270,29 @@ function testFiniteTypeAssignableNegative() {
     IntOne _ = decimalOne;
     FloatOne _ = decimalOne;
     FloatOne|IntOne _ = decimalOne;
+}
+
+function testOutOfRangeWithDecimal() {
+    1.7976931348623157E+309d a = 9223372036854775808;
+    1.7976931348623157E+309d _ = 17976931348623157000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
+}
+
+type testType 3|-4|-9223372036854775808;
+function testFiniteTypeOutOfRangeWithFunction() {
+    testType val = foo();
+}
+
+function foo() returns 3|-4|-9223372036854775808 {
+    testType val = 3;
+    return val;
+}
+
+type InvalidTest1 -9223372036854775808|-1|-1d|"string";
+function testInvalidLiteralInFiniteType() {
+    InvalidTest1 x = -1;
+}
+
+function testFiniteTypeFloatWithIntegers() {
+    1f a = 9223372036854775808;
+    1f b = 340;
 }

@@ -22,7 +22,8 @@ isolated function enrichRequest(ClientAuthHandler clientAuthHandler, Request req
     } else if clientAuthHandler is ClientOAuth2Handler {
         return clientAuthHandler->enrich(req);
     } else {
-        panic error("invalid client auth-handler found"); // unreachable panic stmt is not an error
+        string msg = "invalid client auth-handler found"; // unreachable
+        panic error(msg);
     }
 }
 
@@ -48,7 +49,7 @@ public isolated class ClientBasicAuthProvider {
     }
 }
 
-public readonly isolated class ClientBasicAuthHandler {
+public isolated class ClientBasicAuthHandler {
 
     private final ClientBasicAuthProvider provider;
 
@@ -76,7 +77,7 @@ public isolated class ClientOAuth2Provider {
     }
 }
 
-public readonly isolated client class ClientOAuth2Handler {
+public isolated client class ClientOAuth2Handler {
 
     private final ClientOAuth2Provider provider;
 

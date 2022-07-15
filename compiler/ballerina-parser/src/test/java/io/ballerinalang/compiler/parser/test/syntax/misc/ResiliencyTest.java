@@ -43,7 +43,8 @@ public class ResiliencyTest extends AbstractMiscTest {
         testFile("resiliency/resiliency_source_03.bal", "resiliency/resiliency_assert_03.json");
     }
 
-    @Test
+    // Enable once #35795 is fixed
+    @Test(enabled = false)
     public void testResiliencyForTokenBufferOverflow() {
         testFile("resiliency/resiliency_source_04.bal", "resiliency/resiliency_assert_04.json");
     }
