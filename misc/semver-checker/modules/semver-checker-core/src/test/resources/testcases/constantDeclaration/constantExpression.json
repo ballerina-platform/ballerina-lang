@@ -19,7 +19,7 @@
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "unknown",
+                  "kind": "module constant initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module constant initializer is modified"
@@ -51,7 +51,7 @@
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "unknown",
+                  "kind": "module constant initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module constant initializer is modified"
@@ -83,7 +83,7 @@
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
-                  "kind": "unknown",
+                  "kind": "module constant initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module constant initializer is modified"
