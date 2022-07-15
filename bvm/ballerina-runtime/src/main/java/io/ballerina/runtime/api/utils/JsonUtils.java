@@ -52,6 +52,10 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.JsonUtils.convertArrayToJSON;
+import static io.ballerina.runtime.internal.JsonUtils.convertMapToJSON;
+import static io.ballerina.runtime.internal.JsonUtils.jsonToMap;
+import static io.ballerina.runtime.internal.JsonUtils.toJSON;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
@@ -105,7 +109,7 @@ public class JsonUtils {
      * @return JSON   value if parsing is successful
      * @throws BError for any parsing error
      */
-    public static Object parse(BString jsonStr, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+    public static Object parse(BString jsonStr, NonStringValueProcessingMode mode) throws BError {
         return JsonParser.parse(jsonStr.getValue(), mode);
     }
 
@@ -128,7 +132,7 @@ public class JsonUtils {
      * @return JSON   value if parsing is successful
      * @throws BError for any parsing error
      */
-    public static Object parse(String jsonStr, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+    public static Object parse(String jsonStr, NonStringValueProcessingMode mode) throws BError {
         return JsonParser.parse(jsonStr, mode);
     }
 
@@ -140,7 +144,7 @@ public class JsonUtils {
      * @return JSON structure
      * @throws BError for any parsing error
      */
-    public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+    public static Object parse(Reader reader, NonStringValueProcessingMode mode) throws BError {
         return JsonParser.parse(reader, mode);
     }
 
@@ -151,7 +155,7 @@ public class JsonUtils {
      * @return JSON representation of the provided bTable
      */
     public static Object parse(BTable bTable) {
-        return io.ballerina.runtime.internal.JsonUtils.toJSON(bTable);
+        return toJSON(bTable);
     }
 
     /**
@@ -161,7 +165,7 @@ public class JsonUtils {
      * @return JSON representation of the provided bArray
      */
     public static Object parse(BArray bArray) {
-        return io.ballerina.runtime.internal.JsonUtils.convertArrayToJSON(bArray);
+        return convertArrayToJSON(bArray);
     }
 
     /**
@@ -172,7 +176,7 @@ public class JsonUtils {
      * @return JSON representation of the provided array
      */
     public static Object parse(BMap<BString, ?> map, JsonType targetType) {
-        return io.ballerina.runtime.internal.JsonUtils.convertMapToJSON(map, targetType);
+        return convertMapToJSON(map, targetType);
     }
 
     /**
@@ -185,7 +189,7 @@ public class JsonUtils {
      * @throws BError If conversion fails.
      */
     public static BMap<BString, ?> convertJSONToMap(Object json, MapType mapType) throws BError {
-        return io.ballerina.runtime.internal.JsonUtils.jsonToMap(json, mapType);
+        return jsonToMap(json, mapType);
     }
 
     /**
@@ -210,7 +214,7 @@ public class JsonUtils {
      * @throws BError If conversion fails.
      */
     public static Object convertJSON(Object source, Type targetType) throws BError {
-        return io.ballerina.runtime.internal.JsonUtils.convertJSON(source, targetType);
+        return convertJSON(source, targetType);
     }
 
     /**
@@ -222,7 +226,7 @@ public class JsonUtils {
      * @throws BError If conversions fails.
      */
     public static Object convertUnionTypeToJSON(Object source, JsonType targetType) throws BError {
-        return io.ballerina.runtime.internal.JsonUtils.convertUnionTypeToJSON(source, targetType);
+        return convertUnionTypeToJSON(source, targetType);
     }
 
     /**
@@ -318,7 +322,7 @@ public class JsonUtils {
                     newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
                 } else {
                     try {
-                        newValue = io.ballerina.runtime.internal.JsonUtils.toJSON(bTable);
+                        newValue = toJSON(bTable);
                     } catch (Exception e) {
                         throw createConversionError(value, jsonType, e.getMessage());
                     }

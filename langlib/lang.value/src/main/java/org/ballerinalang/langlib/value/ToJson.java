@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.langlib.value;
 
+import io.ballerina.runtime.api.utils.JsonUtils;
+
 import java.util.ArrayList;
 
 /**
@@ -27,8 +29,11 @@ import java.util.ArrayList;
  */
 public class ToJson {
 
+    private ToJson() {
+    }
+
     public static Object toJson(Object value) {
-        return io.ballerina.runtime.api.utils.JsonUtils.convertToJson(value, new ArrayList<>());
+        return JsonUtils.convertToJson(value, new ArrayList<>());
     }
 
 }
