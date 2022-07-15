@@ -82,7 +82,7 @@ public class ClassComparator extends NodeComparator<ClassDefinitionNode> {
     }
 
     /**
-     * Analyzes and returns the diff for changes on class declaration metadata (documentation + annotations).
+     * Analyzes and returns the diff for changes on class definition metadata (documentation + annotations).
      */
     public List<Diff> compareMetadata() {
         List<Diff> metadataDiffs = new LinkedList<>();
