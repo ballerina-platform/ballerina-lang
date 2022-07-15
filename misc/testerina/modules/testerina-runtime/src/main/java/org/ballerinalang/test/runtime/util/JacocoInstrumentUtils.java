@@ -26,11 +26,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 /**
  * Class containing utility methods required to jacoco offline instrumentation.
@@ -41,23 +40,16 @@ public class JacocoInstrumentUtils {
 
     private static final Instrumenter instrumenter = new Instrumenter(new OfflineInstrumentationAccessGenerator());
 
-    public static void instrumentOffline(List<Path> currentProjectModuleJarList, Path destDir,
-                                         List<String> mockFunctionClassNames) throws IOException {
-        for (Path path : currentProjectModuleJarList) {
-            try (JarFile jarFile = new JarFile(path.toString())) {
-                for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements(); ) {
-                    JarEntry entry = e.nextElement();
-                    String entryName = entry.getName();
-                    if (!mockFunctionClassNames.contains(entryName)) {
-                        continue;
-                    }
-                    File file = new File(destDir.toString(), entryName);
-                    file.getParentFile().mkdirs();
-                    try (InputStream input = jarFile.getInputStream(entry); OutputStream output =
-                            new FileOutputStream(file)) {
-                        instrumenter.instrumentAll(input, output, entryName);
-                    }
-                }
+    public static void instrumentOffline(List<URL> projectModuleJarList, Path destDir, List<String> mockClassNames)
+            throws IOException, ClassNotFoundException {
+        URLClassLoader classLoader = new URLClassLoader(projectModuleJarList.toArray(new URL[0]));
+        for (String className : mockClassNames) {
+            Class<?> clazz = classLoader.loadClass(className);
+            File file = new File(destDir.toString(), className.replaceAll("\\.", "/") + ".class");
+            file.getParentFile().mkdirs();
+            try (InputStream input = clazz.getResourceAsStream(clazz.getSimpleName() + ".class");
+                 OutputStream output = new FileOutputStream(file)) {
+                instrumenter.instrumentAll(input, output, className);
             }
         }
     }

@@ -63,6 +63,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -196,14 +198,13 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-        List<String> mockFunctionClassNames = new ArrayList<>();
+        List<String> mockClassNames = new ArrayList<>();
         for (ModuleDescriptor moduleDescriptor :
                 project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
-
 
             if (suite == null) {
                 continue;
@@ -242,7 +243,7 @@ public class RunTestsTask implements Task {
                 } else {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
                 }
-                mockFunctionClassNames.add(functionToMockClassName.replaceAll("\\.", "/") + ".class");
+                mockClassNames.add(functionToMockClassName);
             }
         }
 
@@ -251,7 +252,7 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                testResult = runTestSuit(target, project.currentPackage(), jBallerinaBackend, mockFunctionClassNames);
+                testResult = runTestSuit(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
@@ -270,7 +271,7 @@ public class RunTestsTask implements Task {
                         throw createLauncherException("error occurred while generating test report :", e);
                     }
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while running tests", e);
             }
@@ -508,7 +509,8 @@ public class RunTestsTask implements Task {
     }
 
     private int runTestSuit(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
-                            List<String> mockFunctionClassNames) throws IOException, InterruptedException {
+                            List<String> mockClassNames) throws IOException, InterruptedException,
+            ClassNotFoundException {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
@@ -522,15 +524,13 @@ public class RunTestsTask implements Task {
         if (coverage) {
             jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                     .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
-            if (!mockFunctionClassNames.isEmpty()) {
+            if (!mockClassNames.isEmpty()) {
                 // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
                 // support dynamic class file transformations while instrumenting.
-                List<Path> currentProjectModuleJarList = getCurrentProjectModuleJarList(jBallerinaBackend,
-                        currentPackage);
+                List<URL> jarUrlList = getCurrentProjectModuleJarUrlList(jBallerinaBackend, currentPackage);
                 Path instrumentDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
                         .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR);
-                JacocoInstrumentUtils.instrumentOffline(currentProjectModuleJarList, instrumentDir,
-                        mockFunctionClassNames);
+                JacocoInstrumentUtils.instrumentOffline(jarUrlList, instrumentDir, mockClassNames);
             }
             String agentCommand = "-javaagent:"
                     + jacocoAgentJarPath
@@ -692,13 +692,14 @@ public class RunTestsTask implements Task {
     }
 
 
-    private List<Path> getCurrentProjectModuleJarList(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
-        List<Path> exclusionPathList = new ArrayList<>();
+    private List<URL> getCurrentProjectModuleJarUrlList(JBallerinaBackend jBallerinaBackend, Package currentPackage)
+            throws MalformedURLException {
+        List<URL> exclusionPathList = new ArrayList<>();
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
             PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
                     module.moduleName());
-            exclusionPathList.add(generatedJarLibrary.path());
+            exclusionPathList.add(generatedJarLibrary.path().toUri().toURL());
         }
         return exclusionPathList;
     }
