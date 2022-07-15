@@ -508,8 +508,7 @@ public class RunTestsTask implements Task {
     }
 
     private int runTestSuit(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
-                            List<String> mockFunctionClassNames)
-            throws IOException, InterruptedException {
+                            List<String> mockFunctionClassNames) throws IOException, InterruptedException {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
