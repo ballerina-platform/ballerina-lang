@@ -523,7 +523,8 @@ public class RunTestsTask implements Task {
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
         if (coverage) {
             if (!mockFunctionClassNames.isEmpty()) {
-                // If we have mock function we need to use jacoco offline instrumentation.
+                // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
+                // support dynamic class file transformations while instrumenting.
                 List<Path> currentProjectModuleJarList = getCurrentProjectModuleJarList(jBallerinaBackend,
                         currentPackage);
                 Path instrumentDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
