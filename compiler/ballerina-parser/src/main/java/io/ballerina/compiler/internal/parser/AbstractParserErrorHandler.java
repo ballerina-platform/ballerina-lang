@@ -99,10 +99,6 @@ public abstract class AbstractParserErrorHandler {
             previousTokenIndex = currentTokenIndex;
         }
 
-        if (!isCompletion && currentCtx == ParserRuleContext.BINDING_PATTERN_OR_VAR_REF_RHS) {
-            isCompletion = BallerinaParser.isSimpleType(nextToken.kind);
-        }
-
         Solution fix = null;
         if (isCompletion && itterCount < COMPLETION_ITTER_LIMIT) {
             fix = getCompletion(currentCtx, nextToken);
