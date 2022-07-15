@@ -15157,7 +15157,9 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr,
                         pipeOrAndToken, rhsTypedBPOrExpr);
             case SEMICOLON_TOKEN:
-                if (isDefiniteExpr(typeOrExpr.kind)) {
+                if (typeOrExpr.kind != SyntaxKind.QUALIFIED_NAME_REFERENCE
+                        && typeOrExpr.kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0
+                        && typeOrExpr.kind.compareTo(SyntaxKind.ERROR_CONSTRUCTOR) <= 0) {
                     return typeOrExpr;
                 }
 
@@ -15247,7 +15249,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isDefiniteExpr(SyntaxKind kind) {
-        if (kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (kind == SyntaxKind.QUALIFIED_NAME_REFERENCE || kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return false;
         }
 

@@ -1692,6 +1692,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ATTACH_POINT_IDENT:
                 return ParserRuleContext.SINGLE_KEYWORD_ATTACH_POINT_IDENT;
             case ATTACH_POINT_END:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
                 return ParserRuleContext.SEMICOLON;
             case XML_NAMESPACE_PREFIX_DECL:
                 return ParserRuleContext.SEMICOLON;
@@ -1811,7 +1812,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_START_BRACKETED_LIST_RHS:
                 return ParserRuleContext.VARIABLE_NAME;
             case BINDING_PATTERN_OR_EXPR_RHS:
-            case BINDING_PATTERN_OR_VAR_REF_RHS:
             case BRACKETED_LIST_RHS:
                 return ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS;
             case BRACKETED_LIST_MEMBER:
@@ -5634,7 +5634,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
             case IMPORT_SUB_VERSION:
             case OBJECT_FIELD_RHS:
-            case BINDING_PATTERN_OR_VAR_REF_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
                 return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;
