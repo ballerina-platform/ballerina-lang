@@ -77,7 +77,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
@@ -350,7 +349,6 @@ public class MainMethodGen {
         mv.visitTypeInsn(NEW , OPTION);
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, param.type);
-        mv.visitTypeInsn(CHECKCAST , RECORD_TYPE);
         mv.visitIntInsn(BIPUSH, location);
         mv.visitMethodInsn(INVOKESPECIAL , OPTION , JVM_INIT_METHOD, INIT_OPTION, false);
     }

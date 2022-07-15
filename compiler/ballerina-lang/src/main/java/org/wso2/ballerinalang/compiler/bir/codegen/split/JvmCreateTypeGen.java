@@ -653,7 +653,7 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
 
         // Load the field type
-        jvmTypeGen.loadLocalType(mv, field.symbol.type);
+        jvmTypeGen.loadType(mv, field.symbol.type);
 
         // Load field name
         mv.visitLdcInsn(decodeIdentifier(field.name.value));

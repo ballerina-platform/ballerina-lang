@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -804,6 +805,9 @@ public class TypeChecker {
                 return checkTypeDescType(sourceType, (BTypedescType) targetType, unresolvedTypes);
             case TypeTags.XML_TAG:
                 return checkIsXMLType(sourceType, targetType, unresolvedTypes);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return checkIsRecursiveType(sourceType, ((ReferenceType) targetType).getReferredType(),
+                        unresolvedTypes);
             default:
                 // other non-recursive types shouldn't reach here
                 return false;
@@ -952,12 +956,7 @@ public class TypeChecker {
 
         BXmlType target = ((BXmlType) targetType);
         if (sourceTag == TypeTags.XML_TAG) {
-            Type targetConstraint = target.constraint;
-            // TODO: Revisit and check why xml<xml<constraint>>> on chained iteration
-            while (target.constraint.getTag() == TypeTags.XML_TAG) {
-                target = (BXmlType) target.constraint;
-                targetConstraint = target.constraint;
-            }
+            Type targetConstraint = getRecursiveTargetConstraintType(target);
             BXmlType source = (BXmlType) sourceType;
             if (source.constraint.getTag() == TypeTags.NEVER_TAG) {
                 if (targetConstraint.getTag() == TypeTags.UNION_TAG) {
@@ -972,6 +971,16 @@ public class TypeChecker {
             return checkIsType(sourceType, target.constraint, unresolvedTypes);
         }
         return false;
+    }
+
+    private static Type getRecursiveTargetConstraintType(BXmlType target) {
+        Type targetConstraint = TypeUtils.getReferredType(target.constraint);
+        // TODO: Revisit and check why xml<xml<constraint>>> on chained iteration
+        while (targetConstraint.getTag() == TypeTags.XML_TAG) {
+            target = (BXmlType) targetConstraint;
+            targetConstraint = TypeUtils.getReferredType(target.constraint);
+        }
+        return targetConstraint;
     }
 
     private static List<Type> getWideTypeComponents(BRecordType recType) {
@@ -1046,6 +1055,9 @@ public class TypeChecker {
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
                 return getTableConstraintField(effectiveType, fieldName);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                Type referredType = ((BTypeReferenceType) constraintType).getReferredType();
+                return getTableConstraintField(referredType, fieldName);
             case TypeTags.UNION_TAG:
                 BUnionType unionType = (BUnionType) constraintType;
                 List<Type> memTypes = unionType.getMemberTypes();
@@ -1130,6 +1142,8 @@ public class TypeChecker {
                     }
                 }
                 return true;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return checkIsJSONType(((ReferenceType) sourceType).getReferredType(), unresolvedTypes);
             default:
                 return false;
         }
@@ -2289,6 +2303,9 @@ public class TypeChecker {
             case TypeTags.XML_TEXT_TAG:
                 nodeType = XmlNodeType.TEXT;
                 break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                nodeType = getXmlNodeType(((ReferenceType) type).getReferredType());
+                break;
             default:
                 return null;
         }
@@ -2323,7 +2340,7 @@ public class TypeChecker {
         Set<XmlNodeType> acceptedNodes = new HashSet<>();
 
         BXmlType target = (BXmlType) targetType;
-        if (target.constraint.getTag() == TypeTags.UNION_TAG) {
+        if (TypeUtils.getReferredType(target.constraint).getTag() == TypeTags.UNION_TAG) {
             getXMLNodeOnUnion((BUnionType) target.constraint, acceptedNodes);
         } else {
             acceptedNodes.add(getXmlNodeType(((BXmlType) targetType).constraint));
@@ -3330,10 +3347,11 @@ public class TypeChecker {
         List<Type> nonFiniteTypes = new ArrayList<>();
         Set<Object> combinedValueSpace = new HashSet<>();
         for (Type memberType: memberTypes) {
-            if (memberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                combinedValueSpace.addAll(((BFiniteType) memberType).getValueSpace());
+            Type referredType = TypeUtils.getReferredType(memberType);
+            if (referredType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                combinedValueSpace.addAll(((BFiniteType) referredType).getValueSpace());
             } else {
-                nonFiniteTypes.add(memberType);
+                nonFiniteTypes.add(referredType);
             }
         }
 

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -90,7 +91,7 @@ public class ErrorValue extends BError implements RefValue {
 
     public ErrorValue(Type type, BString message, BError cause, Object details) {
         super(message);
-        this.type = type;
+        this.type = ((ReferenceType) type).getReferredType();
         this.message = message;
         this.cause = cause;
         this.details = details;
@@ -100,7 +101,7 @@ public class ErrorValue extends BError implements RefValue {
     public ErrorValue(Type type, BString message, BError cause, Object details,
                       String typeIdName, Module typeIdPkg) {
         super(message);
-        this.type = type;
+        this.type = ((ReferenceType) type).getReferredType();
         this.message = message;
         this.cause = cause;
         this.details = details;

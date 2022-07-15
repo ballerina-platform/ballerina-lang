@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
@@ -34,11 +35,15 @@ import java.util.Optional;
  */
 public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType {
 
+    private final int typeFlags;
+    private final boolean readOnly;
     private Type referredType;
     private IntersectionType intersectionType;
 
-    public BTypeReferenceType(String typeName, Module pkg) {
+    public BTypeReferenceType(String typeName, Module pkg, int typeFlags, boolean readOnly) {
         super(typeName, pkg, Object.class);
+        this.typeFlags = typeFlags;
+        this.readOnly = readOnly;
     }
 
     public void setReferredType(Type referredType) {
@@ -48,6 +53,10 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     @Override
     public Type getReferredType() {
         return referredType;
+    }
+
+    public int getTypeFlags() {
+        return typeFlags;
     }
 
     @Override
@@ -84,22 +93,22 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
 
     @Override
     public boolean isNilable() {
-        return this.referredType.isNilable();
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.NILABLE);
     }
 
     @Override
     public boolean isAnydata() {
-        return this.referredType.isAnydata();
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
     }
 
     @Override
     public boolean isPureType() {
-        return this.referredType.isPureType();
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
     }
 
     @Override
     public boolean isReadOnly() {
-        return this.referredType.isReadOnly();
+        return this.readOnly;
     }
 
     @Override

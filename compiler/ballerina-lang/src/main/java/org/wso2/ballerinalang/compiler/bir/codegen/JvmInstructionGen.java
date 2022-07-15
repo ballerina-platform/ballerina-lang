@@ -1985,7 +1985,7 @@ public class JvmInstructionGen {
         }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
-        jvmTypeGen.loadLocalType(this.mv, btype);
+        jvmTypeGen.loadType(this.mv, btype);
 
         mv.visitIntInsn(BIPUSH, closureVars.size());
         mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);

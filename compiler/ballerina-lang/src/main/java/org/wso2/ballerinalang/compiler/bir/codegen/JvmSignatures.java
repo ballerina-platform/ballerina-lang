@@ -303,7 +303,7 @@ public class JvmSignatures {
     public static final String INIT_WITH_BOOLEAN = "(L" + TYPE + ";Z)V";
     public static final String INIT_WITH_STRING = "(L" + STRING_VALUE + ";)V";
     public static final String INITIAL_METHOD_DESC = "(L" + STRAND_CLASS + ";";
-    public static final String INIT_TYPE_REF = "(L" + STRING_VALUE + ";L" + MODULE + ";)V";
+    public static final String INIT_TYPE_REF = "(L" + STRING_VALUE + ";L" + MODULE + ";IZ)V";
     public static final String INSTANTIATE = "(L" + STRAND_CLASS + ";[L" + B_INITIAL_VALUE_ENTRY + ";)L" + OBJECT + ";";
     public static final String INT_VALUE_OF_METHOD = "(I)L" + INT_VALUE + ";";
     public static final String INTI_VARIABLE_KEY =

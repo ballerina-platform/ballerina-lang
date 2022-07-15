@@ -303,11 +303,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+        Type firstMemberType = TypeUtils.getReferredType(memberTypes.get(0));
+        if (firstMemberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return TypeChecker.getType(
-                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getZeroValue();
+                    ((BFiniteType) firstMemberType).getValueSpace().iterator().next()).getZeroValue();
         } else {
-            return memberTypes.get(0).getZeroValue();
+            return firstMemberType.getZeroValue();
         }
     }
 
@@ -316,12 +317,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         if (isNilable() || memberTypes.stream().anyMatch(Type::isNilable)) {
             return null;
         }
-
-        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+        Type firstMemberType = TypeUtils.getReferredType(memberTypes.get(0));
+        if (firstMemberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return TypeChecker.getType(
-                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getEmptyValue();
+                    ((BFiniteType) firstMemberType).getValueSpace().iterator().next()).getEmptyValue();
         } else {
-            return memberTypes.get(0).getEmptyValue();
+            return firstMemberType.getEmptyValue();
         }
     }
 

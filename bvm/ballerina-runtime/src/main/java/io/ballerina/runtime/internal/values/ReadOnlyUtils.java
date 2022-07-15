@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -118,6 +119,10 @@ public class ReadOnlyUtils {
     private static Type getAvailableImmutableType(Type type) {
         if (type.isReadOnly() || TypeChecker.isInherentlyImmutableType(type)) {
             return type;
+        }
+
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return getAvailableImmutableType(((ReferenceType) type).getReferredType());
         }
 
         if (type.getTag() == TypeTags.INTERSECTION_TAG && type.isReadOnly()) {
@@ -274,7 +279,8 @@ public class ReadOnlyUtils {
                 return objectIntersectionType;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 BTypeReferenceType bType = (BTypeReferenceType) type;
-                BTypeReferenceType refType = new BTypeReferenceType(bType.getName(), bType.getPkg());
+                BTypeReferenceType refType = new BTypeReferenceType(bType.getName(), bType.getPkg(),
+                        bType.getTypeFlags(), bType.isReadOnly());
                 refType.setReferredType(getImmutableType(bType.getReferredType(), unresolvedTypes));
                 return createAndSetImmutableIntersectionType(bType, refType);
             case TypeTags.ANY_TAG:

@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -555,6 +556,7 @@ public class TypeConverter {
     }
 
     public static boolean isIntegerSubtypeAndConvertible(Object inputValue, Type targetType) {
+        targetType = TypeUtils.getReferredType(targetType);
         Type inputValueType = TypeChecker.getType(inputValue);
         if (!TypeTags.isIntegerTypeTag(inputValueType.getTag()) && inputValueType.getTag() != TypeTags.BYTE_TAG) {
             return false;
@@ -575,6 +577,8 @@ public class TypeConverter {
                 return true;
             case TypeTags.INTERSECTION_TAG:
                 return isConvertibleToTableType(((BIntersectionType) tableConstrainedType).getEffectiveType());
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return isConvertibleToTableType(((ReferenceType) tableConstrainedType).getReferredType());
         }
         return false;
     }

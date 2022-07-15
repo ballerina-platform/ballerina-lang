@@ -54,7 +54,7 @@ public class JvmArrayTypeGen {
 
     public void populateArray(MethodVisitor mv, BArrayType bType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_TYPE_IMPL);
-        jvmTypeGen.loadLocalType(mv, bType.eType);
+        jvmTypeGen.loadType(mv, bType.eType);
         loadDimension(mv, bType.eType, 1);
         jvmTypeGen.loadReadonlyFlag(mv, bType.eType);
         mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_TYPE_IMPL, "setElementType", SET_ARRAY_ELEMENT, false);

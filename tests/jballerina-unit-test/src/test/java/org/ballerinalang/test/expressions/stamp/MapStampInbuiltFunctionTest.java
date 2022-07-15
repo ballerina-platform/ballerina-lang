@@ -18,6 +18,8 @@
 package org.ballerinalang.test.expressions.stamp;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ReferenceType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -374,8 +376,10 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.size(), 2);
 
         Assert.assertEquals(employee0.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BRecordType.class);
-        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getName(), "Employee");
+        Type constrainedType =
+                ((ReferenceType) ((BMapType) employee0.getType()).getConstrainedType()).getReferredType();
+        Assert.assertEquals(constrainedType.getClass(), BRecordType.class);
+        Assert.assertEquals(constrainedType.getName(), "Employee");
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("a"))).getName(), "Employee");
         Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
@@ -413,20 +417,18 @@ public class MapStampInbuiltFunctionTest {
                 getName(), "Employee");
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("aa"))).getClass(), BMapType.class);
-        Assert.assertEquals(
-                ((BMapType) getType(employee0.get(StringUtils.fromString("aa")))).getConstrainedType().getClass(),
-                BRecordType.class);
-        Assert.assertEquals(
-                ((BMapType) getType(employee0.get(StringUtils.fromString("aa")))).getConstrainedType().getName(),
-                "Employee");
+        Type constrainedType =
+                ((ReferenceType) ((BMapType) getType(
+                        employee0.get(StringUtils.fromString("aa")))).getConstrainedType()).getReferredType();
+        Assert.assertEquals(constrainedType.getClass(), BRecordType.class);
+        Assert.assertEquals(constrainedType.getName(), "Employee");
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("bb"))).getClass(), BMapType.class);
-        Assert.assertEquals(
-                ((BMapType) getType(employee0.get(StringUtils.fromString("bb")))).getConstrainedType().getClass(),
-                BRecordType.class);
-        Assert.assertEquals(
-                ((BMapType) getType(employee0.get(StringUtils.fromString("bb")))).getConstrainedType().getName(),
-                "Employee");
+        constrainedType =
+                ((ReferenceType) ((BMapType) getType(
+                        employee0.get(StringUtils.fromString("bb")))).getConstrainedType()).getReferredType();
+        Assert.assertEquals(constrainedType.getClass(), BRecordType.class);
+        Assert.assertEquals(constrainedType.getName(), "Employee");
 
         Assert.assertEquals(
                 ((BMap) ((BMap) employee0.get(StringUtils.fromString("bb"))).get(StringUtils.fromString("a"))).getType()
@@ -516,7 +518,9 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BRecordType.class);
+        Assert.assertEquals(
+                ((ReferenceType) ((BMapType) mapValue.getType()).getConstrainedType()).getReferredType().getClass(),
+                BRecordType.class);
         Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getName(), "Teacher");
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getName(), "Teacher");
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getClass(), BRecordType.class);

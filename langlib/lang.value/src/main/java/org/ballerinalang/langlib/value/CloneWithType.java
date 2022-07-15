@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
@@ -215,6 +216,8 @@ public class CloneWithType {
                 return convert(map, matchingType, unresolvedValues, t);
             case TypeTags.INTERSECTION_TAG:
                 return convertMap(map, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues, t);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return convertMap(map, ((ReferenceType) targetType).getReferredType(), unresolvedValues, t);
             default:
                 break;
         }
