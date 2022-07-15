@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Change type descriptor from float to decimal\n",
+    "oldCode": "public type Age float;\n",
+    "newCode": "public type Age decimal;\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the value\n",
+    "oldCode": "public type Age 7.3;\n",
+    "newCode": "public type Age 8.1;\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change float to a specific value\n",
+    "oldCode": "public type Age float;\n",
+    "newCode": "public type Age 5.5;\n",
+    "expectedOutput": {}
+  }
+]

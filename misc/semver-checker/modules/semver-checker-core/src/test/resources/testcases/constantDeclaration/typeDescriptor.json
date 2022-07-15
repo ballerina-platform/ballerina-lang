@@ -57,7 +57,7 @@
                   "message": "module constant type changed from 'int' to 'string'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module constant initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module constant initializer is modified"
