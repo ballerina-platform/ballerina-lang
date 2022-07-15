@@ -26,10 +26,10 @@ configurations {
 dependencies {
     compileOnly project(':ballerina-parser')
     compileOnly project(':ballerina-lang')
-    compileOnly project(':ballerina-tools-api')
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
     compileOnly "com.fasterxml.jackson.core:jackson-databind"
+    implementation project(':ballerina-tools-api')
     implementation project(':json-mapper')
     implementation ("io.swagger.parser.v3:swagger-parser-v2-converter") {
         exclude group: "io.swagger", module: "swagger-compat-spec-parser"
@@ -37,6 +37,7 @@ dependencies {
         exclude group: "javax.validation", module: "validation-api"
         exclude group: 'com.google.guava', module: 'guava'
     }
+    implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation "com.google.guava:guava:${project.guavaVersion}"  // Required during runtime
     compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 

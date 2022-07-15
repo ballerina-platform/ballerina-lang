@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class JsonToRecordResponse {
 
-    private String codeBlock;
+    private String codeBlock = "";
     private List<JsonToRecordMapperDiagnostic> diagnostics = new ArrayList<>();
 
     public String getCodeBlock() {

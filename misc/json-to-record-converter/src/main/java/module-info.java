@@ -8,4 +8,5 @@ module io.ballerina.jsonmapper {
     requires org.apache.commons.lang3;
 
     exports io.ballerina.jsonmapper;
+    exports io.ballerina.jsonmapper.diagnostic;
 }
