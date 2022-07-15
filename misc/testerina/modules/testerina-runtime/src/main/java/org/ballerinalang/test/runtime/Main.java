@@ -35,8 +35,10 @@ import org.objectweb.asm.Type;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -57,6 +59,8 @@ import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static java.util.Objects.requireNonNull;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_ANNOTATION_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 
 /**
  * Main class to init the test suit.
@@ -67,19 +71,17 @@ public class Main {
     static ClassLoader classLoader;
     static Map<String, List<String>> classVsMockFunctionsMap = new HashMap<>();
 
-    private static final String MOCK_ANNOTATION_DELIMITER = "#";
-    private static final String MOCK_FN_DELIMITER = "~";
-
     public static void main(String[] args) throws IOException {
         int exitStatus = 0;
         int result;
 
-        if (args.length >= 3) {
+        if (args.length >= 4) {
             Path targetPath = Paths.get(args[0]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
                             .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
-            boolean report = Boolean.parseBoolean(args[1]);
-            boolean coverage = Boolean.parseBoolean(args[2]);
+            String jacocoAgentJarPath = args[1];
+            boolean report = Boolean.parseBoolean(args[2]);
+            boolean coverage = Boolean.parseBoolean(args[3]);
 
             if (report || coverage) {
                 testReport = new TestReport();
@@ -113,7 +115,10 @@ public class Main {
                         classLoader = createURLClassLoader(testExecutionDependencies);
 
                         if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
-                            replaceMockedFunctions(testSuite, testExecutionDependencies);
+                            testExecutionDependencies.add(jacocoAgentJarPath);
+                            String instrumentDir = testCache.resolve(TesterinaConstants.COVERAGE_DIR)
+                                    .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR).toString();
+                            replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir);
                         }
 
                         Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
@@ -182,7 +187,7 @@ public class Main {
                         new URL[0]), ClassLoader.getSystemClassLoader()));
     }
 
-    public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths) {
+    public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths, String instrumentDir) {
         String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getTestPackageID(),
                 suite.getVersion(), suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
 
@@ -198,7 +203,7 @@ public class Main {
         for (Map.Entry<String, List<String>> entry : classVsMockFunctionsMap.entrySet()) {
             String className = entry.getKey();
             List<String> functionNamesList = entry.getValue();
-            byte[] classFile = getModifiedClassBytes(className, functionNamesList, testClass, suite);
+            byte[] classFile = getModifiedClassBytes(className, functionNamesList, testClass, suite, instrumentDir);
             modifiedClassDef.put(className, classFile);
         }
         classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
@@ -223,7 +228,7 @@ public class Main {
     }
 
     public static byte[] getModifiedClassBytes(String className, List<String> functionNames, Class<?> testClass,
-                                               TestSuite suite) {
+                                               TestSuite suite, String instrumentDir) {
         Class<?> functionToMockClass;
         try {
             functionToMockClass = classLoader.loadClass(className);
@@ -239,7 +244,7 @@ public class Main {
                 for (Method method2 : testClass.getDeclaredMethods()) {
                     if (method2.getName().equals(desugaredMockFunctionName)) {
                         if (!readFromBytes) {
-                            classFile = replaceMethodBody(method1, method2);
+                            classFile = replaceMethodBody(method1, method2, instrumentDir);
                             readFromBytes = true;
                         } else {
                             classFile = replaceMethodBody(classFile, method1, method2);
@@ -259,7 +264,7 @@ public class Main {
                 for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
                     if (method2.getName().equals(mockFunctionName)) {
                         if (!readFromBytes) {
-                            classFile = replaceMethodBody(method1, method2);
+                            classFile = replaceMethodBody(method1, method2, instrumentDir);
                             readFromBytes = true;
                         } else {
                             classFile = replaceMethodBody(classFile, method1, method2);
@@ -271,12 +276,13 @@ public class Main {
         return classFile;
     }
 
-    private static byte[] replaceMethodBody(Method method, Method mockMethod) {
+    private static byte[] replaceMethodBody(Method method, Method mockMethod, String instrumentDir) {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr;
         try {
-            cr = new ClassReader(requireNonNull(
-                    clazz.getResourceAsStream(clazz.getSimpleName() + ".class")));
+            Path path = Paths.get(instrumentDir + "/" + clazz.getName().replaceAll("\\.", "/") + ".class");
+            InputStream ins = new FileInputStream(path.toString());
+            cr = new ClassReader(requireNonNull(ins));
         } catch (IOException e) {
             throw new BallerinaTestException("failed to get the class reader object for the class "
                     + clazz.getSimpleName());
