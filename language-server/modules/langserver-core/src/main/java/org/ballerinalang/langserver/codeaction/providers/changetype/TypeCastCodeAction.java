@@ -31,7 +31,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -39,6 +38,7 @@ import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -57,25 +57,25 @@ import java.util.Set;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class TypeCastCodeAction extends AbstractCodeActionProvider {
+public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Type Cast";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         //Check if there is a type cast expression already present.
         MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
@@ -138,7 +138,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
         List<TextEdit> edits = new ArrayList<>(getTextEdits(expressionNode.get(), typeName));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
-        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
     }
 

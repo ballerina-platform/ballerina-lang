@@ -14,14 +14,14 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "service",
               "type": "modified",
               "versionImpact": "ambiguous",
-              "kind": "service",
               "childDiffs": [
                 {
+                  "kind": "object field",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "kind": "service field",
                   "message": "object field type changed from 'int' to 'float'"
                 }
               ]
@@ -46,21 +46,21 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "service",
               "type": "modified",
               "versionImpact": "ambiguous",
-              "kind": "service",
               "childDiffs": [
                 {
+                  "kind": "object field",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "kind": "service field",
                   "message": "object field type changed from 'int' to 'string'"
                 },
                 {
+                  "kind": "object field expression",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "kind": "unknown",
-                  "message": "string literal is modified"
+                  "message": "object field expression is modified"
                 }
               ]
             }

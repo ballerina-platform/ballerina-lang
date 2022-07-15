@@ -31,7 +31,7 @@ import java.util.Optional;
 public class ServiceDiff extends NodeDiffImpl<ServiceDeclarationNode> {
 
     private ServiceDiff(ServiceDeclarationNode newNode, ServiceDeclarationNode oldNode) {
-        super(newNode, oldNode);
+        super(newNode, oldNode, DiffKind.SERVICE);
     }
 
     /**
@@ -48,7 +48,6 @@ public class ServiceDiff extends NodeDiffImpl<ServiceDeclarationNode> {
 
         @Override
         public Optional<ServiceDiff> build() {
-            serviceDiff.setKind(DiffKind.SERVICE);
             if (!serviceDiff.getChildDiffs().isEmpty()) {
                 serviceDiff.computeVersionImpact();
                 serviceDiff.setType(DiffType.MODIFIED);
