@@ -20,8 +20,6 @@ package io.ballerina.shell.service;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.shell.service.util.TypeUtils;
 
-import static io.ballerina.runtime.api.utils.TypeUtils.getType;
-
 /**
  * Format for the generated result by execution.
  *
@@ -33,7 +31,7 @@ public class ShellValue {
     private final String type;
 
     public ShellValue(Object value) {
-        Type type = getType(value);
+        Type type = io.ballerina.runtime.api.utils.TypeUtils.getType(value);
         this.value = TypeUtils.convertToJsonIfAcceptable(value);
         this.type = type.toString();
         this.mimeType = TypeUtils.getMimeTypeFromName(type);
