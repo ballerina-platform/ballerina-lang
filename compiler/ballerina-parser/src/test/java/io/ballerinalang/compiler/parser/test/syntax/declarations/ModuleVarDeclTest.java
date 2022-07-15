@@ -119,4 +119,12 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
     public void testInvalidLocalConstDecl() {
         testFile("module-var-decl/module_var_decl_source_18.bal", "module-var-decl/module_var_decl_assert_18.json");
     }
+
+    @Test
+    public void testSimpleModuleVarReference() {
+        testFile("module-var-decl/module_var_decl_source_19.bal", "module-var-decl/module_var_decl_assert_19.json");
+        testFile("module-var-decl/module_var_decl_source_20.bal", "module-var-decl/module_var_decl_assert_20.json");
+        testFile("module-var-decl/module_var_decl_source_21.bal", "module-var-decl/module_var_decl_assert_21.json");
+        testFile("module-var-decl/module_var_decl_source_22.bal", "module-var-decl/module_var_decl_assert_22.json");
+    }
 }

@@ -15157,8 +15157,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr,
                         pipeOrAndToken, rhsTypedBPOrExpr);
             case SEMICOLON_TOKEN:
-                if (typeOrExpr.kind != SyntaxKind.QUALIFIED_NAME_REFERENCE
-                        && typeOrExpr.kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0
+                if (typeOrExpr.kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0
                         && typeOrExpr.kind.compareTo(SyntaxKind.ERROR_CONSTRUCTOR) <= 0) {
                     return typeOrExpr;
                 }
