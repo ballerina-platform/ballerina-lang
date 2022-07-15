@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.completions.providers.context.util.ModulePar
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,6 +144,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             case CONFIGURABLE_KEYWORD:
                 completionItems.addAll(this.getTypeDescContextItems(context));
             default:
+                break;
         }
         return completionItems;
     }
