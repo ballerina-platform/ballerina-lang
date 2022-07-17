@@ -18,6 +18,9 @@
 
 package org.ballerinalang.testerina.test;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.FileUtils;
@@ -26,7 +29,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
@@ -80,6 +87,32 @@ public class MockTest extends BaseTestCase {
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
             Assert.fail("Test failed due to object mocking failure in test framework.\nOutput:\n" + output);
+        }
+    }
+
+    @Test()
+    public void testCoverageWithMocking() throws BallerinaTestException {
+        String msg1 = "2 passing";
+        String[] args = mergeCoverageArgs(new String[]{"mocking-coverage-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1)) {
+            Assert.fail("Test failed due to object mocking failure in test framework.\nOutput:\n" + output);
+        }
+        Path resultsJsonPath = projectBasedTestsPath.resolve("mocking-coverage-tests").resolve("target")
+                .resolve("report").resolve("test_results.json");
+        JsonObject resultObj;
+        Gson gson = new Gson();
+        try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
+            resultObj = gson.fromJson(bufferedReader, JsonObject.class);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Failed to read test_results.json");
+        }
+        for (JsonElement element : resultObj.get("moduleCoverage").getAsJsonArray()) {
+            JsonObject moduleObj = ((JsonObject) element);
+            Assert.assertEquals(moduleObj.get("coveredLines").toString(), "7");
+            Assert.assertEquals(moduleObj.get("missedLines").toString(), "2");
+            Assert.assertEquals(moduleObj.get("coveragePercentage").toString(), "77.78");
         }
     }
 
