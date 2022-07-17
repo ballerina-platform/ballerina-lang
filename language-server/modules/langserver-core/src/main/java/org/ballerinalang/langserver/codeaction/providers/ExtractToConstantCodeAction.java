@@ -17,8 +17,6 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
@@ -26,7 +24,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.ConstantVisitor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -56,7 +53,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL,
-                SyntaxKind.NUMERIC_LITERAL, SyntaxKind.BINARY_EXPRESSION);
+                SyntaxKind.STRING_LITERAL, SyntaxKind.BINARY_EXPRESSION);
     }
 
     /**
@@ -69,7 +66,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         if (context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
         }
-        Node node = CommonUtil.findNode(context.range(), context.currentSyntaxTree().get());
+        Node node = posDetails.matchedCodeActionNode();
         if (node.parent().kind() == SyntaxKind.CONST_DECLARATION ||
                 node.parent().kind() == SyntaxKind.INVALID_EXPRESSION_STATEMENT ||
                 (node.kind() != SyntaxKind.NUMERIC_LITERAL && node.kind() != SyntaxKind.STRING_LITERAL && 
@@ -93,27 +90,9 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                 .collect(Collectors.toSet());
         String constName = NameUtil.generateTypeName(CONSTANT_NAME_PREFIX, visibleSymbolNames);
 
-        String value = "";
-        LineRange replaceRange = null;
-        Optional<TypeSymbol> typeSymbol = Optional.empty();
-        switch(node.kind()) {
-            case NUMERIC_LITERAL:
-            case STRING_LITERAL:
-            case BOOLEAN_LITERAL:
-                BasicLiteralNode basicLiteralNode = (BasicLiteralNode) node;
-                value = basicLiteralNode.toSourceCode().strip();
-                replaceRange = basicLiteralNode.lineRange();
-                typeSymbol = context.currentSemanticModel().get().typeOf(basicLiteralNode);
-                break;
-            case BINARY_EXPRESSION:
-                BinaryExpressionNode binaryExpressionNode = (BinaryExpressionNode) node;
-                value = binaryExpressionNode.toSourceCode().strip();
-                replaceRange = binaryExpressionNode.lineRange();
-                typeSymbol = context.currentSemanticModel().get().typeOf(binaryExpressionNode);
-                break;
-            default:
-        }
-
+        String value = node.toSourceCode().strip();
+        LineRange replaceRange = node.lineRange();
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
