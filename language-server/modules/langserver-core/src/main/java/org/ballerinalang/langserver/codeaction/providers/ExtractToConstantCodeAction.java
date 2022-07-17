@@ -23,14 +23,15 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.ConstantVisitor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
@@ -48,21 +49,22 @@ import java.util.stream.Collectors;
  * @since 2201.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ExtractToConstantCodeAction extends AbstractCodeActionProvider {
+public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Extract To Constant";
     private static final String CONSTANT_NAME_PREFIX = "CONSTANT";
 
-    public ExtractToConstantCodeAction() {
-        super(List.of(CodeActionNodeType.LITERAL, CodeActionNodeType.BINARY_EXPR));
+    public List<SyntaxKind> getSyntaxKinds() {
+        return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL,
+                SyntaxKind.NUMERIC_LITERAL, SyntaxKind.BINARY_EXPRESSION);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context,
+                                                    RangeBasedPositionDetails posDetails) {
         
         if (context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
@@ -127,7 +129,7 @@ public class ExtractToConstantCodeAction extends AbstractCodeActionProvider {
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
                 PositionUtil.toPosition(replaceRange.endLine())),  constName);
 
-        return Collections.singletonList(createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT, 
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT, 
                 List.of(constDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract));
     }
 
