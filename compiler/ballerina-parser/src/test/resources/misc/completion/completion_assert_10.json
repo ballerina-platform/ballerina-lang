@@ -1494,20 +1494,11 @@
                                       ]
                                     },
                                     {
-                                      "kind": "MEMBER_TYPE_DESC",
-                                      "children": [
+                                      "kind": "COMMA_TOKEN",
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "COMMA_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
-                                            }
-                                          ]
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
                                         }
                                       ]
                                     },

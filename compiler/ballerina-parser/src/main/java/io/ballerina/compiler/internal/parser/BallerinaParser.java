@@ -18558,8 +18558,12 @@ public class BallerinaParser extends AbstractParser {
     private List<STNode> getTupleMemberList(List<STNode> ambiguousList) {
         List<STNode> tupleMemberList = new ArrayList<>();
         for (STNode item : ambiguousList) {
-            tupleMemberList.add(STNodeFactory.createMemberTypeDescriptorNode(STNodeFactory.createEmptyNodeList(),
-                    getTypeDescFromExpr(item)));
+            if (item.kind == SyntaxKind.COMMA_TOKEN) {
+                tupleMemberList.add(item);
+            } else {
+                tupleMemberList.add(STNodeFactory.createMemberTypeDescriptorNode(STNodeFactory.createEmptyNodeList(),
+                        getTypeDescFromExpr(item)));
+            }
         }
 
         return tupleMemberList;

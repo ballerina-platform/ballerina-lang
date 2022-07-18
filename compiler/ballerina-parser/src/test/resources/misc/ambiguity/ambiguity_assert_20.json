@@ -263,20 +263,11 @@
                                       ]
                                     },
                                     {
-                                      "kind": "MEMBER_TYPE_DESC",
-                                      "children": [
+                                      "kind": "COMMA_TOKEN",
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "COMMA_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ]
                                     },
@@ -324,20 +315,11 @@
                                       ]
                                     },
                                     {
-                                      "kind": "MEMBER_TYPE_DESC",
-                                      "children": [
+                                      "kind": "COMMA_TOKEN",
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "COMMA_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ]
                                     },
@@ -481,20 +463,11 @@
                                           ]
                                         },
                                         {
-                                          "kind": "MEMBER_TYPE_DESC",
-                                          "children": [
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
                                             {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ]
                                         },
@@ -542,20 +515,11 @@
                                           ]
                                         },
                                         {
-                                          "kind": "MEMBER_TYPE_DESC",
-                                          "children": [
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
                                             {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "COMMA_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ]
                                         },
