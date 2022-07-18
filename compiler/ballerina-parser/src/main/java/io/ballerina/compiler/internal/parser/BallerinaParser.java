@@ -284,6 +284,24 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as an object member.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsObjectMember() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.SERVICE_DECL);
+        startContext(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
+        STNode objectMember = parseObjectMember(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
+
+        if (objectMember == null) {
+            objectMember = createMissingSimpleObjectField();
+        }
+        objectMember = invalidateRestAndAddToTrailingMinutiae(objectMember);
+        return objectMember;
+    }
+
+    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
@@ -4823,6 +4841,12 @@ public class BallerinaParser extends AbstractParser {
 
         return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList,
                 simpleNameRef, identifier, emptyNode, emptyNode, semicolon);
+    }
+
+    private STNode createMissingSimpleObjectField() {
+        STNode metadata = STNodeFactory.createEmptyNode();
+        List<STNode> qualifiers = new ArrayList<>();
+        return createMissingSimpleObjectField(metadata,  qualifiers, false);
     }
 
     private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
