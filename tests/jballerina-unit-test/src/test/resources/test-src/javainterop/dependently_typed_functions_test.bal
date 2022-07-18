@@ -891,6 +891,31 @@ function testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType(
     assert("hello!", d);
 }
 
+client class ClientWithExternalResourceBody {
+    resource function get [string... path](TargetType targetType) returns targetType|error =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getResource"
+    } external;
+}
+
+function testDependentlyTypedResourceFunctions() {
+    ClientWithExternalResourceBody cl = new ClientWithExternalResourceBody();
+    string|error a = cl->/games/carrom(targetType = string);
+    assert("[\"games\",\"carrom\"]", checkpanic a);
+    
+    var cl2 = client object {
+        resource function get [string... path](TargetType targetType) returns targetType|error =
+        @java:Method {
+                'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                name: "getResource"
+            } external;
+    };
+
+    string|error b = cl2->/games/football(targetType = string);
+    assert("[\"games\",\"football\"]", checkpanic b);
+}
+
 // Util functions
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {
