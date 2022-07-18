@@ -1,0 +1,43 @@
+{
+  "packageId": {
+    "name": "simple_multiservice",
+    "org": "aneesha",
+    "version": "0.1.0"
+  },
+  "services": [
+    {
+      "path": "/noon ",
+      "serviceId": "002",
+      "resources": [
+        {
+          "resourceId": {
+            "serviceId": "002",
+            "path": "get",
+            "method": "hello "
+          },
+          "parameters": [],
+          "returns": ["string"],
+          "interactions": []
+        }
+      ]
+    },
+    {
+      "path": "/greeting ",
+      "serviceId": "001",
+      "resources": [
+        {
+          "resourceId": {
+            "serviceId": "001",
+            "path": "get",
+            "method": "hello "
+          },
+          "parameters": [],
+          "returns": ["error? "],
+          "interactions": [
+            { "serviceId": "002", "path": "/hello", "method": "get" }
+          ]
+        }
+      ]
+    }
+  ]
+}
