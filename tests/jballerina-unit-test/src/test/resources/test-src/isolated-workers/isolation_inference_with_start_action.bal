@@ -413,10 +413,27 @@ public isolated function invoke() {
 public function invoke2() {
 }
 
+function f19() {
+    _ = start invoke3();
+}
+
+function invoke3() {
+    string _ = helloGlobString;
+}
+
+function f20() {
+    _ = start invoke4();
+}
+
+function invoke4() {
+    _ = start f19();
+}
 
 function testIsolationInferenceWithStarActionInvokingPublicFunction() {
     assertTrue(<any>f17 is isolated function ());
     assertFalse(<any>f18 is isolated function ());
+    assertFalse(<any>f19 is isolated function ());
+    assertFalse(<any>f20 is isolated function ());
 }
 
 listener Listener ep = new ();
@@ -432,6 +449,11 @@ service on ep {
         return "Complete";
     }
 
+    resource function get quo() returns string {
+        _ = start invoke3();
+        return "Complete";
+    }
+
     remote function baz() returns string {
         _ = start invoke();
         return "Complete";
@@ -441,10 +463,15 @@ service on ep {
         _ = start invoke2();
         return "Complete";
     }
+
+    remote function qux() returns string {
+        _ = start invoke3();
+        return "Complete";
+    }
 }
 
 class Listener {
-    public function attach(service object {} s, string|string[]? name = ()) returns error?  = @java:Method {
+    public function attach(service object {} s, string|string[]? name = ()) = @java:Method {
                                        name: "testServiceDeclarationMethodIsolationInference",
                                        'class: "org.ballerinalang.test.isolation.IsolatedWorkerTest"
                                    } external;

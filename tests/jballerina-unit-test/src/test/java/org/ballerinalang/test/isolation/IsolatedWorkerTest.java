@@ -223,12 +223,13 @@ public class IsolatedWorkerTest {
     }
 
     // This is called from the test file via the attach method of the listener.
-    public static Object testServiceDeclarationMethodIsolationInference(BObject listener, BObject s, Object name) {
+    public static void testServiceDeclarationMethodIsolationInference(BObject listener, BObject s, Object name) {
         assertTrue(isResourceIsolated(s, "foo"));
         assertFalse(isResourceIsolated(s, "bar"));
+        assertFalse(isResourceIsolated(s, "quo"));
         assertTrue(isRemoteMethodIsolated(s, "baz"));
         assertFalse(isRemoteMethodIsolated(s, "bam"));
-        return null;
+        assertFalse(isRemoteMethodIsolated(s, "qux"));
     }
 
     private static boolean isResourceIsolated(Object val, String resourcePathString) {
