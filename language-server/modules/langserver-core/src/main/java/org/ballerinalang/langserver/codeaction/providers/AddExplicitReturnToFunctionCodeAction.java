@@ -26,11 +26,13 @@ import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
@@ -48,21 +50,21 @@ import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.FUNCTION_S
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionProvider {
+public class AddExplicitReturnToFunctionCodeAction implements DiagnosticBasedCodeActionProvider {
     private static final String NAME = "Add Explicit Return Statement";
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId()) 
-                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId())
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
         NonTerminalNode currentNode = positionDetails.matchedNode();
         Optional<FunctionDefinitionNode> functionDefinition = getFunctionDefinition(currentNode);
         if (functionDefinition.isEmpty()
@@ -81,7 +83,7 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
         textEdit.setNewText(newText);
         List<TextEdit> textEdits = Collections.singletonList(textEdit);
 
-        return Collections.singletonList(createCodeAction(CommandConstants.ADD_EXPLICIT_RETURN_STATEMENT,
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.ADD_EXPLICIT_RETURN_STATEMENT,
                 textEdits, uri, CodeActionKind.QuickFix));
     }
 
@@ -110,7 +112,7 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
                 ? Optional.of((FunctionDefinitionNode) functionDef)
                 : Optional.empty();
     }
-    
+
     private String getNewText(FunctionDefinitionNode functionDef) {
         NodeList<Token> qualifiers = functionDef.qualifierList();
         Token kwFunction = functionDef.functionKeyword();
@@ -118,16 +120,16 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
         // this point/ using this function, we check
         FunctionBodyBlockNode functionBody = (FunctionBodyBlockNode) functionDef.functionBody();
         Token closeBraceToken = functionBody.closeBraceToken();
-        
+
         LineRange startLineRange;
         if (qualifiers.isEmpty()) {
             startLineRange = kwFunction.lineRange();
         } else {
             startLineRange = qualifiers.get(0).lineRange();
         }
-        
+
         StringBuilder newText = new StringBuilder();
-        
+
         if (startLineRange.startLine().line() == closeBraceToken.lineRange().startLine().line()) {
             // Cursor is in the same line as the function start
             newText.append(CommonUtil.LINE_SEPARATOR)
@@ -143,7 +145,7 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
                     .append(StringUtils.repeat(" ", startLineRange.startLine().offset()))
                     .append("}");
         }
-        
+
         return newText.toString();
     }
 }

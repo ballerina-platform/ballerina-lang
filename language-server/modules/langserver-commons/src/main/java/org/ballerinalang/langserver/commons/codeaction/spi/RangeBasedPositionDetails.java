@@ -22,11 +22,11 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import java.util.Optional;
 
 /**
- * This class holds position details for the node-based code actions.
+ * This class holds position details for the range based code actions.
  *
  * @since 2.0.0
  */
-public interface NodeBasedPositionDetails {
+public interface RangeBasedPositionDetails {
     /**
      * Returns matched top-level node for the current position.
      *
