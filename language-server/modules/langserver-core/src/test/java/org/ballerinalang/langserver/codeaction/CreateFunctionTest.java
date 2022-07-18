@@ -41,6 +41,12 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
         super.test(config);
     }
 
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -66,7 +72,14 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionInCheckpanicExpression1.json"},
                 {"undefinedFunctionInCheckpanicExpression2.json"},
                 {"undefinedFunctionInPanicStatement.json"},
+        };
+    }
 
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"undefinedFunctionCodeActionNegativeTest1.json"},
+                {"undefinedFunctionCodeActionNegativeTest2.json"}
         };
     }
 }

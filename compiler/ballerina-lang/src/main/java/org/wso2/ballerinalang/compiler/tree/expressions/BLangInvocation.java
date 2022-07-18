@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * Implementation of {@link org.ballerinalang.model.tree.expressions.InvocationNode}.
@@ -271,6 +273,52 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         @Override
         public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
             return modifier.transform(this, props);
+        }
+    }
+
+    /**
+     * @since 2201.2.0
+     */
+    public static class BLangResourceAccessInvocation extends BLangInvocation implements ActionNode {
+        
+        public boolean invokedInsideTransaction = false;
+        public BLangListConstructorExpr resourceAccessPathSegments;
+        public BResourceFunction targetResourceFunc;
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder br = new StringBuilder();
+            br.append(expr).append("->/");
+            
+            StringJoiner joiner = new StringJoiner("/");
+            resourceAccessPathSegments.exprs.forEach(item -> joiner.add(item.toString()));
+            br.append(joiner.toString());
+                    
+            br.append(".");
+            br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
+            
+            br.append("(");
+            StringJoiner joiner1 = new StringJoiner(",");
+            argExprs.forEach(item -> joiner1.add(item.toString()));
+            br.append(joiner1.toString());
+            br.append(")");
+            
+            return br.toString();
         }
     }
 }

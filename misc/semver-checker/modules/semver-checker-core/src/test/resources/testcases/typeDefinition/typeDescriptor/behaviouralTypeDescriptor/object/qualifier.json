@@ -1,0 +1,44 @@
+[
+  {
+    "description": "Add isolated qualifier \n",
+    "oldCode": "public type Person object{};\n",
+    "newCode": "public type Person isolated object{};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove isolated qualifier \n",
+    "oldCode": "public type Person isolated object{};\n",
+    "newCode": "public type Person object{};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add service qualifier \n",
+    "oldCode": "public type Person object{};\n",
+    "newCode": "public type Person service object{};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove service qualifier \n",
+    "oldCode": "public type Person service object{};\n",
+    "newCode": "public type Person object{};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add client qualifier \n",
+    "oldCode": "public type Person object{};",
+    "newCode": "public type Person client object{};",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove client qualifier ",
+    "oldCode": "public type Person client object{};\n",
+    "newCode": "public type Person object{};",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add 2 qualifiers\n",
+    "oldCode": "public type Person object{};\n",
+    "newCode": "public type Person isolated service object{};\n",
+    "expectedOutput": {}
+  }
+]

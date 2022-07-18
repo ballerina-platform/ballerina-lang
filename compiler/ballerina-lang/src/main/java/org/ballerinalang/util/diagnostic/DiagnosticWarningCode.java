@@ -51,6 +51,7 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     INVALID_DEPRECATION_DOCUMENTATION("BCE20019", "invalid.deprecation.documentation"),
     DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("BCE20020", "deprecation.documentation.should.available"),
     DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("BCE20021", "deprecated.parameters.documentation.not.allowed"),
+    ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("BCE20022", "attempt.expose.non.public.symbol"),
 
     // Parser diagnostic codes
     SYNTAX_WARNING("BCE20200", "syntax.warning"),
