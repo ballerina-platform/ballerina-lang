@@ -399,6 +399,69 @@ function testClientClassMethodIsolationInference() {
     assertFalse(isMethodIsolated(c3, "bar"));
 }
 
+function f17() {
+    _ = start invoke();
+}
+
+function f18() {
+    _ = start invoke2();
+}
+
+public isolated function invoke() {
+}
+
+public function invoke2() {
+}
+
+
+function testIsolationInferenceWithStarActionInvokingPublicFunction() {
+    assertTrue(<any>f17 is isolated function ());
+    assertFalse(<any>f18 is isolated function ());
+}
+
+listener Listener ep = new ();
+
+service on ep {
+    resource function get foo() returns string {
+        _ = start invoke();
+        return "Complete";
+    }
+
+    resource function get bar() returns string {
+        _ = start invoke2();
+        return "Complete";
+    }
+
+    remote function baz() returns string {
+        _ = start invoke();
+        return "Complete";
+    }
+
+    remote function bam() returns string {
+        _ = start invoke2();
+        return "Complete";
+    }
+}
+
+class Listener {
+    public function attach(service object {} s, string|string[]? name = ()) returns error?  = @java:Method {
+                                       name: "testServiceDeclarationMethodIsolationInference",
+                                       'class: "org.ballerinalang.test.isolation.IsolatedWorkerTest"
+                                   } external;
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}
+
 function assertTrue(anydata actual) => assertEquality(true, actual);
 
 function assertFalse(anydata actual) => assertEquality(false, actual);
