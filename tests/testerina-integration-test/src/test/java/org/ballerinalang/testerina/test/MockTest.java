@@ -31,6 +31,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -164,9 +165,10 @@ public class MockTest extends BaseTestCase {
     }
 
     private void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                "'local' repository.");
+        LogLeecher buildLeecher = new LogLeecher("target" + File.separator + "bala" + File.separator +
+                balaFileName + ".bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target" + File.separator + "bala" +
+                File.separator + balaFileName + ".bala to 'local' repository.");
         balClient.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                 packagPath);
         buildLeecher.waitForText(5000);
