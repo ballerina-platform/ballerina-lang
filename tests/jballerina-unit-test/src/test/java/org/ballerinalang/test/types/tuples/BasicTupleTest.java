@@ -330,8 +330,8 @@ public class BasicTupleTest {
     @Test
     public void testTupleName() {
         Object returns = BRunUtil.invoke(result, "testTupleName", new Object[]{});
-        Type T = TypeUtils.getType(returns);
-        Assert.assertEquals(T.getName(), "T");
+        Type t = TypeUtils.getType(returns);
+        Assert.assertEquals(t.getName(), "T");
     }
 
     @AfterClass
