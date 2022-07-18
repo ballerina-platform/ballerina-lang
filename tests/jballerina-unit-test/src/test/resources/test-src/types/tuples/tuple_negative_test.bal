@@ -236,8 +236,21 @@ function testFunc3(string i, int... i) {
 public const annotation member on field;
 
 function testTupleMemberAnnotations() {
-     [@typeParam int, string] T1 = [1, "d"];
+     [@typeParam int, string...] T1 = [1, "d"];
      [@annot int, string] T2 = [1, "d"];
      [@member @annot int, string] T3 = [1, "d"];
-     [@member int, @annot string] T3 = [1, "d"];
+     [@member int, @annot string] T4 = [1, "d"];
 }
+
+type T5 [@typeParam int, string];
+type T6 [@annot int, string...];
+type T7 [@member @annot int, string];
+type T8 [@member int, @annot string];
+
+@annot
+type T9 [int, string];
+
+@annot
+type T10 [@member int, string];
+
+type T11 [@member int, @member string...];

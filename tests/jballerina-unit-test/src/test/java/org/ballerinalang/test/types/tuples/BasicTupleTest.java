@@ -190,7 +190,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 49);
+        Assert.assertEquals(resultNegative.getErrorCount(), 55);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++,
@@ -345,9 +345,30 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "undefined annotation 'annot'",
                 241, 15);
-        BAssertUtil.validateError(resultNegative, i,
+        BAssertUtil.validateError(resultNegative, i++,
                 "undefined annotation 'annot'",
                 242, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "annotation 'ballerina/lang.annotations:0.0.0:typeParam' is not allowed on field",
+                245, 10);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                246, 10);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                247, 18);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                248, 23);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                250, 1);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                253, 1);
+        BAssertUtil.validateError(resultNegative, i,
+                "annotations not allowed for tuple rest descriptor",
+                256, 24);
     }
 
     @Test(description = "Test Function invocation using tuples")
