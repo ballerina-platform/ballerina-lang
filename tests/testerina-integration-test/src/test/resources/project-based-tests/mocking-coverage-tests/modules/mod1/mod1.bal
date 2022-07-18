@@ -19,7 +19,6 @@ public function intAdd(int a, int b) returns int {
     return c;
 }
 
-
 public function decimalAdd(decimal a, decimal b) returns decimal {
     decimal d =  a + b;
     return d;
