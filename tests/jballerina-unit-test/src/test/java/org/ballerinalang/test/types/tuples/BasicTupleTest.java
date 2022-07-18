@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.test.types.tuples;
 
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -323,6 +325,13 @@ public class BasicTupleTest {
     @Test
     public void testTupleAsTupleFirstMember() {
         BRunUtil.invoke(result, "testTupleAsTupleFirstMember");
+    }
+
+    @Test
+    public void testTupleName() {
+        Object returns = BRunUtil.invoke(result, "testTupleName", new Object[]{});
+        Type T = TypeUtils.getType(returns);
+        Assert.assertEquals(T.getName(), "T");
     }
 
     @AfterClass

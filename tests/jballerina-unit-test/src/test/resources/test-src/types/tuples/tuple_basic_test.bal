@@ -487,6 +487,13 @@ function testTupleToJSONAssignment() {
      assertEquality(false, K is json);
 }
 
+type T [int, string...];
+
+function testTupleName() returns T {
+    T x = [1, "a", "b"];
+    return x;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
