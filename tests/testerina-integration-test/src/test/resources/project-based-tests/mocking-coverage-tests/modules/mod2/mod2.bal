@@ -14,6 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+function stringAdd(string s) returns string {
+    return "Hello " + s;
+}
+
+public function floatAdd(float a, float b) returns float {
+    float f =  a + b;
+    return f;
+}
+
 public function byteAdd(byte a, byte b) returns int {
     return a + b;
 }

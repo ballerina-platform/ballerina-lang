@@ -14,6 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function byteAdd(byte a, byte b) returns int {
-    return a + b;
+public function intAdd(int a, int b) returns int {
+    int c = a + b;
+    return c;
+}
+
+public function decimalAdd(decimal a, decimal b) returns decimal {
+    decimal d =  a + b;
+    return d;
 }
