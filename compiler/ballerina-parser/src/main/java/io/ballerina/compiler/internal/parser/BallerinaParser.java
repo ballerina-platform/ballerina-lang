@@ -15157,8 +15157,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr,
                         pipeOrAndToken, rhsTypedBPOrExpr);
             case SEMICOLON_TOKEN:
-                if (typeOrExpr.kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0
-                        && typeOrExpr.kind.compareTo(SyntaxKind.ERROR_CONSTRUCTOR) <= 0) {
+                if (isExpression(typeOrExpr.kind)) {
                     return typeOrExpr;
                 }
 
@@ -15364,7 +15363,7 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             default:
                 return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                        kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
+                        kind.compareTo(SyntaxKind.ERROR_CONSTRUCTOR) <= 0;
         }
     }
 
@@ -16331,7 +16330,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypedBindingPatternTypeRhs(STNode typeDesc, ParserRuleContext context, boolean isRoot) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case SEMICOLON_TOKEN:
             case IDENTIFIER_TOKEN: // Capture/error binding pattern: T x, error T(..)
             case OPEN_BRACE_TOKEN: // Map binding pattern: T { }
             case ERROR_KEYWORD: // Error binding pattern: error T(..)

@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -51,9 +52,7 @@ public class TypeDescContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        ArrayList<String> skip = new ArrayList<>();
         // Skip this test due to issue: https://github.com/ballerina-platform/ballerina-lang/issues/37039
-        skip.add("function_typedesc17.json");
-        return skip;
+        return Arrays.asList("function_typedesc17.json");
     }
 }
