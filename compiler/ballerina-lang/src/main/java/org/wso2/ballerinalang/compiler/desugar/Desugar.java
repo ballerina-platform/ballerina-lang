@@ -7221,11 +7221,17 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        // Since the support for singleton type changes are not complete, continuing with the finite type will require
+        // significant changes, therefore we are constructing a numeric literal.
+        if (types.isExpressionInUnaryValid(unaryExpr.expr) && unaryExpr.expectedType.tag == TypeTags.FINITE) {
+            result = rewriteExpr(Types.constructNumericLiteralFromUnaryExpr(unaryExpr));
+            return;
+        }
+
         OperatorKind opKind = unaryExpr.operator;
         if (opKind == OperatorKind.ADD || opKind == OperatorKind.SUB) {
             createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
         }
-
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
         result = unaryExpr;
     }
