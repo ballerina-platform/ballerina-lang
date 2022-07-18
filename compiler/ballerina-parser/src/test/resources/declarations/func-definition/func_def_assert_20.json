@@ -120,26 +120,17 @@
                                       ]
                                     },
                                     {
-                                      "kind": "MEMBER_TYPE_DESC",
-                                      "children": [
+                                      "kind": "COMMA_TOKEN",
+                                      "leadingMinutiae": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "\t"
+                                        }
+                                      ],
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "COMMA_TOKEN",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "\t"
-                                            }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ]
                                     },
