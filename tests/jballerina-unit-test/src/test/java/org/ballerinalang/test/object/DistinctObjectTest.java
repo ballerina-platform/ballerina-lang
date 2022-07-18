@@ -42,58 +42,62 @@ public class DistinctObjectTest {
                 " found 'object { int i; }'", 69, 13);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Bar'," +
                 " found 'object { int i; }'", 75, 13);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'object {" +
+                " int i; }', found 'object { int i; }'", 79, 11);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Bar'," +
+                " found 'object { int i; }'", 82, 13);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo'," +
-                " found 'object { }'", 80, 14);
+                " found 'object { }'", 87, 14);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo2'," +
-                " found 'object { }'", 81, 15);
+                " found 'object { }'", 88, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo3'," +
-                " found 'object { }'", 82, 15);
+                " found 'object { }'", 89, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo4'," +
-                " found 'object { }'", 83, 15);
+                " found 'object { }'", 90, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo5'," +
-                " found 'object { }'", 84, 15);
+                " found 'object { }'", 91, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'object { }'," +
-                " found 'Foo'", 86, 29);
+                " found 'Foo'", 93, 29);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'object { }'," +
-                " found 'Foo2'", 87, 29);
+                " found 'Foo2'", 94, 29);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'object { }'," +
-                " found 'Foo3'", 88, 29);
+                " found 'Foo3'", 95, 29);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'object { }'," +
-                " found 'Foo4'", 89, 29);
+                " found 'Foo4'", 96, 29);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'object { }'," +
-                " found 'Foo5'", 90, 29);
+                " found 'Foo5'", 97, 29);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo'," +
-                " found 'Foo2'", 92, 10);
+                " found 'Foo2'", 99, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo'," +
-                " found 'Foo3'", 93, 10);
+                " found 'Foo3'", 100, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo'," +
-                " found 'Foo4'", 94, 10);
+                " found 'Foo4'", 101, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo'," +
-                " found 'Foo5'", 95, 10);
+                " found 'Foo5'", 102, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo2'," +
-                " found 'Foo'", 96, 10);
+                " found 'Foo'", 103, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo2'," +
-                " found 'Foo3'", 97, 10);
+                " found 'Foo3'", 104, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo2'," +
-                " found 'Foo4'", 98, 10);
+                " found 'Foo4'", 105, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo2'," +
-                " found 'Foo5'", 99, 10);
+                " found 'Foo5'", 106, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo3'," +
-                " found 'Foo'", 100, 10);
+                " found 'Foo'", 107, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo3'," +
-                " found 'Foo2'", 101, 10);
+                " found 'Foo2'", 108, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo3'," +
-                " found 'Foo4'", 102, 10);
+                " found 'Foo4'", 109, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo3'," +
-                " found 'Foo5'", 103, 10);
+                " found 'Foo5'", 110, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo4'," +
-                " found 'Foo'", 104, 10);
+                " found 'Foo'", 111, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo4'," +
-                " found 'Foo2'", 105, 10);
+                " found 'Foo2'", 112, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo4'," +
-                " found 'Foo3'", 106, 10);
+                " found 'Foo3'", 113, 10);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Foo4'," +
-                " found 'Foo5'", 107, 10);
+                " found 'Foo5'", 114, 10);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

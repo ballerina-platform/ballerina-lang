@@ -73,6 +73,13 @@ public function testDistinctObjectAssignability() {
     };
 
     Bar _ = x; //error: incompatible types: expected 'Bar', found 'object { int i; }'
+
+    distinct object {
+        int i;
+    } _ = x; //error: incompatible types: expected 'object { int i; }', found 'object { int i; }'
+
+    distinct object { int i; } y = object { int i = 3; };
+    Bar _ = y; //error: incompatible types: expected 'Bar', found 'object { int i; }'
 }
 
 public function testDistinctObjectAssignability2() {
