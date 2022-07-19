@@ -21,14 +21,14 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public final class Configurations {
+public final class ParserConfigurations {
 
     private ResourceBundle properties = null;
-    private static volatile Configurations instance = null;
+    private static volatile ParserConfigurations instance = null;
     private static String language = "en";
     private static String country = "LK";
 
-    private Configurations () {
+    private ParserConfigurations() {
         Locale currentLanguage;
         if (language == null || country == null) {
             currentLanguage = Locale.getDefault();
@@ -38,11 +38,11 @@ public final class Configurations {
         this.properties = ResourceBundle.getBundle("token", currentLanguage);
     }
 
-    public static Configurations getInstance() {
+    public static ParserConfigurations getInstance() {
         if (instance == null) {
-            synchronized (Configurations.class) {
+            synchronized (ParserConfigurations.class) {
                 if (instance == null) {
-                    instance = new Configurations();
+                    instance = new ParserConfigurations();
                 }
             }
         }
