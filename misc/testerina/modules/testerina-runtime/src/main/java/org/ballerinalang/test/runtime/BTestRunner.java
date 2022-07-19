@@ -464,7 +464,7 @@ public class BTestRunner {
      */
     private List<String> getKeyValues(BMap dataMap) {
         List<String> keyValues = new ArrayList<>();
-        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+        if (TypeUtils.getReferredType(((BMapType) dataMap.getType()).getConstrainedType()) instanceof TupleType) {
             for (BString key : (BString[]) dataMap.getKeys()) {
                 keyValues.add(key.getValue());
             }
@@ -757,7 +757,7 @@ public class BTestRunner {
      */
     private List<Object[]> extractArguments(BArray bArray) {
         List<Object[]> argsList = new ArrayList<>();
-        if (bArray.getElementType() instanceof ArrayType) {
+        if (TypeUtils.getReferredType(bArray.getElementType()) instanceof ArrayType) {
             // Ok we have an array of an array
             for (int i = 0; i < bArray.size(); i++) {
                 // Iterate array elements and set parameters
@@ -778,7 +778,7 @@ public class BTestRunner {
      */
     private List<Object[]> extractArguments(BMap dataMap) {
         List<Object[]> argsList = new ArrayList<>();
-        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+        if (TypeUtils.getReferredType(((BMapType) dataMap.getType()).getConstrainedType()) instanceof TupleType) {
             for (BString keyValue : (BString[]) dataMap.getKeys()) {
                 setTestFunctionParams(argsList, dataMap.getArrayValue(keyValue));
             }
@@ -795,7 +795,7 @@ public class BTestRunner {
     private static Class<?>[] extractArgumentTypes(BArray bArray) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
-        if (bArray.getElementType() instanceof ArrayType) {
+        if (TypeUtils.getReferredType(bArray.getElementType()) instanceof ArrayType) {
             // Iterate elements of first entry in array of array
             // to get the class types
             setTestFunctionSignature(typeList, (BArray) bArray.get(0));
@@ -817,7 +817,7 @@ public class BTestRunner {
     private static Class<?>[] extractArgumentTypes(BMap dataMap) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
-        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+        if (TypeUtils.getReferredType(((BMapType) dataMap.getType()).getConstrainedType()) instanceof TupleType) {
             setTestFunctionSignature(typeList, dataMap.getArrayValue(
                     (BString) dataMap.getKeys()[0]));
         }
