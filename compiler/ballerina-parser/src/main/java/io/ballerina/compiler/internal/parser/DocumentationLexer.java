@@ -652,7 +652,7 @@ public class DocumentationLexer extends AbstractLexer {
             lookAheadChar = reader.peek(lookAheadCount);
         }
 
-        Keyword identifierEnum = KeywordMap.getKeyword(identifier);
+        Keyword identifierEnum = Keyword.getValue(identifier);
         switch (identifierEnum) {
             case TYPE:
             case SERVICE:
@@ -753,7 +753,7 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken processReferenceType() {
         String tokenText = getLexeme();
-        Keyword tokenTextEnum = KeywordMap.getKeyword(tokenText);
+        Keyword tokenTextEnum = Keyword.getValue(tokenText);
         switch (tokenTextEnum) {
             case TYPE:
                 return getDocSyntaxToken(SyntaxKind.TYPE_DOC_REFERENCE_TOKEN);

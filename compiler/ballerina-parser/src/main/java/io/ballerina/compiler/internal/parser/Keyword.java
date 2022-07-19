@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import static io.ballerina.compiler.internal.parser.KeywordMap.keywordsMap;
+
 public enum Keyword {
     PUBLIC(LexerTerminals.PUBLIC),
     PRIVATE(LexerTerminals.PRIVATE),
@@ -131,5 +133,9 @@ public enum Keyword {
 
     public String toString() {
         return keyword;
+    }
+
+    public static Keyword getValue(String value) {
+        return keywordsMap.getOrDefault(value, DEFAULT);
     }
 }

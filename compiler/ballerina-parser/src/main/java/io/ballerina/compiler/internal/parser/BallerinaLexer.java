@@ -838,7 +838,7 @@ public class BallerinaLexer extends AbstractLexer {
     private STToken processIdentifierOrKeyword() {
         processUnquotedIdentifier();
         String tokenText = getLexeme();
-        Keyword keyword = KeywordMap.getKeyword(tokenText);
+        Keyword keyword = Keyword.getValue(tokenText);
         switch (keyword) {
             // built-in named-types
             case INT:

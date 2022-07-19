@@ -24,10 +24,7 @@ import java.util.stream.Stream;
 
 public class KeywordMap {
 
-    private static final Map<String, Keyword> keywordsMap = Stream.of(Keyword.values()).collect(Collectors
+    public static final Map<String, Keyword> keywordsMap = Stream.of(Keyword.values()).collect(Collectors
             .toMap(Keyword::toString, Function.identity()));
 
-    public static Keyword getKeyword(String tokenText) {
-        return keywordsMap.getOrDefault(tokenText, Keyword.DEFAULT);
-    }
 }
