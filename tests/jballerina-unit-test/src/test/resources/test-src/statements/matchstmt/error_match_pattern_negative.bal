@@ -47,3 +47,15 @@ function testNegative2() {
         error MyError1("Message", x = 4) | error MyError1("Message", x = 4) => {} // unreachable pattern
     }
 }
+
+function testNegative3() {
+    error v = getCustomError();
+    match v {
+        var errorA if v is MyError1 => { } // unused variable 'errorA'
+        var errorB if v is MyError2 => { } // unused variable 'errorB'
+    }
+}
+
+function getCustomError() returns error {
+    return error MyError1("Message", x = 2);
+}
