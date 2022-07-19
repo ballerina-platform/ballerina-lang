@@ -114,7 +114,7 @@ EXAMPLES
        license or copyright header.
            $ bal openapi -i hello.yaml --license license.txt
 
-       Generate client with resource methods w.r.t the `hello.yaml` OpenAPI contract.
+       Generate a client with resource methods with respect to the `hello.yaml` OpenAPI contract.
            $ bal openapi -i hello.yaml --client-methods resource
            $ bal openapi -i hello.yaml --mode client --client-methods resource
 
