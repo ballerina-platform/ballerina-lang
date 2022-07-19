@@ -551,10 +551,10 @@ public class FormattingTreeModifier extends TreeModifier {
 
         Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), 0, fieldTrailingNL);
         indent(); // Set indentation for record fields
-        NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
-                0, fieldTrailingNL);
         RecordRestDescriptorNode recordRestDescriptor =
-                formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), fieldTrailingWS, fieldTrailingNL);
+                formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), 0, fieldTrailingNL);
+        NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
+                recordRestDescriptor == null ? 0 : fieldTrailingWS, fieldTrailingNL);
         unindent(); // Revert indentation for record fields
         Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), env.trailingWS, env.trailingNL);
 
