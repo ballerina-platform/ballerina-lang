@@ -16976,6 +16976,7 @@ public class BallerinaParser extends AbstractParser {
 
             switch (currentNodeType) {
                 case TUPLE_TYPE_DESC:
+                    member = parseComplexTypeDescriptor(member, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
                     member = createMemberOrRestNode(STNodeFactory.createEmptyNodeList(), member);
                     // If the member type was figured out as a tuple-type-desc member, then parse the
                     // remaining members as tuple type members and be done with it.
@@ -17165,6 +17166,7 @@ public class BallerinaParser extends AbstractParser {
                 case MEMBER_TYPE_DESC:
                     return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
                 case TUPLE_TYPE_DESC:
+                    member = parseComplexTypeDescriptor(member, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
                     member = createMemberOrRestNode(STNodeFactory.createEmptyNodeList(), member);
                     // If the member type was figured out as a tuple-type-desc member, then parse the
                     // remaining members as tuple type members and be done with it.
