@@ -33,7 +33,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -41,7 +40,6 @@ import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -63,7 +61,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  *
  * @since 2.0.0
  */
-public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActionProvider {
+public abstract class AbstractImplementMethodCodeAction {
 
     protected static final int DIAG_PROPERTY_NAME_INDEX = 0;
     protected static final int DIAG_PROPERTY_SYMBOL_INDEX = 1;
@@ -75,29 +73,6 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
     );
 
     /**
-     * Create a diagnostic based code action provider.
-     */
-    public AbstractImplementMethodCodeAction() {
-        super();
-    }
-
-    /**
-     * Create a node type based code action provider.
-     *
-     * @param nodeTypes code action node types list
-     */
-    public AbstractImplementMethodCodeAction(List<CodeActionNodeType> nodeTypes) {
-        super(nodeTypes);
-    }
-
-    @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
-                            CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
-    }
-
-    /**
      * Returns a list of text edits based on diagnostics.
      *
      * @param diagnostic      diagnostic to evaluate
@@ -107,7 +82,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
      */
     public static List<TextEdit> getDiagBasedTextEdits(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                                        CodeActionContext context) {
-        
+
 
         Optional<Name> methodName = positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX);
         Optional<TypeSymbol> optionalSymbol = positionDetails.diagnosticProperty(DIAG_PROPERTY_SYMBOL_INDEX);
