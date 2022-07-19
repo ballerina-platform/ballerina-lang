@@ -2075,7 +2075,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void markFunctionDependentlyIsolatedOnStartAction(BInvokableSymbol enclInvokableSymbol,
                                                               Set<BLangExpression> argsList, BInvokableSymbol symbol) {
-        if (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
+        if (!isIsolated(symbol.type.flags) && Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
             markDependsOnIsolationNonInferableConstructs();
             return;
         }
