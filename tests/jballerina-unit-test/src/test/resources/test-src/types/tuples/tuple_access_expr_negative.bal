@@ -17,6 +17,8 @@
 type CustomTupleType [int, string, boolean];
 type CustomTupleType2 [int...];
 type CustomTupleType3 [int, string, boolean...];
+type CustomTupleType4 [CustomTupleType2];
+type CustomTupleType5 [boolean, string, CustomTupleType2];
 
 int index = 0;
 
@@ -77,18 +79,30 @@ function testCustomTupleTypesAccessNegative() {
     CustomTupleType t1 = [1, "a", true];
     CustomTupleType2 t2 = [1, 2, 3, 5];
     CustomTupleType3 t3 = [1, "a", true, true];
+    CustomTupleType4 t4 = [t2];
+    CustomTupleType5 t5 = [true, "a", t2];
+    [CustomTupleType2] t6 = [t2];
+    [boolean, string, CustomTupleType2] t7 = [true, "a", t2];
 
     string _ = t1[0]; //error: incompatible types: expected 'string', found 'int'
     int _ = t1[1]; //error: incompatible types: expected 'int', found 'string'
     string _ = t2[0]; //error: incompatible types: expected 'string', found 'int'
     boolean _ = t3[0]; //error: incompatible types: expected 'boolean', found 'int'
     int _ = t3[3]; //error: incompatible types: expected 'int', found 'boolean'
+    string _ = t4[0][0]; //error: incompatible types: expected 'string', found 'int'
+    boolean _ = t5[2][0]; //error: incompatible types: expected 'boolean', found 'int'
+    string _ = t6[0][0]; //error: incompatible types: expected 'string', found 'int'
+    boolean _ = t7[2][0]; //error: incompatible types: expected 'boolean', found 'int'
 
     string _ = t1[index]; //error: incompatible types: expected 'string', found '(int|string|boolean)'
     int _ = t1[index + 1]; //error: incompatible types: expected 'int', found '(int|string|boolean)'
     string _ = t2[index]; //error: incompatible types: expected 'string', found 'int'
     boolean _ = t3[index]; //error: incompatible types: expected 'boolean', found '(int|string|boolean)'
     int _ = t3[index + 3]; //error: incompatible types: expected 'int', found '(int|string|boolean)'
+    string _ = t4[0][index]; //error: incompatible types: expected 'string', found 'int'
+    boolean _ = t5[2][index]; //error: incompatible types: expected 'boolean', found 'int'
+    string _ = t6[0][index]; //error: incompatible types: expected 'string', found 'int'
+    boolean _ = t7[2][index]; //error: incompatible types: expected 'boolean', found 'int'
 
     var x1 = t1[0];
     string _ = x1; //error: incompatible types: expected 'string', found 'int'
@@ -119,4 +133,16 @@ function testCustomTupleTypesAccessNegative() {
 
     var x10 = t3[index + 3];
     int _ = x10; //error: incompatible types: expected 'int', found '(int|string|boolean)'
+
+    var x11 = t4[0][index];
+    string _ = x11; //error: incompatible types: expected 'string', found 'int'
+
+    var x12 = t5[2][index];
+    boolean _ = x12; //error: incompatible types: expected 'boolean', found 'int
+
+    var x13 = t6[0][index];
+    string _ = x13; //error: incompatible types: expected 'string', found 'int'
+
+    var x14 = t7[2][index];
+    boolean _ = x14; //error: incompatible types: expected 'boolean', found 'int'
 }
