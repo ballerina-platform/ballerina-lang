@@ -1038,11 +1038,12 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             case JOIN:
                 return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
-            case DEFAULT:
+            default:
+//                if (this.keywordModes.contains(KeywordMode.QUERY)) {
+//                    return getQueryCtxKeywordOrIdentifier(tokenText);
+//                }
                 return getIdentifierToken();
         }
-        return getIdentifierToken();
-
     }
 
 //    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {

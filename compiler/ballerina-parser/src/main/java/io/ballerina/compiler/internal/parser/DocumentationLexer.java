@@ -686,12 +686,10 @@ public class DocumentationLexer extends AbstractLexer {
                     break;
                 }
                 // Fall through
-            case DEFAULT:
+            default:
                 reader.advance(lookAheadCount);
                 return false;
         }
-        reader.advance(lookAheadCount);
-        return false;
     }
 
     /*
