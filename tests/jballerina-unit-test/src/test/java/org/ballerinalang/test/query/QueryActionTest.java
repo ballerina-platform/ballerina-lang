@@ -175,6 +175,11 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testQueryActionWithDoClauseContainsCheck");
     }
 
+    @Test
+    public void testForeachStmtInsideDoClause() {
+        BRunUtil.invoke(result, "testForeachStmtInsideDoClause");
+    }
+
     @Test(dataProvider = "dataToTestQueryActionWithVar")
     public void testQueryActionWithVar(String functionName) {
         BRunUtil.invoke(result, functionName);
