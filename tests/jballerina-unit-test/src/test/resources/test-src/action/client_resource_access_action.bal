@@ -612,6 +612,30 @@ function testClosuresFromPathParams() {
     assertEquality(e, 12);
 }
 
+public type Params record {|
+    never headers?;
+    int...;
+|};
+
+client class MyClient10 {
+    resource function get [string... path](string? headers = (), *Params params) returns int {
+        return params.get("id");
+    }
+
+    resource function post foo/[int a]/bar(*Params params) returns int {
+        return params.get("id") + a;
+    }
+}
+
+public function testAccessingResourceWithIncludedRecordParam() {
+    MyClient10 cl = new;
+    int a = cl->/foo/bar(id = 1);
+    assertEquality(a, 1);
+
+    int b = cl->/foo/[4]/bar.post(id = 1);
+    assertEquality(b, 5);
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
