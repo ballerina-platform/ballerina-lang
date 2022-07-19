@@ -25,17 +25,24 @@ public final class Configurations {
 
     private ResourceBundle properties = null;
     private static volatile Configurations instance = null;
+    private static String language = "en";
+    private static String country = "LK";
 
-    private Configurations (String language){
-        Locale currentLanguage = new Locale(language);
+    private Configurations () {
+        Locale currentLanguage;
+        if (language == null || country == null) {
+            currentLanguage = Locale.getDefault();
+        } else {
+            currentLanguage = new Locale(language, country);
+        }
         this.properties = ResourceBundle.getBundle("token", currentLanguage);
     }
 
-    public static Configurations getInstance(String language) {
+    public static Configurations getInstance() {
         if (instance == null) {
             synchronized (Configurations.class) {
                 if (instance == null) {
-                    instance = new Configurations(language);
+                    instance = new Configurations();
                 }
             }
         }
