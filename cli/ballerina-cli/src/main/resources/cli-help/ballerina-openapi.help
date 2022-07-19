@@ -12,6 +12,7 @@ SYNOPSIS
                    [--mode <mode-type>] [--tags <tag-names>]
                    [--operations <operation-names>] [-n | --nullable]
                    [--license] <license-file-path> [--with-tests]
+                   [--client-methods] <resource|remote>
        bal openapi [-i | --input] <ballerina-service-file-path> [--json]
                    [-s | --service] <current-service-name>
 
@@ -78,6 +79,9 @@ OPTIONS
             Work with the client generation command and generate a test
             boiler-plate for all the remote functions of the generated client.
 
+        --client-methods <resource|remote>
+            Work with the client generation command and common OpenAPI to Ballerina command without mode.
+            This option is used to select method type `resource` or `remote` for the client generation.
 
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
@@ -110,6 +114,10 @@ EXAMPLES
        Generate both the Ballerina client and service files including the given
        license or copyright header.
            $ bal openapi -i hello.yaml --license license.txt
+
+       Generate client with resource methods for the operations given in the `hello.yaml` OpenAPI contract.
+           $ bal openapi -i hello.yaml --client-methods resource
+           $ bal openapi -i hello.yaml --mode client --client-methods resource
 
        Export an OpenAPI definition for the `/hello` service of the
        `hello_service.bal` file.
