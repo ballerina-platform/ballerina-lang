@@ -57,7 +57,8 @@ public class ClientResourceAccessActionTest {
                 {"testStaticTypeOfClientResourceAccessAction"},
                 {"testResourceAccessOfAnObjectConstructedViaObjectCons"},
                 {"testResourceAccessContainingSpecialChars"},
-                {"testClosuresFromPathParams"}
+                {"testClosuresFromPathParams"},
+                {"testAccessingResourceWithIncludedRecordParam"}
         };
     }
 
