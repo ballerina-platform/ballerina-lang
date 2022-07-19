@@ -1,4 +1,4 @@
 public function main() {
-    x; //cursor
+    x;
     int y = 3;
 }

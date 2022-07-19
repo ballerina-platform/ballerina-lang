@@ -577,7 +577,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] BINDING_PATTERN_OR_VAR_REF_RHS =
             { ParserRuleContext.VARIABLE_REF_RHS, ParserRuleContext.ASSIGN_OP,
-                    ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS};
+                    ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS };
 
     private static final ParserRuleContext[] TYPE_DESC_RHS_OR_BP_RHS =
             { ParserRuleContext.TYPE_DESC_RHS_IN_TYPED_BP, ParserRuleContext.LIST_BINDING_PATTERN_RHS };

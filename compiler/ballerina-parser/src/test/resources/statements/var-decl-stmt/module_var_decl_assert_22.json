@@ -4,17 +4,7 @@
   "children": [
     {
       "kind": "LIST",
-      "children": [
-        {
-          "kind": "PUBLIC_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        }
-      ]
+      "children": []
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -27,7 +17,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "main"
+      "value": "myFunc"
     },
     {
       "kind": "LIST",
@@ -79,17 +69,24 @@
               ],
               "children": [
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "kind": "QUALIFIED_NAME_REFERENCE",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
+                      "value": "module1",
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": "    "
                         }
                       ]
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "test"
                     }
                   ]
                 },
@@ -139,7 +136,7 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "y",
+                          "value": "x",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -165,7 +162,7 @@
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                      "value": "3"
+                      "value": "1"
                     }
                   ]
                 },

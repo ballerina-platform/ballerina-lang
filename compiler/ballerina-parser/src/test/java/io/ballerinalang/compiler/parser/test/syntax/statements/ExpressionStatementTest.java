@@ -26,6 +26,19 @@ import org.testng.annotations.Test;
  */
 public class ExpressionStatementTest extends AbstractStatementTest {
 
+    // Test expression statement
+
+    @Test
+    public void testExpressionStmtForSimpleLocalVarReference() {
+        testFile("var-decl-stmt/local_var_decl_source_18.bal", "var-decl-stmt/local_var_decl_assert_18.json");
+        testFile("var-decl-stmt/local_var_decl_source_20.bal", "var-decl-stmt/local_var_decl_assert_20.json");
+    }
+    @Test
+    public void testExpressionStmtForSimpleModuleVarReference() {
+        testFile("var-decl-stmt/module_var_decl_source_20.bal", "var-decl-stmt/module_var_decl_assert_20.json");
+        testFile("var-decl-stmt/module_var_decl_source_22.bal", "var-decl-stmt/module_var_decl_assert_22.json");
+    }
+
     // Test invalid expression statement
 
     @Test
@@ -36,5 +49,19 @@ public class ExpressionStatementTest extends AbstractStatementTest {
     @Test
     public void testExpressionStmtForListConstructor() {
         testFile("expression-stmt/expression_stmt_source_02.bal", "expression-stmt/expression_stmt_assert_02.json");
+    }
+
+    // Test expression statement with recovery
+
+    @Test
+    public void testExpressionStmtForSimpleLocalVarReferenceWithRecovery() {
+        testFile("var-decl-stmt/local_var_decl_source_17.bal", "var-decl-stmt/local_var_decl_assert_17.json");
+        testFile("var-decl-stmt/local_var_decl_source_19.bal", "var-decl-stmt/local_var_decl_assert_19.json");
+    }
+
+    @Test
+    public void testExpressionStmtForSimpleModuleVarReferenceWithRecovery() {
+        testFile("var-decl-stmt/module_var_decl_source_19.bal", "var-decl-stmt/module_var_decl_assert_19.json");
+        testFile("var-decl-stmt/module_var_decl_source_21.bal", "var-decl-stmt/module_var_decl_assert_21.json");
     }
 }
