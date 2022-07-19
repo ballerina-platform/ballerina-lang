@@ -403,10 +403,12 @@ public class VariableReturnType {
     }
 
     public static Object getResource(BObject client, BArray path, BTypedesc targetType) {
-        if (targetType.getDescribingType().getTag() == STRING_TAG) {
+        int targetTypeTag = targetType.getDescribingType().getTag();
+        if (targetTypeTag == STRING_TAG) {
             return StringUtils.fromString(path.toString());
         }
-
+        
+        assert targetTypeTag == INT_TAG;
         return 0;
     }
 

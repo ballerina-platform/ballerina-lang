@@ -899,13 +899,13 @@ client class ClientWithExternalResourceBody {
     } external;
 }
 
-function testDependentlyTypedResourceFunctions() {
+function testDependentlyTypedResourceMethods() {
     ClientWithExternalResourceBody cl = new ClientWithExternalResourceBody();
     string|error a = cl->/games/carrom(targetType = string);
     assert("[\"games\",\"carrom\"]", checkpanic a);
     
     var cl2 = client object {
-        resource function get [string... path](TargetType targetType) returns targetType|error =
+        resource function get [string... path](TargetType targetType = <>) returns targetType|error =
         @java:Method {
                 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
                 name: "getResource"
@@ -914,6 +914,9 @@ function testDependentlyTypedResourceFunctions() {
 
     string|error b = cl2->/games/football(targetType = string);
     assert("[\"games\",\"football\"]", checkpanic b);
+    
+    int|error c = cl2->/games/football();
+    assert(0, checkpanic c);
 }
 
 // Util functions
