@@ -838,211 +838,211 @@ public class BallerinaLexer extends AbstractLexer {
     private STToken processIdentifierOrKeyword() {
         processUnquotedIdentifier();
         String tokenText = getLexeme();
-        switch (tokenText) {
+        Keyword keyword = KeywordMap.getKeyword(tokenText);
+        switch (keyword) {
             // built-in named-types
-            case LexerTerminals.INT:
+            case INT:
                 return getSyntaxToken(SyntaxKind.INT_KEYWORD);
-            case LexerTerminals.FLOAT:
+            case FLOAT:
                 return getSyntaxToken(SyntaxKind.FLOAT_KEYWORD);
-            case LexerTerminals.STRING:
+            case STRING:
                 return getSyntaxToken(SyntaxKind.STRING_KEYWORD);
-            case LexerTerminals.BOOLEAN:
+            case BOOLEAN:
                 return getSyntaxToken(SyntaxKind.BOOLEAN_KEYWORD);
-            case LexerTerminals.DECIMAL:
+            case DECIMAL:
                 return getSyntaxToken(SyntaxKind.DECIMAL_KEYWORD);
-            case LexerTerminals.XML:
+            case XML:
                 return getSyntaxToken(SyntaxKind.XML_KEYWORD);
-            case LexerTerminals.JSON:
+            case JSON:
                 return getSyntaxToken(SyntaxKind.JSON_KEYWORD);
-            case LexerTerminals.HANDLE:
+            case HANDLE:
                 return getSyntaxToken(SyntaxKind.HANDLE_KEYWORD);
-            case LexerTerminals.ANY:
+            case ANY:
                 return getSyntaxToken(SyntaxKind.ANY_KEYWORD);
-            case LexerTerminals.ANYDATA:
+            case ANYDATA:
                 return getSyntaxToken(SyntaxKind.ANYDATA_KEYWORD);
-            case LexerTerminals.NEVER:
+            case NEVER:
                 return getSyntaxToken(SyntaxKind.NEVER_KEYWORD);
-            case LexerTerminals.BYTE:
+            case BYTE:
                 return getSyntaxToken(SyntaxKind.BYTE_KEYWORD);
 
             // Keywords
-            case LexerTerminals.PUBLIC:
+            case PUBLIC:
                 return getSyntaxToken(SyntaxKind.PUBLIC_KEYWORD);
-            case LexerTerminals.PRIVATE:
+            case PRIVATE:
                 return getSyntaxToken(SyntaxKind.PRIVATE_KEYWORD);
-            case LexerTerminals.FUNCTION:
+            case FUNCTION:
                 return getSyntaxToken(SyntaxKind.FUNCTION_KEYWORD);
-            case LexerTerminals.RETURN:
+            case RETURN:
                 return getSyntaxToken(SyntaxKind.RETURN_KEYWORD);
-            case LexerTerminals.RETURNS:
+            case RETURNS:
                 return getSyntaxToken(SyntaxKind.RETURNS_KEYWORD);
-            case LexerTerminals.EXTERNAL:
+            case EXTERNAL:
                 return getSyntaxToken(SyntaxKind.EXTERNAL_KEYWORD);
-            case LexerTerminals.TYPE:
+            case TYPE:
                 return getSyntaxToken(SyntaxKind.TYPE_KEYWORD);
-            case LexerTerminals.RECORD:
+            case RECORD:
                 return getSyntaxToken(SyntaxKind.RECORD_KEYWORD);
-            case LexerTerminals.OBJECT:
+            case OBJECT:
                 return getSyntaxToken(SyntaxKind.OBJECT_KEYWORD);
-            case LexerTerminals.REMOTE:
+            case REMOTE:
                 return getSyntaxToken(SyntaxKind.REMOTE_KEYWORD);
-            case LexerTerminals.ABSTRACT:
+            case ABSTRACT:
                 return getSyntaxToken(SyntaxKind.ABSTRACT_KEYWORD);
-            case LexerTerminals.CLIENT:
+            case CLIENT:
                 return getSyntaxToken(SyntaxKind.CLIENT_KEYWORD);
-            case LexerTerminals.IF:
+            case IF:
                 return getSyntaxToken(SyntaxKind.IF_KEYWORD);
-            case LexerTerminals.ELSE:
+            case ELSE:
                 return getSyntaxToken(SyntaxKind.ELSE_KEYWORD);
-            case LexerTerminals.WHILE:
+            case WHILE:
                 return getSyntaxToken(SyntaxKind.WHILE_KEYWORD);
-            case LexerTerminals.TRUE:
+            case TRUE:
                 return getSyntaxToken(SyntaxKind.TRUE_KEYWORD);
-            case LexerTerminals.FALSE:
+            case FALSE:
                 return getSyntaxToken(SyntaxKind.FALSE_KEYWORD);
-            case LexerTerminals.CHECK:
+            case CHECK:
                 return getSyntaxToken(SyntaxKind.CHECK_KEYWORD);
-            case LexerTerminals.FAIL:
+            case FAIL:
                 return getSyntaxToken(SyntaxKind.FAIL_KEYWORD);
-            case LexerTerminals.CHECKPANIC:
+            case CHECKPANIC:
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
-            case LexerTerminals.CONTINUE:
+            case CONTINUE:
                 return getSyntaxToken(SyntaxKind.CONTINUE_KEYWORD);
-            case LexerTerminals.BREAK:
+            case BREAK:
                 return getSyntaxToken(SyntaxKind.BREAK_KEYWORD);
-            case LexerTerminals.PANIC:
+            case PANIC:
                 return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
-            case LexerTerminals.IMPORT:
+            case IMPORT:
                 return getSyntaxToken(SyntaxKind.IMPORT_KEYWORD);
-            case LexerTerminals.VERSION:
+            case VERSION:
                 return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
-            case LexerTerminals.AS:
+            case AS:
                 return getSyntaxToken(SyntaxKind.AS_KEYWORD);
-            case LexerTerminals.SERVICE:
+            case SERVICE:
                 return getSyntaxToken(SyntaxKind.SERVICE_KEYWORD);
-            case LexerTerminals.ON:
+            case ON:
                 return getSyntaxToken(SyntaxKind.ON_KEYWORD);
-            case LexerTerminals.RESOURCE:
+            case RESOURCE:
                 return getSyntaxToken(SyntaxKind.RESOURCE_KEYWORD);
-            case LexerTerminals.LISTENER:
+            case LISTENER:
                 return getSyntaxToken(SyntaxKind.LISTENER_KEYWORD);
-            case LexerTerminals.CONST:
+            case CONST:
                 return getSyntaxToken(SyntaxKind.CONST_KEYWORD);
-            case LexerTerminals.FINAL:
+            case FINAL:
                 return getSyntaxToken(SyntaxKind.FINAL_KEYWORD);
-            case LexerTerminals.TYPEOF:
+            case TYPEOF:
                 return getSyntaxToken(SyntaxKind.TYPEOF_KEYWORD);
-            case LexerTerminals.IS:
+            case IS:
                 return getSyntaxToken(SyntaxKind.IS_KEYWORD);
-            case LexerTerminals.NULL:
+            case NULL:
                 return getSyntaxToken(SyntaxKind.NULL_KEYWORD);
-            case LexerTerminals.LOCK:
+            case LOCK:
                 return getSyntaxToken(SyntaxKind.LOCK_KEYWORD);
-            case LexerTerminals.ANNOTATION:
+            case ANNOTATION:
                 return getSyntaxToken(SyntaxKind.ANNOTATION_KEYWORD);
-            case LexerTerminals.SOURCE:
+            case SOURCE:
                 return getSyntaxToken(SyntaxKind.SOURCE_KEYWORD);
-            case LexerTerminals.VAR:
+            case VAR:
                 return getSyntaxToken(SyntaxKind.VAR_KEYWORD);
-            case LexerTerminals.WORKER:
+            case WORKER:
                 return getSyntaxToken(SyntaxKind.WORKER_KEYWORD);
-            case LexerTerminals.PARAMETER:
+            case PARAMETER:
                 return getSyntaxToken(SyntaxKind.PARAMETER_KEYWORD);
-            case LexerTerminals.FIELD:
+            case FIELD:
                 return getSyntaxToken(SyntaxKind.FIELD_KEYWORD);
-            case LexerTerminals.ISOLATED:
+            case ISOLATED:
                 return getSyntaxToken(SyntaxKind.ISOLATED_KEYWORD);
-            case LexerTerminals.XMLNS:
+            case XMLNS:
                 return getSyntaxToken(SyntaxKind.XMLNS_KEYWORD);
-            case LexerTerminals.FORK:
+            case FORK:
                 return getSyntaxToken(SyntaxKind.FORK_KEYWORD);
-            case LexerTerminals.MAP:
+            case MAP:
                 return getSyntaxToken(SyntaxKind.MAP_KEYWORD);
-            case LexerTerminals.FUTURE:
+            case FUTURE:
                 return getSyntaxToken(SyntaxKind.FUTURE_KEYWORD);
-            case LexerTerminals.TYPEDESC:
+            case TYPEDESC:
                 return getSyntaxToken(SyntaxKind.TYPEDESC_KEYWORD);
-            case LexerTerminals.TRAP:
+            case TRAP:
                 return getSyntaxToken(SyntaxKind.TRAP_KEYWORD);
-            case LexerTerminals.IN:
+            case IN:
                 return getSyntaxToken(SyntaxKind.IN_KEYWORD);
-            case LexerTerminals.FOREACH:
+            case FOREACH:
                 return getSyntaxToken(SyntaxKind.FOREACH_KEYWORD);
-            case LexerTerminals.TABLE:
+            case TABLE:
                 return getSyntaxToken(SyntaxKind.TABLE_KEYWORD);
-            case LexerTerminals.ERROR:
+            case ERROR:
                 return getSyntaxToken(SyntaxKind.ERROR_KEYWORD);
-            case LexerTerminals.LET:
+            case LET:
                 return getSyntaxToken(SyntaxKind.LET_KEYWORD);
-            case LexerTerminals.STREAM:
+            case STREAM:
                 return getSyntaxToken(SyntaxKind.STREAM_KEYWORD);
-            case LexerTerminals.NEW:
+            case NEW:
                 return getSyntaxToken(SyntaxKind.NEW_KEYWORD);
-            case LexerTerminals.READONLY:
+            case READONLY:
                 return getSyntaxToken(SyntaxKind.READONLY_KEYWORD);
-            case LexerTerminals.DISTINCT:
+            case DISTINCT:
                 return getSyntaxToken(SyntaxKind.DISTINCT_KEYWORD);
-            case LexerTerminals.FROM:
+            case FROM:
                 return getSyntaxToken(SyntaxKind.FROM_KEYWORD);
-            case LexerTerminals.START:
+            case START:
                 return getSyntaxToken(SyntaxKind.START_KEYWORD);
-            case LexerTerminals.FLUSH:
+            case FLUSH:
                 return getSyntaxToken(SyntaxKind.FLUSH_KEYWORD);
-            case LexerTerminals.WAIT:
+            case WAIT:
                 return getSyntaxToken(SyntaxKind.WAIT_KEYWORD);
-            case LexerTerminals.DO:
+            case DO:
                 return getSyntaxToken(SyntaxKind.DO_KEYWORD);
-            case LexerTerminals.TRANSACTION:
+            case TRANSACTION:
                 return getSyntaxToken(SyntaxKind.TRANSACTION_KEYWORD);
-            case LexerTerminals.COMMIT:
+            case COMMIT:
                 return getSyntaxToken(SyntaxKind.COMMIT_KEYWORD);
-            case LexerTerminals.RETRY:
+            case RETRY:
                 return getSyntaxToken(SyntaxKind.RETRY_KEYWORD);
-            case LexerTerminals.ROLLBACK:
+            case ROLLBACK:
                 return getSyntaxToken(SyntaxKind.ROLLBACK_KEYWORD);
-            case LexerTerminals.TRANSACTIONAL:
+            case TRANSACTIONAL:
                 return getSyntaxToken(SyntaxKind.TRANSACTIONAL_KEYWORD);
-            case LexerTerminals.ENUM:
+            case ENUM:
                 return getSyntaxToken(SyntaxKind.ENUM_KEYWORD);
-            case LexerTerminals.BASE16:
+            case BASE16:
                 return getSyntaxToken(SyntaxKind.BASE16_KEYWORD);
-            case LexerTerminals.BASE64:
+            case BASE64:
                 return getSyntaxToken(SyntaxKind.BASE64_KEYWORD);
-            case LexerTerminals.MATCH:
+            case MATCH:
                 return getSyntaxToken(SyntaxKind.MATCH_KEYWORD);
-            case LexerTerminals.CONFLICT:
+            case CONFLICT:
                 return getSyntaxToken(SyntaxKind.CONFLICT_KEYWORD);
 
-            case LexerTerminals.CLASS:
+            case CLASS:
                 return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
-            case LexerTerminals.CONFIGURABLE:
+            case CONFIGURABLE:
                 return getSyntaxToken(SyntaxKind.CONFIGURABLE_KEYWORD);
-            case LexerTerminals.WHERE:
+            case WHERE:
                 return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
-            case LexerTerminals.SELECT:
+            case SELECT:
                 return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
-            case LexerTerminals.LIMIT:
+            case LIMIT:
                 return getSyntaxToken(SyntaxKind.LIMIT_KEYWORD);
-            case LexerTerminals.OUTER:
+            case OUTER:
                 return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
-            case LexerTerminals.EQUALS:
+            case EQUALS:
                 return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
-            case LexerTerminals.ORDER:
+            case ORDER:
                 return getSyntaxToken(SyntaxKind.ORDER_KEYWORD);
-            case LexerTerminals.BY:
+            case BY:
                 return getSyntaxToken(SyntaxKind.BY_KEYWORD);
-            case LexerTerminals.ASCENDING:
+            case ASCENDING:
                 return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
-            case LexerTerminals.DESCENDING:
+            case DESCENDING:
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
-            case LexerTerminals.JOIN:
+            case JOIN:
                 return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
-            default:
-//                if (this.keywordModes.contains(KeywordMode.QUERY)) {
-//                    return getQueryCtxKeywordOrIdentifier(tokenText);
-//                }
+            case DEFAULT:
                 return getIdentifierToken();
         }
+        return getIdentifierToken();
+
     }
 
 //    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {
