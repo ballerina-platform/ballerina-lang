@@ -49,10 +49,14 @@ public final class Configurations {
         return instance;
     }
 
-    public String getProperty(String key){
+    public String getProperty(String key) {
         String result = null;
-        if (key !=null){
-            result = this.properties.getString(key);
+        if (key !=null) {
+            if (this.properties.containsKey(key)) {
+                result = this.properties.getString(key);
+            } else {
+                return key;
+            }
             result = decodeTokenText(result);
         }
         return result;
