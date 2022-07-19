@@ -26,20 +26,18 @@ import org.testng.annotations.Test;
  */
 public class ExpressionStatementTest extends AbstractStatementTest {
 
-    // Test expression statement
+    // Test invalid expression statement without recovery
 
     @Test
     public void testExpressionStmtForSimpleLocalVarReference() {
-        testFile("var-decl-stmt/local_var_decl_source_18.bal", "var-decl-stmt/local_var_decl_assert_18.json");
-        testFile("var-decl-stmt/local_var_decl_source_20.bal", "var-decl-stmt/local_var_decl_assert_20.json");
+        testFile("expression-stmt/local_var_decl_source_2.bal", "expression-stmt/local_var_decl_assert_2.json");
+        testFile("expression-stmt/local_var_decl_source_4.bal", "expression-stmt/local_var_decl_assert_4.json");
     }
     @Test
     public void testExpressionStmtForSimpleModuleVarReference() {
-        testFile("var-decl-stmt/module_var_decl_source_20.bal", "var-decl-stmt/module_var_decl_assert_20.json");
-        testFile("var-decl-stmt/module_var_decl_source_22.bal", "var-decl-stmt/module_var_decl_assert_22.json");
+        testFile("expression-stmt/module_var_decl_source_2.bal", "expression-stmt/module_var_decl_assert_2.json");
+        testFile("expression-stmt/module_var_decl_source_4.bal", "expression-stmt/module_var_decl_assert_4.json");
     }
-
-    // Test invalid expression statement
 
     @Test
     public void testExpressionStmtForByteArrayLiteral() {
@@ -55,13 +53,13 @@ public class ExpressionStatementTest extends AbstractStatementTest {
 
     @Test
     public void testExpressionStmtForSimpleLocalVarReferenceWithRecovery() {
-        testFile("var-decl-stmt/local_var_decl_source_17.bal", "var-decl-stmt/local_var_decl_assert_17.json");
-        testFile("var-decl-stmt/local_var_decl_source_19.bal", "var-decl-stmt/local_var_decl_assert_19.json");
+        testFile("expression-stmt/local_var_decl_source_1.bal", "expression-stmt/local_var_decl_assert_1.json");
+        testFile("expression-stmt/local_var_decl_source_3.bal", "expression-stmt/local_var_decl_assert_3.json");
     }
 
     @Test
     public void testExpressionStmtForSimpleModuleVarReferenceWithRecovery() {
-        testFile("var-decl-stmt/module_var_decl_source_19.bal", "var-decl-stmt/module_var_decl_assert_19.json");
-        testFile("var-decl-stmt/module_var_decl_source_21.bal", "var-decl-stmt/module_var_decl_assert_21.json");
+        testFile("expression-stmt/module_var_decl_source_1.bal", "expression-stmt/module_var_decl_assert_1.json");
+        testFile("expression-stmt/module_var_decl_source_3.bal", "expression-stmt/module_var_decl_assert_3.json");
     }
 }
