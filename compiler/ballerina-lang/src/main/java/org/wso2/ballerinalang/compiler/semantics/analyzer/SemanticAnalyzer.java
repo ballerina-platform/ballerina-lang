@@ -677,7 +677,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             analyzeDef(function, data);
             if (!classDefinition.flagSet.contains(Flag.CLIENT) && function.flagSet.contains(Flag.RESOURCE) &&
                     function.flagSet.contains(Flag.NATIVE)) {
-                this.dlog.error(function.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, function.name);
+                this.dlog.error(function.pos,
+                        DiagnosticErrorCode.SERVICE_RESOURCE_METHOD_CANNOT_BE_EXTERN, function.name);
             }
         }
 
@@ -772,7 +773,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
             if (!objectTypeNode.flagSet.contains(Flag.CLIENT) && func.flagSet.contains(Flag.RESOURCE) &&
                     func.flagSet.contains(Flag.NATIVE)) {
-                this.dlog.error(func.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, func.name);
+                this.dlog.error(func.pos, DiagnosticErrorCode.SERVICE_RESOURCE_METHOD_CANNOT_BE_EXTERN, func.name);
             }
         });
 
