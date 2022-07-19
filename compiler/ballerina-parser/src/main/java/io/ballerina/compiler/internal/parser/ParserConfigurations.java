@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import java.util.Base64;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -49,20 +48,11 @@ public final class ParserConfigurations {
         return instance;
     }
 
-    public String getProperty(String key) {
-        String result = null;
-        if (key !=null) {
-            if (this.properties.containsKey(key)) {
-                result = this.properties.getString(key);
-            } else {
-                return key;
-            }
-            result = decodeTokenText(result);
+    public String getProperty(String key) throws NullPointerException {
+        if (this.properties.containsKey(key)) {
+            return this.properties.getString(key);
+        } else {
+            return key;
         }
-        return result;
-    }
-
-    public String decodeTokenText(String encodedTokenText) {
-        return new String(Base64.getDecoder().decode(encodedTokenText));
     }
 }
