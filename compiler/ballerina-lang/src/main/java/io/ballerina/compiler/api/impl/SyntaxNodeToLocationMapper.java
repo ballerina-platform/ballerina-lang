@@ -72,6 +72,7 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -488,6 +489,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(SpecificFieldNode specificFieldNode) {
         return Optional.of(specificFieldNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(SpreadFieldNode spreadFieldNode) {
+        return Optional.of(spreadFieldNode.location());
     }
 
     @Override
