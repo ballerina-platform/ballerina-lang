@@ -80,8 +80,7 @@ OPTIONS
             boiler-plate for all the remote functions of the generated client.
 
         --client-methods <resource|remote>
-            Work with the client generation command and common OpenAPI to Ballerina command without mode.
-            This option is used to select method type `resource` or `remote` for the client generation.
+            This option can be used in client generation to select the client method type, i.e.`resource` or `remote`,(default option is `remote`)
 
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
