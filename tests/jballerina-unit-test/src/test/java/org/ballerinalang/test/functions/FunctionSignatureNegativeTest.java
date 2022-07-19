@@ -129,10 +129,10 @@ public class FunctionSignatureNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/functions/extern_resource_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0,
-                "external resource methods of service objects are not supported by the implementation", 19, 5);
+                "external resource methods are not yet supported in service objects", 19, 5);
         BAssertUtil.validateError(result, 1,
-                "external resource methods of service objects are not supported by the implementation", 21, 5);
+                "external resource methods are not yet supported in service objects", 21, 5);
         BAssertUtil.validateError(result, 2,
-                "external resource methods of service objects are not supported by the implementation", 23, 5);
+                "external resource methods are not yet supported in service objects", 23, 5);
     }
 }
