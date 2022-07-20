@@ -578,9 +578,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public MemberTypeDescriptorNode transform(MemberTypeDescriptorNode member) {
-        NodeList<AnnotationNode> annotations = formatNodeList(member.annotations(),
-                1, 0, 1, 0);
-        TypeDescriptorNode type = formatNode(member.typeDescriptor(), 0, 0);
+        NodeList<AnnotationNode> annotations = formatNodeList(member.annotations(), 1, 0, 1, 0);
+        TypeDescriptorNode type = formatNode(member.typeDescriptor(), env.trailingWS, env.trailingNL);
         return member.modify()
                 .withAnnotations(annotations)
                 .withTypeDescriptor(type)
