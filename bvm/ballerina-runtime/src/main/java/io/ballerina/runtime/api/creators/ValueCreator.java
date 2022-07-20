@@ -326,7 +326,7 @@ public class ValueCreator {
      * Create a stream with given constraint type and iterator object.
      *
      * @param type        constraint type
-     * @param iteratorObj
+     * @param iteratorObj iterator object
      * @return stream value
      */
     public static BStream createStreamValue(StreamType type, BObject iteratorObj) {
@@ -624,24 +624,24 @@ public class ValueCreator {
     /**
      * Create a processing instruction type BXml.
      *
-     * @param tartget PI target
-     * @param data    PI data
+     * @param target PI target
+     * @param data   PI data
      * @return BXml Processing instruction type BXml
      */
     @Deprecated
-    public static BXml createXmlProcessingInstruction(String tartget, String data) {
-        return XmlFactory.createXMLProcessingInstruction(data, tartget);
+    public static BXml createXmlProcessingInstruction(String target, String data) {
+        return XmlFactory.createXMLProcessingInstruction(data, target);
     }
 
     /**
      * Create a processing instruction type BXml.
      *
-     * @param tartget PI target
-     * @param data    PI data
+     * @param target PI target
+     * @param data   PI data
      * @return BXml Processing instruction type BXml
      */
-    public static BXml createXmlProcessingInstruction(BString tartget, BString data) {
-        return XmlFactory.createXMLProcessingInstruction(tartget, data);
+    public static BXml createXmlProcessingInstruction(BString target, BString data) {
+        return XmlFactory.createXMLProcessingInstruction(target, data);
     }
 
     /**
@@ -791,7 +791,7 @@ public class ValueCreator {
     /**
      * Create a record value using the given package ID and record type name.
      *
-     * @param packageId      the package ID that the record type resides.
+     * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
      * @return value of the record.
      * @throws BError if given record type is not defined in the ballerina module.
@@ -802,9 +802,9 @@ public class ValueCreator {
 
     /**
      * Create a record value that populates record fields using the given package ID, record type name and a map of
-     * field names and associated values for fields.
+     * field names and associated values for the fields.
      *
-     * @param packageId      the package ID that the record type resides.
+     * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
      * @return value of the populated record.
@@ -818,9 +818,9 @@ public class ValueCreator {
 
     /**
      * Create a readonly record value that populates record fields using the given package ID, record type name and a
-     * map of field names and associated values for fields.
+     * map of field names and associated values for the fields.
      *
-     * @param packageId      the package ID that the record type resides.
+     * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
      * @return value of the populated record.
@@ -837,11 +837,11 @@ public class ValueCreator {
 
     /**
      * Create a record value that populates record fields using the given package ID, record type name and
-     * a {@link BMap} of field names and associated values for fields.
+     * a {@link BMap} of field names and associated values for the fields.
      *
-     * @param packageId      the package ID that the record type resides.
+     * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
-     * @param valueMap       {@link BMap} of fields and values to be used when creating the record.
+     * @param valueMap       {@link BMap} of fields and values to initialize the record.
      * @return value of the populated record.
      * @throws BError if given record type is not defined in the ballerina module.
      */
@@ -853,11 +853,11 @@ public class ValueCreator {
 
     /**
      * Create a readonly record value that populates record fields using the given package ID, record type name and
-     * a {@link BMap} of field names and associated values for fields.
+     * a {@link BMap} of field names and associated values for the fields.
      *
-     * @param packageId      the package ID that the record type resides.
+     * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
-     * @param valueMap       {@link BMap} of fields and values to be used when creating the record.
+     * @param valueMap       {@link BMap} of fields and values to initialize the record.
      * @return value of the populated record.
      * @throws BError if given record type is not defined in the ballerina module.
      */

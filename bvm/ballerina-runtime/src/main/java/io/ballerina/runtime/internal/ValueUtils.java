@@ -52,7 +52,7 @@ public class ValueUtils {
     /**
      * Create a record value using the given package ID and record type name.
      *
-     * @param packageId      the package ID that the record type resides.
+     * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
      * @return value of the record.
      */
@@ -72,9 +72,9 @@ public class ValueUtils {
 
     /**
      * Create a record value that populates record fields using the given package ID, record type name and a map of
-     * field names and associated values for fields.
+     * field names and associated values for the fields.
      *
-     * @param packageId      the package ID that the record type resides.
+     * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
      * @return value of the populated record.
@@ -95,11 +95,11 @@ public class ValueUtils {
 
     /**
      * Create a record value that populates record fields using the given package ID, record type name and
-     * a {@link BMap} of field names and associated values for fields.
+     * a {@link BMap} of field names and associated values for the fields.
      *
-     * @param packageId      the package ID that the record type resides.
+     * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
-     * @param valueMap       {@link BMap} of fields and values to be used when creating the record.
+     * @param valueMap       {@link BMap} of fields and values to initialize the record.
      * @return value of the populated record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
@@ -114,8 +114,8 @@ public class ValueUtils {
     /**
      * Populate a runtime record value with given field values.
      *
-     * @param recordValue which needs to get populated
-     * @param values field values of the record.
+     * @param recordValue record value which needs to get populated.
+     * @param values      field values of the record.
      * @return value of the record.
      */
     public static BMap<BString, Object> createRecordValue(BMap<BString, Object> recordValue, Object... values) {
