@@ -41,6 +41,12 @@ public class CreateVariableTest extends AbstractCodeActionTest {
         super.test(config);
     }
 
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -113,8 +119,18 @@ public class CreateVariableTest extends AbstractCodeActionTest {
 
                 {"createVariableWithFunctionCall1.json"},
                 {"createVariableWithFunctionCall2.json"},
+                {"createVariableWithRemoteMethodInvocation.json"},
+
+                // Async send action
+                {"createVarInSendAction1.json"}
+        };
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
                 {"createVariableNegative1.json"},
-                {"createVariableWithRemoteMethodInvocation.json"}
+                {"createVariableNegative2.json"}
         };
     }
 }

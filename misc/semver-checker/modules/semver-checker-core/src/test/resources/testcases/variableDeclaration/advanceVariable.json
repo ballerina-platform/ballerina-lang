@@ -71,7 +71,7 @@
                   "message": "'final' qualifier is added to variable 'id'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module variable initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module variable initializer is modified"
@@ -109,7 +109,7 @@
                   "message": "'public' qualifier is removed from variable 'id'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module variable initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module variable initializer is modified"
@@ -173,7 +173,7 @@
                   "message": "module variable type changed from 'int' to 'float'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module variable initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module variable initializer is modified"

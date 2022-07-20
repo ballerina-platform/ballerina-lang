@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
@@ -52,7 +53,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
@@ -112,7 +112,7 @@ public class FromJsonWithType {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
-        Type matchingType = getReferredType(convertibleTypes.get(0));
+        Type matchingType = TypeUtils.getReferredType(convertibleTypes.get(0));
 
         Object newValue;
         switch (sourceType.getTag()) {

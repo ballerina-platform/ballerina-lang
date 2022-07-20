@@ -45,6 +45,7 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
         this.referredType = referredType;
     }
 
+    @Override
     public Type getReferredType() {
         return referredType;
     }
@@ -84,6 +85,16 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     @Override
     public boolean isNilable() {
         return this.referredType.isNilable();
+    }
+
+    @Override
+    public boolean isAnydata() {
+        return this.referredType.isAnydata();
+    }
+
+    @Override
+    public boolean isPureType() {
+        return this.referredType.isPureType();
     }
 
     @Override

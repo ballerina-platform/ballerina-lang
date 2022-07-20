@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
@@ -38,13 +39,13 @@ public class DumbNodeComparator<T extends Node> implements Comparator {
 
     protected final T newNode;
     protected final T oldNode;
-    protected String nodeKindName;
+    protected DiffKind nodeKindName;
 
     DumbNodeComparator(T newNode, T oldNode) {
         this(newNode, oldNode, null);
     }
 
-    DumbNodeComparator(T newNode, T oldNode, String nodeKindName) {
+    DumbNodeComparator(T newNode, T oldNode, DiffKind nodeKindName) {
         this.newNode = newNode;
         this.oldNode = oldNode;
         this.nodeKindName = nodeKindName;
@@ -53,6 +54,9 @@ public class DumbNodeComparator<T extends Node> implements Comparator {
     @Override
     public Optional<? extends Diff> computeDiff() {
         NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode);
+        if (nodeKindName != null) {
+            diffBuilder.withKind(nodeKindName);
+        }
         diffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS);
         if (newNode != null && oldNode == null) {
             diffBuilder.withMessage(String.format("a new %s is added",
