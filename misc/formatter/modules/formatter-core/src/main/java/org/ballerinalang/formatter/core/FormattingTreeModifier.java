@@ -2574,10 +2574,17 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public LetExpressionNode transform(LetExpressionNode letExpressionNode) {
         Token letKeyword = formatToken(letExpressionNode.letKeyword(), 1, 0);
+        int listTrailingNL = 0;
+        int listTrailingWS = 0;
+        if (shouldExpand(letExpressionNode)) {
+            listTrailingNL++;
+        } else {
+            listTrailingWS++;
+        }
 
         indent();
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
-                formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 0, 0, 0, 1);
+                formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 0, 0, listTrailingWS, listTrailingNL);
         Token inKeyword = formatToken(letExpressionNode.inKeyword(), 1, 0);
         ExpressionNode expression = formatNode(letExpressionNode.expression(), env.trailingWS, env.trailingNL);
         unindent();
@@ -4249,6 +4256,21 @@ public class FormattingTreeModifier extends TreeModifier {
             }
         }
         return false;
+    }
+
+    /**
+     * Check whether a let expression needs to be expanded in to multiple lines.
+     *
+     * @param letExpressionNode Let Expression
+     * @return <code>true</code> If the let expression needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(LetExpressionNode letExpressionNode) {
+        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations = letExpressionNode.letVarDeclarations();
+        LetVariableDeclarationNode lastLetVarDeclarationNode = letVarDeclarations.get(letVarDeclarations.size() - 1);
+
+        return hasNonWSMinutiae(lastLetVarDeclarationNode.trailingMinutiae())
+                || lastLetVarDeclarationNode.toSourceCode().contains(System.lineSeparator());
     }
 
     /**
