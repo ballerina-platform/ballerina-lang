@@ -110,6 +110,8 @@ jobs:
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/misc/testerina/modules/report-tools
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/misc/ballerina-config-schema-builder
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/ballerina-stringutils
+          mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/semver-checker
+          
       - name: Build with Gradle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
