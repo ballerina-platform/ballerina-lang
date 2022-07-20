@@ -55,11 +55,15 @@ public class ExpressionStatementTest extends AbstractStatementTest {
     public void testExpressionStmtForSimpleLocalVarReferenceWithRecovery() {
         testFile("expression-stmt/local_var_decl_source_1.bal", "expression-stmt/local_var_decl_assert_1.json");
         testFile("expression-stmt/local_var_decl_source_3.bal", "expression-stmt/local_var_decl_assert_3.json");
+        testFile("expression-stmt/local_var_decl_source_5.bal", "expression-stmt/local_var_decl_assert_5.json");
+        testFile("expression-stmt/local_var_decl_source_6.bal", "expression-stmt/local_var_decl_assert_6.json");
     }
 
     @Test
     public void testExpressionStmtForSimpleModuleVarReferenceWithRecovery() {
         testFile("expression-stmt/module_var_decl_source_1.bal", "expression-stmt/module_var_decl_assert_1.json");
         testFile("expression-stmt/module_var_decl_source_3.bal", "expression-stmt/module_var_decl_assert_3.json");
+        testFile("expression-stmt/module_var_decl_source_5.bal", "expression-stmt/module_var_decl_assert_5.json");
+        testFile("expression-stmt/module_var_decl_source_6.bal", "expression-stmt/module_var_decl_assert_6.json");
     }
 }
