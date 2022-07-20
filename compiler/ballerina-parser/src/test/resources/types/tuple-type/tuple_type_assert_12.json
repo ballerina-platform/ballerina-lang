@@ -267,13 +267,7 @@
                           "kind": "INT_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "INT_KEYWORD",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "INT_KEYWORD"
                             }
                           ]
                         }
@@ -305,7 +299,7 @@
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "value": "  "
                         }
                       ]
                     },
@@ -572,20 +566,20 @@
                           "kind": "INT_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "INT_KEYWORD",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "INT_KEYWORD"
                             }
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "COMMA_TOKEN"
+                      "kind": "COMMA_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "MEMBER_TYPE_DESC",

@@ -5060,6 +5060,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARRAY_TYPE_DESCRIPTOR:
             case TUPLE_MEMBERS:
                 endContext(); // End array/tuple type descriptor context
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.STMT_START_BRACKETED_LIST) {
+                    return getNextRuleForCloseBracket();
+                }
                 return ParserRuleContext.TYPE_DESC_RHS;
             case COMPUTED_FIELD_NAME:
                 endContext(); // end computed-field-name
