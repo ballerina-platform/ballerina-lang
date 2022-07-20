@@ -166,7 +166,7 @@ public class TestProcessor {
         }
 
         addUtilityFunctions(module, testSuite);
-        populateMockFunctionNamesMap(testSuite);
+        populateMockFunctionNamesMap(module, testSuite);
         processAnnotations(module, testSuite);
         testSuite.sort();
         return testSuite;
@@ -346,10 +346,21 @@ public class TestProcessor {
         }
     }
 
-    private void populateMockFunctionNamesMap(TestSuite testSuite) {
+    private void populateMockFunctionNamesMap(Module module, TestSuite testSuite) {
+        PackageID packageID = module.descriptor().moduleTestCompilationId();
         Map<String, String> mockFunctionsSourceMap = registry.getMockFunctionSourceMap();
+        String moduleName = JarResolver.getQualifiedModuleName(packageID);
         for (Map.Entry<String, String> entry : mockFunctionsSourceMap.entrySet()) {
-            testSuite.addMockFunction(entry.getKey(), entry.getValue());
+            // Add entries with current module names.
+            if (entry.getKey().contains(moduleName)) {
+                testSuite.addMockFunction(entry.getKey(), entry.getValue());
+            }
+            // Add entries from imported modules.
+            for (String importedModuleName : JarResolver.getTestRequiredModuleNames(module)) {
+                if (entry.getKey().contains(importedModuleName)) {
+                    testSuite.addMockFunction(entry.getKey(), entry.getValue());
+                }
+            }
         }
     }
 

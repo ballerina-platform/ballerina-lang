@@ -88,7 +88,7 @@ class ModuleContext {
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
     private Set<ModuleLoadRequest> allModuleLoadRequests = null;
-    private Set<ModuleLoadRequest> allTestModuleLoadRequests = null;
+    public Set<ModuleLoadRequest> allTestModuleLoadRequests = null;
 
     ModuleContext(Project project,
                   ModuleId moduleId,

@@ -203,7 +203,7 @@ public class FunctionMock {
                         MockConstants.TEST_PACKAGE_ID,
                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                         StringUtils.fromString("Return type of function " + mockMethod.getName() +
-                                " does not match function" + originalMethod.getName()),
+                                " does not match function " + originalMethod.getName()),
                         null,
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
@@ -215,7 +215,7 @@ public class FunctionMock {
                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                         StringUtils.fromString(
                                 "Parameter types of function " + mockMethod.getName() +
-                                        " does not match function" + originalMethod.getName()),
+                                        " does not match function " + originalMethod.getName()),
                         null,
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
@@ -228,7 +228,7 @@ public class FunctionMock {
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                             StringUtils.fromString(
                                     "Parameter types of function " + mockMethod.getName() +
-                                            "does not match function" + originalMethod.getName()), null,
+                                            "does not match function " + originalMethod.getName()), null,
                             new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                 }
             }

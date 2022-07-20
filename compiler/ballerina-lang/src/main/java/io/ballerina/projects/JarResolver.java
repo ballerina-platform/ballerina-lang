@@ -17,9 +17,11 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -265,5 +267,27 @@ public class JarResolver {
             className = encodeNonFunctionIdentifier(orgName) + "." + className;
         }
         return className;
+    }
+
+    public static String getQualifiedModuleName(PackageID packageID) {
+        String moduleName = null;
+        if (!DOT.equals(packageID.getName().toString())) {
+            moduleName = encodeNonFunctionIdentifier(packageID.getName().toString()) + "." +
+                    CompilerUtils.getMajorVersion(String.valueOf(packageID.version));
+        }
+        if (!ANON_ORG.equals(packageID.getOrgName().toString())) {
+            moduleName = encodeNonFunctionIdentifier(packageID.getOrgName().toString()) + "." + moduleName;
+        }
+        return moduleName;
+    }
+
+    public static List<String> getTestRequiredModuleNames(Module module) {
+        List<String> testRequiredModules = new ArrayList<>();
+        Set<ModuleLoadRequest> moduleLoadRequests = module.moduleContext().allTestModuleLoadRequests;
+        for (ModuleLoadRequest moduleLoadRequest : moduleLoadRequests) {
+            String moduleName = moduleLoadRequest.moduleName();
+            testRequiredModules.add(encodeNonFunctionIdentifier(moduleName));
+        }
+        return testRequiredModules;
     }
 }
