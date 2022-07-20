@@ -205,7 +205,15 @@ function testExecutionOfDataValueFailing() {
     test:assertEquals(tally, "bfabfabfabfabfa");
 }
 
-// Data Generators
+@test:Config {
+    dataProvider:  dataGen12
+}
+function errorData(error input, string expected) {
+    final string actual = getFunction(input);
+    test:assertEquals(actual, expected);
+}
+
+// Data Providers
 
 function dataGen() returns map<[int, int, int]>|error {
     map<[int, int, int]> dataSet = {
@@ -279,6 +287,26 @@ function dataGen9() returns map<CodeFragment>|error {
     return tests;
 }
 
+function dataGen10() returns (string[][]) {
+    return [["10", "2", "5"], ["10", "1", "10"], ["10", "2", "5"], ["10", "1", "10"], ["10", "2", "5"]];
+}
+
+function dataGen11() returns (string[][]) {
+    return [["10", "2", "5"], ["10", "1", "10"], ["10", "0", "5"], ["10", "1", "10"], ["10", "2", "5"]];
+}
+
+function dataGen12() returns map<[error, string]> {
+    error e = error("foo");
+    
+    return {
+        "foo": [e, "foo"]
+    };
+}
+
+public function getFunction(error e) returns (string) {
+    return e.message();
+}
+
 type Feed record {
     int responseCode;
     string message;
@@ -295,12 +323,4 @@ function getStateResponseDataProvider() returns Feed[][] {
             [{responseCode:200, message:"Hello World!!!"}],
             [{responseCode:20, message:"Hello World!!!"}]
      ];
-}
-
-function dataGen10() returns (string[][]) {
-    return [["10", "2", "5"], ["10", "1", "10"], ["10", "2", "5"], ["10", "1", "10"], ["10", "2", "5"]];
-}
-
-function dataGen11() returns (string[][]) {
-    return [["10", "2", "5"], ["10", "1", "10"], ["10", "0", "5"], ["10", "1", "10"], ["10", "2", "5"]];
 }
