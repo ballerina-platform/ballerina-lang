@@ -7262,32 +7262,32 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (lhsExprTypeTag == TypeTags.DECIMAL) {
-            addTypeCastForBinaryExpr(binaryExpr, lhsExprType, rhsExprType, true);
+            addTypeCastForBinaryExprB(binaryExpr, lhsExprType, rhsExprType);
             return;
         }
 
         if (rhsExprTypeTag == TypeTags.DECIMAL) {
-            addTypeCastForBinaryExpr(binaryExpr, rhsExprType, lhsExprType, false);
+            addTypeCastForBinaryExprA(binaryExpr, rhsExprType, lhsExprType);
             return;
         }
 
         if (lhsExprTypeTag == TypeTags.FLOAT) {
-            addTypeCastForBinaryExpr(binaryExpr, lhsExprType, rhsExprType, true);
+            addTypeCastForBinaryExprB(binaryExpr, lhsExprType, rhsExprType);
             return;
         }
 
         if (rhsExprTypeTag == TypeTags.FLOAT) {
-            addTypeCastForBinaryExpr(binaryExpr, rhsExprType, lhsExprType, false);
+            addTypeCastForBinaryExprA(binaryExpr, rhsExprType, lhsExprType);
             return;
         }
 
         if (isLhsIntegerType && !isRhsIntegerType) {
-            addTypeCastForBinaryExpr(binaryExpr, symTable.intType, rhsExprType, true);
+            addTypeCastForBinaryExprB(binaryExpr, symTable.intType, rhsExprType);
             return;
         }
 
         if (!isLhsIntegerType && isRhsIntegerType) {
-            addTypeCastForBinaryExpr(binaryExpr, symTable.intType, lhsExprType, false);
+            addTypeCastForBinaryExprA(binaryExpr, symTable.intType, lhsExprType);
             return;
         }
 
@@ -7311,29 +7311,28 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (isLhsStringType && !isRhsStringType) {
-            addTypeCastForBinaryExpr(binaryExpr, symTable.stringType, rhsExprType, true);
+            addTypeCastForBinaryExprB(binaryExpr, symTable.stringType, rhsExprType);
             return;
         }
 
         if (!isLhsStringType && isRhsStringType) {
-            addTypeCastForBinaryExpr(binaryExpr, symTable.stringType, lhsExprType, false);
+            addTypeCastForBinaryExprA(binaryExpr, symTable.stringType, lhsExprType);
         }
     }
 
-    private void addTypeCastForBinaryExpr(BLangBinaryExpr binaryExpr, BType targetType, BType sourceType,
-                                          boolean isRhsExpr) {
-        if (sourceType.tag == TypeTags.UNION && sourceType.isNullable()) {
-            if (isRhsExpr) {
-                binaryExpr.lhsExpr = addNilType(targetType, binaryExpr.lhsExpr);
-            } else {
-                binaryExpr.rhsExpr = addNilType(targetType, binaryExpr.rhsExpr);
-            }
-            return;
-        }
-        if (isRhsExpr) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, targetType);
+    private void addTypeCastForBinaryExprA(BLangBinaryExpr binaryExpr, BType rhsExprType, BType lhsExprType) {
+        if (lhsExprType.tag == TypeTags.UNION && lhsExprType.isNullable()) {
+            binaryExpr.rhsExpr = addNilType(rhsExprType, binaryExpr.rhsExpr);
         } else {
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, targetType);
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, rhsExprType);
+        }
+    }
+
+    private void addTypeCastForBinaryExprB(BLangBinaryExpr binaryExpr, BType lhsExprType, BType rhsExprType) {
+        if (rhsExprType.tag == TypeTags.UNION && rhsExprType.isNullable()) {
+            binaryExpr.lhsExpr = addNilType(lhsExprType, binaryExpr.lhsExpr);
+        } else {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, lhsExprType);
         }
     }
 
