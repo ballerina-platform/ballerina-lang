@@ -47,5 +47,5 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
-        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x :jballerina-debugger-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
+        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x :jballerina-debugger-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel -x test -x check
 
