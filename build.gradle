@@ -7,6 +7,7 @@ plugins {
     id 'maven-publish'
     id 'net.researchgate.release' version '2.6.0'
     id 'jacoco'
+    id "org.sonarqube" version "3.4.0.2513"
 }
 
 apply from: "$rootDir/gradle/repositories.gradle"
@@ -123,6 +124,14 @@ task createCodeCoverageReport(type: JacocoReport) {
     onlyIf = {
         true
     }
+}
+
+sonarqube {
+  properties {
+    property "sonar.projectKey", "sahanhe-sonarcloud_ballerina-lang"
+    property "sonar.organization", "sahanhe-sonarcloud"
+    property "sonar.host.url", "https://sonarcloud.io"
+  }
 }
 
 copyBallerinaClassFiles.dependsOn copyExecFilesAndJavaClassFiles 
