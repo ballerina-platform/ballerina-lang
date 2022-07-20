@@ -51,7 +51,8 @@ public class ConstantTypeTest {
            "testTypesOfSimpleConstants",
            "testTypesOfConstantMaps",
            "testConstTypesInline",
-           "testInvalidRuntimeUpdateOfConstMaps"
+           "testInvalidRuntimeUpdateOfConstMaps",
+           "testResolvingConstValForConstantsOfUserDefinedTypes"    
         };
     }
 
