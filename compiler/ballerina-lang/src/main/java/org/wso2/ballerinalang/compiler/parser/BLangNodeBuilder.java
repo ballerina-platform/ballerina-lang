@@ -6075,6 +6075,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private boolean checkIfAnonymous(Node node) {
         SyntaxKind parentKind = node.parent().kind();
+        // public type CustomType distinct object {...}; => return false
+        // public type CustomType readonly & distinct object {...}; => return true
         if (node.kind() == SyntaxKind.OBJECT_TYPE_DESC && parentKind == SyntaxKind.DISTINCT_TYPE_DESC) {
             if (node.parent().parent() != null) {
                 return node.parent().parent().kind() != SyntaxKind.TYPE_DEFINITION;
