@@ -8487,14 +8487,14 @@ public class Desugar extends BLangNodeVisitor {
                 || funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             Location invPos = invokableNode.pos;
             Location returnStmtPos;
-            if (invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
-                returnStmtPos = null;
-            } else {
+            if (!invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value) && invPos != null) {
                 returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().startLine().offset(),
                         invPos.lineRange().startLine().offset(), 0, 0);
+            } else {
+                returnStmtPos = null;
             }
             BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
             funcBody.addStatement(returnStmt);

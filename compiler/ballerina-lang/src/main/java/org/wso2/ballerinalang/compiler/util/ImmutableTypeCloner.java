@@ -600,7 +600,7 @@ public class ImmutableTypeCloner {
         immutableRecordType.tsymbol = recordSymbol;
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
-                                                                                       immutableRecordType, pos);
+                                                                                       immutableRecordType, null);
 
         populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, recordTypeNode,
                                          immutableRecordType, origRecordType, pos, env, pkgID, unresolvedTypes);
