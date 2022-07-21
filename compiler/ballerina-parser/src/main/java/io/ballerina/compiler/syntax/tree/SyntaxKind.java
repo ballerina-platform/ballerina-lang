@@ -129,6 +129,7 @@ public enum SyntaxKind {
     READONLY_KEYWORD(318, "readonly"),
     DISTINCT_KEYWORD(319, "distinct"),
     FAIL_KEYWORD(320, "fail"),
+    RE_KEYWORD(320, "re"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"), // Any kind above this is considered as a keyword
@@ -301,6 +302,7 @@ public enum SyntaxKind {
     TABLE_CONSTRUCTOR(1317),
     LET_EXPRESSION(1318),
     XML_TEMPLATE_EXPRESSION(1319),
+    REGEX_TEMPLATE_EXPRESSION(1346),
     RAW_TEMPLATE_EXPRESSION(1320),
     STRING_TEMPLATE_EXPRESSION(1321),
     IMPLICIT_NEW_EXPRESSION(1322),

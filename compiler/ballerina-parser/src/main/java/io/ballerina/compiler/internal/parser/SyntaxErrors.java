@@ -495,6 +495,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_KEYWORD;
             case XML_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_KEYWORD;
+            case RE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_KEYWORD;
             case VAR_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:

@@ -5167,6 +5167,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseObjectConstructorExpression(annots, qualifiers);
             case XML_KEYWORD:
                 return parseXMLTemplateExpression();
+            case RE_KEYWORD:
+                return parseRegExpTemplateExpression();
             case STRING_KEYWORD:
                 STToken nextNextToken = getNextNextToken();
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
@@ -10876,6 +10878,83 @@ public class BallerinaParser extends AbstractParser {
         AbstractTokenReader tokenReader = new TokenReader(new XMLLexer(charReader));
         XMLParser xmlParser = new XMLParser(tokenReader, expressions);
         return xmlParser.parse();
+    }
+
+    /**
+     * Parse <code>re</code> keyword.
+     *
+     * @return re keyword node
+     */
+    private STNode parseReKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RE_KEYWORD) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.RE_KEYWORD);
+            return parseReKeyword();
+        }
+    }
+
+    /**
+     * Parse regular expression constructor.
+     * <p>
+     * <code>regexp-constructor-expr := re BacktickString</code>
+     *
+     * @return Regular expression template expression
+     */
+    private STNode parseRegExpTemplateExpression() {
+        STNode reKeyword = parseReKeyword();
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+
+        STNode content;
+        STNode endingBackTick;
+        if (startingBackTick.isMissing()) {
+            // Create new missing startingBackTick token which as no diagnostic.
+            startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            content = STNodeFactory.createEmptyNodeList();
+            STNode templateExpr =
+                    STNodeFactory.createTemplateExpressionNode(SyntaxKind.REGEX_TEMPLATE_EXPRESSION,
+                            reKeyword, startingBackTick, content, endingBackTick);
+            templateExpr = SyntaxErrors.addDiagnostic(templateExpr, DiagnosticErrorCode.ERROR_MISSING_BACKTICK_STRING);
+            return templateExpr;
+        }
+
+        content = parseTemplateContentAsRegExp();
+        endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
+        return STNodeFactory.createTemplateExpressionNode(SyntaxKind.REGEX_TEMPLATE_EXPRESSION, reKeyword,
+                startingBackTick, content, endingBackTick);
+    }
+
+    /**
+     * Parse the content of the template string as regular expression. This method first read the
+     * input in the same way as the raw-backtick-template (BacktickString). Then
+     * it parses the content as regular expression.
+     *
+     * @return Template expression node
+     */
+    private STNode parseTemplateContentAsRegExp() {
+        // Separate out the interpolated expressions to a queue. Then merge the string content using '${}'.
+        // These '&{}' are used to represent the interpolated locations. XML parser will replace '&{}' with
+        // the actual interpolated expression, while building the XML tree.
+        ArrayDeque<STNode> expressions = new ArrayDeque<>();
+        StringBuilder regExpStringBuilder = new StringBuilder();
+        STToken nextToken = peek();
+        while (!isEndOfBacktickContent(nextToken.kind)) {
+            STNode contentItem = parseTemplateItem();
+            if (contentItem.kind == SyntaxKind.TEMPLATE_STRING) {
+                regExpStringBuilder.append(((STToken) contentItem).text());
+            } else {
+                regExpStringBuilder.append("${}");
+                expressions.add(contentItem);
+            }
+            nextToken = peek();
+        }
+
+        CharReader charReader = CharReader.from(regExpStringBuilder.toString());
+        AbstractTokenReader tokenReader = new TokenReader(new RegExpLexer(charReader));
+        RegExpParser regExpParser = new RegExpParser(tokenReader, expressions);
+        return regExpParser.parse();
     }
 
     /**
