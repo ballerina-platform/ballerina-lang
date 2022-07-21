@@ -11,4 +11,16 @@ public function foo() {
    CustomerTable fruitTab = table[{id: 1 , name: "Apples"}, {id: 2 , name: "Oranges"}, {id: 3 , name: "Grapes"}, {id: 4,name: "Mangoes"}];
 
    var studentTab =      table  [{id: 44, fname: "Meena"}  ]  ;
+
+   //Table with structured key
+        table<Manager> key(identity) t3 = table [
+       {
+           identity: {
+               name: "Mike",
+               id: 1239
+           },
+           country: "LK",
+           salary: 453
+       }
+   ];
 }

@@ -2500,7 +2500,6 @@ public class FormattingTreeModifier extends TreeModifier {
             rowTrailingWS++;
         }
 
-        indent();
         Token openBracket = formatToken(tableConstructorExpressionNode.openBracket(), 0, rowTrailingNL);
         indent();
         SeparatedNodeList<Node> mappingConstructors =
@@ -2509,7 +2508,6 @@ public class FormattingTreeModifier extends TreeModifier {
         unindent();
         Token closeBracket =
                 formatToken(tableConstructorExpressionNode.closeBracket(), env.trailingWS, env.trailingNL);
-        unindent();
 
         return tableConstructorExpressionNode.modify()
                 .withTableKeyword(tableKeyword)
