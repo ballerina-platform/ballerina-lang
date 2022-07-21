@@ -600,7 +600,7 @@ public class ImmutableTypeCloner {
         immutableRecordType.tsymbol = recordSymbol;
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
-                                                                                       immutableRecordType, null);
+                                                                                       immutableRecordType, pos);
 
         populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, recordTypeNode,
                                          immutableRecordType, origRecordType, pos, env, pkgID, unresolvedTypes);
@@ -609,9 +609,7 @@ public class ImmutableTypeCloner {
                     unresolvedTypes);
 
         TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol,
-                                                                                    recordTypeNode, env);
-        typeDefinition.pos = pos;
+        TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol, recordTypeNode, env);
         return immutableRecordIntersectionType;
     }
 
