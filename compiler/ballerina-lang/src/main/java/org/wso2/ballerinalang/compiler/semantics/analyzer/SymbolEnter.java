@@ -3054,8 +3054,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (!recordType.sealed) {
             BType restFieldType = recordType.restFieldType;
-            if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType) &&
-                    (restFieldType.tag != TypeTags.NONE)) {
+            if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType)) {
                 constraintTypes.add(restFieldType);
             }
         }
