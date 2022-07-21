@@ -183,22 +183,12 @@ public class Main {
     }
 
     public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths) {
-        String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getTestPackageID(),
-                suite.getVersion(), suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
-
-        Class<?> testClass;
-        try {
-            testClass = classLoader.loadClass(testClassName);
-        } catch (Throwable e) {
-            throw new BallerinaTestException("failed to load Test init class :" + testClassName);
-        }
-
         populateClassNameVsFunctionToMockMap(suite);
         Map<String, byte[]> modifiedClassDef = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : classVsMockFunctionsMap.entrySet()) {
             String className = entry.getKey();
             List<String> functionNamesList = entry.getValue();
-            byte[] classFile = getModifiedClassBytes(className, functionNamesList, testClass, suite);
+            byte[] classFile = getModifiedClassBytes(className, functionNamesList, suite);
             modifiedClassDef.put(className, classFile);
         }
         classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
@@ -222,8 +212,7 @@ public class Main {
         }
     }
 
-    public static byte[] getModifiedClassBytes(String className, List<String> functionNames, Class<?> testClass,
-                                               TestSuite suite) {
+    public static byte[] getModifiedClassBytes(String className, List<String> functionNames, TestSuite suite) {
         Class<?> functionToMockClass;
         try {
             functionToMockClass = classLoader.loadClass(className);
@@ -236,6 +225,15 @@ public class Main {
         for (Method method1 : functionToMockClass.getDeclaredMethods()) {
             if (functionNames.contains(MOCK_ANNOTATION_DELIMITER + method1.getName())) {
                 String desugaredMockFunctionName = "$MOCK_" + method1.getName();
+                String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
+                        suite.getTestPackageID(), suite.getVersion(),
+                        suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
+                Class<?> testClass;
+                try {
+                    testClass = classLoader.loadClass(testClassName);
+                } catch (Throwable e) {
+                    throw new BallerinaTestException("failed to load Test init class :" + testClassName);
+                }
                 for (Method method2 : testClass.getDeclaredMethods()) {
                     if (method2.getName().equals(desugaredMockFunctionName)) {
                         if (!readFromBytes) {
