@@ -163,6 +163,8 @@ public class MatchStmtErrorMatchPatternTest {
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 44, 42);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 45, 49);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 47, 44);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorA'", 54, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorB'", 55, 9);
     }
 
     @AfterClass
