@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * An XML parser for ballerina.
+ * An regular expression parser for ballerina.
  *
  * @since 2201.3.0
  */
@@ -56,17 +56,9 @@ public class RegExpParser extends AbstractParser {
     }
 
     /**
-     * Parse a single item in the XML content. An item could be one of:
-     * <ul>
-     * <li>XML Element</li>
-     * <li>XML CharData</li>
-     * <li>XML Comment</li>
-     * <li>XML PI</li>
-     * <li>XML CDATA</li>
-     * <li>Interpolated expression</li>
-     * </ul>
+     * Parse a single item in regular expression.
      *
-     * @return XML content item node
+     * @return Regular expression content item node
      */
     private STNode parseRegExpContentItem() {
         STToken nextToken = peek();
