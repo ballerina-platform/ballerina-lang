@@ -347,6 +347,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -2330,6 +2331,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangNode xmlTemplateLiteral = createXmlTemplateLiteral(expressionNode);
                 xmlTemplateLiteral.pos = getPosition(expressionNode);
                 return xmlTemplateLiteral;
+            case REGEX_TEMPLATE_EXPRESSION:
+                return createRegExpTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case RAW_TEMPLATE_EXPRESSION:
@@ -5190,6 +5193,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         } else {
             return actionOrExpression.apply(this);
         }
+    }
+
+    private BLangNode createRegExpTemplateLiteral(NodeList<Node> memberNodes, Location location) {
+        BLangRegExpTemplateLiteral regExpTemplateLiteral =
+                (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
+        for (Node memberNode : memberNodes) {
+            regExpTemplateLiteral.exprs.add((BLangExpression) memberNode.apply(this));
+        }
+
+        if (regExpTemplateLiteral.exprs.isEmpty()) {
+            BLangLiteral emptyLiteral = createEmptyLiteral();
+            emptyLiteral.pos = location;
+            regExpTemplateLiteral.exprs.add(emptyLiteral);
+        }
+
+        regExpTemplateLiteral.pos = location;
+        return regExpTemplateLiteral;
     }
 
     private BLangNode createStringTemplateLiteral(NodeList<Node> memberNodes, Location location) {
