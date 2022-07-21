@@ -2494,7 +2494,7 @@ public class FormattingTreeModifier extends TreeModifier {
         KeySpecifierNode keySpecifier = formatNode(tableConstructorExpressionNode.keySpecifier().orElse(null), 1, 0);
         SeparatedNodeList<Node> rows = tableConstructorExpressionNode.rows();
         int rowTrailingWS = 0, rowTrailingNL = 0;
-        if (rows.size() > 1) {
+        if (rows.size() > 1 || (rows.size() == 1 && shouldExpand(rows.get(0)))) {
             rowTrailingNL++;
         } else {
             rowTrailingWS++;

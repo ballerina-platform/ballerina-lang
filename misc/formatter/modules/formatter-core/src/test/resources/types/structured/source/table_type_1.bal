@@ -14,13 +14,13 @@ public function foo() {
 
    //Table with structured key
         table<Manager> key(identity) t3 = table [
-       {
-           identity: {
-               name: "Mike",
-               id: 1239
-           },
-           country: "LK",
-           salary: 453
-       }
-   ];
+           {
+               identity: {
+                   name: "Mike",
+                   id: 1239
+               },
+               country: "LK",
+               salary: 453
+           }
+                        ];
 }
