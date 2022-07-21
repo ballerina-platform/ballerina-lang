@@ -276,4 +276,109 @@ public abstract class AbstractLexer {
     protected static boolean isUnicodePatternWhiteSpaceChar(int c) {
         return (0x200E == c || 0x200F == c || 0x2028 == c || 0x2029 == c);
     }
+
+    /**
+     * Check whether a given char is ReSyntaxChar.
+     * <p>
+     * <code>
+     * ReSyntaxChar :=
+     *   "^" | "$" | "\" | "." | "*" | "+" | "?"
+     *   | "(" | ")" | "[" | "]" | "{" | "}" | "|"
+     * </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is ReSyntaxChar. <code>false</code> otherwise.
+     */
+    protected static boolean isReSyntaxChar(int c) {
+        switch (c) {
+            case '^':
+            case '$':
+            case '\\':
+            case '.':
+            case '*':
+            case '+':
+            case '?':
+            case '(':
+            case ')':
+            case '[':
+            case ']':
+            case '{':
+            case '}':
+            case '|':
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check whether a given char is ReSimpleCharClassCode.
+     * <p>
+     * <code>
+     * ReSimpleCharClassCode := "d" | "D" | "s" | "S" | "w" | "W"
+     * </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is ReSimpleCharClassCode. <code>false</code> otherwise.
+     */
+    protected static boolean isReSimpleCharClassCode(int c) {
+        switch (c) {
+            case 'd':
+            case 'D':
+            case 's':
+            case 'S':
+            case 'w':
+            case 'W':
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check whether a given char is ReCharSetLiteralChar.
+     * <p>
+     * <code>
+     * ReCharSetLiteralChar := ^ ("\" | "]" | "-")
+     * </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is ReCharSetLiteralChar. <code>false</code> otherwise.
+     */
+    protected static boolean isReCharSetLiteralChar(int c) {
+        switch (c) {
+            case '\\':
+            case ']':
+            case '-':
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Check whether a given char is ReFlag.
+     * <p>
+     * <code>
+     * ReFlag :=
+     *   ReMultilineFlag
+     *   | ReDotAllFlag
+     *   | ReIgnoreCaseFlag
+     *   | ReCommentFlag
+     * </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is ReFlag. <code>false</code> otherwise.
+     */
+    protected static boolean isReFlag(int c) {
+        switch (c) {
+            case 'm':
+            case 's':
+            case 'i':
+            case 'x':
+                return true;
+            default:
+                return false;
+        }
+    }
 }
