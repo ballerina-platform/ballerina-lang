@@ -83,7 +83,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     FIELD_WITH_DEFAULT_VALUE_ABSTRACT_OBJECT("BCE2050", "field.with.default.value.abstract.object"),
     PRIVATE_FUNC_ABSTRACT_OBJECT("BCE2051", "private.function.abstract.object"),
     EXTERN_FUNC_ABSTRACT_OBJECT("BCE2052", "extern.function.abstract.object"),
-    RESOURCE_FUNCTION_CANNOT_BE_EXTERN("BCE2053", "resource.function.cannot.be.extern"),
+    SERVICE_RESOURCE_METHOD_CANNOT_BE_EXTERN("BCE2053", "service.resource.method.cannot.be.extern"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("BCE2054", "object.init.function.cannot.be.extern"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("BCE2055", "global.variable.cyclic.reference"),
     CANNOT_FIND_ERROR_TYPE("BCE2056", "cannot.find.error.constructor.for.type"),

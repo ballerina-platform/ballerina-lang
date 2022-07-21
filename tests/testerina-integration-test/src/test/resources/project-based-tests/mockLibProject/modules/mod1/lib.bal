@@ -14,6 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function byteAdd(byte a, byte b) returns int {
-    return a + b;
+public function intMultiply(int a, int b) returns int {
+    return a * b;
 }

@@ -14,6 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function byteAdd(byte a, byte b) returns int {
-    return a + b;
-}
+// Empty default module file

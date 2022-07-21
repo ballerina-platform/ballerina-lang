@@ -32,7 +32,7 @@ public function mockIntMultiply(int a, int b) returns int {
 
 @test:Mock {
     functionName: "floatAdd",
-    moduleName: "mocking_coverage"
+    moduleName: "mocking_coverage.mod2"
 }
 test:MockFunction mock_floatAdd = new();
 
@@ -61,5 +61,6 @@ function testFloatAdd() {
     test:when(mock_intMultiply).call("mockIntMultiply");
     test:assertEquals(floatAdd(2, 5), 5.0);
     test:assertEquals(mod1:intAdd(20, 5), 123);
+    test:assertEquals(mod1:decimalAdd(5.4, 4.5), 9.9d);
     test:assertEquals(mockLib:intMultiply(5, 5), 100);
 }
