@@ -38,7 +38,6 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "missing binary operator", 23, 21);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'g'", 23, 21);
         BAssertUtil.validateError(compileResult, index++, "leading zeros in numeric literals", 26, 17);
-        BAssertUtil.validateError(compileResult, index++, "Hexadecimal '-0x' too small", 29, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 29, 18);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 29, 20);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'X1231'", 29, 20);
@@ -48,12 +47,12 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "missing pipe token", 32, 25);
         BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 35, 17);
         BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 36, 17);
-        BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0x' too large", 39, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 39, 17);
-        BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0X' too large", 40, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 40, 17);
-        BAssertUtil.validateError(compileResult, index++, "float '9.99E+6111' too large", 44, 17);
-        BAssertUtil.validateError(compileResult, index++, "float '9.99E+6111' too large", 45, 26);
+        BAssertUtil.validateError(compileResult, index++, "'9.99E+6111' is out of range for 'float'",
+                44, 17);
+        BAssertUtil.validateError(compileResult, index++, "'9.99E+6111' is out of range for 'float'",
+                45, 26);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 

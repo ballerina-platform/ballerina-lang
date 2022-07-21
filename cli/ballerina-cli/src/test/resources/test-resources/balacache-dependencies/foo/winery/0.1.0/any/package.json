@@ -21,11 +21,9 @@
     "winery.services"
   ],
   "include": [
-    "include-file.json",
-    "default-module-include/file",
-    "default-module-include-dir",
-    "modules/services/non-default-module-include/file",
-    "modules/services/non-default-module-include-dir"
+    "**/include-file.*",
+    "**/*module-include/file",
+    "**/*-module-include-dir"
   ],
   "visibility": "private",
   "icon": "docs/samplePng01.png",

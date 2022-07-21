@@ -1,20 +1,24 @@
-name: Publish Timestamped Snapshot Artifacts (master)
+name: Publish Timestamped Snapshot Artifacts
 
 on:
-  push:
-    branches:
-      - master
-  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   publish-ballerina-lang:
     name: Build and Publish Ballerina Lang
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        branch: ['master', '2201.0.x', '2201.1.x', '2201.2.x']
     timeout-minutes: 240
     if: github.repository_owner == 'ballerina-platform'
     steps:
       -   name: Checkout Repository
           uses: actions/checkout@v2
+          with:
+            ref: ${{ matrix.branch }}
 
       -   name: Set up JDK 11
           uses: actions/setup-java@v2
@@ -50,7 +54,7 @@ jobs:
             --data "{
               \"event_type\": \"update_timestamped_version\",
               \"client_payload\": {
-                \"branch\": \"master\",
+                \"branch\": \"${{ matrix.branch }}\",
                 \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
               }
             }"
