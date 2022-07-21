@@ -55,6 +55,7 @@ import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -79,11 +80,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BWorkerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -335,9 +339,29 @@ public class SymbolFactory {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 
+        TypeSymbol typeDescriptor;
+        if (symbol.type.tag == TypeTags.INTERSECTION && symbol.type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL
+                || isReadonlyIntersectionArrayType(symbol.type)) {
+            typeDescriptor = typesFactory.getTypeDescriptor(symbol.type, symbol.type.tsymbol, true);
+        } else {
+            typeDescriptor = typesFactory.getTypeDescriptor(symbol.type);
+        }
+
         return symbolBuilder
-                .withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.type))
+                .withTypeDescriptor(typeDescriptor)
                 .build();
+    }
+
+    private boolean isReadonlyIntersectionArrayType(BType type) {
+        if (type.tag == TypeTags.INTERSECTION && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.ARRAY) {
+            return isReadonlyIntersectionArrayType(((BArrayType) type).getElementType());
+        }
+
+        return false;
     }
 
     public BallerinaRecordFieldSymbol createRecordFieldSymbol(BVarSymbol symbol) {
