@@ -1,0 +1,9 @@
+{
+    "equationName": "Plank's Constant",
+    "energy": 250,
+    "negativeEnergy": -250,
+    "constant": 6.62607E-34,
+    "negativeConstant": -6.62607E-34,
+    "frequency": 123.34,
+    "negativeFrequency": -123.34
+}

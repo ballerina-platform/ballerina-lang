@@ -360,7 +360,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateBitWiseOp(BLangConstantValue lhs, BLangConstantValue rhs,
                                                   BiFunction<Long, Long, Long> func) {
-        switch (this.currentConstSymbol.type.tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
                 Long val = func.apply((Long) lhs.value, (Long) rhs.value);
                 return new BLangConstantValue(val, this.currentConstSymbol.type);
@@ -374,7 +374,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangConstantValue calculateAddition(BLangConstantValue lhs, BLangConstantValue rhs) {
         // TODO : Handle overflow in numeric values.
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 result = (Long) lhs.value + (Long) rhs.value;
@@ -398,7 +398,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateSubtract(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 result = (Long) lhs.value - (Long) rhs.value;
@@ -420,7 +420,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangConstantValue calculateMultiplication(BLangConstantValue lhs, BLangConstantValue rhs) {
         // TODO : Handle overflow in numeric values.
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 result = (Long) lhs.value * (Long) rhs.value;
@@ -441,7 +441,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateDivision(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 result = (Long) ((Long) lhs.value / (Long) rhs.value);
@@ -463,7 +463,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     // TODO : Not working at the moment.
     private BLangConstantValue calculateMod(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 result = (Long) ((Long) lhs.value % (Long) rhs.value);
@@ -499,10 +499,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
         Object result = null;
-        BType constSymbolValType = value.type;
-        int constSymbolValTypeTag = constSymbolValType.tag;
-
-        switch (constSymbolValTypeTag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
                 result = calculateNegationForInt(value);
                 break;
@@ -514,12 +511,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 break;
         }
 
-        return new BLangConstantValue(result, constSymbolValType);
+        return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
         Object result = null;
-        if (this.currentConstSymbol.type.tag == TypeTags.INT) {
+        if (Types.getReferredType(this.currentConstSymbol.type).tag == TypeTags.INT) {
             result = ~((Long) (value.value));
         }
         return new BLangConstantValue(result, currentConstSymbol.type);
@@ -527,7 +524,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateBooleanComplement(BLangConstantValue value) {
         Object result = null;
-        if (this.currentConstSymbol.type.tag == TypeTags.BOOLEAN) {
+        if (Types.getReferredType(this.currentConstSymbol.type).tag == TypeTags.BOOLEAN) {
             result = !((Boolean) (value.value));
         }
         return new BLangConstantValue(result, currentConstSymbol.type);

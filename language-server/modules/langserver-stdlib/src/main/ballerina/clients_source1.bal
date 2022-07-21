@@ -20,6 +20,17 @@ public client class Client {
         Response response = new();
         return response;
     }
+    
+    # Sample resource method.
+    #
+    # + id1 - Path parameter
+    # + ids - Rest path parameter
+    # + str - Argument
+    # + ids2 - Rest argument
+    # + return - The response for the request
+    resource function post path1/[string id1]/path2/[string... ids](string str, string... ids2) returns Response {
+        return new Response();
+    }
 }
 
 # Represents a response.
