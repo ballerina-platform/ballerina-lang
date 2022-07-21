@@ -48,6 +48,7 @@ public class BallerinaCodeActionExtension implements CodeActionExtension {
         return CodeActionRouter.getAvailableCodeActions(context);
     }
 
+    @Override
     public CodeAction resolve(ResolvableCodeAction codeAction,
                               CodeActionResolveContext resolveContext) {
         return CodeActionRouter.resolveCodeAction(codeAction, resolveContext);

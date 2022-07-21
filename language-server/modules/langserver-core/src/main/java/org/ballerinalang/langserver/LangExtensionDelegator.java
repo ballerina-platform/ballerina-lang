@@ -180,6 +180,13 @@ public class LangExtensionDelegator {
         return actions;
     }
 
+    /**
+     * Get resolvable code action.
+     *
+     * @param resolvableCodeAction Resolvable code action
+     * @param resolveContext       Code action resolve context
+     * @return code action
+     */
     public CodeAction resolveCodeAction(ResolvableCodeAction resolvableCodeAction,
                                         CodeActionResolveContext resolveContext) {
         for (CodeActionExtension ext : codeActionsExtensions) {

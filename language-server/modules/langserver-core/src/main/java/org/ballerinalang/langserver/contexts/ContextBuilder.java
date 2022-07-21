@@ -241,12 +241,14 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
      * @param cancelChecker    cancellation checker
-     * @return {@link CodeActionResolveContext} generated signature context
+     * @return {@link CodeActionResolveContext} generated resolver context
      */
-    public static CodeActionResolveContext buildCodeActionResolveContext(WorkspaceManager workspaceManager,
+    public static CodeActionResolveContext buildCodeActionResolveContext(String uri,
+                                                                         WorkspaceManager workspaceManager,
                                                                          LanguageServerContext serverContext,
                                                                          CancelChecker cancelChecker) {
         return new CodeActionResolveContextImpl.CodeActionResolveContextBuilder(serverContext)
+                .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCancelChecker(cancelChecker)
                 .build();

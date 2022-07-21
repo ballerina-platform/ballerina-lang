@@ -17,19 +17,18 @@ package org.ballerinalang.langserver.commons.codeaction;
 
 import com.google.gson.Gson;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Range;
 
 /**
  * Resolvable code action data.
  *
- * @since 2201.2.x
+ * @since 2201.2.0
  */
 
 public class ResolvableCodeAction extends CodeAction {
 
     private static final Gson GSON = new Gson();
 
-    public ResolvableCodeAction() {
+    private ResolvableCodeAction() {
     }
 
     public ResolvableCodeAction(String title) {
@@ -45,73 +44,16 @@ public class ResolvableCodeAction extends CodeAction {
         super.setData(codeActionData);
     }
 
-    public static ResolvableCodeAction from(CodeAction jsonObj) {
+    public static ResolvableCodeAction from(CodeAction codeAction) {
         ResolvableCodeAction resolvableCodeAction = new ResolvableCodeAction();
-        resolvableCodeAction.setTitle(jsonObj.getTitle());
-        resolvableCodeAction.setKind(jsonObj.getKind());
-        resolvableCodeAction.setData(jsonObj.getDiagnostics());
-        resolvableCodeAction.setCommand(jsonObj.getCommand());
-        String toJson = GSON.toJson(jsonObj.getData());
-        CodeActionData codeActionData = GSON.fromJson(toJson, CodeActionData.class);
+        resolvableCodeAction.setTitle(codeAction.getTitle());
+        resolvableCodeAction.setKind(codeAction.getKind());
+        resolvableCodeAction.setData(codeAction.getDiagnostics());
+        resolvableCodeAction.setCommand(codeAction.getCommand());
+        String jsonString = GSON.toJson(codeAction.getData());
+        CodeActionData codeActionData = GSON.fromJson(jsonString, CodeActionData.class);
         resolvableCodeAction.setData(codeActionData);
         return resolvableCodeAction;
     }
 
-    /**
-     * Code action data.
-     */
-    public static class CodeActionData {
-        String extName;
-        String codeActionName;
-        String fileUri;
-        Range range;
-        Object actionData;
-
-        public CodeActionData(String codeActionName, String fileUri, Range range, Object actionData) {
-            this.codeActionName = codeActionName;
-            this.fileUri = fileUri;
-            this.range = range;
-            this.actionData = actionData;
-        }
-
-        public String getExtName() {
-            return extName;
-        }
-
-        public void setExtName(String extName) {
-            this.extName = extName;
-        }
-
-        public String getCodeActionName() {
-            return codeActionName;
-        }
-
-        public void setCodeActionName(String codeActionName) {
-            this.codeActionName = codeActionName;
-        }
-
-        public Object getActionData() {
-            return actionData;
-        }
-
-        public void setActionData(Object actionData) {
-            this.actionData = actionData;
-        }
-
-        public String getFileUri() {
-            return fileUri;
-        }
-
-        public void setFileUri(String fileUri) {
-            this.fileUri = fileUri;
-        }
-
-        public Range getRange() {
-            return range;
-        }
-
-        public void setRange(Range range) {
-            this.range = range;
-        }
-    }
 }

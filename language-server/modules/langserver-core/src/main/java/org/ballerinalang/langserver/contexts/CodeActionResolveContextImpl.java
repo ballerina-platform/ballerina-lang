@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.contexts;
 
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CodeActionResolveContext;
+import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -24,15 +25,17 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 /**
  * Code action resolve context implementation.
  *
- * @since 2201.2.x
+ * @since 2201.2.0
  */
 
 public class CodeActionResolveContextImpl extends AbstractDocumentServiceContext implements CodeActionResolveContext {
 
-    CodeActionResolveContextImpl(WorkspaceManager wsManager,
+    CodeActionResolveContextImpl(LSOperation operation,
+                                 String fileUri,
+                                 WorkspaceManager wsManager,
                                  LanguageServerContext serverContext,
                                  CancelChecker cancelChecker) {
-        super(wsManager, serverContext, cancelChecker);
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
     }
 
     /**
@@ -47,6 +50,8 @@ public class CodeActionResolveContextImpl extends AbstractDocumentServiceContext
 
         public CodeActionResolveContext build() {
             return new CodeActionResolveContextImpl(
+                    this.operation,
+                    this.fileUri,
                     this.wsManager,
                     this.serverContext,
                     this.cancelChecker);

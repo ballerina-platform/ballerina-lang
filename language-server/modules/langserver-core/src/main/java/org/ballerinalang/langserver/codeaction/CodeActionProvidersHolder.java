@@ -121,18 +121,18 @@ public class CodeActionProvidersHolder {
      * @param name code action name
      * @return provider
      */
-    public Optional<LSCodeActionProvider> getProviderByName(String name) {
-        Optional<LSCodeActionProvider> diagnosticBasedProvider = diagnosticsBasedProviders.stream().filter(provider ->
-                provider.getName().equals(name)).findFirst();
+    public Optional<? extends LSCodeActionProvider> getProviderByName(String name) {
+        Optional<DiagnosticBasedCodeActionProvider> diagnosticBasedProvider = diagnosticsBasedProviders.stream()
+                .filter(provider -> provider.getName().equals(name)).findFirst();
         if (diagnosticBasedProvider.isPresent()) {
             return diagnosticBasedProvider;
         }
 
-        for (List<LSCodeActionProvider> providerList : nodeBasedProviders.values()) {
-            Optional<LSCodeActionProvider> nodeBasedProvider = providerList.stream().filter(provider ->
-                    provider.getName().equals(name)).findFirst();
-            if (nodeBasedProvider.isPresent()) {
-                return nodeBasedProvider;
+        for (List<RangeBasedCodeActionProvider> providerList : rangeBasedProviders.values()) {
+            Optional<RangeBasedCodeActionProvider> rangeBasedCodeActionProvider = providerList.stream()
+                    .filter(provider -> provider.getName().equals(name)).findFirst();
+            if (rangeBasedCodeActionProvider.isPresent()) {
+                return rangeBasedCodeActionProvider;
             }
         }
 

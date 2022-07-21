@@ -352,11 +352,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<CodeAction> resolveCodeAction(CodeAction codeAction) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
+                ResolvableCodeAction resolvableCodeAction = ResolvableCodeAction.from(codeAction);
+                String fileUri = resolvableCodeAction.getData().getFileUri();
                 CodeActionResolveContext resolveContext = ContextBuilder.buildCodeActionResolveContext(
+                        fileUri,
                         workspaceManagerProxy.get(),
                         this.serverContext,
                         cancelChecker);
-                ResolvableCodeAction resolvableCodeAction = ResolvableCodeAction.from(codeAction);
                 return LangExtensionDelegator.instance().resolveCodeAction(resolvableCodeAction, resolveContext);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Resolve Code Action", e);

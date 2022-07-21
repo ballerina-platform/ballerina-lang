@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.ResolvableCodeActionProvider;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
@@ -142,11 +143,11 @@ public class CodeActionRouter {
                                                CodeActionResolveContext resolveContext) {
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder
                 .getInstance(resolveContext.languageServercontext());
-        Optional<LSCodeActionProvider> provider = codeActionProvidersHolder.getProviderByName(
+        Optional<? extends LSCodeActionProvider> provider = codeActionProvidersHolder.getProviderByName(
                 codeAction.getData().getCodeActionName());
         CodeAction action = codeAction;
-        if (provider.isPresent()) {
-            action = provider.get().resolve(codeAction, resolveContext);
+        if (provider.isPresent() && provider.get() instanceof ResolvableCodeActionProvider) {
+            action = ((ResolvableCodeActionProvider) provider.get()).resolve(codeAction, resolveContext);
         }
 
         return action;

@@ -53,11 +53,11 @@ import javax.annotation.Nonnull;
  */
 public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
-    private LSOperation operation;
+    private final LSOperation operation;
 
-    private Path filePath;
+    private final Path filePath;
 
-    private String fileUri;
+    private final String fileUri;
 
     private final WorkspaceManager workspaceManager;
 
@@ -101,16 +101,6 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
                                    CancelChecker cancelChecker) {
         this(operation, fileUri, wsManager, serverContext);
         // This is to facilitate the development in debug mode. 
-        if (!ON_DEBUG_MODE) {
-            this.cancelChecker = cancelChecker;
-        }
-    }
-
-    AbstractDocumentServiceContext(WorkspaceManager wsManager,
-                                   LanguageServerContext serverContext,
-                                   CancelChecker cancelChecker) {
-        this.workspaceManager = wsManager;
-        this.languageServerContext = serverContext;
         if (!ON_DEBUG_MODE) {
             this.cancelChecker = cancelChecker;
         }

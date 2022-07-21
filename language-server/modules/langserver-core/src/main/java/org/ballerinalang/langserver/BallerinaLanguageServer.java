@@ -132,6 +132,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
                 CodeActionKind.QuickFix, CodeActionKind.Source));
         res.getCapabilities().setCodeActionProvider(codeActionOptions);
 
+        codeActionOptions.setResolveProvider(true);
+        res.getCapabilities().setCodeActionProvider(codeActionOptions);
+
         // Hover, references and definition support will be registered dynamically if supported
         if (!LSClientUtil.isDynamicHoverRegistrationSupported(params.getCapabilities().getTextDocument())) {
             res.getCapabilities().setHoverProvider(true);
@@ -177,10 +180,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
                     HashMap.class);
         }
-
-        CodeActionOptions options = new CodeActionOptions();
-        options.setResolveProvider(true);
-        res.getCapabilities().setCodeActionProvider(options);
 
         // Set AST provider and examples provider capabilities
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();

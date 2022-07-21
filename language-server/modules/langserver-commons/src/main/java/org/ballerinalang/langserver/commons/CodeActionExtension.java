@@ -39,6 +39,13 @@ public interface CodeActionExtension
         return LanguageFeatureKind.CODEACTION;
     }
 
+    /**
+     * Returns the resolvable code action.
+     *
+     * @param codeAction     Resolvable code action
+     * @param resolveContext Code action resolve context
+     * @return Code action
+     */
     default CodeAction resolve(ResolvableCodeAction codeAction,
                                CodeActionResolveContext resolveContext) {
         return codeAction;
