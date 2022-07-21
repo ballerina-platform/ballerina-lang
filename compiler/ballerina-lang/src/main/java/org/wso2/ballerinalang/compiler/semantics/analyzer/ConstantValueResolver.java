@@ -499,7 +499,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
+        BType constSymbolValType = value.type;
+        int constSymbolValTypeTag = constSymbolValType.tag;
+
+        switch (constSymbolValTypeTag) {
             case TypeTags.INT:
                 result = calculateNegationForInt(value);
                 break;
@@ -511,7 +514,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 break;
         }
 
-        return new BLangConstantValue(result, currentConstSymbol.type);
+        return new BLangConstantValue(result, constSymbolValType);
     }
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
