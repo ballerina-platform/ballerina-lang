@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -432,6 +433,8 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangStatementExpression node, T data);
 
     public abstract void visit(BLangStringTemplateLiteral node, T data);
+
+    public abstract void visit(BLangRegExpTemplateLiteral node, T data);
 
     public abstract void visit(BLangTableConstructorExpr node, T data);
 

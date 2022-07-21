@@ -124,6 +124,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordVarNameField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1391,6 +1392,13 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangStringTemplateLiteral source) {
 
         BLangStringTemplateLiteral clone = new BLangStringTemplateLiteral();
+        source.cloneRef = clone;
+        clone.exprs = cloneList(source.exprs);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral source) {
+        BLangRegExpTemplateLiteral clone = new BLangRegExpTemplateLiteral();
         source.cloneRef = clone;
         clone.exprs = cloneList(source.exprs);
     }

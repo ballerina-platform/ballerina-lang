@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedP
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -127,6 +128,10 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
         validateDeprecationDocumentation(constant.markdownDocumentationAttachment,
                 Symbols.isFlagOn(constant.symbol.flags, Flags.DEPRECATED), constant.pos);
         validateDeprecatedParametersDocumentation(constant.markdownDocumentationAttachment, constant.pos);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
     }
 
     @Override
