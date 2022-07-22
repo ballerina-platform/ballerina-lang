@@ -6060,12 +6060,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
                 typeCheckerData.queryEnvs.peek()), data.prevEnvs, typeCheckerData);
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-//        if (!typeCheckerData.checkedErrorList.isEmpty()) {
-//            LinkedHashSet<BType> returnTypes = new LinkedHashSet<>();
-//            returnTypes.add(symTable.nilType);
-//            returnTypes.addAll(typeCheckerData.checkedErrorList);
-//            actualType = BUnionType.create(null, returnTypes);
-//        }
         data.resultType =
                 types.checkType(doClause.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         typeCheckerData.queryFinalClauses.pop();
@@ -6076,7 +6070,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         //re-assign common analyzer data
         typeCheckerData.checkWithinQueryExpr = prevCheckWithinQueryExpr;
-//        typeCheckerData.checkedErrorList = prevCheckedErrorList;
         typeCheckerData.queryFinalClauses = prevQueryFinalClauses;
         typeCheckerData.letCount = prevLetCount;
     }
