@@ -47,7 +47,7 @@ type Token record {|
 type TokenTable table<Token> key(idx);
 
 function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause() returns error? {
-    Token[] _ = from Token i in (check table key(idx) from var j in [1, 1]
+    Token[] _ = from Token i in (table key(idx) from var j in [1, 1]
             select {
                 idx: j,
                 value: "A"
@@ -59,7 +59,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         on conflict error("Duplicate Key In Outer Query");
 
     Token[] _ = from int i in 1 ... 3
-        from Token j in (check table key(idx) from var j in [1, 1]
+        from Token j in (table key(idx) from var j in [1, 1]
             select {
                 idx: j,
                 value: "A"
@@ -71,7 +71,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         on conflict error("Duplicate Key In Outer Query");
 
     Token[] _ = from int i in 1 ... 3
-        join Token j in (check table key(idx) from var j in [1, 1]
+        join Token j in (table key(idx) from var j in [1, 1]
             select {
                 idx: j,
                 value: "A"
@@ -83,7 +83,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         }
         on conflict error("Duplicate Key In Outer Query");
 
-    Token[] _ = from Token i in (from var j in (from var m in (check table key(idx) from var j in [1, 1]
+    Token[] _ = from Token i in (from var j in (from var m in (table key(idx) from var j in [1, 1]
             select {
                 idx: j,
                 value: "A"
@@ -94,7 +94,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         }
         on conflict error("Duplicate Key In Outer Query");
 
-    Token[] _ = from Token i in (from var j in (from var m in (check table key(idx) from var j in [1, 1]
+    Token[] _ = from Token i in (check table key(idx) from var j in (from var m in (check table key(idx) from var j in [1, 1]
                 select {
                     idx: j,
                     value: "A"
@@ -107,7 +107,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         };
 
     Token[] _ = from int i in [1, 2, 1]
-        let Token[] arr = from var j in (from var m in (check table key(idx) from var j in [1, 1]
+        let Token[] arr = from var j in (from var m in (table key(idx) from var j in [1, 1]
                         select {
                             idx: j,
                             value: "A"
@@ -119,7 +119,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         on conflict error("Duplicate Key");
 
     Token[] _ = from int i in [1, 2, 1]
-        let Token[] arr = from var j in (from var m in (check table key(idx) from var j in [1, 1]
+        let Token[] arr = from var j in (from var m in (table key(idx) from var j in [1, 1]
                         select {
                             idx: j,
                             value: "A"
@@ -132,7 +132,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
 
     Token[] _ = from int i in [1, 2, 1]
         let TokenTable tb = table []
-        where tb == from var j in (from var m in (check table key(idx) from var j in [1, 1]
+        where tb == from var j in (from var m in (table key(idx) from var j in [1, 1]
                         select {
                             idx: j,
                             value: "A"

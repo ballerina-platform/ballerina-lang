@@ -1187,7 +1187,6 @@ type T record {
 
 function testConstructingListInRecordsUsingQueryWithReadonly() {
     T rec1 = { params: from var s in ["a", "b", "c", "abc"] select s };
-    assertEqual((typeof(rec1)).toString(), "typedesc {\"params\":[\"a\",\"b\",\"c\",\"abc\"]}");
     assertEqual(rec1, {"params":["a","b","c","abc"]});
 }
 
