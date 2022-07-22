@@ -340,16 +340,16 @@ function testQueryExpWithinSelectClause2() {
 
 function testQueryExpWithinQueryAction() returns error? {
     int[][] data = [[2, 3, 4]];
-    from int[] arr in data
-    do {
-        function () returns int[] func = function() returns int[] {
-            int[] evenNumbers = from int i in arr
-                where i % 2 == 0
-                select i;
-            return evenNumbers;
-        };
-        int[] expected = [2, 4];
-        assertEquality(expected, func());
+    check from int[] arr in data
+        do {
+            function () returns int[] func = function() returns int[] {
+                int[] evenNumbers = from int i in arr
+                    where i % 2 == 0
+                    select i;
+                return evenNumbers;
+            };
+            int[] expected = [2, 4];
+            assertEquality(expected, func());
     };
 }
 
@@ -539,7 +539,7 @@ function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() retu
         assertEquality("Duplicate Key in Inner Query", tbl9.message());
     }
 
-    TokenTable|error tbl10 = table key(idx) from Token j in (check from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
+    TokenTable|error tbl10 = table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
                 select {
                     idx: i,
                     value: "A" + i.toString()
@@ -564,7 +564,7 @@ function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() retu
         assertEquality("Duplicate Key in Inner Query", tbl11.message());
     }
 
-    TokenTable|error tbl12 = table key(idx) from Token j in (check from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
+    TokenTable|error tbl12 = table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
                 select {
                     idx: i,
                     value: "A" + i.toString()
@@ -584,7 +584,7 @@ function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() retu
 
     TokenTable|error tbl13 = table key(idx) from int i in 1 ... 3
         let TokenTable tb = table []
-        where tb == from var j in (from Token m in (table key(idx) from var j in [1, 2]
+        where tb == from var j in (from Token m in (check table key(idx) from var j in [1, 2]
                         select {
                             idx: j,
                             value: "A"
@@ -603,7 +603,7 @@ function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() retu
     }
 
     TokenTable|error tbl14 = table key(idx) from int i in 1 ... 3
-        let table<Token> tb = from var j in (from Token m in (table key(idx) from var j in [1, 2]
+        let table<Token> tb = from var j in (from Token m in (check table key(idx) from var j in [1, 2]
                         select {
                             idx: j,
                             value: "A"
@@ -647,7 +647,7 @@ function getOnconflictErrorFromInnerQuery2() returns TokenTable|error {
 }
 
 function getOnconflictErrorFromInnerQuery3() returns TokenTable|error {
-    return check table key(idx) from Token j in (check from var m in (check table key(idx) from int i in (from int n in [1, 2, 1] select n)
+    return table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in [1, 2, 1] select n)
                 select {
                     idx: i,
                     value: "A" + i.toString()
