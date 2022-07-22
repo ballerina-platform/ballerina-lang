@@ -19,15 +19,16 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -47,21 +48,21 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
+public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Optimize Imports";
     public static final String DIAGNOSTIC_CODE = "BCE2002";
 
-    public OptimizeImportsCodeAction() {
-        super(Collections.singletonList(CodeActionNodeType.IMPORTS));
+    public List<SyntaxKind> getSyntaxKinds() {
+        return Collections.singletonList(SyntaxKind.IMPORT_DECLARATION);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context,
+                                           RangeBasedPositionDetails posDetails) {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.fileUri();
         SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
@@ -119,7 +120,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         Position importEnd = new Position(importELine + 1, 0);
         TextEdit textEdit = new TextEdit(new Range(importStart, importEnd), editText.toString());
         List<TextEdit> edits = Collections.singletonList(textEdit);
-        actions.add(createCodeAction(getCodeActionTitle(), edits, uri,
+        actions.add(CodeActionUtil.createCodeAction(getCodeActionTitle(), edits, uri,
                 getCodeActionKind()));
         return actions;
     }
@@ -144,11 +145,11 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
     protected List<ImportDeclarationNode> organizeFileImports(List<ImportDeclarationNode> fileImports) {
         return fileImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
-                        o.orgName().get().orgName().text()
-                        : o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
-                                .thenComparing(
-                                        o -> o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
-                                .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
+                                o.orgName().get().orgName().text()
+                                : o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
+                        .thenComparing(
+                                o -> o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
+                        .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
     }
 
