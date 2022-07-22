@@ -710,12 +710,23 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
         Optional<Symbol> optionalSymbol = context.currentSemanticModel().get()
                 .symbol(fromClauseNode.typedBindingPattern().bindingPattern());
-
         if (optionalSymbol.isEmpty()) {
             return Optional.empty();
         }
 
-        return SymbolUtil.getTypeDescriptor(optionalSymbol.get());
+        // type symbol of the Type Binding Pattern
+        Optional<TypeSymbol> typeSymbol = SymbolUtil.getTypeDescriptor(optionalSymbol.get());
+        if (typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        if (typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            return Optional.empty();
+        }
+        if (context.getCursorPositionInTree() > fromClauseNode.inKeyword().textRange().endOffset()) {
+            return Optional.of(context.currentSemanticModel()
+                    .get().types().builder().ARRAY_TYPE.withType(typeSymbol.get()).build());
+        }
+        return typeSymbol;
     }
 
     @Override
