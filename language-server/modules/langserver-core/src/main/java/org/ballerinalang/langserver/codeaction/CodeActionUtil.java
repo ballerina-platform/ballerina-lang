@@ -30,18 +30,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -805,5 +794,59 @@ public class CodeActionUtil {
         CodeAction action = createCodeAction(commandTitle, edits, uri);
         action.setKind(codeActionKind);
         return action;
+    }
+//TODO add a javadoc and check whether we need this unless modified
+    public static boolean isExpressionNode(NonTerminalNode matchedCodeActionNode) {
+        return matchedCodeActionNode instanceof ExpressionNode;
+    }
+
+    public static List<SyntaxKind> getExpressionSyntaxKindsList() {
+        return List.of(
+                SyntaxKind.BINARY_EXPRESSION,
+                SyntaxKind.BRACED_EXPRESSION,
+                SyntaxKind.FUNCTION_CALL,
+                SyntaxKind.QUALIFIED_NAME_REFERENCE,
+                SyntaxKind.INDEXED_EXPRESSION,
+                SyntaxKind.FIELD_ACCESS,
+                SyntaxKind.METHOD_CALL,
+                SyntaxKind.CHECK_EXPRESSION,
+                SyntaxKind.MAPPING_CONSTRUCTOR,
+                SyntaxKind.TYPEOF_EXPRESSION,
+                SyntaxKind.UNARY_EXPRESSION,
+                SyntaxKind.TYPE_TEST_EXPRESSION,
+                SyntaxKind.SIMPLE_NAME_REFERENCE,
+                SyntaxKind.TRAP_EXPRESSION,
+                SyntaxKind.LIST_CONSTRUCTOR,
+                SyntaxKind.TYPE_CAST_EXPRESSION,
+                SyntaxKind.TABLE_CONSTRUCTOR,
+                SyntaxKind.LET_EXPRESSION,
+                SyntaxKind.XML_TEMPLATE_EXPRESSION,
+                SyntaxKind.RAW_TEMPLATE_EXPRESSION,
+                SyntaxKind.STRING_TEMPLATE_EXPRESSION,
+                SyntaxKind.IMPLICIT_NEW_EXPRESSION,
+                SyntaxKind.EXPLICIT_NEW_EXPRESSION,
+                SyntaxKind.PARENTHESIZED_ARG_LIST,
+                SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION,
+                SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION,
+                SyntaxKind.QUERY_EXPRESSION,
+                SyntaxKind.ANNOT_ACCESS,
+                SyntaxKind.OPTIONAL_FIELD_ACCESS,
+                SyntaxKind.CONDITIONAL_EXPRESSION,
+                SyntaxKind.TRANSACTIONAL_EXPRESSION,
+                SyntaxKind.OBJECT_CONSTRUCTOR,
+                SyntaxKind.XML_FILTER_EXPRESSION,
+                SyntaxKind.XML_STEP_EXPRESSION,
+                SyntaxKind.XML_NAME_PATTERN_CHAIN,
+                SyntaxKind.XML_ATOMIC_NAME_PATTERN,
+                SyntaxKind.STRING_LITERAL,
+                SyntaxKind.NUMERIC_LITERAL,
+                SyntaxKind.BOOLEAN_LITERAL,
+                SyntaxKind.NIL_LITERAL,
+                SyntaxKind.NULL_LITERAL,
+                SyntaxKind.BYTE_ARRAY_LITERAL,
+                SyntaxKind.ASTERISK_LITERAL,
+                SyntaxKind.REQUIRED_EXPRESSION,
+                SyntaxKind.ERROR_CONSTRUCTOR
+        );
     }
 }

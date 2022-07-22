@@ -186,4 +186,26 @@ public class PositionUtil {
         LinePosition linePos = LinePosition.from(position.getLine(), position.getCharacter());
         return syntaxTree.textDocument().textPositionFrom(linePos);
     }
+
+    /**
+     * Returns the Range given the LineRange
+     *
+     * @param lineRange line range
+     * @return Range corresponds to LineRange
+     */
+    public static Range getRangeFromLineRange(LineRange lineRange) {
+        Position startPosition = PositionUtil.toPosition(lineRange.startLine());
+        Position endPosition = PositionUtil.toPosition(lineRange.endLine());
+        return new Range(startPosition, endPosition);
+    }
+
+    /**
+     * Returns the LinePosition given the Position
+     *
+     * @param position position
+     * @return LinePosition corresponds to Position
+     */
+    public static LinePosition getLinePosition(Position position) {
+        return LinePosition.from(position.getLine(), position.getCharacter());
+    }
 }

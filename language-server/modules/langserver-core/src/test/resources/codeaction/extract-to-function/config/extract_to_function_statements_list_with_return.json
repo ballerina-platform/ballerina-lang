@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 4
+    },
+    "end": {
+      "line": 2,
+      "character": 14
+    }
+  },
+  "source": "extract_to_function_statements_list_with_return.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 1
+            },
+            "end": {
+              "line": 4,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns int {\n    int a \u003d 10;\n    a \u003d a + 1;\n    return a;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 14
+            }
+          },
+          "newText": "int a \u003d extracted();"
+        }
+      ]
+    }
+  ]
+}
