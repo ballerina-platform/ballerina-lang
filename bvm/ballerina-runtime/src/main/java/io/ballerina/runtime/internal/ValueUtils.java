@@ -54,7 +54,7 @@ public class ValueUtils {
      *
      * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
-     * @return value of the record.
+     * @return               value of the record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
@@ -77,7 +77,7 @@ public class ValueUtils {
      * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
-     * @return value of the populated record.
+     * @return               value of the populated record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
@@ -100,7 +100,7 @@ public class ValueUtils {
      * @param packageId      the package ID where the record type is defined.
      * @param recordTypeName name of the record type.
      * @param valueMap       {@link BMap} of fields and values to initialize the record.
-     * @return value of the populated record.
+     * @return               value of the populated record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           BMap<BString, Object> valueMap) {
@@ -116,7 +116,7 @@ public class ValueUtils {
      *
      * @param recordValue record value which needs to get populated.
      * @param values      field values of the record.
-     * @return value of the record.
+     * @return            value of the record.
      */
     public static BMap<BString, Object> createRecordValue(BMap<BString, Object> recordValue, Object... values) {
         BRecordType recordType = (BRecordType) recordValue.getType();
@@ -140,7 +140,7 @@ public class ValueUtils {
      * @param packageId      the package ID that the object type resides.
      * @param objectTypeName name of the object type.
      * @param fieldValues    values to be used for fields when creating the object value instance.
-     * @return value of the object.
+     * @return               value of the object.
      */
     public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
         Strand currentStrand = Scheduler.getStrandNoException();
@@ -160,7 +160,7 @@ public class ValueUtils {
      * @param packageId       the package ID that the object type resides.
      * @param objectTypeName  name of the object type.
      * @param fieldValues     values to be used for fields when creating the object value instance.
-     * @return value of the object.
+     * @return                value of the object.
      */
     public static BObject createObjectValue(Strand currentStrand, Module packageId, String objectTypeName,
                                              Object[] fieldValues) {
@@ -212,7 +212,7 @@ public class ValueUtils {
      * Provide the readonly Xml Value that is equivalent to a given string value.
      *
      * @param value string value
-     * @return immutable Xml value
+     * @return      immutable Xml value
      */
     public static BXml createReadOnlyXmlValue(String value) {
         BXml xml = TypeConverter.stringToXml(value);
@@ -223,7 +223,7 @@ public class ValueUtils {
     /**
      * Provide the Typedesc Value with the singleton type with a value.
      * @param value Ballerina value
-     * @return typedesc with singleton type
+     * @return      typedesc with singleton type
      */
     public static BTypedesc createSingletonTypedesc(BValue value) {
         return io.ballerina.runtime.api.creators.ValueCreator
@@ -233,7 +233,7 @@ public class ValueUtils {
     /**
      * Provide the Typedesc Value depending on the immutability of a value.
      * @param type Ballerina value
-     * @return typedesc with the suitable type
+     * @return     typedesc with the suitable type
      */
     public static BTypedesc getTypedescValue(Type type, BValue value) {
         if (type.isReadOnly()) {
