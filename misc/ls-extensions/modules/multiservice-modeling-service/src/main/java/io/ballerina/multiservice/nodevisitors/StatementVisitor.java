@@ -1,10 +1,18 @@
 package io.ballerina.multiservice.nodevisitors;
 
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Visitor class to identify client declaration nodes inside a Ballerina service.
+ */
 public class StatementVisitor extends NodeVisitor {
     private String serviceId;
 
@@ -20,7 +28,8 @@ public class StatementVisitor extends NodeVisitor {
 
     @Override
     public void visit(VariableDeclarationNode variableDeclarationNode) {
-        if (Objects.equals(variableDeclarationNode.typedBindingPattern().bindingPattern().toString().trim(), clientName)) {
+        if (Objects.equals(variableDeclarationNode.typedBindingPattern().bindingPattern().toString().trim(),
+                clientName)) {
             NodeList<AnnotationNode> annotations = variableDeclarationNode.annotations();
             this.serviceId = ModelGeneratorUtil.getId(annotations).trim();
         }

@@ -5,8 +5,12 @@ import org.ballerinalang.langserver.commons.registration.BallerinaServerCapabili
 
 import java.util.Optional;
 
+/**
+ * Capability setter for the {@link MultiServiceModelingService}.
+ */
 @JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter")
-public class MultiServiceModelingServerCapabilitySetter extends BallerinaServerCapabilitySetter<MultiServiceModelingServerCapabilities> {
+public class MultiServiceModelingServerCapabilitySetter extends
+        BallerinaServerCapabilitySetter<MultiServiceModelingServerCapabilities> {
 
     @Override
     public Optional<MultiServiceModelingServerCapabilities> build() {

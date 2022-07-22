@@ -1,8 +1,10 @@
 package io.ballerina.multiservice.model;
 
 import java.util.List;
-import io.ballerina.multiservice.model.Service;
 
+/**
+ * Represents intermediate model to represent multi-service projects.
+ */
 public class ComponentModel {
     private final PackageId packageId;
 
@@ -13,6 +15,17 @@ public class ComponentModel {
         this.services = services;
     }
 
+    public PackageId getPackageId() {
+        return packageId;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    /**
+     * Represent current package information.
+     */
     public static class PackageId {
         private final String name;
         private final String org;
@@ -22,6 +35,18 @@ public class ComponentModel {
             this.name = name;
             this.org = org;
             this.version = version;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getOrg() {
+            return org;
+        }
+
+        public String getVersion() {
+            return version;
         }
     }
 }

@@ -1,18 +1,22 @@
 package io.ballerina.multiservice;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.multiservice.model.ComponentModel;
 import io.ballerina.multiservice.model.ComponentModel.PackageId;
 import io.ballerina.multiservice.model.Service;
 import io.ballerina.multiservice.nodevisitors.ServiceNodeVisitor;
-import io.ballerina.projects.*;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Construct component model fpr project with multiple service.
+ */
 public class ComponentModelConstructor {
     private ComponentModel componentModel;
 
@@ -41,7 +45,8 @@ public class ComponentModelConstructor {
             Collection<DocumentId> documentIds = module.documentIds();
             for (DocumentId documentId : documentIds) {
                 SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
-                ServiceNodeVisitor serviceNodeVisitor = new ServiceNodeVisitor(semanticModel, module.document(documentId));
+                ServiceNodeVisitor serviceNodeVisitor = new ServiceNodeVisitor(semanticModel,
+                        module.document(documentId));
                 syntaxTree.rootNode().accept(serviceNodeVisitor);
                 availableServices.addAll(serviceNodeVisitor.getServices());
             }

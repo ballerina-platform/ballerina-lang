@@ -3,6 +3,9 @@ package io.ballerina.multiservice.model;
 
 import java.util.List;
 
+/**
+ * Provides service related information.
+ */
 public class Service {
     private final String path;
     private final String serviceId;
@@ -13,5 +16,17 @@ public class Service {
         this.path = path;
         this.serviceId = serviceId;
         this.resources = resources;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public List<Resource> getResources() {
+        return resources;
     }
 }

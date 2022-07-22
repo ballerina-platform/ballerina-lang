@@ -1,7 +1,13 @@
 package io.ballerina.multiservice.nodevisitors;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.multiservice.model.Parameter;
 import io.ballerina.multiservice.model.Resource;
 import io.ballerina.projects.Document;
@@ -11,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Visitor class for FunctionDefinition node.
+ */
 public class ResourceVisitor extends NodeVisitor {
     private final String serviceId;
 
@@ -46,7 +55,8 @@ public class ResourceVisitor extends NodeVisitor {
             functionDefinitionNode.accept(remoteExpressionVisitor);
 
             Resource.ResourceId resourceId = new Resource.ResourceId(this.serviceId, resourcePath, method);
-            Resource resource = new Resource(resourceId, parameterList, returnTypes, remoteExpressionVisitor.getInteractionList());
+            Resource resource = new Resource(resourceId, parameterList, returnTypes,
+                    remoteExpressionVisitor.getInteractionList());
             resources.add(resource);
 
         }

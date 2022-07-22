@@ -1,28 +1,19 @@
 package io.ballerina.multiservice.nodevisitors;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.multiservice.model.Resource;
 import io.ballerina.projects.Document;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
-
+/**
+ * Visitor class for RemoteMethodCallAction nodes.
+ */
 public class RemoteExpressionVisitor extends NodeVisitor {
     private final SemanticModel semanticModel;
 
@@ -36,6 +27,14 @@ public class RemoteExpressionVisitor extends NodeVisitor {
 
     public List<Resource.ResourceId> getInteractionList() {
         return interactionList;
+    }
+
+    public SemanticModel getSemanticModel() {
+        return semanticModel;
+    }
+
+    public Document getDocument() {
+        return document;
     }
 
     @Override
@@ -58,7 +57,8 @@ public class RemoteExpressionVisitor extends NodeVisitor {
             }
         }
 
-        Resource.ResourceId interaction = new Resource.ResourceId(statementVisitor.getServiceId(), resourceMethod,resourcePath);
+        Resource.ResourceId interaction = new Resource.ResourceId(statementVisitor.getServiceId(),
+                resourceMethod, resourcePath);
         interactionList.add(interaction);
 
     }

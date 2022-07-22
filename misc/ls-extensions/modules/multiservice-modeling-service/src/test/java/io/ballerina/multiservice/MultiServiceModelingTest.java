@@ -1,6 +1,5 @@
 package io.ballerina.multiservice;
 
-import io.ballerina.multiservice.model.ComponentModel;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -14,6 +13,9 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Test solution architecture modeling tool.
+ */
 public class MultiServiceModelingTest {
     private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
     private static final String BALLERINA = "ballerina";

@@ -15,7 +15,9 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-
+/**
+ * The extended service for generation solution architecture model.
+ */
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("multiServiceModelingService")
 public class MultiServiceModelingService implements ExtendedLanguageServerService {

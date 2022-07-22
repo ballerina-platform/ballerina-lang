@@ -1,5 +1,8 @@
 package io.ballerina.multiservice.model;
 
+/**
+ * Represents resource funstion parameter information.
+ */
 public class Parameter {
     private final String type;
     private final String name;
@@ -9,5 +12,17 @@ public class Parameter {
         this.type = type;
         this.name = name;
         this.in = in;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getIn() {
+        return in;
     }
 }
