@@ -138,8 +138,11 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
                 54, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
-                        "found 'table<Customer> key(id, name)'",
+                        "found '(table<Customer> key(id, name)|error)'",
                 71, 32);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'CustomerTable', found '(table<Customer> key(id, name)|error)'",
+                86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error?', found 'boolean'",
                 107, 21);
         validateError(negativeResult, index++,
