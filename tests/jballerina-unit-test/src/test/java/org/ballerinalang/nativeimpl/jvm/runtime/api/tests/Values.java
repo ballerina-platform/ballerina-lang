@@ -81,6 +81,40 @@ public class Values {
         return ValueCreator.createRecordValue(recordModule, recordName.getValue(), address);
     }
 
+    public static BMap<BString, Object> getRecordWithInitialValues() {
+        BMap<BString, Object> address = ValueCreator.createMapValue();
+        address.put(StringUtils.fromString("city"), StringUtils.fromString("Nugegoda"));
+        address.put(StringUtils.fromString("country"), StringUtils.fromString("Sri Lanka"));
+        address.put(StringUtils.fromString("postalCode"), 10250);
+        return ValueCreator.createRecordValue(recordModule, "Address", address);
+    }
+
+    public static BMap<BString, Object> getRecordWithInvalidInitialValues() {
+        BMap<BString, Object> address = ValueCreator.createMapValue();
+        address.put(StringUtils.fromString("city"), StringUtils.fromString("Nugegoda"));
+        address.put(StringUtils.fromString("district"), StringUtils.fromString("Colombo"));
+        address.put(StringUtils.fromString("country"), StringUtils.fromString("Sri Lanka"));
+        address.put(StringUtils.fromString("postalCode"), StringUtils.fromString("10250"));
+        return ValueCreator.createRecordValue(recordModule, "Address", address);
+    }
+
+    public static BMap<BString, Object> getReadOnlyRecordWithInitialValues() {
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("NameOfStudent1"))};
+        BMap<BString, Object> student = ValueCreator.createMapValue(
+                TypeCreator.createMapType(PredefinedTypes.TYPE_STRING), mapInitialValueEntries);
+        return ValueCreator.createReadonlyRecordValue(recordModule, "Student", student);
+    }
+
+    public static BMap<BString, Object> getReadOnlyRecordWithInvalidInitialValues() {
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("NameOfStudent2"))};
+        BMap<BString, Object> student = ValueCreator.createMapValue(
+                TypeCreator.createMapType(PredefinedTypes.TYPE_STRING), mapInitialValueEntries);
+        student.put(StringUtils.fromString("postalCode"), StringUtils.fromString("10250"));
+        return ValueCreator.createReadonlyRecordValue(recordModule, "Student", student);
+    }
+
     public static BObject getObject(BString objectName) {
         BMap<BString, Object> address = getRecord(StringUtils.fromString("Address"));
         return ValueCreator.createObjectValue(objectModule, objectName.getValue(), StringUtils.fromString("Waruna"),
@@ -239,7 +273,7 @@ public class Values {
         Map<String, Object> map = Map.ofEntries(
                 Map.entry("arrList", arrayList)
                                                );
-        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), null);
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), (Map<String, Object>) null);
     }
 
     public static BMap<BString, Object> getReadonlyRecordNegative(BString recordName) {
