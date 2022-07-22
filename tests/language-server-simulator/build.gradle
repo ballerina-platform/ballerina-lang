@@ -94,12 +94,13 @@ task runLSSimulator(type: JavaExec) {
     dependsOn loadDistributionCache
     dependsOn unpackBalTestProject
 
-    def extractedBalSrcDir =  "${buildDir}/${balSourceDir}/nballerina-subset13/compiler"
+    def extractedBalSrcDir = "${buildDir}/${balSourceDir}/nballerina-subset13/compiler"
     systemProperty "ls.simulation.src", "${extractedBalSrcDir}"
 
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "ballerina.version", project.version
     systemProperty "ls.simulation.duration", "60"
+    systemProperty "ls.simulation.skipGenerators", System.getProperty("ls.simulation.skipGenerators")
     systemProperty "LANG_REPO_BUILD", "false"
 
     jvmArgs = ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=$rootDir/dump.hprof"]
