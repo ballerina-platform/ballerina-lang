@@ -17,7 +17,10 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import static io.ballerina.compiler.internal.parser.KeywordMap.keywordsMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public enum Keyword {
     PUBLIC(LexerTerminals.PUBLIC),
@@ -126,6 +129,9 @@ public enum Keyword {
     DEFAULT("");
 
     private String keyword;
+
+    private static final Map<String, Keyword> keywordsMap = Stream.of(Keyword.values()).collect(Collectors
+            .toMap(Keyword::toString, Function.identity()));
 
     Keyword(String keyword) {
         this.keyword = keyword;
