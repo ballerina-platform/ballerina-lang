@@ -120,7 +120,7 @@ function test4(AorB[] data1, AorC[] data2, BorC[] data3) returns error? {
     check from AorB item in data1
         where !(item is A)
         do {
-            bFn(item); //error incompatible types: expected 'B', found 'AorB'
+            intFn(item); //error incompatible types: expected 'int', found 'B'
         };
 
     _ = from AorC item in data2
@@ -218,7 +218,7 @@ function test5(DorE[] x, DorF[] y, EorF[] z) returns error? {
     check from var item in x
         where item !is D
         do {
-            eFn(item); // error incompatible types: expected 'E', found 'DorE'
+            intFn(item); // error incompatible types: expected 'int', found 'E'
         };
 
     _ = from var item in y
@@ -372,7 +372,7 @@ function test9((V|W|Y|Z)[] data) returns error? {
     check from var item in data
         where item !is V|W
         do {
-            yzFn(item); // error incompatible types: expected '(Y|Z)', found '(W|Y|Z)'
+            intFn(item); // error incompatible types: expected 'int', found '(Y|Z)'
         };
 
     _ = from var item in data
@@ -414,7 +414,7 @@ function test10((Q|R)[] data1, (Q|R|T)[] data2) returns error? {
     check from var item in data1
         where item !is Q
         do {
-            rFn(item); // error incompatible types: expected 'R', found '(Q|R)'
+            intFn(item); // error incompatible types: expected 'int', found 'R'
         };
 
     _ = from var item in data2

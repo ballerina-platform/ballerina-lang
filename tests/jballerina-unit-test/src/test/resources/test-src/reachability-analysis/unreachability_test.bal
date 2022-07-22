@@ -1228,21 +1228,12 @@ function testUnreachableStatementInQueryAction20() returns error? {
     return a;
 }
 
-function testUnreachableStatementInQueryAction21() {
-    var error(m) = <error>from var item in 1 ... 5
-        where false
-        do {
-            int _ = 1; // unreachable code
-        };
-}
-
-function testUnreachableStatementInQueryAction22() {
-    string m;
-    error(m) = <error>from var item in 1 ... 5
-        where false
-        do {
-            int _ = 1; // unreachable code
-        };
+function testUnreachableStatementInQueryAction21() returns error? {
+    check from var item in 1 ... 5
+    where false
+    do {
+        int _ = 1; // unreachable code
+    };
 }
 
 function testUnreachableTupleVarDef() {
@@ -1431,16 +1422,15 @@ function testLoggingExpectedUnreachableErrors16() {
     int _ = 10; // unreachable code
 }
 
-function testUnreachableStatementInQueryAction25() {
-    string m;
-    error(m) = <error>from var item in 1 ... 5
-        where true
-        do {
-            while true {
-                int _ = 3;
-            }
-            int _ = 2; // unreachable code
-        };
+function testUnreachableStatementInQueryAction25() returns error? {
+    check from var item in 1 ... 5
+    where true
+    do {
+        while true {
+            int _ = 3;
+        }
+        int _ = 2; // unreachable code
+    };
 }
 
 function testUnreachableStatementInQueryAction26() returns error? {
