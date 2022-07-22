@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 4
+    },
+    "end": {
+      "line": 3,
+      "character": 19
+    }
+  },
+  "source": "extract_to_function_statements_list_without_return.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits":[
+        {
+          "range":{
+            "start":{
+              "line":4,
+              "character":1
+            },
+            "end":{
+              "line":4,
+              "character":1
+            }
+          },
+          "newText":"\n\nfunction extracted() {\n    doSomething(2);\n    doSomething(3);\n}"
+        },
+        {
+          "range":{
+            "start":{
+              "line":2,
+              "character":4
+            },
+            "end":{
+              "line":3,
+              "character":19
+            }
+          },
+          "newText":"extracted();"
+        }
+      ]
+    }
+  ]
+}

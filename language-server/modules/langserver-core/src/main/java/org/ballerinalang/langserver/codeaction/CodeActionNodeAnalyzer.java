@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
@@ -90,6 +91,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(startPositionOffset, endPositionOffset);
         NonTerminalNode node = CommonUtil.findNode(range, syntaxTree);
         if (node.kind() == SyntaxKind.LIST) {
+            analyzer.checkAndSetCodeActionNode(node);
+            analyzer.checkAndSetSyntaxKind(node.kind());
             node.parent().accept(analyzer);
         } else {
             node.accept(analyzer);
@@ -466,6 +469,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
             if (!(node instanceof BlockStatementNode)) {
                 checkAndSetStatementNode((StatementNode) node);
             }
+        } else if (node instanceof ExpressionNode) {
+            checkAndSetCodeActionNode((ExpressionNode) node);
+            checkAndSetSyntaxKind(node.kind());
         }
 
         if (node.parent() != null) {
