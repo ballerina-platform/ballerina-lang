@@ -344,15 +344,17 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FunctionSignatureNode transform(FunctionSignatureNode functionSignatureNode) {
-        Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, 0);
+        int parenTrailingNL = 0;
+        if (hasNonWSMinutiae(functionSignatureNode.openParenToken().trailingMinutiae())) {
+            parenTrailingNL++;
+        }
+        Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
-        // Start a new indentation for the parameters. So any wrapped parameter will
-        // start from the same level as the open parenthesis.
-        int currentIndentation = env.currentIndentation;
-        setIndentation(env.lineLength);
+        // Start a new indentation of two tabs for the parameters.
+        indent(2);
         SeparatedNodeList<ParameterNode> parameters =
-                formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0);
-        setIndentation(currentIndentation);
+                formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0, 0, 0, true);
+        unindent(2);
 
         Token closePara;
         ReturnTypeDescriptorNode returnTypeDesc = null;
@@ -3814,19 +3816,20 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
      * @param itemTrailingNL Number of newlines to be added after each item in the list
      * @param separatorTrailingWS Number of single-length spaces to be added after each separator in the list
-     * @param separatorTrailingNL Number of newlines to be added after each each separator in the list
+     * @param separatorTrailingNL Number of newlines to be added after each separator in the list
      * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
      * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @param allowInAndMultiLine Allow both inline and multiline formatting at the same time
      * @return Formatted node list
      */
-    @SuppressWarnings("unchecked")
     protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
-                                                                            int itemTrailingWS,
-                                                                            int itemTrailingNL,
-                                                                            int separatorTrailingWS,
-                                                                            int separatorTrailingNL,
-                                                                            int listTrailingWS,
-                                                                            int listTrailingNL) {
+                                                                                int itemTrailingWS,
+                                                                                int itemTrailingNL,
+                                                                                int separatorTrailingWS,
+                                                                                int separatorTrailingNL,
+                                                                                int listTrailingWS,
+                                                                                int listTrailingNL,
+                                                                                boolean allowInAndMultiLine) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -3849,7 +3852,16 @@ public class FormattingTreeModifier extends TreeModifier {
             }
 
             Token oldSeparator = nodeList.getSeparator(index);
-            Token newSeparator = formatToken(oldSeparator, separatorTrailingWS, separatorTrailingNL);
+            if (allowInAndMultiLine) {
+                separatorTrailingWS = 0;
+                separatorTrailingNL = 0;
+                if (hasNonWSMinutiae(oldSeparator.trailingMinutiae())) {
+                    separatorTrailingNL++;
+                } else {
+                    separatorTrailingWS++;
+                }
+            }
+            Token newSeparator = formatToken(oldSeparator, separatorTrailingWS, separatorTrailingNL);;
             newNodes[(2 * index) + 1] = newSeparator;
 
             if (oldSeparator != newSeparator) {
@@ -3863,6 +3875,37 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         return NodeFactory.createSeparatedNodeList(newNodes);
+    }
+
+    /**
+     * Format a delimited list of nodes.
+     *
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
+     * @param itemTrailingNL Number of newlines to be added after each item in the list
+     * @param separatorTrailingWS Number of single-length spaces to be added after each separator in the list
+     * @param separatorTrailingNL Number of newlines to be added after each each separator in the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
+     * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @return Formatted node list
+     */
+    @SuppressWarnings("unchecked")
+    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int separatorTrailingWS,
+                                                                            int separatorTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL) {
+        return formatSeparatedNodeList(nodeList,
+                itemTrailingWS,
+                itemTrailingNL,
+                separatorTrailingWS,
+                separatorTrailingNL,
+                listTrailingWS,
+                listTrailingNL,
+                false);
     }
 
     /**
@@ -4181,22 +4224,40 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
-     * Indent the code by the 4-whitespace characters.
+     * Indent the code by the number of white-spaces defined by tab-size.
      */
     private void indent() {
-        env.currentIndentation += options.getTabSize();
+        indent(1);
     }
 
     /**
-     * Undo the indentation of the code by the 4-whitespace characters.
+     * Indent the code by the number of white-spaces defined by tab-size.
+     *
+     * @param step Number of tabs.
+     */
+    private void indent(int step) {
+        env.currentIndentation += (options.getTabSize() * step);
+    }
+
+    /**
+     * Undo the indentation of the code by the number of white-spaces defined by tab-size.
      */
     private void unindent() {
-        if (env.currentIndentation < options.getTabSize()) {
+        unindent(1);
+    }
+
+    /**
+     * Undo the indentation of the code by the number of white-spaces defined by tab-size.
+     *
+     * @param step Number of tabs.
+     */
+    private void unindent(int step) {
+        if (env.currentIndentation < (options.getTabSize() * step)) {
             env.currentIndentation = 0;
             return;
         }
 
-        env.currentIndentation -= options.getTabSize();
+        env.currentIndentation -= (options.getTabSize() * step);
     }
 
     /**
