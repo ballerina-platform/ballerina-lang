@@ -105,6 +105,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         NodeList<StatementNode> statementNodes = ((FunctionBodyBlockNode) ((FunctionDefinitionNode) enclosingNode.get()).functionBody()).statements();
         Position endPosOfLastStatementNode = PositionUtil.toPosition(statementNodes.get(statementNodes.size() - 1).lineRange().endLine());
+        Range rangeAfterHighlightedRange = new Range(context.range().getEnd(), endPosOfLastStatementNode); // todo check whether startPos correct here
 
         List<Symbol> bindingSymbolsBeforeEndOfRange = getVisibleSymbols(context, context.range().getEnd()).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.CONSTANT
@@ -155,6 +156,15 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .filter(symbol -> PositionUtil.isWithinRange(PositionUtil.toPosition(symbol.getLocation().get().lineRange().endLine()), context.range()))
                 .collect(Collectors.toList());
 
+        List<Symbol> varSymbolsDeclaredInRangeAndReferredAfter = new ArrayList<>();
+        varSymbolDeclarationsInRange.forEach(symbol -> {
+            semanticModel.references(symbol).forEach(location -> {
+                if (PositionUtil.isRangeWithinRange(PositionUtil.toRange(location.lineRange()), rangeAfterHighlightedRange)) {
+                    varSymbolsDeclaredInRangeAndReferredAfter.add(symbol);
+                }
+            });
+        });
+
         List<Node> assignmentNodeVarRefsInRange = new ArrayList<>();
         List<Node> comAssignmentNodeLhsExprsInRange = new ArrayList<>();
         List<Node> localVarDeclarationsInRange = new ArrayList<>();
@@ -169,14 +179,17 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 } else if (node.kind() == SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT
                         && !comAssignmentNodeLhsExprsInRange.contains(((CompoundAssignmentStatementNode) node).lhsExpression())) {
                     comAssignmentNodeLhsExprsInRange.add(((CompoundAssignmentStatementNode) node).lhsExpression());
-                } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+                } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) { //todo add initizialzer.ispresent()
                     localVarDeclarationsInRange.add(((VariableDeclarationNode) node).typedBindingPattern().bindingPattern());
                 }
             }
         });
 
         List<Node> assignmentOrLocalVarNodesInRange = Stream.concat(assignmentNodeVarRefsInRange.stream(), localVarDeclarationsInRange.stream()).collect(Collectors.toList());
-        List<Symbol> localVarsDeclaredOrAssignedInRange = assignmentOrLocalVarNodesInRange.stream().map(node -> semanticModel.symbol(node).get()).filter(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range())).collect(Collectors.toList());
+        // these are declared in range, and these are queried from nodes not symbols. and then converted to symbols
+        Set<Symbol> localVarsDeclaredOrAssignedInRange = assignmentOrLocalVarNodesInRange.stream().map(node -> semanticModel.symbol(node).get()).filter(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range())).collect(Collectors.toSet());
+        // these are assigned in range but declared before range (checked for location not within range)
+        List<Symbol> assignmentsInRangeAndDeclaredBeforeRange = assignmentNodeVarRefsInRange.stream().map(node -> semanticModel.symbol(node).get()).filter(symbol -> !PositionUtil.isRangeWithinRange(PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range())).collect(Collectors.toList());
 
         Set<String> uniqueAssNodeVarRefsInRange = new HashSet<>();
         assignmentNodeVarRefsInRange.forEach(node -> uniqueAssNodeVarRefsInRange.add(node.toString().strip()));
@@ -184,10 +197,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         Set<String> uniqueAssOrLocalVarNodesInRange = new HashSet<>();
         assignmentOrLocalVarNodesInRange.forEach(node -> uniqueAssOrLocalVarNodesInRange.add(node.toString().strip()));
 
-        Range rangeAfterHighlightedRange = new Range(context.range().getEnd(), endPosOfLastStatementNode); // todo check whether startPos correct here
-
         List<Node> varNodesReferredAfterRangeAndUpdatedInRange = new ArrayList<>(); // SimpleNameReferenceNode with name without striping
         List<Symbol> varSymbolsReferredAfterRangeAndUpdatedInRange = new ArrayList<>();
+
+        List<VariableSymbol> localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange = localVarsDeclaredOrAssignedInRange.stream()
+                .filter(symbol -> !semanticModel.references(symbol).stream()
+                        .filter(location -> PositionUtil.isRangeWithinRange(PositionUtil.toRange(location.lineRange()), rangeAfterHighlightedRange)).collect(Collectors.toList()).isEmpty())
+                .map(symbol -> (VariableSymbol) symbol)
+                .collect(Collectors.toList());
 
         //todo add compound statement nodes as well
         assignmentNodeVarRefsInRange.forEach(
@@ -206,16 +223,38 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         Set<String> uniqueVarNodesReferredAfterRangeAndUpdatedInRange = new HashSet<>();
         varNodesReferredAfterRangeAndUpdatedInRange.forEach(node -> uniqueVarNodesReferredAfterRangeAndUpdatedInRange.add(node.toString().strip()));
 
-        boolean isRangeExtractable = localVarsDeclaredOrAssignedInRange.size() >= uniqueAssOrLocalVarNodesInRange.size() //todo do we need ">" isnt "=" enough?
-                && uniqueVarNodesReferredAfterRangeAndUpdatedInRange.size() <= 1;
+        boolean isRangeExtractable =
+                // this is to check local vars declared before the range updated in range
+                // todo if we need to allow these, we need to find the declaration and put it inside the extract()
+                // todo Q do we need to change the below check? no! example
+//                function testFunction(int aa) {
+//                    int age = 1;
+//                    int population = 1000;
+//
+//                    int v = 9;
+//                    v = v + 1;
+//                    age = population + aa;
+//                    age = age + 1 + v;
+//
+//                    doNothing(age);
+//                }
+                assignmentsInRangeAndDeclaredBeforeRange.size() == 0
+                // this check is to check references of updates after range. //todo improve to return more than one variable. Q how to return when returning different types? Record?
+//                && uniqueVarNodesReferredAfterRangeAndUpdatedInRange.size() <= 1
+//                        // declared (above is updated)
+//                && varSymbolsDeclaredInRangeAndReferredAfter.size() <= 1;
+
+
+                        // here we consider both local var or assigned together inside range and referred after range
+        && localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() <= 1;
 
         if (!isRangeExtractable) {
             return Collections.emptyList();
         }
 
         String returnTypeDescriptor = "";
-        if (uniqueVarNodesReferredAfterRangeAndUpdatedInRange.size() == 1) {
-            TypeDescKind returnTypeDescKind = ((VariableSymbol) varSymbolsReferredAfterRangeAndUpdatedInRange.get(0)).typeDescriptor().typeKind();
+        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
+            TypeDescKind returnTypeDescKind = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor().typeKind();
             returnTypeDescriptor = String.format("returns %s", returnTypeDescKind.getName());
         }
 
@@ -235,11 +274,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         String functionName = getFunctionName(context);
         // todo get a better logic for following
-        String returnStatement;
-        if (uniqueVarNodesReferredAfterRangeAndUpdatedInRange.size() == 0) {
-            returnStatement = "";
-        } else {
-            returnStatement = String.format("return %s;", uniqueVarNodesReferredAfterRangeAndUpdatedInRange.stream().findFirst().get());
+        String returnStatement = "";
+        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
+            returnStatement = String.format("return %s;", localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).getName().get());
         }
         // todo change name
         List<String> selectedNodeStrings = selectedNodes.stream().map(Node::toString).collect(Collectors.toList());
@@ -269,10 +306,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         // todo improve newLine at end, here i have set it to true
         String extractFunction = generateFunction(functionName, argsForExtractFunction, returnTypeDescriptor, returnStatement, newLineAtEnd, false, funcBody);
         String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, true);
-        if (uniqueVarNodesReferredAfterRangeAndUpdatedInRange.size() == 1) {
+        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
             //todo try to use this once. this is already used in "return <>" and "returns <>"
-            TypeDescKind returnTypeDescKind = ((VariableSymbol) varSymbolsReferredAfterRangeAndUpdatedInRange.get(0)).typeDescriptor().typeKind();
-            String varName = uniqueVarNodesReferredAfterRangeAndUpdatedInRange.iterator().next();
+            TypeDescKind returnTypeDescKind = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor().typeKind();
+            String varName = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).getName().get();
             replaceFunctionCall = String.format("%s %s = %s", returnTypeDescKind.getName(), varName, replaceFunctionCall);
         }
 

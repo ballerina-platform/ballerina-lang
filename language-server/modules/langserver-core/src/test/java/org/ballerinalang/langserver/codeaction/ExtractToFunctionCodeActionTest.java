@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -50,13 +50,19 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_statements_list_with_param_with_return.json"},
                 {"extract_to_function_statements_list_with_const_with_return.json"},
                 {"extract_to_function_statements_list_with_moduleVar_with_return.json"},
+                {"extract_to_function_statements_list_assigned_twice.json"},
+                {"extract_to_function_statements_list_multipleLocalVarDefsInRange_with_single_return.json"},
+                {"extract_to_function_statements_list_varDeclOnlyInRange_return_single.json"}
 //                {"test.json"}
         };
     }
 
     @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeDataProvider() {
-        return new Object[][]{};
+        return new Object[][]{
+                {"negative_extract_to_function_statements_list_with_multiple_assignments.json"},
+                {"negative_extract_to_function_statements_list_with_multiple_varDecls_referredAfterRange.json"}
+        };
     }
 
     @Override
