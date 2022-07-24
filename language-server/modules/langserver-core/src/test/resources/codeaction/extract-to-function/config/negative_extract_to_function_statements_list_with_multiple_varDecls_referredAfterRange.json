@@ -1,0 +1,14 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 4
+    },
+    "end": {
+      "line": 2,
+      "character": 15
+    }
+  },
+  "source": "negative_extract_to_function_statements_list_with_multiple_varDecls_referredAfterRange.bal",
+  "expected": []
+}
