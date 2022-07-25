@@ -20,6 +20,9 @@ package io.ballerina.compiler.internal.parser;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/**
+ * Class responsible for loading foreign language keywords from properties file.
+ */
 public final class ParserConfigurations {
 
     private ResourceBundle properties = null;

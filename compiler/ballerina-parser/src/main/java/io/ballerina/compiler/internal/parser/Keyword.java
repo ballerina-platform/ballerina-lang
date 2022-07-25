@@ -22,6 +22,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Contains enum of keywords.
+ */
 public enum Keyword {
     PUBLIC(LexerTerminals.PUBLIC),
     PRIVATE(LexerTerminals.PRIVATE),

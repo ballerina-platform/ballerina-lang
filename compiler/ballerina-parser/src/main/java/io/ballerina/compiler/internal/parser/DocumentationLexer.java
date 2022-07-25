@@ -773,11 +773,10 @@ public class DocumentationLexer extends AbstractLexer {
                 return getDocSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
             case CONST:
                 return getDocSyntaxToken(SyntaxKind.CONST_DOC_REFERENCE_TOKEN);
-            case DEFAULT:
+            default:
                 assert false : "Invalid reference type";
                 return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
-        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 
     /*
