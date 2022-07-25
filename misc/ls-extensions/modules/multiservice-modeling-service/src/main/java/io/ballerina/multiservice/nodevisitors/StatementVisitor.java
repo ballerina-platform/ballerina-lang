@@ -1,13 +1,18 @@
 package io.ballerina.multiservice.nodevisitors;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -28,8 +33,7 @@ public class StatementVisitor extends NodeVisitor {
 
     @Override
     public void visit(VariableDeclarationNode variableDeclarationNode) {
-        if (Objects.equals(variableDeclarationNode.typedBindingPattern().bindingPattern().toString().trim(),
-                clientName)) {
+        if (variableDeclarationNode.typedBindingPattern().bindingPattern().toString().trim().equals(clientName)) {
             NodeList<AnnotationNode> annotations = variableDeclarationNode.annotations();
             this.serviceId = ModelGeneratorUtil.getId(annotations).trim();
         }
@@ -45,4 +49,44 @@ public class StatementVisitor extends NodeVisitor {
             }
         }
     }
+
+    @Override
+    public void visit(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+        if (moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString().trim().equals(clientName)) {
+            Optional<MetadataNode> metadataNode = moduleVariableDeclarationNode.metadata();
+            if (metadataNode.isPresent()) {
+                NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
+                serviceId = ModelGeneratorUtil.getId(annotationNodes).trim();
+            }
+        }
+    }
+
+
+
+    @Override
+    public void visit(TypeDefinitionNode typeDefinitionNode) {
+
+    }
+
+    @Override
+    public void visit(ImportDeclarationNode importDeclarationNode) {
+
+    }
+
+    @Override
+    public void visit(EnumDeclarationNode enumDeclarationNode) {
+
+    }
+
+    @Override
+    public void visit(FunctionDefinitionNode functionDefinitionNode) {
+
+    }
+
+    @Override
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+
+    }
+
+
 }

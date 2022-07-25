@@ -73,7 +73,7 @@ public class RemoteExpressionVisitor extends NodeVisitor {
             if (parameterKind == SyntaxKind.STRING_LITERAL) {
                 String resourcePath = remoteMethodCallActionNode.arguments().get(0).toString().replace("\"", "");
                 if (resourcePath.startsWith("/")) {
-                    resourcePath = resourcePath.substring(1).trim();
+                    resourcePath = resourcePath.substring(1);
                 }
                 return resourcePath.trim();
             }
