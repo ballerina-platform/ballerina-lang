@@ -392,7 +392,7 @@ public class JvmSignatures {
     public static final String RETURN_XML_VALUE = ")L" + XML_VALUE + ";";
     public static final String SCHEDULE_LOCAL = "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" +
             STRAND_CLASS + ";" + "L" + TYPE + ";L" + STRING_VALUE + ";L" + STRAND_METADATA + ";)L" + FUTURE_VALUE + ";";
-    public static final String SCHEDULE_TRANSACTIONAL_FUNCTION =
+    public static final String SCHEDULE_FUNCTION =
             "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" + STRAND_CLASS + ";L" + TYPE + ";L" +
                     STRING_VALUE + ";" + "L" + STRAND_METADATA + ";)L" + FUTURE_VALUE + ";";
     public static final String SEND_DATA = "(L" + OBJECT + ";L" + STRAND_CLASS + ";)V";

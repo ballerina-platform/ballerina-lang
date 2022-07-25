@@ -124,8 +124,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_E
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_TRANSACTIONAL_LOCAL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
@@ -170,7 +168,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_LOCAL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_TRANSACTIONAL_FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SEND_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SYNC_SEND_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TRY_TAKE_DATA;
@@ -993,8 +991,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn(workerName);
         }
 
-        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, concurrent,
-                callIns.transactional);
+        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, concurrent);
     }
 
     private void generateWaitIns(BIRTerminator.Wait waitInst, int localVarOffset) {
@@ -1133,7 +1130,7 @@ public class JvmTerminatorGen {
             }
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName", ANNOTATION_GET_STRAND,
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, true, fpCall.transactional);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, true);
             Label afterSubmit = new Label();
             this.mv.visitJumpInsn(GOTO, afterSubmit);
             this.mv.visitLabel(notConcurrent);
@@ -1148,7 +1145,7 @@ public class JvmTerminatorGen {
             }
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName", ANNOTATION_GET_STRAND,
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, false, fpCall.transactional);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, false);
             this.mv.visitLabel(afterSubmit);
         } else {
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
@@ -1243,7 +1240,7 @@ public class JvmTerminatorGen {
     }
 
     private void submitToScheduler(BIROperand lhsOp, String moduleClassName, BType attachedType,
-                                   String parentFunction, boolean concurrent, boolean transactional) {
+                                   String parentFunction, boolean concurrent) {
 
         String metaDataVarName;
         ScheduleFunctionInfo strandMetaData;
@@ -1258,15 +1255,9 @@ public class JvmTerminatorGen {
         }
         asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, strandMetaData);
         this.mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, GET_STRAND_METADATA);
-        if (transactional && concurrent) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD,
-                    SCHEDULE_TRANSACTIONAL_FUNCTION, false);
-        } else if (transactional) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_TRANSACTIONAL_LOCAL_METHOD,
-                    SCHEDULE_TRANSACTIONAL_FUNCTION, false);
-        } else if (concurrent) {
+        if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                               SCHEDULE_TRANSACTIONAL_FUNCTION, false);
+                    SCHEDULE_FUNCTION, false);
         } else {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
                     SCHEDULE_LOCAL, false);
