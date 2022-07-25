@@ -42,6 +42,7 @@ public class BArrayType extends BType implements ArrayType {
     public BArrayState state = BArrayState.OPEN;
 
     private BIntersectionType intersectionType = null;
+    private boolean resolvingToString = false;
 
     public BArrayType(BType elementType) {
         super(TypeTags.ARRAY, null);
@@ -94,6 +95,13 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public String toString() {
+        if (this.resolvingToString) {
+            if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
+                return this.tsymbol.toString();
+            }
+            return "...";
+        }
+        this.resolvingToString = true;
         StringBuilder sb = new StringBuilder(eType.toString());
         String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);
         if (eType.tag == TypeTags.ARRAY) {

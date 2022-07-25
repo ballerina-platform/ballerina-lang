@@ -142,7 +142,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATO
  * @since 0.94
  */
 public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.AnalyzerData, BType> {
-    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
+    public static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final CompilerContext.Key<SymbolResolver> SYMBOL_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
@@ -562,7 +562,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return resultType;
     }
 
-    private void validateDistinctType(BLangType typeNode, BType type) {
+    public void validateDistinctType(BLangType typeNode, BType type) {
         if (typeNode.flagSet.contains(Flag.DISTINCT) && !isDistinctAllowedOnType(type)) {
             dlog.error(typeNode.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
         }
@@ -1539,7 +1539,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return constrainedType;
     }
 
-    private void validateXMLConstraintType(BType type, Location pos) {
+    public void validateXMLConstraintType(BType type, Location pos) {
         BType constraintType = Types.getReferredType(type);
         int constrainedTag = constraintType.tag;
 
@@ -1670,7 +1670,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return symbol.type;
     }
 
-    private ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
+    public ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
                                                             AnalyzerData data, BSymbol varSym) {
         for (int i = 0; i < params.size(); i++) {
             BLangSimpleVariable param = params.get(i);
@@ -2403,7 +2403,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 data.env, symTable, anonymousModelHelper, names, flagSet);
     }
 
-    private BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
+    public BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
                                                           Location pos,
                                                           LinkedHashSet<BType> constituentBTypes,
                                                           boolean isAlreadyDefinedDetailType, SymbolEnv env) {
@@ -2447,7 +2447,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return intersectionType;
     }
 
-    private BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
+    public BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
                                            BType lhsType, BType rhsType, SymbolEnv env) {
         if (lhsType == symTable.readonlyType) {
             return rhsType;
@@ -2595,7 +2595,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
     }
 
-    private static class ParameterizedTypeInfo {
+    public static class ParameterizedTypeInfo {
         BType paramValueType;
         int index = -1;
 

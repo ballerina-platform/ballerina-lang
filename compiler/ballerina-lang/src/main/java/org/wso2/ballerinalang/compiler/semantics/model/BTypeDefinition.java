@@ -18,6 +18,20 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model;
 
-public class BTypeDefinition {
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+public class BTypeDefinition {
+    public BType type;
+
+    public BTypeDefinition(BType type) {
+        this.type = type;
+    }
+
+    public BType getType() {
+        return type;
+    }
+
+    public void setType(BType type) {
+        this.type = type;
+    }
 }
