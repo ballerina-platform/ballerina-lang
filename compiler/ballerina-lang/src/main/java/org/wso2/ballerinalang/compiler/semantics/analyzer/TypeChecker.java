@@ -5827,11 +5827,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         Types.CommonAnalyzerData typeCheckerData = data.commonAnalyzerData;
         typeCheckerData.checkWithinQueryExpr = isWithinQuery(data);
         visitCheckAndCheckPanicExpr(checkedExpr, data);
-        if (typeCheckerData.checkWithinQueryExpr
-                && typeCheckerData.checkedErrorList != null
-                && checkedExpr.equivalentErrorTypeList != null) {
-            typeCheckerData.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
-        }
     }
 
     @Override
@@ -5923,7 +5918,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (selectTypes.size() == 1) {
-            BType completionType = getCompletionType(collectionType, queryExpr.isStream, data);
+            BType completionType = getCompletionType(collectionType, queryExpr, data);
             selectType = selectTypes.get(0);
             if (queryExpr.isStream) {
                 return new BStreamType(TypeTags.STREAM, selectType, completionType, null);
@@ -5968,11 +5963,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType elementType = ((BArrayType) type).eType;
                 selectType = checkExpr(selectExp, env, elementType, data);
                 BType queryResultType = new BArrayType(selectType);
-                if (data.commonAnalyzerData.checkWithinQueryExpr) {
-                    memberTypes.add(queryResultType);
-                    memberTypes.addAll(data.commonAnalyzerData.checkedErrorList);
-                    queryResultType = BUnionType.create(null, memberTypes);
-                }
                 resolvedType = getResolvedType(queryResultType, type, isReadonly, env);
                 break;
             case TypeTags.TABLE:
@@ -6122,7 +6112,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private BType getCompletionType(BType collectionType, boolean isStream, AnalyzerData data) {
+    private BType getCompletionType(BType collectionType, BLangQueryExpr queryExpr, AnalyzerData data) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
             return null;
         }
@@ -6146,7 +6136,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
         Set<BType> completionTypes = new LinkedHashSet<>();
         if (returnType != null) {
-            if (isStream) {
+            if (queryExpr.isStream) {
                 types.getAllTypes(returnType, true).stream()
                         .filter(t -> (types.isAssignable(t, symTable.errorType)
                                 || types.isAssignable(t, symTable.nilType)))
@@ -6159,7 +6149,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (data.commonAnalyzerData.checkWithinQueryExpr) {
-            completionTypes.addAll(data.commonAnalyzerData.checkedErrorList);
+            if (queryExpr.isTable) {
+                completionTypes.addAll(data.commonAnalyzerData.checkedErrorList);
+            }
             if (completionTypes.isEmpty()) {
                 // if there's no completion type at this point,
                 // then () gets added as a valid completion type for streams.
@@ -6206,9 +6198,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         boolean prevCheckWithinQueryExpr = typeCheckerData.checkWithinQueryExpr;
         typeCheckerData.checkWithinQueryExpr = false;
 
-        HashSet<BType> prevCheckedErrorList = typeCheckerData.checkedErrorList;
-        typeCheckerData.checkedErrorList = new LinkedHashSet<>();
-
         Stack<BLangNode> prevQueryFinalClauses = typeCheckerData.queryFinalClauses;
         typeCheckerData.queryFinalClauses = new Stack<>();
 
@@ -6228,13 +6217,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Analyze foreach node's statements.
         semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
                 typeCheckerData.queryEnvs.peek()), data.prevEnvs, typeCheckerData);
-        BType actualType = symTable.nilType;
-        if (!typeCheckerData.checkedErrorList.isEmpty()) {
-            LinkedHashSet<BType> returnTypes = new LinkedHashSet<>();
-            returnTypes.add(symTable.nilType);
-            returnTypes.addAll(typeCheckerData.checkedErrorList);
-            actualType = BUnionType.create(null, returnTypes);
-        }
+        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
         data.resultType =
                 types.checkType(doClause.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         typeCheckerData.queryFinalClauses.pop();
@@ -6245,7 +6228,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         //re-assign common analyzer data
         typeCheckerData.checkWithinQueryExpr = prevCheckWithinQueryExpr;
-        typeCheckerData.checkedErrorList = prevCheckedErrorList;
         typeCheckerData.queryFinalClauses = prevQueryFinalClauses;
         typeCheckerData.letCount = prevLetCount;
     }
