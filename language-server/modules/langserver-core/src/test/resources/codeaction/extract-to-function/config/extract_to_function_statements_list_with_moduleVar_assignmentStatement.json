@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 4
+    },
+    "end": {
+      "line": 4,
+      "character": 19
+    }
+  },
+  "source": "extract_to_function_statements_list_with_moduleVar_assignmentStatement.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 1
+            },
+            "end": {
+              "line": 7,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns int {\n    moduleVar \u003d moduleVar + 1;\n    doSomething(1);\n    return moduleVar;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 19
+            }
+          },
+          "newText": "moduleVar \u003d extracted();"
+        }
+      ]
+    }
+  ]
+}
