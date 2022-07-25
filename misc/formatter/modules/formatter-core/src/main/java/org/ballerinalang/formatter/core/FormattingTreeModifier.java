@@ -286,9 +286,15 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
+        boolean prevPreservedNewLine = env.hasPreservedNewline;
         MetadataNode metadata = formatNode(functionDefinitionNode.metadata().orElse(null), 0, 1);
+        // If metadata is documentation string, set preserved new line to false, so to remove user defined new line
+        env.hasPreservedNewline = metadata == null ? prevPreservedNewLine
+                : metadata.documentationString().isEmpty() && prevPreservedNewLine;
         NodeList<Token> qualifierList = formatNodeList(functionDefinitionNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
+        env.hasPreservedNewline = prevPreservedNewLine;
+
         IdentifierToken functionName;
         if (functionDefinitionNode.relativeResourcePath().isEmpty()) {
             functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
@@ -4017,7 +4023,7 @@ public class FormattingTreeModifier extends TreeModifier {
         for (Minutiae minutiae : token.leadingMinutiae()) {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
-                    if (consecutiveNewlines <= 1) {
+                    if (consecutiveNewlines <= 1 && env.hasPreservedNewline) {
                         consecutiveNewlines++;
                         leadingMinutiae.add(getNewline());
                         break;
@@ -4070,7 +4076,6 @@ public class FormattingTreeModifier extends TreeModifier {
 
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
         preserveIndentation(false);
-        env.hasPreservedNewline = false;
         return newLeadingMinutiaeList;
     }
 
@@ -4154,7 +4159,7 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines == 0 && env.trailingNL > 0 && !token.isMissing() && !env.hasPreservedNewline) {
+        if (consecutiveNewlines == 0 && env.trailingNL > 0 && !token.isMissing() && env.hasPreservedNewline) {
             trailingMinutiae.add(getNewline());
         }
         env.prevTokensTrailingNL = consecutiveNewlines;
