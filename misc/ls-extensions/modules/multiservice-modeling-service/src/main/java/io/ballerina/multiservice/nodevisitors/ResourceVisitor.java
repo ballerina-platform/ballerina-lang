@@ -46,15 +46,16 @@ public class ResourceVisitor extends NodeVisitor {
             for (Node path : relativeResourcePaths) {
                 resourcePathBuilder.append(path.toString());
             }
-            String resourcePath = resourcePathBuilder.toString();
-            String method = functionDefinitionNode.functionName().text();
+            String resourcePath = resourcePathBuilder.toString().trim();
+            String method = functionDefinitionNode.functionName().text().trim();
             List<Parameter> parameterList = new ArrayList<>();
             List<String> returnTypes = getReturnTypes(functionDefinitionNode);
 
             RemoteExpressionVisitor remoteExpressionVisitor = new RemoteExpressionVisitor(semanticModel, document);
             functionDefinitionNode.accept(remoteExpressionVisitor);
 
-            Resource.ResourceId resourceId = new Resource.ResourceId(this.serviceId, resourcePath, method);
+            Resource.ResourceId resourceId = new Resource.ResourceId(this.serviceId, method, resourcePath);
+
             Resource resource = new Resource(resourceId, parameterList, returnTypes,
                     remoteExpressionVisitor.getInteractionList());
             resources.add(resource);

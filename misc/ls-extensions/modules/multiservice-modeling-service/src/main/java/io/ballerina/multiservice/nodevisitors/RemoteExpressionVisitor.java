@@ -1,9 +1,12 @@
 package io.ballerina.multiservice.nodevisitors;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.multiservice.model.Resource;
 import io.ballerina.projects.Document;
 
@@ -18,7 +21,7 @@ public class RemoteExpressionVisitor extends NodeVisitor {
     private final SemanticModel semanticModel;
 
     private final Document document;
-    private List<Resource.ResourceId> interactionList = new ArrayList<>();
+    private final List<Resource.ResourceId> interactionList = new ArrayList<>();
 
     public RemoteExpressionVisitor(SemanticModel semanticModel, Document document) {
         this.semanticModel = semanticModel;
@@ -39,11 +42,10 @@ public class RemoteExpressionVisitor extends NodeVisitor {
 
     @Override
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-        String clientName = String.valueOf(remoteMethodCallActionNode.expression());
-        String resourceMethod = String.valueOf(remoteMethodCallActionNode.methodName());
+        String clientName = String.valueOf(remoteMethodCallActionNode.expression()).trim();
+        String resourceMethod = String.valueOf(remoteMethodCallActionNode.methodName()).trim();
         // path can be given in a seperate var
-        String resourcePath = remoteMethodCallActionNode.arguments().get(0).toSourceCode();
-//        String x = getPath(remoteMethodCallActionNode);
+        String resourcePath = getPath(remoteMethodCallActionNode);
 
         StatementVisitor statementVisitor = new StatementVisitor(clientName);
         NonTerminalNode parent = remoteMethodCallActionNode.parent().parent();
@@ -63,9 +65,20 @@ public class RemoteExpressionVisitor extends NodeVisitor {
 
     }
 
-//    private String getPath(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-//        FunctionArgumentNode functionArgumentNode = remoteMethodCallActionNode.arguments().get(0);
-//        functionArgumentNode.
-//        return "";
-//    }
+    private String getPath(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+        FunctionArgumentNode functionArgumentNode = remoteMethodCallActionNode.arguments().get(0);
+
+        if (functionArgumentNode.kind() == SyntaxKind.POSITIONAL_ARG) {
+            SyntaxKind parameterKind = ((PositionalArgumentNode) functionArgumentNode).expression().kind();
+            if (parameterKind == SyntaxKind.STRING_LITERAL) {
+                String resourcePath = remoteMethodCallActionNode.arguments().get(0).toString().replace("\"", "");
+                if (resourcePath.startsWith("/")) {
+                    resourcePath = resourcePath.substring(1).trim();
+                }
+                return resourcePath.trim();
+            }
+        }
+
+        return "";
+    }
 }

@@ -38,23 +38,26 @@ public class ServiceNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
-        StringBuilder serviceName = new StringBuilder();
+        StringBuilder serviceNameBuilder = new StringBuilder();
         String serviceId = "";
         NodeList<Node> serviceNameNodes = serviceDeclarationNode.absoluteResourcePath();
         for (Node serviceNameNode : serviceNameNodes) {
-            serviceName.append(serviceNameNode.toString());
+            serviceNameBuilder.append(serviceNameNode.toString());
         }
+
+        String serviceName = serviceNameBuilder.toString().startsWith("/") ?
+                serviceNameBuilder.toString().substring(1) : serviceNameBuilder.toString();
 
         Optional<MetadataNode> metadataNode = serviceDeclarationNode.metadata();
         if (metadataNode.isPresent()) {
             NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-            serviceId = ModelGeneratorUtil.getId(annotationNodes).replace("\"", "");
+            serviceId = ModelGeneratorUtil.getId(annotationNodes).replace("\"", "").trim();
+
         }
 
         ResourceVisitor resourceVisitor = new ResourceVisitor(serviceId, semanticModel, document);
         serviceDeclarationNode.accept(resourceVisitor);
-        services.add(new Service(serviceName.toString(), serviceId, resourceVisitor.getResources()));
-
+        services.add(new Service(serviceName.trim(), serviceId, resourceVisitor.getResources()));
     }
 
     @Override
