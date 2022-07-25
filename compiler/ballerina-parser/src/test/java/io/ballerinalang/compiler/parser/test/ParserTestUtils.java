@@ -767,6 +767,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_TEMPLATE_EXPRESSION;
             case "STRING_TEMPLATE_EXPRESSION":
                 return SyntaxKind.STRING_TEMPLATE_EXPRESSION;
+            case "REGEX_TEMPLATE_EXPRESSION":
+                return SyntaxKind.REGEX_TEMPLATE_EXPRESSION;
             case "QUERY_EXPRESSION":
                 return SyntaxKind.QUERY_EXPRESSION;
             case "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
@@ -1157,6 +1159,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BYTE_KEYWORD;
             case "XML_KEYWORD":
                 return SyntaxKind.XML_KEYWORD;
+            case "RE_KEYWORD":
+                return SyntaxKind.RE_KEYWORD;
             case "JSON_KEYWORD":
                 return SyntaxKind.JSON_KEYWORD;
             case "HANDLE_KEYWORD":
