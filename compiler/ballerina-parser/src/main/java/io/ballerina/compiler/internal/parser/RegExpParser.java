@@ -35,7 +35,7 @@ public class RegExpParser extends AbstractParser {
     private final Queue<STNode> intepolationExprs;
 
     protected RegExpParser(AbstractTokenReader tokenReader, Queue<STNode> intepolationExprs) {
-        super(tokenReader, new XMLParserErrorHandler(tokenReader));
+        super(tokenReader, new BallerinaParserErrorHandler(tokenReader));
         this.intepolationExprs = intepolationExprs;
     }
 

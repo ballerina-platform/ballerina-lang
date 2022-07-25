@@ -192,6 +192,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_STREAM_KEYWORD("BCE0292", "error.missing.stream.keyword"),
     ERROR_MISSING_READONLY_KEYWORD("BCE0293", "error.missing.readonly.keyword"),
     ERROR_MISSING_DISTINCT_KEYWORD("BCE0294", "error.missing.distinct.keyword"),
+    ERROR_MISSING_RE_KEYWORD("BCE0295", "error.missing.re.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),
@@ -346,8 +347,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH("BCE0678", "error.resource.path.cannot.begin.with.slash"),
     REST_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE0679",
             "error.rest.parameter.cannot.be.included.record.parameter"),
-    RESOURCE_ACCESS_SEGMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT("BCE0680", 
-            "error.resource.access.segment.is.not.allowed.after.rest.segment");
+    RESOURCE_ACCESS_SEGMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT("BCE0680",
+            "error.resource.access.segment.is.not.allowed.after.rest.segment"),
+    ERROR_INVALID_TOKEN_IN_REG_EXP("BCE0680", "error.invalid.token.in.reg.exp"),
+    ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP("BCE0681", "error.invalid.unicode.property.escape.in.reg.exp"),
+    ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0682", "error.invalid.quantifier.in.reg.exp"),
+    ERROR_INVALID_CHARACTER_SET_IN_REG_EXP("BCE0683", "error.invalid.character.set.in.reg.exp"),
+    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0684", "error.invalid.flag.in.reg.exp")
     ;
 
     String diagnosticId;
