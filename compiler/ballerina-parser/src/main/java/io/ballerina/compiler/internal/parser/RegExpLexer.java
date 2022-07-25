@@ -132,6 +132,7 @@ public class RegExpLexer extends AbstractLexer {
         int nextChar = peek();
         switch (nextChar) {
             case LexerTerminals.BITWISE_XOR:
+            case LexerTerminals.DOLLAR:
                 startMode(ParserMode.RE_ASSERTION);
                 this.reader.advance();
                 break;
@@ -169,10 +170,6 @@ public class RegExpLexer extends AbstractLexer {
                 }
                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP, nextChar);
                 return getRegExpText();
-            case LexerTerminals.DOLLAR:
-                startMode(ParserMode.RE_ASSERTION);
-                reader.advance();
-                break;
             default:
                 // Handle ReLiteralChar.
                 if (!isReSyntaxChar(nextChar)) {
@@ -227,9 +224,6 @@ public class RegExpLexer extends AbstractLexer {
                     this.reader.advance();
                     switchMode(ParserMode.RE_CHAR_SET_RANGE);
                     continue;
-                case LexerTerminals.OPEN_BRACKET:
-                    this.reader.advance();
-                    continue;
                 default:
                     if (isReCharSetLiteralChar(peek())) {
                         this.reader.advance();
@@ -274,6 +268,8 @@ public class RegExpLexer extends AbstractLexer {
                     this.reader.advance();
                 }
                 hasQuantifier = true;
+                break;
+            default:
                 break;
         }
 
@@ -527,6 +523,8 @@ public class RegExpLexer extends AbstractLexer {
                     this.reader.advance();
                 }
                 break;
+            default:
+                break;
         }
     }
 
@@ -579,12 +577,6 @@ public class RegExpLexer extends AbstractLexer {
         STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = processTrailingRegExpTrivia();
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
-    }
-
-    private STToken addRegExpText(String lexeme) {
-        STNode leadingTrivia = getLeadingTrivia();
-        STNode trailingTrivia = processTrailingRegExpTrivia();
-        return STNodeFactory.createLiteralValueToken(SyntaxKind.TEMPLATE_STRING, lexeme, leadingTrivia, trailingTrivia);
     }
 
     /**
