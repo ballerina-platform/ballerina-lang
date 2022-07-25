@@ -95,6 +95,11 @@ public class QueryActionTest {
         Assert.assertEquals(countValue, 6);
     }
 
+    @Test
+    public void testSimpleQueryAction3() {
+        BRunUtil.invoke(result, "testSimpleQueryAction3");
+    }
+
     @Test(description = "Test simple query action with let clause")
     public void testSimpleSelectQueryWithLetClause() {
         BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
