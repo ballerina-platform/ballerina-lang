@@ -177,6 +177,10 @@ function func3() returns function(string a, string b) returns string {
                                     };
 }
 
+function test20(string... details) returns string {
+    return details[0];
+}
+
 function testCallFunctionWithFunctionPointers() {
     assertEquality(test16(), 3);
     assertEquality(test17(), "sum is 3");
@@ -250,6 +254,12 @@ function testCallFunctionWithInvalidArguments() {
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
     assertEquality("arguments of incompatible types: argument(s) of type(s) 'NewStudent', cannot be passed to function expecting parameter(s) of type(s) 'map<(any|error)>'", (<error> a1).detail()["message"]);
+    
+    a1 = trap function:call(test20, 10);
+    assertEquality(true, a1 is error);
+    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
+    assertEquality("arguments of incompatible types: argument(s) of type(s) 'string...', cannot be passed to function expecting parameter(s) of type(s) 'int'", (<error> a1).detail()["message"]);
+
 }
 
 function assertEquality(any|error expected, any|error actual) {
