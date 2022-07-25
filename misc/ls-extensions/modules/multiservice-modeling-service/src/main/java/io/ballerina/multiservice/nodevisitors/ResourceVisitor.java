@@ -55,6 +55,7 @@ public class ResourceVisitor extends NodeVisitor {
             functionDefinitionNode.accept(remoteExpressionVisitor);
 
             Resource.ResourceId resourceId = new Resource.ResourceId(this.serviceId, method, resourcePath);
+
             Resource resource = new Resource(resourceId, parameterList, returnTypes,
                     remoteExpressionVisitor.getInteractionList());
             resources.add(resource);
