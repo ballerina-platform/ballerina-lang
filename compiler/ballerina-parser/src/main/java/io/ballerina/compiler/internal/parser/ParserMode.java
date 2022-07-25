@@ -63,4 +63,6 @@ public enum ParserMode {
     RE_ATOM_CHAR_SET,
     RE_CHAR_SET_RANGE,
     RE_ATOM_RE_DISJUNCTION,
+    RE_QUANTIFIER,
+    RE_FLAGS
 }

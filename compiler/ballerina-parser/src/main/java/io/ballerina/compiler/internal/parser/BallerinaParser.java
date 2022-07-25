@@ -10935,8 +10935,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTemplateContentAsRegExp() {
         // Separate out the interpolated expressions to a queue. Then merge the string content using '${}'.
-        // These '&{}' are used to represent the interpolated locations. XML parser will replace '&{}' with
-        // the actual interpolated expression, while building the XML tree.
+        // These '${}' are used to represent the interpolated locations. Regular expression parser will replace '${}'
+        // with the actual interpolated expression, while building the regular expression tree.
         ArrayDeque<STNode> expressions = new ArrayDeque<>();
         StringBuilder regExpStringBuilder = new StringBuilder();
         STToken nextToken = peek();
