@@ -1,0 +1,14 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 4
+    },
+    "end": {
+      "line": 4,
+      "character": 11
+    }
+  },
+  "source": "negative_extract_to_function_statements_list_with_assignment_and_compAssignment.bal",
+  "expected": []
+}

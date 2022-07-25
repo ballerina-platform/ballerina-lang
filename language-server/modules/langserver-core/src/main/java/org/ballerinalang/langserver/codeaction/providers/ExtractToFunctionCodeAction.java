@@ -54,8 +54,8 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -112,21 +112,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                         || symbol.kind() == SymbolKind.PARAMETER || symbol.kind() == SymbolKind.VARIABLE)
                 .collect(Collectors.toList());
 
-        List<Symbol> varSymbolDeclarationsBeforeEndOfRange = bindingSymbolsBeforeEndOfRange.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE)
-                .collect(Collectors.toList());
-
-        List<Symbol> localVarSymbolsDeclarationsBeforeEndOfRange = new ArrayList<>();
-
-        varSymbolDeclarationsBeforeEndOfRange.forEach(
-                symbol -> {
-                    //todo should we check the range with module level or any other method to eliminate module level vars
-                    if (PositionUtil.isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.get().lineRange())) {
-                        localVarSymbolsDeclarationsBeforeEndOfRange.add(symbol);
-                    }
-                }
-        );
-
         List<Symbol> localVarSymbolsDeclarationsBeforeStartOfRange = getVisibleSymbols(context, context.range().getStart()).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE)
                 .filter(symbol -> PositionUtil.isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.get().lineRange()))
@@ -149,22 +134,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             }
         });
 
-        // here "InRange" refers to context.range()
-        // these are somewhat similar to localVarDeclarationsInRange
-        List<Symbol> varSymbolDeclarationsInRange = bindingSymbolsBeforeEndOfRange.stream() // constants and parameters are not initialized inside highlighted range hence name var
-                .filter(symbol -> symbol.getLocation().isPresent())
-                .filter(symbol -> PositionUtil.isWithinRange(PositionUtil.toPosition(symbol.getLocation().get().lineRange().endLine()), context.range()))
-                .collect(Collectors.toList());
-
-        List<Symbol> varSymbolsDeclaredInRangeAndReferredAfter = new ArrayList<>();
-        varSymbolDeclarationsInRange.forEach(symbol -> {
-            semanticModel.references(symbol).forEach(location -> {
-                if (PositionUtil.isRangeWithinRange(PositionUtil.toRange(location.lineRange()), rangeAfterHighlightedRange)) {
-                    varSymbolsDeclaredInRangeAndReferredAfter.add(symbol);
-                }
-            });
-        });
-
         List<Node> assignmentNodeVarRefsInRange = new ArrayList<>();
         List<Node> comAssignmentNodeLhsExprsInRange = new ArrayList<>();
         List<Node> localVarDeclarationsInRange = new ArrayList<>();
@@ -185,76 +154,39 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             }
         });
 
-        List<Node> assignmentOrLocalVarNodesInRange = Stream.concat(assignmentNodeVarRefsInRange.stream(), localVarDeclarationsInRange.stream()).collect(Collectors.toList());
-        // these are declared in range, and these are queried from nodes not symbols. and then converted to symbols
+        List<Node> assignmentOrLocalVarNodesInRange = Stream.of(assignmentNodeVarRefsInRange, comAssignmentNodeLhsExprsInRange, localVarDeclarationsInRange).flatMap(Collection::stream).collect(Collectors.toList());
+        // these are declared in range (and these are queried from nodes not symbols. and then converted to symbols)
         Set<Symbol> localVarsDeclaredOrAssignedInRange = assignmentOrLocalVarNodesInRange.stream().map(node -> semanticModel.symbol(node).get()).filter(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range())).collect(Collectors.toSet());
+        Set<Symbol> moduleVarsAssignedInRange = assignmentOrLocalVarNodesInRange.stream().map(node -> semanticModel.symbol(node).get()).filter(symbol -> !PositionUtil.isRangeWithinRange(PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range())).collect(Collectors.toSet());
         // these are assigned in range but declared before range (checked for location not within range)
-        List<Symbol> assignmentsInRangeAndDeclaredBeforeRange = assignmentNodeVarRefsInRange.stream().map(node -> semanticModel.symbol(node).get()).filter(symbol -> !PositionUtil.isRangeWithinRange(PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range())).collect(Collectors.toList());
+        List<Node> assignmentOrCompoundAssignmentNodeVarRefsInRange = Stream.concat(assignmentNodeVarRefsInRange.stream(), comAssignmentNodeLhsExprsInRange.stream()).collect(Collectors.toList());
+        List<Symbol> assignmentsInRangeAndDeclaredBeforeRange = assignmentOrCompoundAssignmentNodeVarRefsInRange.stream().map(node -> semanticModel.symbol(node).get()).filter(symbol -> !PositionUtil.isRangeWithinRange(PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range())).collect(Collectors.toList());
 
-        Set<String> uniqueAssNodeVarRefsInRange = new HashSet<>();
-        assignmentNodeVarRefsInRange.forEach(node -> uniqueAssNodeVarRefsInRange.add(node.toString().strip()));
-
-        Set<String> uniqueAssOrLocalVarNodesInRange = new HashSet<>();
-        assignmentOrLocalVarNodesInRange.forEach(node -> uniqueAssOrLocalVarNodesInRange.add(node.toString().strip()));
-
-        List<Node> varNodesReferredAfterRangeAndUpdatedInRange = new ArrayList<>(); // SimpleNameReferenceNode with name without striping
-        List<Symbol> varSymbolsReferredAfterRangeAndUpdatedInRange = new ArrayList<>();
-
+        // todo move these two in to a method
         List<VariableSymbol> localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange = localVarsDeclaredOrAssignedInRange.stream()
                 .filter(symbol -> !semanticModel.references(symbol).stream()
                         .filter(location -> PositionUtil.isRangeWithinRange(PositionUtil.toRange(location.lineRange()), rangeAfterHighlightedRange)).collect(Collectors.toList()).isEmpty())
                 .map(symbol -> (VariableSymbol) symbol)
                 .collect(Collectors.toList());
 
-        //todo add compound statement nodes as well
-        assignmentNodeVarRefsInRange.forEach(
-                node -> varSymbolDeclarationsBeforeEndOfRange.forEach(
-                        symbol -> semanticModel.references(symbol).forEach(
-                                location -> {
-                                    Range locationRange = PositionUtil.toRange(location.lineRange());
-                                    if (PositionUtil.isRangeWithinRange(locationRange, rangeAfterHighlightedRange)
-                                            && symbol.getName().isPresent()
-                                            && node.toString().strip().equals(symbol.getName().get())) {
-                                        varNodesReferredAfterRangeAndUpdatedInRange.add(node);
-                                        varSymbolsReferredAfterRangeAndUpdatedInRange.add(symbol);
-                                    }
-                                })));
+        List<VariableSymbol> moduleVarSymbolsAssignedInRangeAndReferredAfterRange = moduleVarsAssignedInRange.stream()
+                .filter(symbol -> !semanticModel.references(symbol).stream()
+                        .filter(location -> PositionUtil.isRangeWithinRange(PositionUtil.toRange(location.lineRange()), rangeAfterHighlightedRange)).collect(Collectors.toList()).isEmpty())
+                .map(symbol -> (VariableSymbol) symbol)
+                .collect(Collectors.toList());
 
-        Set<String> uniqueVarNodesReferredAfterRangeAndUpdatedInRange = new HashSet<>();
-        varNodesReferredAfterRangeAndUpdatedInRange.forEach(node -> uniqueVarNodesReferredAfterRangeAndUpdatedInRange.add(node.toString().strip()));
+        List<VariableSymbol> varSymbolsAssignedInRangeAndReferredAfterRange = Stream.concat(localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.stream(), moduleVarSymbolsAssignedInRangeAndReferredAfterRange.stream()).collect(Collectors.toList());
 
-        boolean isRangeExtractable =
-                // this is to check local vars declared before the range updated in range
-                // todo if we need to allow these, we need to find the declaration and put it inside the extract()
-                // todo Q do we need to change the below check? no! example
-//                function testFunction(int aa) {
-//                    int age = 1;
-//                    int population = 1000;
-//
-//                    int v = 9;
-//                    v = v + 1;
-//                    age = population + aa;
-//                    age = age + 1 + v;
-//
-//                    doNothing(age);
-//                }
-                assignmentsInRangeAndDeclaredBeforeRange.size() == 0
-                // this check is to check references of updates after range. //todo improve to return more than one variable. Q how to return when returning different types? Record?
-//                && uniqueVarNodesReferredAfterRangeAndUpdatedInRange.size() <= 1
-//                        // declared (above is updated)
-//                && varSymbolsDeclaredInRangeAndReferredAfter.size() <= 1;
-
-
-                        // here we consider both local var or assigned together inside range and referred after range
-        && localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() <= 1;
+        boolean isRangeExtractable = assignmentsInRangeAndDeclaredBeforeRange.size() == moduleVarSymbolsAssignedInRangeAndReferredAfterRange.size()
+                && varSymbolsAssignedInRangeAndReferredAfterRange.size() <= 1;
 
         if (!isRangeExtractable) {
             return Collections.emptyList();
         }
 
         String returnTypeDescriptor = "";
-        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
-            TypeDescKind returnTypeDescKind = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor().typeKind();
+        if (varSymbolsAssignedInRangeAndReferredAfterRange.size() == 1) {
+            TypeDescKind returnTypeDescKind = varSymbolsAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor().typeKind();
             returnTypeDescriptor = String.format("returns %s", returnTypeDescKind.getName());
         }
 
@@ -275,8 +207,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         String functionName = getFunctionName(context);
         // todo get a better logic for following
         String returnStatement = "";
-        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
-            returnStatement = String.format("return %s;", localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).getName().get());
+        if (varSymbolsAssignedInRangeAndReferredAfterRange.size() == 1) {
+            returnStatement = String.format("return %s;", varSymbolsAssignedInRangeAndReferredAfterRange.get(0).getName().get());
         }
         // todo change name
         List<String> selectedNodeStrings = selectedNodes.stream().map(Node::toString).collect(Collectors.toList());
@@ -311,6 +243,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             TypeDescKind returnTypeDescKind = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor().typeKind();
             String varName = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).getName().get();
             replaceFunctionCall = String.format("%s %s = %s", returnTypeDescKind.getName(), varName, replaceFunctionCall);
+        } else if (moduleVarSymbolsAssignedInRangeAndReferredAfterRange.size() == 1) {
+            String varName = moduleVarSymbolsAssignedInRangeAndReferredAfterRange.get(0).getName().get();
+            replaceFunctionCall = String.format("%s = %s", varName, replaceFunctionCall);
         }
 
         //todo change with newLineAtEnd
