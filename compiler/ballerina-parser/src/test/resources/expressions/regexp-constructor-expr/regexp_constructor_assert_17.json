@@ -1,0 +1,748 @@
+{
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "FUNCTION_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "^"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "a"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "b"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "c"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "d"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "*"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "e"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "$"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "$"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "[^"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "a-b\\tx-z]"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "+"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "(?i:"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "a"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "b"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "^"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "c"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "["
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "d-f]"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "){12,}"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "("
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "x"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "|"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "y"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": ")"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "|"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "z"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "|"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "["
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "cde-j]"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "*"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "|"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "(?ms:"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "[^"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "]"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": ")"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "[^"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "ab-cdk-l]"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "*"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "+"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "|"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "(?:"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "p"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "q"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "r"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "{1,}"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "*"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": ")"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "a"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "\\t"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "d"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "-"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "*"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "a"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "b"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "[^"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "c-f]"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "+"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "(?m:"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "x"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "j"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "(?i:"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "x"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "|"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": "y"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": ")"
+                        },
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "value": ")"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
