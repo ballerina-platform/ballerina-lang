@@ -204,7 +204,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         }
 
         if (matchedCodeActionsCount != testConfig.expected.size()) {
-            Assert.fail(String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
+            Assert.fail(
+                    String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
                     Arrays.toString(mismatchedCodeActions.toArray()),
                     cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
         }
