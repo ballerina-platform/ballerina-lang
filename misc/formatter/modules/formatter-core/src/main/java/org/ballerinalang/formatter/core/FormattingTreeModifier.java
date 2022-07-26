@@ -354,7 +354,7 @@ public class FormattingTreeModifier extends TreeModifier {
         indent(2);
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0, 0, 0, true);
-        unIndent(2);
+        unindent(2);
 
         Token closePara;
         ReturnTypeDescriptorNode returnTypeDesc = null;
@@ -427,7 +427,7 @@ public class FormattingTreeModifier extends TreeModifier {
         NamedWorkerDeclarator namedWorkerDeclarator =
                 formatNode(functionBodyBlockNode.namedWorkerDeclarator().orElse(null), 0, 1);
 
-        unIndent(); // reset the indentation
+        unindent(); // reset the indentation
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return functionBodyBlockNode.modify()
@@ -529,7 +529,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
         indent(); // start an indentation
         NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1);
-        unIndent(); // end the indentation
+        unindent(); // end the indentation
         Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return blockStatementNode.modify()
@@ -557,7 +557,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 0, fieldTrailingNL);
         RecordRestDescriptorNode recordRestDescriptor =
                 formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), fieldTrailingWS, fieldTrailingNL);
-        unIndent(); // Revert indentation for record fields
+        unindent(); // Revert indentation for record fields
         Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), env.trailingWS, env.trailingNL);
 
         return recordTypeDesc.modify()
@@ -662,7 +662,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBrace = formatToken(serviceDeclarationNode.openBraceToken(), 0, 1);
         indent(); // increase the indentation of the following statements.
         NodeList<Node> members = formatNodeList(serviceDeclarationNode.members(), 0, 1, 0, 1);
-        unIndent(); // reset the indentation.
+        unindent(); // reset the indentation.
         Token closeBrace = formatToken(serviceDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return serviceDeclarationNode.modify()
@@ -1192,7 +1192,7 @@ public class FormattingTreeModifier extends TreeModifier {
         indent();
         SeparatedNodeList<MappingFieldNode> fields = formatSeparatedNodeList(
                 mappingConstructorExpressionNode.fields(), 0, 0, fieldTrailingWS, fieldTrailingNL, 0, fieldTrailingNL);
-        unIndent();
+        unindent();
         Token closeBrace = formatToken(mappingConstructorExpressionNode.closeBrace(), env.trailingWS, env.trailingNL);
 
         return mappingConstructorExpressionNode.modify()
@@ -1244,7 +1244,7 @@ public class FormattingTreeModifier extends TreeModifier {
         indent();
         SeparatedNodeList<Node> expressions = formatSeparatedNodeList(listConstructorExpressionNode.expressions(),
                 0, 0, fieldTrailingWS, fieldTrailingNL, 0, fieldTrailingNL);
-        unIndent();
+        unindent();
         Token closeBracket = formatToken(listConstructorExpressionNode.closeBracket(),
                 env.trailingWS, env.trailingNL);
 
@@ -1494,7 +1494,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBrace = formatToken(matchStatementNode.openBrace(), 0, 1);
         indent();
         NodeList<MatchClauseNode> matchClauses = formatNodeList(matchStatementNode.matchClauses(), 0, 1, 0, 1);
-        unIndent();
+        unindent();
         Token closeBrace;
 
         if (hasOnFailClause) {
@@ -1599,7 +1599,7 @@ public class FormattingTreeModifier extends TreeModifier {
         indent();
         SeparatedNodeList<Node> enumMemberList = formatSeparatedNodeList(enumDeclarationNode.enumMemberList(),
                 0, 0, 0, 1, 0, 1);
-        unIndent();
+        unindent();
         Token closeBraceToken = formatToken(enumDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return enumDeclarationNode.modify()
@@ -2216,7 +2216,7 @@ public class FormattingTreeModifier extends TreeModifier {
         indent();
         NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
                 formatNodeList(forkStatementNode.namedWorkerDeclarations(), 0, 1, 0, 1);
-        unIndent();
+        unindent();
         Token closeBraceToken = formatToken(forkStatementNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return forkStatementNode.modify()
@@ -2345,7 +2345,7 @@ public class FormattingTreeModifier extends TreeModifier {
         indent();
         NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), fieldTrailingWS, fieldTrailingNL,
                 0, fieldTrailingNL);
-        unIndent();
+        unindent();
         Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), env.trailingWS, env.trailingNL);
 
         return objectTypeDescriptorNode.modify()
@@ -2379,7 +2379,7 @@ public class FormattingTreeModifier extends TreeModifier {
         indent();
         NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(),
                 fieldTrailingWS, fieldTrailingNL, 0, fieldTrailingNL);
-        unIndent();
+        unindent();
         Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
                 env.trailingWS, env.trailingNL);
 
@@ -2508,10 +2508,10 @@ public class FormattingTreeModifier extends TreeModifier {
         SeparatedNodeList<Node> mappingConstructors =
                 formatSeparatedNodeList(tableConstructorExpressionNode.rows(), 0, 0, rowTrailingWS, rowTrailingNL, 0,
                         rowTrailingNL);
-        unIndent();
+        unindent();
         Token closeBracket =
                 formatToken(tableConstructorExpressionNode.closeBracket(), env.trailingWS, env.trailingNL);
-        unIndent();
+        unindent();
 
         return tableConstructorExpressionNode.modify()
                 .withTableKeyword(tableKeyword)
@@ -2582,7 +2582,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 0, 0, 0, 1);
         Token inKeyword = formatToken(letExpressionNode.inKeyword(), 1, 0);
         ExpressionNode expression = formatNode(letExpressionNode.expression(), env.trailingWS, env.trailingNL);
-        unIndent();
+        unindent();
 
         return letExpressionNode.modify()
                 .withLetKeyword(letKeyword)
@@ -2762,7 +2762,7 @@ public class FormattingTreeModifier extends TreeModifier {
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
                 env.trailingWS, env.trailingNL);
         if (lineLength != 0) {
-            unIndent();
+            unindent();
         }
 
         return queryExpressionNode.modify()
@@ -2921,7 +2921,7 @@ public class FormattingTreeModifier extends TreeModifier {
         SeparatedNodeList<NameReferenceNode> receiveFields = formatSeparatedNodeList(receiveFieldsNode.receiveFields(),
                 0, 1, 0, 1);
         Token closeBrace = formatToken(receiveFieldsNode.closeBrace(), 0, 1);
-        unIndent();
+        unindent();
         return receiveFieldsNode.modify()
                 .withOpenBrace(openBrace)
                 .withReceiveFields(receiveFields)
@@ -3022,7 +3022,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 env.trailingWS, env.trailingNL);
         if (lineLength != 0) {
             // Revert the indentation for statements starting with query expression nodes.
-            unIndent();
+            unindent();
         }
 
         return queryActionNode.modify()
@@ -3339,7 +3339,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         indent();
         NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1);
-        unIndent();
+        unindent();
         Token closeBrace = formatToken(classDefinitionNode.closeBrace(), env.trailingWS, env.trailingNL);
 
         return classDefinitionNode.modify()
@@ -3823,13 +3823,13 @@ public class FormattingTreeModifier extends TreeModifier {
      * @return Formatted node list
      */
     protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
-                                                                                int itemTrailingWS,
-                                                                                int itemTrailingNL,
-                                                                                int separatorTrailingWS,
-                                                                                int separatorTrailingNL,
-                                                                                int listTrailingWS,
-                                                                                int listTrailingNL,
-                                                                                boolean allowInAndMultiLine) {
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int separatorTrailingWS,
+                                                                            int separatorTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL,
+                                                                            boolean allowInAndMultiLine) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -4241,8 +4241,8 @@ public class FormattingTreeModifier extends TreeModifier {
     /**
      * Undo the indentation of the code by the number of white-spaces defined by tab-size.
      */
-    private void unIndent() {
-        unIndent(1);
+    private void unindent() {
+        unindent(1);
     }
 
     /**
@@ -4250,7 +4250,7 @@ public class FormattingTreeModifier extends TreeModifier {
      *
      * @param step Number of tabs.
      */
-    private void unIndent(int step) {
+    private void unindent(int step) {
         if (env.currentIndentation < (options.getTabSize() * step)) {
             env.currentIndentation = 0;
             return;
