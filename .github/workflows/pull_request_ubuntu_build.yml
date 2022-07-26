@@ -129,3 +129,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         if: "${{ env.SONAR_TOKEN == '' }}"
         run: echo "Sonarcloud scan is skipped"
+        
