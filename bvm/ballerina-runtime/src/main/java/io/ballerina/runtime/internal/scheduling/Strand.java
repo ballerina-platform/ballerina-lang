@@ -90,7 +90,7 @@ public class Strand {
     private final ReentrantLock strandLock;
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
-                  Map<String, Object> properties) {
+                  Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
         this.id = nextStrandId.incrementAndGet();
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
@@ -107,28 +107,25 @@ public class Strand {
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
             this.globalProps = properties;
+        } else if (parent != null) {
+            this.globalProps = new HashMap<>(parent.globalProps);
+        } else {
+            this.globalProps = new HashMap<>();
+        }
+        if (currentTrxContext != null) {
+            this.trxContexts = parent.trxContexts;
+            this.trxContexts.push(currentTrxContext);
+            this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
+        } else {
             Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
             if (currentContext != null) {
                 TransactionLocalContext branchedContext =
                         createTrxContextBranch((TransactionLocalContext) currentContext, name);
                 setCurrentTransactionContext(branchedContext);
             }
-        } else if (parent != null) {
-            this.globalProps = new HashMap<>(parent.globalProps);
-        } else {
-            this.globalProps = new HashMap<>();
         }
     }
 
-    public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
-                  Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
-        this(name, metadata, scheduler, parent, properties);
-        if (currentTrxContext != null) {
-            this.trxContexts = parent.trxContexts;
-            this.trxContexts.push(currentTrxContext);
-            this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
-        }
-    }
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
                                                            String strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext

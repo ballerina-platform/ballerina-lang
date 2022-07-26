@@ -351,9 +351,7 @@ public class JvmConstants {
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
-    public static final String SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD = "scheduleTransactionalFunction";
     public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
-    public static final String SCHEDULE_TRANSACTIONAL_LOCAL_METHOD = "scheduleTransactionalLocal";
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
@@ -370,6 +368,9 @@ public class JvmConstants {
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String YIELD_LOCATION = "yieldLocation";
     public static final String YIELD_STATUS = "yieldStatus";
+
+    // transaction related constants
+    public static final String TRANSACTION_CONTEXT_CLASS = "io/ballerina/runtime/transactions/TransactionLocalContext";
 
     // observability related constants
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";
