@@ -32,7 +32,11 @@ import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
-import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
 import java.util.List;
