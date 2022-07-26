@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 7
+    },
+    "end": {
+      "line": 2,
+      "character": 18
+    }
+  },
+  "source": "extractToVariableInBracedExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "boolean variable \u003d (area \u003d\u003d 5);\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 7
+            },
+            "end": {
+              "line": 2,
+              "character": 18
+            }
+          },
+          "newText": "variable"
+        }
+      ]
+    }
+  ]
+}

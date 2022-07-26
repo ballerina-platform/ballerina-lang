@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 17
+    },
+    "end": {
+      "line": 1,
+      "character": 34
+    }
+  },
+  "source": "extractToVariableInCheckExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "string variable \u003d check getString();\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 17
+            },
+            "end": {
+              "line": 1,
+              "character": 34
+            }
+          },
+          "newText": "variable"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 17
+    },
+    "end": {
+      "line": 1,
+      "character": 30
+    }
+  },
+  "source": "extractToVariableInQNameRef.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "int variable \u003d int:MAX_VALUE;\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 17
+            },
+            "end": {
+              "line": 1,
+              "character": 30
+            }
+          },
+          "newText": "variable"
+        }
+      ]
+    }
+  ]
+}
