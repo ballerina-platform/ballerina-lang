@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -89,7 +90,6 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
         
-        
         String varName = getLocalVarName(context);
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
@@ -106,8 +106,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         if (statementNode == null) {
             return Collections.emptyList();
         }
-        String offset = " ".repeat(statementNode.lineRange().startLine().offset());
-        String varDeclStr = String.format("%s %s = %s;%n%s", typeSymbol.get().signature(), varName, value, offset);
+        String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
+        String varDeclStr = String.format("%s %s = %s;%n%s", typeSymbol.get().signature(), varName, value, paddingStr);
         Position varDeclPos = new Position(statementNode.lineRange().startLine().line(), 
                 statementNode.lineRange().startLine().offset());
         TextEdit varDeclEdit = new TextEdit(new Range(varDeclPos, varDeclPos), varDeclStr);
