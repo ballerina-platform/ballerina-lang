@@ -75,7 +75,7 @@ function testSimpleQueryAction3() returns error? {
     assertEquality(result1, "string 1");
     assertEquality(result2, "string 1");
 
-    () result3 = simpleQueryAction2();
+    error? result3 = simpleQueryAction2();
     var result4 = simpleQueryAction2();
     assertEquality(result3, ());
     assertEquality(result4, ());
@@ -90,7 +90,7 @@ function simpleQueryAction() returns string|error {
     return "string 2";
 }
 
-function simpleQueryAction2() {
+function simpleQueryAction2() returns error? {
     check from int _ in [1, 3, 5]
     do {
         returnNil();
