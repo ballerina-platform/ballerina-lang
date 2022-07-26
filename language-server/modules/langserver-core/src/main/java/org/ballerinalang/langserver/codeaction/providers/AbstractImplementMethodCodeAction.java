@@ -80,7 +80,7 @@ public abstract class AbstractImplementMethodCodeAction {
      * @param context         language server context
      * @return list of Text Edits
      */
-    public static List<TextEdit> getDiagBasedTextEdits(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+    public static List<TextEdit> getDiagBasedTextEdits(DiagBasedPositionDetails positionDetails,
                                                        CodeActionContext context) {
 
 
