@@ -1329,7 +1329,7 @@ public class JvmCastGen {
                 checkCast(mv, symbolTable.jsonType);
                 break;
             default:
-                // if value types, then ad box instruction
+                // for value types, then add box instruction
                 generateCastToAny(mv, sourceType);
         }
     }
