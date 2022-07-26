@@ -46,7 +46,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +53,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
+import static io.ballerina.compiler.api.symbols.Qualifier.ISOLATED;
 import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
 import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
@@ -98,11 +98,11 @@ public class ServiceSemanticAPITest {
         assertList(symbol.methods(), expMethods);
 
         MethodSymbol method = symbol.methods().get("foo");
-        assertEquals(method.qualifiers().size(), 1);
+        assertEquals(method.qualifiers().size(), 2);
         assertTrue(method.qualifiers().contains(Qualifier.REMOTE));
 
         method = symbol.methods().get("get barPath");
-        assertEquals(method.qualifiers().size(), 1);
+        assertEquals(method.qualifiers().size(), 2);
         assertTrue(method.qualifiers().contains(Qualifier.RESOURCE));
     }
 
@@ -148,8 +148,8 @@ public class ServiceSemanticAPITest {
     @DataProvider(name = "ServiceDeclMethodPos")
     public Object[][] getMethodPos() {
         return new Object[][]{
-                {70, 22, "get", List.of(RESOURCE)},
-                {72, 13, "createError", new ArrayList<Qualifier>()}
+                {70, 22, "get", List.of(RESOURCE, ISOLATED)},
+                {72, 13, "createError", List.of(ISOLATED)}
         };
     }
 
@@ -214,7 +214,7 @@ public class ServiceSemanticAPITest {
         ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(35, 22)).get();
         assertEquals(method.resourcePath().kind(), ResourcePath.Kind.DOT_RESOURCE_PATH);
         assertEquals(method.resourcePath().signature(), ".");
-        assertEquals(method.signature(), "resource function get . () returns string");
+        assertEquals(method.signature(), "isolated resource function get . () returns string");
     }
 
     @Test
@@ -222,7 +222,8 @@ public class ServiceSemanticAPITest {
         ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(47, 22)).get();
         assertEquals(method.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
         assertEquals(method.resourcePath().signature(), "foo/[string s]/[string... r]");
-        assertEquals(method.signature(), "resource function get foo/[string s]/[string... r] () returns string");
+        assertEquals(method.signature(),
+                "isolated resource function get foo/[string s]/[string... r] () returns string");
 
         PathSegmentList resourcePath = (PathSegmentList) method.resourcePath();
 
@@ -249,7 +250,7 @@ public class ServiceSemanticAPITest {
         ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(74, 22)).get();
         assertEquals(method.resourcePath().kind(), ResourcePath.Kind.PATH_REST_PARAM);
         assertEquals(method.resourcePath().signature(), "[int... rest]");
-        assertEquals(method.signature(), "resource function get [int... rest] () returns string");
+        assertEquals(method.signature(), "isolated resource function get [int... rest] () returns string");
 
         PathRestParam resourcePath = (PathRestParam) method.resourcePath();
         assertEquals(resourcePath.parameter().getName().get(), "rest");
