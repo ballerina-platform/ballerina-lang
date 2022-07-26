@@ -90,7 +90,7 @@ public class Strand {
     private final ReentrantLock strandLock;
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
-                  Map<String, Object> properties) {
+                  Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
         this.id = nextStrandId.incrementAndGet();
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
@@ -118,17 +118,13 @@ public class Strand {
         } else {
             this.globalProps = new HashMap<>();
         }
-    }
-
-    public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
-                  Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
-        this(name, metadata, scheduler, parent, properties);
         if (currentTrxContext != null) {
             this.trxContexts = parent.trxContexts;
             this.trxContexts.push(currentTrxContext);
             this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
         }
     }
+
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
                                                            String strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext
