@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 10,
+      "character": 15
+    },
+    "end": {
+      "line": 10,
+      "character": 27
+    }
+  },
+  "source": "extractToVariableInMethodCall.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 4
+            },
+            "end": {
+              "line": 10,
+              "character": 4
+            }
+          },
+          "newText": "string variable \u003d 2.toString();\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 15
+            },
+            "end": {
+              "line": 10,
+              "character": 27
+            }
+          },
+          "newText": "variable"
+        }
+      ]
+    }
+  ]
+}
