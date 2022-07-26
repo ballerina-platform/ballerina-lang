@@ -130,7 +130,8 @@ public class CreateVariableTest extends AbstractCodeActionTest {
     public Object[][] negativeDataProvider() {
         return new Object[][]{
                 {"createVariableNegative1.json"},
-                {"createVariableNegative2.json"}
+                {"createVariableNegative2.json"},
+                {"createVariableNegative3.json"}
         };
     }
 }
