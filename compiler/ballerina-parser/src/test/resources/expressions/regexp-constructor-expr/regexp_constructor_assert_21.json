@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -45,6 +46,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -57,9 +59,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -93,6 +97,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -108,179 +113,27 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "^"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                          ],
+                          "value": "\\p{"
                         },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "INTERPOLATION",
-                          "children": [
-                            {
-                              "kind": "INTERPOLATION_START_TOKEN"
-                            },
-                            {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "b"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "c"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "d"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "*"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "e"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "$"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
                         {
                           "kind": "TEMPLATE_STRING",
                           "value": "$"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a-b\\tx-z]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "+"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?i:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "c"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "d-f]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "){12,}"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                          ],
+                          "value": "}"
                         }
                       ]
                     },
@@ -302,6 +155,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -335,6 +189,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -350,74 +205,27 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "("
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                          ],
+                          "value": "\\P{"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "x"
+                          "value": "$"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "|"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "y"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "|"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "z"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "|"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "cde-j]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "*"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "|"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?ms:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                          ],
+                          "value": "}"
                         }
                       ]
                     },
@@ -439,6 +247,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -472,6 +281,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -487,98 +297,27 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "[^"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                          ],
+                          "value": "\\p{sc\u003d"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "ab-cdk-l]"
+                          "value": "$"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "*"
-                        },
-                        {
-                          "kind": "INTERPOLATION",
-                          "children": [
-                            {
-                              "kind": "INTERPOLATION_START_TOKEN"
-                            },
-                            {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "b"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "+"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "|"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "p"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "q"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "r"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "{1,}"
-                        },
-                        {
-                          "kind": "INTERPOLATION",
-                          "children": [
-                            {
-                              "kind": "INTERPOLATION_START_TOKEN"
-                            },
-                            {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "*"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                          ],
+                          "value": "}"
                         }
                       ]
                     },
@@ -600,6 +339,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -633,6 +373,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -648,90 +389,211 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "a"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                          ],
+                          "value": "\\P{gc\u003d"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "\\t"
+                          "value": "$"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "d"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                          ],
+                          "value": "}"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                          ],
+                          "value": "\\p{gc\u003da"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "-"
+                          "value": "#"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "*"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                          ],
+                          "value": "}"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "TEMPLATE_STRING",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                          ],
+                          "value": "\\P{sc\u003da"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "a"
+                          "value": "#"
                         },
                         {
                           "kind": "TEMPLATE_STRING",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "c-f]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "+"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?m:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "x"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "j"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?i:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "x"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "|"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "y"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                          ],
+                          "value": "}"
                         }
                       ]
                     },
