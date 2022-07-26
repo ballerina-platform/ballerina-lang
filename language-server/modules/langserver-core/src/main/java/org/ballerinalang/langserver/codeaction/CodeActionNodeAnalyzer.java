@@ -45,6 +45,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.*;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.eclipse.lsp4j.Range;
@@ -396,7 +397,133 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     @Override
+    public void visit(FunctionCallExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(QualifiedNameReferenceNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(IndexedExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(FieldAccessExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(MethodCallExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(CheckExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(MappingConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TypeofExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
     public void visit(UnaryExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TypeTestExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TrapExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ListConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TypeCastExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TableConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(LetExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ImplicitNewExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ExplicitNewExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ErrorConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ObjectConstructorExpressionNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
