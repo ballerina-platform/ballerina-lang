@@ -85,8 +85,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         
         Node node = posDetails.matchedCodeActionNode(); 
         if ((node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && node.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR) 
-                || (node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL))
-        {
+                || (node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL)) {
             return Collections.emptyList();
         }
         
@@ -100,7 +99,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         }
 
         Node statementNode = node;
-        while ( statementNode != null && !(statementNode instanceof StatementNode) 
+        while (statementNode != null && !(statementNode instanceof StatementNode) 
                 && !(statementNode instanceof ModuleMemberDeclarationNode)) {
             statementNode = statementNode.parent();
         }
@@ -120,13 +119,14 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     }
 
     private String getLocalVarName(CodeActionContext context) {
-        Set<String> visibleSymbolNames = context.visibleSymbols(context.cursorPosition()).stream()
+        Position pos = context.range().getEnd();
+        Set<String> allNames = context.visibleSymbols(new Position(pos.getLine(), pos.getCharacter())).stream()
                 .map(Symbol::getName)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
         
-        return NameUtil.generateTypeName(VARIABLE_NAME_PREFIX, visibleSymbolNames);
+        return NameUtil.generateTypeName(VARIABLE_NAME_PREFIX, allNames);
     }
 
     @Override
