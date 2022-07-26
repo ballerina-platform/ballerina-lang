@@ -369,6 +369,9 @@ public class JvmConstants {
     public static final String YIELD_LOCATION = "yieldLocation";
     public static final String YIELD_STATUS = "yieldStatus";
 
+    // transaction related constants
+    public static final String TRANSACTION_CONTEXT_CLASS = "io/ballerina/runtime/transactions/TransactionLocalContext";
+
     // observability related constants
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";
     public static final String START_RESOURCE_OBSERVATION_METHOD = "startResourceObservation";
