@@ -202,6 +202,6 @@ public class PositionUtil {
         Position endPos = textEdit.getRange().getEnd();
         int start = textDocument.textPositionFrom(LinePosition.from(startPos.getLine(), startPos.getCharacter()));
         int end = textDocument.textPositionFrom(LinePosition.from(endPos.getLine(), endPos.getCharacter()));
-        return TextEdit.from(TextRange.from(start, end-start), textEdit.getNewText());
+        return TextEdit.from(TextRange.from(start, end - start), textEdit.getNewText());
     }
 }
