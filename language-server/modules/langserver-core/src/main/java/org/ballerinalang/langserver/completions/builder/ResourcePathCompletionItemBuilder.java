@@ -77,8 +77,12 @@ public class ResourcePathCompletionItemBuilder {
         item.setInsertText(functionSignature.getLeft());
 
         //Add additional text edits
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        //Check and replace preceding slash token
+        checkAndSetAdditionalTextEdits(item, context.getNodeAtCursor());
+        return item;
+    }
+
+    private static void checkAndSetAdditionalTextEdits(CompletionItem item, NonTerminalNode nodeAtCursor) {
+        //Check and replace preceding slash token Todo: refactot this logic using clientResourceAccessNode separators. and remove dot token
         Token token = null;
         if (nodeAtCursor.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
             token = ((ClientResourceAccessActionNode) nodeAtCursor).slashToken();
@@ -102,7 +106,6 @@ public class ResourcePathCompletionItemBuilder {
             edit.setRange(PositionUtil.toRange(token.lineRange()));
             item.setAdditionalTextEdits(List.of(edit));
         }
-        return item;
     }
 
     /**
@@ -113,7 +116,7 @@ public class ResourcePathCompletionItemBuilder {
      * @return {@link CompletionItem}
      */
     public static CompletionItem buildMethodCallExpression(ResourceMethodSymbol resourceMethodSymbol,
-                                                 BallerinaCompletionContext context) {
+                                                           BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         FunctionCompletionItemBuilder.setMeta(item, resourceMethodSymbol, context);
         String functionName = resourceMethodSymbol.getName().orElse("");
@@ -124,6 +127,7 @@ public class ResourcePathCompletionItemBuilder {
         item.setLabel(signature.toString());
         item.setInsertText(insertText.toString());
         item.setFilterText(resourceMethodSymbol.getName().orElse(""));
+        checkAndSetAdditionalTextEdits(item, context.getNodeAtCursor());
         return item;
     }
 
@@ -183,9 +187,13 @@ public class ResourcePathCompletionItemBuilder {
                                                        BallerinaCompletionContext ctx,
                                                        String escapedFunctionName, StringBuilder signature,
                                                        StringBuilder insertText, int placeHolderIndex) {
+        if (resourceMethodSymbol.resourcePath().kind() == ResourcePath.Kind.DOT_RESOURCE_PATH) {
+            signature.append("/");
+            insertText.append("/");
+        }
         if (!escapedFunctionName.equals("get")) {
-            signature.append(signature.toString().isEmpty() ? "/" : "").append(".").append(escapedFunctionName);
-            insertText.append(insertText.toString().isEmpty() ? "/" : "").append(".").append(escapedFunctionName);
+            signature.append(".").append(escapedFunctionName);
+            insertText.append(".").append(escapedFunctionName);
         }
 
         List<String> funcArguments = CommonUtil.getFuncArguments(resourceMethodSymbol, ctx);
