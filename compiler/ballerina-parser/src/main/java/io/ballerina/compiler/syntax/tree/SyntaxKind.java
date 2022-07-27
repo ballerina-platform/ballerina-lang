@@ -107,7 +107,7 @@ public enum SyntaxKind {
     ASCENDING_KEYWORD(250, LexerTerminals.ASCENDING),
     DESCENDING_KEYWORD(251, LexerTerminals.DESCENDING),
     UNDERSCORE_KEYWORD(252, "_"),
-    NOT_IS_KEYWORD(253, "!is"),
+    NOT_IS_KEYWORD(253, LexerTerminals.NOT_IS),
 
     // Type keywords
     INT_KEYWORD(300, LexerTerminals.INT),

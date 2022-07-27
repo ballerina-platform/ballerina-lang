@@ -58,6 +58,7 @@ public class LexerTerminals {
     public static final String FINAL = parserConfigurations.getProperty("final");
     public static final String TYPEOF = parserConfigurations.getProperty("typeof");
     public static final String IS = parserConfigurations.getProperty("is");
+    public static final String NOT_IS = parserConfigurations.getProperty("!is");
     public static final String NULL = parserConfigurations.getProperty("null");
     public static final String LOCK = parserConfigurations.getProperty("lock");
     public static final String ANNOTATION = parserConfigurations.getProperty("annotation");
