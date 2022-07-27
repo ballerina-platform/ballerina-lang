@@ -32,11 +32,11 @@ import java.util.Queue;
  * @since 2201.3.0
  */
 public class RegExpParser extends AbstractParser {
-    private final Queue<STNode> intepolationExprs;
+    private final Queue<STNode> interpolationExprs;
 
-    protected RegExpParser(AbstractTokenReader tokenReader, Queue<STNode> intepolationExprs) {
-        super(tokenReader, new BallerinaParserErrorHandler(tokenReader));
-        this.intepolationExprs = intepolationExprs;
+    protected RegExpParser(AbstractTokenReader tokenReader, Queue<STNode> interpolationExprs) {
+        super(tokenReader);
+        this.interpolationExprs = interpolationExprs;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class RegExpParser extends AbstractParser {
         // consume the injected interpolation start and end. i.e: &{}
         consume();
         consume();
-        return this.intepolationExprs.remove();
+        return this.interpolationExprs.remove();
     }
 
     /**
