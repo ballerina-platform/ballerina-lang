@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -25,10 +26,13 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -67,5 +71,20 @@ public class ComputedResourceAccessSegmentNodeContext extends
         }
         this.sort(context, node, completionItems);
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ComputedResourceAccessSegmentNode node,
+                     List<LSCompletionItem> completionItems) {
+        ContextTypeResolver resolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> typeSymbol = context.getNodeAtCursor().apply(resolver);
+        if (typeSymbol.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        completionItems.forEach(lsCItem -> {
+            String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, typeSymbol.get());
+            lsCItem.getCompletionItem().setSortText(sortText);
+        });
     }
 }

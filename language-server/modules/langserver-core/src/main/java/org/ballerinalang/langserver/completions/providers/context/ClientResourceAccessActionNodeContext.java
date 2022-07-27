@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
@@ -88,8 +89,14 @@ public class ClientResourceAccessActionNodeContext
         return completionItems;
     }
 
-    private boolean isInResourceMethodParameterContext(ClientResourceAccessActionNode node,
-                                                       BallerinaCompletionContext context) {
+    /**
+     * Checks if the cursor position is placed with in the resource method call parameter context.
+     * @param node
+     * @param context
+     * @return
+     */
+    public static boolean isInResourceMethodParameterContext(ClientResourceAccessActionNode node,
+                                                       PositionedOperationContext context) {
         Optional<ParenthesizedArgList> arguments = node.arguments();
         int cursor = context.getCursorPositionInTree();
         return arguments.isPresent() && arguments.get().openParenToken().textRange().startOffset() <= cursor
@@ -111,5 +118,13 @@ public class ClientResourceAccessActionNodeContext
         FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
         return getNamedArgCompletionItems(context, functionSymbol,
                 node.arguments().get().arguments());
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ClientResourceAccessActionNode node,
+                     List<LSCompletionItem> completionItems) {
+        if (isInResourceMethodParameterContext(node, context)) {
+            super.sort(context, node, completionItems);
+        }
     }
 }
