@@ -2401,5 +2401,48 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ellipsis,
                 expression);
     }
+
+    public static STNode createClientResourceAccessActionNode(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode slashToken,
+            STNode resourceAccessPath,
+            STNode dotToken,
+            STNode methodName,
+            STNode arguments) {
+
+        return new STClientResourceAccessActionNode(
+                expression,
+                rightArrowToken,
+                slashToken,
+                resourceAccessPath,
+                dotToken,
+                methodName,
+                arguments);
+    }
+
+    public static STNode createComputedResourceAccessSegmentNode(
+            STNode openBracketToken,
+            STNode expression,
+            STNode closeBracketToken) {
+
+        return new STComputedResourceAccessSegmentNode(
+                openBracketToken,
+                expression,
+                closeBracketToken);
+    }
+
+    public static STNode createResourceAccessRestSegmentNode(
+            STNode openBracketToken,
+            STNode ellipsisToken,
+            STNode expression,
+            STNode closeBracketToken) {
+
+        return new STResourceAccessRestSegmentNode(
+                openBracketToken,
+                ellipsisToken,
+                expression,
+                closeBracketToken);
+    }
 }
 

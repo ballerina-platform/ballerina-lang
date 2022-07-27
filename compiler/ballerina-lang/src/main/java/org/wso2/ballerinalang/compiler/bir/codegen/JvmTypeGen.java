@@ -941,7 +941,7 @@ public class JvmTypeGen {
             mv.visitLdcInsn(paramSymbol.name.value);
             mv.visitLdcInsn(paramSymbol.isDefaultable);
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
-            loadType(mv, paramSymbol.type);
+            loadLocalType(mv, paramSymbol.type);
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUCNTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
@@ -961,7 +961,7 @@ public class JvmTypeGen {
             mv.visitLdcInsn("");
             mv.visitLdcInsn(false);
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
-            loadType(mv, paramTypes.get(i));
+            loadLocalType(mv, paramTypes.get(i));
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUCNTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
