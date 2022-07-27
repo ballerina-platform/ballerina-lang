@@ -192,6 +192,10 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             return ((BTypeReferenceType) type).referredType;
         }
 
+        if (type.tag == TypeTags.PARAMETERIZED_TYPE) {
+            return ((BParameterizedType) type).paramValueType;
+        }
+
         return type;
     }
 }
