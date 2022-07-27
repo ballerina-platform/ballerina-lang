@@ -7,7 +7,7 @@ plugins {
     id 'maven-publish'
     id 'net.researchgate.release' version '2.6.0'
     id 'jacoco'
-    id "org.sonarqube:${project.sonarcloudVersion}"
+    id "org.sonarqube" version "3.4.0.2513"
 }
 
 apply from: "$rootDir/gradle/repositories.gradle"
