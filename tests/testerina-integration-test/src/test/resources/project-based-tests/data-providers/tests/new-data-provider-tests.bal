@@ -213,6 +213,21 @@ function errorData(error input, string expected) {
     test:assertEquals(actual, expected);
 }
 
+@test:Config {
+    dataProvider: dataGen13
+}
+function mapOfTupleOfFunctionTest(function (int x) returns boolean func, int value) {
+    test:assertTrue(func(value));
+}
+
+@test:Config {
+    dataProvider: dataGen14
+}
+function arrayOfArrayOfFunctionTest(function (int x) returns boolean func1, function (int x) returns boolean func2) {
+    int value = 2;
+    test:assertTrue(func1(value) || func2(value));
+}
+
 // Data Providers
 
 function dataGen() returns map<[int, int, int]>|error {
@@ -301,6 +316,29 @@ function dataGen12() returns map<[error, string]> {
     return {
         "foo": [e, "foo"]
     };
+}
+
+function dataGen13() returns map<[function, int]> {
+    map<[function, int]> dataSet = {
+        "1": [isOdd, 1],
+        "2": [isEven, 2],
+        "3": [isOdd, 3],
+        "4": [isEven, 4]
+    };
+    return dataSet;
+}
+
+function dataGen14() returns function[][] {
+    function[][] dataSet = [[isOdd, isEven], [isEven, isOdd], [isEven, isEven]];
+    return dataSet;
+}
+
+function isEven(int x) returns boolean {
+    return x % 2 == 0;
+}
+
+function isOdd(int x) returns boolean {
+    return x % 2 != 0;
 }
 
 public function getFunction(error e) returns (string) {
