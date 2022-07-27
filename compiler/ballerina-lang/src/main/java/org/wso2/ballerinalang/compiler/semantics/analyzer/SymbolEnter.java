@@ -3092,7 +3092,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             restConstraintType = BUnionType.create(null, constraintTypes);
         }
-        return (restVarSymbolMapType.tag == TypeTags.NONE) ?
+        return restVarSymbolMapType.tag == TypeTags.NONE ?
                 restConstraintType : this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
