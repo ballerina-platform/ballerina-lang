@@ -13,19 +13,6 @@
           "range": {
             "start": {
               "line": 7,
-              "character": 28
-            },
-            "end": {
-              "line": 7,
-              "character": 28
-            }
-          },
-          "newText": "\n        if intWithError is int {\n\n        }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 7,
               "character": 8
             },
             "end": {
@@ -34,6 +21,19 @@
             }
           },
           "newText": "int|error intWithError \u003d "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 28
+            },
+            "end": {
+              "line": 7,
+              "character": 28
+            }
+          },
+          "newText": "\n        if intWithError is int {\n\n        }"
         }
       ]
     },
