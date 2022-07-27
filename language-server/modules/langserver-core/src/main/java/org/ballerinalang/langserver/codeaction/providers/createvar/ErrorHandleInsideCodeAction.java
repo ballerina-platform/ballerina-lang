@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -31,6 +32,7 @@ import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -76,21 +78,19 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
         Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeDescriptor.get(),
-                context);
+                context, new ImportsAcceptor(context));
 
         // Add type guard code action
         String commandTitle = CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE;
-        List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name, range, unionType,
-                context);
-        if (edits.isEmpty()) {
-            return Collections.emptyList();
-        }
-
+        List<TextEdit> edits = new ArrayList<>();
         edits.add(createVarTextEdits.edits.get(0));
+        edits.addAll(CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name, range, unionType, context));
+
         // Add all the import text edits excluding duplicates
         createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
-        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, uri,
-                CodeActionKind.QuickFix));
+
+        CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
+        return Collections.singletonList(addRenamePopup(context, edits, createVarTextEdits.types.get(0), codeAction));
     }
 
     @Override

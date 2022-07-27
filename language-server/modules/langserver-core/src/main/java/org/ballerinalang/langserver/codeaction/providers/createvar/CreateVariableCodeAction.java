@@ -20,10 +20,12 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -32,6 +34,7 @@ import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDeta
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -83,7 +86,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         String uri = context.fileUri();
         Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol.get(),
-                context);
+                context, new ImportsAcceptor(context));
         List<String> types = createVarTextEdits.types;
         List<CodeAction> actions = new ArrayList<>();
         for (int i = 0; i < types.size(); i++) {
@@ -98,7 +101,9 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
                 String typeLabel = isTuple && type.length() > 10 ? "Tuple" : type;
                 commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
-            actions.add(CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix));
+
+            CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
+            actions.add(addRenamePopup(context, edits, type, codeAction));
         }
         return actions;
     }
@@ -109,7 +114,8 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
     }
 
     protected CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,
-                                                           TypeSymbol typeDescriptor, CodeActionContext context) {
+                                                           TypeSymbol typeDescriptor, CodeActionContext context,
+                                                           ImportsAcceptor importsAcceptor) {
         Symbol matchedSymbol = positionDetails.matchedSymbol();
 
         Position position = PositionUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
@@ -120,16 +126,15 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
 
         String name = NameUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
 
-        List<TextEdit> importEdits = new ArrayList<>();
         List<TextEdit> edits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, context, importsAcceptor);
         Position pos = range.getStart();
         for (String type : types) {
             Position insertPos = new Position(pos.getLine(), pos.getCharacter());
             String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
         }
-        return new CreateVariableOut(name, types, edits, importEdits);
+        return new CreateVariableOut(name, types, edits, importsAcceptor.getNewImportTextEdits());
     }
 
     /**
@@ -173,5 +178,30 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
             this.edits = edits;
             this.imports = imports;
         }
+    }
+
+    public CodeAction addRenamePopup(CodeActionContext context, List<TextEdit> textEdits, String type,
+                                     CodeAction codeAction) {
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
+            return codeAction;
+        }
+
+        io.ballerina.tools.text.TextEdit textEdit = PositionUtil.getTextEdit(syntaxTree.get(), textEdits.get(0));
+        int startPos = textEdit.range().startOffset();
+        int sum = 0;
+        for (TextEdit edit : textEdits) {
+            io.ballerina.tools.text.TextEdit edits = PositionUtil.getTextEdit(syntaxTree.get(), edit);
+            int startOffset = edits.range().startOffset();
+            if (startOffset < startPos) {
+                int length = edits.text().length();
+                sum = sum + length;
+            }
+        }
+
+        startPos = startPos + sum + type.length() + 1;
+        codeAction.setCommand(new Command("Rename Variable", "ballerina.action.rename",
+                List.of(context.fileUri(), startPos)));
+        return codeAction;
     }
 }

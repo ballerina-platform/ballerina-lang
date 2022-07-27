@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -86,16 +87,19 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         if (!hasErrorMemberType || nonErrorNonNilMemberCount == 0) {
             return Collections.emptyList();
         }
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         List<TextEdit> edits = new ArrayList<>();
         edits.addAll(getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
-                typeSymbol.get(), context));
+                typeSymbol.get(), context, importsAcceptor));
         edits.addAll(CodeActionUtil.getAddCheckTextEdits(
                 PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
                 positionDetails.matchedNode(), context));
 
         String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
-        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, uri,
-                CodeActionKind.QuickFix));
+        String type = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
+        edits.addAll(importsAcceptor.getNewImportTextEdits());
+        CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
+        return Collections.singletonList(addRenamePopup(context, edits, type, codeAction));
     }
 
     @Override
@@ -107,25 +111,30 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
                                                          UnionTypeSymbol unionTypeDesc,
                                                          DiagBasedPositionDetails positionDetails,
                                                          TypeSymbol typeSymbol,
-                                                         CodeActionContext context) {
+                                                         CodeActionContext context,
+                                                         ImportsAcceptor importsAcceptor) {
         List<TextEdit> edits = new ArrayList<>();
 
         // Add create variable edits
         Range range = PositionUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol,
+                context, importsAcceptor);
 
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);
-        String typeWithoutError = unionTypeDesc.memberTypeDescriptors().stream()
-                .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
-                .map(typeDesc -> CodeActionUtil.getPossibleType(typeDesc, edits, context).orElseThrow())
-                .collect(Collectors.joining("|"));
+        String typeWithoutError = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
 
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
         edits.add(textEdit);
-        // Add all the import text edits excluding duplicates
-        createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
         return edits;
+    }
+
+    private String getTypeWithoutError(UnionTypeSymbol unionTypeDesc, CodeActionContext context,
+                                       ImportsAcceptor importsAcceptor) {
+        return unionTypeDesc.memberTypeDescriptors().stream()
+                .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
+                .map(typeDesc -> CodeActionUtil.getPossibleType(typeDesc, context, importsAcceptor).orElseThrow())
+                .collect(Collectors.joining("|"));
     }
 }
