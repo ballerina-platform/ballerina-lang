@@ -5199,7 +5199,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangRegExpTemplateLiteral regExpTemplateLiteral =
                 (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
         for (Node memberNode : memberNodes) {
-            regExpTemplateLiteral.exprs.add((BLangExpression) memberNode.apply(this));
+            BLangExpression expression = (BLangExpression) memberNode.apply(this);
+            // Wrap interpolations in a non-capturing group (?:re).
+            if (memberNode.kind() == SyntaxKind.INTERPOLATION) {
+                regExpTemplateLiteral.exprs.add(createRegExpStringLiteral(expression.pos, "(?:"));
+                regExpTemplateLiteral.exprs.add(expression);
+                regExpTemplateLiteral.exprs.add(createRegExpStringLiteral(expression.pos, ")"));
+            } else {
+                regExpTemplateLiteral.exprs.add(expression);
+            }
         }
 
         if (regExpTemplateLiteral.exprs.isEmpty()) {
@@ -5210,6 +5218,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         regExpTemplateLiteral.pos = location;
         return regExpTemplateLiteral;
+    }
+
+    private BLangLiteral createRegExpStringLiteral(Location pos, String value) {
+        BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        bLiteral.pos = pos;
+        bLiteral.setBType(symTable.stringType);
+        bLiteral.value = value;
+        bLiteral.originalValue = value;
+        return bLiteral;
     }
 
     private BLangNode createStringTemplateLiteral(NodeList<Node> memberNodes, Location location) {
