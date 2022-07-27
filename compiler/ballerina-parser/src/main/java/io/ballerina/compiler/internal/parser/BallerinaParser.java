@@ -5318,6 +5318,7 @@ public class BallerinaParser extends AbstractParser {
             case LET_KEYWORD:
             case BACKTICK_TOKEN:
             case XML_KEYWORD:
+            case RE_KEYWORD:
             case STRING_KEYWORD:
             case FUNCTION_KEYWORD:
             case AT_TOKEN:
@@ -12562,6 +12563,7 @@ public class BallerinaParser extends AbstractParser {
                 return peek(nextTokenIndex).kind == SyntaxKind.OPEN_PAREN_TOKEN;
             case XML_KEYWORD:
             case STRING_KEYWORD:
+            case RE_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.BACKTICK_TOKEN;
 
             // 'start' and 'flush' are start of actions, but not expressions.
@@ -17182,6 +17184,8 @@ public class BallerinaParser extends AbstractParser {
                     return parseExpression(false);
                 }
                 return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            case RE_KEYWORD:
+                return parseExpression(false);
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
@@ -17318,6 +17322,8 @@ public class BallerinaParser extends AbstractParser {
                     return parseExpression(false);
                 }
                 return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            case RE_KEYWORD:
+                return parseExpression(false);
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
                 if (getNextNextToken().kind == SyntaxKind.LT_TOKEN) {
