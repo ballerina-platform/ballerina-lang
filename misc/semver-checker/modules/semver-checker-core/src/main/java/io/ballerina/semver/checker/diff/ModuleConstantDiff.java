@@ -32,7 +32,7 @@ import java.util.Optional;
 public class ModuleConstantDiff extends NodeDiffImpl<ConstantDeclarationNode> {
 
     private ModuleConstantDiff(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
-        super(newNode, oldNode);
+        super(newNode, oldNode, DiffKind.MODULE_CONST);
     }
 
     @Override
@@ -78,7 +78,6 @@ public class ModuleConstantDiff extends NodeDiffImpl<ConstantDeclarationNode> {
 
         @Override
         public Optional<ModuleConstantDiff> build() {
-            moduleConstDiff.setKind(DiffKind.MODULE_CONST);
             if (!moduleConstDiff.getChildDiffs().isEmpty()) {
                 moduleConstDiff.computeVersionImpact();
                 moduleConstDiff.setType(DiffType.MODIFIED);

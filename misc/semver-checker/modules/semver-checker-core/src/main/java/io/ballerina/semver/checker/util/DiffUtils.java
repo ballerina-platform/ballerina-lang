@@ -31,6 +31,7 @@ import io.ballerina.semver.checker.diff.NodeListDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
 import io.ballerina.semver.checker.diff.SemverImpact;
 import io.ballerina.semver.checker.diff.ServiceDiff;
+import io.ballerina.semver.checker.diff.TypeDefinitionDiff;
 
 import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVersion;
 
@@ -253,6 +254,8 @@ public class DiffUtils {
             return getModuleConstantName((ModuleConstantDiff) diff);
         } else if (diff instanceof ClassDiff) {
             return getModuleClassName((ClassDiff) diff);
+        } else if (diff instanceof TypeDefinitionDiff) {
+            return getModuleTypeDefName((TypeDefinitionDiff) diff);
         } else {
             return UNKNOWN;
         }
@@ -272,6 +275,8 @@ public class DiffUtils {
             return "module constant";
         } else if (diff instanceof ClassDiff) {
             return "class";
+        } else if (diff instanceof TypeDefinitionDiff) {
+            return "type definition";
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
             if (functionDiff.isResource()) {
@@ -298,6 +303,8 @@ public class DiffUtils {
         } else if (diff instanceof ModuleConstantDiff) {
             return " ".repeat(4);
         } else if (diff instanceof ClassDiff) {
+            return " ".repeat(4);
+        } else if (diff instanceof TypeDefinitionDiff) {
             return " ".repeat(4);
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
@@ -383,6 +390,21 @@ public class DiffUtils {
             return SyntaxTreeUtils.getClassIdentifier(classDiff.getNewNode().get());
         } else if (classDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getClassIdentifier(classDiff.getOldNode().get());
+        } else {
+            return UNKNOWN;
+        }
+    }
+
+    /**
+     * Retrieves name of the given {@link TypeDefinitionDiff} instance.
+     *
+     * @param typeDefinitionDiff type definition diff instance
+     */
+    private static String getModuleTypeDefName(TypeDefinitionDiff typeDefinitionDiff) {
+        if (typeDefinitionDiff.getNewNode().isPresent()) {
+            return SyntaxTreeUtils.getTypeDefIdentifier(typeDefinitionDiff.getNewNode().get());
+        } else if (typeDefinitionDiff.getOldNode().isPresent()) {
+            return SyntaxTreeUtils.getTypeDefIdentifier(typeDefinitionDiff.getOldNode().get());
         } else {
             return UNKNOWN;
         }
