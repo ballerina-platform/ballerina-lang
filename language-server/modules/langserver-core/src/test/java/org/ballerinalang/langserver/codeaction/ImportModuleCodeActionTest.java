@@ -41,6 +41,12 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
         super.test(config);
     }
 
+    @Test(dataProvider = "negativeDataProvider")
+    @Override
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
     @Override
     public boolean loadMockedPackages() {
         return true;
@@ -57,6 +63,13 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
                 {"importModuleWithModAlias1.json"},
                 {"importModuleWithModAlias2.json"},
                 {"importModuleWithMultipleModAliases1.json"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"negativeImportModuleWithMultipleModAliases1.json"}
         };
     }
 }
