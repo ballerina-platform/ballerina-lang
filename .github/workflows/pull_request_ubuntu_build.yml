@@ -10,6 +10,7 @@ on:
       - ballerina-1.2.x
       - stage-swan-lake
       - 2201.[0-9]+.x
+      - multilingual-parser
 
 jobs:
   ubuntu_build:
