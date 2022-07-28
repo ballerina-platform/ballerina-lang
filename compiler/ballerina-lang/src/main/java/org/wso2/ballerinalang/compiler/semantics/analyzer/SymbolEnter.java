@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -3066,7 +3067,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             restConstraintType = BUnionType.create(null, constraintTypes);
         }
-        return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
+        return restVarSymbolMapType.tag == TypeTags.NONE ?
+                restConstraintType : this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
     BRecordType createRecordTypeForRestField(Location pos, SymbolEnv env, BRecordType recordType,
@@ -3081,7 +3083,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }};
 
-        setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
+        if (recordType.sealed && (restConstraint.tag == TypeTags.NONE)) {
+            setRestRecordFields(pos, env, unMappedFields, variableList, null, recordVarType);
+        } else {
+            setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
+        }
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordVarType,
                 env.enclPkg.packageID, symTable, pos);
@@ -3136,7 +3142,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         targetRestRecType.fields = fields;
-        targetRestRecType.restFieldType = restConstraint;
+        if (restConstraint == null) {
+            targetRestRecType.restFieldType = new BNoType(TypeTags.NONE);
+            targetRestRecType.sealed = true;
+        } else {
+            targetRestRecType.restFieldType = restConstraint;
+        }
     }
 
     private long setSymbolAsOptional(long existingFlags) {
