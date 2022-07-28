@@ -10,4 +10,3 @@ function testFunction() {
 
     var str1 = 2.toString();
 }
-
