@@ -247,7 +247,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
+import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
 
 /**
  * A formatter implementation that updates the minutiae of a given tree according to the ballerina formatting
@@ -447,10 +447,10 @@ public class FormattingTreeModifier extends TreeModifier {
         typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), hasInit ? 1 : 0, 0);
         Token equalToken = formatToken(variableDeclarationNode.equalsToken().orElse(null), 1, 0);
 
-        boolean previousInLineAnnotation = env.inLineAnnotation;
-        setInLineAnnotation(true);
+        boolean previousInlineAnnotation = env.inlineAnnotation;
+        setInlineAnnotation(true);
         ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().orElse(null), 0, 0);
-        setInLineAnnotation(previousInLineAnnotation);
+        setInlineAnnotation(previousInlineAnnotation);
 
         Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
                 env.trailingWS, env.trailingNL);
@@ -875,13 +875,13 @@ public class FormattingTreeModifier extends TreeModifier {
         Node varRef = formatNode(assignmentStatementNode.varRef(), 1, 0);
         Token equalsToken = formatToken(assignmentStatementNode.equalsToken(), 1, 0);
 
-        boolean previousInLineAnnotation = env.inLineAnnotation;
-        setInLineAnnotation(true);
+        boolean previousInlineAnnotation = env.inlineAnnotation;
+        setInlineAnnotation(true);
 
         ExpressionNode expression = formatNode(assignmentStatementNode.expression(), 0, 0);
         Token semicolonToken = formatToken(assignmentStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
-        setInLineAnnotation(previousInLineAnnotation);
+        setInlineAnnotation(previousInlineAnnotation);
 
         return assignmentStatementNode.modify()
                 .withVarRef(varRef)
@@ -1309,10 +1309,10 @@ public class FormattingTreeModifier extends TreeModifier {
                         moduleVariableDeclarationNode.equalsToken().isPresent() ? 1 : 0, 0);
         Token equalsToken = formatToken(moduleVariableDeclarationNode.equalsToken().orElse(null), 1, 0);
 
-        boolean prevInLineAnnotation = env.inLineAnnotation;
-        setInLineAnnotation(true);
+        boolean prevInlineAnnotation = env.inlineAnnotation;
+        setInlineAnnotation(true);
         ExpressionNode initializer = formatNode(moduleVariableDeclarationNode.initializer().orElse(null), 0, 0);
-        setInLineAnnotation(prevInLineAnnotation);
+        setInlineAnnotation(prevInlineAnnotation);
 
         Token semicolonToken = formatToken(moduleVariableDeclarationNode.semicolonToken(),
                 env.trailingWS, env.trailingNL);
@@ -2133,7 +2133,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public StartActionNode transform(StartActionNode startActionNode) {
         NodeList<AnnotationNode> annotations;
-        if (env.inLineAnnotation) {
+        if (env.inlineAnnotation) {
             annotations = formatNodeList(startActionNode.annotations(), 1, 0, 1, 0);
         } else {
             annotations = formatNodeList(startActionNode.annotations(), 0, 1, 0, 1);
@@ -3592,7 +3592,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 return node;
             }
 
-            if (!isInLineRange(node, lineRange)) {
+            if (!isInlineRange(node, lineRange)) {
                 checkForNewline(node);
                 return node;
             }
@@ -3640,7 +3640,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 return token;
             }
 
-            if (!isInLineRange(token, lineRange)) {
+            if (!isInlineRange(token, lineRange)) {
                 checkForNewline(token);
                 return token;
             }
@@ -3819,6 +3819,36 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param separatorTrailingNL Number of newlines to be added after each separator in the list
      * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
      * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @return Formatted node list
+     */
+    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int separatorTrailingWS,
+                                                                            int separatorTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL) {
+        return formatSeparatedNodeList(nodeList,
+                itemTrailingWS,
+                itemTrailingNL,
+                separatorTrailingWS,
+                separatorTrailingNL,
+                listTrailingWS,
+                listTrailingNL,
+                false);
+    }
+
+    /**
+     * Format a delimited list of nodes.
+     *
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
+     * @param itemTrailingNL Number of newlines to be added after each item in the list
+     * @param separatorTrailingWS Number of single-length spaces to be added after each separator in the list
+     * @param separatorTrailingNL Number of newlines to be added after each separator in the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
+     * @param listTrailingNL Number of newlines to be added after the last item in the list
      * @param allowInAndMultiLine Allow both inline and multiline formatting at the same time
      * @return Formatted node list
      */
@@ -3875,36 +3905,6 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         return NodeFactory.createSeparatedNodeList(newNodes);
-    }
-
-    /**
-     * Format a delimited list of nodes.
-     *
-     * @param <T> Type of the list item
-     * @param nodeList Node list to be formatted
-     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
-     * @param itemTrailingNL Number of newlines to be added after each item in the list
-     * @param separatorTrailingWS Number of single-length spaces to be added after each separator in the list
-     * @param separatorTrailingNL Number of newlines to be added after each separator in the list
-     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
-     * @param listTrailingNL Number of newlines to be added after the last item in the list
-     * @return Formatted node list
-     */
-    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
-                                                                            int itemTrailingWS,
-                                                                            int itemTrailingNL,
-                                                                            int separatorTrailingWS,
-                                                                            int separatorTrailingNL,
-                                                                            int listTrailingWS,
-                                                                            int listTrailingNL) {
-        return formatSeparatedNodeList(nodeList,
-                itemTrailingWS,
-                itemTrailingNL,
-                separatorTrailingWS,
-                separatorTrailingNL,
-                listTrailingWS,
-                listTrailingNL,
-                false);
     }
 
     /**
@@ -4306,8 +4306,8 @@ public class FormattingTreeModifier extends TreeModifier {
      *
      * @param value boolean true for setting inline annotations.
      */
-    private void setInLineAnnotation(boolean value) {
-        env.inLineAnnotation = value;
+    private void setInlineAnnotation(boolean value) {
+        env.inlineAnnotation = value;
     }
 
     private String getWSContent(int count) {
