@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,6 +34,12 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
         super.test(config);
     }
 
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -41,7 +47,6 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInBinaryExpression.json"},
                 {"extractToVariableInBinaryExpression2.json"},
                 {"extractToVariableInBracedExpression.json"},
-                {"extractToVariableInFunctionCall.json"}, 
                 {"extractToVariableInQNameRef.json"},
                 {"extractToVariableInIndexedExpression.json"},
                 {"extractToVariableInFieldAccess.json"},
@@ -66,6 +71,14 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
         };
     }
 
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"extractToVariableInFunctionCallNegative.json"},
+                {"extractToVariableInTableConstructorNegative.json"},
+        };
+    }
+    
     @Override
     public String getResourceDir() {
         return "extract-to-local-variable";
