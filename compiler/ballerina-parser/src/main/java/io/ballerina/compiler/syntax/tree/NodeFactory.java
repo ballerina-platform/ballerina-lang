@@ -3030,6 +3030,48 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stOrderKeyNode.createUnlinkedFacade();
     }
 
+    public static GroupByClauseNode createGroupByClauseNode(
+            Token groupKeyword,
+            Token byKeyword,
+            SeparatedNodeList<Node> groupingKey) {
+        Objects.requireNonNull(groupKeyword, "groupKeyword must not be null");
+        Objects.requireNonNull(byKeyword, "byKeyword must not be null");
+        Objects.requireNonNull(groupingKey, "groupingKey must not be null");
+
+        STNode stGroupByClauseNode = STNodeFactory.createGroupByClauseNode(
+                groupKeyword.internalNode(),
+                byKeyword.internalNode(),
+                groupingKey.underlyingListNode().internalNode());
+        return stGroupByClauseNode.createUnlinkedFacade();
+    }
+
+    public static GroupingKeyVarNameNode createGroupingKeyVarNameNode(
+            IdentifierToken variableName) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stGroupingKeyVarNameNode = STNodeFactory.createGroupingKeyVarNameNode(
+                variableName.internalNode());
+        return stGroupingKeyVarNameNode.createUnlinkedFacade();
+    }
+
+    public static GroupingKeyVarDeclarationNode createGroupingKeyVarDeclarationNode(
+            TypeDescriptorNode typeDescriptor,
+            IdentifierToken variableName,
+            Token equalsToken,
+            Node initializer) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+        Objects.requireNonNull(initializer, "initializer must not be null");
+
+        STNode stGroupingKeyVarDeclarationNode = STNodeFactory.createGroupingKeyVarDeclarationNode(
+                typeDescriptor.internalNode(),
+                variableName.internalNode(),
+                equalsToken.internalNode(),
+                initializer.internalNode());
+        return stGroupingKeyVarDeclarationNode.createUnlinkedFacade();
+    }
+
     public static OnFailClauseNode createOnFailClauseNode(
             Token onKeyword,
             Token failKeyword,

@@ -474,6 +474,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_ORDER_KEYWORD;
             case BY_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_BY_KEYWORD;
+            case GROUP_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_GROUP_KEYWORD;
             case ORDER_DIRECTION:
                 return DiagnosticErrorCode.ERROR_MISSING_ASCENDING_KEYWORD;
             case JOIN_KEYWORD:

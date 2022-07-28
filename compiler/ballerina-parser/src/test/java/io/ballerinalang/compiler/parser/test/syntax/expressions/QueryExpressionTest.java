@@ -281,4 +281,52 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     public void testQueryWithMapKeyword() {
         test("map from int a in b select e", "query-expr/query_expr_assert_79.json");
     }
+
+    @Test
+    public void testQueryWithGroupByUsingVarDefGroupingKeyWithVar() {
+        testFile("query-expr/query_expr_source_80.bal", "query-expr/query_expr_assert_80.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingVarDefGroupingKeyWithTypeDef() {
+        testFile("query-expr/query_expr_source_81.bal", "query-expr/query_expr_assert_81.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingVarNameGroupingKey() {
+        testFile("query-expr/query_expr_source_82.bal", "query-expr/query_expr_assert_82.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingMultipleVarNameGroupingKeys() {
+        testFile("query-expr/query_expr_source_83.bal", "query-expr/query_expr_assert_83.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingMultipleVarDefGroupingKeys() {
+        testFile("query-expr/query_expr_source_84.bal", "query-expr/query_expr_assert_84.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingMultipleGroupingKeys() {
+        testFile("query-expr/query_expr_source_85.bal", "query-expr/query_expr_assert_85.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByRecovery() {
+        test("from int a in b group by select c", "query-expr/query_expr_assert_86.json");
+        test("from int a in b group c select d", "query-expr/query_expr_assert_87.json");
+        test("from int a in b by c select d", "query-expr/query_expr_assert_88.json");
+        test("from int a in b group select c", "query-expr/query_expr_assert_91.json");
+        test("from int a in b by select c", "query-expr/query_expr_assert_92.json");
+        testFile("query-expr/query_expr_source_86.bal", "query-expr/query_expr_assert_89.json");
+        testFile("query-expr/query_expr_source_87.bal", "query-expr/query_expr_assert_90.json");
+        testFile("query-expr/query_expr_source_88.bal", "query-expr/query_expr_assert_93.json");
+        testFile("query-expr/query_expr_source_89.bal", "query-expr/query_expr_assert_94.json");
+        testFile("query-expr/query_expr_source_90.bal", "query-expr/query_expr_assert_95.json");
+        testFile("query-expr/query_expr_source_91.bal", "query-expr/query_expr_assert_96.json");
+        testFile("query-expr/query_expr_source_92.bal", "query-expr/query_expr_assert_97.json");
+        testFile("query-expr/query_expr_source_93.bal", "query-expr/query_expr_assert_98.json");
+        testFile("query-expr/query_expr_source_94.bal", "query-expr/query_expr_assert_99.json");
+    }
 }

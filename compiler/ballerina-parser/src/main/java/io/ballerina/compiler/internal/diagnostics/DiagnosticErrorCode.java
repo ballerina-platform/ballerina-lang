@@ -192,6 +192,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_STREAM_KEYWORD("BCE0292", "error.missing.stream.keyword"),
     ERROR_MISSING_READONLY_KEYWORD("BCE0293", "error.missing.readonly.keyword"),
     ERROR_MISSING_DISTINCT_KEYWORD("BCE0294", "error.missing.distinct.keyword"),
+    ERROR_MISSING_GROUP_KEYWORD("BCE0295", "error.missing.group.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),
@@ -249,6 +250,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NAMED_ARG("BCE0529", "error.missing.named.arg"),
     ERROR_MISSING_FIELD_MATCH_PATTERN_MEMBER("BCE0530", "error.missing.field.match.pattern.member"),
     ERROR_MISSING_OBJECT_CONSTRUCTOR_EXPRESSION("BCE0531", "error.missing.object.constructor.expression"),
+    ERROR_MISSING_GROUPING_KEY("BCE0532", "error.missing.grouping.key"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),

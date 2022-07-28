@@ -26,18 +26,14 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class SpreadMemberNode extends NonTerminalNode {
+public class GroupingKeyVarNameNode extends NonTerminalNode {
 
-    public SpreadMemberNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public GroupingKeyVarNameNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token ellipsis() {
+    public IdentifierToken variableName() {
         return childInBucket(0);
-    }
-
-    public ExpressionNode expression() {
-        return childInBucket(1);
     }
 
     @Override
@@ -53,26 +49,22 @@ public class SpreadMemberNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "ellipsis",
-                "expression"};
+                "variableName"};
     }
 
-    public SpreadMemberNode modify(
-            Token ellipsis,
-            ExpressionNode expression) {
+    public GroupingKeyVarNameNode modify(
+            IdentifierToken variableName) {
         if (checkForReferenceEquality(
-                ellipsis,
-                expression)) {
+                variableName)) {
             return this;
         }
 
-        return NodeFactory.createSpreadMemberNode(
-                ellipsis,
-                expression);
+        return NodeFactory.createGroupingKeyVarNameNode(
+                variableName);
     }
 
-    public SpreadMemberNodeModifier modify() {
-        return new SpreadMemberNodeModifier(this);
+    public GroupingKeyVarNameNodeModifier modify() {
+        return new GroupingKeyVarNameNodeModifier(this);
     }
 
     /**
@@ -80,35 +72,25 @@ public class SpreadMemberNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class SpreadMemberNodeModifier {
-        private final SpreadMemberNode oldNode;
-        private Token ellipsis;
-        private ExpressionNode expression;
+    public static class GroupingKeyVarNameNodeModifier {
+        private final GroupingKeyVarNameNode oldNode;
+        private IdentifierToken variableName;
 
-        public SpreadMemberNodeModifier(SpreadMemberNode oldNode) {
+        public GroupingKeyVarNameNodeModifier(GroupingKeyVarNameNode oldNode) {
             this.oldNode = oldNode;
-            this.ellipsis = oldNode.ellipsis();
-            this.expression = oldNode.expression();
+            this.variableName = oldNode.variableName();
         }
 
-        public SpreadMemberNodeModifier withEllipsis(
-                Token ellipsis) {
-            Objects.requireNonNull(ellipsis, "ellipsis must not be null");
-            this.ellipsis = ellipsis;
+        public GroupingKeyVarNameNodeModifier withVariableName(
+                IdentifierToken variableName) {
+            Objects.requireNonNull(variableName, "variableName must not be null");
+            this.variableName = variableName;
             return this;
         }
 
-        public SpreadMemberNodeModifier withExpression(
-                ExpressionNode expression) {
-            Objects.requireNonNull(expression, "expression must not be null");
-            this.expression = expression;
-            return this;
-        }
-
-        public SpreadMemberNode apply() {
+        public GroupingKeyVarNameNode apply() {
             return oldNode.modify(
-                    ellipsis,
-                    expression);
+                    variableName);
         }
     }
 }
