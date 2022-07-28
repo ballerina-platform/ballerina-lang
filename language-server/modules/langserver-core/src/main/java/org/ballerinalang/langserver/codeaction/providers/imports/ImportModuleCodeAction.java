@@ -18,6 +18,9 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -27,10 +30,12 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -52,12 +57,10 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
     public static final String NAME = "Import Module";
 
-    private static final String UNDEFINED_MODULE = "undefined module";
-
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return diagnostic.message().startsWith(UNDEFINED_MODULE)
+        return DiagnosticErrorCode.UNDEFINED_MODULE.diagnosticId().equals(diagnostic.diagnosticInfo().code())
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -65,27 +68,60 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-        List<CodeAction> actions = new ArrayList<>();
         String uri = context.fileUri();
-        String diagnosticMessage = diagnostic.message();
-        String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
-                diagnosticMessage.lastIndexOf("'"));
+        if (context.currentSyntaxTree().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Find the qualified name reference node within the diagnostic location
+        Range diagRange = PositionUtil.toRange(diagnostic.location().lineRange());
+        NonTerminalNode node = CommonUtil.findNode(diagRange, context.currentSyntaxTree().get());
+        QNameRefFinder finder = new QNameRefFinder();
+        node.accept(finder);
+        Optional<QualifiedNameReferenceNode> qNameReferenceNode = finder.getQNameReferenceNode();
+        if (qNameReferenceNode.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String modulePrefix = qNameReferenceNode.get().modulePrefix().text();
+
         List<LSPackageLoader.PackageInfo> packagesList = LSPackageLoader
                 .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
 
+        // Check if we already have a package imported with the given prefix
+        Optional<String> existingPrefix = context.currentDocImportsMap().keySet().stream()
+                .filter(importDecl -> modulePrefix
+                        .equals(importDecl.moduleName().get(importDecl.moduleName().size() - 1).text()))
+                .map(ImportDeclarationNode::prefix)
+                .filter(Optional::isPresent)
+                .map(prefixNode -> prefixNode.get().prefix().text())
+                .findAny();
+
+        // If there's already an import with the module prefix, but with an alias, we suggest to use that instead
+        if (existingPrefix.isPresent()) {
+            Range insertRange = PositionUtil.toRange(qNameReferenceNode.get().modulePrefix().lineRange());
+            List<TextEdit> edits = Collections.singletonList(new TextEdit(insertRange, existingPrefix.get()));
+            CodeAction action = CodeActionUtil.createCodeAction(
+                    String.format(CommandConstants.CHANGE_MODULE_PREFIX_TITLE, existingPrefix.get()),
+                    edits, uri, CodeActionKind.QuickFix);
+            return List.of(action);
+        }
+
+        List<CodeAction> actions = new ArrayList<>();
         packagesList.stream()
                 .filter(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
-                    return pkgName.endsWith("." + packageAlias) || pkgName.equals(packageAlias);
+                    return pkgName.endsWith("." + modulePrefix) || pkgName.equals(modulePrefix);
                 })
                 .forEach(pkgEntry -> {
+                    String orgName = pkgEntry.packageOrg().value();
                     String pkgName = pkgEntry.packageName().value();
                     String moduleName = ModuleUtil.escapeModuleName(pkgName);
                     Position insertPos = getImportPosition(context);
-                    String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
+                    String importText = ItemResolverConstants.IMPORT + " " + orgName + "/"
                             + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
                     String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
-                            pkgEntry.packageOrg().value() + "/" + moduleName);
+                            orgName + "/" + moduleName);
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
                     CodeAction action = CodeActionUtil
@@ -110,5 +146,22 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         }
         ImportDeclarationNode lastImport = imports.get(imports.size() - 1);
         return new Position(lastImport.lineRange().endLine().line() + 1, 0);
+    }
+
+    /**
+     * A visitor to find the qualified name reference node within an expression
+     */
+    static class QNameRefFinder extends NodeVisitor {
+
+        private QualifiedNameReferenceNode qualifiedNameReferenceNode;
+
+        @Override
+        public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+            this.qualifiedNameReferenceNode = qualifiedNameReferenceNode;
+        }
+
+        Optional<QualifiedNameReferenceNode> getQNameReferenceNode() {
+            return Optional.ofNullable(this.qualifiedNameReferenceNode);
+        }
     }
 }

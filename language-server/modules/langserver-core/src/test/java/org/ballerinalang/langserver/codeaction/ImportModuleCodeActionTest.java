@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "import-module";
@@ -52,7 +53,9 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
                 {"importModule1a.json"},
                 {"importModule1b.json"},
                 {"importModule2.json"},
-                {"importModule3.json"}
+                {"importModule3.json"},
+                {"importModuleWithModAlias1.json"},
+                {"importModuleWithModAlias2.json"}
         };
     }
 }
