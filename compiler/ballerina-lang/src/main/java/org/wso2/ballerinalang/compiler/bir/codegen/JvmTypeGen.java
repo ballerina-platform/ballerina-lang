@@ -1095,14 +1095,4 @@ public class JvmTypeGen {
         }
     }
 
-//    public void loadLocalType(MethodVisitor mv, BType type) {
-//        if (type.tag == TypeTags.TYPEREFDESC) {
-//            String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(type.tsymbol.pkgID,
-//                    JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
-//            mv.visitFieldInsn(GETSTATIC, typeOwner,
-//                    JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) type), GET_TYPE_REF_TYPE_IMPL);
-//        } else {
-//            loadType(mv, type);
-//        }
-//    }
 }
