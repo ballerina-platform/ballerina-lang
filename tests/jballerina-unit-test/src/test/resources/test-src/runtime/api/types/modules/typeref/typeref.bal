@@ -84,6 +84,7 @@ public function validateTypeRef() {
     testRuntimeTypeRef();
     validateArray();
     validateFunctionParameters();
+    validateRuntimeAPIs();
 }
 
 function validateFunctionParameters() {

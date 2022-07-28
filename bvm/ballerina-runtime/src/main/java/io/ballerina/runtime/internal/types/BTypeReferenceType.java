@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -69,6 +70,11 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
             return this.referredType.equals(((BTypeReferenceType) obj).getReferredType());
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), referredType);
     }
 
     @Override
