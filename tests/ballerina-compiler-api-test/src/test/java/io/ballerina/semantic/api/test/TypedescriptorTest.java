@@ -151,6 +151,27 @@ public class TypedescriptorTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
+    @Test(dataProvider = "ParameterizedReturnTypePosProvider")
+    public void testParameterizedReturnType(int line, int col, String expSignature) {
+        Project project = BCompileUtil.loadProject("test-src/parameterized_return_type_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(line, col));
+        assertTrue(optionalSymbol.isPresent());
+        Symbol symbol = optionalSymbol.get();
+        Optional<TypeSymbol> returnTypeDescriptor = ((MethodSymbol) symbol).typeDescriptor().returnTypeDescriptor();
+        assertTrue(returnTypeDescriptor.isPresent());
+        assertEquals(returnTypeDescriptor.get().signature(), expSignature);
+    }
+
+    @DataProvider(name = "ParameterizedReturnTypePosProvider")
+    private Object[][] getParameterizedReturnTypePos() {
+        return new Object[][] {
+                {25, 9, "anydata"},
+                {26, 7, "int|string"},
+        };
+    }
+
     @Test
     public void testAnnotationType() {
         Symbol symbol = getSymbol(22, 37);
