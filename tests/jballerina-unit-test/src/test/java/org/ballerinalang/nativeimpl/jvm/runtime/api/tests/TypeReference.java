@@ -46,8 +46,7 @@ import io.ballerina.runtime.internal.values.ObjectValue;
 import java.util.List;
 
 /**
- * This class contains a set of utility methods required for runtime api
- * @{@link io.ballerina.runtime.internal.types.BTypeReferenceType} testing.
+ * Utility methods used for runtime api @{@link io.ballerina.runtime.internal.types.BTypeReferenceType} testing.
  *
  * @since 2.3.0
  */
