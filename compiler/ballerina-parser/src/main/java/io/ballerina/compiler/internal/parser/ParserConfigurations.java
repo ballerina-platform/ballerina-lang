@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 public final class ParserConfigurations {
 
     private ResourceBundle properties = null;
+    private ResourceBundle defaultProperties = null;
     private static volatile ParserConfigurations instance = null;
     private static String language = "en";
     private static String country = "LK";
@@ -38,6 +39,7 @@ public final class ParserConfigurations {
             currentLanguage = new Locale(language, country);
         }
         this.properties = ResourceBundle.getBundle("token", currentLanguage);
+        this.defaultProperties = ResourceBundle.getBundle("token", new Locale("en", "LK"));
     }
 
     public static ParserConfigurations getInstance() {
@@ -55,7 +57,7 @@ public final class ParserConfigurations {
         if (this.properties.containsKey(key)) {
             return this.properties.getString(key);
         } else {
-            return key;
+            return this.defaultProperties.getString(key);
         }
     }
 }

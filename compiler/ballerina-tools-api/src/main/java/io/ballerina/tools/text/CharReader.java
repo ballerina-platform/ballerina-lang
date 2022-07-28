@@ -97,4 +97,8 @@ public class CharReader {
     public boolean isEOF() {
         return offset >= charBufferLength;
     }
+
+    public int getOffset() {
+        return offset;
+    }
 }

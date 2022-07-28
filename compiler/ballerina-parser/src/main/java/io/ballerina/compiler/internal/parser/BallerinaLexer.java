@@ -1298,7 +1298,6 @@ public class BallerinaLexer extends AbstractLexer {
             default:
                 // this is '!is'
                 if (isNotIsToken()) {
-                    reader.advance(2);
                     return getSyntaxToken(SyntaxKind.NOT_IS_KEYWORD);
                  }
                 // this is '!'
@@ -1307,8 +1306,18 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     private boolean isNotIsToken() {
-        return (reader.peek() == 'i' && reader.peek(1) == 's') &&
-                !(isIdentifierFollowingChar(reader.peek(2)) || reader.peek(2) == LexerTerminals.BACKSLASH);
+        int offset = reader.getOffset();
+        reader.mark();
+        while (isIdentifierFollowingChar(reader.peek())) {
+            reader.advance();
+        }
+
+        if (reader.getMarkedChars().equals(LexerTerminals.IS) && !(reader.peek() == LexerTerminals.BACKSLASH)) {
+            return true;
+        } else {
+            reader.reset(offset);
+            return false;
+        }
     }
 
     /**
