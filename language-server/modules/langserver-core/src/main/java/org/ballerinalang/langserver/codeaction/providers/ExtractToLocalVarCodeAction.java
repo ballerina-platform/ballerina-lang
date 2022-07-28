@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Code Action for extracting to a local variable.
+ * Code Action for extracting an expression to a local variable.
  *
  * @since 2201.2.0
  */
@@ -70,7 +70,11 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
-        return CodeActionNodeValidator.validate(context.nodeAtRange());
+        Node node = positionDetails.matchedCodeActionNode();
+        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent()
+                && CodeActionNodeValidator.validate(context.nodeAtRange()) && 
+                !(node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && node.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)
+                && !(node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL);
     }
 
     /**
@@ -80,16 +84,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     public List<CodeAction> getCodeActions(CodeActionContext context,
                                            RangeBasedPositionDetails posDetails) {
         
-        if (context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty()) {
-            return Collections.emptyList();
-        }
-        
         Node node = posDetails.matchedCodeActionNode(); 
-        if ((node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && node.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR) 
-                || (node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL)) {
-            return Collections.emptyList();
-        }
-        
         String varName = getLocalVarName(context);
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
@@ -98,15 +93,10 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        Node statementNode = node;
-        while (statementNode != null && !(statementNode instanceof StatementNode) 
-                && !(statementNode instanceof ModuleMemberDeclarationNode)) {
-            statementNode = statementNode.parent();
-        }
+        Node statementNode = getStatementNode(node);
         if (statementNode == null) {
             return Collections.emptyList();
         }
-        
         String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
         String varDeclStr = String.format("%s %s = %s;%n%s", typeSymbol.get().signature(), varName, value, paddingStr);
         Position varDeclPos = new Position(statementNode.lineRange().startLine().line(), 
@@ -119,6 +109,20 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 List.of(varDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract));
     }
 
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    private Node getStatementNode(Node node) {
+        Node statementNode = node;
+        while (statementNode != null && !(statementNode instanceof StatementNode)
+                && !(statementNode instanceof ModuleMemberDeclarationNode)) {
+            statementNode = statementNode.parent();
+        }
+        return statementNode;
+    }
+
     private String getLocalVarName(CodeActionContext context) {
         Position pos = context.range().getEnd();
         Set<String> allNames = context.visibleSymbols(new Position(pos.getLine(), pos.getCharacter())).stream()
@@ -128,10 +132,5 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 .collect(Collectors.toSet());
         
         return NameUtil.generateTypeName(VARIABLE_NAME_PREFIX, allNames);
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 }
