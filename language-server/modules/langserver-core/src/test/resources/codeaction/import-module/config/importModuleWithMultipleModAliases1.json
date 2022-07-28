@@ -1,0 +1,48 @@
+{
+  "position": {
+    "line": 3,
+    "character": 24
+  },
+  "source": "project/main.bal",
+  "description": "Change module prefix when multiple mod aliases available for the same module prefix: ballerina/module1 and project.module1",
+  "expected": [
+    {
+      "title": "Change module prefix to 'balMod1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 21
+            },
+            "end": {
+              "line": 3,
+              "character": 28
+            }
+          },
+          "newText": "balMod1"
+        }
+      ]
+    },
+    {
+      "title": "Change module prefix to 'mod1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 21
+            },
+            "end": {
+              "line": 3,
+              "character": 28
+            }
+          },
+          "newText": "mod1"
+        }
+      ]
+    }
+  ]
+}

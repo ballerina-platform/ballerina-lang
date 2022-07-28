@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.imports;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -23,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
@@ -45,7 +47,9 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Code Action for importing a module.
@@ -88,27 +92,37 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         List<LSPackageLoader.PackageInfo> packagesList = LSPackageLoader
                 .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
 
-        // Check if we already have a package imported with the given prefix
-        Optional<String> existingPrefix = context.currentDocImportsMap().keySet().stream()
-                .filter(importDecl -> modulePrefix
-                        .equals(importDecl.moduleName().get(importDecl.moduleName().size() - 1).text()))
-                .map(ImportDeclarationNode::prefix)
-                .filter(Optional::isPresent)
-                .map(prefixNode -> prefixNode.get().prefix().text())
-                .findAny();
+        // Check if we already have packages imported with the given module prefix but with different aliases
+        List<ModuleSymbol> existingModules = context.currentDocImportsMap().entrySet().stream()
+                .filter(entry -> modulePrefix
+                        .equals(entry.getKey().moduleName().get(entry.getKey().moduleName().size() - 1).text()))
+                .filter(entry -> entry.getKey().prefix().isPresent())
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
 
-        // If there's already an import with the module prefix, but with an alias, we suggest to use that instead
-        if (existingPrefix.isPresent()) {
-            Range insertRange = PositionUtil.toRange(qNameReferenceNode.get().modulePrefix().lineRange());
-            List<TextEdit> edits = Collections.singletonList(new TextEdit(insertRange, existingPrefix.get()));
-            CodeAction action = CodeActionUtil.createCodeAction(
-                    String.format(CommandConstants.CHANGE_MODULE_PREFIX_TITLE, existingPrefix.get()),
-                    edits, uri, CodeActionKind.QuickFix);
-            return List.of(action);
-        }
+        // List of existing mod aliases with the given module prefix
+        List<String> existingPrefixes = existingModules.stream()
+                .map(mod -> mod.id().modulePrefix())
+                .collect(Collectors.toList());
 
         List<CodeAction> actions = new ArrayList<>();
+
+        // If there are already imports with the module prefix, but with aliases, we suggest to use that instead
+        for (String existingPrefix : existingPrefixes) {
+            Range insertRange = PositionUtil.toRange(qNameReferenceNode.get().modulePrefix().lineRange());
+            List<TextEdit> edits = Collections.singletonList(new TextEdit(insertRange, existingPrefix));
+            CodeAction codeAction = CodeActionUtil.createCodeAction(
+                    String.format(CommandConstants.CHANGE_MODULE_PREFIX_TITLE, existingPrefix),
+                    edits, uri, CodeActionKind.QuickFix);
+            actions.add(codeAction);
+        }
+
+        // Here we filter out the already imported packages
         packagesList.stream()
+                .filter(pkgEntry -> existingModules.stream()
+                        .noneMatch(moduleSymbol -> moduleSymbol.id().orgName().equals(pkgEntry.packageOrg().value()) &&
+                                moduleSymbol.id().moduleName().equals(pkgEntry.packageName().value()))
+                )
                 .filter(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
                     return pkgName.endsWith("." + modulePrefix) || pkgName.equals(modulePrefix);
