@@ -52,6 +52,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
         return Arrays.asList(SyntaxKind.CLASS_DEFINITION,
                 SyntaxKind.SERVICE_DECLARATION,
                 SyntaxKind.OBJECT_METHOD_DEFINITION,
+                SyntaxKind.OBJECT_CONSTRUCTOR,
                 SyntaxKind.MODULE_VAR_DECL,
                 SyntaxKind.METHOD_DECLARATION,
                 SyntaxKind.LOCAL_VAR_DECL);
@@ -62,6 +63,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
 
         if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.CLASS_DEFINITION
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_CONSTRUCTOR
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.MODULE_VAR_DECL
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.LOCAL_VAR_DECL
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
