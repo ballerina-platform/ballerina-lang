@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "Person variable \u003d new Person(\"Anne\", 25);\n    "
+          "newText": "Person var1 \u003d new Person(\"Anne\", 25);\n    "
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 42
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }

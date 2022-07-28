@@ -2,14 +2,14 @@
   "range": {
     "start": {
       "line": 3,
-      "character": 4
+      "character": 11
     },
     "end": {
       "line": 3,
-      "character": 18
+      "character": 22
     }
   },
-  "source": "extractToVariableInBinaryExpression.bal",
+  "source": "extractToVariableInBinaryExpression2.bal",
   "expected": [
     {
       "title": "Extract to local variable",
@@ -18,28 +18,28 @@
         {
           "range": {
             "start": {
-              "line": 2,
-              "character": 4
+              "line": 3,
+              "character": 0
             },
             "end": {
-              "line": 2,
-              "character": 4
+              "line": 3,
+              "character": 0
             }
           },
-          "newText": "int variable \u003d length + width;\n    "
+          "newText": "int var4 \u003d var1 * var2;\n"
         },
         {
           "range": {
             "start": {
               "line": 3,
-              "character": 4
+              "character": 11
             },
             "end": {
               "line": 3,
-              "character": 18
+              "character": 22
             }
           },
-          "newText": "variable"
+          "newText": "var4"
         }
       ]
     }

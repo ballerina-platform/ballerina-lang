@@ -1,5 +1,5 @@
 
-int length = 10;
-int width = 20;
-int area = length * width;
+int var1 = 10;
+int var2 = 20;
+int var3 = var1 * var2;
 

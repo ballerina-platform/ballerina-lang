@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "boolean variable \u003d (area \u003d\u003d 5);\n    "
+          "newText": "boolean var1 \u003d (area \u003d\u003d 5);\n    "
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 18
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }

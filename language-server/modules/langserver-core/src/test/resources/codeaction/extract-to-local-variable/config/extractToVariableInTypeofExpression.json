@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "typedesc\u003cT1\u003e variable \u003d typeof a;\n    "
+          "newText": "typedesc\u003cT1\u003e var1 \u003d typeof a;\n    "
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 30
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }

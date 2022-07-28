@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int[] variable \u003d [1,2,3,4];\n    "
+          "newText": "int[] var1 \u003d [1,2,3,4];\n    "
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 28
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }
