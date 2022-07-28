@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int variable \u003d length * width;\n    "
+          "newText": "int var1 \u003d length * width;\n    "
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 29
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }

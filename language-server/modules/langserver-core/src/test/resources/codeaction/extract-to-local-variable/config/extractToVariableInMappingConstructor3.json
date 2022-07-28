@@ -26,7 +26,7 @@
               "character": 0
             }
           },
-          "newText": "record {|string field2;|} variable \u003d {field2: \"\"};\n"
+          "newText": "record {|string field2;|} var1 \u003d {field2: \"\"};\n"
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 27
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }

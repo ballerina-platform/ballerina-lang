@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int variable \u003d intArr[0];\n    "
+          "newText": "int var1 \u003d intArr[0];\n    "
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 31
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }

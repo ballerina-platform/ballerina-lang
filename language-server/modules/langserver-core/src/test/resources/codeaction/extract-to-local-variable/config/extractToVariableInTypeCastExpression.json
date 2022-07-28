@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int variable \u003d \u003cint\u003efloatVal;\n    "
+          "newText": "int var1 \u003d \u003cint\u003efloatVal;\n    "
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 30
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }

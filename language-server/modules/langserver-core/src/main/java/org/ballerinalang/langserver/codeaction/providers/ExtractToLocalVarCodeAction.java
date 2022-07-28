@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Extract To Local Variable";
-    private static final String VARIABLE_NAME_PREFIX = "variable";
+    private static final String VARIABLE_NAME_PREFIX = "var";
 
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL, SyntaxKind.STRING_LITERAL,
@@ -106,6 +106,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         if (statementNode == null) {
             return Collections.emptyList();
         }
+        
         String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
         String varDeclStr = String.format("%s %s = %s;%n%s", typeSymbol.get().signature(), varName, value, paddingStr);
         Position varDeclPos = new Position(statementNode.lineRange().startLine().line(), 

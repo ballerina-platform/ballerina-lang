@@ -20,7 +20,7 @@
               "character": 5
             }
           },
-          "newText": "int variable \u003d foo();\n     "
+          "newText": "int var1 \u003d foo();\n     "
         },
         {
           "range": {
@@ -33,7 +33,7 @@
               "character": 34
             }
           },
-          "newText": "variable"
+          "newText": "var1"
         }
       ]
     }
