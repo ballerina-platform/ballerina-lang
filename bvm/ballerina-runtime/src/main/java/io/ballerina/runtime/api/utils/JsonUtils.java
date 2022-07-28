@@ -35,6 +35,7 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.JsonGenerator;
+import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
@@ -52,10 +53,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.JsonUtils.convertArrayToJSON;
-import static io.ballerina.runtime.internal.JsonUtils.convertMapToJSON;
-import static io.ballerina.runtime.internal.JsonUtils.jsonToMap;
-import static io.ballerina.runtime.internal.JsonUtils.toJSON;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
@@ -155,7 +152,7 @@ public class JsonUtils {
      * @return JSON representation of the provided bTable
      */
     public static Object parse(BTable bTable) {
-        return toJSON(bTable);
+        return JsonInternalUtils.toJSON(bTable);
     }
 
     /**
@@ -165,7 +162,7 @@ public class JsonUtils {
      * @return JSON representation of the provided bArray
      */
     public static Object parse(BArray bArray) {
-        return convertArrayToJSON(bArray);
+        return JsonInternalUtils.convertArrayToJSON(bArray);
     }
 
     /**
@@ -176,7 +173,7 @@ public class JsonUtils {
      * @return JSON representation of the provided array
      */
     public static Object parse(BMap<BString, ?> map, JsonType targetType) {
-        return convertMapToJSON(map, targetType);
+        return JsonInternalUtils.convertMapToJSON(map, targetType);
     }
 
     /**
@@ -189,7 +186,7 @@ public class JsonUtils {
      * @throws BError If conversion fails.
      */
     public static BMap<BString, ?> convertJSONToMap(Object json, MapType mapType) throws BError {
-        return jsonToMap(json, mapType);
+        return JsonInternalUtils.jsonToMap(json, mapType);
     }
 
     /**
@@ -202,7 +199,7 @@ public class JsonUtils {
      * @throws BError If conversion fails.
      */
     public static BMap<BString, Object> convertJSONToRecord(Object record, StructureType structType) throws BError {
-        return io.ballerina.runtime.internal.JsonUtils.convertJSONToRecord(record, structType);
+        return JsonInternalUtils.convertJSONToRecord(record, structType);
     }
 
     /**
@@ -214,7 +211,7 @@ public class JsonUtils {
      * @throws BError If conversion fails.
      */
     public static Object convertJSON(Object source, Type targetType) throws BError {
-        return convertJSON(source, targetType);
+        return JsonInternalUtils.convertJSON(source, targetType);
     }
 
     /**
@@ -226,7 +223,7 @@ public class JsonUtils {
      * @throws BError If conversions fails.
      */
     public static Object convertUnionTypeToJSON(Object source, JsonType targetType) throws BError {
-        return convertUnionTypeToJSON(source, targetType);
+        return JsonInternalUtils.convertUnionTypeToJSON(source, targetType);
     }
 
     /**
@@ -283,26 +280,20 @@ public class JsonUtils {
 
     public static Object convertToJson(Object value, List<TypeValuePair> unresolvedValues) {
         Type jsonType = PredefinedTypes.TYPE_JSON;
-
         if (value == null) {
             return null;
         }
-
         Type sourceType = TypeChecker.getType(value);
-
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value, jsonType)) {
             return value;
         }
-
         TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);
-
         if (unresolvedValues.contains(typeValuePair)) {
             throw createCyclicValueReferenceError(value);
         }
-
         unresolvedValues.add(typeValuePair);
-
         Object newValue;
+
         switch (sourceType.getTag()) {
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -322,7 +313,7 @@ public class JsonUtils {
                     newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
                 } else {
                     try {
-                        newValue = toJSON(bTable);
+                        newValue = JsonInternalUtils.toJSON(bTable);
                     } catch (Exception e) {
                         throw createConversionError(value, jsonType, e.getMessage());
                     }
@@ -336,7 +327,6 @@ public class JsonUtils {
             default:
                 throw createConversionError(value, jsonType);
         }
-
         unresolvedValues.remove(typeValuePair);
         return newValue;
     }
