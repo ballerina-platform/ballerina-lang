@@ -4,4 +4,3 @@ function testFunction(int length, int width) {
         //do something
     }
 }
-
