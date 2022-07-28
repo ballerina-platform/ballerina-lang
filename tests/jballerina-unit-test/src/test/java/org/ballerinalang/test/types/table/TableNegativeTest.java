@@ -47,7 +47,7 @@ public class TableNegativeTest {
                 "key constraint type '[string]'", 30, 26);
         validateError(compileResult, index++, "table key specifier mismatch. expected: '[id]' but " +
                 "found '[address]'", 35, 44);
-        validateError(compileResult, index++, "member access is not supported for keyless table " +
+        validateError(compileResult, index++, "member access is not supported for table " +
                 "'customerTable'", 45, 21);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
                 "'map<any|error>' but found 'int'", 47, 7);
@@ -59,7 +59,7 @@ public class TableNegativeTest {
                 "field", 75, 28);
         validateError(compileResult, index++, "value expression of key specifier 'id' must be a " +
                 "constant expression", 82, 41);
-        validateError(compileResult, index++, "member access is not supported for keyless table " +
+        validateError(compileResult, index++, "member access is not supported for table " +
                 "'keylessCusTab'", 87, 27);
         validateError(compileResult, index++, "value expression of key specifier 'id' must be a " +
                 "constant expression", 90, 33);
@@ -127,13 +127,13 @@ public class TableNegativeTest {
                 " found 'table<record {| (any|error) a; |}>'", 311, 13);
         validateError(compileResult, index++, "incompatible types: expected 'int'," +
                 " found 'table<record {| (0|1|2|3) a; |}>'", 324, 13);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl1'", 334, 9);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl2'", 340, 9);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl3'", 346, 9);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl4'", 352, 9);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl5'", 358, 9);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl6'", 364, 9);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl7'", 370, 9);
+        validateError(compileResult, index++, "member access is not supported for table 'tbl1'", 334, 9);
+        validateError(compileResult, index++, "member access is not supported for table 'tbl2'", 340, 9);
+        validateError(compileResult, index++, "member access is not supported for table 'tbl3'", 346, 9);
+        validateError(compileResult, index++, "member access is not supported for table 'tbl4'", 352, 9);
+        validateError(compileResult, index++, "member access is not supported for table 'tbl5'", 358, 9);
+        validateError(compileResult, index++, "member access is not supported for table 'tbl6'", 364, 9);
+        validateError(compileResult, index++, "member access is not supported for table 'tbl7'", 370, 9);
         validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 378, 5);
         validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 384, 5);
         validateError(compileResult, index++, "cannot update 'table<record {| string name?; |}>' with " +
@@ -151,7 +151,7 @@ public class TableNegativeTest {
                 422, 76);
         validateError(compileResult, index++, "incompatible types: expected 'CustomerTable', " +
                         "found 'CustomerEmptyKeyedTbl'", 424, 23);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl2'", 433, 9);
+        validateError(compileResult, index++, "member access is not supported for table 'tbl2'", 433, 9);
         validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 434, 5);
         validateError(compileResult, index++, "incompatible types: expected '(table<Student>|int)', " +
                 "found 'table<record {| readonly int id; string firstName; string lastName; |}>'", 444, 28);
@@ -178,6 +178,19 @@ public class TableNegativeTest {
                 520, 5);
         validateError(compileResult, index++, "value expression of key specifier 'z' must be a constant expression",
                 520, 5);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'table<Employee2>'", 533, 9);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'table<Employee2>'", 539, 9);
+        validateError(compileResult, index++, "incompatible types: expected 'never', found 'int'", 551, 29);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'table<record {| int id; string name; |}>'", 563, 9);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'table<record {| int id; |}>'", 566, 9);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 

@@ -139,30 +139,38 @@ public class FileSystemRepository extends AbstractPackageRepository {
             return packagesMap;
         }
         for (File file : orgDirs) {
-            if (!file.isDirectory()) {
+            if (!file.isDirectory() || file.isHidden()) {
                 continue;
             }
             String orgName = file.getName();
             File[] filesList = this.bala.resolve(orgName).toFile().listFiles();
             if (filesList == null) {
-                return packagesMap;
+                continue;
             }
             List<String> pkgList = new ArrayList<>();
             for (File pkgDir : filesList) {
-                if (!pkgDir.isDirectory() || pkgDir.isHidden()) {
+                if (!pkgDir.isDirectory()) {
                     continue;
                 }
                 File[] pkgs = this.bala.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
                 if (pkgs == null) {
                     continue;
                 }
-                String version = "";
+                String version = null;
                 for (File listFile : pkgs) {
                     if (listFile.isHidden() || !listFile.isDirectory()) {
                         continue;
                     }
                     version = listFile.getName();
                     break;
+                }
+                if (version == null) {
+                    continue;
+                }
+                try {
+                    PackageVersion.from(version);
+                } catch (ProjectException ignored) {
+                    continue;
                 }
                 pkgList.add(pkgDir.getName() + ":" + version);
             }

@@ -7,7 +7,7 @@ Ballerina Language Server provides the following editor features.
     * [2.1. Editor-Language Server Communication](#editor-language-server-communication)
     * [2.2. Code Action Types](#code-action-types)
       * [2.2.1. Diagnostics based Code Actions](#21-diagnostic-based-code-actions) 
-      * [2.2.2. Node based Code Actions](#22-node-based-code-actions) 
+      * [2.2.2. Range based Code Actions](#22-range-based-code-actions) 
       * [2.2.3. Compiler Plugin Code Actions](#23-compiler-plugin-based-code-actions) 
     * [2.3. Command Executors](#command-executors)
 * Rename
@@ -21,8 +21,7 @@ Ballerina Language Server provides the following editor features.
 ## Completions
 
 Suggestions and Auto-Completions are triggered while you are typing and also allows you to request suggestions
-explicitly for a given context with the <kbd>Ctrl</kbd> + <kbd>Space</kbd>. (or <kbd>&#8984; Command</kbd> + <kbd>
-Space</kbd> in Mac)
+explicitly for a given context with the <kbd>Ctrl</kbd> + <kbd>Space</kbd>. (<kbd>&#8984; Command</kbd> + <kbd>i</kbd> or <kbd>&#8997; option</kbd> + <kbd>esc</kbd> in Mac)
 
 ## Code Actions
 
@@ -76,57 +75,48 @@ sequenceDiagram
 There are 3 types of code actions in the Ballerina Language Server.
 
 1. [Diagnostics based Code Actions](#21-diagnostic-based-code-actions)
-2. [Node based Code Actions](#22-node-based-code-actions)
+2. [Range based Code Actions](#22-range-based-code-actions)
 3. [Compiler plugin Code Actions](#23-compiler-plugin-based-code-actions)
 
 #### 2.1. Diagnostic Based Code Actions
 
-* Whenever there's a diagnostics message in the current cursor position these type of code-actions are getting
+* Whenever there's a diagnostics message in the current cursor position(or within the highlighted range) these type of code-actions are getting
   triggered.
 
-* Can be implemented using Java Service loader
-  interface `LSCodeActionProvider` [here](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java)
+* Can be implemented using [interface](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/DiagnosticBasedCodeActionProvider.java) `DiagnosticBasedCodeActionProvider`
+  and loaded using Java Service loader [interface]((https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java)) `LSCodeActionProvider`.
 
 An example:
 
 ```java
-
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateVariableCodeAction extends AbstractCodeActionProvider {
-
+public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvider {
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         // return list of code-actions
     }
 }
 ```
 
-#### 2.2. Node Based Code Actions
+#### 2.2. Range Based Code Actions
+* Whenever the syntaxKind of the selected range(highlighted code range) matches pre-declared set of syntax kinds, these type of code-actions are getting triggered.
 
-* Whenever the node-type of the current cursor position matches pre-declared node-types, these type of code-actions are
-  getting triggered.
-
-* Supported node-types includes variables, functions, objects, classes, services...etc. The complete list can be found
-  in [here](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/CodeActionNodeType.java)
-
-* Can be implemented using the same Java Service loader
-  interface `LSCodeActionProvider` [here](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java)
+* Can be implemented using [interface](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/RangeBasedCodeActionProvider.java) `RangeBasedCodeActionProvider`
+  and loaded using Java Service loader [interface]((https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/modules/langserver-commons/src/main/java/org/ballerinalang/langserver/commons/codeaction/spi/LSCodeActionProvider.java)) `LSCodeActionProvider`.
 
 An example:
 
 ```java
-
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
+public class AddDocumentationCodeAction extends RangeBasedCodeActionProvider {
+    public getSyntaxKinds() {
+        return List.of(SyntaxKind.FUNCTION_DEFINITION, SyntaxKind.OBJECT_TYPE_DESC);
+    }
 
-  public AddDocumentationCodeAction() {
-    super(Arrays.asList(CodeActionNodeType.FUNCTION, CodeActionNodeType.OBJECT));
-  }
-
-  public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
-    // return list of code-actions
-  }
+    public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
+        // return list of code-actions
+    }
 }
 ```
 
@@ -147,7 +137,6 @@ An Example:
 
 ```java
 public interface LSCommandExecutor {
-
     Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         return new ApplyWorkspaceEditParams();
     }

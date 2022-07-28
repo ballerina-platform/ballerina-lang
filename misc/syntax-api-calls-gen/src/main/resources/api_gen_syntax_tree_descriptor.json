@@ -4350,7 +4350,8 @@
         },
         {
           "name": "paramName",
-          "type": "Token"
+          "type": "Token",
+          "isOptional": true
         },
         {
           "name": "closeBracketToken",
@@ -4425,6 +4426,87 @@
         {
           "name": "expression",
           "type": "ExpressionNode"
+        }
+      ]
+    },
+    {
+      "name": "ClientResourceAccessActionNode",
+      "base": "ActionNode",
+      "kind": "RESOURCE_METHOD_CALL_ACTION",
+      "attributes": [
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "rightArrowToken",
+          "type": "Token"
+        },
+        {
+          "name": "slashToken",
+          "type": "Token"
+        },
+        {
+          "name": "resourceAccessPath",
+          "type": "Node",
+          "occurrences": "MULTIPLE_SEPARATED"
+        },
+        {
+          "name": "dotToken",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "methodName",
+          "type": "SimpleNameReferenceNode",
+          "isOptional": true
+        },
+        {
+          "name": "arguments",
+          "type": "ParenthesizedArgList",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ComputedResourceAccessSegmentNode",
+      "base": "Node",
+      "kind": "COMPUTED_RESOURCE_ACCESS_SEGMENT",
+      "attributes": [
+        {
+          "name": "openBracketToken",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "closeBracketToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ResourceAccessRestSegmentNode",
+      "base": "Node",
+      "kind": "RESOURCE_ACCESS_REST_SEGMENT",
+      "attributes": [
+        {
+          "name": "openBracketToken",
+          "type": "Token"
+        },
+        {
+          "name": "ellipsisToken",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "closeBracketToken",
+          "type": "Token"
         }
       ]
     }

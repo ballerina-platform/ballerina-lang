@@ -48,6 +48,7 @@ import java.util.List;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateHint;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -193,16 +194,17 @@ public class IsolationInferenceTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolation_non_inference_with_publicly_exposed_constructs.bal");
         int i = 0;
-        validateError(result, i++, getAttemptToExposeSymbolError("NonPubliclyExposedInferredClassUsedInNonPublicTypes"),
-                93, 5);
-        validateError(result, i++, getAttemptToExposeSymbolError("NonPubliclyExposedInferredClassUsedInNonPublicTypes"),
-                95, 43);
-        validateError(result, i++, getAttemptToExposeSymbolError(
+        validateWarning(result, i++,
+                getAttemptToExposeSymbolWarning("NonPubliclyExposedInferredClassUsedInNonPublicTypes"), 93, 5);
+        validateWarning(result, i++,
+                getAttemptToExposeSymbolWarning("NonPubliclyExposedInferredClassUsedInNonPublicTypes"), 95, 43);
+        validateWarning(result, i++, getAttemptToExposeSymbolWarning(
                 "NonPubliclyExposedInferredReadOnlyClassUsedInNonPublicTypes"), 96, 45);
-        validateError(result, i++, getAttemptToExposeSymbolError("ClassPubliclyExposedViaVariable"), 141, 1);
+        validateWarning(result, i++, getAttemptToExposeSymbolWarning("ClassPubliclyExposedViaVariable"), 141, 1);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 147, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 153, 5);
-        validateError(result, i++, getAttemptToExposeSymbolError("PubliclyExposedInferableClassUsedInRecord"), 158, 5);
+        validateWarning(result, i++, 
+                getAttemptToExposeSymbolWarning("PubliclyExposedInferableClassUsedInRecord"), 158, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 165, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 171, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 184, 5);
@@ -241,11 +243,11 @@ public class IsolationInferenceTest {
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 443, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 451, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 457, 5);
-        validateError(result, i++, getAttemptToExposeSymbolError("PubliclyExposedInferableClassUsedInClassMethodParam"),
-                464, 5);
-        validateError(result, i++, getAttemptToExposeSymbolError("PubliclyExposedInferableClassUsedInClassMethodParam"),
-                466, 43);
-        validateError(result, i++, getAttemptToExposeSymbolError(
+        validateWarning(result, i++,
+                getAttemptToExposeSymbolWarning("PubliclyExposedInferableClassUsedInClassMethodParam"), 464, 5);
+        validateWarning(result, i++,
+                getAttemptToExposeSymbolWarning("PubliclyExposedInferableClassUsedInClassMethodParam"), 466, 43);
+        validateWarning(result, i++, getAttemptToExposeSymbolWarning(
                 "PubliclyExposedInferableClassUsedInClassMethodReturnType"), 467, 45);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 474, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 480, 5);
@@ -253,16 +255,16 @@ public class IsolationInferenceTest {
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 494, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 505, 5);
         validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 511, 5);
-        validateError(result, i++, getAttemptToExposeSymbolError("PubliclyExposedInferableClassUsedInFunctionParam"),
-                515, 1);
-        validateError(result, i++, getAttemptToExposeSymbolError("PubliclyExposedInferableClassUsedInFunctionParam"),
-                517, 39);
-        validateError(result, i++, getAttemptToExposeSymbolError(
+        validateWarning(result, i++, 
+                getAttemptToExposeSymbolWarning("PubliclyExposedInferableClassUsedInFunctionParam"), 515, 1);
+        validateWarning(result, i++,
+                getAttemptToExposeSymbolWarning("PubliclyExposedInferableClassUsedInFunctionParam"), 517, 39);
+        validateWarning(result, i++, getAttemptToExposeSymbolWarning(
                 "PubliclyExposedInferableClassUsedInFunctionReturnType"), 518, 41);
         assertEquals(result.getDiagnostics().length, i);
     }
 
-    private String getAttemptToExposeSymbolError(String symbol) {
+    private String getAttemptToExposeSymbolWarning(String symbol) {
         return "attempt to expose non-public symbol '" + symbol + "'";
     }
 

@@ -28,12 +28,13 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -52,16 +53,16 @@ import java.util.stream.Collectors;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
+public class ExtractTypeCodeAction implements RangeBasedCodeActionProvider {
 
     private static final String RECORD_NAME_PREFIX = "Record";
 
-    public ExtractTypeCodeAction() {
-        super(List.of(CodeActionNodeType.RECORD));
+    public List<SyntaxKind> getSyntaxKinds() {
+        return List.of(SyntaxKind.RECORD_TYPE_DESC);
     }
 
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context, NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
         if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.RECORD_TYPE_DESC) {
             return Collections.emptyList();
         }
@@ -108,11 +109,11 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         typeDesc = String.format("%n%n%s", typeDesc);
-        
+
         TextEdit typeDescEdit = new TextEdit(extractedRecordRange, typeDesc);
         TextEdit replaceEdit = new TextEdit(originalNodeRange, typeName);
-        CodeAction codeAction = createCodeAction(CommandConstants.EXTRACT_TYPE, List.of(typeDescEdit, replaceEdit),
-                context.fileUri(), CodeActionKind.RefactorExtract);
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TYPE,
+                List.of(typeDescEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
         return List.of(codeAction);
     }
 

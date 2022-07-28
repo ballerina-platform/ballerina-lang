@@ -19,8 +19,11 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,23 +37,47 @@ public class BResourceFunction extends BAttachedFunction {
     public BVarSymbol restPathParam;
     public List<Name> resourcePath;
     public Name accessor;
+    public BTupleType resourcePathType;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
                              List<Name> resourcePath, Name accessor, List<BVarSymbol> pathParams,
-                             BVarSymbol restPathParam, Location pos) {
+                             BVarSymbol restPathParam, BTupleType resourcePathType, Location pos) {
         super(funcName, symbol, type, pos);
         this.resourcePath = resourcePath;
         this.accessor = accessor;
         this.pathParams = pathParams;
         this.restPathParam = restPathParam;
+        this.resourcePathType = resourcePathType;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("resource function ").append(accessor).append(" ");
-        sb.append(resourcePath.stream().map(r -> r.value).reduce((a, b) -> a + "/" + b).get());
-        sb.append(" ").append(type.getTypeSignature());
+        List<String> resourcePathStrings = new ArrayList<>(resourcePath.size());
+        for (int i = 0; i < resourcePath.size(); i++) {
+            Name resourcePath = this.resourcePath.get(i);
+            if (resourcePath.value.equals("*") || resourcePath.value.equals("$*")) {
+                resourcePathStrings.add("[" + resourcePathType.tupleTypes.get(i) + "]");
+            } else if (resourcePath.value.equals("**") || resourcePath.value.equals("$**")) {
+                resourcePathStrings.add("[" + resourcePathType.restType + "...]");
+            } else {
+                resourcePathStrings.add(resourcePath.value);
+            }
+        }
+        
+        sb.append(resourcePathStrings.stream().reduce((a, b) -> a + "/" + b).get());
+        
+        // Remove path params from `type.paramTypes`, otherwise path prams will appear in function signature
+        List<BType> originalParamTypes = type.paramTypes;
+        int pathParamCount = this.pathParams.size() + (this.restPathParam == null ? 0 : 1);
+        List<BType> paramTypes = new ArrayList<>(originalParamTypes.size() - pathParamCount);
+        paramTypes.addAll(originalParamTypes.subList(pathParamCount, originalParamTypes.size()));
+        type.paramTypes = paramTypes;
+        
+        sb.append(type.getTypeSignature());
+
+        type.paramTypes = originalParamTypes;
         return sb.toString();
     }
 }

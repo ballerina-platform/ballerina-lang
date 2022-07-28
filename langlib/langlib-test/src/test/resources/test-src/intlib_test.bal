@@ -108,18 +108,10 @@ function testLangLibCallOnFiniteType() {
 }
 
 function testIntOverflow() {
-    int a1 = -9223372036854775808;
-    int|error result = trap a1.abs();
+    int|error result = trap (-9223372036854775807 - 1).abs();
 
     test:assertValueEqual(true, result is error);
     error err = <error>result;
-    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
-    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
-
-    result = trap (-9223372036854775807 - 1).abs();
-
-    test:assertValueEqual(true, result is error);
-    err = <error>result;
     test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
     test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
 }
@@ -207,15 +199,15 @@ function testIntOverflowWithSum() {
 function testIntNonOverflowWithSum() {
     int a1 = int:MIN_VALUE;
     int result = a1.sum();
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a2 = -9223372036854775807;
     result = int:sum(a2, -1);
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a3 = -9223372036854775805;
     result = a3.sum(-1, -2);
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a4 = int:MAX_VALUE;
     result = a4.sum();
