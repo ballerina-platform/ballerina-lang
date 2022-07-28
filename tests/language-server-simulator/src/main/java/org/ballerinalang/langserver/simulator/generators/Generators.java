@@ -15,9 +15,15 @@
  */
 package org.ballerinalang.langserver.simulator.generators;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Factory to access {@link CodeSnippetGenerator}s.
@@ -26,13 +32,29 @@ import java.util.ServiceLoader;
  */
 public class Generators {
 
+    private static final Logger logger = LoggerFactory.getLogger(Generators.class);
+
+    private static final String PROP_SKIPPED_GENERATORS = "ls.simulation.skipGenerators";
     private static final Generators instance = new Generators();
     private final Map<Type, CodeSnippetGenerator> generators;
 
     private Generators() {
+        // Get skipped generators
+        String property = System.getProperty(PROP_SKIPPED_GENERATORS, "");
+        Set<Type> skippedGenerators = Stream.of(property.split(","))
+                .map(String::trim)
+                .map(Type::valueOf)
+                .collect(Collectors.toSet());
+        logger.info("Skipping generators of type: " + skippedGenerators);
+
+        // Load generators
         generators = new HashMap<>();
         ServiceLoader.load(CodeSnippetGenerator.class)
-                .forEach(generator -> generators.put(generator.type(), generator));
+                .forEach(generator -> {
+                    if (!skippedGenerators.contains(generator.type())) {
+                        generators.put(generator.type(), generator);
+                    }
+                });
     }
 
     /**
@@ -68,7 +90,7 @@ public class Generators {
         STATEMENT(false),
         MATCH_STATEMENT(false),
         VARIABLE_DECLARATION_STATEMENT(true),
-        
+
         IMPORT_STATEMENT(true);
 
         private final boolean topLevelNode;

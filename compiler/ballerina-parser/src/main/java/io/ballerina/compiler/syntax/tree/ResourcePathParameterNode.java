@@ -49,8 +49,8 @@ public class ResourcePathParameterNode extends NonTerminalNode {
         return optionalChildInBucket(3);
     }
 
-    public Token paramName() {
-        return childInBucket(4);
+    public Optional<Token> paramName() {
+        return optionalChildInBucket(4);
     }
 
     public Token closeBracketToken() {
@@ -130,7 +130,7 @@ public class ResourcePathParameterNode extends NonTerminalNode {
             this.annotations = oldNode.annotations();
             this.typeDescriptor = oldNode.typeDescriptor();
             this.ellipsisToken = oldNode.ellipsisToken().orElse(null);
-            this.paramName = oldNode.paramName();
+            this.paramName = oldNode.paramName().orElse(null);
             this.closeBracketToken = oldNode.closeBracketToken();
         }
 
@@ -163,7 +163,6 @@ public class ResourcePathParameterNode extends NonTerminalNode {
 
         public ResourcePathParameterNodeModifier withParamName(
                 Token paramName) {
-            Objects.requireNonNull(paramName, "paramName must not be null");
             this.paramName = paramName;
             return this;
         }

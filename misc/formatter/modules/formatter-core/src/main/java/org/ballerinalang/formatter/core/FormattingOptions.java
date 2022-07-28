@@ -28,15 +28,34 @@ public class FormattingOptions {
 
     private int columnLimit;
 
+    private boolean lineWrapping;
+
     FormattingOptions() {
         this.tabSize = 4;
         this.wsCharacter = " ";
         this.columnLimit = 120;
+        this.lineWrapping = false;
     }
 
-    FormattingOptions(int tabSize, String wsCharacter) {
+    public FormattingOptions(int tabSize, String wsCharacter) {
         this.tabSize = tabSize;
         this.wsCharacter = wsCharacter;
+        this.columnLimit = 120;
+        this.lineWrapping = false;
+    }
+
+    public FormattingOptions(boolean lineWrapping, int columnLimit) {
+        this.tabSize = 4;
+        this.wsCharacter = " ";
+        this.columnLimit = columnLimit;
+        this.lineWrapping = lineWrapping;
+    }
+
+    public FormattingOptions(int tabSize, String wsCharacter, boolean lineWrapping, int columnLimit) {
+        this.tabSize = tabSize;
+        this.wsCharacter = wsCharacter;
+        this.columnLimit = columnLimit;
+        this.lineWrapping = lineWrapping;
     }
 
     public int getTabSize() {
@@ -61,5 +80,13 @@ public class FormattingOptions {
 
     public int getColumnLimit() {
         return this.columnLimit;
+    }
+
+    public boolean getLineWrapping() {
+        return lineWrapping;
+    }
+
+    public void setLineWrapping(boolean lineWrapping) {
+        this.lineWrapping = lineWrapping;
     }
 }

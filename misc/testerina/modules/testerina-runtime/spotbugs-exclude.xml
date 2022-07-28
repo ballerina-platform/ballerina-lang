@@ -29,4 +29,7 @@
     <Match>
         <Package name="org.ballerinalang.test.runtime.entity"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.test.runtime.util.JacocoInstrumentUtils"/>
+    </Match>
 </FindBugsFilter>
