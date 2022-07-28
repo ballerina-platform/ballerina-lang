@@ -17,7 +17,14 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
@@ -28,7 +35,11 @@ import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
-import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +79,8 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                                                     RangeBasedPositionDetails posDetails) {
         
         Node node = posDetails.matchedCodeActionNode();
-        ExtractToConstantCodeAction.BasicLiteralNodeValidator nodeValidator = new ExtractToConstantCodeAction.BasicLiteralNodeValidator();
+        ExtractToConstantCodeAction.BasicLiteralNodeValidator nodeValidator 
+                = new ExtractToConstantCodeAction.BasicLiteralNodeValidator();
         node.accept(nodeValidator);
         if (nodeValidator.getInvalidNode()) {
             return Collections.emptyList();
@@ -82,17 +94,9 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
         
-        Node rootNode = context.currentSyntaxTree().get().rootNode();
-        ModulePartNode modulePartNode = (ModulePartNode) rootNode;
-        Position position = PositionUtil.toPosition(modulePartNode.lineRange().startLine());
-        NodeList<ImportDeclarationNode> importsList = modulePartNode.imports();
-        if (!importsList.isEmpty()) {
-            ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
-            position = new Position(lastImport.lineRange().endLine().line() + 2, 0);
-        }
-        
-        String constDeclStr = String.format("const %s %s = %s;%n%n", typeSymbol.get().signature(), constName, value);
-        TextEdit constDeclEdit = new TextEdit(new Range(position, position), constDeclStr);
+        Position constDeclPosition = getPosition(context);
+        String constDeclStr = String.format("const %s %s = %s;%n", typeSymbol.get().signature(), constName, value);
+        TextEdit constDeclEdit = new TextEdit(new Range(constDeclPosition, constDeclPosition), constDeclStr);
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
                 PositionUtil.toPosition(replaceRange.endLine())),  constName);
 
@@ -143,5 +147,16 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                 .collect(Collectors.toSet());
 
         return NameUtil.generateTypeName(CONSTANT_NAME_PREFIX, allNames);
+    }
+
+    private Position getPosition(CodeActionContext context) {
+        ModulePartNode modulePartNode = context.currentSyntaxTree().get().rootNode();
+        NodeList<ImportDeclarationNode> importsList = modulePartNode.imports();
+        
+        if (importsList.isEmpty()) {
+            return PositionUtil.toPosition(modulePartNode.lineRange().startLine());
+        }
+        ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
+        return new Position(lastImport.lineRange().endLine().line() + 2, 0);
     }
 }
