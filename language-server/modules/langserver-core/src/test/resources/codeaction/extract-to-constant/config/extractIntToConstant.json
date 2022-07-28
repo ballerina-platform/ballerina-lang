@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const int CONSTANT \u003d 10;\n\n"
+          "newText": "const int CONST \u003d 10;\n\n"
         },
         {
           "range": {
@@ -33,7 +33,7 @@
               "character": 23
             }
           },
-          "newText": "CONSTANT"
+          "newText": "CONST"
         }
       ]
     }

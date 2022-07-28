@@ -1,5 +1,5 @@
-const int CONSTANT1 = 10;
-const int CONSTANT2 = 10 + 20;
+const int CONST1 = 10;
+const int CONST2 = 10 + 20;
 
 function testFunction() {
     3.14;

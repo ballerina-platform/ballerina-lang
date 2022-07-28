@@ -3,7 +3,7 @@
     "line": 16,
     "character": 23
   },
-  "source": "extractToConstantNegative.bal",
+  "source": "extractToConstant.bal",
   "expected": [
     {
       "title": "Extract to constant",
@@ -12,15 +12,15 @@
         {
           "range": {
             "start": {
-              "line": 13,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line":13,
+              "line": 0,
               "character": 0
             }
           },
-          "newText": "const float CONSTANT \u003d 3.14;\n\n"
+          "newText": "const float CONST \u003d 3.14;\n\n"
         },
         {
           "range": {
@@ -33,7 +33,7 @@
               "character": 22
             }
           },
-          "newText": "CONSTANT"
+          "newText": "CONST"
         }
       ]
     }

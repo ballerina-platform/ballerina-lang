@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -50,11 +50,11 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
                 {"extractHexFloatingPointToConstant.json"},
                 {"extractBooleanToConstant.json"},
                 {"extractStringToConstant.json"},
-                {"extractReturnStmtToConstant.json"},
                 {"extractClassDefToConstant.json"},
                 {"extractIntRangeToConstant.json"},
                 {"extractExpressionToConstant.json"},
-                {"extractConstDeclToConstant1.json"}
+                {"extractConstDeclToConstant1.json"},
+                {"extractToConstantWithImports.json"}
         };
     }
 

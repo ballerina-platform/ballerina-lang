@@ -10,5 +10,9 @@
     }
 },
   "source": "extractToConstantNegative.bal",
-  "expected": []
+  "expected": [
+    {
+      "title": "Extract to constant"
+    }
+  ]
 }

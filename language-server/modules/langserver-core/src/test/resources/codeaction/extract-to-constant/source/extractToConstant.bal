@@ -19,4 +19,4 @@ class Square {
 	}
 }
 
-const int CONSTANT1 = 10 + 20;
+const int CONST1 = 10 + 20;
