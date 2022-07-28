@@ -1314,10 +1314,9 @@ public class BallerinaLexer extends AbstractLexer {
 
         if (reader.getMarkedChars().equals(LexerTerminals.IS) && !(reader.peek() == LexerTerminals.BACKSLASH)) {
             return true;
-        } else {
-            reader.reset(offset);
-            return false;
         }
+        reader.reset(offset);
+        return false;
     }
 
     /**
