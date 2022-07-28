@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Add annotation to a function.\n",
+    "oldCode": "public type Person object{\npublic function transform(){}\n}\n",
+    "newCode": "public type Person object{\n@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \npublic function transform(){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove annotation from a function.\n",
+    "oldCode": "public service type Person object{\n@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \nremote function transform(){}\n}\n",
+    "newCode": "public service type Person object{\nremote function transform(){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify annotation in a function.\n",
+    "oldCode": "public type Person object{\n@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \npublic function transform(){}\n}\n",
+    "newCode": "public type Person object{\n@test:Config{\n}\npublic function transform(){}\n}\n",
+    "expectedOutput": {}
+  }
+]

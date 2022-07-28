@@ -116,7 +116,7 @@ public class Foo {
 type Bar record {
 };
 
-class Listener {
+public class Listener {
     public function attach(service object {} s, string[]|string? name = ()) returns error? {
         return;
     }

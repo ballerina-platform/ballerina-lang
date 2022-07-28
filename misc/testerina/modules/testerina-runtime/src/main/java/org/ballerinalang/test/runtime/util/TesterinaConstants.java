@@ -46,6 +46,7 @@ public class TesterinaConstants {
     public static final String EXEC_FILE_NAME = "ballerina.exec";
     public static final String AGENT_FILE_NAME = "jacocoagent.jar";
     public static final String COVERAGE_DIR = "coverage";
+    public static final String JACOCO_INSTRUMENTED_DIR = "instrumented";
     public static final String STATUS_FILE = "module_status.json";
     public static final String COVERAGE_FILE = "module_coverage.json";
     public static final String RESULTS_JSON_FILE = "test_results.json";
@@ -72,4 +73,7 @@ public class TesterinaConstants {
     public static final String JACOCO_XML_FORMAT = "xml";
     public static final String DATA_KEY_SEPARATOR = "#";
     public static final String MODULE_SEPARATOR = ":";
+
+    public static final String MOCK_ANNOTATION_DELIMITER = "#";
+    public static final String MOCK_FN_DELIMITER = "~";
 }
