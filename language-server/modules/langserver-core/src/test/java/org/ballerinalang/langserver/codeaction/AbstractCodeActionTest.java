@@ -84,14 +84,19 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
-        Position pos = testConfig.position;
-        diags = diags.stream().
-                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
+        Range range = testConfig.range;
+        if (range == null) {
+            Position pos = testConfig.position;
+            range = new Range(pos, pos);
+        }
+
+        Range finalRange = range;
+        diags = diags.stream()
+                .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
-        Range range = new Range(pos, pos);
-        String res = getResponse(sourcePath, range, codeActionContext);
+        String res = getResponse(sourcePath, finalRange, codeActionContext);
 
         List<CodeActionObj> mismatchedCodeActions = new ArrayList<>();
         for (CodeActionObj expected : testConfig.expected) {
@@ -217,14 +222,18 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
-        Position pos = testConfig.position;
-        diags = diags.stream().
-                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
+        Range range = testConfig.range;
+        if (range == null) {
+            Position position = testConfig.position;
+            range = new Range(position, position);
+        }
+        Range finalRange = range;
+        diags = diags.stream()
+                .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
-        Range range = new Range(pos, pos);
-        String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), range, codeActionContext);
+        String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), finalRange, codeActionContext);
         for (CodeActionObj expected : testConfig.expected) {
             JsonObject responseJson = this.getResponseJson(res);
             for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
@@ -297,6 +306,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
      * Represents a code action test config.
      */
     static class TestConfig {
+        Range range;
         Position position;
         String source;
         List<CodeActionObj> expected;

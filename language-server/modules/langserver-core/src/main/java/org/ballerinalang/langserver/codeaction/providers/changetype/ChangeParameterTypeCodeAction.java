@@ -33,12 +33,12 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
@@ -56,7 +56,7 @@ import java.util.Set;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
+public class ChangeParameterTypeCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Change Parameter Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
@@ -64,17 +64,17 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
 
         // Skip, non-local var declarations
         VariableDeclarationNode localVarNode = getVariableDeclarationNode(positionDetails.matchedNode());
@@ -131,7 +131,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             edits.add(new TextEdit(paramTypeRange.get(), type));
             String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
                     type);
-            actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
+            actions.add(CodeActionUtil
+                    .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;
     }

@@ -122,13 +122,17 @@ public class ServiceDeclTest {
                 "test-src/services/service_relative_resource_path_negative.bal");
         int index = 0;
         validateError(compileResult, index++, "resource path cannot begin with slash", 35, 27);
-        validateError(compileResult, index++, "invalid token 'limit'", 40, 27);
-        validateError(compileResult, index++, "missing identifier", 40, 32);
-        validateError(compileResult, index++, "resource path cannot begin with slash", 43, 27);
-        validateError(compileResult, index++, "invalid token 'limit'", 43, 28);
-        validateError(compileResult, index++, "missing identifier", 43, 33);
-        validateError(compileResult, index++, "invalid token 'limit'", 46, 31);
-        validateError(compileResult, index++, "missing identifier", 46, 36);
+        validateError(compileResult, index++,
+                "resource path segment is not allowed after resource path rest parameter", 38, 44);
+        validateError(compileResult, index++,
+                "resource path segment is not allowed after resource path rest parameter", 38, 49);
+        validateError(compileResult, index++, "invalid token 'limit'", 43, 27);
+        validateError(compileResult, index++, "missing identifier", 43, 32);
+        validateError(compileResult, index++, "resource path cannot begin with slash", 46, 27);
+        validateError(compileResult, index++, "invalid token 'limit'", 46, 28);
+        validateError(compileResult, index++, "missing identifier", 46, 33);
+        validateError(compileResult, index++, "invalid token 'limit'", 49, 31);
+        validateError(compileResult, index++, "missing identifier", 49, 36);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

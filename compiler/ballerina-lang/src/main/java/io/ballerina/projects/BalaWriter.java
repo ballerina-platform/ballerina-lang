@@ -31,6 +31,7 @@ import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -41,7 +42,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -53,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
@@ -269,18 +270,25 @@ public abstract class BalaWriter {
     }
 
     private void addIncludes(ZipOutputStream balaOutputStream) throws IOException {
-        // adds all the includes to the root dir
-        List<String> includes = this.packageContext.packageManifest().includes();
-        for (String include : includes) {
-            Path includePath = Path.of(include);
-            if (!includePath.isAbsolute()) {
-                includePath = this.packageContext.project().sourceRoot().resolve(include);
-            }
-            Path includeInBala = getPathRelativeToPackageRoot(includePath);
-            if (includePath.toFile().isDirectory()) {
-                putDirectoryToZipFile(includePath, includeInBala, balaOutputStream);
-            } else {
-                putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includePath)));
+        List<String> includePatterns = this.packageContext.packageManifest().includes();
+        List<Path> includePaths = ProjectUtils.getPathsMatchingIncludePatterns(
+                includePatterns, this.packageContext.project().sourceRoot());
+
+        for (Path includePath: includePaths) {
+            Path includePathInPackage = this.packageContext.project().sourceRoot().resolve(includePath)
+                    .toAbsolutePath();
+            Path includeInBala = updateModuleDirectoryToMatchNamingInBala(includePath);
+            try {
+                if (includePathInPackage.toFile().isDirectory()) {
+                    putDirectoryToZipFile(includePathInPackage, includeInBala, balaOutputStream);
+                } else {
+                    putZipEntry(balaOutputStream, includeInBala,
+                            new FileInputStream(String.valueOf(includePathInPackage)));
+                }
+            } catch (ZipException e) {
+                if (!e.getMessage().contains("duplicate entry")) {
+                    throw e;
+                }
             }
         }
     }
@@ -304,21 +312,16 @@ public abstract class BalaWriter {
         }
     }
 
-    private Path getPathRelativeToPackageRoot(Path absolutePath) {
-        URI packagePathURI = this.packageContext.project().sourceRoot().toUri();
-        URI relativePathURI = packagePathURI.relativize(absolutePath.toUri());
-        Path relativePath = Paths.get(relativePathURI.getPath());
-        return updateModuleDirectory(relativePath);
-    }
-
-    private Path updateModuleDirectory(Path relativePath) {
+    private Path updateModuleDirectoryToMatchNamingInBala(Path relativePath) {
+        // a project with non-default module dir modules/<submodule_name> when packed into a BALA has the structure
+        // modules/<package_name>.<submodule_name>
         Path moduleRootPath = Path.of(MODULES_ROOT);
         if (relativePath.startsWith(moduleRootPath)) {
             String packageName = this.packageContext.packageName().toString();
             Path modulePath = moduleRootPath.resolve(moduleRootPath.relativize(relativePath).subpath(0, 1));
             Path pathInsideModule = modulePath.relativize(relativePath);
             String moduleName = Optional.ofNullable(modulePath.getFileName()).orElse(Paths.get("")).toString();
-            String updatedModuleName = packageName + "." + moduleName;
+            String updatedModuleName = packageName + ProjectConstants.DOT + moduleName;
             Path updatedModulePath = moduleRootPath.resolve(updatedModuleName);
             return updatedModulePath.resolve(pathInsideModule);
         }

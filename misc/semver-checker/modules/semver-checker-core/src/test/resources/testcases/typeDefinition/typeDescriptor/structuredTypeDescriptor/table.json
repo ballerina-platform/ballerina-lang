@@ -1,0 +1,20 @@
+[
+  {
+    "description": " Change table map types",
+    "oldCode": "public type Employee table<map<string|int>>;",
+    "newCode": "public type Employee table<map<string|string>>;",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add key value\n",
+    "oldCode": "public type Employee record{\n\tstring name;\nint salary;  \n};\npublic type Person table<Employee>; \n",
+    "newCode": "public type Employee record{\n\tstring name;\nint salary;  \n};\npublic type Person table<Employee> key<name>; \n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change key value",
+    "oldCode": "public type Employee record{\n\tstring name;\nint salary;  \n};\npublic type Person table<Employee> key<salary>; \n",
+    "newCode": "public type Employee record{\n\tstring name;\nint salary;  \n};\npublic type Person table<Employee> key<name>; \n",
+    "expectedOutput": {}
+  }
+]
