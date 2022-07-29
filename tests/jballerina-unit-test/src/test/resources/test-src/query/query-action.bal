@@ -84,7 +84,7 @@ function testSimpleQueryAction3() returns error? {
 function simpleQueryAction() returns string|error {
     check from int _ in [1, 3, 5]
     do {
-        returnNil();
+        check returnNil();
         return "string 1";
     };
     return "string 2";
@@ -93,7 +93,7 @@ function simpleQueryAction() returns string|error {
 function simpleQueryAction2() returns error? {
     check from int _ in [1, 3, 5]
     do {
-        returnNil();
+        check returnNil();
         return;
     };
     return;
