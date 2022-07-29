@@ -207,7 +207,7 @@ public class TupleAccessExprTest {
         BRunUtil.invoke(compileResult, funcName);
     }
 
-    @Test(dataProvider = "TupleWithRestTypesAccessFunctionList")
+    @Test(dataProvider = "dataToTestTupleWithRestTypesAccessFunctionList")
     public void testTupleWithRestTypesAccess(String funcName) {
         BRunUtil.invoke(compileResult, funcName);
     }
@@ -225,8 +225,8 @@ public class TupleAccessExprTest {
         };
     }
 
-    @DataProvider(name = "TupleWithRestTypesAccessFunctionList")
-    public Object[][] getTupleWithRestTypesFunctionNames() {
+    @DataProvider
+    public Object[][] dataToTestTupleWithRestTypesAccessFunctionList() {
         return new Object[][]{
                 {"testTupleWithRestTypesAccess"},
                 {"testCustomTupleWithRestTypesAccess"}
