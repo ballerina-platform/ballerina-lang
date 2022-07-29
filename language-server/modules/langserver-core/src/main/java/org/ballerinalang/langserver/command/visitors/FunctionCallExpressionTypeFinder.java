@@ -89,13 +89,10 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     private TypeDescKind returnTypeDescKind;
     private boolean resultFound = false;
 
-    public FunctionCallExpressionTypeFinder(SemanticModel semanticModel) {
+    public FunctionCallExpressionTypeFinder(SemanticModel semanticModel, 
+                                            FunctionCallExpressionNode functionCallExpr) {
         this.semanticModel = semanticModel;
-    }
-
-    public void findTypeOf(FunctionCallExpressionNode functionCallExpressionNode) {
-        this.functionCallExpr = functionCallExpressionNode;
-        functionCallExpressionNode.accept(this);
+        this.functionCallExpr = functionCallExpr;
     }
 
     @Override
