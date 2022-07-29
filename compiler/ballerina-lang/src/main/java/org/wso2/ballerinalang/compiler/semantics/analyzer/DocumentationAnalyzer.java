@@ -231,6 +231,9 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
 
             for (SimpleVariableNode field : fields) {
                 validateReferences(field, data);
+                validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
+                        Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
+                        field.getPosition());
             }
         }
         if (typeDefinition.symbol != null) {
