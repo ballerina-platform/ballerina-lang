@@ -24,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
@@ -163,7 +162,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
     }
 
     /**
-     * A visitor to find the qualified name reference node within an expression
+     * A visitor to find the qualified name reference node within an expression.
      */
     static class QNameRefFinder extends NodeVisitor {
 
