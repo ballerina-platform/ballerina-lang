@@ -70,12 +70,32 @@ type Employee2 record {
 
 type EmpError error<Employee>;
 
+public class Service {
+    function testFunction(PositiveInt intVal, Foo arr = []) returns string {
+        return intVal.toString();
+    }
+
+}
+
 public function validateTypeRef() {
     validateType();
     validateRecordField();
     validateTypeAnnotations();
     testRuntimeTypeRef();
     validateArray();
+    validateFunctionParameters();
+}
+
+function validateFunctionParameters() {
+    test:assertEquals(testFunction(25), "25");
+    test:assertEquals(validateFunctionParameterExtern(testFunction), ());
+
+    Service s = new ();
+    test:assertEquals(validateFunctionParameterFromObject(s), ());
+}
+
+function testFunction(PositiveInt intVal, Foo arr = []) returns string {
+    return intVal.toString();
 }
 
 function testRuntimeTypeRef() {
@@ -441,5 +461,13 @@ public isolated function validateArrayElements(anydata value, typedesc<anydata> 
 # + td - The type descriptor of the value to be constrained
 # + return - The type descriptor of the value which is validated or else an `constraint:Error` in case of an error
 public isolated function validateArrayConstraint(anydata value, typedesc<anydata> td = <>) returns td|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public isolated function validateFunctionParameterExtern(function value) returns error? = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public isolated function validateFunctionParameterFromObject(Service value) returns error? = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

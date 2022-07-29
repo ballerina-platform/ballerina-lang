@@ -247,6 +247,7 @@ public class CommandUtil {
         // Create modules
         String templatePkgName = templatePackageJson.getName();
         Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
+        Path moduleMdDirRoot = balaPath.resolve("docs").resolve(ProjectConstants.MODULES_ROOT);
         List<Path> modulesList;
         try (Stream<Path> pathStream = Files.list(modulesRoot)) {
             modulesList = pathStream.collect(Collectors.toList());
@@ -262,17 +263,21 @@ public class CommandUtil {
                 Files.createDirectories(destDir);
             }
             Files.walkFileTree(moduleRoot, new FileUtils.Copy(moduleRoot, destDir));
+
+            // Copy Module.md
+            Path moduleMdSource = moduleMdDirRoot.resolve(moduleDir).resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+            if (Files.exists(moduleMdSource)) {
+                Files.copy(moduleMdSource, destDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
         }
 
-        // Copy platform libraries
-        Path platformLibPath = balaPath.resolve("platform").resolve(platform);
-        if (Files.exists(platformLibPath)) {
-            Path libs = projectPath.resolve("libs");
-            Files.createDirectories(libs);
-            Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, libs));
-        }
+        copyIcon(balaPath, projectPath);
+        copyPlatformLibraries(balaPath, projectPath, platform);
+        copyIncludeFiles(balaPath, projectPath, templatePackageJson);
+    }
 
-        // Copy icon
+    private static void copyIcon(Path balaPath, Path projectPath) {
         Path docsPath = balaPath.resolve(ProjectConstants.BALA_DOCS_DIR);
         try (Stream<Path> pathStream = Files.walk(docsPath, 1)) {
             List<Path> icon = pathStream
@@ -291,18 +296,50 @@ public class CommandUtil {
                     false);
             getRuntime().exit(1);
         }
+    }
 
-        // Copy include files
+    private static void copyPlatformLibraries(Path balaPath, Path projectPath, String platform) throws IOException {
+        Path platformLibPath = balaPath.resolve("platform").resolve(platform);
+        if (Files.exists(platformLibPath)) {
+            Path libs = projectPath.resolve("libs");
+            Files.createDirectories(libs);
+            Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, libs));
+        }
+    }
+
+    private static void copyIncludeFiles(Path balaPath, Path projectPath, PackageJson templatePackageJson)
+            throws IOException {
         if (templatePackageJson.getInclude() != null) {
-            for (String includeFileString : templatePackageJson.getInclude()) {
-                Path fromIncludeFilePath = balaPath.resolve(includeFileString);
-                Path toIncludeFilePath = projectPath.resolve(includeFileString);
+            String templatePkgName = templatePackageJson.getName();
+            List<Path> includePaths = ProjectUtils.getPathsMatchingIncludePatterns(
+                    templatePackageJson.getInclude(), balaPath);
+
+            for (Path includePath : includePaths) {
+                Path moduleNameUpdatedIncludePath = updateModuleDirectoryNaming(includePath, balaPath, templatePkgName);
+                Path fromIncludeFilePath = balaPath.resolve(includePath);
+                Path toIncludeFilePath = projectPath.resolve(moduleNameUpdatedIncludePath);
                 if (Files.notExists(toIncludeFilePath)) {
                     Files.createDirectories(toIncludeFilePath);
                     Files.walkFileTree(fromIncludeFilePath, new FileUtils.Copy(fromIncludeFilePath, toIncludeFilePath));
                 }
             }
         }
+    }
+
+    private static Path updateModuleDirectoryNaming(Path includePath, Path balaPath, String templatePkgName) {
+        Path modulesDirPath = balaPath.resolve(ProjectConstants.MODULES_ROOT);
+        Path absoluteIncludePath = balaPath.resolve(includePath);
+        if (absoluteIncludePath.startsWith(modulesDirPath)) {
+            Path moduleRootPath = modulesDirPath.relativize(absoluteIncludePath).subpath(0, 1);
+            String moduleDirName = Optional.of(moduleRootPath.getFileName()).get().toString();
+            String destinationDirName = moduleDirName.split(templatePkgName + ProjectConstants.DOT, 2)[1];
+            Path includePathRelativeToModuleRoot = modulesDirPath.resolve(moduleRootPath)
+                    .relativize(absoluteIncludePath);
+            Path updatedIncludePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(destinationDirName)
+                    .resolve(includePathRelativeToModuleRoot);
+            return updatedIncludePath;
+        }
+        return includePath;
     }
 
     /**

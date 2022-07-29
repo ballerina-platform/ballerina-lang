@@ -65,6 +65,10 @@ public class Identifier {
         return name;
     }
 
+    public String getUnicodeConvertedName() {
+        return StringUtils.convertUnicodeToCharacter(name);
+    }
+
     @Override
     public String toString() {
         return name;
