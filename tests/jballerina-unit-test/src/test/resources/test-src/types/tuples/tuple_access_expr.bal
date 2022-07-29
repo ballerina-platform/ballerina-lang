@@ -461,15 +461,15 @@ function testTupleWithRestTypesAccess() {
     assertEquals(x6, true);
 
     var x7 = t1[index];
-    int x8 = x1;
+    int x8 = x7;
     assertEquals(x8, 1);
 
     var x9 = t2[index];
-    int x10 = x3;
+    int|string|boolean x10 = x9;
     assertEquals(x10, 1);
 
     var x11 = t2[index + 2];
-    boolean x12 = x5;
+    int|string|boolean x12 = x11;
     assertEquals(x12, true);
 
     int x13 = t1[0];
@@ -511,15 +511,15 @@ function testCustomTupleWithRestTypesAccess() {
     assertEquals(x6, true);
 
     var x7 = t1[index];
-    int x8 = x1;
+    int x8 = x7;
     assertEquals(x8, 1);
 
     var x9 = t2[index];
-    int x10 = x3;
+    int|string|boolean x10 = x9;
     assertEquals(x10, 1);
 
     var x11 = t2[index + 2];
-    boolean x12 = x5;
+    int|string|boolean x12 = x11;
     assertEquals(x12, true);
 
     int x13 = t1[0];
@@ -539,6 +539,110 @@ function testCustomTupleWithRestTypesAccess() {
 
     int|string|boolean x18 = t2[index + 2];
     assertEquals(x18, true);
+}
+
+function testTupleAccessWithByteType() {
+    [int...] t1 = [1, 2, 3, 5];
+    [int, string, boolean...] t2 = [1, "a", true, true];
+    [int, string, boolean] t3 = [1, "a", true];
+
+    CustomTupleWithRestTypes1 t4 = [1, 2, 3, 5];
+    CustomTupleWithRestTypes2 t5 = [1, "a", true, true];
+    CustomTuple t6 = [1, "a", true];
+
+    byte byteIndex = 0;
+
+    var x1 = t1[byteIndex];
+    int x2 = x1;
+    assertEquals(x2, 1);
+
+    var x3 = t2[byteIndex];
+    int|string|boolean x4 = x3;
+    assertEquals(x4, 1);
+
+    var x5 = t2[byteIndex + 2];
+    int|string|boolean x6 = x5;
+    assertEquals(x6, true);
+
+    var x7 = t3[byteIndex];
+    int|string|boolean x8 = x7;
+    assertEquals(x8, 1);
+
+    var x9 = t3[byteIndex + 2];
+    int|string|boolean x10 = x9;
+    assertEquals(x10, true);
+
+    var x11 = t4[byteIndex];
+    int x12 = x11;
+    assertEquals(x12, 1);
+
+    var x13 = t5[byteIndex];
+    int|string|boolean x14 = x13;
+    assertEquals(x14, 1);
+
+    var x15 = t5[byteIndex + 2];
+    int|string|boolean x16 = x15;
+    assertEquals(x16, true);
+
+    var x17 = t6[byteIndex];
+    int|string|boolean x18 = x17;
+    assertEquals(x18, 1);
+
+    var x19 = t6[byteIndex + 2];
+    int|string|boolean x20 = x19;
+    assertEquals(x20, true);
+}
+
+const int constantIndex = 0;
+
+function testTupleAccessWithConstantType() {
+    [int...] t1 = [1, 2, 3, 5];
+    [int, string, boolean...] t2 = [1, "a", true, true];
+    [int, string, boolean] t3 = [1, "a", true];
+
+    CustomTupleWithRestTypes1 t4 = [1, 2, 3, 5];
+    CustomTupleWithRestTypes2 t5 = [1, "a", true, true];
+    CustomTuple t6 = [1, "a", true];
+
+    var x1 = t1[constantIndex];
+    int x2 = x1;
+    assertEquals(x2, 1);
+
+    var x3 = t2[constantIndex];
+    int|string|boolean x4 = x3;
+    assertEquals(x4, 1);
+
+    var x5 = t2[constantIndex + 2];
+    int|string|boolean x6 = x5;
+    assertEquals(x6, true);
+
+    var x7 = t3[constantIndex];
+    int|string|boolean x8 = x7;
+    assertEquals(x8, 1);
+
+    var x9 = t3[constantIndex + 2];
+    int|string|boolean x10 = x9;
+    assertEquals(x10, true);
+
+    var x11 = t4[constantIndex];
+    int x12 = x11;
+    assertEquals(x12, 1);
+
+    var x13 = t5[constantIndex];
+    int|string|boolean x14 = x13;
+    assertEquals(x14, 1);
+
+    var x15 = t5[constantIndex + 2];
+    int|string|boolean x16 = x15;
+    assertEquals(x16, true);
+
+    var x17 = t6[constantIndex];
+    int|string|boolean x18 = x17;
+    assertEquals(x18, 1);
+
+    var x19 = t6[constantIndex + 2];
+    int|string|boolean x20 = x19;
+    assertEquals(x20, true);
 }
 
 function assertEquals(anydata expected, anydata actual) {

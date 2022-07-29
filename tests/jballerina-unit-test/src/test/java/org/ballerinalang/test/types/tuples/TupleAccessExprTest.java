@@ -219,7 +219,9 @@ public class TupleAccessExprTest {
                 {"testTupleAccessWithCustomType2"},
                 {"testTupleAccessWithCustomUnionTypes"},
                 {"testTupleAccessWithCustomReadonlyUnionTypes"},
-                {"testModuleLevelTupleAccessWithCustomType"}
+                {"testModuleLevelTupleAccessWithCustomType"},
+                {"testTupleAccessWithByteType"},
+                {"testTupleAccessWithConstantType"}
         };
     }
 
