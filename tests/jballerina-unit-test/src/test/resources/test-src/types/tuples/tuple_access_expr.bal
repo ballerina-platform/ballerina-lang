@@ -471,6 +471,24 @@ function testTupleWithRestTypesAccess() {
     var x11 = t2[index + 2];
     int|string|boolean x12 = x11;
     assertEquals(x12, true);
+
+    int x13 = t1[0];
+    assertEquals(x13, 1);
+
+    int x14 = t2[0];
+    assertEquals(x14, 1);
+
+    boolean x15 = t2[3];
+    assertEquals(x15, true);
+
+    int x16 = t1[index];
+    assertEquals(x16, 1);
+
+    int|string|boolean x17 = t2[index];
+    assertEquals(x17, 1);
+
+    int|string|boolean x18 = t2[index + 2];
+    assertEquals(x18, true);
 }
 
 type CustomTupleWithRestTypes1 [int...];
@@ -503,6 +521,24 @@ function testCustomTupleWithRestTypesAccess() {
     var x11 = t2[index + 2];
     int|string|boolean x12 = x11;
     assertEquals(x12, true);
+
+    int x13 = t1[0];
+    assertEquals(x13, 1);
+
+    int x14 = t2[0];
+    assertEquals(x14, 1);
+
+    boolean x15 = t2[3];
+    assertEquals(x15, true);
+
+    int x16 = t1[index];
+    assertEquals(x16, 1);
+
+    int|string|boolean x17 = t2[index];
+    assertEquals(x17, 1);
+
+    int|string|boolean x18 = t2[index + 2];
+    assertEquals(x18, true);
 }
 
 function testTupleAccessWithByteType() {
