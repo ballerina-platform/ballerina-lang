@@ -1,0 +1,5 @@
+[plugin]
+class = "org.ballerinalang.testerina.compiler.TesterinaCompilerPlugin"
+
+[[dependency]]
+path = "../../../testerina-compiler-plugin/build/libs/testerina-compiler-plugin-0.1.0.jar"

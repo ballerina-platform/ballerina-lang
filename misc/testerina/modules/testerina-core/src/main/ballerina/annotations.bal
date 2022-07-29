@@ -31,6 +31,10 @@ public type TestConfig record {
     function[] dependsOn = [];
 };
 
+public type FactoryConfig record {|
+    boolean enable = true;
+|};
+
 # Configuration of the function to be mocked.
 #
 # + moduleName - Name of the module, which includes the function to be mocked
@@ -65,6 +69,9 @@ public type AfterGroupsConfig record {
 
 # Identifies test function.
 public annotation TestConfig Config on function;
+
+# Identifies test factory function.
+public annotation FactoryConfig Factory on function ;
 
 # Identifies beforeSuite function.
 public annotation BeforeSuite on function;
