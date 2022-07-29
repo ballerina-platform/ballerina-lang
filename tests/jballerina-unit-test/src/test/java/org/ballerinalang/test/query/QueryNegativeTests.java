@@ -103,9 +103,9 @@ public class QueryNegativeTests {
                 "constraint type 'record {| User user; |}'", 518, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', found '(error|int)'", 520, 47);
         Assert.assertEquals(compileResult.getErrorCount(), index);
-        validateWarning(compileResult, index++,"invalid usage of the 'check' expression operator:" +
+        validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 526, 15);
-        validateWarning(compileResult, index++,"invalid usage of the 'check' expression operator:" +
+        validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 535, 15);
     }
 
