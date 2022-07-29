@@ -150,7 +150,7 @@ public class CodeActionUtil {
      * @param typeDescriptor  {@link TypeSymbol}
      * @param context         {@link CodeActionContext}
      * @param importsAcceptor imports acceptor
-     * @return a list of possible type list
+     * @return possible type for given type descriptor
      */
     public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, CodeActionContext context,
                                                    ImportsAcceptor importsAcceptor) {
@@ -180,7 +180,7 @@ public class CodeActionUtil {
      * @param typeDescriptor  {@link TypeSymbol}
      * @param context         {@link CodeActionContext}
      * @param importsAcceptor imports acceptor
-     * @return a list of possible type list
+     * @return a list of possible types
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, CodeActionContext context,
                                                 ImportsAcceptor importsAcceptor) {

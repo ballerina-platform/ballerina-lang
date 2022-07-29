@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
     public static final String NAME = "Error Handle Outside";
+    public static final int UNION_ERROR_CHAR_OFFSET = 6;
 
     /**
      * {@inheritDoc}
@@ -97,7 +98,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
                 positionDetails.matchedNode(), context));
 
         String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
-        int renamePosition = modifiedTextEdits.renamePositions.get(0) - 6;
+        int renamePosition = modifiedTextEdits.renamePositions.get(0) - UNION_ERROR_CHAR_OFFSET;
         edits.addAll(importsAcceptor.getNewImportTextEdits());
         CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
         return Collections.singletonList(addRenamePopup(context, edits, codeAction, renamePosition));
