@@ -93,6 +93,17 @@ public type Bank record {|
     CountryCode countryCode;
 |};
 
+# Employee record
+#
+# + name - street Parameter Description
+# + age - city Parameter Description
+# # Deprecated
+public type Employee record {|
+    @deprecated
+    string name;
+    int age;
+|};
+
 //========= 5.errors ========================================
 
 const INVALID_ACC_TYPE = "InvalidAccountType";

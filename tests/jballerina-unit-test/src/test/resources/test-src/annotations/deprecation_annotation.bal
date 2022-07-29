@@ -297,3 +297,26 @@ function myFunction(int i, string s) {
 function testUsingDepricatedFunction() {
     myFunction(1, "hello");
 }
+
+type Employee record {|
+    @deprecated
+    string name;
+    int id;
+    @deprecated
+    Job job;
+|};
+
+type Job record {|
+    string title;
+    @deprecated
+    int experiance;
+|};
+
+public function main() {
+    Employee employee = {name: "John", id: 112, job: {title: "SE", experiance: 2}};
+    _ = employee.name; // warning
+    _ = employee.id;
+    _ = employee.job; // warning
+    _ = employee.job.title; // warning
+    _ = employee.job.experiance; // warning
+}

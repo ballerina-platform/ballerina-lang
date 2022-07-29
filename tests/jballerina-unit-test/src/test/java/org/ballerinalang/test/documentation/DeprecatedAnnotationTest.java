@@ -310,6 +310,29 @@ public class DeprecatedAnnotationTest {
         }
     }
 
+    @Test(description = "Test @deprecated annotation for record field")
+    public void testDeprecatedRecordField() {
+        List<Record> records = testModule.records;
+        Record employeeRecord = null;
+
+        for (Record record : records) {
+            String reocrdName = record.name;
+            if ("Employee".equals(reocrdName)) {
+                employeeRecord = record;
+            }
+        }
+
+        Assert.assertNotNull(employeeRecord);
+        for (DefaultableVariable field : employeeRecord.fields) {
+            String fieldName = field.name;
+            if ("name".equals(fieldName)) {
+                testDeprecated(field);
+            } else if ("age".equals(fieldName)) {
+                testNonDeprecated(field);
+            }
+        }
+    }
+
     private void testDeprecated(Construct element) {
         Assert.assertNotNull(element);
         Assert.assertTrue(element.isDeprecated);
