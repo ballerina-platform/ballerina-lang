@@ -89,17 +89,18 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
-                typeSymbol.get(), context, importsAcceptor));
+        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
+                typeSymbol.get(), context, importsAcceptor);
+        edits.addAll(modifiedTextEdits.edits);
         edits.addAll(CodeActionUtil.getAddCheckTextEdits(
                 PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
                 positionDetails.matchedNode(), context));
 
         String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
-        String type = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
+        int renamePosition = modifiedTextEdits.renamePositions.get(0) - 6;
         edits.addAll(importsAcceptor.getNewImportTextEdits());
         CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-        return Collections.singletonList(addRenamePopup(context, edits, type, codeAction));
+        return Collections.singletonList(addRenamePopup(context, edits, codeAction, renamePosition));
     }
 
     @Override
@@ -107,13 +108,12 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         return NAME;
     }
 
-    private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic,
-                                                         UnionTypeSymbol unionTypeDesc,
-                                                         DiagBasedPositionDetails positionDetails,
-                                                         TypeSymbol typeSymbol,
-                                                         CodeActionContext context,
-                                                         ImportsAcceptor importsAcceptor) {
-        List<TextEdit> edits = new ArrayList<>();
+    private CreateVariableOut getModifiedCreateVarTextEdits(Diagnostic diagnostic,
+                                                            UnionTypeSymbol unionTypeDesc,
+                                                            DiagBasedPositionDetails positionDetails,
+                                                            TypeSymbol typeSymbol,
+                                                            CodeActionContext context,
+                                                            ImportsAcceptor importsAcceptor) {
 
         // Add create variable edits
         Range range = PositionUtil.toRange(diagnostic.location().lineRange());
@@ -126,8 +126,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
-        edits.add(textEdit);
-        return edits;
+        return createVarTextEdits;
     }
 
     private String getTypeWithoutError(UnionTypeSymbol unionTypeDesc, CodeActionContext context,

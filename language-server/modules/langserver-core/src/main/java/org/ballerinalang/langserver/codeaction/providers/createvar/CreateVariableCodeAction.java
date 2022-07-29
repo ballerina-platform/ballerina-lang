@@ -103,7 +103,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
             }
 
             CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-            actions.add(addRenamePopup(context, edits, type, codeAction));
+            actions.add(addRenamePopup(context, edits, codeAction, createVarTextEdits.renamePositions.get(i)));
         }
         return actions;
     }
@@ -127,14 +127,16 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         String name = NameUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
 
         List<TextEdit> edits = new ArrayList<>();
+        List<Integer> renamePositions = new ArrayList<>();
         List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, context, importsAcceptor);
         Position pos = range.getStart();
         for (String type : types) {
             Position insertPos = new Position(pos.getLine(), pos.getCharacter());
             String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
+            renamePositions.add(type.length() + 1);
         }
-        return new CreateVariableOut(name, types, edits, importsAcceptor.getNewImportTextEdits());
+        return new CreateVariableOut(name, types, edits, importsAcceptor.getNewImportTextEdits(), renamePositions);
     }
 
     /**
@@ -171,17 +173,20 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         List<String> types;
         List<TextEdit> edits;
         List<TextEdit> imports;
+        List<Integer> renamePositions;
 
-        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports) {
+        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports,
+                                 List<Integer> renamePositions) {
             this.name = name;
             this.types = types;
             this.edits = edits;
             this.imports = imports;
+            this.renamePositions = renamePositions;
         }
     }
 
-    public CodeAction addRenamePopup(CodeActionContext context, List<TextEdit> textEdits, String type,
-                                     CodeAction codeAction) {
+    public CodeAction addRenamePopup(CodeActionContext context, List<TextEdit> textEdits,
+                                     CodeAction codeAction, int renamePosition) {
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         if (syntaxTree.isEmpty()) {
             return codeAction;
@@ -199,7 +204,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
             }
         }
 
-        startPos = startPos + sum + type.length() + 1;
+        startPos = startPos + sum + renamePosition;
         codeAction.setCommand(new Command("Rename Variable", "ballerina.action.rename",
                 List.of(context.fileUri(), startPos)));
         return codeAction;
