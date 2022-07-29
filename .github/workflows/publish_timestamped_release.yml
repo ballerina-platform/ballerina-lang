@@ -1,6 +1,9 @@
 name: Publish Timestamped Snapshot Artifacts
 
 on:
+  push:
+    branches:
+      - query-grouping-aggregation
   workflow_dispatch:
 
 jobs:
