@@ -27,7 +27,11 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
@@ -42,6 +46,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.TableValue;
 
 import java.util.List;
 
@@ -146,11 +151,14 @@ public class TypeReference {
         return true;
     }
 
-    public static Boolean validateTableType(BTypedesc typedesc) {
+    public static Boolean validateTableType(BTypedesc typedesc, TableValue tableValue) {
         BTableType tableType = (BTableType) ((ReferenceType) typedesc.getDescribingType()).getReferredType();
         BError error = ErrorCreator.createError(StringUtils.fromString("table type API provided a non type reference" +
                 " type."));
         if (tableType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        if (tableValue.getKeyType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw error;
         }
         return true;
@@ -234,4 +242,49 @@ public class TypeReference {
     public static Object getInt(ObjectValue objectValue, BTypedesc td) {
         return true;
     }
+
+    public static Boolean validateBStream(BStream value) {
+        BError error = ErrorCreator.createError(StringUtils.fromString("BStream getType API provided a non type " +
+                "reference type."));
+        if (value.getConstraintType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        if (value.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        return true;
+    }
+
+    public static Boolean validateBArray(BArray value1, BArray value2) {
+        BError error = ErrorCreator.createError(StringUtils.fromString("BArray getType API provided a non type " +
+                "reference type."));
+        if (value1.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                value2.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        if (value1.getElementType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        return true;
+    }
+
+    public static Boolean validateBMap(BMap value1, BMap value2) {
+        BError error = ErrorCreator.createError(StringUtils.fromString("BMap getType API provided a non type " +
+                "reference type."));
+        if (value1.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                value2.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        return true;
+    }
+
+    public static Boolean validateBFunctionPointer(BFunctionPointer value) {
+        BError error = ErrorCreator.createError(StringUtils.fromString("Function Pointer getType API provided a non " +
+                "type reference type."));
+        if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        return true;
+    }
+
 }
