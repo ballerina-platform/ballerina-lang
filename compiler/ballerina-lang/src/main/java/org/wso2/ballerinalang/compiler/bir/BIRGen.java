@@ -196,7 +196,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -1494,7 +1493,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
-        visitTypedesc(astMapLiteralExpr.pos, astMapLiteralExpr.getBType(), Collections.emptyList());
+        visitTypedesc(astMapLiteralExpr.pos, astMapLiteralExpr.getBType());
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(astMapLiteralExpr.getBType(), this.env.nextLocalVarId(names),
                                    VarScope.FUNCTION, VarKind.TEMP);
@@ -1524,8 +1523,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral astStructLiteralExpr) {
-        List<BIROperand> varDcls = mapToVarDcls(astStructLiteralExpr.enclMapSymbols);
-        visitTypedesc(astStructLiteralExpr.pos, astStructLiteralExpr.getBType(), varDcls);
+        visitTypedesc(astStructLiteralExpr.pos, astStructLiteralExpr.getBType());
 
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astStructLiteralExpr.getBType(),
                                                        this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
@@ -1539,19 +1537,6 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(instruction);
 
         this.env.targetOperand = toVarRef;
-    }
-
-    private List<BIROperand> mapToVarDcls(TreeMap<Integer, BVarSymbol> enclMapSymbols) {
-        if (enclMapSymbols == null || enclMapSymbols.size() == 0) {
-            return Collections.emptyList();
-        }
-
-        ArrayList<BIROperand> varDcls = new ArrayList<>(enclMapSymbols.size());
-        for (BVarSymbol varSymbol : enclMapSymbols.values()) {
-            BIRVariableDcl varDcl = this.env.symbolVarMap.get(varSymbol);
-            varDcls.add(new BIROperand(varDcl));
-        }
-        return varDcls;
     }
 
     @Override
@@ -1885,7 +1870,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        visitTypedesc(waitLiteral.pos, waitLiteral.getBType(), Collections.emptyList());
+        visitTypedesc(waitLiteral.pos, waitLiteral.getBType());
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(waitLiteral.getBType(),
@@ -2154,16 +2139,16 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
         BType type = typeLoad.symbol.tag == SymTag.TYPE_DEF ?
                 ((BTypeDefinitionSymbol) typeLoad.symbol).referenceType : typeLoad.symbol.type;
-        visitTypedesc(typeLoad.pos, type, Collections.emptyList());
+        visitTypedesc(typeLoad.pos, type);
     }
 
-    private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls) {
+    private void visitTypedesc(Location pos, BType type) {
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind
                         .TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        setScopeAndEmit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type, varDcls));
+        setScopeAndEmit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type, Collections.emptyList()));
         this.env.targetOperand = toVarRef;
     }
 
