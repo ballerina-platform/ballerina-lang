@@ -5606,8 +5606,6 @@ public class Types {
                 Flags.PUBLIC, Names.EMPTY, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
                 false, symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
-        recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                                                                         bInvokableType, symTable.builtinPos);
         recordSymbol.scope = new Scope(recordSymbol);
 
         BRecordType recordType = new BRecordType(recordSymbol);

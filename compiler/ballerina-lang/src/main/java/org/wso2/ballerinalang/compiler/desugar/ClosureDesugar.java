@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -264,11 +263,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // Update function parameters.
         for (BLangFunction function : pkgNode.functions) {
             updateFunctionParams(function);
-        }
-        for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
-            if (typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-                updateRecordInitFunction(typeDef);
-            }
         }
         result = pkgNode;
     }
@@ -661,19 +655,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
             dupFuncType.paramTypes.add(i, mapSymbol.type);
             i++;
         }
-    }
-
-    private static void updateRecordInitFunction(BLangTypeDefinition typeDef) {
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        BInvokableSymbol initFnSym = recordTypeNode.initFunction.symbol;
-        BRecordTypeSymbol recordTypeSymbol;
-        if (typeDef.symbol.kind == SymbolKind.TYPE_DEF) {
-            recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol.type.tsymbol;
-        } else {
-            recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol;
-        }
-        recordTypeSymbol.initializerFunc.symbol = initFnSym;
-        recordTypeSymbol.initializerFunc.type = (BInvokableType) initFnSym.type;
     }
 
     /**
@@ -1952,10 +1933,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        SymbolEnv symbolEnv = env.createClone();
-        BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
-        structLiteral.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, false);
-
         for (RecordLiteralNode.RecordField field : structLiteral.fields) {
             if (field.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField keyValueField =

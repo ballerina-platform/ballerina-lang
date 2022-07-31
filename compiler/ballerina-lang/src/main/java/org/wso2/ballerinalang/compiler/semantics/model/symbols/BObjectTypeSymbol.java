@@ -37,6 +37,7 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
     // This is a cache of the functions referred through the type references
     public List<BAttachedFunction> referencedFunctions;
     public BAttachedFunction generatedInitializerFunc;
+    public BAttachedFunction initializerFunc;
 
     public BObjectTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type,
                              BSymbol owner, Location pos, SymbolOrigin origin) {
