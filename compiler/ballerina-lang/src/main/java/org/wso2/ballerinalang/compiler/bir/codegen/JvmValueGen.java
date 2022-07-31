@@ -24,7 +24,6 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
@@ -42,8 +41,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -57,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -66,15 +62,12 @@ import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ATHROW;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.ISTORE;
@@ -93,10 +86,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
@@ -112,11 +102,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_INITIAL_VALUES;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT_WRAPPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_VALUE_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VALUE_CLASS_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
@@ -128,7 +116,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmValueGen {
 
-    static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
     static final String ENCODED_RECORD_INIT =
             Utils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
@@ -266,37 +253,13 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, INIT_TYPEDESC, false);
 
-        BAttachedFunction initializer = ((BRecordTypeSymbol) recordType.tsymbol).initializerFunc;
-        StringBuilder closureParamSignature = calcClosureMapSignature(initializer.type.paramTypes.size());
-
         // Invoke the init-function of this type.
         mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(SWAP);
 
-
-        // Invoke the init-functions of referenced types. This is done to initialize the
-        // defualt values of the fields coming from the referenced types.
-        for (BType bType : typeDef.referencedTypes) {
-            BType typeRef = JvmCodeGenUtil.getReferredType(bType);
-            if (typeRef.tag == TypeTags.RECORD) {
-                String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
-                mv.visitInsn(DUP2);
-                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName , RECORD_INIT_WRAPPER_NAME,
-                                   RECORD_INIT_WRAPPER, false);
-            }
-        }
-
-
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, TYPEDESC_VALUE_IMPL, TYPEDESC_VALUE_IMPL_CLOSURES,
                           GET_MAP_ARRAY);
-
-        for (int i = 0; i < initializer.type.paramTypes.size(); i++) {
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, i);
-            mv.visitInsn(AALOAD);
-            mv.visitInsn(SWAP);
-        }
         mv.visitInsn(POP);
 
 
@@ -316,10 +279,6 @@ public class JvmValueGen {
             initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
 
-        mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
-                "(L" + STRAND_CLASS + ";L" + MAP_VALUE + ";" + closureParamSignature + ")L" + OBJECT + ";", false);
-        mv.visitInsn(POP);
-
         mv.visitInsn(DUP);
         mv.visitTypeInsn(CHECKCAST, valueClassName);
         mv.visitVarInsn(ALOAD, 2);
@@ -334,15 +293,6 @@ public class JvmValueGen {
 
     public static String getTypeValueClassName(PackageID packageID, String typeName) {
         return getTypeValueClassName(JvmCodeGenUtil.getPackageName(packageID), typeName);
-    }
-
-
-    private StringBuilder calcClosureMapSignature(int size) {
-        StringBuilder closureParamSignature = new StringBuilder();
-        for (int i = 0; i < size; i++) {
-            closureParamSignature.append("L").append(MAP_VALUE).append(";");
-        }
-        return closureParamSignature;
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
@@ -362,12 +312,6 @@ public class JvmValueGen {
                 RECORD_VALUE_CLASS,
                 MAP_VALUE_IMPL, new String[]{MAP_VALUE});
 
-        List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
-        if (attachedFuncs != null) {
-            this.createRecordMethods(cw, attachedFuncs, className, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                                     asyncDataCollector);
-        }
-
         Map<String, BField> fields = recordType.fields;
         this.createRecordFields(cw, fields);
         jvmRecordGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
@@ -383,26 +327,12 @@ public class JvmValueGen {
 
         this.createRecordConstructor(cw, INIT_TYPEDESC);
         this.createRecordConstructor(cw, TYPE_PARAMETER);
-        this.createRecordInitWrapper(cw, className, typeDef);
         this.createLambdas(cw, asyncDataCollector, lambdaGen);
         JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
 
         return jvmPackageGen.getBytes(cw, typeDef);
-    }
-
-    private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
-                                     JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                     JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
-
-        for (BIRNode.BIRFunction func : attachedFuncs) {
-            if (func == null) {
-                continue;
-            }
-            methodGen.generateMethod(func, cw, this.module, null, moduleClassName, jvmTypeGen, jvmCastGen,
-                    jvmConstantsGen, asyncDataCollector);
-        }
     }
 
     private void createTypeDescConstructor(ClassWriter cw) {
@@ -435,55 +365,6 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 1);
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, JVM_INIT_METHOD, argumentClass, false);
-
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
-    // TODO: remove this method, logic moved to createInstantiateMethod, see #23012
-    private void createRecordInitWrapper(ClassWriter cw, String className, BIRNode.BIRTypeDefinition typeDef) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC , RECORD_INIT_WRAPPER_NAME, RECORD_INIT_WRAPPER,
-                null, null);
-        mv.visitCode();
-        // load strand
-        mv.visitVarInsn(ALOAD, 0);
-        // load value
-        mv.visitVarInsn(ALOAD, 1);
-
-        // Invoke the init-functions of referenced types. This is done to initialize the
-        // defualt values of the fields coming from the referenced types.
-        for (BType bType : typeDef.referencedTypes) {
-            BType typeRef = JvmCodeGenUtil.getReferredType(bType);
-            if (typeRef.tag != TypeTags.RECORD) {
-                continue;
-            }
-
-            String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
-            mv.visitInsn(DUP2);
-            mv.visitMethodInsn(INVOKESTATIC, refTypeClassName , RECORD_INIT_WRAPPER_NAME,
-                               RECORD_INIT_WRAPPER, false);
-        }
-
-        // Invoke the init-function of this type.
-        String initFuncName;
-        String valueClassName;
-        List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
-
-        // Attached functions are empty for type-labeling. In such cases, call the init() of the original type value
-        if (!attachedFuncs.isEmpty()) {
-            initFuncName = attachedFuncs.get(0).name.value;
-            valueClassName = className;
-        } else {
-            // record type is the original record-type of this type-label
-            BRecordType recordType = (BRecordType) JvmCodeGenUtil.getReferredType(typeDef.type);
-            valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = recordType.name + ENCODED_RECORD_INIT;
-        }
-
-        mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName, VALUE_CLASS_INIT, false);
-        mv.visitInsn(POP);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
