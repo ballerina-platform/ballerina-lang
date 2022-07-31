@@ -157,30 +157,34 @@ public class LSPackageLoader {
         Map<String, List<String>> packageMap = repository.getPackages();
         List<PackageInfo> packages = new ArrayList<>();
         packageMap.forEach((key, value) -> {
-            if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
-                return;
-            }
-            value.forEach(nameEntry -> {
-                String[] components = nameEntry.split(":");
-                if (components.length != 2 || skipList.contains(components[0])) {
+            try {
+                if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                     return;
                 }
-                String nameComponent = components[0];
-                String version = components[1];
-                PackageOrg packageOrg = PackageOrg.from(key);
-                PackageName packageName = PackageName.from(nameComponent);
-                String packageIdentifier = packageOrg.toString() + "/" + packageName;
-                if (loadedPackages.contains(packageIdentifier)) {
-                    return;
-                }
-                PackageVersion pkgVersion = PackageVersion.from(version);
-                PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
+                value.forEach(nameEntry -> {
+                    String[] components = nameEntry.split(":");
+                    if (components.length != 2 || skipList.contains(components[0])) {
+                        return;
+                    }
+                    String nameComponent = components[0];
+                    String version = components[1];
+                    PackageOrg packageOrg = PackageOrg.from(key);
+                    PackageName packageName = PackageName.from(nameComponent);
+                    String packageIdentifier = packageOrg.toString() + "/" + packageName;
+                    if (loadedPackages.contains(packageIdentifier)) {
+                        return;
+                    }
+                    PackageVersion pkgVersion = PackageVersion.from(version);
+                    PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
+                    ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
 
-                Optional<Package> repoPackage = repository.getPackage(request,
-                        ResolutionOptions.builder().setOffline(true).build());
-                repoPackage.ifPresent(pkg -> packages.add(new PackageInfo(pkg)));
-            });
+                    Optional<Package> repoPackage = repository.getPackage(request,
+                            ResolutionOptions.builder().setOffline(true).build());
+                    repoPackage.ifPresent(pkg -> packages.add(new PackageInfo(pkg)));
+                });
+            } catch (Throwable e) {
+                //ignore
+            }
         });
 
         return packages;
