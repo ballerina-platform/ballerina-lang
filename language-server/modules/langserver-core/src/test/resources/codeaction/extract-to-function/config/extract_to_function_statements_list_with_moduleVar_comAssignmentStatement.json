@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    moduleVar +\u003d 1;\n    doSomething(1);\n    return moduleVar;\n}"
+          "newText": "\n\nfunction extracted() {\n    moduleVar +\u003d 1;\n    doSomething(1);\n}"
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 19
             }
           },
-          "newText": "moduleVar \u003d extracted();"
+          "newText": "extracted();"
         }
       ]
     }

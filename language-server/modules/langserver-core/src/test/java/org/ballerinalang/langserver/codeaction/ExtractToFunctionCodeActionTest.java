@@ -58,6 +58,13 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_statements_list_with_asgnmntAndCompAsgnmnt_sameVar.json"},
                 {"extract_to_function_statements_list_with_moduleVar_assignmentStatement.json"},
                 {"extract_to_function_statements_list_with_moduleVar_comAssignmentStatement.json"},
+
+                {"extract_to_function_stmts_block_stmt_inside_block.json"},
+                {"extract_to_function_stmts_block_stmt_with_block.json"},
+
+                {"extract_to_function_stmts_if_else_stmt_with_if_only.json"},
+                {"extract_to_function_stmts_if_else_stmt_with_if_and_else.json"},
+                {"extract_to_function_stmts_if_else_stmt_with_nested_if.json"},
 //                {"test.json"}
         };
     }
@@ -72,6 +79,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_statements_list_with_assignment_and_compAssignment.json"},
                 {"negative_extract_to_function_statements_list_with_multiple_moduleVar_assignments.json"},
                 {"negative_extract_to_function_statements_list_with_multiple_moduleVar_and_localVar_assignments.json"},
+                {"negative_extract_to_function_stmts_if_else_stmt_with_varDecl_before_range.json"}
         };
     }
 
