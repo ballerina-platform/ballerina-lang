@@ -472,13 +472,6 @@ public class Desugar extends BLangNodeVisitor {
                         pkgNode.topLevelNodes.add(f);
                     }
                 });
-            } else if (typeSymbol.tag == SymTag.RECORD) {
-                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-                recordTypeNode.initFunction = rewrite(
-                        TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
-                        env);
-                pkgNode.functions.add(recordTypeNode.initFunction);
-                pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
             }
         }
         int toplevelNodeCount = pkgNode.topLevelNodes.size();
@@ -782,7 +775,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
-        desugarAnnotations(pkgNode);
+        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
         // Add invocation for user specified module init function (`init()`) if present and return.
         addUserDefinedModuleInitInvocationAndReturn(pkgNode);
@@ -826,38 +819,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
-    }
-
-    private void desugarAnnotations(BLangPackage pkgNode) {
-        List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
-
-        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
-
-        addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
-    }
-
-    private void addInitFunctionForRecordTypeNodeInTypeDef(BLangPackage pkgNode,
-                                                         List<BLangTypeDefinition> prevTypeDefinitions) {
-        for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
-            if (prevTypeDefinitions.contains(typeDef)) {
-                continue;
-            }
-
-            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-                continue;
-            }
-            BSymbol symbol = typeDef.symbol;
-            BSymbol typeSymbol = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol : symbol;
-            if (typeSymbol.tag != SymTag.RECORD) {
-                continue;
-            }
-            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-            recordTypeNode.initFunction = rewrite(
-                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
-                    env);
-            pkgNode.functions.add(recordTypeNode.initFunction);
-            pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
-        }
     }
 
     private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
@@ -1197,41 +1158,10 @@ public class Desugar extends BLangNodeVisitor {
 
         for (BLangSimpleVariable bLangSimpleVariable : recordTypeNode.fields) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
+//            bLangSimpleVariable.expr = rewrite(bLangSimpleVariable.expr, env);
         }
 
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-
-        // Will be null only for locally defined anonymous types
-        if (recordTypeNode.initFunction == null) {
-            recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
-                                                                                               names, symTable);
-            env.enclPkg.addFunction(recordTypeNode.initFunction);
-            env.enclPkg.topLevelNodes.add(recordTypeNode.initFunction);
-        }
-
-        // Add struct level variables to the init function.
-        for (BLangSimpleVariable field : recordTypeNode.fields) {
-            // Only add a field if it is required. Checking if it's required is enough since non-defaultable
-            // required fields will have been caught in the type checking phase.
-            if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
-                    !Symbols.isOptional(field.symbol) && field.expr != null) {
-                recordTypeNode.initFunction.initFunctionStmts
-                        .put(field.symbol, createStructFieldUpdate(recordTypeNode.initFunction, field,
-                                                                   recordTypeNode.initFunction.receiver.symbol));
-            }
-        }
-
-        //Adding init statements to the init function.
-        BLangStatement[] initStmts = recordTypeNode.initFunction.initFunctionStmts
-                .values().toArray(new BLangStatement[0]);
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) recordTypeNode.initFunction.body;
-        for (int i = 0; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
-            initFnBody.stmts.add(i, initStmts[i]);
-        }
-
-        // TODO:
-        // Add invocations for the initializers of each of the type referenced records. Here, the initializers of the
-        // referenced types are invoked on the current record type.
 
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
@@ -2702,8 +2632,6 @@ public class Desugar extends BLangNodeVisitor {
 
                 BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(
                         (BRecordType) recordVarRef.getBType(), env.enclPkg.packageID, symTable, recordVarRef.pos);
-                recordTypeNode.initFunction = TypeDefBuilderHelper
-                        .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
                 TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordVarRef.getBType(),
                         recordVarRef.getBType().tsymbol, recordTypeNode, env);
 
@@ -2983,14 +2911,6 @@ public class Desugar extends BLangNodeVisitor {
             restAssignment.varRef = parentErrorVarRef.restVar;
             restAssignment.expr = ASTBuilderUtil.createVariableRef(parentErrorVarRef.restVar.pos,
                     filteredDetail.symbol);
-        }
-
-        BErrorType errorType = (BErrorType) Types.getReferredType(parentErrorVarRef.getBType());
-        if (Types.getReferredType(errorType.detailType).getKind() == TypeKind.RECORD) {
-            // Create empty record init attached func
-            BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) Types.getReferredType(errorType.detailType).tsymbol;
-            tsymbol.initializerFunc = createRecordInitFunc();
-            tsymbol.scope.define(tsymbol.initializerFunc.funcName, tsymbol.initializerFunc.symbol);
         }
     }
 
@@ -4588,9 +4508,6 @@ public class Desugar extends BLangNodeVisitor {
         recordTypeNode.isAnonymous = true;
         recordTypeNode.isLocal = true;
         recordTypeNode.getBType().tsymbol.scope = new Scope(recordTypeNode.getBType().tsymbol);
-        recordTypeNode.initFunction =
-                rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
-                        env);
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordType, recordType.tsymbol, recordTypeNode, env);
     }
 
@@ -4821,8 +4738,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(typeDefFields, detailRecordType,
                 errorFieldMatchPatterns.pos);
-        recordTypeNode.initFunction = TypeDefBuilderHelper
-                .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailRecordType, detailRecordType.tsymbol,
                 recordTypeNode, env);
         return detailRecordType;
@@ -4912,8 +4827,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(typeDefFields, detailRecordType,
                 errorFieldBindingPatterns.pos);
-        recordTypeNode.initFunction = TypeDefBuilderHelper
-                .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailRecordType, detailRecordType.tsymbol,
                 recordTypeNode, env);
         return detailRecordType;
@@ -5683,17 +5596,6 @@ public class Desugar extends BLangNodeVisitor {
         return lambdaFunction;
     }
 
-    protected BLangLambdaFunction createLambdaFunction(Location pos, String functionNamePrefix,
-                                                       List<BLangSimpleVariable> lambdaFunctionVariable,
-                                                       TypeNode returnType, List<BLangStatement> fnBodyStmts,
-                                                       SymbolEnv env, Scope bodyScope) {
-        BLangBlockFunctionBody body = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
-        body.scope = bodyScope;
-        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
-        body.stmts = rewriteStmt(fnBodyStmts, bodyEnv);
-        return createLambdaFunction(pos, functionNamePrefix, lambdaFunctionVariable, returnType, body);
-    }
-
     private void defineFunction(BLangFunction funcNode, BLangPackage targetPkg) {
         final BPackageSymbol packageSymbol = targetPkg.symbol;
         final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
@@ -5868,8 +5770,67 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         List<RecordLiteralNode.RecordField> fields =  recordLiteral.fields;
+        updateFieldsOfRecordLiteral(recordLiteral, fields);
         fields.sort((v1, v2) -> Boolean.compare(isComputedKey(v1), isComputedKey(v2)));
         result = rewriteExpr(rewriteMappingConstructor(recordLiteral));
+    }
+
+    public void visit(BFunctionPointerInvocation functionPointerInvocation) {
+        result = functionPointerInvocation;
+    }
+
+    private List<String> getNamesOfRecordFields(List<RecordLiteralNode.RecordField> fields) {
+        List<String> fieldNames = new ArrayList<>();
+        for (RecordLiteralNode.RecordField field : fields) {
+            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                BLangExpression key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr;
+                if (key.getKind() == NodeKind.LITERAL) {
+                    fieldNames.add(((BLangLiteral) key).originalValue);
+                } else if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    fieldNames.add(((BLangSimpleVarRef) key).variableName.value);
+                }
+            }
+        }
+        return fieldNames;
+    }
+
+    private void updateFieldsOfRecordLiteral(List<RecordLiteralNode.RecordField> fields, List<String> fieldNames,
+                                             Map<String, BInvokableSymbol> defaultValues, Location pos) {
+        for (Map.Entry<String, BInvokableSymbol> entry : defaultValues.entrySet()) {
+            String fieldName = entry.getKey();
+            if (fieldNames.contains(fieldName)) {
+                continue;
+            }
+            BInvokableSymbol invokableSymbol = entry.getValue();
+            BLangInvocation closureInvocation = getInvocation(invokableSymbol);
+            BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
+            member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(pos, symTable.stringType,
+                                                                                                            fieldName));
+            member.valueExpr = addConversionExprIfRequired(closureInvocation, closureInvocation.getBType());
+
+            fields.add(member);
+        }
+    }
+
+    private void updateFieldsOfRecordLiteral(BLangRecordLiteral recordLiteral,
+                                             List<RecordLiteralNode.RecordField> fields) {
+        BType type = Types.getReferredType(recordLiteral.getBType());
+        if (type.getKind() != TypeKind.RECORD) {
+            return;
+        }
+        List<String> fieldNames = getNamesOfRecordFields(fields);
+
+        BRecordType recordType = (BRecordType) type;
+        Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
+        updateFieldsOfRecordLiteral(fields, fieldNames, defaultValues, recordLiteral.pos);
+
+        List<BType> typeInclusions = recordType.typeInclusions;
+
+        for (BType typeInclusion : typeInclusions) {
+            type = Types.getReferredType(typeInclusion);
+            defaultValues = ((BRecordTypeSymbol) type.tsymbol).defaultValues;
+            updateFieldsOfRecordLiteral(fields, fieldNames, defaultValues, recordLiteral.pos);
+        }
     }
 
     @Override
@@ -6488,13 +6449,9 @@ public class Desugar extends BLangNodeVisitor {
 
     private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
         if (this.strandAnnotAttachement == null) {
-            BLangPackage pkgNode = env.enclPkg;
-            List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
             // Create strand annotation once and reuse it for all isolated start-actions and named workers.
             this.strandAnnotAttachement =
                     annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
-            // Add init function for record type node in type def introduced for internally added strand annotation.
-            addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
         }
 
         actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
@@ -9089,11 +9046,7 @@ public class Desugar extends BLangNodeVisitor {
                     Symbols.createRecordSymbol(0, names.fromString("$anonRecordType$" + UNDERSCORE + recordCount++),
                                                env.enclPkg.symbol.pkgID, null, env.scope.owner, recordVariable.pos,
                                                VIRTUAL);
-            recordSymbol.initializerFunc = createRecordInitFunc();
             recordSymbol.scope = new Scope(recordSymbol);
-            recordSymbol.scope.define(
-                    names.fromString(recordSymbol.name.value + "." + recordSymbol.initializerFunc.funcName.value),
-                    recordSymbol.initializerFunc.symbol);
 
             LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
             List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
@@ -9125,9 +9078,6 @@ public class Desugar extends BLangNodeVisitor {
             BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(typeDefFields,
                                                                                            recordVarType,
                                                                                            bindingPatternVariable.pos);
-            recordTypeNode.initFunction =
-                    rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
-                            env);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordVarType, recordSymbol, recordTypeNode, env);
 
             return recordVarType;
@@ -9149,8 +9099,6 @@ public class Desugar extends BLangNodeVisitor {
                                               errorVariable.pos);
 
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
-                recordTypeNode.initFunction = TypeDefBuilderHelper
-                        .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
                 TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailType, detailType.tsymbol,
                         recordTypeNode, env);
             }
@@ -9211,26 +9159,11 @@ public class Desugar extends BLangNodeVisitor {
                 Flags.PUBLIC,
                 names.fromString(anonModelHelper.getNextRecordVarKey(env.enclPkg.packageID)),
                 env.enclPkg.symbol.pkgID, null, null, pos, VIRTUAL);
-
-        detailRecordTypeSymbol.initializerFunc = createRecordInitFunc();
         detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);
-        detailRecordTypeSymbol.scope.define(
-                names.fromString(detailRecordTypeSymbol.name.value + "." +
-                        detailRecordTypeSymbol.initializerFunc.funcName.value),
-                detailRecordTypeSymbol.initializerFunc.symbol);
 
         BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
         detailRecordType.restFieldType = symTable.anydataType;
         return detailRecordType;
-    }
-
-    private BAttachedFunction createRecordInitFunc() {
-        BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
-        BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
-                false, symTable.builtinPos, VIRTUAL);
-        initFuncSymbol.retType = symTable.nilType;
-        return new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol, bInvokableType, symTable.builtinPos);
     }
 
     BLangErrorType createErrorTypeNode(BErrorType errorType) {
@@ -9906,10 +9839,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         fields.clear();
-        BType refType = Types.getReferredType(type);
-        return refType.tag == TypeTags.RECORD ?
-                new BLangStructLiteral(pos, type, refType.tsymbol, rewrittenFields) :
-                new BLangMapLiteral(pos, type, rewrittenFields);
+        // no need of map literal
+        return new BLangMapLiteral(pos, type, rewrittenFields);
     }
 
     protected void addTransactionInternalModuleImport() {
