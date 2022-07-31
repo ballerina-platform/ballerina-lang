@@ -411,19 +411,6 @@ public class BIRTypeWriter implements TypeVisitor {
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
-
-        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
-        if (initializerFunc == null) {
-            buff.writeByte(0);
-            return;
-        }
-
-        buff.writeByte(1);
-        buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeLong(initializerFunc.symbol.flags);
-        writeTypeCpIndex(initializerFunc.type);
-
-        writeTypeInclusions(bRecordType.typeInclusions);
     }
 
     @Override

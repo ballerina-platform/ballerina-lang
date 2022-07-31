@@ -424,7 +424,9 @@ public class BIRPackageSymbolEnter {
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                    structureTypeSymbol.initializerFunc = attachedFunc;
+                    if (structureTypeSymbol.getKind() == SymbolKind.OBJECT) {
+                        ((BObjectTypeSymbol) structureTypeSymbol).initializerFunc = attachedFunc;
+                    }
                 } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
                     ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
                 } else {
@@ -1259,28 +1261,6 @@ public class BIRPackageSymbolEnter {
                         recordType.fields.put(structField.name.value, structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
-
-                    boolean isInitAvailable = inputStream.readByte() == 1;
-                    if (isInitAvailable) {
-                        // read record init function
-                        String recordInitFuncName = getStringCPEntryValue(inputStream);
-                        var recordInitFuncFlags = inputStream.readLong();
-                        BInvokableType recordInitFuncType = (BInvokableType) readTypeFromCp();
-                        Name initFuncName = names.fromString(recordInitFuncName);
-                        boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
-                        BInvokableSymbol recordInitFuncSymbol =
-                                Symbols.createFunctionSymbol(recordInitFuncFlags, initFuncName,
-                                                             initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                                             env.pkgSymbol, isNative, symTable.builtinPos,
-                                                             COMPILED_SOURCE);
-                        recordInitFuncSymbol.retType = recordInitFuncType.retType;
-                        // Define resource function
-                        recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
-                                                                             recordInitFuncType, symTable.builtinPos);
-                        recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
-                    }
-
-                    recordType.typeInclusions = readTypeInclusions();
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
