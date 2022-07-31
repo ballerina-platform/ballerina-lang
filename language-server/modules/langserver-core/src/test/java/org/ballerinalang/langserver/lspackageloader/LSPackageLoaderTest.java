@@ -107,7 +107,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
                 this.remoteRepoPackages.add(packageInfo);
             }
             return null;
-        }).when(lsPackageLoader).updatePackageMapOnPullModuleEvent(Mockito.any());
+        }).when(lsPackageLoader).updatePackageMap(Mockito.any());
     }
 
     private List<LSPackageLoader.PackageInfo> getLoadedPackagesFromLoader(DocumentServiceContext context) {

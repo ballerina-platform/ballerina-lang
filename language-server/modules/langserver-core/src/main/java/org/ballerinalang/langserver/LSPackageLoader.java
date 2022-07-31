@@ -30,7 +30,6 @@ import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
@@ -187,10 +186,10 @@ public class LSPackageLoader {
         return packages;
     }
 
-    public void updatePackageMapOnPullModuleEvent(DocumentServiceContext context) {
+    public List<PackageInfo> updatePackageMap(DocumentServiceContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
-            return;
+            return Collections.emptyList();
         }
         BallerinaUserHome ballerinaUserHome = BallerinaUserHome
                 .from(project.get().projectEnvironmentContext().environment());
@@ -200,8 +199,7 @@ public class LSPackageLoader {
                         this.remoteRepoPackages.stream().map(PackageInfo::packageIdentifier)
                                 .collect(Collectors.toSet()));
         this.remoteRepoPackages.addAll(packageInfos);
-        ServiceTemplateGenerator.getInstance(context.languageServercontext())
-                .updateListenerMetaDataMap(packageInfos, context.languageServercontext());
+        return packageInfos;
     }
 
     /**
