@@ -2,14 +2,14 @@
   "range": {
     "start": {
       "line": 2,
-      "character": 4
+      "character": 8
     },
     "end": {
       "line": 3,
       "character": 22
     }
   },
-  "source": "extract_to_function_statements_list_varDeclOnlyInRange_return_single.bal",
+  "source": "extract_to_function_stmts_block_stmt_inside_block.bal",
   "expected": [
     {
       "title": "Extract to function",
@@ -18,30 +18,31 @@
         {
           "range": {
             "start": {
-              "line": 6,
+              "line": 7,
               "character": 1
             },
             "end": {
-              "line": 6,
+              "line": 7,
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int localVar1 \u003d 1;\n    int localVar2 \u003d 2;\n    return localVar1;\n}"
+          "newText": "\n\nfunction extracted() returns int {\n    int localVar \u003d 10;\n    localVar +\u003d 1;\n    return localVar;\n}"
         },
         {
           "range": {
             "start": {
               "line": 2,
-              "character": 4
+              "character": 8
             },
             "end": {
               "line": 3,
               "character": 22
             }
           },
-          "newText": "int localVar1 \u003d extracted();"
+          "newText": "int localVar \u003d extracted();"
         }
       ]
     }
-  ]
+  ],
+  "description": "Extract to function for block statements, checks extraction inside the block"
 }

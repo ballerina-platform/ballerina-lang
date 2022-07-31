@@ -10,5 +10,9 @@
     }
   },
   "source": "negative_extract_to_function_statements_list_with_multiple_moduleVar_assignments.bal",
-  "expected": []
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ]
 }
