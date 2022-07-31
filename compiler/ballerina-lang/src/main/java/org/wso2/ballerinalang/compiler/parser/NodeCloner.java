@@ -365,7 +365,6 @@ public class NodeCloner extends BLangNodeVisitor {
     private void cloneBLangStructureTypeNode(BLangStructureTypeNode source, BLangStructureTypeNode clone) {
 
         clone.fields = cloneList(source.fields);
-        clone.initFunction = clone(source.initFunction);
         clone.isAnonymous = source.isAnonymous;
         clone.isLocal = source.isLocal;
         clone.typeRefs = cloneList(source.typeRefs);

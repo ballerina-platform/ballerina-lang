@@ -43,7 +43,7 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
 
     // BLangNodes
     public List<BLangFunction> functions;
-
+    public BLangFunction initFunction;
     // Parser Flags and Data
     public Set<Flag> flagSet;
 

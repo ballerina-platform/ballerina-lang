@@ -27,11 +27,9 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -127,21 +125,6 @@ public class TypeDefBuilderHelper {
         objectTypeNode.pos = pos;
 
         return objectTypeNode;
-    }
-
-    public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
-                                                                Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.pos, recordTypeNode.symbol, env,
-                                                                        names, Names.INIT_FUNCTION_SUFFIX, symTable,
-                                                                        recordTypeNode.getBType());
-        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.getBType().tsymbol);
-        structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
-                                                                (BInvokableType) initFunction.getBType(),
-                                                                initFunction.pos);
-        recordTypeNode.initFunction = initFunction;
-        structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
-                                     structureSymbol.initializerFunc.symbol);
-        return initFunction;
     }
 
     public static BLangFunction createInitFunctionForStructureType(Location location,

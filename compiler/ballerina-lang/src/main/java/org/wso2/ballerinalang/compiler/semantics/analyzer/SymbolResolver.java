@@ -2394,7 +2394,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         BLangRecordTypeNode detailRecordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
                                                                                              detailRecord, pos);
-        TypeDefBuilderHelper.createInitFunctionForRecordType(detailRecordTypeNode, env, names, symTable);
         BLangTypeDefinition detailRecordTypeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(
                 detailRecord, detailRecordSymbol, detailRecordTypeNode, env);
         detailRecordTypeDefinition.pos = pos;
