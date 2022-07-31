@@ -13,6 +13,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -179,6 +180,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
     private Queue<BLangSimpleVariableDef> queue;
 
     private SymbolTable symTable;
+    private BLangType typeNodeOfRecordField;
     private SymbolEnv env;
     private BLangNode result;
     private SymbolResolver symResolver;
@@ -235,7 +237,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
             BLangSimpleVariable simpleVariable = queue.poll().var;
             simpleVariable.flagSet.add(Flag.PUBLIC);
             simpleVariable.symbol.flags |= Flags.PUBLIC;
-            pkgEnv.enclPkg.globalVars.add(0, rewrite(simpleVariable, pkgEnv));
+            pkgEnv.enclPkg.globalVars.add(0, simpleVariable);
         }
     }
 
@@ -361,7 +363,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         for (BLangSimpleVariable field : recordTypeNode.fields) {
-            rewrite(field, env);
+            rewrite(field, recordTypeNode.typeDefEnv);
         }
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
         result = recordTypeNode;
@@ -461,13 +463,22 @@ public class ParameterDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        BLangExpression bLangExpression;
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.FIELD) && varNode.symbol.isDefaultable) {
+            typeNodeOfRecordField = varNode.typeNode;
+            String closureName = generateName(varNode.symbol.name.value, env.node);
+            bLangExpression = createClosureForDefaultValueOfRecordField(closureName, varNode.name.value, varNode);
+            varNode.expr = bLangExpression;
+            result = varNode;
+            return;
+        }
+
         if (varNode.typeNode != null && varNode.typeNode.getKind() != null) {
             varNode.typeNode = rewrite(varNode.typeNode, env);
         }
-        BLangExpression bLangExpression;
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
-            bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode);
+            bLangExpression = createClosureForDefaultValueOfParameter(closureName, varNode.name.value, varNode);
         } else {
             bLangExpression = rewriteExpr(varNode.expr);
         }
@@ -487,8 +498,8 @@ public class ParameterDesugar extends BLangNodeVisitor {
         return symbolEnv.enclPkg.symbol;
     }
 
-    private BLangExpression createClosureForDefaultValue(String closureName, String paramName,
-                                                         BLangSimpleVariable varNode) {
+    private BLangExpression createClosureForDefaultValueOfParameter(String closureName, String paramName,
+                                                                    BLangSimpleVariable varNode) {
         BSymbol owner = getOwner(env);
         BInvokableTypeSymbol symbol = (BInvokableTypeSymbol) env.node.getBType().tsymbol;
         BLangFunction function = createFunction(closureName, varNode.pos, symbol.pkgID, owner, varNode.getBType());
@@ -502,6 +513,25 @@ public class ParameterDesugar extends BLangNodeVisitor {
         env.enclPkg.functions.add(function);
         env.enclPkg.topLevelNodes.add(function);
         symbol.defaultValues.put(paramName, varSymbol);
+        rewrite(lambdaFunction, lambdaFunction.capturedClosureEnv);
+        return returnStmt.expr;
+    }
+
+    private BLangExpression createClosureForDefaultValueOfRecordField(String closureName, String paramName,
+                                                                      BLangSimpleVariable varNode) {
+        BSymbol owner = getOwner(env);
+        BRecordTypeSymbol symbol = (BRecordTypeSymbol) env.node.getBType().tsymbol;
+        BLangFunction function = createFunction(closureName, varNode.pos, symbol.pkgID, owner, varNode.getBType());
+        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
+        returnStmt.expr = varNode.expr;
+        BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
+        lambdaFunction.capturedClosureEnv = env.createClone();
+        BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction);
+        env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
+        env.enclPkg.functions.add(function);
+        env.enclPkg.topLevelNodes.add(function);
+        symbol.defaultValues.put(paramName, varSymbol);
+        rewrite(lambdaFunction, lambdaFunction.capturedClosureEnv);
         return returnStmt.expr;
     }
 
@@ -597,6 +627,9 @@ public class ParameterDesugar extends BLangNodeVisitor {
                 return generateName(name, parent.parent);
             case SERVICE:
                 name = ((BLangService) parent).name.getValue() + UNDERSCORE + name;
+                return generateName(name, parent.parent);
+            case RECORD_TYPE:
+                name = ((BLangRecordTypeNode) parent).symbol.name.getValue() + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             default:
                 return generateName(name, parent.parent);
@@ -1504,14 +1537,16 @@ public class ParameterDesugar extends BLangNodeVisitor {
         Queue<BLangSimpleVariableDef> previousQueue = this.queue;
         this.queue = new LinkedList<>();
         int size = nodeList.size();
+        rewrite(typeNodeOfRecordField, env);
         for (int i = 0; i < size; i++) {
             E node = rewrite(nodeList.remove(0), env);
             Iterator<BLangSimpleVariableDef> iterator = queue.iterator();
             while (iterator.hasNext()) {
-                nodeList.add(rewrite((E) queue.poll(), env));
+                nodeList.add((E) queue.poll());
             }
             nodeList.add(node);
         }
+        typeNodeOfRecordField = null;
         this.queue = previousQueue;
         return nodeList;
     }
