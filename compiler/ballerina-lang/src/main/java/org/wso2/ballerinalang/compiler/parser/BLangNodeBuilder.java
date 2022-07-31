@@ -1395,6 +1395,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         addReadOnlyQualifier(recordFieldNode.readonlyKeyword(), simpleVar);
 
         simpleVar.pos = getPositionWithoutMetadata(recordFieldNode);
+        simpleVar.flagSet.add(Flag.FIELD);
         return simpleVar;
     }
 
