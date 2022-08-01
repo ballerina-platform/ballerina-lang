@@ -546,7 +546,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 SyntaxKind.IF_ELSE_STATEMENT,
 //                SyntaxKind.ELSE_BLOCK, // do not support
 
-//                SyntaxKind.WHILE_STATEMENT,
+                SyntaxKind.WHILE_STATEMENT,
 //                SyntaxKind.CALL_STATEMENT,
 //                SyntaxKind.PANIC_STATEMENT,
 //                SyntaxKind.RETURN_STATEMENT,
