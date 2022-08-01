@@ -8667,7 +8667,7 @@ public class Desugar extends BLangNodeVisitor {
                 || funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             Location invPos = invokableNode.pos;
             Location returnStmtPos;
-            if (!invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value) && invPos != null) {
+            if (invPos != null && !invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
                 returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().endLine().line(),
