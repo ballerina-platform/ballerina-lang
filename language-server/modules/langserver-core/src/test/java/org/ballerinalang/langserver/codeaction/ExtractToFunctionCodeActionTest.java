@@ -72,7 +72,9 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_if_else_stmt_with_if_only.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_if_and_else.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_nested_if.json"},
-//                {"test.json"}
+
+                {"extract_to_function_stmts_while_stmt.json"},
+                {"extract_to_function_stmts_while_stmt_with_local_var_referred.json"},
         };
     }
 
@@ -94,6 +96,11 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 {"negative_extract_to_function_stmts_assignment_stmt_localVar.json"},
                 {"negative_extract_to_function_stmts_com_assignment_stmt_localVar.json"},
+
+                {"negative_extract_to_function_stmts_while_statement_break_statement_inside.json"},
+                {"negative_extract_to_function_stmts_while_statement_continue_statement_inside.json"},
+                {"negative_extract_to_function_stmts_while_statement_varAssigns_without_varDecl.json"},
+                {"negative_extract_to_function_stmts_while_statement_selected_only_block_statement.json"},
         };
     }
 
