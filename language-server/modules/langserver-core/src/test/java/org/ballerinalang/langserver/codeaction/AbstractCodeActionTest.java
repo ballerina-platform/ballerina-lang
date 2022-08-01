@@ -272,7 +272,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         responseJson.remove("id");
         return responseJson;
     }
-    
+
     @BeforeClass
     public void setup() {
         workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
@@ -305,7 +305,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     public abstract Object[][] dataProvider();
 
     public abstract String getResourceDir();
-    
+
     @AfterClass
     public void cleanUp() {
         this.serverContext = null;
