@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BIterator;
@@ -47,6 +48,9 @@ import static io.ballerina.runtime.internal.TypeChecker.getType;
  * Class that contains inter-op function related to mocking.
  */
 public class ObjectMock {
+
+    private ObjectMock() {
+    }
 
     /**
      * Returns a generic mock object pretending to be the type of the provided typedesc.
@@ -183,11 +187,11 @@ public class ObjectMock {
                 // validate if each argument is compatible with the type given in the function signature
                 int i = 0;
                 for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
-                    if (attachedFunction.getType().getParameters()[i].type instanceof UnionType) {
+                    Type paramType = TypeUtils.getReferredType(attachedFunction.getType().getParameters()[i].type);
+                    if (paramType instanceof UnionType) {
                         Object arg = it.next();
                         boolean isTypeAvailable = false;
-                        List<Type> memberTypes =
-                                ((UnionType) attachedFunction.getType().getParameters()[i].type).getMemberTypes();
+                        List<Type> memberTypes = ((UnionType) paramType).getMemberTypes();
                         for (Type memberType : memberTypes) {
                             if (TypeChecker.checkIsType(arg, memberType)) {
                                 isTypeAvailable = true;
@@ -205,8 +209,7 @@ public class ObjectMock {
                                     null,
                                     new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                         }
-                    } else if (!TypeChecker.checkIsType(it.next(),
-                            attachedFunction.getType().getParameters()[i].type)) {
+                    } else if (!TypeChecker.checkIsType(it.next(), paramType)) {
                         String detail =
                                 "incorrect type of argument provided at position '" + (i + 1)
                                         + "' to mock the function '" + functionName + "()'";
@@ -458,8 +461,11 @@ public class ObjectMock {
                 } else {
                     // validate the equivalence of the parameter types
                     for (int i = 0; i < parameters.length; i++) {
-                        if (attachedFunction.getParameters()[i].type instanceof UnionType) {
-                            if (!(parameters[i].type instanceof UnionType)) {
+                        Type paramTypeAttachedFunc =
+                                TypeUtils.getReferredType(attachedFunction.getType().getParameters()[i].type);
+                        Type paramType = TypeUtils.getReferredType(parameters[i].type);
+                        if (paramTypeAttachedFunc instanceof UnionType) {
+                            if (!(paramType instanceof UnionType)) {
                                 String detail = "incompatible parameter type provided at position " + (i + 1) + " in" +
                                         " function '" + functionName + "()'. parameter should be of union type ";
                                 return ErrorCreator.createError(
@@ -469,10 +475,9 @@ public class ObjectMock {
                                         null,
                                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                             } else {
-                                Type[] memberTypes = ((UnionType) attachedFunction.getParameters()[i].type)
-                                        .getMemberTypes().toArray(new Type[0]);
-                                Type[] providedTypes = ((UnionType) parameters[i].type)
-                                        .getMemberTypes().toArray(new Type[0]);
+                                Type[] memberTypes =
+                                        ((UnionType) paramTypeAttachedFunc).getMemberTypes().toArray(new Type[0]);
+                                Type[] providedTypes = ((UnionType) paramType).getMemberTypes().toArray(new Type[0]);
                                 for (int j = 0; j < memberTypes.length; j++) {
                                     if (!TypeChecker.checkIsType(providedTypes[j], memberTypes[j])) {
                                         BString detail = StringUtils
@@ -489,8 +494,8 @@ public class ObjectMock {
 
                             }
                         } else {
-                            if (!TypeChecker.checkIsType(parameters[i].type,
-                                    attachedFunction.getParameters()[i].type)) {
+                            if (!TypeChecker.checkIsType(paramType,
+                                    paramTypeAttachedFunc)) {
                                 BString detail =
                                         StringUtils.fromString("incompatible parameter type provided at position "
                                                 + (i + 1) + " in function '" + functionName + "()'");

@@ -1070,6 +1070,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case SIMPLE_VARIABLE_REF:
                 constValAndType.put(((BLangSimpleVarRef) constPattern.expr).variableName, constPattern.getBType());
                 break;
+            case UNARY_EXPR:
+                BLangNumericLiteral newNumericLiteral = Types.constructNumericLiteralFromUnaryExpr(
+                        (BLangUnaryExpr) constPattern.expr);
+                constValAndType.put(newNumericLiteral.value, null);
         }
         return constValAndType;
     }
@@ -1681,7 +1685,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
-            dlog.error(pos, DiagnosticErrorCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
+            dlog.warning(pos, DiagnosticWarningCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
@@ -2514,6 +2518,28 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             actionInvocation.invokedInsideTransaction = true;
         }
     }
+    
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceActionInvocation, AnalyzerData data) {
+        validateInvocationInMatchGuard(resourceActionInvocation);
+        analyzeExpr(resourceActionInvocation.expr, data);
+        analyzeExprs(resourceActionInvocation.requiredArgs, data);
+        analyzeExprs(resourceActionInvocation.restArgs, data);
+        analyzeExpr(resourceActionInvocation.resourceAccessPathSegments, data);
+        resourceActionInvocation.invokedInsideTransaction = data.withinTransactionScope;
+        
+        if (Symbols.isFlagOn(resourceActionInvocation.symbol.flags, Flags.TRANSACTIONAL) &&
+                !data.withinTransactionScope) {
+            dlog.error(resourceActionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
+            return;
+        }
+        
+        if (Symbols.isFlagOn(resourceActionInvocation.symbol.flags, Flags.DEPRECATED)) {
+            logDeprecatedWarningForInvocation(resourceActionInvocation);
+        }
+
+        validateActionInvocation(resourceActionInvocation.pos, resourceActionInvocation);
+    }
 
     private void logDeprecatedWarningForInvocation(BLangInvocation invocationExpr) {
         String deprecatedConstruct = invocationExpr.name.toString();
@@ -3183,9 +3209,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
-        boolean failureHandled = data.failureHandled;
-        data.failureHandled = true;
-        data.errorTypes.push(new LinkedHashSet<>());
         boolean prevQueryToTableWithKey = data.queryToTableWithKey;
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
         data.queryToMap = queryExpr.isMap;
@@ -3205,8 +3228,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
             analyzeNode(clause, data);
         }
-        data.failureHandled = failureHandled;
-        data.errorTypes.pop();
         data.withinQuery = prevWithinQuery;
         data.queryToTableWithKey = prevQueryToTableWithKey;
     }
@@ -3217,7 +3238,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failureHandled = true;
         boolean prevWithinQuery = data.withinQuery;
         data.withinQuery = true;
-        data.errorTypes.push(new LinkedHashSet<>());
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3235,7 +3255,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         validateActionParentNode(queryAction.pos, queryAction);
         data.failureHandled = prevFailureHandled;
         data.withinQuery = prevWithinQuery;
-        data.errorTypes.pop();
     }
 
     @Override

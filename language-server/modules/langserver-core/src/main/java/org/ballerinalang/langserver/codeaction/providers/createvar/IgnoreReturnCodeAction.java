@@ -48,19 +48,19 @@ public class IgnoreReturnCodeAction extends CreateVariableCodeAction {
     public static final String NAME = "Ignore Return Type";
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return  diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Optional<TypeSymbol> typeDescriptor = getExpectedTypeSymbol(positionDetails);
         if (typeDescriptor.isEmpty()) {
             return Collections.emptyList();
@@ -70,9 +70,8 @@ public class IgnoreReturnCodeAction extends CreateVariableCodeAction {
         // Add ignore return value code action
         if (!hasErrorType(typeDescriptor.get())) {
             String commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
-            return Collections.singletonList(
-                    createCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri, CodeActionKind.QuickFix)
-            );
+            return Collections.singletonList(CodeActionUtil
+                    .createCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri, CodeActionKind.QuickFix));
         }
         return Collections.emptyList();
     }

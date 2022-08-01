@@ -70,36 +70,36 @@ function testReassignValueInLet() {
 function testReassigningValueToNarrowedVarInWhere() returns error? {
     (int|string)[] arr = [1, 2, 3];
 
-    from var a in arr
-    where a is int
-    do {
-        a = 10;
-    };
+    check from var a in arr
+        where a is int
+        do {
+            a = 10;
+        };
 
-    from var a in arr
-    from var b in [1, 2, "A"]
-    where b is int
-    do {
-        a = 20;
-        b = 10;
-    };
+    check from var a in arr
+        from var b in [1, 2, "A"]
+        where b is int
+        do {
+            a = 20;
+            b = 10;
+        };
 
-    from var a in arr
-    join var b in [1, 2, "A"]
-    on a equals b
-    where a is int && b is int
-    do {
-        a = 10;
-        b = 20;
-    };
+    check from var a in arr
+        join var b in [1, 2, "A"]
+        on a equals b
+        where a is int && b is int
+        do {
+            a = 10;
+            b = 20;
+        };
 }
 
 type Chars "A"|"B"|"C";
 
 function testReassigningValueToNarrowedVarInWhereWithIterablePassedAsFuncParam(Chars[] chars) returns error? {
-    from Chars item in chars
-    where item == "C"
-    do {
-        item = "B";
-    };
+    check from Chars item in chars
+        where item == "C"
+        do {
+            item = "B";
+        };
 }

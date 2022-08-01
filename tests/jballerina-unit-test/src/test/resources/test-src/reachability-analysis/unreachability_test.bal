@@ -1045,19 +1045,19 @@ function testUnreachableStatementInQueryAction() {
 }
 
 function testUnreachableStatementInQueryAction2() returns error? {
-    from var item in 1 ... 5
-    where false
-    do {
-        int _ = 10; // unreachable code
-    };
+    check from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
 }
 
 function testUnreachableStatementInQueryAction3() returns error? {
-    from var item in 1 ... 5
-    where false
-    do {
-        int _ = 10; // unreachable code
-    };
+    checkpanic from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
 }
 
 function testUnreachableStatementInQueryAction4() returns error? {
@@ -1091,7 +1091,7 @@ function testUnreachableStatementInQueryAction6() returns error? {
 }
 
 function testUnreachableStatementInQueryAction7() returns error? {
-    return from var item in 1 ... 5
+    return check from var item in 1 ... 5
         where false
         do {
             int _ = 10; // unreachable code
@@ -1099,7 +1099,7 @@ function testUnreachableStatementInQueryAction7() returns error? {
 }
 
 function testUnreachableStatementInQueryAction8() returns error? {
-    return from var item in 1 ... 5
+    return checkpanic from var item in 1 ... 5
         where false
         do {
             int _ = 10; // unreachable code
@@ -1171,7 +1171,7 @@ function testUnreachableStatementInQueryAction15() {
 }
 
 function testUnreachableStatementInQueryAction16() returns error? {
-    match from var item in 1 ... 5
+    match check from var item in 1 ... 5
         where false
         do {
             int _ = 10; // unreachable code
@@ -1214,22 +1214,22 @@ function testUnreachableStatementInQueryAction19() returns error? {
 
 function testUnreachableStatementInQueryAction20() returns error? {
     error? a = ();
-    from var item in 1 ... 5
-    where item < 2
-    do {
-        a = (from var value in 1 ... 5
-            where false
-            where value < 2
-            do {
-                int _ = 10; // unreachable code
-            });
-    };
+    check from var item in 1 ... 5
+        where item < 2
+        do {
+            a = (from var value in 1 ... 5
+                where false
+                where value < 2
+                do {
+                    int _ = 10; // unreachable code
+                });
+        };
 
     return a;
 }
 
-function testUnreachableStatementInQueryAction21() {
-    from var item in 1 ... 5
+function testUnreachableStatementInQueryAction21() returns error? {
+    check from var item in 1 ... 5
     where false
     do {
         int _ = 1; // unreachable code
@@ -1422,8 +1422,8 @@ function testLoggingExpectedUnreachableErrors16() {
     int _ = 10; // unreachable code
 }
 
-function testUnreachableStatementInQueryAction25() {
-    from var item in 1 ... 5
+function testUnreachableStatementInQueryAction25() returns error? {
+    check from var item in 1 ... 5
     where true
     do {
         while true {
@@ -1435,59 +1435,59 @@ function testUnreachableStatementInQueryAction25() {
 
 function testUnreachableStatementInQueryAction26() returns error? {
     string m;
-    from var item in 1 ... 5
-    where true
-    do {
-        m = "Error";
-        while m is string {
-            int _ = 3;
-        }
-        int _ = 2; // unreachable code
-    };
+    check from var item in 1 ... 5
+        where true
+        do {
+            m = "Error";
+            while m is string {
+                int _ = 3;
+            }
+            int _ = 2; // unreachable code
+        };
 }
 
 function testUnreachableStatementInQueryAction27() returns error? {
-    from var item in 1 ... 5
-    where true
-    do {
-        if true {
-            return;
-        }
-        int _ = 2; // unreachable code
-    };
+    check from var item in 1 ... 5
+        where true
+        do {
+            if true {
+                return;
+            }
+            int _ = 2; // unreachable code
+        };
 }
 
 function testUnreachableStatementInQueryAction28() returns error? {
-    from var item in 1 ... 5
-    where false
-    do {
-        panic error("Panic!");
-        int _ = 2; // unreachable code
-    };
+    check from var item in 1 ... 5
+        where false
+        do {
+            panic error("Panic!");
+            int _ = 2; // unreachable code
+        };
 }
 
 function testUnreachableStatementInQueryAction29() returns error? {
-    from var item in 1 ... 5
-    where true
-    do {
-        while true {
-            int _ = 3;
-        }
-        panic error("Panic!");
-        int _ = 2; // unreachable code
-    };
+    check from var item in 1 ... 5
+        where true
+        do {
+            while true {
+                int _ = 3;
+            }
+            panic error("Panic!");
+            int _ = 2; // unreachable code
+        };
 }
 
 function testUnreachableStatementInQueryAction30() returns error? {
-    from var item in 1 ... 5
-    where true
-    do {
-        if true {
-            return;
-        }
-        panic error("Panic!");
-        int _ = 2; // unreachable code
-    };
+    check from var item in 1 ... 5
+        where true
+        do {
+            if true {
+                return;
+            }
+            panic error("Panic!");
+            int _ = 2; // unreachable code
+        };
 }
 
 function testUnreachabilityWithIfElseHavingUnreachablePanic(float? v) returns int {
@@ -1542,4 +1542,217 @@ function testUnreachabilityWithIfElseHavingUnreachablePanic4(float? v) returns i
     }
 
     return y; // unreachable code
+}
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic5(float? v) returns int {
+    if v is () {
+        return 1;
+    } else if v is float {
+        return 2;
+    } else {
+        string message = "err!"; // unreachable code
+        panic error(message);
+    }
+}
+
+function testVariableInitializationWithIfElseHavingUnreachablePanic(float? v) returns int {
+    int y;
+
+    if v is () {
+
+    } else if v is float {
+        y = 2;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // variable 'y' may not have been initialized
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            break;
+        } else {
+            continue;
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue2(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            return;
+        } else {
+            continue;
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue3(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            continue;
+        } else {
+            break;
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue4(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            return;
+        } else {
+            break;
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue5(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            break;
+        } else {
+            panic error("Err");
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue6(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            continue;
+        } else {
+            panic error("Err");
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue7(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        foreach var i in 1...3 {
+            if v is () {
+                continue;
+            } else {
+                break;
+            }
+            int _ = 1; // unreachable code
+        }
+
+        int _ = 1; // Ok
+
+        if v is () {
+            continue;
+        } else {
+            panic error("Err");
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue8() returns int {
+    int|boolean v = true;
+    while v is boolean {
+        string? a = "A";
+        if a is string {
+            string|int b = "B";
+            if b is string {
+                if true {
+                    return 1;
+                }
+            }
+
+            if b is int { // always true
+                break;
+            }
+
+            int _ = 1; // unreachable code
+        } else {
+            return 2;
+        }
+    }
+    return 4;
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue9() returns int {
+    int|boolean v = true;
+    while v is boolean {
+        string? a = "A";
+        if a is string {
+            string|int b = "B";
+            if b is string {
+                return 1;
+            } else if b is int {
+                break;
+            }
+        } else {
+            break;
+        }
+        int _ = 1; // unreachable code
+    }
+    return 4;
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue10() returns int {
+    int|boolean v = true;
+    while v is boolean {
+        string? a = "A";
+        if a is string {
+            string|int? b = "B";
+            if b is string {
+                return 1;
+            } else if b is int {
+                break;
+            } else {
+                continue;
+            }
+            int _ = 1; // unreachable code
+        } else {
+            string|int? c = "C";
+            if c is string {
+                return 1;
+            } else if c is int {
+                break;
+            } else {
+                continue;
+            }
+            int _ = 1; // unreachable code
+        }
+    }
+    return 4;
 }

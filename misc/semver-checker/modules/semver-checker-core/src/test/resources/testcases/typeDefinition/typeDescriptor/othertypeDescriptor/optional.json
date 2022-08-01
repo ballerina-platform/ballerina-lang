@@ -1,0 +1,34 @@
+[
+  {
+    "description": "Change a type descriptor to optional\n",
+    "oldCode": "public type Person int;\n",
+    "newCode": "public type Person int?;\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "type descriptor",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "type descriptor is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
