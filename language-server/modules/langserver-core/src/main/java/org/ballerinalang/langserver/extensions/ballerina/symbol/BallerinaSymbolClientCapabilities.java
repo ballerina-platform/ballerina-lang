@@ -30,6 +30,8 @@ public class BallerinaSymbolClientCapabilities extends BallerinaClientCapability
 
     private boolean getSymbol;
 
+    private boolean getExprType;
+
     public boolean isGetSymbol() {
         return getSymbol;
     }
@@ -52,6 +54,14 @@ public class BallerinaSymbolClientCapabilities extends BallerinaClientCapability
 
     public void setType(boolean type) {
         this.type = type;
+    }
+
+    public boolean isGetExprType() {
+        return getExprType;
+    }
+
+    public void setGetExprType(boolean getExprType) {
+        this.getExprType = getExprType;
     }
 
     public BallerinaSymbolClientCapabilities() {
