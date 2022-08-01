@@ -1,4 +1,4 @@
-function testFunction1() {
+function testFunction() {
     int localVar = 10;
 
     if true {

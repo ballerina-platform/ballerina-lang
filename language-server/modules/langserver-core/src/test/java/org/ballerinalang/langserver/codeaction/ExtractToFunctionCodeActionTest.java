@@ -60,7 +60,14 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_statements_list_with_moduleVar_comAssignmentStatement.json"},
 
                 {"extract_to_function_stmts_block_stmt_inside_block.json"},
-                {"extract_to_function_stmts_block_stmt_with_block.json"},
+//                {"extract_to_function_stmts_block_stmt_with_block.json"}, // todo (removed this support for now)
+
+                {"extract_to_function_stmts_local_var_decl_with_init.json"},
+                {"extract_to_function_stmts_local_var_decl_with_init_range_till_closing_bracket.json"},
+                {"extract_to_function_stmts_local_var_decl_without_init.json"}, //todo check this for other statements as well
+
+                {"extract_to_function_stmts_assignment_stmt_moduleVar.json"},
+                {"extract_to_function_stmts_com_assignment_stmt_moduleVar.json"},
 
                 {"extract_to_function_stmts_if_else_stmt_with_if_only.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_if_and_else.json"},
@@ -79,7 +86,14 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_statements_list_with_assignment_and_compAssignment.json"},
                 {"negative_extract_to_function_statements_list_with_multiple_moduleVar_assignments.json"},
                 {"negative_extract_to_function_statements_list_with_multiple_moduleVar_and_localVar_assignments.json"},
-                {"negative_extract_to_function_stmts_if_else_stmt_with_varDecl_before_range.json"}
+
+                {"negative_extract_to_function_stmts_if_else_stmt_with_varDecl_before_range.json"},
+                {"negative_extract_to_function_stmts_if_else_stmt_with_selecting_only_else_block.json"},
+                {"negative_extract_to_function_stmts_if_else_stmt_without_selectingTheEntireNode.json"},
+                {"negative_extract_to_function_stmts_if_else_stmt_selecting_block_stmt_in_else_block.json"},
+
+                {"negative_extract_to_function_stmts_assignment_stmt_localVar.json"},
+                {"negative_extract_to_function_stmts_com_assignment_stmt_localVar.json"},
         };
     }
 

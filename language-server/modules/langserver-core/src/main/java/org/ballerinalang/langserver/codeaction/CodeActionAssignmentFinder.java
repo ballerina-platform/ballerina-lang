@@ -19,7 +19,9 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.BreakStatementNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
@@ -45,6 +47,7 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
     private final List<Symbol> assignmentStatementSymbols = new ArrayList<>();
     private final List<Symbol> varDeclarationSymbols = new ArrayList<>();
     private final List<Node> selectedNodes = new ArrayList<>();
+    private boolean isExtractable = true;
     private final Range selectedRange;
     private final SemanticModel semanticModel;
 
@@ -52,7 +55,7 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
         this.selectedRange = selectedRange;
         this.semanticModel = semanticModel;
     }
-//todo change the name to maybe findAssignments?
+//todo change the name
     public void assignmentFinder(NonTerminalNode node) {
         if (node.kind() == SyntaxKind.LIST) {
             node.children().forEach(children -> {
@@ -62,6 +65,10 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
                 }
             });
         } else {
+            if (!PositionUtil.isRangeWithinRange(PositionUtil.toRange(node.lineRange()), selectedRange)) {
+                this.isExtractable = false;
+                return;
+            }
             selectedNodes.add(node);
             node.accept(this);
         }
@@ -77,6 +84,10 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
 
     public List<Node> getSelectedNodes() {
         return selectedNodes;
+    }
+
+    public boolean isExtractable() {
+        return isExtractable;
     }
 
     @Override
@@ -112,5 +123,15 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
     public void visit(VariableDeclarationNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.typedBindingPattern().bindingPattern());
         symbol.ifPresent(varDeclarationSymbols::add);
+    }
+
+    @Override
+    public void visit(BreakStatementNode node) {
+        this.isExtractable = false;
+    }
+
+    @Override
+    public void visit(ContinueStatementNode node) {
+        this.isExtractable = false;
     }
 }
