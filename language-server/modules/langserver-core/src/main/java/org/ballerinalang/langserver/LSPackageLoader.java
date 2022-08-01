@@ -53,6 +53,8 @@ public class LSPackageLoader {
     private List<PackageInfo> remoteRepoPackages;
     private List<PackageInfo> localRepoPackages;
 
+    private final LSClientLogger clientLogger;
+
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
         if (lsPackageLoader == null) {
@@ -63,6 +65,7 @@ public class LSPackageLoader {
     }
 
     private LSPackageLoader(LanguageServerContext context) {
+        this.clientLogger = LSClientLogger.getInstance(context);
         distRepoPackages = this.getDistributionRepoPackages();
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
@@ -128,6 +131,7 @@ public class LSPackageLoader {
 
     /**
      * Returns the list of packages that reside in the BallerinaUserHome (.ballerina) directory.
+     *
      * @param ctx Document service context.
      * @return {@link List<PackageInfo>} List of package info.
      */
@@ -150,6 +154,7 @@ public class LSPackageLoader {
         Map<String, List<String>> packageMap = repository.getPackages();
         List<PackageInfo> packages = new ArrayList<>();
         packageMap.forEach((key, value) -> {
+
             if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                 return;
             }
@@ -163,15 +168,22 @@ public class LSPackageLoader {
                 PackageOrg packageOrg = PackageOrg.from(key);
                 PackageName packageName = PackageName.from(nameComponent);
                 PackageVersion pkgVersion = PackageVersion.from(version);
-                PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
 
-                Optional<Package> repoPackage = repository.getPackage(request,
-                        ResolutionOptions.builder().setOffline(true).build());
-                repoPackage.ifPresent(pkg -> packages.add(new PackageInfo(pkg)));
+                try {
+                    PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
+                    ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
+
+                    Optional<Package> repoPackage = repository.getPackage(request,
+                            ResolutionOptions.builder().setOffline(true).build());
+                    repoPackage.ifPresent(pkg -> packages.add(new PackageInfo(pkg)));
+                } catch (Throwable e) {
+                    clientLogger.logTrace("Failed to resolve package "
+                            + packageOrg + (!packageOrg.value().isEmpty() ? "/" : "" 
+                            + packageName + ":" + pkgVersion));
+                }
             });
-        });
 
+        });
         return packages;
     }
 
