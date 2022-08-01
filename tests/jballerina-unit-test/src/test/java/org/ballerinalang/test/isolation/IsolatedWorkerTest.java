@@ -17,6 +17,16 @@
  */
 package org.ballerinalang.test.isolation;
 
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -24,9 +34,15 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.Lists;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateWarning;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases related to isolated workers.
@@ -201,8 +217,63 @@ public class IsolatedWorkerTest {
                 "testIsolationInferenceWithStartAction",
                 "testNonIsolationInferenceWithStartAction",
                 "testServiceClassMethodIsolationInference",
-                "testClientClassMethodIsolationInference"
+                "testClientClassMethodIsolationInference",
+                "testIsolationInferenceWithStarActionInvokingPublicFunction"
         };
+    }
+
+    // This is called from the test file via the attach method of the listener.
+    public static void testServiceDeclarationMethodIsolationInference(BObject listener, BObject s, Object name) {
+        assertTrue(isResourceIsolated(s, "foo"));
+        assertFalse(isResourceIsolated(s, "bar"));
+        assertFalse(isResourceIsolated(s, "quo"));
+        assertTrue(isRemoteMethodIsolated(s, "baz"));
+        assertFalse(isRemoteMethodIsolated(s, "bam"));
+        assertFalse(isRemoteMethodIsolated(s, "qux"));
+    }
+
+    private static boolean isResourceIsolated(Object val, String resourcePathString) {
+        for (ResourceMethodType resourceMethodType : ((ServiceType) getType(val)).getResourceMethods()) {
+            if (resourceMethodType.getAccessor().equals("get") &&
+                    resourceMethodType.getResourcePath()[0].equals(resourcePathString)) {
+                return SymbolFlags.isFlagOn(resourceMethodType.getFlags(), SymbolFlags.ISOLATED);
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isRemoteMethodIsolated(Object val, String methodName) {
+        ObjectType type = (ObjectType) getType(val);
+        if (SymbolFlags.isFlagOn(type.getFlags(), SymbolFlags.SERVICE)) {
+            return isIsolated(Lists.of(((ServiceType) type).getRemoteMethods()), methodName);
+        }
+
+        List<MethodType> remoteMethods = new ArrayList<>();
+        for (MethodType method : type.getMethods()) {
+            if (SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.REMOTE)) {
+                remoteMethods.add(method);
+            }
+        }
+        return isIsolated(remoteMethods, methodName);
+    }
+
+    private static boolean isIsolated(List<MethodType> methods, String methodNameString) {
+        for (MethodType methodType : methods) {
+            if (methodType.getName().equals(methodNameString)) {
+                return SymbolFlags.isFlagOn(methodType.getFlags(), SymbolFlags.ISOLATED);
+            }
+        }
+
+        throw new RuntimeException("method not found: " + methodNameString);
+    }
+
+    private static Type getType(Object val) {
+        Type type = TypeUtils.getType(val);
+        if (type.getTag() != TypeTags.TYPEDESC_TAG) {
+            return type;
+        }
+        return ((TypedescType) type).getConstraint();
     }
 
     @Test(dataProvider = "functionsToTestIsolationInferenceWithNamedWorkers")

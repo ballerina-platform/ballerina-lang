@@ -303,13 +303,12 @@ function foo2() returns int {
                     return 1;
                 }
             }
-            if b is int {
+            if b is int { // always true
                 break;
             }
         } else {
             return 2;
         }
-        return 3;
     }
     return 4;
 }
@@ -1174,6 +1173,101 @@ function testReachabilityWithQueryAction() {
     assertEqual((<error>res).message(), "Panic!");
 
     assertEqual(testReachabilityWithQueryAction3(), "Hello");
+}
+
+function fn1(float? v) returns int {
+    int y = 0;
+
+    if v is () {
+        return 1;
+    } else if v is float {
+
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function fn2(float? v) returns int {
+    int y = 0;
+
+    if v is float? {
+
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function fn3(float? v) returns int|error {
+    int y = 0;
+
+    if v is () {
+        fail error("Err");
+    } else if v is float {
+
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function fn4(float? v) returns int {
+    int y = 0;
+
+    if v is () {
+        panic error("Error");
+    } else if v is float {
+
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function fn5(float? v) returns int {
+    int y;
+
+    if v is () {
+        y = 1;
+    } else if v is float {
+        y = 2;
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function fn6(float? v) returns int {
+    int y;
+
+    if v is float? {
+        y = 2;
+    } else {
+        panic error("err!");
+    }
+
+    return y;
+}
+
+function testReachabilityWithIfElseHavingUnreachablePanic() {
+    assertEqual(fn1(10.0), 0);
+    assertEqual(fn2(10.0), 0);
+
+    int|error res = fn3(10.0);
+    assertEqual(res is int, true);
+    if res is int {
+        assertEqual(res, 0);
+    }
+
+    assertEqual(fn4(10.0), 0);
+    assertEqual(fn5(10.0), 2);
+    assertEqual(fn6(10.0), 2);
 }
 
 function assertEqual(any actual, any expected) {

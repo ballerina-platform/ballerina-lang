@@ -945,6 +945,16 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        lookupNodes(resourceAccessInvocation.annAttachments);
+        lookupNode(resourceAccessInvocation.expr);
+        lookupNode(resourceAccessInvocation.resourceAccessPathSegments);
+        lookupNodes(resourceAccessInvocation.requiredArgs);
+        lookupNodes(resourceAccessInvocation.restArgs);
+        setEnclosingNode(resourceAccessInvocation, resourceAccessInvocation.pos);
+    }
+
+    @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         lookupNodes(objectTypeNode.fields);
         lookupNodes(objectTypeNode.functions);

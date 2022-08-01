@@ -393,23 +393,52 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangResourceFunction funcNode, AnalyzerData data) {
         visit((BLangFunction) funcNode, data);
-        for (BLangSimpleVariable pathParam : funcNode.pathParams) {
-            pathParam.accept(this, data);
-            if (!types.isAssignable(pathParam.getBType(), symTable.pathParamAllowedType)) {
-                dlog.error(pathParam.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
-                           pathParam.getBType());
+        BType returnType = funcNode.returnTypeNode.getBType();
+        if (containsClientObjectTypeOrFunctionType(returnType)) {
+            dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE);
+        }
+        for (BLangType pathParamType : funcNode.resourcePathType.memberTypeNodes) {
+            symResolver.resolveTypeNode(pathParamType, data.env);
+            if (!types.isAssignable(pathParamType.getBType(), symTable.pathParamAllowedType)) {
+                dlog.error(pathParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
+                        pathParamType.getBType());
             }
         }
 
-        if (funcNode.restPathParam != null) {
-            funcNode.restPathParam.accept(this, data);
-            BArrayType arrayType = (BArrayType) funcNode.restPathParam.getBType();
-            BType elemType = arrayType.getElementType();
-            if (!types.isAssignable(elemType, symTable.pathParamAllowedType)) {
-                dlog.error(funcNode.restPathParam.getPosition(),
-                        DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE, elemType);
+        if (funcNode.resourcePathType.restParamType != null) {
+            BLangType restParamType = funcNode.resourcePathType.restParamType;
+            symResolver.resolveTypeNode(restParamType, data.env);
+            if (!types.isAssignable(restParamType.getBType(), symTable.pathParamAllowedType)) {
+                dlog.error(restParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE,
+                        restParamType.getBType());
             }
         }
+    }
+
+    private boolean containsClientObjectTypeOrFunctionType(BType type) {
+        BType referredType = Types.getReferredType(type);
+        if (referredType != symTable.semanticError && Symbols.isFlagOn(referredType.tsymbol.flags, Flags.CLIENT)) {
+            return true;
+        }
+        switch (referredType.tag) {
+            case TypeTags.INVOKABLE:
+                return true;
+            case TypeTags.UNION:
+                for (BType memberType: ((BUnionType) referredType).getMemberTypes()) {
+                    if (containsClientObjectTypeOrFunctionType(memberType)) {
+                        return true;
+                    }
+                }
+                break;
+            case TypeTags.INTERSECTION:
+                for (BType memberType: ((BIntersectionType) referredType).getConstituentTypes()) {
+                    if (containsClientObjectTypeOrFunctionType(memberType)) {
+                        return true;
+                    }
+                }
+                break;
+        }
+        return false;
     }
 
     @Override
@@ -646,8 +675,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Visit functions as they are not in the same scope/env as the object fields
         for (BLangFunction function : classDefinition.functions) {
             analyzeDef(function, data);
-            if (function.flagSet.contains(Flag.RESOURCE) && function.flagSet.contains(Flag.NATIVE)) {
-                this.dlog.error(function.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, function.name);
+            if (!classDefinition.flagSet.contains(Flag.CLIENT) && function.flagSet.contains(Flag.RESOURCE) &&
+                    function.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(function.pos,
+                        DiagnosticErrorCode.SERVICE_RESOURCE_METHOD_CANNOT_BE_EXTERN, function.name);
             }
         }
 
@@ -740,8 +771,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 this.dlog.error(func.pos, DiagnosticErrorCode.EXTERN_FUNC_ABSTRACT_OBJECT, func.name,
                         objectTypeNode.symbol.name);
             }
-            if (func.flagSet.contains(Flag.RESOURCE) && func.flagSet.contains(Flag.NATIVE)) {
-                this.dlog.error(func.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, func.name);
+            if (!objectTypeNode.flagSet.contains(Flag.CLIENT) && func.flagSet.contains(Flag.RESOURCE) &&
+                    func.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(func.pos, DiagnosticErrorCode.SERVICE_RESOURCE_METHOD_CANNOT_BE_EXTERN, func.name);
             }
         });
 

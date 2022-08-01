@@ -196,4 +196,9 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     public void testIncompleteObjectField() {
         testFile("object-type-def/object_type_def_source_46.bal", "object-type-def/object_type_def_assert_46.json");
     }
+
+    @Test
+    public void testResourceMethodDeclRecovery() {
+        testFile("object-type-def/object_type_def_source_47.bal", "object-type-def/object_type_def_assert_47.json");
+    }
 }
