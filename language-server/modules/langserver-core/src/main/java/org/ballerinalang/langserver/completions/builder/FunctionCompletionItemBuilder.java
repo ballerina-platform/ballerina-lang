@@ -84,7 +84,7 @@ public final class FunctionCompletionItemBuilder {
         setMeta(item, functionSymbol, context);
         if (functionSymbol != null && functionSymbol.getName().isPresent()) {
             if (functionSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
-                return ResourcePathCompletionItemBuilder.build((ResourceMethodSymbol) functionSymbol, context);
+                return ResourcePathCompletionUtil.build((ResourceMethodSymbol) functionSymbol, context);
             }
             String funcName = functionSymbol.getName().get();
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);

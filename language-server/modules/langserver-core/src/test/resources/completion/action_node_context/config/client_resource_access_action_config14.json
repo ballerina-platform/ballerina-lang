@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 35,
-    "character": 13
+    "line": 38,
+    "character": 12
   },
-  "source": "action_node_context/source/client_resource_access_action_source6.bal",
+  "source": "action_node_context/source/client_resource_access_action_source14.bal",
   "items": [
     {
       "label": "/path1",
@@ -23,12 +23,12 @@
         {
           "range": {
             "start": {
-              "line": 35,
-              "character": 10
+              "line": 38,
+              "character": 11
             },
             "end": {
-              "line": 35,
-              "character": 11
+              "line": 38,
+              "character": 12
             }
           },
           "newText": ""
@@ -53,12 +53,12 @@
         {
           "range": {
             "start": {
-              "line": 35,
-              "character": 10
+              "line": 38,
+              "character": 11
             },
             "end": {
-              "line": 35,
-              "character": 11
+              "line": 38,
+              "character": 12
             }
           },
           "newText": ""
@@ -83,12 +83,12 @@
         {
           "range": {
             "start": {
-              "line": 35,
-              "character": 10
+              "line": 38,
+              "character": 11
             },
             "end": {
-              "line": 35,
-              "character": 11
+              "line": 38,
+              "character": 12
             }
           },
           "newText": ""
@@ -113,12 +113,46 @@
         {
           "range": {
             "start": {
-              "line": 35,
-              "character": 10
+              "line": 38,
+              "character": 11
             },
             "end": {
-              "line": 35,
+              "line": 38,
+              "character": 12
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/path1/[string id1]/path3.post(string b, string... ids2)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string` b  \n- `string[]` ids2"
+        }
+      },
+      "sortText": "C",
+      "filterText": "path1|path3|post",
+      "insertText": "/path1/[${1:\"\"}]/path3.post(${2})",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
               "character": 11
+            },
+            "end": {
+              "line": 38,
+              "character": 12
             }
           },
           "newText": ""
