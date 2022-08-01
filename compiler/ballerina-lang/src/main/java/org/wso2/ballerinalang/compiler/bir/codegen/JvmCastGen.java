@@ -1319,15 +1319,18 @@ public class JvmCastGen {
 
     private void generateCheckCastToJSON(MethodVisitor mv, BType type) {
         BType sourceType = JvmCodeGenUtil.getReferredType(type);
-        if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.INTERSECTION ||
-                sourceType.tag == TypeTags.READONLY ||
-                sourceType.tag == TypeTags.MAP) {
-            checkCast(mv, symbolTable.jsonType);
-        } else {
-            // if value types, then ad box instruction
-            generateCastToAny(mv, sourceType);
+        switch (sourceType.tag) {
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.READONLY:
+            case TypeTags.MAP:
+                checkCast(mv, symbolTable.jsonType);
+                break;
+            default:
+                // for value types, then add box instruction
+                generateCastToAny(mv, sourceType);
         }
     }
 
