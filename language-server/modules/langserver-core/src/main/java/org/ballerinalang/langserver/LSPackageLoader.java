@@ -52,8 +52,10 @@ public class LSPackageLoader {
             new LanguageServerContext.Key<>();
 
     private final List<PackageInfo> distRepoPackages;
-    private List<PackageInfo> remoteRepoPackages = new ArrayList<>();
-    private List<PackageInfo> localRepoPackages = new ArrayList<>();
+    private final List<PackageInfo> remoteRepoPackages = new ArrayList<>();
+    private final List<PackageInfo> localRepoPackages = new ArrayList<>();
+
+    private final LSClientLogger clientLogger;
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -65,6 +67,7 @@ public class LSPackageLoader {
     }
 
     private LSPackageLoader(LanguageServerContext context) {
+        this.clientLogger = LSClientLogger.getInstance(context);
         distRepoPackages = this.getDistributionRepoPackages();
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
@@ -93,7 +96,7 @@ public class LSPackageLoader {
             return this.remoteRepoPackages;
         }
         this.remoteRepoPackages.addAll(checkAndResolvePackagesFromRepository(repository, Collections.emptyList(),
-                this.remoteRepoPackages.stream().map(PackageInfo::packageIdentifier).collect(Collectors.toSet())));
+                Collections.emptySet()));
         return this.remoteRepoPackages;
     }
 
@@ -157,34 +160,39 @@ public class LSPackageLoader {
         Map<String, List<String>> packageMap = repository.getPackages();
         List<PackageInfo> packages = new ArrayList<>();
         packageMap.forEach((key, value) -> {
-            try {
-                if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
+
+            if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
+                return;
+            }
+            value.forEach(nameEntry -> {
+                String[] components = nameEntry.split(":");
+                if (components.length != 2 || skipList.contains(components[0])) {
                     return;
                 }
-                value.forEach(nameEntry -> {
-                    String[] components = nameEntry.split(":");
-                    if (components.length != 2 || skipList.contains(components[0])) {
-                        return;
-                    }
-                    String nameComponent = components[0];
-                    String version = components[1];
-                    PackageOrg packageOrg = PackageOrg.from(key);
-                    PackageName packageName = PackageName.from(nameComponent);
-                    String packageIdentifier = packageOrg.toString() + "/" + packageName;
-                    if (loadedPackages.contains(packageIdentifier)) {
-                        return;
-                    }
-                    PackageVersion pkgVersion = PackageVersion.from(version);
+                String nameComponent = components[0];
+                String version = components[1];
+                PackageOrg packageOrg = PackageOrg.from(key);
+                PackageName packageName = PackageName.from(nameComponent);
+                String packageIdentifier = packageOrg.toString() + "/" + packageName;
+                if (loadedPackages.contains(packageIdentifier)) {
+                    return;
+                }
+                PackageVersion pkgVersion = PackageVersion.from(version);
+
+                try {
                     PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
                     ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
 
                     Optional<Package> repoPackage = repository.getPackage(request,
                             ResolutionOptions.builder().setOffline(true).build());
                     repoPackage.ifPresent(pkg -> packages.add(new PackageInfo(pkg)));
-                });
-            } catch (Throwable e) {
-                //ignore
-            }
+                } catch (Throwable e) {
+                    clientLogger.logTrace("Failed to resolve package "
+                            + packageOrg + (!packageOrg.value().isEmpty() ? "/" : "" 
+                            + packageName + ":" + pkgVersion));
+                }
+            });
+
         });
 
         return packages;
