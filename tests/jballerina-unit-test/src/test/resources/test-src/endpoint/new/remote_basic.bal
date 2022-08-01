@@ -96,3 +96,14 @@ function clientObjectDeclaredInIfStatementElseBlock() returns int {
         return x->action2("0", false);
     }
 }
+
+service class Foo {
+    remote function bar() {
+
+    }
+}
+
+public function testNPE() {
+    Foo foo = new;
+    any _ = foo.bar;
+}

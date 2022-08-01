@@ -41,6 +41,11 @@ public class ClientObjectTest {
     }
 
     @Test
+    public void testNPE() {
+        BRunUtil.invoke(remoteBasic, "testNPE");
+    }
+
+    @Test
     public void testRemoteFunctions() {
         Object returns = BRunUtil.invoke(remoteBasic, "test1", new Object[] { (4) });
         Assert.assertEquals(returns.toString(), "false");
