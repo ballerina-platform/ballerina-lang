@@ -32,12 +32,7 @@ public final class ParserConfigurations {
     private static String country = "LK";
 
     private ParserConfigurations() {
-        Locale currentLanguage;
-        if (language == null || country == null) {
-            currentLanguage = Locale.getDefault();
-        } else {
-            currentLanguage = new Locale(language, country);
-        }
+        Locale currentLanguage = new Locale(language, country);
         this.properties = ResourceBundle.getBundle("token", currentLanguage);
         this.defaultProperties = ResourceBundle.getBundle("token", new Locale("en", "LK"));
     }
@@ -56,8 +51,7 @@ public final class ParserConfigurations {
     public String getProperty(String key) throws NullPointerException {
         if (this.properties.containsKey(key)) {
             return this.properties.getString(key);
-        } else {
-            return this.defaultProperties.getString(key);
         }
+        return this.defaultProperties.getString(key);
     }
 }
