@@ -1,42 +1,12 @@
 {
   "position": {
-    "line": 35,
-    "character": 17
+    "line": 38,
+    "character": 32
   },
-  "source": "action_node_context/source/client_resource_access_action_source7.bal",
+  "source": "action_node_context/source/client_resource_access_action_source11.bal",
   "items": [
     {
-      "label": "/[string id1]",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
-        }
-      },
-      "sortText": "C",
-      "filterText": "|get",
-      "insertText": "/[${1:\"\"}]",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 35,
-              "character": 16
-            },
-            "end": {
-              "line": 35,
-              "character": 17
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "/[string id1]/path2",
+      "label": "/path2",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -47,18 +17,18 @@
       },
       "sortText": "C",
       "filterText": "path2|get",
-      "insertText": "/[${1:\"\"}]/path2",
+      "insertText": "/path2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 35,
-              "character": 16
+              "line": 38,
+              "character": 26
             },
             "end": {
-              "line": 35,
-              "character": 17
+              "line": 38,
+              "character": 27
             }
           },
           "newText": ""
@@ -66,7 +36,7 @@
       ]
     },
     {
-      "label": "/[string id1]/path2/[string... ids].post(string b, string... ids2)",
+      "label": "/path2/[string... ids].post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -77,18 +47,18 @@
       },
       "sortText": "C",
       "filterText": "path2|post",
-      "insertText": "/[${1:\"\"}]/path2/[${2:\"\"}].post(${3})",
+      "insertText": "/path2/[${1:\"\"}].post(${2})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 35,
-              "character": 16
+              "line": 38,
+              "character": 26
             },
             "end": {
-              "line": 35,
-              "character": 17
+              "line": 38,
+              "character": 27
             }
           },
           "newText": ""

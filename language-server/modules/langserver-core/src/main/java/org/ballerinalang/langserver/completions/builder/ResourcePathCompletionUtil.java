@@ -8,10 +8,10 @@ import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
 import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
-import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  *
  * @since 2201.2.1
  */
-public class ResourcePathCompletionItemBuilder {
+public class ResourcePathCompletionUtil {
 
     /**
      * Creates and returns a completion item.
@@ -42,7 +42,7 @@ public class ResourcePathCompletionItemBuilder {
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(ResourceMethodSymbol functionSymbol, BallerinaCompletionContext context) {
-        Pair<String, String> functionSignature = ResourcePathCompletionItemBuilder
+        Pair<String, String> functionSignature = ResourcePathCompletionUtil
                 .getResourceAccessSignature(functionSymbol, context);
         CompletionItem item = build(functionSymbol, functionSignature, context);
         item.setFilterText(getFilterTextForResourceMethod(functionSymbol));
@@ -60,7 +60,7 @@ public class ResourcePathCompletionItemBuilder {
     public static CompletionItem build(ResourceMethodSymbol resourceMethodSymbol,
                                        List<PathSegment> segments,
                                        BallerinaCompletionContext context) {
-        Pair<String, String> functionSignature = ResourcePathCompletionItemBuilder
+        Pair<String, String> functionSignature = ResourcePathCompletionUtil
                 .getResourceAccessSignature(resourceMethodSymbol, context, segments);
         CompletionItem item = build(resourceMethodSymbol, functionSignature, context);
         item.setFilterText(getFilterTextForResourceMethod(resourceMethodSymbol, segments));
@@ -77,26 +77,34 @@ public class ResourcePathCompletionItemBuilder {
         item.setInsertText(functionSignature.getLeft());
 
         //Add additional text edits
-        checkAndSetAdditionalTextEdits(item, context.getNodeAtCursor());
+        checkAndSetAdditionalTextEdits(item, context.getNodeAtCursor(), context);
         return item;
     }
 
-    private static void checkAndSetAdditionalTextEdits(CompletionItem item, NonTerminalNode nodeAtCursor) {
-        //Check and replace preceding slash token Todo: refactot this logic using clientResourceAccessNode separators. and remove dot token
+    public static boolean isInMethodCallContext(ClientResourceAccessActionNode node,
+                                                BallerinaCompletionContext context) {
+        return node.dotToken().isPresent()
+                && node.dotToken().get().textRange().endOffset() <= context.getCursorPositionInTree();
+    }
+
+    private static void checkAndSetAdditionalTextEdits(CompletionItem item, NonTerminalNode nodeAtCursor,
+                                                       BallerinaCompletionContext context) {
+        //Check and replace preceding slash token and dot
         Token token = null;
-        if (nodeAtCursor.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
-            token = ((ClientResourceAccessActionNode) nodeAtCursor).slashToken();
-        } else if (nodeAtCursor.kind() == SyntaxKind.LIST) {
-            ChildNodeList children = nodeAtCursor.children();
-            if (children.size() > 0) {
-                int size = children.size();
-                Node node = children.get(size - 1);
-                if (children.get(size - 1).isMissing() || children.get(size - 1).kind() == SyntaxKind.IDENTIFIER_TOKEN
-                        && size >= 2) {
-                    node = children.get(size - 2);
-                }
-                if (node.kind() == SyntaxKind.SLASH_TOKEN) {
-                    token = (Token) node;
+        Optional<ClientResourceAccessActionNode> node = findClientResourceAccessActionNode(context);
+        if (node.isPresent()) {
+            if (isInMethodCallContext(node.get(), context)) {
+                //dot token's presence is ensured at this point.
+                token = node.get().dotToken().get();
+            } else {
+                //else replace the last slash token
+                SeparatedNodeList<Node> nodes = node.get().resourceAccessPath();
+                if (nodes.separatorSize() > 0
+                        && nodes.getSeparator(nodes.separatorSize() - 1).textRange().endOffset()
+                        <= context.getCursorPositionInTree()) {
+                    token = nodes.getSeparator(nodes.separatorSize() - 1);
+                } else if (nodes.separatorSize() == 0 && !node.get().slashToken().isMissing()) {
+                    token = node.get().slashToken();
                 }
             }
         }
@@ -106,6 +114,18 @@ public class ResourcePathCompletionItemBuilder {
             edit.setRange(PositionUtil.toRange(token.lineRange()));
             item.setAdditionalTextEdits(List.of(edit));
         }
+    }
+
+    private static Optional<ClientResourceAccessActionNode> findClientResourceAccessActionNode(
+            BallerinaCompletionContext context) {
+        Node evalNode = context.getNodeAtCursor();
+        while (evalNode != null) {
+            if (evalNode.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
+                return Optional.of((ClientResourceAccessActionNode) evalNode);
+            }
+            evalNode = evalNode.parent();
+        }
+        return Optional.empty();
     }
 
     /**
@@ -127,7 +147,7 @@ public class ResourcePathCompletionItemBuilder {
         item.setLabel(signature.toString());
         item.setInsertText(insertText.toString());
         item.setFilterText(resourceMethodSymbol.getName().orElse(""));
-        checkAndSetAdditionalTextEdits(item, context.getNodeAtCursor());
+        checkAndSetAdditionalTextEdits(item, context.getNodeAtCursor(), context);
         return item;
     }
 
