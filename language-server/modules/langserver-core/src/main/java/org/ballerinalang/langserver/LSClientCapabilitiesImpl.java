@@ -141,6 +141,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(semanticTokensSupport));
         initializationOptions.setEnableSemanticTokens(enableSemanticTokens);
 
+        Object renameSupport = initOptions.get(InitializationOptions.KEY_RENAME_SUPPORT);
+        boolean enableRenameSupport = renameSupport == null ||
+                Boolean.parseBoolean(String.valueOf(renameSupport));
+        initializationOptions.setSupportRenamePopup(enableRenameSupport);
+
         return initializationOptions;
     }
 
@@ -186,6 +191,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     public static class InitializationOptionsImpl implements InitializationOptions {
         private boolean supportBalaScheme = false;
         private boolean enableSemanticTokens = false;
+        private boolean supportRenamePopup = false;
         
         @Override
         public boolean isBalaSchemeSupported() {
@@ -202,6 +208,15 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         public void setEnableSemanticTokens(boolean enableSemanticTokens) {
             this.enableSemanticTokens = enableSemanticTokens;
+        }
+
+        @Override
+        public boolean isRenameSupported() {
+            return supportRenamePopup;
+        }
+
+        public void setSupportRenamePopup(boolean supportRenamePopup) {
+            this.supportRenamePopup = supportRenamePopup;
         }
     }
 }

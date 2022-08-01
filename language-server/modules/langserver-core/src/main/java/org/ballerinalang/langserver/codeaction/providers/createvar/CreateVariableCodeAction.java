@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
@@ -205,8 +206,11 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         }
 
         startPos = startPos + sum + renamePosition;
-        codeAction.setCommand(new Command("Rename Variable", "ballerina.action.rename",
-                List.of(context.fileUri(), startPos)));
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isRenameSupported()) {
+            codeAction.setCommand(new Command("Rename Variable", "ballerina.action.rename",
+                    List.of(context.fileUri(), startPos)));
+        }
         return codeAction;
     }
 }
