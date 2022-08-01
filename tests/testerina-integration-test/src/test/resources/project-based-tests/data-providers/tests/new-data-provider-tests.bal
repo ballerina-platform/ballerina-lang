@@ -87,6 +87,126 @@ function testFunction3(string value1, string value2) returns error? {
    test:assertEquals("E", value1, msg = "The code fragment is not correct.");
 }
 
+string tally = "";  // used to track which function has been executed
+
+function beforeFunction() {
+    tally += "b";
+}
+
+function afterFunction() {
+    tally += "a";
+}
+
+@test:Config {
+    dataProvider:  dataGen10,
+     before:  beforeFunction,
+    after:  afterFunction
+}
+function testDividingValues(string fValue, string sValue, string result) returns error? {
+    tally += "f";
+    
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
+
+    test:assertEquals(value1/value2, result1, msg = "Incorrect Division");
+}
+
+@test:Config {
+    dependsOn: [testDividingValues]
+}
+function testExecutionOfBeforeAfter() {
+    test:assertEquals(tally, "bfabfabfabfabfa");
+}
+
+function beforeFailsFunction() {
+    tally += "b";
+
+    // Condition for a failure
+    if (tally == "bfabfab") {
+        // Something happens during the 3rd iteration
+        int a = 9/0;
+    }
+}
+
+@test:Config {
+    dataProvider:  dataGen10,
+    before:  beforeFailsFunction,
+    after:  afterFunction
+}
+function testDividingValuesWithBeforeFailing(string fValue, string sValue, string result) returns error? {
+    tally += "f";
+    
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
+
+    test:assertEquals(value1/value2, result1, msg = "Incorrect Division");
+}
+
+// Depends on testDividingValuesWithBeforeFailing
+// However since it fails in one instance, dependsOn will not work
+@test:Config {}
+function testExecutionOfBeforeFailing() {
+    test:assertEquals(tally, "bfabfabbfabfa");
+}
+
+function afterFailsFunction() {
+    tally += "a";
+
+    // Condition for a failure
+    if (tally == "bfabfabfa") {
+        // Something happens during the 4th iteration
+        int a = 9/0;
+    }
+}
+
+@test:Config {
+    dataProvider:  dataGen10,
+    before:  beforeFunction,
+    after:  afterFailsFunction
+}
+function testDividingValuesWithAfterFailing(string fValue, string sValue, string result) returns error? {
+    tally += "f";
+    
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
+
+    test:assertEquals(value1/value2, result1, msg = "Incorrect Division");
+}
+
+// Depends on testDividingValuesWithAfterFailing
+// However since it fails in one instance, dependsOn will not work
+@test:Config {}
+function testExecutionOfAfterFailing() {
+    test:assertEquals(tally, "bfabfabfabfabfa");
+}
+
+@test:Config {
+    dataProvider:  dataGen11,
+    before:  beforeFunction,
+    after:  afterFunction
+}
+function testDividingValuesNegative(string fValue, string sValue, string result) returns error? {
+    tally += "f";
+    
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
+
+    test:assertEquals(value1/value2, result1, msg = "Incorrect Division");
+}
+
+@test:Config {
+    dependsOn: [testDividingValuesNegative]
+}
+function testExecutionOfDataValueFailing() {
+    test:assertEquals(tally, "bfabfabfabfabfa");
+}
+
+// Data Generators
+
 function dataGen() returns map<[int, int, int]>|error {
     map<[int, int, int]> dataSet = {
         "Case1": [1, 2, 4],
@@ -157,4 +277,30 @@ function dataGen9() returns map<CodeFragment>|error {
         tests[s[1]] = s;
     }
     return tests;
+}
+
+type Feed record {
+    int responseCode;
+    string message;
+};
+
+@test:Config{ dataProvider:getStateResponseDataProvider }
+function testGetState(Feed dataFeed) {
+    test:assertEquals(200, dataFeed.responseCode);
+    test:assertEquals("Hello World!!!", dataFeed.message);
+}
+
+function getStateResponseDataProvider() returns Feed[][] {
+     return [
+            [{responseCode:200, message:"Hello World!!!"}],
+            [{responseCode:20, message:"Hello World!!!"}]
+     ];
+}
+
+function dataGen10() returns (string[][]) {
+    return [["10", "2", "5"], ["10", "1", "10"], ["10", "2", "5"], ["10", "1", "10"], ["10", "2", "5"]];
+}
+
+function dataGen11() returns (string[][]) {
+    return [["10", "2", "5"], ["10", "1", "10"], ["10", "0", "5"], ["10", "1", "10"], ["10", "2", "5"]];
 }

@@ -86,8 +86,8 @@ public class QueryActionOrExprTest {
                 27, 23);
         validateError(negativeResult, i++, "incompatible types: '(int[]|error)' is not an iterable collection",
                 30, 24);
-        validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 39, 23);
-        validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 42, 24);
+        validateError(negativeResult, i++, "incompatible types: 'error?' is not an iterable collection", 39, 23);
+        validateError(negativeResult, i++, "incompatible types: 'error?' is not an iterable collection", 42, 24);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 51, 27);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 52, 25);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 53, 20);

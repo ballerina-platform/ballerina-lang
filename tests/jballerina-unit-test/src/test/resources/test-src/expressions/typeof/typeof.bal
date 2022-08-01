@@ -136,7 +136,7 @@ function typeOfImmutableStructuralValues() {
     // xml Value
     xml & readonly xmlValue = xml `<data>test</data>`;
     test:assertTrue(typeof xmlValue === typeof xmlValue);
-    test:assertEquals((typeof xmlValue).toString(), "typedesc <data></data>");
+    test:assertEquals((typeof xmlValue).toString(), "typedesc <data>test</data>");
 
     // Structural types - Array, Tuple
     int[] & readonly arr = [1, 2, 3];

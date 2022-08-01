@@ -1492,6 +1492,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        analyzeNode(resourceAccessInvocation.resourceAccessPathSegments, env);
+        analyzeInvocation(resourceAccessInvocation);
+    }
+    
+    @Override
     public void visit(BLangTypeInit typeInitExpr) {
         BInvokableSymbol initInvocationSymbol =
                                         (BInvokableSymbol) ((BLangInvocation) typeInitExpr.initInvocation).symbol;
@@ -2076,7 +2082,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void markFunctionDependentlyIsolatedOnStartAction(BInvokableSymbol enclInvokableSymbol,
                                                               Set<BLangExpression> argsList, BInvokableSymbol symbol) {
-        if (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
+        if (!isIsolated(symbol.type.flags) && Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
             markDependsOnIsolationNonInferableConstructs();
             return;
         }

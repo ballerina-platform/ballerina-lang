@@ -379,7 +379,6 @@ function testBreakWithinOnfailForOuterLoop() {
                 break;
             }
         }
-        str += "-> should not reach here!";
     }
     assertEquality("Loop continued with digit: 1 ->Loop continued with digit: 2 ->Loop continued with digit: 3 " +
     "->Loop broke with digit: 4", str);

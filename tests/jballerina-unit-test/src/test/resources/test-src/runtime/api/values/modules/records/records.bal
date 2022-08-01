@@ -56,7 +56,49 @@ public function validateAPI() {
     anydata recordVal3 = getRecordValueFromJson(jsonValue, Details);
     test:assertEquals(recordVal3, {"name": "Jane", "id": 234});
     test:assertTrue(recordVal3 is Details);
+
+    Address addressRec1 = getRecordWithInitialValues();
+    addressRec1.postalCode += 1;
+    addressRec1["district"] = "Colombo";
+    addressRec1["postalCode"] += 2;
+    test:assertEquals(addressRec1, {"city":"Nugegoda","country":"Sri Lanka","postalCode":10253,"district":"Colombo"});
+
+    Address|error addressRec2 = trap getRecordWithInvalidInitialValues();
+    test:assertTrue(addressRec2 is error);
+    if (addressRec2 is error) {
+        test:assertEquals("{ballerina/lang.map}InherentTypeViolation", addressRec2.message());
+        test:assertEquals("invalid value for record field 'postalCode': expected value of type 'int', found 'string'",
+        <string> checkpanic addressRec2.detail()["message"]);
+    }
+
+    Student & readonly studentRec1 =  getReadOnlyRecordWithInitialValues();
+    test:assertTrue(studentRec1.isReadOnly());
+    test:assertEquals(studentRec1, {"name":"NameOfStudent1"});
+
+    Student & readonly|error studentRec2 =  trap getReadOnlyRecordWithInvalidInitialValues();
+    test:assertTrue(studentRec2 is error);
+    if (studentRec2 is error) {
+        test:assertEquals("{ballerina/lang.map}KeyNotFound", studentRec2.message());
+        test:assertEquals("invalid field access: field 'postalCode' not found in record type " +
+        "'runtime_api.records:Student'", <string> checkpanic studentRec2.detail()["message"]);
+    }
 }
+
+function getRecordWithInitialValues() returns Address = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getRecordWithInvalidInitialValues() returns Address = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getReadOnlyRecordWithInitialValues() returns Student & readonly = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getReadOnlyRecordWithInvalidInitialValues() returns Student & readonly = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
 
 function getRecordValue() returns anydata = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"

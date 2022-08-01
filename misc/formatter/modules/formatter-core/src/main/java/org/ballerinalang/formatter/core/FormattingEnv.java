@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.Node;
+
 /**
  * Environment that holds a set of properties related to the currently formatting node.
  *
@@ -78,4 +80,9 @@ public class FormattingEnv {
      * Flag indicating whether the token that is currently being formatted should preserve its user defined indentation.
      */
     boolean preserveIndentation = false;
+
+    /**
+     * Reference to the next node that needs to be wrapped.
+     */
+    Node nodeToWrap = null;
 }

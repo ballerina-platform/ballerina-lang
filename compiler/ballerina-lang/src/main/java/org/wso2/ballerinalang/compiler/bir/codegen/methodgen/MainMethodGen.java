@@ -149,8 +149,8 @@ public class MainMethodGen {
         generateJavaCompatibilityCheck(mv);
 
         invokeConfigInit(mv, pkg.packageID);
-        // start all listeners
-        startListeners(mv, serviceEPAvailable);
+        // start all listeners and TRAP signal handler
+        startListenersAndSignalHandler(mv, serviceEPAvailable);
 
         genInitScheduler(mv);
         // register a shutdown hook to call package stop() method.
@@ -228,9 +228,9 @@ public class MainMethodGen {
         return Objects.requireNonNullElse(javaVersion, "");
     }
 
-    private void startListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
+    private void startListenersAndSignalHandler(MethodVisitor mv, boolean isServiceEPAvailable) {
         mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListenersAndSignalHandler", "(Z)V", false);
     }
 
     private void genShutdownHook(MethodVisitor mv, String initClass) {

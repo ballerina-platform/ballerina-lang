@@ -45,3 +45,9 @@ function testImplicitConversion() {
     var y1 = d * e;
     any y2 = d * e;
 }
+
+function overflowByMultiplication() {
+    int num1 = -1;
+    int num2 = -9223372036854775808;
+    int ans = num1 * num2;
+}

@@ -15,9 +15,13 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -26,11 +30,12 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.codeaction.ReturnStatementFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -39,6 +44,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,7 +55,7 @@ import java.util.Set;
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
+public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Fix Return Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE3032");
@@ -64,22 +70,22 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         //Suggest the code action only if the immediate parent of the matched node is a return statement 
         // and the return statement corresponds to the enclosing function's signature. 
         NonTerminalNode parentNode = positionDetails.matchedNode().parent();
-        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT && 
+        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT &&
                 positionDetails.matchedNode().kind() != SyntaxKind.CHECK_EXPRESSION) {
             return false;
         }
 
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
         Optional<TypeSymbol> foundType = Optional.empty();
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
             foundType = positionDetails.diagnosticProperty(CodeActionUtil
@@ -100,20 +106,43 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = new ArrayList<>();
+        List<Set<String>> types = new ArrayList<>();
+        List<CodeAction> codeActions = new ArrayList<>();
         boolean returnTypeDescPresent = funcDef.get().functionSignature().returnTypeDesc().isPresent();
 
         if (checkExprDiagnostic) {
             // Add error return type for check expression
             if (returnTypeDescPresent) {
-                types.add(funcDef.get().functionSignature().returnTypeDesc().get().type().toString().trim().concat("|")
-                        .concat("error"));
+                types.add(Collections.singleton(funcDef.get().functionSignature().returnTypeDesc().get().type()
+                        .toString().trim().concat("|").concat("error")));
             } else {
-                types.add("error?");
+                types.add(Collections.singleton("error?"));
             }
         } else {
-            // Get all possible return types including ambiguous scenarios
-            types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
+            List<List<String>> combinedTypes = new ArrayList<>();
+            ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
+            returnStatementFinder.visit(funcDef.get());
+            List<ReturnStatementNode> nodeList = returnStatementFinder.getNodeList();
+
+            for (ReturnStatementNode returnStatementNode : nodeList) {
+                if (returnStatementNode.expression().isEmpty() || context.currentSemanticModel().isEmpty()) {
+                    return Collections.emptyList();
+                }
+                ExpressionNode expression = returnStatementNode.expression().get();
+                SemanticModel semanticModel = context.currentSemanticModel().get();
+                Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expression);
+                if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                    return Collections.emptyList();
+                }
+                if (typeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
+                    combinedTypes.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol.get(),
+                            importEdits, context).get(0) + ")"));
+                } else {
+                    combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
+                }
+            }
+
+            types = getPossibleCombinations(combinedTypes, types);
         }
 
         // Where to insert the edit: Depends on if a return statement already available or not
@@ -133,23 +162,24 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             end = funcBodyStart;
         }
 
-        List<CodeAction> codeActions = new ArrayList<>();
         types.forEach(type -> {
             List<TextEdit> edits = new ArrayList<>();
 
             String editText;
             // Process function node
+            String newType = String.join("|", type);
             if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
-                editText = " returns " + type;
+                editText = " returns " + newType;
             } else {
-                editText = type;
+                editText = newType;
             }
             edits.add(new TextEdit(new Range(start, end), editText));
             edits.addAll(importEdits);
 
             // Add code action
-            String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, type);
-            codeActions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
+            String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, newType);
+            codeActions.add(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
+                    CodeActionKind.QuickFix));
         });
 
         return codeActions;
@@ -159,5 +189,31 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public String getName() {
         return NAME;
     }
-    
+
+    public static List<Set<String>> getPossibleCombinations(List<List<String>> combinedTypes,
+                                                            List<Set<String>> typeList) {
+        for (List<String> possibleTypes : combinedTypes) {
+            // Add the items of the first combinedTypes to the typeList
+            if (typeList.isEmpty()) {
+                for (String type : possibleTypes) {
+                    typeList.add(Set.of(type));
+                }
+                continue;
+            }
+            List<Set<String>> updatedTypes = new ArrayList<>();
+            // Add each item in the next combinedTypes to the items listed in the typeList
+            for (String type : possibleTypes) {
+                for (Set<String> strings : typeList) {
+                    Set<String> combination = new HashSet<>(strings);
+                    combination.add(type);
+                    updatedTypes.add(combination);
+                }
+            }
+            if (updatedTypes.isEmpty()) {
+                continue;
+            }
+            typeList = updatedTypes;
+        }
+        return typeList;
+    }
 }

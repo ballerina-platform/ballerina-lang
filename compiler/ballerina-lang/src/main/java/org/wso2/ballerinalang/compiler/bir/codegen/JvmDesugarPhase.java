@@ -190,6 +190,10 @@ public class JvmDesugarPhase {
             typeDefinition.internalName =
                     Names.fromString(encodeNonFunctionIdentifier(typeDefinition.internalName.value,
                             encodedVsInitialIds));
+            if (typeDefinition.referenceType != null) {
+                typeDefinition.referenceType.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
+                        typeDefinition.referenceType.tsymbol.name.value, encodedVsInitialIds));
+            }
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, encodedVsInitialIds);
             BType bType = JvmCodeGenUtil.getReferredType(typeDefinition.type);

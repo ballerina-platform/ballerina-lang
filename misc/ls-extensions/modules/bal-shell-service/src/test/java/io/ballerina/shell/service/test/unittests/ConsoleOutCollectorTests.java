@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Unit test for ConsoleOutCollector.
@@ -39,7 +40,7 @@ public class ConsoleOutCollectorTests {
     public void setUp() {
         this.original = System.out;
         this.consoleOutCollector = new ConsoleOutCollector();
-        System.setOut(new PrintStream(this.consoleOutCollector));
+        System.setOut(new PrintStream(this.consoleOutCollector, false, StandardCharsets.UTF_8));
     }
 
     @AfterClass
@@ -49,9 +50,11 @@ public class ConsoleOutCollectorTests {
 
     @Test(description = "Test with output collection")
     public void testConsoleCollect() throws IOException {
-        this.consoleOutCollector.write("first line\nsecond line\n".getBytes());
-        Assert.assertEquals(this.consoleOutCollector.getLines().size(), 2);
+        this.consoleOutCollector.write("first line\nආයුබෝවන්\n😀😀😀😀\nanother line".getBytes());
+        Assert.assertEquals(this.consoleOutCollector.getLines().size(), 4);
         Assert.assertEquals(this.consoleOutCollector.getLines().get(0), "first line");
-        Assert.assertEquals(this.consoleOutCollector.getLines().get(1), "second line");
+        Assert.assertEquals(this.consoleOutCollector.getLines().get(1), "ආයුබෝවන්");
+        Assert.assertEquals(this.consoleOutCollector.getLines().get(2), "😀😀😀😀");
+        Assert.assertEquals(this.consoleOutCollector.getLines().get(3), "another line");
     }
 }

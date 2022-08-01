@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -358,20 +359,21 @@ public class BTestRunner {
         }
         suite.getTests().forEach(test -> {
             AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
-
             // execute the before groups functions
             executeBeforeGroupFunctions(test, suite, classLoader, scheduler, shouldSkip,
                     shouldSkipTest, shouldSkipAfterGroups);
-
             // run the before each tests
             executeBeforeEachFunction(test, suite, classLoader, scheduler, shouldSkip);
-            // run the before tests
-            executeBeforeFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
-            // run the test
-            executeFunction(test, suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipTest,
-                    failedOrSkippedTests, failedAfterFuncTests);
-            // run the after tests
-            executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest, failedAfterFuncTests);
+            // Check if the test we are dealing with is a data driven test
+            if (test.getDataProvider() != null) {
+                // Data-driven test
+                executeDataDrivenTestFunction(test, suite, packageName, classLoader, scheduler, shouldSkip,
+                        shouldSkipTest, failedOrSkippedTests, failedAfterFuncTests);
+            } else {
+                // Normal test
+                executeTestFunction(test, suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipTest,
+                        failedOrSkippedTests, failedAfterFuncTests);
+            }
             // run the after each tests
             executeAfterEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
             // execute the after groups functions
@@ -435,7 +437,7 @@ public class BTestRunner {
 
     private void executeBeforeFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
                                        AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest)  {
-        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+        if (!shouldSkip.get()) {
             // run before tests
             String errorMsg;
             try {
@@ -516,61 +518,122 @@ public class BTestRunner {
         }
     }
 
-    private void executeFunction(Test test, TestSuite suite, String packageName, ClassLoader classLoader,
-                                 Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
-                                 List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
+    private void executeTestFunction(Test test, TestSuite suite, String packageName, ClassLoader classLoader,
+                                     Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
+                                     List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
         TesterinaResult functionResult;
-
+        executeBeforeFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+        // Check if the test depends on other failed test functions or after functions
         if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests) ||
                 isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedAfterFuncTests)) {
             shouldSkipTest.set(true);
         }
-
-        // Check whether the this test depends on any failed or skipped functions
+        // Check if test should be skipped
         if (!shouldSkip.get() && !shouldSkipTest.get()) {
-            Object valueSets = null;
-            if (test.getDataProvider() != null) {
-                valueSets = invokeTestFunction(suite, test.getDataProvider(), classLoader, scheduler);
-            }
-            if (valueSets == null) {
-                valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler);
-                computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests, valueSets);
-            } else {
-                if (valueSets instanceof BMap) {
-                    // Handle map data sets
-                    if (((BMap) valueSets).isEmpty()) {
-                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
-                                new Error("The provided data set is empty."));
-                    } else {
-                        List<String> keyValues = getKeyValues((BMap) valueSets);
-                        Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
-                        List<Object[]> argList = extractArguments((BMap) valueSets);
-                        for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
+            Object valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler);
+            computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests, valueSets);
+        } else {
+            // If the test function is skipped lets add it to the failed test list
+            failedOrSkippedTests.add(test.getTestName());
+            // report the test result
+            functionResult = new TesterinaResult(test.getTestName(), false, true, null);
+            tReport.addFunctionResult(packageName, functionResult);
+        }
+        // Increment group-name count
+        for (String groupName : test.getGroups()) {
+            suite.getGroups().get(groupName).incrementExecutedCount();
+        }
+        // Write failed tests to json
+        if (!packageName.equals(TesterinaConstants.DOT)) {
+            Path jsonPath = Paths.get(this.targetPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+            File jsonFile = new File(jsonPath.toString());
+            writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+        }
+        executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest, failedAfterFuncTests);
+    }
+
+    private void executeDataDrivenTestFunction(Test test, TestSuite suite, String packageName, ClassLoader classLoader,
+                                               Scheduler scheduler, AtomicBoolean shouldSkip,
+                                               AtomicBoolean shouldSkipTest, List<String> failedOrSkippedTests,
+                                               List<String> failedAfterFuncTests) {
+        TesterinaResult functionResult;
+        // Check if the test depends on other failed test functions or after functions
+        if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests) ||
+                isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedAfterFuncTests)) {
+            shouldSkipTest.set(true);
+        }
+        // Check if test should be skipped
+        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+            Object valueSets = invokeTestFunction(suite, test.getDataProvider(), classLoader, scheduler);
+            // Handle map datasets
+            if (valueSets instanceof BMap) {
+                // Handle map data sets
+                if (((BMap) valueSets).isEmpty()) {
+                    computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                            new Error("The provided data set is empty."));
+                } else {
+                    List<String> keyValues = getKeyValues((BMap) valueSets);
+                    Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
+                    List<Object[]> argList = extractArguments((BMap) valueSets);
+                    for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
+                        // Reset shouldSkipTest for each iteration, since Before function may not fail for other
+                        // iterations
+                        shouldSkipTest.set(false);
+                        // run the before tests
+                        executeBeforeFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+                        // ShouldSkip may be set for
+                        if (!shouldSkipTest.get()) {
                             invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
                                     classLoader, scheduler, shouldSkip, packageName, argList.get(i), argTypes,
                                     failedOrSkippedTests);
+                            // run the after tests
+                            executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest,
+                                    failedAfterFuncTests);
+                        } else {
+                            // If the test function is skipped lets add it to the failed test list
+                            failedOrSkippedTests.add(test.getTestName());
+                            // report the test result
+                            functionResult = new TesterinaResult(test.getTestName(), false, true, null);
+                            tReport.addFunctionResult(packageName, functionResult);
                         }
                     }
-                } else if (valueSets instanceof BArray) {
-                    if (((BArray) valueSets).isEmpty()) {
-                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
-                                new Error("The provided data set is empty."));
-                    } else {
-                        // Handle array data sets
-                        Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
-                        List<Object[]> argList = extractArguments((BArray) valueSets);
-                        for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
+                }
+            } else if (valueSets instanceof BArray) {
+                if (((BArray) valueSets).isEmpty()) {
+                    computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                            new Error("The provided data set is empty."));
+                } else {
+                    // Handle array data sets
+                    Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
+                    List<Object[]> argList = extractArguments((BArray) valueSets);
+                    for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
+                        // Reset shouldSkipTest for each iteration, since Before function may not fail for other
+                        // iterations
+                        shouldSkipTest.set(false);
+                        // run the before tests
+                        executeBeforeFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+                        // ShouldSkip may be set for
+                        if (!shouldSkipTest.get()) {
                             invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
                                     shouldSkip, packageName, argList.get(i), argTypes, failedOrSkippedTests);
+                            // run the after tests
+                            executeAfterFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest,
+                                    failedAfterFuncTests);
+                        } else {
+                            // If the test function is skipped lets add it to the failed test list
+                            failedOrSkippedTests.add(test.getTestName());
+                            // report the test result
+                            functionResult = new TesterinaResult(test.getTestName(), false, true, null);
+                            tReport.addFunctionResult(packageName, functionResult);
                         }
                     }
-                } else if (valueSets instanceof Error || valueSets instanceof Exception) {
-                    computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
-                            valueSets);
-                } else {
-                    computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
-                            new Error("The provided data set does not match the supported formats."));
                 }
+            } else if (valueSets instanceof Error || valueSets instanceof Exception) {
+                computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                        valueSets);
+            } else {
+                computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                        new Error("The provided data set does not match the supported formats."));
             }
         } else {
             // If the test function is skipped lets add it to the failed test list
@@ -579,16 +642,16 @@ public class BTestRunner {
             functionResult = new TesterinaResult(test.getTestName(), false, true, null);
             tReport.addFunctionResult(packageName, functionResult);
         }
+        // Increment group-name count
         for (String groupName : test.getGroups()) {
             suite.getGroups().get(groupName).incrementExecutedCount();
         }
-
+        // Write failed tests to json
         if (!packageName.equals(TesterinaConstants.DOT)) {
             Path jsonPath = Paths.get(this.targetPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
             File jsonFile = new File(jsonPath.toString());
             writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
         }
-
     }
 
     private void computeFunctionResult(String testName, String packageName, AtomicBoolean shouldSkip,
@@ -833,7 +896,7 @@ public class BTestRunner {
                 typeList.add(classMapping);
             }
         } else {
-            Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
+            Class<?> type = getArgTypeToClassMapping(TypeUtils.getReferredType(bArray.getElementType()));
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 typeList.add(type);
