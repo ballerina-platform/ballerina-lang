@@ -704,7 +704,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ParenthesizedArgList transform(ParenthesizedArgList parenthesizedArgList) {
         Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(parenthesizedArgList
-                .arguments(), 0, 0, 0, 0);
+                .arguments(), 0, 0, 0, 0, true);
         Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), env.trailingWS, env.trailingNL);
 
         return parenthesizedArgList.modify()
@@ -3807,6 +3807,59 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
+     * Format a delimited list of nodes. This method assumes the delimiters are followed by a single whitespace
+     * character only.
+     *
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
+     * @param itemTrailingNL Number of newlines to be added after each item in the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
+     * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @param allowMultiLineParams Supports the indentation of multiline parenthesized arguments
+     * @return Formatted node list
+     */
+    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL,
+                                                                            boolean allowMultiLineParams) {
+        return formatSeparatedNodeList(nodeList, itemTrailingWS, itemTrailingNL, 1, 0, listTrailingWS,
+                listTrailingNL, allowMultiLineParams);
+    }
+
+    /**
+     * Format a delimited list of nodes.
+     *
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
+     * @param itemTrailingNL Number of newlines to be added after each item in the list
+     * @param separatorTrailingWS Number of single-length spaces to be added after each separator in the list
+     * @param separatorTrailingNL Number of newlines to be added after each separator in the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
+     * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @return Formatted node list
+     */
+    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int separatorTrailingWS,
+                                                                            int separatorTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL) {
+        return formatSeparatedNodeList(nodeList,
+                itemTrailingWS,
+                itemTrailingNL,
+                separatorTrailingWS,
+                separatorTrailingNL,
+                listTrailingWS,
+                listTrailingNL,
+                false);
+    }
+
+    /**
      * Format a delimited list of nodes.
      *
      * @param <T> Type of the list item
@@ -3826,7 +3879,8 @@ public class FormattingTreeModifier extends TreeModifier {
                                                                             int separatorTrailingWS,
                                                                             int separatorTrailingNL,
                                                                             int listTrailingWS,
-                                                                            int listTrailingNL) {
+                                                                            int listTrailingNL,
+                                                                            boolean allowMultiLineParams) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -3837,8 +3891,18 @@ public class FormattingTreeModifier extends TreeModifier {
 
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
-            T newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size, index,
-                    oldNode);
+            if (allowMultiLineParams) {
+                if (hasNonWSMinutiae(oldNode.trailingMinutiae())) {
+                    indent();
+                }
+            }
+            T newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size,
+                    index, oldNode);
+            if (allowMultiLineParams) {
+                if (hasNonWSMinutiae(oldNode.trailingMinutiae())) {
+                    unindent();
+                }
+            }
             newNodes[2 * index] = newNode;
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -3855,7 +3919,6 @@ public class FormattingTreeModifier extends TreeModifier {
             if (oldSeparator != newSeparator) {
                 nodeModified = true;
             }
-
         }
 
         if (!nodeModified) {
