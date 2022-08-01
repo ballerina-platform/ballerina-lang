@@ -40,7 +40,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionUtil;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -93,26 +93,29 @@ public class ClientResourceAccessActionNodeContext
             }
         } else {
             /*
-            Covers the following case where "a" is a client object and we suggest the client resource access actions 
+            Covers the following case where "a" is a client object, and we suggest the client resource access actions 
             and remote methods.
              a -> /path/p<cursor>
              */
-
-            //suggest complete resource path
             List<Node> resourcePathSegments = node.resourceAccessPath().stream()
                     .filter(segmentNode -> !segmentNode.isMissing()).collect(Collectors.toList());
             List<Symbol> clientActions = this.getClientActions(expressionType.get());
-            if (resourcePathSegments.isEmpty()) {
-                //to cover . resource path and rest param resource path
-                completionItems.addAll(this.getCompletionItemList(clientActions, context));
-            } else {
-                //Suggest partial path segments
+            List<LSCompletionItem> resourceAccessCompletions = new ArrayList<>();
+            if (!resourcePathSegments.isEmpty()
+                    || ResourcePathCompletionUtil.isInMethodCallContext(node, context)) {
+                //Covers /path<cursor> and /.<cursor>
                 List<ResourceMethodSymbol> resourceMethodSymbols =
                         clientActions.stream().filter(symbol -> symbol.kind() == SymbolKind.RESOURCE_METHOD)
                                 .map(symbol -> (ResourceMethodSymbol) symbol).collect(Collectors.toList());
-                completionItems.addAll(getPathSegmentCompletionItems(node, context, resourceMethodSymbols,
+                resourceAccessCompletions.addAll(getPathSegmentCompletionItems(node, context, resourceMethodSymbols,
                         resourcePathSegments));
             }
+            if (!ResourcePathCompletionUtil.isInMethodCallContext(node, context)
+                    && (resourcePathSegments.isEmpty() || resourceAccessCompletions.isEmpty())) {
+                //Covers /<cursor> 
+                resourceAccessCompletions.addAll(this.getCompletionItemList(clientActions, context));
+            }
+            completionItems.addAll(resourceAccessCompletions);
         }
         this.sort(context, node, completionItems);
         return completionItems;
@@ -130,13 +133,14 @@ public class ClientResourceAccessActionNodeContext
                         completableSegmentList(resourceMethod, ((PathSegmentList) resourcePath).list(),
                                 resourcePathSegments, context, node);
                 if (completablePathSegments.getRight() && !completablePathSegments.getLeft().isEmpty()) {
-                    CompletionItem completionItem = ResourcePathCompletionItemBuilder.build(resourceMethod,
+                    CompletionItem completionItem = ResourcePathCompletionUtil.build(resourceMethod,
                             completablePathSegments.getLeft(), context);
                     completionItems.add(new SymbolCompletionItem(context, resourceMethod, completionItem));
-                } else if (completablePathSegments.getRight() && isInMethodCallContext(node, context)) {
+                } else if (completablePathSegments.getRight() && ResourcePathCompletionUtil
+                        .isInMethodCallContext(node, context)) {
                     //suggest method call expressions
                     CompletionItem completionItem =
-                            ResourcePathCompletionItemBuilder.buildMethodCallExpression(resourceMethod, context);
+                            ResourcePathCompletionUtil.buildMethodCallExpression(resourceMethod, context);
                     completionItems.add(new SymbolCompletionItem(context, resourceMethod, completionItem));
                 }
             }
@@ -173,15 +177,16 @@ public class ClientResourceAccessActionNodeContext
                 if (i < currentSegments.size() - 1 && currentPath.equals(expectedPath)) {
                     continue;
                 } else if (i == currentSegments.size() - 1) {
-                    //suggest only when 
                     if (currentPath.equals(expectedPath)) {
-                        if (!isInMethodCallContext(accNode, context)) {
+                        if (!ResourcePathCompletionUtil.isInMethodCallContext(accNode, context)
+                                && context.getCursorPositionInTree() == node.textRange().endOffset()) {
+                            //excluding /path1/<cursor> and /path1.<cursor>
                             index -= 1;
                         }
                         continue;
                     } else if (expectedPath.startsWith(currentPath)
                             && context.getCursorPositionInTree() == node.textRange().endOffset()) {
-                        //suggest only when /pat<cursor> exclude: /pat/<cursor>
+                        //suggest only when /pat<cursor> excluding /pat/<cursor>
                         index -= 1;
                         continue;
                     }
@@ -227,12 +232,6 @@ public class ClientResourceAccessActionNodeContext
         int cursor = context.getCursorPositionInTree();
         return arguments.isPresent() && arguments.get().openParenToken().textRange().startOffset() <= cursor
                 && cursor <= arguments.get().closeParenToken().textRange().endOffset();
-    }
-
-    private boolean isInMethodCallContext(ClientResourceAccessActionNode node,
-                                          BallerinaCompletionContext context) {
-        return node.dotToken().isPresent()
-                && node.dotToken().get().textRange().endOffset() <= context.getCursorPositionInTree();
     }
 
     private List<LSCompletionItem> getNamedArgExpressionCompletionItems(BallerinaCompletionContext context,
