@@ -41,8 +41,8 @@ public class ClientObjectTest {
     }
 
     @Test
-    public void testNPE() {
-        BRunUtil.invoke(remoteBasic, "testNPE");
+    public void testBoundMethodAccess() {
+        BRunUtil.invoke(remoteBasic, "testBoundMethodAccess");
     }
 
     @Test

@@ -103,7 +103,7 @@ service class Foo {
     }
 }
 
-public function testNPE() {
+public function testBoundMethodAccess() {
     Foo foo = new;
     any _ = foo.bar;
 }
