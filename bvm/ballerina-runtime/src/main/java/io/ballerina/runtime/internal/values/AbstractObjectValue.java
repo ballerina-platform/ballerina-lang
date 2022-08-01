@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2022), WSO2 Inc. (http://www.wso2.org).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,10 +19,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.ObjectType;
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.*;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
@@ -60,11 +57,42 @@ public abstract class AbstractObjectValue implements ObjectValue {
     private BTypedesc typedesc;
     private BObjectType type;
 
+    private MapValueImpl __blockClosureMap;
+    private HashMap<Integer, MapValueImpl> __paramClosureMaps;
+
     private final HashMap<String, Object> nativeData = new HashMap<>();
 
     public AbstractObjectValue(BObjectType type) {
         this.type = type;
         this.typedesc = new TypedescValueImpl(type);
+    }
+
+    @Override
+    public void setBlockClosureMap(Object closureMap) {
+        __blockClosureMap = (MapValueImpl) closureMap;
+    }
+
+    @Override
+    public void setParamClosureMap(Object closureMap, int level) {
+        if (__paramClosureMaps == null) {
+            __paramClosureMaps = new HashMap<>();
+        }
+        __paramClosureMaps.put(level, (MapValueImpl) closureMap);
+    }
+
+    @Override
+    public BMap getBlockClosureMap() {
+        return __blockClosureMap;
+    }
+
+    @Override
+    public BMap getParamClosureMap(IntegerType level) {
+        return __paramClosureMaps.get(level);
+    }
+
+    @Override
+    public HashMap<?, ?> getParamClosureMaps() {
+        return __paramClosureMaps;
     }
 
     @Override

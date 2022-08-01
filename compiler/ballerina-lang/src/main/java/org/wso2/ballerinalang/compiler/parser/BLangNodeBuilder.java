@@ -1,19 +1,19 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2022), WSO2 Inc. (http://www.wso2.org).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.ballerinalang.compiler.parser;
 
@@ -1229,7 +1229,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     classDefinition.addFunction(bLangFunction);
                     continue;
                 }
-                if (bLangFunction.requiredParams.size() != 0) {
+                if (!bLangFunction.requiredParams.isEmpty()) {
                     dlog.error(bLangFunction.pos, DiagnosticErrorCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
                     continue;
                 }
@@ -1245,6 +1245,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         classDefinition.internal = true;
+
+        classDefinition.trimMemory();
         return classDefinition;
     }
 
@@ -1283,7 +1285,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         });
 
         anonClass.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
-//        addToTop(anonClass);
 
         NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
         for (Token qualifier : objectConstructorQualifierList) {
@@ -4114,7 +4115,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         NodeList<Node> members = classDefinitionNode.members();
         for (Node node : members) {
-            // TODO: Check for fields other than SimpleVariableNode
             BLangNode bLangNode = node.apply(this);
             if (bLangNode.getKind() == NodeKind.FUNCTION || bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
@@ -4137,6 +4137,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
 
+        blangClass.trimMemory();
         return blangClass;
     }
 

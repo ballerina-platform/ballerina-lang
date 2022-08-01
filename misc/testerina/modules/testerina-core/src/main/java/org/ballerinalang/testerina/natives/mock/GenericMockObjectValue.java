@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2022), WSO2 Inc. (http://www.wso2.org).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -11,13 +11,14 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 package org.ballerinalang.testerina.natives.mock;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -253,6 +254,27 @@ public class GenericMockObjectValue implements BObject {
     @Override
     public BTypedesc getTypedesc() {
         return typedesc;
+    }
+
+    @Override
+    public void setBlockClosureMap(Object closureMap) {}
+
+    @Override
+    public void setParamClosureMap(Object closureMap, int level) {}
+
+    @Override
+    public BMap getBlockClosureMap() {
+        return null;
+    };
+
+    @Override
+    public BMap getParamClosureMap(IntegerType level) {
+        return null;
+    }
+
+    @Override
+    public HashMap<?, ?> getParamClosureMaps() {
+        return null;
     }
 
 }

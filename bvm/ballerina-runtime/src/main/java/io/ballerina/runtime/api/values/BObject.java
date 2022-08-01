@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2022), WSO2 Inc. (http://www.wso2.org).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,8 +17,10 @@
  */
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.HashMap;
@@ -61,4 +63,14 @@ public interface BObject extends RefValue {
     HashMap<String, Object> getNativeData();
 
     void set(BString fieldName, Object value);
+
+    void setBlockClosureMap(Object closureMap);
+
+    void setParamClosureMap(Object closureMap, int level);
+
+    BMap getBlockClosureMap();
+
+    BMap getParamClosureMap(IntegerType level);
+
+    HashMap<?, ?> getParamClosureMaps();
 }

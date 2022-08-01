@@ -32,10 +32,10 @@ function testClosureVariableAsFieldValue() {
     };
 
     var objectWithInit = object {
-         int a = i;
-         function init() {
-             self.a = i;
-         }
+        int a = i;
+        function init() {
+            self.a = i;
+        }
     };
 
     assertValueEquality(10, inferredObj.x);
@@ -329,14 +329,14 @@ public function testAttachedMethodClosuresMapFromFunctionBlock() {
 
 type Sum2 function (int x, int y) returns int;
 
-final Sum2 sumF = function (int x, int y) returns int {
+final Sum2 sumF = function(int x, int y) returns int {
     return x + y;
 };
 
 function testFunctionPointerAsFieldHelper(int y2) {
     final int i = 10;
     object {
-        function summer(int y2) returns int ;
+        function summer(int y2) returns int;
     } obj = object {
         int x;
         private Sum2 func = sumF;
@@ -374,14 +374,14 @@ final string A = "A";
 const B = "B";
 
 function checkClosuresWithObjectConstrExprAsFunctionDefaultParam(object {
-                                                                string x;
-                                                                function foo(string c) returns string;
-                                                            } obj = object {
-                                                                string x = A;
-                                                                function foo(string c) returns string {
-                                                                    return A + B + self.x + c;
-                                                                }
-                                                            }) returns string {
+                                                                     string x;
+                                                                     function foo(string c) returns string;
+                                                                 } obj = object {
+                                                                     string x = A;
+                                                                     function foo(string c) returns string {
+                                                                         return A + B + self.x + c;
+                                                                     }
+                                                                 }) returns string {
     return A + B + obj.x + obj.foo("C");
 }
 
@@ -610,7 +610,7 @@ function checkClosuresWithObjectConstrExprsInObjectConstrExpr(int b1) returns in
                     };
                 }
             };
-            Foo obj3 = <Foo> obj2.bar(10);
+            Foo obj3 = <Foo>obj2.bar(10);
             return a1 + self.i + b1 + obj3.foo(50);
         }
     };
@@ -636,7 +636,7 @@ function checkClosuresWithObjectConstrExprAsArrayMember(int b1, string str) retu
                         return object {string j = str; boolean k = true;};
                     }
                 };
-                object {string j; boolean k;} obj3 = <object {string j; boolean k;}> obj2.bar(10);
+                object {string j; boolean k;} obj3 = <object {string j; boolean k;}>obj2.bar(10);
                 if obj1.k != obj3.k {
                     self.i = 200;
                 }
@@ -738,12 +738,13 @@ function testClosuresWithObjectConstrExprInEqaulityExpr() {
     assertValueEquality(120, checkClosuresWithObjectConstrExprInEqaulityExpr(10));
 }
 
-public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
-    'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
-    name:"callMethod"
+public function callMethod(service object {} s, string name) returns future<any|error> = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "callMethod"
 } external;
 
 type AssertionError distinct error;
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertValueEquality(anydata expected, anydata actual) {
@@ -751,5 +752,5 @@ function assertValueEquality(anydata expected, anydata actual) {
         return;
     }
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

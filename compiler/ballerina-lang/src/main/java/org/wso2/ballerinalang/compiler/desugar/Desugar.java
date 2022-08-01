@@ -1,19 +1,19 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2022), WSO2 Inc. (http://www.wso2.org).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
@@ -107,7 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
@@ -1147,10 +1147,14 @@ public class Desugar extends BLangNodeVisitor {
         // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
         // gets defined before its first use.
         for (BLangFunction fn : classDefinition.functions) {
-            rewrite(fn, this.env);
+            rewrite(fn, env);
         }
-        rewrite(generatedInitFunction, this.env);
-        rewrite(classDefinition.initFunction, this.env);
+//        if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+//            // TODO: ongoing dev
+//            classClosureDesugar.desugarFunctions(classDef);
+//        }
+        rewrite(generatedInitFunction, env);
+        rewrite(classDefinition.initFunction, env);
 
         result = classDefinition;
     }
@@ -5934,6 +5938,7 @@ public class Desugar extends BLangNodeVisitor {
 
         genVarRefExpr.setBType(type);
         genVarRefExpr.pos = varRefExpr.pos;
+        genVarRefExpr.parent = varRefExpr.parent;
 
         if ((varRefExpr.isLValue)
                 || genVarRefExpr.symbol.name.equals(IGNORE)) { //TODO temp fix to get this running in bvm
@@ -6094,7 +6099,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // todo: handle taint table; issue: https://github.com/ballerina-platform/ballerina-lang/issues/25962
 
-        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>(originalMemberFuncSymbol.params.size());
         for (BVarSymbol param : originalMemberFuncSymbol.params) {
             BLangSimpleVariable fParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
             fParam.symbol = new BVarSymbol(0, param.name, env.enclPkg.packageID, param.type,  funcSymbol, pos,
@@ -6110,7 +6115,7 @@ public class Desugar extends BLangNodeVisitor {
             requiredArgs.add(paramRef);
         }
 
-        ArrayList<BLangExpression> restArgs = new ArrayList<>();
+        ArrayList<BLangExpression> restArgs = new ArrayList<>(1);
         if (originalMemberFuncSymbol.restParam != null) {
             BLangSimpleVariable restParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
             func.restParam = restParam;
@@ -6641,7 +6646,7 @@ public class Desugar extends BLangNodeVisitor {
             BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
             BLangClassDefinition classDef = initializingObject.classDef;
             if (classDef.hasClosureVars) {
-                OCEDynamicEnvironmentData oceEnvData = initializingObject.classDef.oceEnvData;
+                OCEDynamicEnvData oceEnvData = initializingObject.classDef.oceEnvData;
                 if (oceEnvData.attachedFunctionInvocation == null) {
                     oceEnvData.attachedFunctionInvocation = (BLangAttachedFunctionInvocation) result;
                 }
@@ -6735,6 +6740,13 @@ public class Desugar extends BLangNodeVisitor {
 
         // init() returning nil is the common case and the type test is not needed for it.
         if (Types.getReferredType(typeInitInvocation.getBType()).tag == TypeTags.NIL) {
+            BLangNode parent = typeInitInvocation.parent;
+            if (parent != null && parent.getKind() == NodeKind.OBJECT_CTOR_EXPRESSION) {
+                BLangObjectConstructorExpression oceExpression = (BLangObjectConstructorExpression) parent;
+                OCEDynamicEnvData oceData = oceExpression.classNode.oceEnvData;
+                oceData.initInvocation = typeInitExpr.initInvocation;
+                oceData.capturedClosureEnv = env;
+            }
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
             initInvExpr.expr = typeInitInvocation;
             typeInitInvocation.name.value = GENERATED_INIT_SUFFIX.value;
@@ -7614,6 +7626,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.pos = bLangArrowFunction.pos;
         bLangFunction.addFlag(Flag.LAMBDA);
+        bLangFunction.parent = bLangArrowFunction.parent;
         lambdaFunction.function = bLangFunction;
 
         // Create function body with return node
@@ -9054,7 +9067,7 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
         }
-        if (namedArgs.size() > 0) {
+        if (!namedArgs.isEmpty()) {
             setFieldsForIncRecordLiterals(namedArgs, incRecordLiterals, incRecordParamAllowAdditionalFields);
         }
         iExpr.requiredArgs = args;
@@ -9063,9 +9076,10 @@ public class Desugar extends BLangNodeVisitor {
     private void setFieldsForIncRecordLiterals(Map<String, BLangExpression> namedArgs,
                                                List<BLangRecordLiteral> incRecordLiterals,
                                                BLangRecordLiteral incRecordParamAllowAdditionalFields) {
-        for (String name : namedArgs.keySet()) {
+        for (Map.Entry<String, BLangExpression> entry : namedArgs.entrySet()) {
+            String name = entry.getKey();
             boolean isAdditionalField = true;
-            BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
+            BLangNamedArgsExpression expr = (BLangNamedArgsExpression) entry.getValue();
             for (BLangRecordLiteral recordLiteral : incRecordLiterals) {
                 LinkedHashMap<String, BField> fields =
                         ((BRecordType) Types.getReferredType(recordLiteral.getBType())).fields;

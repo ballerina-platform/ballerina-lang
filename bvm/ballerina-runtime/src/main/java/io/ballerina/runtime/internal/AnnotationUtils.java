@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2022), WSO2 Inc. (http://www.wso2.org).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -91,13 +91,36 @@ public class AnnotationUtils {
             Object annotValue = ((FPValue) annot).call(new Object[]{strand});
             bType.setAnnotations((MapValue<BString, Object>) annotValue);
         }
+
         for (MethodType attachedFunction : bType.getMethods()) {
             processObjectMethodLambdaAnnotation(globalAnnotMap, strand, attachedFunction);
         }
         if (bType instanceof BServiceType) {
-            var serviceType = (BServiceType) bType;
+            BServiceType serviceType = (BServiceType) bType;
             for (var resourceFunction : serviceType.getResourceMethods()) {
                 processObjectMethodLambdaAnnotation(globalAnnotMap, strand, resourceFunction);
+            }
+            for (String field : serviceType.getFields().keySet()) {
+                BString finalKey = StringUtils.fromString(annotationKey + ".$field$." + field);
+                if (!globalAnnotMap.containsKey(finalKey)) {
+                    continue;
+                }
+                Object annot = globalAnnotMap.get(finalKey);
+                Object annotValue = ((FPValue) annot).call(new Object[]{strand});
+                BString fieldKey = StringUtils.fromString("$field$." + field);
+                bType.setAnnotation(fieldKey, annotValue);
+            }
+        } else if (bType instanceof BObjectType) {
+            BObjectType serviceType = (BObjectType) bType;
+            for (String field : serviceType.getFields().keySet()) {
+                BString finalKey = StringUtils.fromString(annotationKey + ".$field$." + field);
+                if (!globalAnnotMap.containsKey(finalKey)) {
+                    continue;
+                }
+                Object annot = globalAnnotMap.get(finalKey);
+                Object annotValue = ((FPValue) annot).call(new Object[]{strand});
+                BString fieldKey = StringUtils.fromString("$field$." + field);
+                bType.setAnnotation(fieldKey, annotValue);
             }
         }
     }

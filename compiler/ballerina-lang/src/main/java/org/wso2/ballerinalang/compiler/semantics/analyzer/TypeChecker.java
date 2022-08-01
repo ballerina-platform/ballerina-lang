@@ -1,19 +1,19 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2022), WSO2 Inc. (http://www.wso2.org).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
@@ -42,6 +42,7 @@ import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.desugar.ClassClosureDesugarUtils;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -95,7 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -227,8 +228,8 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerData> {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
-    private static Set<String> listLengthModifierFunctions = new HashSet<>();
-    private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
+    private static Set<String> listLengthModifierFunctions = new HashSet<>(4);
+    private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>(5);
 
     private static final String LIST_LANG_LIB = "lang.array";
     private static final String MAP_LANG_LIB = "lang.map";
@@ -896,7 +897,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType getAndSetAssignableUnionMember(BLangLiteral literalExpr, BUnionType expType, BType desiredType,
                                                  AnalyzerData data) {
         List<BType> members = types.getAllTypes(expType, true);
-        Set<BType> memberTypes = new HashSet<>();
+        Set<BType> memberTypes = new HashSet<>(members.size());
         members.forEach(member -> memberTypes.addAll(members));
         if (memberTypes.stream()
                 .anyMatch(memType -> memType.tag == desiredType.tag
@@ -948,13 +949,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         Set<BLangExpression> matchedValueSpace = new LinkedHashSet<>();
 
         for (BFiniteType finiteType : finiteTypeMembers) {
-            Set<BLangExpression> set = new HashSet<>();
-            for (BLangExpression expression : finiteType.getValueSpace()) {
+            Set<BLangExpression> valueSpace = finiteType.getValueSpace();
+            Set<BLangExpression> matchedSet = new HashSet<>(valueSpace.size());
+            for (BLangExpression expression : valueSpace) {
                 if (expression.getBType().tag == tag) {
-                    set.add(expression);
+                    matchedSet.add(expression);
                 }
             }
-            matchedValueSpace.addAll(set);
+            matchedValueSpace.addAll(matchedSet);
         }
 
         if (matchedValueSpace.isEmpty()) {
@@ -1087,7 +1089,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 ((BIntersectionType) applicableExpType).effectiveType : applicableExpType;
 
         if (applicableExpType.tag == TypeTags.TABLE) {
-            List<BType> memTypes = new ArrayList<>();
+            List<BType> memTypes = new ArrayList<>(tableConstructorExpr.recordLiteralList.size());
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
                 BLangRecordLiteral clonedExpr = recordLiteral;
                 if (data.commonAnalyzerData.nonErrorLoggingCheck) {
@@ -5415,10 +5417,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction, AnalyzerData data) {
         bLangLambdaFunction.setBType(bLangLambdaFunction.function.getBType());
-        // creating a copy of the env to visit the lambda function later
+
         bLangLambdaFunction.capturedClosureEnv = data.env.createClone();
 
-        BLangFunction function = bLangLambdaFunction.function;
         symResolver.checkRedeclaredSymbols(bLangLambdaFunction);
 
         if (!data.commonAnalyzerData.nonErrorLoggingCheck) {
@@ -6904,22 +6905,22 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     protected void markAndRegisterClosureVariable(BSymbol symbol, Location pos, SymbolEnv env, AnalyzerData data) {
         BLangInvokableNode encInvokable = env.enclInvokable;
         BLangNode bLangNode = env.node;
-        if ((symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
-                bLangNode.getKind() != NodeKind.ARROW_EXPR && bLangNode.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
-                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA) &&
+        if (((symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) &&
+                bLangNode.getKind() != NodeKind.ARROW_EXPR &&
+                bLangNode.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
+                encInvokable != null &&
+                !encInvokable.flagSet.contains(Flag.LAMBDA) &&
                 !encInvokable.flagSet.contains(Flag.OBJECT_CTOR)) {
             return;
         }
         if (!symbol.closure) {
-            if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, bLangNode)) {
-                return;
-            }
+           searchClosureVariableInExpressions(symbol, pos, env, encInvokable, bLangNode);
         }
 
         BLangNode node = bLangNode;
         if (isObjectCtorClass(node))  {
             BLangClassDefinition classDef = (BLangClassDefinition) node;
-            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            OCEDynamicEnvData oceData = classDef.oceEnvData;
             BLangFunction currentFunc = (BLangFunction) encInvokable;
             if ((currentFunc != null) && !currentFunc.attachedFunction &&
                     !(currentFunc.symbol.receiverSymbol == symbol)) {
@@ -6927,7 +6928,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         SymTag.VARIABLE);
                 if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
                     if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
-                        updateObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol, classDef, data);
+                        ClassClosureDesugarUtils.collectObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol,
+                                classDef, data.env, symbol, node);
                         return;
                     }
                 }
@@ -6935,17 +6937,24 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         SymbolEnv cEnv = env;
+        BLangNode originalNode = node;
         while (node != null) {
             if (node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction function = (BLangFunction) node;
                 if (!function.flagSet.contains(Flag.OBJECT_CTOR) && !function.flagSet.contains(Flag.ATTACHED)) {
                     break;
                 }
+                symbol.flags |= Flags.OBJECT_CTOR;
+                if ((function.receiver != null) && (originalNode.getKind() == NodeKind.ARROW_EXPR)) {
+                    BLangArrowFunction arrowFunction = (BLangArrowFunction) originalNode;
+                    function.receiver.symbol.closure = true;
+                    if (arrowFunction.parent == null) {
+                        arrowFunction.parent = function;
+                    }
+                }
             }
             if (!symbol.closure) {
-                if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, node)) {
-                    return;
-                }
+                searchClosureVariableInExpressions(symbol, pos, env, encInvokable, node);
             }
             if (isObjectCtorClass(node)) {
                 BLangFunction currentFunction = (BLangFunction) encInvokable;
@@ -6958,11 +6967,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
                 BLangClassDefinition classDef = (BLangClassDefinition) node;
-                if (resolvedSymbol != symTable.notFoundSymbol) {
-                    if (resolvedSymbol.owner.getKind() == SymbolKind.PACKAGE) {
-                        break;
-                    }
-                    updateObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol, classDef, data);
+                if (resolvedSymbol != symTable.notFoundSymbol && resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
+                    ClassClosureDesugarUtils.collectObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol,
+                            classDef, cEnv, symbol, originalNode);
                     return;
                 }
                 break;
@@ -6981,7 +6988,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
     }
 
-    private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
+    private void searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
                                                        BLangInvokableNode encInvokable, BLangNode bLangNode) {
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
                 && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
@@ -6991,7 +6998,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                return true;
+                return;
             }
         }
 
@@ -7002,8 +7009,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
             if (resolvedSymbol != symTable.notFoundSymbol) {
                 resolvedSymbol.closure = true;
+                // This data structure is used in Data flow Analyzer phase
                 ((BLangArrowFunction) bLangNode).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                return true;
+                return;
             }
         }
 
@@ -7015,50 +7023,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                return true;
+                return;
             }
-        }
-        return false;
-    }
-
-    private void updateObjectCtorClosureSymbols(Location pos, BLangFunction currentFunction, BSymbol resolvedSymbol,
-                                                BLangClassDefinition classDef, AnalyzerData data) {
-        classDef.hasClosureVars = true;
-        resolvedSymbol.closure = true;
-        if (currentFunction != null) {
-            currentFunction.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-            // TODO: can identify if attached here
-        }
-        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
-        if (currentFunction != null && (currentFunction.symbol.params.contains(resolvedSymbol)
-                || (currentFunction.symbol.restParam == resolvedSymbol))) {
-            oceEnvData.closureFuncSymbols.add(resolvedSymbol);
-        } else {
-             oceEnvData.closureBlockSymbols.add(resolvedSymbol);
-        }
-        updateProceedingClasses(data.env.enclEnv, oceEnvData, classDef);
-    }
-
-    private void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvironmentData oceEnvData,
-                                         BLangClassDefinition origClassDef) {
-        SymbolEnv localEnv = envArg;
-        while (localEnv != null) {
-            BLangNode node = localEnv.node;
-            if (node.getKind() == NodeKind.PACKAGE) {
-                break;
-            }
-
-            if (node.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDef = (BLangClassDefinition) node;
-                if (classDef != origClassDef) {
-                    classDef.hasClosureVars = true;
-                    OCEDynamicEnvironmentData parentOceData = classDef.oceEnvData;
-                    oceEnvData.parents.push(classDef);
-                    parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
-                    parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
-                }
-            }
-            localEnv = localEnv.enclEnv;
         }
     }
 
@@ -7285,8 +7251,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BVarSymbol checkForIncRecordParamAllowAdditionalFields(BInvokableSymbol invokableSymbol,
                                                                    List<BVarSymbol> incRecordParams) {
-        Set<String> requiredParamNames = new HashSet<>();
-        List<BVarSymbol> openIncRecordParams = new ArrayList<>();
+
+        int size = invokableSymbol.params.size();
+        Set<String> requiredParamNames = new HashSet<>(size);
+        List<BVarSymbol> openIncRecordParams = new ArrayList<>(size);
         for (BVarSymbol paramSymbol : invokableSymbol.params) {
             BType paramType = Types.getReferredType(paramSymbol.type);
             if (Symbols.isFlagOn(Flags.asMask(paramSymbol.getFlags()), Flags.INCLUDED) &&
@@ -7329,7 +7297,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                                                                      incRecordParams);
         int parameterCountForPositionalArgs = paramTypes.size();
         int parameterCountForNamedArgs = parameterCountForPositionalArgs + incRecordParams.size();
-        iExpr.requiredArgs = new ArrayList<>();
+
         for (BVarSymbol symbol : invokableSymbol.params) {
             if (!Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED) ||
                     Types.getReferredType(symbol.type).tag != TypeTags.RECORD) {
@@ -7352,6 +7320,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         int i = 0;
         BLangExpression vararg = null;
         boolean foundNamedArg = false;
+        iExpr.requiredArgs = new ArrayList<>(iExpr.argExprs.size());
         for (BLangExpression expr : iExpr.argExprs) {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
@@ -7603,7 +7572,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else if (vararg != null) {
             iExpr.restArgs.add(vararg);
             if (mappingTypeRestArg != null) {
-                LinkedHashSet<BType> restTypes = new LinkedHashSet<>();
+                LinkedHashSet<BType> restTypes = new LinkedHashSet<>(2);
                 restTypes.add(listTypeRestArg);
                 restTypes.add(mappingTypeRestArg);
                 BType actualType = BUnionType.create(null, restTypes);

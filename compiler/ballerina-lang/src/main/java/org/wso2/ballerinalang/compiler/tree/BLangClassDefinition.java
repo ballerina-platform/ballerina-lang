@@ -1,19 +1,19 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2022), WSO2 Inc. (http://www.wso2.org).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.ballerinalang.compiler.tree;
@@ -63,11 +63,10 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BLangFunction generatedInitFunction;
     public BLangSimpleVariable receiver;
     public List<BLangSimpleVariable> referencedFields;
-    public List<BLangSimpleVarRef.BLangLocalVarRef> localVarRefs;
     public int precedence;
 
     public boolean definitionCompleted;
-    public OCEDynamicEnvironmentData oceEnvData;
+    public OCEDynamicEnvData oceEnvData;
     public boolean isObjectContructorDecl = false;
     public BObjectType objectType = null;
     public boolean hasClosureVars;
@@ -81,7 +80,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
         this.flagSet.add(Flag.CLASS);
         this.annAttachments = new ArrayList<>();
         this.referencedFields = new ArrayList<>();
-        this.oceEnvData = new OCEDynamicEnvironmentData();
+        this.oceEnvData = new OCEDynamicEnvData(this.functions.size());
     }
 
     @Override
@@ -194,4 +193,12 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
         this.precedence = precedence;
     }
 
+    public void trimMemory() {
+        ArrayList<BLangFunction> functions = (ArrayList) this.functions;
+        functions.trimToSize();
+        ArrayList<BLangSimpleVariable> fields = (ArrayList) this.fields;
+        fields.trimToSize();
+        ArrayList<BLangSimpleVariable> annAttachments = (ArrayList) this.annAttachments;
+        annAttachments.trimToSize();
+    }
 }
