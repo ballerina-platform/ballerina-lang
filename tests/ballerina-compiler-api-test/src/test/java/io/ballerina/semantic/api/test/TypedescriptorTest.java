@@ -151,8 +151,8 @@ public class TypedescriptorTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test(dataProvider = "ParameterizedReturnTypePosProvider")
-    public void testParameterizedReturnType(int line, int col, String expSignature) {
+    @Test(dataProvider = "ParameterizedUnionReturnTypePosProvider")
+    public void testParameterizedUnionReturnType(int line, int col, String unionSignature, String memberSignature) {
         Project project = BCompileUtil.loadProject("test-src/parameterized_return_type_test.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
@@ -161,14 +161,20 @@ public class TypedescriptorTest {
         Symbol symbol = optionalSymbol.get();
         Optional<TypeSymbol> returnTypeDescriptor = ((MethodSymbol) symbol).typeDescriptor().returnTypeDescriptor();
         assertTrue(returnTypeDescriptor.isPresent());
-        assertEquals(returnTypeDescriptor.get().signature(), expSignature);
+        TypeSymbol returnTypeSymbol = returnTypeDescriptor.get();
+        assertEquals(returnTypeSymbol.signature(), unionSignature);
+        assertEquals(returnTypeSymbol.typeKind(), UNION);
+        TypeSymbol firstMember = ((UnionTypeSymbol) returnTypeSymbol).memberTypeDescriptors().get(0);
+        assertEquals(firstMember.typeKind(), TYPE_REFERENCE);
+        TypeSymbol firstMemberTypeDescriptor = ((TypeReferenceTypeSymbol) firstMember).typeDescriptor();
+        assertEquals(firstMemberTypeDescriptor.signature(), memberSignature);
     }
 
-    @DataProvider(name = "ParameterizedReturnTypePosProvider")
-    private Object[][] getParameterizedReturnTypePos() {
+    @DataProvider(name = "ParameterizedUnionReturnTypePosProvider")
+    private Object[][] getParameterizedUnionReturnTypePos() {
         return new Object[][] {
-                {25, 9, "anydata"},
-                {26, 7, "int|string"},
+                {25, 9, "tdA|error", "anydata"},
+                {26, 7, "testType|error", "int|string"},
         };
     }
 

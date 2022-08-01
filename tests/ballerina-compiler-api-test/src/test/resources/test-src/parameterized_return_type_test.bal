@@ -32,5 +32,5 @@ function getFoo() returns Foo|error {
 }
 
 class Example {
- function getTD(Ttype td = <>) returns td = external;
+ function getTD(Ttype testType = <>) returns testType|error = external;
 }
