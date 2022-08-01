@@ -1,0 +1,112 @@
+[
+  {
+    "description": "Remove annotation , Add public qualifier",
+    "oldCode": "#documentation\ntype Age record{\nint x;\n };",
+    "newCode": "public type Age record{\nint x;\n };",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "documentation is removed"
+                },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to type 'Age'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change a type from record to object",
+    "oldCode": "public type Age record{\nint x;\nint y;\n };",
+    "newCode": "public type Age object{\nint x;\nint y;\n };",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "type descriptor",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "type descriptor is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": " add annotation , remove documentation",
+    "oldCode": "#documentation\npublic type Age record{\nint x;\n };",
+    "newCode": "@tainted\npublic type Age record{\nint x;\n };",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "documentation is removed"
+                },
+                [
+                  {
+                    "type": "modified",
+                    "versionImpact": "ambiguous",
+                    "kind": "unknown",
+                    "message": "service annotation list is modified"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

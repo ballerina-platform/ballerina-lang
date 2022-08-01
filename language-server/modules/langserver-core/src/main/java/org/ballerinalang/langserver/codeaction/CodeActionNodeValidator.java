@@ -271,8 +271,13 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(QualifiedNameReferenceNode node) {
+        /*
+            We need to suggest import module code action when,
+            ex: "io<cursor>:" hence we have special cased typed binding pattern.
+         */
         return isVisited(node) || !node.colon().isMissing() && !node.modulePrefix().isMissing()
-                && node.parent() != null ? node.parent().apply(this) : true;
+                && node.parent() != null
+                && (node.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN || node.parent().apply(this));
     }
 
     /**

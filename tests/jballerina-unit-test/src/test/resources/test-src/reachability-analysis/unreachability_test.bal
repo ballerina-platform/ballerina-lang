@@ -1489,3 +1489,270 @@ function testUnreachableStatementInQueryAction30() returns error? {
         int _ = 2; // unreachable code
     };
 }
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic(float? v) returns int {
+    int y = 0;
+
+    if v is () {
+        return 1;
+    } else if v is float {
+        return 2;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // unreachable code
+}
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic2(float? v) returns int {
+    int y = 0;
+
+    if v is float? {
+        return 1;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // unreachable code
+}
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic3(float? v) returns int|error {
+    int y = 0;
+
+    if v is () {
+        fail error("Err");
+    } else if v is float {
+        return 1;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // unreachable code
+}
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic4(float? v) returns int {
+    int y = 0;
+
+    if v is () {
+        panic error("Error");
+    } else if v is float {
+        return 1;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // unreachable code
+}
+
+function testUnreachabilityWithIfElseHavingUnreachablePanic5(float? v) returns int {
+    if v is () {
+        return 1;
+    } else if v is float {
+        return 2;
+    } else {
+        string message = "err!"; // unreachable code
+        panic error(message);
+    }
+}
+
+function testVariableInitializationWithIfElseHavingUnreachablePanic(float? v) returns int {
+    int y;
+
+    if v is () {
+
+    } else if v is float {
+        y = 2;
+    } else {
+        panic error("err!");
+    }
+
+    return y; // variable 'y' may not have been initialized
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            break;
+        } else {
+            continue;
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue2(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            return;
+        } else {
+            continue;
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue3(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            continue;
+        } else {
+            break;
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue4(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            return;
+        } else {
+            break;
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue5(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            break;
+        } else {
+            panic error("Err");
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue6(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        if v is () {
+            continue;
+        } else {
+            panic error("Err");
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue7(float? v) {
+    int y = 0;
+
+    while y > 2 {
+        foreach var i in 1...3 {
+            if v is () {
+                continue;
+            } else {
+                break;
+            }
+            int _ = 1; // unreachable code
+        }
+
+        int _ = 1; // Ok
+
+        if v is () {
+            continue;
+        } else {
+            panic error("Err");
+        }
+        int _ = 1; // unreachable code
+    }
+
+    int _ = 1; // Ok
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue8() returns int {
+    int|boolean v = true;
+    while v is boolean {
+        string? a = "A";
+        if a is string {
+            string|int b = "B";
+            if b is string {
+                if true {
+                    return 1;
+                }
+            }
+
+            if b is int { // always true
+                break;
+            }
+
+            int _ = 1; // unreachable code
+        } else {
+            return 2;
+        }
+    }
+    return 4;
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue9() returns int {
+    int|boolean v = true;
+    while v is boolean {
+        string? a = "A";
+        if a is string {
+            string|int b = "B";
+            if b is string {
+                return 1;
+            } else if b is int {
+                break;
+            }
+        } else {
+            break;
+        }
+        int _ = 1; // unreachable code
+    }
+    return 4;
+}
+
+function testUnreachabilityWithCombinationOfBreakAndContinue10() returns int {
+    int|boolean v = true;
+    while v is boolean {
+        string? a = "A";
+        if a is string {
+            string|int? b = "B";
+            if b is string {
+                return 1;
+            } else if b is int {
+                break;
+            } else {
+                continue;
+            }
+            int _ = 1; // unreachable code
+        } else {
+            string|int? c = "C";
+            if c is string {
+                return 1;
+            } else if c is int {
+                break;
+            } else {
+                continue;
+            }
+            int _ = 1; // unreachable code
+        }
+    }
+    return 4;
+}

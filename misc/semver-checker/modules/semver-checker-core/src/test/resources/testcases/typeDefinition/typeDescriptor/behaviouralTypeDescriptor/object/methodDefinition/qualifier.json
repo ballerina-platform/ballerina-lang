@@ -1,0 +1,44 @@
+[
+  {
+    "description": "Remove the public qualifier from a method definition",
+    "oldCode": "public type Person object{ \npublic function add(){}\n}\n",
+    "newCode": "public type Person object{\nfunction add(){} \n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add public qualifier to a method definition\n",
+    "oldCode": "public type Person object{\nfunction foo(){}\n}\n",
+    "newCode": "public type Person object{\npublic function foo(){} \n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove the isolated qualifier \n",
+    "oldCode": "public service type Person object{\nisolated remote function add(){}\n}\n",
+    "newCode": "public service type Person object{\nremote function add(){} \n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add isolated qualifier\n",
+    "oldCode": "public service type Person object{\nremote function foo(){}\n}\n",
+    "newCode": "public service type Person object{\nisolated remote function foo(){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove the transactional qualifier",
+    "oldCode": "public service type Person object{\ntransactional remote function add(){}\n}\n",
+    "newCode": "public service type Person object{\nremote function add(){} \n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add transactional qualifier\n",
+    "oldCode": "public service type Person object{\nresource function get foo(){}\n}\n",
+    "newCode": "public service type Person object{\ntransactional resource function get foo(){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "add more than 1 qualifier to a function\n",
+    "oldCode": "public service type Person object{\nfunction add(){}\n}\n",
+    "newCode": "public service type Person object{\nisolated transactional resource function get add(){}\n}\n",
+    "expectedOutput": {}
+  }
+]
