@@ -69,8 +69,8 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String MODULE = "moduleName";
     private static final String FUNCTION = "functionName";
-    private static final String MOCK_ANNOTATION_DELIMITER = "#";
-    private static final String MOCK_FN_DELIMITER = "~";
+    private static final String MOCK_FN_DELIMITER = "#";
+    private static final String MOCK_LEGACY_DELIMITER = "~";
 
     private CompilerContext compilerContext;
     private DiagnosticLog diagnosticLog;
@@ -128,14 +128,14 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                 (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
                         // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
                         bLangTestablePackage.addMockFunction(
-                                functionToMockID + MOCK_ANNOTATION_DELIMITER + annotationValues[1],
+                                functionToMockID + MOCK_FN_DELIMITER + annotationValues[1],
                                 mockFnObjectName);
 
                         if (functionToMockID != null) {
                             // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
                             String className = getQualifiedClassName(bLangTestablePackage,
                                     functionToMockID.toString(), annotationValues[1]);
-                            registry.addMockFunctionsSourceMap(className + MOCK_ANNOTATION_DELIMITER +
+                            registry.addMockFunctionsSourceMap(className + MOCK_FN_DELIMITER +
                                             annotationValues[1], mockFnObjectName);
                         }
                     }
@@ -226,14 +226,15 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     //Creating a bLangTestablePackage to add a mock function
                     BLangTestablePackage bLangTestablePackage =
                             (BLangTestablePackage) ((BLangFunction) functionNode).parent;
-                    bLangTestablePackage.addMockFunction(functionToMockID + MOCK_FN_DELIMITER + vals[1],
+                    bLangTestablePackage.addMockFunction(functionToMockID + MOCK_LEGACY_DELIMITER + vals[1],
                             functionName);
 
                     if (functionToMockID != null) {
                         // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
                         String className = getQualifiedClassName(bLangTestablePackage,
                                 functionToMockID.toString(), vals[1]);
-                        registry.addMockFunctionsSourceMap(className + MOCK_FN_DELIMITER + vals[1],
+                        vals[1] = vals[1].replaceAll("\\\\", "");
+                        registry.addMockFunctionsSourceMap(className + MOCK_LEGACY_DELIMITER + vals[1],
                                 functionName);
                     }
                 }
