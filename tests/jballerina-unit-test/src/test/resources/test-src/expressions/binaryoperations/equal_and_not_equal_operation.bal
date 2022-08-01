@@ -571,6 +571,9 @@ function checkComplexMapEqualityNegative() {
     test:assertFalse(m1 == m2 || !(m1 != m2));
 }
 
+type Array ["array", 1];
+type Mapping ["mapping", 2];
+
 function checkTupleEqualityPositive() {
     [string, int] t1 = ["", 0];
     [string, int] t2 = ["", 0];
@@ -579,6 +582,10 @@ function checkTupleEqualityPositive() {
     [string, int, OpenEmployee] t4 = ["hi", 0, {name: "Em"}];
 
     test:assertTrue(t1 == t2 && !(t1 != t2) && t3 == t4 && !(t3 != t4));
+
+    Array a = ["array", 1];
+    Array b = ["array", 1];
+    test:assertTrue(a == b);
 }
 
 function checkTupleEqualityNegative() {
@@ -592,6 +599,10 @@ function checkTupleEqualityNegative() {
     [string, ClosedEmployee] t6 = ["hi", {name: "Em"}];
 
     test:assertFalse(t1 == t2 || !(t1 != t2) || t3 == t4 || !(t3 != t4) || t5 == t6 || !(t5 != t6));
+
+    Array a = ["array", 1];
+    Mapping b = ["mapping", 2];
+    test:assertFalse(a == b);
 }
 
 function checkUnionConstrainedMapsPositive() {

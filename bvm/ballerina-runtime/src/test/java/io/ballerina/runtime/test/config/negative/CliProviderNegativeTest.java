@@ -141,7 +141,7 @@ public class CliProviderNegativeTest {
                 // Invalid config enum value
                 {new String[]{"-Ccolor=red"}, "rootOrg", "rootMod", "color", COLOR_ENUM,
                         "error: [color=red] configurable variable 'color' is expected to be of type " +
-                                "'(COLOR_RED|COLOR_GREEN)', but found 'red'"}
+                                "'rootOrg/mod12:1:Colors', but found 'red'"}
         };
     }
 
