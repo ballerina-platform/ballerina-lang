@@ -1033,9 +1033,6 @@ class JvmObservabilityGen {
                                                   Location location) {
         String pkgId = generatePackageId(pkg.packageID);
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
-        if (location == null) {
-            location = new BLangDiagnosticLocation("", 0, 0, 0, 0, 0, 0);
-        }
 
         BIROperand fileNameOperand = generateTempLocalVariable(func, "fileName",
                 symbolTable.stringType, location, currentBB, location.lineRange().filePath());

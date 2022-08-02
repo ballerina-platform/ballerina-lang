@@ -6139,7 +6139,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangIdentifier field = fieldAccessExpr.field;
         BLangReturn retStmt = (BLangReturn) TreeBuilder.createReturnNode();
         retStmt.expr = createObjectMethodInvocation(
-                receiver, field, fieldAccessExpr.symbol, requiredArgs, restArgs);
+                receiver, field, fieldAccessExpr.symbol, requiredArgs, restArgs, pos);
         ((BLangBlockFunctionBody) func.body).addStatement(retStmt);
 
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
@@ -6163,7 +6163,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation createObjectMethodInvocation(BLangExpression receiver, BLangIdentifier field,
                                                          BSymbol invocableSymbol,
                                                          List<BLangExpression> requiredArgs,
-                                                         List<BLangExpression> restArgs) {
+                                                         List<BLangExpression> restArgs, Location pos) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.name = field;
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -6174,6 +6174,7 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.setBType(((BInvokableType) invocableSymbol.type).retType);
         invocationNode.requiredArgs = requiredArgs;
         invocationNode.restArgs = restArgs;
+        invocationNode.pos = pos;
         return invocationNode;
     }
 
