@@ -2,7 +2,7 @@ Compiling source
 	pramodya/conflictProject:0.1.7
 
 Generating executable
-	warning: Detected conflicting jar files:
+	warning: Picking the latest jar since detected conflicting jar files:
 		'one-1.0.0.jar' dependency of 'pramodya/conflictProject' conflict with 'two-1.0.0.jar' dependency of 'pramodya/conflictProject'
 			test/sample/Sample3.class
 			test/sample/Sample2.class

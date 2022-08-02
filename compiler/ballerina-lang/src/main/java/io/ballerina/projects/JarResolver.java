@@ -169,7 +169,8 @@ public class JarResolver {
                         // TODO: issue a warning. For this we need to design diagnostic reporting in JarResolver
                         JBallerinaBackend.JarConflict conflict = new JBallerinaBackend.JarConflict(existingEntry,
                                 newEntry, Collections.emptyList());
-                        String conflictWarning = "Detected conflicting jar files: " + conflict.getWarning(false);
+                        String conflictWarning = "Detected conflicting jar files: "
+                                + conflict.getWarning(false, true);
                         Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(
                                 new DiagnosticInfo(null, conflictWarning, DiagnosticSeverity.WARNING));
                         this.diagnostics.add(diagnostic);

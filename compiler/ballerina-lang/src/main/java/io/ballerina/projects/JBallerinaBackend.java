@@ -637,7 +637,7 @@ public class JBallerinaBackend extends CompilerBackend {
             classes.add(entry);
         }
 
-        public String getWarning(boolean listClasses) {
+        public String getWarning(boolean listClasses, boolean diagnosticWarning) {
             String conflictedJarPkg1 = "";
             String conflictedJarPkg2 = "";
             if (firstJarLibrary.packageName().isPresent()) {
@@ -647,10 +647,16 @@ public class JBallerinaBackend extends CompilerBackend {
                 conflictedJarPkg2 = " dependency of '" + secondJarLibrary.packageName().get() + "'";
             }
 
-            StringBuilder warning = new StringBuilder(firstJarLibrary.path().getFileName() + "'" + conflictedJarPkg1
-                    + " conflict with '" + secondJarLibrary.path().getFileName() + "'" + conflictedJarPkg2);
+            String conflictMessage = "'" + firstJarLibrary.path().getFileName() + "'" + conflictedJarPkg1
+                    + " conflict with '" + secondJarLibrary.path().getFileName() + "'" + conflictedJarPkg2;
 
-            if (listClasses) {
+            if (!diagnosticWarning) {
+                conflictMessage = "\t\t" + conflictMessage;
+            }
+
+            StringBuilder warning = new StringBuilder(conflictMessage);
+
+            if (listClasses && !diagnosticWarning) {
                 for (String conflictedClass : classes) {
                     warning.append("\n\t\t\t").append(conflictedClass);
                 }
