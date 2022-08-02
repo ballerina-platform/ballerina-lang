@@ -85,10 +85,10 @@ public class LimitClauseNodeContext extends IntermediateClauseNodeContext<LimitC
             super.sort(context, node, completionItems);
             return;
         }
-        TypeSymbol typeSymbol = semanticModel.get().types().INT;
+        TypeSymbol intTypeSymbol = semanticModel.get().types().INT;
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, typeSymbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, intTypeSymbol));
         }
     }
 }
