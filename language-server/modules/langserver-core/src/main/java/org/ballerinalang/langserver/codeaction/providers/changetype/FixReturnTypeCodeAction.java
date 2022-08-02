@@ -18,12 +18,16 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
@@ -110,6 +114,9 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
         List<CodeAction> codeActions = new ArrayList<>();
         boolean returnTypeDescPresent = funcDef.get().functionSignature().returnTypeDesc().isPresent();
 
+        CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
+        funcDef.get().accept(checkExprNodeFinder);
+
         if (checkExprDiagnostic) {
             // Add error return type for check expression
             if (returnTypeDescPresent) {
@@ -140,6 +147,10 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                 } else {
                     combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
                 }
+            }
+
+            if (checkExprNodeFinder.containCheckExprNode()) {
+                combinedTypes.add(Collections.singletonList("error"));
             }
 
             types = getPossibleCombinations(combinedTypes, types);
@@ -215,5 +226,51 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             typeList = updatedTypes;
         }
         return typeList;
+    }
+
+    /* A visitor to find check expression exist inside a Node */
+    static class CheckExprNodeFinder extends NodeVisitor {
+
+        private CheckExpressionNode checkExpressionNode = null;
+
+        @Override
+        public void visit(FunctionDefinitionNode functionDefinitionNode) {
+            functionDefinitionNode.functionBody().accept(this);
+        }
+
+        @Override
+        public void visit(ExternalFunctionBodyNode externalFunctionBodyNode) {
+            int childrenSize = externalFunctionBodyNode.children().size();
+            int count = 0;
+            while (count < childrenSize) {
+                if (containCheckExprNode()) {
+                    break;
+                }
+                externalFunctionBodyNode.children().get(count).accept(this);
+                count++;
+            }
+        }
+
+        @Override
+        public void visit(VariableDeclarationNode variableDeclarationNode) {
+            int childrenSize = variableDeclarationNode.children().size();
+            int count = 0;
+            while (count < childrenSize) {
+                if (containCheckExprNode()) {
+                    break;
+                }
+                variableDeclarationNode.children().get(count).accept(this);
+                count++;
+            }
+        }
+
+        @Override
+        public void visit(CheckExpressionNode checkExpressionNode) {
+            this.checkExpressionNode = checkExpressionNode;
+        }
+
+        boolean containCheckExprNode() {
+            return this.checkExpressionNode != null;
+        }
     }
 }
