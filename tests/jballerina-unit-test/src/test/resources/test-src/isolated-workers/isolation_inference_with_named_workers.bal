@@ -618,7 +618,7 @@ function f36() {
     future<int> _ = start f34(arr2);
 }
 
-function isolatedInferenceWithWorkersAndStartsCallingPublicIsolatedFunctions() {
+function testIsolatedInferenceWithWorkersAndStartsCallingPublicIsolatedFunctions() {
     assertTrue(<any>f19 is isolated function);
     assertTrue(<any>f20 is isolated function);
     assertFalse(<any>f21 is isolated function);
