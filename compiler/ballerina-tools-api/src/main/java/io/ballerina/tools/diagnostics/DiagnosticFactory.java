@@ -59,4 +59,16 @@ public class DiagnosticFactory {
                                               Object... args) {
         return new DefaultDiagnostic(diagnosticInfo, location, properties, args);
     }
+
+    /**
+     * Creates a {@code Diagnostic} instances from the given details.
+     *
+     * @param diagnosticInfo static diagnostic information
+     * @param args           Arguments to diagnostic message format
+     * @return a {@code Diagnostic} instance
+     */
+    public static Diagnostic createDiagnostic(DiagnosticInfo diagnosticInfo,
+                                              Object... args) {
+        return new DefaultDiagnostic(diagnosticInfo, args);
+    }
 }

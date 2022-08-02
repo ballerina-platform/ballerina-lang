@@ -242,7 +242,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream))
-                .addTask(new CreateExecutableTask(outStream, this.output))
+                .addTask(new CreateExecutableTask(outStream, errStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 

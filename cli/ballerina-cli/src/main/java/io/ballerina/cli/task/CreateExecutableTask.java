@@ -27,6 +27,8 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -49,11 +51,13 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
  */
 public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
+    private final transient PrintStream err;
     private Path output;
     private Path currentDir;
 
-    public CreateExecutableTask(PrintStream out, String output) {
+    public CreateExecutableTask(PrintStream out, PrintStream err, String output) {
         this.out = out;
+        this.err = err;
         if (output != null) {
             this.output = Paths.get(output);
         }
@@ -102,10 +106,24 @@ public class CreateExecutableTask implements Task {
 
             // Print warnings for conflicted jars
             if (!jBallerinaBackend.conflictedJars().isEmpty()) {
-                out.println("\twarning: Detected conflicting jar files:");
+                out.println("\twarning: Picking the latest jar since detected conflicting jar files:");
                 for (JBallerinaBackend.JarConflict conflict : jBallerinaBackend.conflictedJars()) {
                     out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
                 }
+            }
+
+            // Report diagnostics
+            boolean hasErrors = false;
+            for (Diagnostic d : jBallerinaBackend.jarResolveDiagnosticResult().diagnostics(false)) {
+                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                    hasErrors = true;
+                    err.println(d);
+                } else {
+                    out.println(d);
+                }
+            }
+            if (hasErrors) {
+                throw createLauncherException("Errors occurred when generating executable");
             }
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());

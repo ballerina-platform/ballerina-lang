@@ -21,6 +21,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,6 +43,14 @@ class DefaultDiagnostic extends Diagnostic {
         this.diagnosticInfo = diagnosticInfo;
         this.location = location;
         this.properties = properties;
+        this.message = MessageFormat.format(diagnosticInfo.messageFormat(), args);
+    }
+
+    public DefaultDiagnostic(DiagnosticInfo diagnosticInfo,
+                             Object[] args) {
+        this.diagnosticInfo = diagnosticInfo;
+        this.location = null;
+        this.properties = Collections.emptyList();
         this.message = MessageFormat.format(diagnosticInfo.messageFormat(), args);
     }
 
@@ -67,14 +76,17 @@ class DefaultDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        LineRange lineRange = this.location.lineRange();
-        String filePath = lineRange.filePath();
-        LineRange oneBasedLineRange = LineRange.from(
-                filePath,
-                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
-                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+        if (this.location != null) {
+            LineRange lineRange = this.location.lineRange();
+            String filePath = lineRange.filePath();
+            LineRange oneBasedLineRange = LineRange.from(
+                    filePath,
+                    LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                    LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
 
-        return diagnosticInfo().severity().toString() + " ["
-                + filePath + ":" + oneBasedLineRange + "] " + message();
+            return diagnosticInfo().severity().toString() + " ["
+                    + filePath + ":" + oneBasedLineRange + "] " + message();
+        }
+        return diagnosticInfo().severity().toString() + " " + message();
     }
 }

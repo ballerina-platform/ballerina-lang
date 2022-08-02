@@ -19,6 +19,10 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
@@ -35,6 +39,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,6 +62,7 @@ public class JarResolver {
     private final PackageResolution pkgResolution;
     private final PackageContext rootPackageContext;
     private final PrintStream err = System.err;
+    private final List<Diagnostic> diagnostics;
 
     private ClassLoader classLoaderWithAllJars;
 
@@ -64,10 +70,15 @@ public class JarResolver {
         this.jBalBackend = jBalBackend;
         this.pkgResolution = pkgResolution;
         this.rootPackageContext = pkgResolution.packageContext();
+        this.diagnostics = new ArrayList<>();
+    }
+
+    public List<Diagnostic> diagnostics() {
+        return diagnostics;
     }
 
     // TODO These method names are too long. Refactor them soon
-    public Collection<JarLibrary> getJarFilePathsRequiredForExecution() {
+    public Collection<JarLibrary> getJarFilePathsRequiredForExecution() { // Deprecate
         // 1) Add this root package related jar files
         Set<JarLibrary> jarFiles = new HashSet<>();
         addCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
@@ -156,6 +167,12 @@ public class JarResolver {
                 if (existingVersion.compareTo(newVersion) >= 0) {
                     if (!newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
                         // TODO: issue a warning. For this we need to design diagnostic reporting in JarResolver
+                        JBallerinaBackend.JarConflict conflict = new JBallerinaBackend.JarConflict(existingEntry,
+                                newEntry, Collections.emptyList());
+                        String conflictWarning = "Detected conflicting jar files: " + conflict.getWarning(false);
+                        Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(
+                                new DiagnosticInfo(null, conflictWarning, DiagnosticSeverity.WARNING));
+                        this.diagnostics.add(diagnostic);
                     }
                     continue;
                 }

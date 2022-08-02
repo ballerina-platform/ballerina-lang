@@ -96,6 +96,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final JarResolver jarResolver;
     private final PackageCompilation packageCompilation;
     private DiagnosticResult diagnosticResult;
+    private DiagnosticResult jarResolveDiagnosticResult;
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
 
@@ -193,6 +194,10 @@ public class JBallerinaBackend extends CompilerBackend {
         return diagnosticResult;
     }
 
+    public DiagnosticResult jarResolveDiagnosticResult() {
+        return jarResolveDiagnosticResult;
+    }
+
     // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
         Path generatedArtifact = null;
@@ -204,6 +209,7 @@ public class JBallerinaBackend extends CompilerBackend {
         switch (outputType) {
             case EXEC:
                 generatedArtifact = emitExecutable(filePath);
+                jarResolveDiagnosticResult = new DefaultDiagnosticResult(jarResolver.diagnostics());
                 break;
             case BALA:
                 generatedArtifact = emitBala(filePath);
@@ -641,9 +647,8 @@ public class JBallerinaBackend extends CompilerBackend {
                 conflictedJarPkg2 = " dependency of '" + secondJarLibrary.packageName().get() + "'";
             }
 
-            StringBuilder warning = new StringBuilder(
-                    "\t\t'" + firstJarLibrary.path().getFileName() + "'" + conflictedJarPkg1 + " conflict with '"
-                            + secondJarLibrary.path().getFileName() + "'" + conflictedJarPkg2);
+            StringBuilder warning = new StringBuilder(firstJarLibrary.path().getFileName() + "'" + conflictedJarPkg1
+                    + " conflict with '" + secondJarLibrary.path().getFileName() + "'" + conflictedJarPkg2);
 
             if (listClasses) {
                 for (String conflictedClass : classes) {

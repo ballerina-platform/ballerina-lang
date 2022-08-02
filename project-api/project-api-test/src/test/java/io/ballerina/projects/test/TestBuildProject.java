@@ -2221,6 +2221,46 @@ public class TestBuildProject extends BaseTest {
                 PlatformLibraryScope.DEFAULT)));
     }
 
+    @Test (description = "tests conflicting warning when jar resolution for Build Project")
+    public void testConflictingJarsWarning() {
+        Path dep1Path = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/warningPlatformLibPkg1").toAbsolutePath();
+        Path dep2Path = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/warningPlatformLibPkg2").toAbsolutePath();
+        Path customUserHome = Paths.get("build", "userHome");
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        ProjectEnvironmentBuilder envBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala(dep1Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching warningPlatformLibPkg1:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+        compileResult = BCompileUtil.compileAndCacheBala(dep2Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching warningPlatformLibPkg2:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+
+        Path projectPath = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/warningPlatformLibPkg3");
+        BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
+        }
+        Collection<JarLibrary> jarLibraries =
+                jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
+        Assert.assertEquals(jarLibraries.size(), 9);
+
+        jBallerinaBackend.diagnosticResult().diagnostics().forEach(OUT::println);
+        List<Diagnostic> resolutionDiagnostics = jBallerinaBackend.jarResolver().diagnostics();
+        resolutionDiagnostics.forEach(OUT::println);
+        Assert.assertEquals(resolutionDiagnostics.size(), 1);
+        Assert.assertEquals(resolutionDiagnostics.get(0).toString(), "WARNING Detected conflicting jar files: " +
+                "lib3.txt dependency of xballerina/platformLibPkg1 conflict with " +
+                "lib3.txt dependency of yballerina/platformLibPkg2");
+    }
+
+
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
