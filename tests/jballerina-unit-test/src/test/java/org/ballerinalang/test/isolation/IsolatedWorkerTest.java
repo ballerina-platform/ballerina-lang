@@ -287,7 +287,8 @@ public class IsolatedWorkerTest {
                 "testIsolationInferenceWithNamedWorkers",
                 "testNonIsolationInferenceWithNamedWorkersWithStrandAnnotation",
                 "testServiceClassMethodIsolationInference",
-                "testClientClassMethodIsolationInference"
+                "testClientClassMethodIsolationInference",
+                "isolatedInferenceWithWorkersAndStartsCallingPublicIsolatedFunctions"
         };
     }
 
