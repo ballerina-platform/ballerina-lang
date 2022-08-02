@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BStreamingJson;
 import io.ballerina.runtime.internal.JsonDataSource;
 import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonUtils;
+import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 
@@ -106,7 +106,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
             gen.writeEndArray();
             gen.flush();
         } catch (IOException e) {
-            throw JsonUtils.createJsonConversionError(e, "error occurred while serializing data");
+            throw JsonInternalUtils.createJsonConversionError(e, "error occurred while serializing data");
         }
     }
 
@@ -186,7 +186,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
                 appendToCache(datasource.next());
             }
         } catch (Throwable t) {
-            throw JsonUtils.createJsonConversionError(t, "error occurred while building JSON");
+            throw JsonInternalUtils.createJsonConversionError(t, "error occurred while building JSON");
         }
     }
 

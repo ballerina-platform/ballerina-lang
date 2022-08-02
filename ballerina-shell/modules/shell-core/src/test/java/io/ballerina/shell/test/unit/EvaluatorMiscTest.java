@@ -118,6 +118,9 @@ public class EvaluatorMiscTest {
         evaluate("string t = \"Hello\"", evaluator);
         evaluate("var f = function () returns int {return 1;}", evaluator);
         evaluate("int a = 1; string b = \"World\"", evaluator);
+        evaluate("string 'unicode_\\u{2324} = \"Jane doe\"", evaluator);
+        evaluate("string 'unicode_\\u{1F600} = \"John doe\"", evaluator);
+        evaluate("string 'unicode_\\u{1F600}\\u{2324} = \"John\"", evaluator);
         Assert.assertEquals(new HashSet<>(filterAvailableVariables(evaluator)),
                 Set.of(
                         "(a) int a = 1",
@@ -125,7 +128,10 @@ public class EvaluatorMiscTest {
                         "(t) string t = \"Hello\"",
                         "(f) function () returns int f = function isolated function () returns (int)",
                         "(i) int i = 23",
-                        "(b) string b = \"World\""
+                        "(b) string b = \"World\"",
+                        "('unicode_⌤) string 'unicode_⌤ = \"Jane doe\"",
+                        "('unicode_😀) string 'unicode_😀 = \"John doe\"",
+                        "('unicode_😀⌤) string 'unicode_😀⌤ = \"John\""
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 0);

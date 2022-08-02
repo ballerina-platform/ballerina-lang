@@ -47,7 +47,11 @@ public enum DiffKind {
 
     CLASS("class"),
     OBJECT_FIELD("object field"),
-    OBJECT_FIELD_EXPR("object field expression");
+    OBJECT_FIELD_EXPR("object field expression"),
+
+    TYPE_DEFINITION("type definition"),
+    TYPE_DESCRIPTOR("type descriptor");
+
     public final String name;
 
     DiffKind(String name) {

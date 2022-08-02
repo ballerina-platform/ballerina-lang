@@ -69,11 +69,11 @@ public class QueryTypeNarrowingTest {
         validateError(compileResult, i++, "incompatible types: expected 'int', found 'B'",
                 118, 22);
         validateError(compileResult, i++, "incompatible types: expected 'int', found 'B'",
-                123, 15);
+                123, 19);
         validateError(compileResult, i++, "incompatible types: expected 'int', found 'E'",
                 210, 22);
         validateError(compileResult, i++, "incompatible types: expected 'int', found 'E'",
-                221, 15);
+                221, 19);
         validateError(compileResult, i++, "incompatible types: expected 'int', found 'F'",
                 230, 22);
         validateError(compileResult, i++, "incompatible types: expected 'F', found '(E|F)'",
@@ -81,19 +81,19 @@ public class QueryTypeNarrowingTest {
         validateError(compileResult, i++, "incompatible types: expected 'int', found 'F'",
                 242, 22);
         validateError(compileResult, i++, "incompatible types: expected 'int', found '(Y|Z)'",
-                375, 15);
+                375, 19);
         validateError(compileResult, i++, "incompatible types: expected 'int', found 'R'",
                 412, 22);
         validateError(compileResult, i++, "incompatible types: expected 'int', found 'R'",
-                417, 15);
+                417, 19);
         validateError(compileResult, i++, "incompatible types: expected 'R', found '(R|T)'",
                 426, 20);
         validateError(compileResult, i++, "incompatible types: expected '1', found '(1|2)'",
-                445, 15);
+                445, 19);
         validateError(compileResult, i++, "incompatible types: expected '()', found '1'",
                 465, 26);
         validateError(compileResult, i++, "incompatible types: expected '2', found '1'",
-                477, 17);
+                477, 21);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

@@ -402,6 +402,16 @@ public class VariableReturnType {
         return mediaType.length() + header.length() + i;
     }
 
+    public static Object getResource(BObject client, BArray path, BTypedesc targetType) {
+        int targetTypeTag = targetType.getDescribingType().getTag();
+        if (targetTypeTag == STRING_TAG) {
+            return StringUtils.fromString(path.toString());
+        }
+        
+        assert targetTypeTag == INT_TAG;
+        return 0;
+    }
+
     public static Object getSimpleUnion(Object val, BTypedesc td) {
         if (TypeUtils.getType(val).getTag() == INT_TAG) {
             if (td.getDescribingType().getTag() == INT_TAG) {

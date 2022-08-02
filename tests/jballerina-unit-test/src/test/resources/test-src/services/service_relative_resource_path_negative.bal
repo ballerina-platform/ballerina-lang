@@ -34,6 +34,9 @@ public class Listener {
 service on new Listener() {
     resource function get /hello(string name) {
     }
+    
+    resource function get fd/[string ...e]/fdfd/[int ...f] () {
+    }
 }
 
 service on new Listener() {

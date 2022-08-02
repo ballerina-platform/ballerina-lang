@@ -32,7 +32,7 @@ import java.util.Optional;
 public class ObjectFieldDiff extends NodeDiffImpl<ObjectFieldNode> {
 
     private ObjectFieldDiff(ObjectFieldNode newNode, ObjectFieldNode oldNode) {
-        super(newNode, oldNode);
+        super(newNode, oldNode, DiffKind.OBJECT_FIELD);
     }
 
     @Override
@@ -78,7 +78,6 @@ public class ObjectFieldDiff extends NodeDiffImpl<ObjectFieldNode> {
 
         @Override
         public Optional<ObjectFieldDiff> build() {
-            fieldDiff.setKind(DiffKind.OBJECT_FIELD);
             if (!fieldDiff.getChildDiffs().isEmpty()) {
                 fieldDiff.computeVersionImpact();
                 fieldDiff.setType(DiffType.MODIFIED);
