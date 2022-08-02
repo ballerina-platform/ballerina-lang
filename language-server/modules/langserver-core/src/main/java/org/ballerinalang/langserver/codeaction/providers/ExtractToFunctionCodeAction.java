@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Location;
@@ -181,6 +182,16 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
             TypeDescKind returnTypeDescKind = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor().typeKind();
             returnTypeDescriptor = String.format("returns %s", returnTypeDescKind.getName());
+        } else if (matchedCodeActionNode.kind() == SyntaxKind.RETURN_STATEMENT
+                && ((ReturnStatementNode) matchedCodeActionNode).expression().isPresent()) {
+            Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(((ReturnStatementNode) matchedCodeActionNode).expression().get());
+            if (typeSymbol.isPresent()
+                    && (typeSymbol.get().typeKind() != TypeDescKind.COMPILATION_ERROR
+                    || typeSymbol.get().typeKind() != TypeDescKind.NONE)) {
+                returnTypeDescriptor = String.format("returns %s", typeSymbol.get().typeKind().getName());
+            } else {
+                return Collections.emptyList();
+            }
         }
 
         List<String> argsForExtractFunction = new ArrayList<>();
@@ -230,6 +241,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             TypeDescKind returnTypeDescKind = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor().typeKind();
             String varName = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).getName().get();
             replaceFunctionCall = String.format("%s %s = %s", returnTypeDescKind.getName(), varName, replaceFunctionCall);
+        } else if (matchedCodeActionNode.kind() == SyntaxKind.RETURN_STATEMENT) {
+            replaceFunctionCall = String.format("return %s",replaceFunctionCall);
         }
 
         //todo change with newLineAtEnd
@@ -540,21 +553,21 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     public static List<SyntaxKind> getSupportedStatementSyntaxKindsList() {
         return List.of(
                 SyntaxKind.LIST, // not a statement
-//                SyntaxKind.BLOCK_STATEMENT,
+//                SyntaxKind.BLOCK_STATEMENT, // todo should support
                 SyntaxKind.LOCAL_VAR_DECL,
                 SyntaxKind.ASSIGNMENT_STATEMENT,
                 SyntaxKind.IF_ELSE_STATEMENT,
 //                SyntaxKind.ELSE_BLOCK, // do not support
 
                 SyntaxKind.WHILE_STATEMENT,
-//                SyntaxKind.CALL_STATEMENT,
-//                SyntaxKind.PANIC_STATEMENT,
-//                SyntaxKind.RETURN_STATEMENT,
+//                SyntaxKind.CALL_STATEMENT, // do not support, no point supporting
+//                SyntaxKind.PANIC_STATEMENT, // do not support, if found inside one of other do not provide? // todo verify
+                SyntaxKind.RETURN_STATEMENT,
 
 //                SyntaxKind.CONTINUE_STATEMENT, // do not support
 //                SyntaxKind.BREAK_STATEMENT, // do not support
                 SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT
-//                SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT,
+//                SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT, // has been removed from spec // todo confirm
 //                SyntaxKind.ACTION_STATEMENT,
 //                SyntaxKind.LOCK_STATEMENT,
 //                SyntaxKind.NAMED_WORKER_DECLARATION,
