@@ -46,10 +46,12 @@ public class TrapOperatorTest {
     @Test
     public void testTrapNegative() {
         int i = 0;
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '(int|error)'", 18, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '(int|error)'", 19, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'boolean', found '(boolean|error)'",
-                25, 8);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int', found '(int|error)'", 18, 13);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int', found '(int|error)'", 19, 13);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'boolean', found '(boolean|error)'", 25, 8);
         BAssertUtil.validateWarning(resultNegative, i++, "invalid usage of the 'check' expression operator: " +
                         "no expression type is equivalent to error type", 29, 46);
         BAssertUtil.validateWarning(resultNegative, i++, "invalid usage of the 'check' expression operator: " +
