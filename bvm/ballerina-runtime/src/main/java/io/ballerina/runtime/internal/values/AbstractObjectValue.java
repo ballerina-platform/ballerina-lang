@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -146,7 +145,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public ObjectType getType() {
+    public Type getType() {
         return type;
     }
 

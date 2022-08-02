@@ -87,7 +87,7 @@ public class TypedescValueImpl implements  TypedescValue {
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
         Type referredType = getReferredType(this.describingType);
         if (referredType.getTag() == TypeTags.MAP_TAG) {
-            return new MapValueImpl(referredType, (BMapInitialValueEntry[]) initialValues);
+            return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues);
         }
         // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
         throw new BallerinaException("Given type can't be instantiated at runtime : " + this.describingType);

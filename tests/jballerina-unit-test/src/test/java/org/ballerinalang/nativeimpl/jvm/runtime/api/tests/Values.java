@@ -128,7 +128,7 @@ public class Values {
     }
 
     public static BArray getParameters(BObject object, BString methodName) {
-        ObjectType objectType = object.getType();
+        ObjectType objectType = (ObjectType) object.getType();
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         TupleType tupleType = TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_STRING,
@@ -153,7 +153,7 @@ public class Values {
     }
 
     public static BString getFunctionString(BObject object, BString methodName) {
-        ObjectType objectType = object.getType();
+        ObjectType objectType = (ObjectType) object.getType();
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         if (funcType.isPresent()) {
@@ -193,7 +193,7 @@ public class Values {
     }
 
     public static BArray getTypeIds(BObject bObject) {
-        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
+        List<TypeId> typeIds = ((ObjectType) bObject.getType()).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size), size);
@@ -395,7 +395,7 @@ public class Values {
     }
 
     public static Object validateFunctionParameterFromObject(BObject object) {
-        ObjectType type = object.getType();
+        ObjectType type = (ObjectType) object.getType();
         for (MethodType methodType : type.getMethods()) {
             if (methodType.getName() == "testFunction") {
                 return validateFunctionType(methodType.getType());

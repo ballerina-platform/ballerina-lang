@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -55,7 +56,7 @@ public class Errors {
     }
 
     public static BArray getTypeIds(BError error) {
-        List<TypeId> typeIds = ((ErrorType) error.getType()).getTypeIdSet().getIds();
+        List<TypeId> typeIds = ((ErrorType) TypeUtils.getReferredType(error.getType())).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size), size);

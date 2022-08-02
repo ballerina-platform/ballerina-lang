@@ -2116,6 +2116,9 @@ public class TypeChecker {
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
                         ((BTypeReferenceType) type).getReferredType(), visitedTypeSet);
+            case TypeTags.INTERSECTION_TAG:
+                return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
+                        ((BIntersectionType) type).getEffectiveType(), visitedTypeSet);
             default:
                 return false;
         }

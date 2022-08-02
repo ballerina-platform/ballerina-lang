@@ -60,11 +60,12 @@ public class ObjectMock {
      * @return mock object of provided type
      */
     public static BObject mock(BTypedesc bTypedesc, BObject objectValue) {
-        if (!objectValue.getType().getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
+        ObjectType objectValueType = (ObjectType) objectValue.getType();
+        if (!objectValueType.getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
-            if (objectValue.getType().getMethods().length == 0 &&
-                    objectValue.getType().getFields().size() == 0) {
-                String detail = "mock object type '" + objectValue.getType().getName()
+            if (objectValueType.getMethods().length == 0 &&
+                    objectValueType.getFields().size() == 0) {
+                String detail = "mock object type '" + objectValueType.getName()
                         + "' should have at least one member function or field declared.";
                 throw ErrorCreator.createError(
                         MockConstants.TEST_PACKAGE_ID,
@@ -74,14 +75,14 @@ public class ObjectMock {
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
 
             } else {
-                for (MethodType attachedFunction : objectValue.getType().getMethods()) {
+                for (MethodType attachedFunction : objectValueType.getMethods()) {
                     BError error = validateFunctionSignatures(attachedFunction,
                             ((ObjectType) bTypedesc.getDescribingType()).getMethods());
                     if (error != null) {
                         throw  error;
                     }
                 }
-                for (Map.Entry<String, Field> field : objectValue.getType().getFields().entrySet()) {
+                for (Map.Entry<String, Field> field : objectValueType.getFields().entrySet()) {
                     BError error = validateField(field,
                             ((ObjectType) bTypedesc.getDescribingType()).getFields());
                     if (error != null) {
@@ -125,7 +126,7 @@ public class ObjectMock {
 
     public static BError validateFunctionName(String functionName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
-        if (!validateFunctionName(functionName, genericMock.getType().getMethods())) {
+        if (!validateFunctionName(functionName, ((ObjectType) genericMock.getType()).getMethods())) {
             String detail = "invalid function name '" + functionName + " ' provided";
             throw ErrorCreator.createError(
                     MockConstants.TEST_PACKAGE_ID,
@@ -146,7 +147,7 @@ public class ObjectMock {
      */
     public static BError validateFieldName(String fieldName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
-        if (!validateFieldName(fieldName, genericMock.getType().getFields())) {
+        if (!validateFieldName(fieldName, ((ObjectType) genericMock.getType()).getFields())) {
             String detail = "invalid field name '" + fieldName + "' provided";
             throw ErrorCreator.createError(
                     MockConstants.TEST_PACKAGE_ID,
@@ -170,7 +171,7 @@ public class ObjectMock {
         String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
         BArray argsList = caseObj.getArrayValue(StringUtils.fromString("args"));
 
-        for (MethodType attachedFunction : genericMock.getType().getMethods()) {
+        for (MethodType attachedFunction : ((ObjectType) genericMock.getType()).getMethods()) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate the number of arguments provided
@@ -247,10 +248,11 @@ public class ObjectMock {
             }
             functionName = null;
         }
+        ObjectType objectType = (ObjectType) genericMock.getType();
         if (functionName != null) {
             // register return value for member function
             BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
-            if (!validateReturnValue(functionName, returnVal, genericMock.getType().getMethods())) {
+            if (!validateReturnValue(functionName, returnVal, objectType.getMethods())) {
                 String detail =
                         "return value provided does not match the return type of function '" + functionName + "()'";
                 return ErrorCreator.createError(
@@ -266,8 +268,7 @@ public class ObjectMock {
             // register return value for member field
             String fieldName = caseObj.getStringValue(StringUtils.fromString("fieldName")).toString();
 
-            if (!validateFieldValue(returnVal,
-                    genericMock.getType().getFields().get(fieldName).getFieldType())) {
+            if (!validateFieldValue(returnVal, objectType.getFields().get(fieldName).getFieldType())) {
                 String detail = "return value provided does not match the type of '" + fieldName + "'";
                 return ErrorCreator.createError(
                         MockConstants.TEST_PACKAGE_ID,
@@ -299,7 +300,7 @@ public class ObjectMock {
                 break;
             }
             if (!validateReturnValue(functionName, returnVals.getValues()[i],
-                    genericMock.getType().getMethods())) {
+                    ((ObjectType) genericMock.getType()).getMethods())) {
                 String detail = "return value provided at position '" + i
                         + "' does not match the return type of function '" + functionName + "()'";
                 return ErrorCreator.createError(

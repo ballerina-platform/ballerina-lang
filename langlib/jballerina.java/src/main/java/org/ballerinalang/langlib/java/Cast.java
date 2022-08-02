@@ -47,7 +47,7 @@ public class Cast {
 
     public static Object cast(BObject value, BTypedesc castType) {
         BHandle handleObj;
-        ObjectType objType = value.getType();
+        ObjectType objType = (ObjectType) value.getType();
         String valueObjName = objType.getName();
         handleObj = (BHandle) value.get(StringUtils.fromString(jObjField));
         Object jObj = handleObj.getValue();

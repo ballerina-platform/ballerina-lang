@@ -378,7 +378,7 @@ public class ObserveUtils {
         }   // Else normal function
 
         if (typeDef != null) {
-            ObjectType type = typeDef.getType();
+            ObjectType type = (ObjectType) typeDef.getType();
             Module typeModule = type.getPackage();
             String objectName = typeModule.getOrg() + "/" + typeModule.getName() + "/" + type.getName();
 

@@ -39,7 +39,7 @@ type ErrorOrNil DetailedError?;
 
 type StreamType stream<PositiveInt, ErrorOrNil>;
 
-type TableType table<Detail> key (id);
+type TableType table<Detail> key(id);
 
 type TupleType [PositiveInt, Detail, PositiveIntRef...];
 
@@ -74,6 +74,8 @@ class PositiveNumberGenerator {
     }
 }
 
+type BObject Test;
+
 function validateRuntimeAPIs() {
     boolean result = validateGetDetailType(DetailedError);
     test:assertTrue(result);
@@ -90,7 +92,9 @@ function validateRuntimeAPIs() {
     result = validateRecordType(RecordType);
     test:assertTrue(result);
 
-    result = validateStreamType(StreamType);
+    PositiveNumberGenerator gen = new ();
+    StreamType s = new (gen);
+    result = validateStreamType(StreamType, s);
     test:assertTrue(result);
 
     TableType tab = table [];
@@ -112,25 +116,27 @@ function validateRuntimeAPIs() {
 
     result = validateTypeUtilsAPI(PositiveInt);
 
-    PositiveNumberGenerator gen = new ();
-    StreamType s = new (gen);
-    result = validateBStream(s);
-
     // BArray arr = [1, 2, 3];
     // BTuple tup = [1, {id: 101, msg: "message", "priority": 2}];
-
     // result = validateBArray(arr, tup);
     // test:assertTrue(result);
 
-    // BMap m = {a: 1, b: 2, c: 3};
-    // RecordType r = {id: 11, msg: "message", "intVal": 22};
-    // result = validateBMap(m, r);
+    BMap m = {a: 1, b: 2, c: 3};
+    RecordType r = {id: 11, msg: "message", "intVal": 22};
+    result = validateBMap(m, r);
+    test:assertTrue(result);
+
+    DetailedError err = error("This is error", id = 101, msg = "error message");
+    result = validateBError(err);
+    test:assertTrue(result);
+
+    // BObject obj = new ();
+    // result = validateBObject(obj);
     // test:assertTrue(result);
 
     // BFunctionPointer fp = testFunc;
     // result = validateBFunctionPointer(fp);
     // test:assertTrue(result);
-
 }
 
 function testFunc(int a) returns int {
@@ -157,7 +163,7 @@ public function validateRecordType(any value) returns boolean = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
 } external;
 
-public function validateStreamType(any value) returns boolean = @java:Method {
+public function validateStreamType(any value1, any value2) returns boolean = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
 } external;
 
@@ -185,15 +191,19 @@ public function validateTypeUtilsAPI(any value) returns boolean = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
 } external;
 
-public function validateBStream(any value) returns boolean = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
-} external;
-
 public function validateBArray(any value1, any value2) returns boolean = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
 } external;
 
 public function validateBMap(any value1, any value2) returns boolean = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
+} external;
+
+public function validateBError(any|error value) returns boolean = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
+} external;
+
+public function validateBObject(any value) returns boolean = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
 } external;
 

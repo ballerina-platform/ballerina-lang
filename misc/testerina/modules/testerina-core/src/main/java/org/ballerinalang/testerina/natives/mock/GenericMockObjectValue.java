@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.natives.mock;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
@@ -164,7 +165,7 @@ public class GenericMockObjectValue implements BObject {
     }
 
     @Override
-    public ObjectType getType() {
+    public Type getType() {
         return type;
     }
 

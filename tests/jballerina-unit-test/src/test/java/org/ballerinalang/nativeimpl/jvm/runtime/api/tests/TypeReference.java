@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -137,15 +138,21 @@ public class TypeReference {
         return true;
     }
 
-    public static Boolean validateStreamType(BTypedesc typedesc) {
-        BStreamType streamType = (BStreamType) ((ReferenceType) typedesc.getDescribingType()).getReferredType();
-        BError error = ErrorCreator.createError(StringUtils.fromString("stream type API provided a non type reference" +
+    public static Boolean validateStreamType(BTypedesc value1, BStream value2) {
+        BStreamType streamType = (BStreamType) ((ReferenceType) value1.getDescribingType()).getReferredType();
+        BError error = ErrorCreator.createError(StringUtils.fromString("stream API provided a non type reference" +
                 " type."));
         if (streamType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw error;
         }
 
         if (streamType.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        if (value2.getConstraintType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        if (value2.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw error;
         }
         return true;
@@ -161,6 +168,9 @@ public class TypeReference {
         if (tableValue.getKeyType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw error;
         }
+//        if (tableValue.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+//            throw error;
+//        }
         return true;
     }
 
@@ -214,7 +224,7 @@ public class TypeReference {
     public static Boolean validateParameterizedType(ObjectValue objectValue) {
         BError error = ErrorCreator.createError(StringUtils.fromString("parameterized type API provided a non type " +
                 "reference type."));
-        ObjectType objectType = objectValue.getType();
+        ObjectType objectType = (ObjectType) objectValue.getType();
         BFunctionType functionType = (BFunctionType) objectType.getMethods()[0].getType();
         BParameterizedType parameterizedType =
                 (BParameterizedType) ((UnionType) functionType.getReturnType()).getMemberTypes().get(0);
@@ -243,18 +253,6 @@ public class TypeReference {
         return true;
     }
 
-    public static Boolean validateBStream(BStream value) {
-        BError error = ErrorCreator.createError(StringUtils.fromString("BStream getType API provided a non type " +
-                "reference type."));
-        if (value.getConstraintType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (value.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        return true;
-    }
-
     public static Boolean validateBArray(BArray value1, BArray value2) {
         BError error = ErrorCreator.createError(StringUtils.fromString("BArray getType API provided a non type " +
                 "reference type."));
@@ -278,9 +276,27 @@ public class TypeReference {
         return true;
     }
 
+    public static Boolean validateBError(BError value) {
+        BError error = ErrorCreator.createError(StringUtils.fromString("BError getType API provided a non type " +
+                "reference type."));
+        if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        return true;
+    }
+
     public static Boolean validateBFunctionPointer(BFunctionPointer value) {
         BError error = ErrorCreator.createError(StringUtils.fromString("Function Pointer getType API provided a non " +
                 "type reference type."));
+        if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        return true;
+    }
+
+    public static Boolean validateBObject(BObject value) {
+        BError error = ErrorCreator.createError(StringUtils.fromString("BObject getType API provided a non type " +
+                "reference type."));
         if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw error;
         }

@@ -250,7 +250,7 @@ public class JsonUtils {
             return false;
         }
 
-        Type type = ((RefValue) json).getType();
+        Type type = TypeUtils.getReferredType(((RefValue) json).getType());
         int typeTag = type.getTag();
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }

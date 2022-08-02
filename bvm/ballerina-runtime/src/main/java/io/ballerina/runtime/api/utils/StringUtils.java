@@ -202,7 +202,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject objectValue = (BObject) value;
-            ObjectType objectType = objectValue.getType();
+            ObjectType objectType = (ObjectType) objectValue.getType();
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -273,7 +273,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            ObjectType objectType = objectValue.getType();
+            ObjectType objectType = (ObjectType) objectValue.getType();
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {

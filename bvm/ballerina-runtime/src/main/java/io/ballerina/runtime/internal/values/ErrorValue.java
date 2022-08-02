@@ -22,10 +22,10 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
@@ -91,7 +91,7 @@ public class ErrorValue extends BError implements RefValue {
 
     public ErrorValue(Type type, BString message, BError cause, Object details) {
         super(message);
-        this.type = ((ReferenceType) type).getReferredType();
+        this.type = type;
         this.message = message;
         this.cause = cause;
         this.details = details;
@@ -101,13 +101,13 @@ public class ErrorValue extends BError implements RefValue {
     public ErrorValue(Type type, BString message, BError cause, Object details,
                       String typeIdName, Module typeIdPkg) {
         super(message);
-        this.type = ((ReferenceType) type).getReferredType();
+        this.type = type;
         this.message = message;
         this.cause = cause;
         this.details = details;
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
-        ((BErrorType) type).setTypeIdSet(typeIdSet);
+        ((BErrorType) TypeUtils.getReferredType(type)).setTypeIdSet(typeIdSet);
         this.typedesc = new TypedescValueImpl(type);
     }
 
@@ -189,6 +189,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
+        Type type = TypeUtils.getReferredType(this.type);
         if (((BErrorType) type).typeIdSet == null) {
             return "";
         }

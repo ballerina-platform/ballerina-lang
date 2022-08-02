@@ -162,7 +162,7 @@ public class Runtime {
                                      Type returnType, Object... args) {
         try {
             validateArgs(object, methodName);
-            ObjectType objectType = object.getType();
+            ObjectType objectType = (ObjectType) object.getType();
             boolean isIsolated = objectType.isIsolated() && objectType.isIsolated(methodName);
             Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
             if (isIsolated) {
