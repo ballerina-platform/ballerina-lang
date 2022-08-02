@@ -65,6 +65,10 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.RecursiveDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.BreakpointVerificationTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.completions.DebugCompletionTest"/>
+
+            <!--Debugger RunInTerminal Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.runinterminal.SingleFileRunInTerminalTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.runinterminal.ProjectBasedRunInTerminalTest"/>
         </classes>
     </test>
 </suite>
