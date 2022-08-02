@@ -174,6 +174,7 @@ public class SyntaxErrors {
             case MODULE_VAR_SECOND_QUAL:
             case MODULE_VAR_THIRD_QUAL:
             case OBJECT_MEMBER_VISIBILITY_QUAL:
+            case CLIENT_DECL_PREFIX:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case EXPRESSION:
             case TERMINAL_EXPRESSION:
@@ -339,6 +340,7 @@ public class SyntaxErrors {
             case ABSTRACT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_ABSTRACT_KEYWORD;
             case CLIENT_KEYWORD:
+            case CLIENT_DECLARATION:
                 return DiagnosticErrorCode.ERROR_MISSING_CLIENT_KEYWORD;
             case IMPORT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_IMPORT_KEYWORD;
@@ -377,6 +379,7 @@ public class SyntaxErrors {
             case VERSION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
             case AS_KEYWORD:
+            case CLIENT_DECL_PREFIX_DECL:
                 return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
             case ON_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;

@@ -1249,6 +1249,48 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stModuleXMLNamespaceDeclarationNode.createUnlinkedFacade();
     }
 
+    public static ClientDeclarationNode createClientDeclarationNode(
+            Token clientKeyword,
+            ExpressionNode clientUri,
+            Token asKeyword,
+            IdentifierToken clientPrefix,
+            Token semicolonToken) {
+        Objects.requireNonNull(clientKeyword, "clientKeyword must not be null");
+        Objects.requireNonNull(clientUri, "clientUri must not be null");
+        Objects.requireNonNull(asKeyword, "asKeyword must not be null");
+        Objects.requireNonNull(clientPrefix, "clientPrefix must not be null");
+        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+
+        STNode stClientDeclarationNode = STNodeFactory.createClientDeclarationNode(
+                clientKeyword.internalNode(),
+                clientUri.internalNode(),
+                asKeyword.internalNode(),
+                clientPrefix.internalNode(),
+                semicolonToken.internalNode());
+        return stClientDeclarationNode.createUnlinkedFacade();
+    }
+
+    public static ModuleClientDeclarationNode createModuleClientDeclarationNode(
+            Token clientKeyword,
+            ExpressionNode clientUri,
+            Token asKeyword,
+            IdentifierToken clientPrefix,
+            Token semicolonToken) {
+        Objects.requireNonNull(clientKeyword, "clientKeyword must not be null");
+        Objects.requireNonNull(clientUri, "clientUri must not be null");
+        Objects.requireNonNull(asKeyword, "asKeyword must not be null");
+        Objects.requireNonNull(clientPrefix, "clientPrefix must not be null");
+        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+
+        STNode stModuleClientDeclarationNode = STNodeFactory.createModuleClientDeclarationNode(
+                clientKeyword.internalNode(),
+                clientUri.internalNode(),
+                asKeyword.internalNode(),
+                clientPrefix.internalNode(),
+                semicolonToken.internalNode());
+        return stModuleClientDeclarationNode.createUnlinkedFacade();
+    }
+
     public static FunctionBodyBlockNode createFunctionBodyBlockNode(
             Token openBraceToken,
             NamedWorkerDeclarator namedWorkerDeclarator,

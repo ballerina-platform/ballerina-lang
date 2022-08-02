@@ -956,6 +956,36 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createClientDeclarationNode(
+            STNode clientKeyword,
+            STNode clientUri,
+            STNode asKeyword,
+            STNode clientPrefix,
+            STNode semicolonToken) {
+
+        return new STClientDeclarationNode(
+                clientKeyword,
+                clientUri,
+                asKeyword,
+                clientPrefix,
+                semicolonToken);
+    }
+
+    public static STNode createModuleClientDeclarationNode(
+            STNode clientKeyword,
+            STNode clientUri,
+            STNode asKeyword,
+            STNode clientPrefix,
+            STNode semicolonToken) {
+
+        return new STModuleClientDeclarationNode(
+                clientKeyword,
+                clientUri,
+                asKeyword,
+                clientPrefix,
+                semicolonToken);
+    }
+
     public static STNode createFunctionBodyBlockNode(
             STNode openBraceToken,
             STNode namedWorkerDeclarator,
