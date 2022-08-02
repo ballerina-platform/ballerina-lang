@@ -45,16 +45,15 @@ function testTypeFromAnotherPackage() returns test_project:XY {
 
 // -----------------------------------------------------------
 
-// Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11183.
-//type M record { string f; }|Z;
-//
-//M m1 = { f: "test_project" };
-//
-//M m2 = "V";
-//
-//M m3 = "W";
-//
-//M m4 = "X";
+type M record { string f; }|Z;
+
+M m1 = { f: "test_project" };
+
+M m2 = "V";
+
+M m3 = "W";
+
+M m4 = "X";
 
 type Y X;
 
