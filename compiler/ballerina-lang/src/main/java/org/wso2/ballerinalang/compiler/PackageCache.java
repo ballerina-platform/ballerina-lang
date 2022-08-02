@@ -126,9 +126,9 @@ public class PackageCache {
         Map<String, BPackageSymbol> versionMap =
                 packageSymbolMap.computeIfAbsent(packageElements[0], k -> new LinkedHashMap<>());
         if (packageElements.length > 1) {
-            versionMap.put(getMajorVersion(packageElements[1]), packageSymbol);
+            versionMap.putIfAbsent(getMajorVersion(packageElements[1]), packageSymbol);
         } else {
-            versionMap.put(Names.DEFAULT_VERSION.value, packageSymbol);
+            versionMap.putIfAbsent(Names.DEFAULT_VERSION.value, packageSymbol);
         }
     }
 }
