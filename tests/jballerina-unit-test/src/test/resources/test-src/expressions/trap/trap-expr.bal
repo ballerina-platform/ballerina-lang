@@ -1,4 +1,4 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com).
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -37,4 +37,18 @@ function trapInsideFunctionArg() {
 }
 
 function errFn(error? res) {
+}
+
+int loopTrapCounter = 0;
+
+function testTrapInsideForLoop() {
+    foreach int i in 0 ..< 10 {
+        error? unionResult = trap func();
+    }
+    test:assertEquals(loopTrapCounter, 10);
+}
+
+function func() {
+    loopTrapCounter += 1;
+    panic error("err");
 }
