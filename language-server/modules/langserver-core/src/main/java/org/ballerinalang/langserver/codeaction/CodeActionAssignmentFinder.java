@@ -26,6 +26,8 @@ import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.PanicStatementNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -92,6 +94,10 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
 
     @Override
     public void visit(IfElseStatementNode node) {
+        if (node.parent() != null && node.parent().kind() == SyntaxKind.ELSE_BLOCK) {
+            // this is when selected if-else-stmt is inside another if-else-stmt
+            this.isExtractable = false;
+        }
         node.ifBody().accept(this);
         if (node.elseBody().isPresent()) {
             node.elseBody().get().accept(this);
@@ -123,6 +129,21 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
     public void visit(VariableDeclarationNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.typedBindingPattern().bindingPattern());
         symbol.ifPresent(varDeclarationSymbols::add);
+    }
+
+    @Override
+    public void visit(ReturnStatementNode node) {
+        if (node.expression().isPresent()
+                && (node.parent() == null || node.parent().kind() == SyntaxKind.FUNCTION_BODY_BLOCK)) {
+            super.visit(node);
+        } else {
+            this.isExtractable = false;
+        }
+    }
+
+    @Override
+    public void visit(PanicStatementNode node) {
+        this.isExtractable = false;
     }
 
     @Override

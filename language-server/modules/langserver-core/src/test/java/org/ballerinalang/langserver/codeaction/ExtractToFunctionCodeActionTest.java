@@ -71,10 +71,40 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 {"extract_to_function_stmts_if_else_stmt_with_if_only.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_if_and_else.json"},
+                {"extract_to_function_stmts_if_else_stmt_with_else_if.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_nested_if.json"},
 
                 {"extract_to_function_stmts_while_stmt.json"},
                 {"extract_to_function_stmts_while_stmt_with_local_var_referred.json"},
+
+                {"extract_to_function_stmts_return_stmt.json"},
+
+                // todo
+//                {"extract_to_function_stmts_action_stmt.json"},
+
+//                {"extract_to_function_stmts_lock_stmt.json"},
+//
+//                {"extract_to_function_stmts_named_worker_decl_stmt.json"},
+//
+//                {"extract_to_function_stmts_fork_stmt.json"},
+//
+//                {"extract_to_function_stmts_foreach_stmt.json"},
+//
+//                {"extract_to_function_stmts_transaction_stmt.json"},
+//
+//                {"extract_to_function_stmts_rollback_stmt.json"},
+//
+//                {"extract_to_function_stmts_retry_stmt.json"},
+//
+//                {"extract_to_function_stmts_xml_namespace_decl_stmt.json"},
+//
+//                {"extract_to_function_stmts_match_stmt.json"},
+//
+//                {"extract_to_function_stmts_invalid_expression_stmt.json"},
+//
+//                {"extract_to_function_stmts_do_stmt.json"},
+//
+//                {"extract_to_function_stmts_fail_stmt.json"},
         };
     }
 
@@ -88,11 +118,15 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_statements_list_with_assignment_and_compAssignment.json"},
                 {"negative_extract_to_function_statements_list_with_multiple_moduleVar_assignments.json"},
                 {"negative_extract_to_function_statements_list_with_multiple_moduleVar_and_localVar_assignments.json"},
+                {"negative_extract_to_function_stmts_list_with_while_loop_with_return_inside.json"},
+                {"negative_extract_to_function_stmts_list_with_while_loop_with_panic_inside.json"},
 
                 {"negative_extract_to_function_stmts_if_else_stmt_with_varDecl_before_range.json"},
                 {"negative_extract_to_function_stmts_if_else_stmt_with_selecting_only_else_block.json"},
                 {"negative_extract_to_function_stmts_if_else_stmt_without_selectingTheEntireNode.json"},
                 {"negative_extract_to_function_stmts_if_else_stmt_selecting_block_stmt_in_else_block.json"},
+                {"negative_extract_to_function_stmts_if_else_stmt_with_and_selecting_else_if_block.json"},
+                {"negative_extract_to_function_stmts_if_else_stmt_with_else_if_and_selecting_after_if.json"},
 
                 {"negative_extract_to_function_stmts_assignment_stmt_localVar.json"},
                 {"negative_extract_to_function_stmts_com_assignment_stmt_localVar.json"},
@@ -101,6 +135,11 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_stmts_while_statement_continue_statement_inside.json"},
                 {"negative_extract_to_function_stmts_while_statement_varAssigns_without_varDecl.json"},
                 {"negative_extract_to_function_stmts_while_statement_selected_only_block_statement.json"},
+                {"negative_extract_to_function_stmts_while_statement_with_return_inside.json"},
+
+                {"negative_extract_to_function_stmts_panic_statement.json"},
+
+                {"negative_extract_to_function_stmts_return_stmt_without_action_or_expr.json"},
         };
     }
 
