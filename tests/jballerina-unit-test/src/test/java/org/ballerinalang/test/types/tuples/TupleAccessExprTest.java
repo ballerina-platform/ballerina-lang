@@ -221,7 +221,9 @@ public class TupleAccessExprTest {
                 {"testTupleAccessWithCustomReadonlyUnionTypes"},
                 {"testModuleLevelTupleAccessWithCustomType"},
                 {"testTupleAccessWithByteType"},
-                {"testTupleAccessWithConstantType"}
+                {"testTupleAccessWithConstantType"},
+                {"testTupleAccessWithBindingPattern"},
+                {"testTupleAccessWithBindingPattern2"}
         };
     }
 
@@ -229,6 +231,7 @@ public class TupleAccessExprTest {
     public Object[][] dataToTestTupleWithRestTypesAccessFunctionList() {
         return new Object[][]{
                 {"testTupleWithRestTypesAccess"},
+                {"testTupleWithRestTypesAccess2"},
                 {"testCustomTupleWithRestTypesAccess"}
         };
     }

@@ -444,6 +444,48 @@ public function testTupleAccessWithCustomReadonlyUnionTypes() {
     }
 }
 
+function testTupleAccessWithBindingPattern() {
+    int i = 0;
+    int[2] x = [1, 2];
+    [int, int] [a, b] = x;
+    int[][2] y = [x, [1, 2], x, [a, b]];
+
+    foreach [int, int] [c, d] in y {
+        assertEquals(c, 1);
+        assertEquals(d, 2);
+    }
+
+    string[2] x2 = ["string 1", "string 2"];
+    [string, string] [a2, b2] = x2;
+    string[][2] y2 = [x2, ["string 1", "string 2"], x2, [a2, b2]];
+
+    foreach [string, string] [c2, d2] in y2 {
+        assertEquals(c2, "string 1");
+        assertEquals(d2, "string 2");
+    }
+}
+
+function testTupleAccessWithBindingPattern2() {
+    int i = 0;
+    int[2] x = [1, 2];
+    [int, int] [a, b] = x;
+    int[][2] y = [x, [1, 2], x, [a, b]];
+
+    foreach [int, int] c in y {
+        assertEquals(c[i], 1);
+        assertEquals(c[1], 2);
+    }
+
+    string[2] x2 = ["string 1", "string 2"];
+    [string, string] [a2, b2] = x2;
+    string[][2] y2 = [x2, ["string 1", "string 2"], x2, [a2, b2]];
+
+    foreach [string, string] c2 in y2 {
+        assertEquals(c2[i], "string 1");
+        assertEquals(c2[1], "string 2");
+    }
+}
+
 function testTupleWithRestTypesAccess() {
     [int...] t1 = [1, 2, 3, 5];
     [int, string, boolean...] t2 = [1, "a", true, true];
@@ -489,6 +531,26 @@ function testTupleWithRestTypesAccess() {
 
     int|string|boolean x18 = t2[index + 2];
     assertEquals(x18, true);
+}
+
+public function testTupleWithRestTypesAccess2() {
+    int e = 44;
+
+    [any...] tuple1 = [];
+    tuple1[45] = "anydata";
+    tuple1[e] = "anydata";
+
+    [anydata...] tuple2 = [];
+    tuple2[45] = "any";
+    tuple2[e] = "any";
+
+    [int...] tuple3 = [];
+    tuple3[45] = 3;
+    tuple3[e] = 3;
+
+    [string...] tuple4 = [];
+    tuple4[45] = "string";
+    tuple4[e] = "string";
 }
 
 type CustomTupleWithRestTypes1 [int...];
