@@ -1296,27 +1296,26 @@ public class BallerinaLexer extends AbstractLexer {
                     return getSyntaxToken(SyntaxKind.NOT_EQUAL_TOKEN);
                 }
             default:
-                // this is '!is'
-                if (isNotIsToken()) {
-                    return getSyntaxToken(SyntaxKind.NOT_IS_KEYWORD);
-                 }
-                // this is '!'
-                return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
+                return processAndGetExclamationMarkOrNotIs();
         }
     }
 
-    private boolean isNotIsToken() {
-        int offset = reader.getOffset();
-        reader.mark();
-        while (isIdentifierFollowingChar(reader.peek())) {
-            reader.advance();
+    private STToken processAndGetExclamationMarkOrNotIs() {
+        StringBuilder stringBuilder = new StringBuilder();
+        int lookaheadCount = 0;
+        int lookaheadChar = reader.peek(lookaheadCount);
+        while (isIdentifierInitialChar(lookaheadChar)) {
+            stringBuilder.append((char) lookaheadChar);
+            lookaheadCount++;
+            lookaheadChar = reader.peek(lookaheadCount);
         }
 
-        if (reader.getMarkedChars().equals(LexerTerminals.IS) && !(reader.peek() == LexerTerminals.BACKSLASH)) {
-            return true;
+        if (stringBuilder.toString().equals(LexerTerminals.IS) && !(lookaheadChar == LexerTerminals.BACKSLASH)) {
+            reader.advance(lookaheadCount);
+            return getSyntaxToken(SyntaxKind.NOT_IS_KEYWORD);
+        } else {
+            return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
         }
-        reader.reset(offset);
-        return false;
     }
 
     /**

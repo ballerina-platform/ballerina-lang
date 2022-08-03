@@ -25,8 +25,8 @@ import java.util.ResourceBundle;
  */
 public final class ParserConfigurations {
 
-    private ResourceBundle properties = null;
-    private ResourceBundle defaultProperties = null;
+    private ResourceBundle properties;
+    private ResourceBundle defaultProperties;
     private static volatile ParserConfigurations instance = null;
     private static String language = "en";
     private static String country = "LK";
@@ -48,10 +48,11 @@ public final class ParserConfigurations {
         return instance;
     }
 
-    public String getProperty(String key) throws NullPointerException {
+    public String getProperty(String key) {
         if (this.properties.containsKey(key)) {
             return this.properties.getString(key);
         }
+        assert false;
         return this.defaultProperties.getString(key);
     }
 }

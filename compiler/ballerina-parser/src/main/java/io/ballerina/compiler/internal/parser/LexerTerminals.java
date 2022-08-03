@@ -23,7 +23,9 @@ package io.ballerina.compiler.internal.parser;
  * @since 1.2.0
  */
 public class LexerTerminals {
-    private static ParserConfigurations parserConfigurations = ParserConfigurations.getInstance();
+
+    private static final ParserConfigurations parserConfigurations = ParserConfigurations.getInstance();
+    
     // Keywords
     public static final String PUBLIC = parserConfigurations.getProperty("public");
     public static final String PRIVATE = parserConfigurations.getProperty("private");
