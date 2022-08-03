@@ -369,7 +369,7 @@ public class DependencyGraphTests extends BaseTest {
 
         project.currentPackage().getCompilation();
         // verify that the compiler package cache contains package_b but not package_c
-        Assert.assertNotNull(packageCache.getSymbol(packageBPkgID));
+        Assert.assertNull(packageCache.getSymbol(packageBPkgID));
         PackageID packageCPkgID2 = new PackageID(new Name("samjs"), new Name("package_c"), new Name("0.3.0"));
         Assert.assertNull(packageCache.getSymbol(packageCPkgID2));
 
