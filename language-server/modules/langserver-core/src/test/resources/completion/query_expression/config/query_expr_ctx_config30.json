@@ -615,8 +615,8 @@
     {
       "label": "customerMap",
       "kind": "Variable",
-      "detail": "map<string>",
-      "sortText": "CB",
+      "detail": "map\u003cstring\u003e",
+      "sortText": "AD",
       "insertText": "customerMap",
       "insertTextFormat": "Snippet"
     },
@@ -624,7 +624,7 @@
       "label": "customerStr",
       "kind": "Variable",
       "detail": "string",
-      "sortText": "CB",
+      "sortText": "AD",
       "insertText": "customerStr",
       "insertTextFormat": "Snippet"
     },
@@ -640,7 +640,7 @@
       "label": "customerList",
       "kind": "Variable",
       "detail": "Customer[]",
-      "sortText": "A",
+      "sortText": "AA",
       "insertText": "customerList",
       "insertTextFormat": "Snippet"
     },
@@ -648,7 +648,7 @@
       "label": "filteredCustomers",
       "kind": "Variable",
       "detail": "Customer[]",
-      "sortText": "A",
+      "sortText": "AA",
       "insertText": "filteredCustomers",
       "insertTextFormat": "Snippet"
     },
@@ -664,7 +664,13 @@
       "label": "testInClauseSuggestion()",
       "kind": "Function",
       "detail": "()",
-      "sortText": "CC",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "B",
       "filterText": "testInClauseSuggestion",
       "insertText": "testInClauseSuggestion()",
       "insertTextFormat": "Snippet"
@@ -681,7 +687,7 @@
       "label": "customers",
       "kind": "Variable",
       "detail": "Customer[]",
-      "sortText": "A",
+      "sortText": "AA",
       "insertText": "customers",
       "insertTextFormat": "Snippet"
     },
@@ -689,7 +695,13 @@
       "label": "getCustomers()",
       "kind": "Function",
       "detail": "Customer[]",
-      "sortText": "AB",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Customer[]`   \n  \n"
+        }
+      },
+      "sortText": "AA",
       "filterText": "getCustomers",
       "insertText": "getCustomers()",
       "insertTextFormat": "Snippet"
@@ -698,7 +710,7 @@
       "label": "customerStrArray",
       "kind": "Variable",
       "detail": "string[]",
-      "sortText": "CB",
+      "sortText": "AD",
       "insertText": "customerStrArray",
       "insertTextFormat": "Snippet"
     },

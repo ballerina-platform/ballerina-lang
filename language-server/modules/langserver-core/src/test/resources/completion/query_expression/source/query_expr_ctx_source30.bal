@@ -7,7 +7,7 @@ function testInClauseSuggestion() {
     string[] customerStrArray = [];
     int i = 0;
 
-    Customer[] filteredCustomers = from Customer c in \n
+    Customer[] filteredCustomers = from Customer c in 
 }
 
 function getCustomers() returns Customer[] {

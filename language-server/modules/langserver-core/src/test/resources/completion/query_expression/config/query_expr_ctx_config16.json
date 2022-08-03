@@ -97,7 +97,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "AN",
+      "sortText": "AP",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -105,7 +105,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "AN",
+      "sortText": "AP",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -250,7 +250,7 @@
     {
       "label": "TEST_FUTURE_INT",
       "kind": "Variable",
-      "detail": "future<int>",
+      "detail": "future\u003cint\u003e",
       "sortText": "CC",
       "insertText": "TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
