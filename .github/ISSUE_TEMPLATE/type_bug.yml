@@ -53,6 +53,7 @@ body:
         - VSCode
         - CICD
         - DevTools
+        - Website
     validations:
       required: true
   - type: textarea
