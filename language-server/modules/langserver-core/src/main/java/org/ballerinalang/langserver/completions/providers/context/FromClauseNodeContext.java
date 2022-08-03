@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -128,28 +127,22 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
                 TypeDescKind.MAP, TypeDescKind.TABLE,
                 TypeDescKind.STREAM, TypeDescKind.XML);
 
+        Optional<TypeSymbol> expectedTypeSymbol = node.apply(new ContextTypeResolver(context));
         completionItems.forEach(lsCItem -> {
             String sortText = SortingUtil.genSortText(3) +
                     SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
-            Optional<TypeSymbol> expectedTypeSymbol = node.apply(new ContextTypeResolver(context));
             if (context.getCursorPositionInTree() > node.inKeyword().textRange().endOffset()
                     && expectedTypeSymbol.isPresent()
                     && lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
                 Optional<Symbol> optionalSymbol = ((SymbolCompletionItem) lsCItem).getSymbol();
                 if (optionalSymbol.isPresent()) {
-                    Optional<TypeSymbol> lsCItemTypeSymbol = SymbolUtil.getTypeDescriptor(optionalSymbol.get());
-                    if (lsCItemTypeSymbol.isPresent()
-                            && lsCItemTypeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
-                        if (expectedTypeSymbol.get().subtypeOf(lsCItemTypeSymbol.get())) {
-                            sortText = SortingUtil.genSortText(1);
-                        }
-                    }
-                    if (lsCItemTypeSymbol.isPresent()
-                            && lsCItemTypeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
-                        Optional<TypeSymbol> returnTypeSymbol = ((FunctionTypeSymbol) lsCItemTypeSymbol.get())
-                                .returnTypeDescriptor();
-                        if (returnTypeSymbol.isPresent() && returnTypeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
-                            if (expectedTypeSymbol.get().subtypeOf(returnTypeSymbol.get())) {
+                    if (SortingUtil.isCompletionItemAssignable(lsCItem, expectedTypeSymbol.get())) {
+                        Optional<TypeSymbol> lsCItemTypeSymbol = SymbolUtil.getTypeDescriptor(optionalSymbol.get());
+                        if (lsCItemTypeSymbol.isPresent()) {
+                            if (lsCItemTypeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
+                                sortText = SortingUtil.genSortText(1);
+                            }
+                            if (lsCItemTypeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
                                 sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(2);
                             }
                         }
