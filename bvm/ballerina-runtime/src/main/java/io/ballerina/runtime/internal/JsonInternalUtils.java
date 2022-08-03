@@ -74,7 +74,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class JsonUtils {
+public class JsonInternalUtils {
 
     public static final String OBJECT = "object";
     public static final String ARRAY = "array";
@@ -879,6 +879,6 @@ public class JsonUtils {
         }
     }
 
-    private JsonUtils() {
+    private JsonInternalUtils() {
     }
 }

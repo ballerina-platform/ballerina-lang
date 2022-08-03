@@ -21,12 +21,8 @@ package org.ballerinalang.langlib.internal;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Create a record value from the provided value map.
@@ -37,15 +33,15 @@ public class CreateRecordValue {
 
     public static Object createRecordFromMap(BMap<?, ?> value, BTypedesc t) {
         Type describingType = t.getDescribingType();
-        BMap<BString, BObject> valMap = (BMap<BString, BObject>) value;
-        Map<String, Object> recVals = new HashMap<>();
-        valMap.entrySet().stream().forEach(entry -> recVals.put(entry.getKey().getValue(), entry.getValue()));
+        BMap<BString, Object> valMap = (BMap<BString, Object>) value;
 
         if (describingType.isReadOnly()) {
             return ValueCreator.createReadonlyRecordValue(describingType.getPackage(),
-                    describingType.getName(), recVals);
+                    describingType.getName(), valMap);
         } else {
-            return ValueCreator.createRecordValue(describingType.getPackage(), describingType.getName(), recVals);
+            return ValueCreator.createRecordValue(describingType.getPackage(), describingType.getName(), valMap);
         }
     }
+
+    private CreateRecordValue() {}
 }
