@@ -6,144 +6,33 @@
   "source": "action_node_context/source/client_resource_access_action_source14.bal",
   "items": [
     {
-      "label": "/path1",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "path1|get",
-      "insertText": "/path1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 11
-            },
-            "end": {
-              "line": 38,
-              "character": 12
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "/path1/[string id1]",
+      "label": "/.post(string a, int b)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` a  \n- `int` b"
         }
       },
       "sortText": "C",
-      "filterText": "path1|get",
-      "insertText": "/path1/[${1:\"\"}]",
+      "filterText": "post",
+      "insertText": "/.post(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
               "line": 38,
-              "character": 11
+              "character": 10
             },
             "end": {
               "line": 38,
-              "character": 12
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "/path1/[string id1]/path2",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "path1|path2|get",
-      "insertText": "/path1/[${1:\"\"}]/path2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
               "character": 11
-            },
-            "end": {
-              "line": 38,
-              "character": 12
             }
           },
           "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "/path1/[string id1]/path2/[string... ids].post(string b, string... ids2)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
-        }
-      },
-      "sortText": "C",
-      "filterText": "path1|path2|post",
-      "insertText": "/path1/[${1:\"\"}]/path2/[${2:\"\"}].post(${3})",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 11
-            },
-            "end": {
-              "line": 38,
-              "character": 12
-            }
-          },
-          "newText": ""
-        }
-      ],
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "/path1/[string id1]/path3.post(string b, string... ids2)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string` b  \n- `string[]` ids2"
-        }
-      },
-      "sortText": "C",
-      "filterText": "path1|path3|post",
-      "insertText": "/path1/[${1:\"\"}]/path3.post(${2})",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
+        },
         {
           "range": {
             "start": {
