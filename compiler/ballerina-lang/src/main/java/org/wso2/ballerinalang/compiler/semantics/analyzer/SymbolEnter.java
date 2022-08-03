@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -3091,7 +3092,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             restConstraintType = BUnionType.create(null, constraintTypes);
         }
-        return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
+        return restVarSymbolMapType.tag == TypeTags.NONE ?
+                restConstraintType : this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
     BRecordType createRecordTypeForRestField(Location pos, SymbolEnv env, BRecordType recordType,
@@ -3106,7 +3108,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }};
 
-        setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
+        if (recordType.sealed && (restConstraint.tag == TypeTags.NONE)) {
+            setRestRecordFields(pos, env, unMappedFields, variableList, null, recordVarType);
+        } else {
+            setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
+        }
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordVarType,
                 env.enclPkg.packageID, symTable, pos);
@@ -3161,7 +3167,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         targetRestRecType.fields = fields;
-        targetRestRecType.restFieldType = restConstraint;
+        if (restConstraint == null) {
+            targetRestRecType.restFieldType = new BNoType(TypeTags.NONE);
+            targetRestRecType.sealed = true;
+        } else {
+            targetRestRecType.restFieldType = restConstraint;
+        }
     }
 
     private long setSymbolAsOptional(long existingFlags) {
@@ -4782,8 +4793,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             restPathParamSym.kind = SymbolKind.PATH_REST_PARAMETER;
         }
 
+        symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
         return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                                     accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+                                     accessor, pathParamSymbols, restPathParamSym, 
+                (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
@@ -4808,9 +4821,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         funcNode.symbol.flags |= Flags.RESOURCE;
+        funcNode.symbol.flags |= Flags.PUBLIC;
 
-        if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
-            this.dlog.error(funcNode.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
+        if (!isNetworkQualified(objectSymbol)) {
+            this.dlog.error(funcNode.pos, 
+                    DiagnosticErrorCode.RESOURCE_METHODS_ARE_ONLY_ALLOWED_IN_SERVICE_OR_CLIENT_OBJECTS);
         }
     }
 
@@ -5098,7 +5113,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             attachedFunc = new BResourceFunction(referencedFunc.funcName,
                     funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
                     resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
-                    referencedFunc.pos);
+                    resourceFunction.resourcePathType, referencedFunc.pos);
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);

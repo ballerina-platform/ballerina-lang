@@ -87,6 +87,149 @@ function testFunction3(string value1, string value2) returns error? {
    test:assertEquals("E", value1, msg = "The code fragment is not correct.");
 }
 
+string tally = "";  // used to track which function has been executed
+
+function beforeFunction() {
+    tally += "b";
+}
+
+function afterFunction() {
+    tally += "a";
+}
+
+@test:Config {
+    dataProvider:  dataGen10,
+     before:  beforeFunction,
+    after:  afterFunction
+}
+function testDividingValues(string fValue, string sValue, string result) returns error? {
+    tally += "f";
+    
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
+
+    test:assertEquals(value1/value2, result1, msg = "Incorrect Division");
+}
+
+@test:Config {
+    dependsOn: [testDividingValues]
+}
+function testExecutionOfBeforeAfter() {
+    test:assertEquals(tally, "bfabfabfabfabfa");
+}
+
+function beforeFailsFunction() {
+    tally += "b";
+
+    // Condition for a failure
+    if (tally == "bfabfab") {
+        // Something happens during the 3rd iteration
+        int a = 9/0;
+    }
+}
+
+@test:Config {
+    dataProvider:  dataGen10,
+    before:  beforeFailsFunction,
+    after:  afterFunction
+}
+function testDividingValuesWithBeforeFailing(string fValue, string sValue, string result) returns error? {
+    tally += "f";
+    
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
+
+    test:assertEquals(value1/value2, result1, msg = "Incorrect Division");
+}
+
+// Depends on testDividingValuesWithBeforeFailing
+// However since it fails in one instance, dependsOn will not work
+@test:Config {}
+function testExecutionOfBeforeFailing() {
+    test:assertEquals(tally, "bfabfabbfabfa");
+}
+
+function afterFailsFunction() {
+    tally += "a";
+
+    // Condition for a failure
+    if (tally == "bfabfabfa") {
+        // Something happens during the 4th iteration
+        int a = 9/0;
+    }
+}
+
+@test:Config {
+    dataProvider:  dataGen10,
+    before:  beforeFunction,
+    after:  afterFailsFunction
+}
+function testDividingValuesWithAfterFailing(string fValue, string sValue, string result) returns error? {
+    tally += "f";
+    
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
+
+    test:assertEquals(value1/value2, result1, msg = "Incorrect Division");
+}
+
+// Depends on testDividingValuesWithAfterFailing
+// However since it fails in one instance, dependsOn will not work
+@test:Config {}
+function testExecutionOfAfterFailing() {
+    test:assertEquals(tally, "bfabfabfabfabfa");
+}
+
+@test:Config {
+    dataProvider:  dataGen11,
+    before:  beforeFunction,
+    after:  afterFunction
+}
+function testDividingValuesNegative(string fValue, string sValue, string result) returns error? {
+    tally += "f";
+    
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
+
+    test:assertEquals(value1/value2, result1, msg = "Incorrect Division");
+}
+
+@test:Config {
+    dependsOn: [testDividingValuesNegative]
+}
+function testExecutionOfDataValueFailing() {
+    test:assertEquals(tally, "bfabfabfabfabfa");
+}
+
+@test:Config {
+    dataProvider:  dataGen12
+}
+function errorData(error input, string expected) {
+    final string actual = getFunction(input);
+    test:assertEquals(actual, expected);
+}
+
+@test:Config {
+    dataProvider: dataGen13
+}
+function mapOfTupleOfFunctionTest(function (int x) returns boolean func, int value) {
+    test:assertTrue(func(value));
+}
+
+@test:Config {
+    dataProvider: dataGen14
+}
+function arrayOfArrayOfFunctionTest(function (int x) returns boolean func1, function (int x) returns boolean func2) {
+    int value = 2;
+    test:assertTrue(func1(value) || func2(value));
+}
+
+// Data Providers
+
 function dataGen() returns map<[int, int, int]>|error {
     map<[int, int, int]> dataSet = {
         "Case1": [1, 2, 4],
@@ -159,6 +302,49 @@ function dataGen9() returns map<CodeFragment>|error {
     return tests;
 }
 
+function dataGen10() returns (string[][]) {
+    return [["10", "2", "5"], ["10", "1", "10"], ["10", "2", "5"], ["10", "1", "10"], ["10", "2", "5"]];
+}
+
+function dataGen11() returns (string[][]) {
+    return [["10", "2", "5"], ["10", "1", "10"], ["10", "0", "5"], ["10", "1", "10"], ["10", "2", "5"]];
+}
+
+function dataGen12() returns map<[error, string]> {
+    error e = error("foo");
+    
+    return {
+        "foo": [e, "foo"]
+    };
+}
+
+function dataGen13() returns map<[function, int]> {
+    map<[function, int]> dataSet = {
+        "1": [isOdd, 1],
+        "2": [isEven, 2],
+        "3": [isOdd, 3],
+        "4": [isEven, 4]
+    };
+    return dataSet;
+}
+
+function dataGen14() returns function[][] {
+    function[][] dataSet = [[isOdd, isEven], [isEven, isOdd], [isEven, isEven]];
+    return dataSet;
+}
+
+function isEven(int x) returns boolean {
+    return x % 2 == 0;
+}
+
+function isOdd(int x) returns boolean {
+    return x % 2 != 0;
+}
+
+public function getFunction(error e) returns (string) {
+    return e.message();
+}
+
 type Feed record {
     int responseCode;
     string message;
@@ -176,4 +362,3 @@ function getStateResponseDataProvider() returns Feed[][] {
             [{responseCode:20, message:"Hello World!!!"}]
      ];
 }
-

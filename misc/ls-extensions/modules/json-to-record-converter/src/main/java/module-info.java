@@ -7,8 +7,11 @@ module io.ballerina.LSExtensions.jsonToRecordConverter {
 
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
+    requires com.google.gson;
     requires io.ballerina.formatter.core;
+    requires io.ballerina.jsonmapper;
     requires io.ballerina.lang;
+    requires io.ballerina.language.server.commons;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires io.swagger.v3.oas.models;
@@ -16,7 +19,6 @@ module io.ballerina.LSExtensions.jsonToRecordConverter {
     requires org.eclipse.lsp4j.jsonrpc;
     requires swagger.parser.core;
     requires swagger.parser.v3;
-    requires io.ballerina.language.server.commons;
 
     exports io.ballerina.converters;
     exports io.ballerina.converters.util;
