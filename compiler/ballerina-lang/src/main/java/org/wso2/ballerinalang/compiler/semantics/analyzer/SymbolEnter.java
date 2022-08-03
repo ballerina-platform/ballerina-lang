@@ -1918,7 +1918,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public boolean isErrorIntersection(BType definedType) {
         BType type = Types.getReferredType(definedType);
-        if (type.tag == TypeTags.INTERSECTION) {
+        if (type.tag == TypeTags.INTERSECTION && ((BIntersectionType) type).effectiveType != null) {
             BIntersectionType intersectionType = (BIntersectionType) type;
             return intersectionType.effectiveType.tag == TypeTags.ERROR;
         }
@@ -2349,7 +2349,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         env.scope.define(constantSymbol.name, constantSymbol);
     }
 
-    private BConstantSymbol getConstantSymbol(BLangConstant constant) {
+    public BConstantSymbol getConstantSymbol(BLangConstant constant) {
         // Create a new constant symbol.
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;

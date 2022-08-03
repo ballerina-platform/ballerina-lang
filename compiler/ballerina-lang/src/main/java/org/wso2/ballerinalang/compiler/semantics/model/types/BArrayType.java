@@ -44,6 +44,8 @@ public class BArrayType extends BType implements ArrayType {
     private BIntersectionType intersectionType = null;
     private boolean resolvingToString = false;
 
+    public BRecordType mutableType;
+
     public BArrayType(BType elementType) {
         super(TypeTags.ARRAY, null);
         this.eType = elementType;

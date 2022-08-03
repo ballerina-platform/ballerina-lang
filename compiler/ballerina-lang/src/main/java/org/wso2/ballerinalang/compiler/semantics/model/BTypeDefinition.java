@@ -18,20 +18,32 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 public class BTypeDefinition {
     public BType type;
+    private BIntersectionType immutableType;
+    public boolean hasImmutableUsed = false;
 
     public BTypeDefinition(BType type) {
         this.type = type;
     }
 
-    public BType getType() {
+    public BType getMutableType() {
         return type;
     }
 
-    public void setType(BType type) {
+    public void setMutableType(BType type) {
         this.type = type;
+    }
+
+    public BIntersectionType getImmutableType() {
+        hasImmutableUsed = true;
+        return immutableType;
+    }
+
+    public void setImmutableType(BIntersectionType type) {
+        this.immutableType = type;
     }
 }
