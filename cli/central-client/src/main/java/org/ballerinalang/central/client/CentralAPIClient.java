@@ -861,6 +861,7 @@ public class CentralAPIClient {
     protected OkHttpClient getClient() {
         return new OkHttpClient.Builder()
                 .followRedirects(false)
+                .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
                 .build();
     }
