@@ -62,94 +62,73 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "LOCAL_VAR_DECL",
+              "kind": "CLIENT_DECLARATION",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
+                  "kind": "CLIENT_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
-                  "kind": "TYPED_BINDING_PATTERN",
+                  "kind": "STRING_LITERAL",
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
-                      "children": [
+                      "diagnostics": [
+                        "ERROR_MISSING_STRING_LITERAL"
+                      ],
+                      "leadingMinutiae": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "hasDiagnostics": true,
-                          "value": "constRef",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            },
-                            {
-                              "kind": "INVALID_NODE_MINUTIAE",
-                              "invalidNode": {
-                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
+                            "children": [
+                              {
+                                "kind": "IDENTIFIER_TOKEN",
                                 "hasDiagnostics": true,
-                                "children": [
-                                  {
-                                    "kind": "CLIENT_KEYWORD",
-                                    "hasDiagnostics": true,
-                                    "diagnostics": [
-                                      "ERROR_QUALIFIER_NOT_ALLOWED"
-                                    ]
-                                  }
-                                ]
+                                "diagnostics": [
+                                  "ERROR_INVALID_TOKEN"
+                                ],
+                                "value": "constRef"
                               }
-                            },
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "hasDiagnostics": true,
-                      "children": [
+                            ]
+                          }
+                        },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "hasDiagnostics": true,
-                          "value": "myapi1",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "INVALID_NODE_MINUTIAE",
-                              "invalidNode": {
-                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                "hasDiagnostics": true,
-                                "children": [
-                                  {
-                                    "kind": "AS_KEYWORD",
-                                    "hasDiagnostics": true,
-                                    "diagnostics": [
-                                      "ERROR_INVALID_TOKEN"
-                                    ]
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }
                   ]
+                },
+                {
+                  "kind": "AS_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "myapi1"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",

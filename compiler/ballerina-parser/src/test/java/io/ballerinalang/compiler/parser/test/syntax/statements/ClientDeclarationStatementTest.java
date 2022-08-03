@@ -60,7 +60,6 @@ public class ClientDeclarationStatementTest extends AbstractStatementTest {
         testFile("client-decl-stmt/client_decl_stmt_source_06.bal", "client-decl-stmt/client_decl_stmt_assert_06.json");
     }
 
-    // TODO: 2022-08-03 different recovery
     @Test
     public void testIdentifierAsUri() {
         testFile("client-decl-stmt/client_decl_stmt_source_07.bal", "client-decl-stmt/client_decl_stmt_assert_07.json");
@@ -71,7 +70,6 @@ public class ClientDeclarationStatementTest extends AbstractStatementTest {
         testFile("client-decl-stmt/client_decl_stmt_source_08.bal", "client-decl-stmt/client_decl_stmt_assert_08.json");
     }
 
-    // TODO: 2022-08-03 different recovery
     @Test
     public void testOnlyClientKeyword() {
         testFile("client-decl-stmt/client_decl_stmt_source_09.bal", "client-decl-stmt/client_decl_stmt_assert_09.json");

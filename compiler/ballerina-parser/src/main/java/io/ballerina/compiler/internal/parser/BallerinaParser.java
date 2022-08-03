@@ -4411,12 +4411,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseStatement(STNode annots, List<STNode> qualifiers) {
         parseTypeDescQualifiers(qualifiers);
         STToken nextToken = peek();
-        if (isPredeclaredIdentifier(nextToken.kind)) {
-            return parseStmtStartsWithTypeOrExpr(getAnnotations(annots), qualifiers);
-        }
 
         if (isPossibleClientDecl(qualifiers)) {
             return parseClientDeclOrVarDeclStatement(annots, qualifiers);
+        }
+
+        if (isPredeclaredIdentifier(nextToken.kind)) {
+            return parseStmtStartsWithTypeOrExpr(getAnnotations(annots), qualifiers);
         }
         
         switch (nextToken.kind) {
