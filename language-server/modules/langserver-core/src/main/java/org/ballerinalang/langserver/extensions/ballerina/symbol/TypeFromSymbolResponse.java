@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,19 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
-import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
 /**
- * Represents a document context.
- *
- * @since 2.0.0
+ * Represents a response which consist of type info of a given symbol.
  */
-public enum SymbolContext implements LSOperation {
-    SC_TYPE_API("ballerinaSymbol/type"),
-    SC_GET_TYPE_FROM_EXPRESSION_API("ballerinaSymbol/getTypeFromExpression"),
-    SC_GET_SYMBOL_API("ballerinaSymbol/getSymbol"),
-    SC_GET_TYPE_FROM_SYMBOL_API("ballerinaSymbol/getTypeFromSymbol");
-    private final String name;
+public class TypeFromSymbolResponse {
+    private Type type;
 
-    SymbolContext(String name) {
-        this.name = name;
+    public Type getType() {
+        return type;
     }
 
-    @Override
-    public String getName() {
-        return name;
+    public void setType(Type type) {
+        this.type = type;
     }
 }
