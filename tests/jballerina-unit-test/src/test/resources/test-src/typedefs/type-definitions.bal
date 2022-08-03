@@ -316,6 +316,28 @@ function testBinaryExprAssignments() {
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
+public type X1 ["x"];
+public type X2 ["x", 2, ()];
+
+function testTupleWithSingletonTypes() {
+    X1 a = returnTupleWithSingletonType();
+    X2 b = returnTupleWithSingletonType2();
+
+    X1 c = ["x"];
+    X2 d = ["x", 2, ()];
+
+    assertEquality(a, c);
+    assertEquality(b, d);
+}
+
+function returnTupleWithSingletonType() returns X1 {
+    return ["x"];
+}
+
+function returnTupleWithSingletonType2() returns X2 {
+    return ["x", 2, ()];
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

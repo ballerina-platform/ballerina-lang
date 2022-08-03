@@ -2958,7 +2958,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     for (BType type : ((BUnionType) patternType).getMemberTypes()) {
                         assignTypesToMemberPatterns(listMatchPattern, type, data);
                     }
-                    listMatchPattern.setBType(patternType);
                     return;
                 }
                 if (patternType.tag == TypeTags.ARRAY) {
@@ -2991,7 +2990,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 List<BType> types = patternTupleType.tupleTypes;
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
                 List<BType> memberTypes = new ArrayList<>();
-                for (int i = 0; i < matchPatterns.size(); i++) {
+                int memberTypesLength = Math.min(matchPatterns.size(), types.size());
+                for (int i = 0; i < memberTypesLength; i++) {
                     assignTypesToMemberPatterns(matchPatterns.get(i), types.get(i), data);
                     memberTypes.add(matchPatterns.get(i).getBType());
                 }
