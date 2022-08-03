@@ -62,86 +62,52 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "LOCAL_VAR_DECL",
+              "kind": "CLIENT_DECLARATION",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
+                  "kind": "CLIENT_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 },
                 {
-                  "kind": "TYPED_BINDING_PATTERN",
+                  "kind": "STRING_LITERAL",
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "OBJECT_TYPE_DESC",
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "LIST",
-                          "children": [
-                            {
-                              "kind": "CLIENT_KEYWORD",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "OBJECT_KEYWORD",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_OBJECT_KEYWORD"
-                          ]
-                        },
-                        {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
-                          ]
-                        },
-                        {
-                          "kind": "LIST",
-                          "children": []
-                        },
-                        {
-                          "kind": "CLOSE_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
-                          ]
-                        }
+                      "diagnostics": [
+                        "ERROR_MISSING_STRING_LITERAL"
                       ]
                     }
+                  ]
+                },
+                {
+                  "kind": "AS_KEYWORD",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_AS_KEYWORD"
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
                   ]
                 },
                 {
@@ -158,10 +124,11 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
           ]
         }
       ]

@@ -2059,7 +2059,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:
                 return ParserRuleContext.ACTION_END;
             case CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL:
-                return ParserRuleContext.OBJECT_KEYWORD_AFTER_CLIENT_KEYWORD;
+                return ParserRuleContext.STRING_LITERAL_TOKEN_AFTER_CLIENT_KEYWORD;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
         }
