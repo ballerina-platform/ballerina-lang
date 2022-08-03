@@ -327,6 +327,11 @@ public class Types {
     }
 
     private boolean isSameOrderedType(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        source = getReferredType(source);
+        target = getReferredType(target);
+        if (source.tag == TypeTags.INTERSECTION) {
+            source = getEffectiveTypeForIntersection(source);
+        }
         if (isNil(source) || isNil(target)) {
             // If type T is ordered, then type T? Is also ordered.
             // Both source and target are ordered types since they were checked in previous stage.
@@ -3262,13 +3267,10 @@ public class Types {
 
         @Override
         public Boolean visit(BType target, BType source) {
-            BType sourceType = getReferredType(source);
-            BType targetType = getReferredType(target);
-            int sourceTag = sourceType.tag;
-            int targetTag = targetType.tag;
-            if (sourceTag == TypeTags.INTERSECTION || targetTag == TypeTags.INTERSECTION) {
-                sourceTag = getEffectiveTypeForIntersection(sourceType).tag;
-                targetTag = getEffectiveTypeForIntersection(targetType).tag;
+            int sourceTag = source.tag;
+            int targetTag = target.tag;
+            if (targetTag == TypeTags.INTERSECTION) {
+                targetTag = getEffectiveTypeForIntersection(target).tag;
             }
             if (isSimpleBasicType(sourceTag) && isSimpleBasicType(targetTag)) {
                 // If type T is ordered, then type T? Is also ordered.
@@ -3276,17 +3278,13 @@ public class Types {
                         isIntOrStringType(sourceTag, targetTag);
             }
             if (sourceTag == TypeTags.FINITE) {
-                return checkValueSpaceHasSameType(((BFiniteType) sourceType), targetType);
+                return checkValueSpaceHasSameType(((BFiniteType) source), target);
             }
-            return isSameOrderedType(targetType, sourceType, this.unresolvedTypes);
+            return isSameOrderedType(target, source, this.unresolvedTypes);
         }
 
         @Override
         public Boolean visit(BArrayType target, BType source) {
-            source = getReferredType(source);
-            if (source.tag == TypeTags.INTERSECTION) {
-                source = getEffectiveTypeForIntersection(source);
-            }
             if (source.tag != TypeTags.ARRAY) {
                 if (source.tag == TypeTags.TUPLE || source.tag == TypeTags.UNION) {
                     return isSameOrderedType(target, source);
@@ -3298,10 +3296,6 @@ public class Types {
 
         @Override
         public Boolean visit(BTupleType target, BType source) {
-            source = getReferredType(source);
-            if (source.tag == TypeTags.INTERSECTION) {
-                source = getEffectiveTypeForIntersection(source);
-            }
             if (source.tag == TypeTags.UNION) {
                 return isSameOrderedType(target, source);
             }
