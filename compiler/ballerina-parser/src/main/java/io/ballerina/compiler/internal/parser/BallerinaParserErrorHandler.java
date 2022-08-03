@@ -4253,7 +4253,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_DESCRIPTOR_IN_NEW_EXPR:
             case BRACED_EXPRESSION:
             case CLIENT_RESOURCE_ACCESS_ACTION:
-            case CLIENT_DECLARATION: // todo verify
+            case CLIENT_DECLARATION:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:

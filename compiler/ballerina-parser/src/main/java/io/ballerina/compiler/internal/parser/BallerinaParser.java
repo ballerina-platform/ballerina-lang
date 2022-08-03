@@ -2246,12 +2246,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return qualifiers.get(qualifiers.size() - 1).kind == SyntaxKind.CLIENT_KEYWORD;
-
-//        if (qualifiers.get(qualifiers.size() - 1).kind != SyntaxKind.CLIENT_KEYWORD) {
-//            return false;
-//        }
-//
-//        return peek(1).kind == SyntaxKind.STRING_LITERAL_TOKEN;
     }
 
     private STNode parseParameterRhs() {
