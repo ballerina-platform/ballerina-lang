@@ -381,7 +381,6 @@ public class SyntaxErrors {
             case VERSION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
             case AS_KEYWORD:
-            case CLIENT_DECL_PREFIX_DECL:
                 return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
             case ON_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;

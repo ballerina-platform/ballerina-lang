@@ -10043,16 +10043,8 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseClientDeclWithAlias(STNode clientKeyword, STNode clientDeclUri, boolean isModuleVar) {
 
-        STNode asKeyword;
-        STNode prefix;
-
-        if (peek().kind == SyntaxKind.AS_KEYWORD) {
-            asKeyword = parseAsKeyword();
-            prefix = parseClientDeclPrefix();
-        } else {
-            recover(peek(), ParserRuleContext.CLIENT_DECL_PREFIX_DECL);
-            return parseClientDeclWithAlias(clientKeyword, clientDeclUri, isModuleVar);
-        }
+        STNode asKeyword = parseAsKeyword();
+        STNode prefix = parseClientDeclPrefix();
 
         STNode semicolon = parseSemicolon();
         if (isModuleVar) {
