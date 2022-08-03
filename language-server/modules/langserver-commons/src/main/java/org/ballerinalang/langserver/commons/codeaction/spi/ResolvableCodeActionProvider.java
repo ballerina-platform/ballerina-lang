@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.eclipse.lsp4j.CodeAction;
 /**
  * Represents the SPI interface for the Ballerina Resolvable Code Action Provider.
  *
- * @since 2201.2.0
+ * @since 2201.2.1
  */
 public interface ResolvableCodeActionProvider extends LSCodeActionProvider {
 
