@@ -2342,6 +2342,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangNode xmlTemplateLiteral = createXmlTemplateLiteral(expressionNode);
                 xmlTemplateLiteral.pos = getPosition(expressionNode);
                 return xmlTemplateLiteral;
+            // This will be handled with the rest of the implementation.
+            case REGEX_TEMPLATE_EXPRESSION:
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case RAW_TEMPLATE_EXPRESSION:
