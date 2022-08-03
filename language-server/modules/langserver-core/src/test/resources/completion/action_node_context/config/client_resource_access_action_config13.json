@@ -6,21 +6,6 @@
   "source": "action_node_context/source/client_resource_access_action_source13.bal",
   "items": [
     {
-      "label": "remote1()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "remote1",
-      "insertText": "remote1()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "/path1",
       "kind": "Function",
       "detail": "string",
