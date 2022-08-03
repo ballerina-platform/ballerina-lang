@@ -240,11 +240,16 @@ public class RunTestsTask implements Task {
                 String functionToMockClassName;
                 // Find the first delimiter and compare the indexes
                 // The first index should always be a delimiter. Which ever one that is denotes the mocking type
-                if ((key.indexOf(MOCK_LEGACY_DELIMITER) == -1) ||
-                        (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER))) {
+                if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                } else {
+                } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                } else {
+                    if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                    } else {
+                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                    }
                 }
                 mockClassNames.add(functionToMockClassName);
             }

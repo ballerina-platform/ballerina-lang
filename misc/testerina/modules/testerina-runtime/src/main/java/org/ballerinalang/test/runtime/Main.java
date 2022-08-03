@@ -208,13 +208,20 @@ public class Main {
             String key = entry.getKey();
             String functionToMockClassName;
             String functionToMock;
-            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1 ||
-                    key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
                 functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
                 functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER));
-            } else {
+            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
                 functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
                 functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER));
+            } else {
+                if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                    functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER));
+                } else {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                    functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER));
+                }
             }
             functionToMock = functionToMock.replaceAll("\\\\", "");
             classVsMockFunctionsMap.computeIfAbsent(functionToMockClassName,

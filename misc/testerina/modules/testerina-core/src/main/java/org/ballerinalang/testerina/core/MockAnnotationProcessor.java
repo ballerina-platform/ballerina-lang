@@ -71,6 +71,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String FUNCTION = "functionName";
     private static final String MOCK_FN_DELIMITER = "#";
     private static final String MOCK_LEGACY_DELIMITER = "~";
+    private static final String MODULE_DELIMITER = "§";
 
     private CompilerContext compilerContext;
     private DiagnosticLog diagnosticLog;
@@ -135,8 +136,9 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                             // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
                             String className = getQualifiedClassName(bLangTestablePackage,
                                     functionToMockID.toString(), annotationValues[1]);
-                            registry.addMockFunctionsSourceMap(className + MOCK_FN_DELIMITER +
-                                            annotationValues[1], mockFnObjectName);
+                            registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
+                                    + MODULE_DELIMITER + className + MOCK_FN_DELIMITER + annotationValues[1],
+                                    mockFnObjectName);
                         }
                     }
                 } else {
@@ -234,8 +236,8 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                         String className = getQualifiedClassName(bLangTestablePackage,
                                 functionToMockID.toString(), vals[1]);
                         vals[1] = vals[1].replaceAll("\\\\", "");
-                        registry.addMockFunctionsSourceMap(className + MOCK_LEGACY_DELIMITER + vals[1],
-                                functionName);
+                        registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
+                                        + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
                     }
                 }
             }
