@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 9,
+    "line": 11,
     "character": 27
   },
   "source": "query_expression/source/query_expr_ctx_limit_clause_source4.bal",
@@ -673,6 +673,50 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "funcString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "funcString",
+      "insertText": "funcString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "intVar",
+      "kind": "Variable",
+      "detail": "0",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "AB",
+      "insertText": "intVar",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "funcInt()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "funcInt",
+      "insertText": "funcInt()",
       "insertTextFormat": "Snippet"
     }
   ]

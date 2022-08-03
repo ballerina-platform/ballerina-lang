@@ -1,5 +1,7 @@
 import ballerina/module1;
 
+const intVar = 0;
+
 function findToptenCountriesByAthletes() returns error? {
     int zlimit = 10;
     string alimit = "";
@@ -13,4 +15,10 @@ function findToptenCountriesByAthletes() returns error? {
 
 function findNumOfAthletesBycountry() returns map<int>|error {
     return {};
+}
+function funcInt() returns int {
+    return 0;
+}
+function funcString() returns string {
+    return "";
 }
