@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
@@ -10,7 +25,6 @@ import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -37,7 +51,7 @@ public class ResourcePathCompletionUtil {
     /**
      * Creates and returns a completion item.
      *
-     * @param functionSymbol BSresourceMethodSymbol
+     * @param functionSymbol resourceMethodSymbol
      * @param context        LS context
      * @return {@link CompletionItem}
      */
@@ -77,23 +91,39 @@ public class ResourcePathCompletionUtil {
         item.setInsertText(functionSignature.getLeft());
 
         //Add additional text edits
-        checkAndSetAdditionalTextEdits(item, context.getNodeAtCursor(), context);
+        checkAndSetAdditionalTextEdits(item, context);
         return item;
     }
 
+    /**
+     * Check if the cursor is positioned with in the method call context of client resource access action node.
+     *
+     * @param node    client resource access action node.
+     * @param context completion context
+     * @return boolean
+     */
     public static boolean isInMethodCallContext(ClientResourceAccessActionNode node,
                                                 BallerinaCompletionContext context) {
         return node.dotToken().isPresent()
                 && node.dotToken().get().textRange().endOffset() <= context.getCursorPositionInTree();
     }
 
-    private static void checkAndSetAdditionalTextEdits(CompletionItem item, NonTerminalNode nodeAtCursor,
+    private static void checkAndSetAdditionalTextEdits(CompletionItem item,
                                                        BallerinaCompletionContext context) {
         //Check and replace preceding slash token and dot
         Token token = null;
         Optional<ClientResourceAccessActionNode> node = findClientResourceAccessActionNode(context);
         if (node.isPresent()) {
             if (isInMethodCallContext(node.get(), context)) {
+                if (node.get().resourceAccessPath().isEmpty()
+                        && !node.get().slashToken().isMissing()
+                        && node.get().dotToken().isPresent()) {
+                    //Covers /.<cursor>
+                    item.setAdditionalTextEdits(
+                            List.of(new TextEdit(PositionUtil.toRange(node.get().slashToken().lineRange()), ""),
+                                    new TextEdit(PositionUtil.toRange(node.get().dotToken().get().lineRange()), "")));
+                    return;
+                }
                 //dot token's presence is ensured at this point.
                 token = node.get().dotToken().get();
             } else {
@@ -108,7 +138,12 @@ public class ResourcePathCompletionUtil {
                 }
             }
         }
-        if (token != null) {
+        //Avoid replacing if there are any path parameters specified by the
+        // user after the token.
+        Token finalToken = token;
+        if (finalToken != null && node.get().resourceAccessPath().stream()
+                .noneMatch(child -> child.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT
+                        && finalToken.textRange().startOffset() <= child.textRange().startOffset())) {
             TextEdit edit = new TextEdit();
             edit.setNewText("");
             edit.setRange(PositionUtil.toRange(token.lineRange()));
@@ -129,7 +164,8 @@ public class ResourcePathCompletionUtil {
     }
 
     /**
-     * Creates and returns a completion item.
+     * Creates and returns a completion item corresponding to the
+     * method call expression of the resource function.
      *
      * @param resourceMethodSymbol resource method symbol.
      * @param context              LS context
@@ -147,7 +183,7 @@ public class ResourcePathCompletionUtil {
         item.setLabel(signature.toString());
         item.setInsertText(insertText.toString());
         item.setFilterText(resourceMethodSymbol.getName().orElse(""));
-        checkAndSetAdditionalTextEdits(item, context.getNodeAtCursor(), context);
+        checkAndSetAdditionalTextEdits(item, context);
         return item;
     }
 
