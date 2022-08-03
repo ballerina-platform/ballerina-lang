@@ -115,7 +115,7 @@ public class Strand {
         if (currentTrxContext != null) {
             this.trxContexts = parent.trxContexts;
             this.trxContexts.push(currentTrxContext);
-            this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
+            this.currentTrxContext = currentTrxContext;
         } else {
             Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
             if (currentContext != null) {
