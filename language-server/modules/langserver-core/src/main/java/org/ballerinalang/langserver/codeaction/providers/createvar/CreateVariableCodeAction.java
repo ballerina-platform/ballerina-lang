@@ -104,7 +104,8 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
             }
 
             CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-            actions.add(addRenamePopup(context, edits, codeAction, createVarTextEdits.renamePositions.get(i)));
+            addRenamePopup(context, edits, codeAction, createVarTextEdits.renamePositions.get(i));
+            actions.add(codeAction);
         }
         return actions;
     }
@@ -186,31 +187,41 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         }
     }
 
-    public CodeAction addRenamePopup(CodeActionContext context, List<TextEdit> textEdits,
-                                     CodeAction codeAction, int renamePosition) {
+    public void addRenamePopup(CodeActionContext context, List<TextEdit> textEdits,
+                               CodeAction codeAction, int renameOffset) {
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         if (syntaxTree.isEmpty()) {
-            return codeAction;
+            return;
         }
+        /*
+        Ex: class Test {
+                function testFunc() returns error? {
+                    int testResult = check test();
+                }
+            }
+        1. startPos gives the start position of the variable type "int".
+        2. If any text edits are applied before the variable creation edit, the length of those edits is added to the
+           "sum". In the above example, the length of "error?" will be added.
+        3. renameOffset gives the length of the variable type and the white space between the variable type and the
+           variable. In the example the renameOffset will be the length of "int ".
+        */
 
-        io.ballerina.tools.text.TextEdit textEdit = PositionUtil.getTextEdit(syntaxTree.get(), textEdits.get(0));
-        int startPos = textEdit.range().startOffset();
+        // Taking the start position of the first text edit assuming that the variable creation edit is the first edit
+        // in the list.
+        int startPos = PositionUtil.getTextEdit(syntaxTree.get(), textEdits.get(0)).range().startOffset();
         int sum = 0;
-        for (TextEdit edit : textEdits) {
-            io.ballerina.tools.text.TextEdit edits = PositionUtil.getTextEdit(syntaxTree.get(), edit);
-            int startOffset = edits.range().startOffset();
-            if (startOffset < startPos) {
-                int length = edits.text().length();
-                sum = sum + length;
+        for (TextEdit textEdit : textEdits) {
+            io.ballerina.tools.text.TextEdit edits = PositionUtil.getTextEdit(syntaxTree.get(), textEdit);
+            if (edits.range().startOffset() < startPos) {
+                sum = sum + edits.text().length();
             }
         }
 
-        startPos = startPos + sum + renamePosition;
+        startPos = startPos + sum + renameOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (lsClientCapabilities.getInitializationOptions().isRenameSupported()) {
+        if (lsClientCapabilities.getInitializationOptions().isRefactorRename()) {
             codeAction.setCommand(new Command("Rename Variable", "ballerina.action.rename",
                     List.of(context.fileUri(), startPos)));
         }
-        return codeAction;
     }
 }

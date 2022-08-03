@@ -56,5 +56,5 @@ public interface InitializationOptions {
      *
      * @return True if supported, false otherwise
      */
-    boolean isRenameSupported();
+    boolean isRefactorRename();
 }

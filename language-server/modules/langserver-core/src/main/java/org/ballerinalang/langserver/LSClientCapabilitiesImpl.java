@@ -211,7 +211,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         }
 
         @Override
-        public boolean isRenameSupported() {
+        public boolean isRefactorRename() {
             return supportRenamePopup;
         }
 
