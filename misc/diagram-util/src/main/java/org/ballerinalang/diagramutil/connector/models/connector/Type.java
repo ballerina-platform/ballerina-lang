@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -309,6 +310,9 @@ public class Type {
                 }
             });
             type = objectType;
+        } else if (symbol instanceof RecordFieldSymbol) {
+            RecordFieldSymbol recordFieldSymbol = (RecordFieldSymbol) symbol;
+            type = fromSemanticSymbol(recordFieldSymbol.typeDescriptor());
         } else if (symbol instanceof TypeSymbol) {
             type = new PrimitiveType(((TypeSymbol) symbol).signature());
         }
