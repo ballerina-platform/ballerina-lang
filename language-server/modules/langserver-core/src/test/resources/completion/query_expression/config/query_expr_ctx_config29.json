@@ -460,7 +460,7 @@
       "label": "stringValue",
       "kind": "Variable",
       "detail": "string",
-      "sortText": "AB",
+      "sortText": "AD",
       "insertText": "stringValue",
       "insertTextFormat": "Snippet"
     },
@@ -476,7 +476,7 @@
       "label": "intArray",
       "kind": "Variable",
       "detail": "int[]",
-      "sortText": "AB",
+      "sortText": "AD",
       "insertText": "intArray",
       "insertTextFormat": "Snippet"
     },
@@ -517,14 +517,14 @@
     {
       "label": "getMedalStats()",
       "kind": "Function",
-      "detail": "stream<MedalStatsRecord, error?>|error",
+      "detail": "stream\u003cMedalStatsRecord, error?\u003e|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `stream<MedalStatsRecord, error?>|error`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `stream\u003cMedalStatsRecord, error?\u003e|error`   \n  \n"
         }
       },
-      "sortText": "B",
+      "sortText": "CC",
       "filterText": "getMedalStats",
       "insertText": "getMedalStats()",
       "insertTextFormat": "Snippet"
@@ -540,8 +540,8 @@
     {
       "label": "tsvStream",
       "kind": "Variable",
-      "detail": "stream<string[], error?>",
-      "sortText": "AB",
+      "detail": "stream\u003cstring[], error?\u003e",
+      "sortText": "AD",
       "insertText": "tsvStream",
       "insertTextFormat": "Snippet"
     },
