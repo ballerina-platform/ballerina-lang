@@ -198,7 +198,8 @@ public class PackageCompilation {
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project()));
                 }
             }
         }
