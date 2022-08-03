@@ -58,7 +58,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import static java.net.HttpURLConnection.HTTP_BAD_GATEWAY;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_GATEWAY_TIMEOUT;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -438,10 +440,17 @@ public class CentralAPIClient {
 
                     Call downloadBalaRequestCall = client.newCall(downloadBalaRequest);
                     Response balaDownloadResponse = downloadBalaRequestCall.execute();
-                    boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
-                    createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
-                            balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter);
-                    return;
+
+                    if (balaDownloadResponse.code() == HTTP_OK) {
+                        boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
+                        createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
+                                balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter);
+                        return;
+                    } else {
+                        String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
+                                "'. BALA content download from '" + balaUrl.get() + "' failed.");
+                        handleResponseErrors(balaDownloadResponse, errorMessage);
+                    }
                 } else {
                     String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
                             "' from the remote repository '" + url + "'. reason: bala file location is missing.");
@@ -895,7 +904,16 @@ public class CentralAPIClient {
                     response.code() == HTTP_UNAVAILABLE) {
                 Error error = new Gson().fromJson(body.get().string(), Error.class);
                 if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                    throw new CentralClientException(msg + "' reason:" + error.getMessage());
+                    throw new CentralClientException(msg + " reason:" + error.getMessage());
+                }
+            }
+
+            // If invalid/no response received at the gateway server
+            if (response.code() == HTTP_BAD_GATEWAY ||
+                    response.code() == HTTP_GATEWAY_TIMEOUT) {
+                Error error = new Gson().fromJson(body.get().string(), Error.class);
+                if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                    throw new CentralClientException(msg + " reason:" + error.getMessage());
                 }
             }
         }
