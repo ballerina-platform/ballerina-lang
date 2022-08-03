@@ -136,14 +136,13 @@ public class TestCentralApiClient extends CentralAPIClient {
         Files.deleteIfExists(TMP_DIR);
     }
 
-    @Test(description = "Test pull package", enabled = false)
+    @Test(description = "Test pull package")
     public void testPullPackage() throws IOException, CentralClientException {
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         File balaFile = new File(String.valueOf(balaPath));
-        InputStream balaStream = null;
+        String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
 
-        try {
-            balaStream = new FileInputStream(balaFile);
+        try (InputStream ignored = new FileInputStream(balaFile)) {
 
             Request mockRequest = new Request.Builder()
                     .get()
@@ -156,7 +155,21 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .protocol(Protocol.HTTP_1_1)
                     .code(HttpURLConnection.HTTP_MOVED_TEMP)
                     .addHeader(LOCATION, this.balaUrl)
-                    .addHeader(CONTENT_DISPOSITION, "attachment; filename=sf-2020r2-any-1.3.5.bala")
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .message("")
+                    .body(null)
+                    .build();
+
+            Request mockDownloadBalaRequest = new Request.Builder()
+                    .get()
+                    .url(this.balaUrl)
+                    .header(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .build();
+            Response mockDownloadBalaResponse = new Response.Builder()
+                    .request(mockDownloadBalaRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
                     .message("")
                     .body(ResponseBody.create(
                             MediaType.get(APPLICATION_OCTET_STREAM),
@@ -164,20 +177,24 @@ public class TestCentralApiClient extends CentralAPIClient {
                     ))
                     .build();
 
-            when(this.remoteCall.execute()).thenReturn(mockResponse);
+            when(this.remoteCall.execute()).thenReturn(mockResponse, mockDownloadBalaResponse);
             when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
+            System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
             this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
 
-            Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("sf-2020r2-any-1.3.5.bala").toFile().exists());
+            Path balaDir = TMP_DIR.resolve("1.3.5").resolve("2020r2-any");
+            Assert.assertTrue(balaDir.toFile().exists());
+            Assert.assertTrue(balaDir.resolve("bala.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("modules").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("dependency-graph.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("package.json").toFile().exists());
+
             String buildLog = readOutput();
             given().with().pollInterval(Duration.ONE_SECOND).and().with().pollDelay(Duration.ONE_SECOND).await()
                     .atMost(10, SECONDS)
                     .until(() -> buildLog.contains("foo/sf:1.3.5 pulled from central successfully"));
         } finally {
-            if (balaStream != null) {
-                balaStream.close();
-            }
             cleanTmpDir();
         }
     }
