@@ -239,32 +239,6 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
         }
 
         @Override
-        public void visit(ExternalFunctionBodyNode externalFunctionBodyNode) {
-            int childrenSize = externalFunctionBodyNode.children().size();
-            int count = 0;
-            while (count < childrenSize) {
-                if (containCheckExprNode()) {
-                    break;
-                }
-                externalFunctionBodyNode.children().get(count).accept(this);
-                count++;
-            }
-        }
-
-        @Override
-        public void visit(VariableDeclarationNode variableDeclarationNode) {
-            int childrenSize = variableDeclarationNode.children().size();
-            int count = 0;
-            while (count < childrenSize) {
-                if (containCheckExprNode()) {
-                    break;
-                }
-                variableDeclarationNode.children().get(count).accept(this);
-                count++;
-            }
-        }
-
-        @Override
         public void visit(CheckExpressionNode checkExpressionNode) {
             this.checkExpressionNode = checkExpressionNode;
         }
