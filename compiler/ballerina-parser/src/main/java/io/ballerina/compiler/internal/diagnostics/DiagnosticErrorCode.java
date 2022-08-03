@@ -349,11 +349,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.rest.parameter.cannot.be.included.record.parameter"),
     RESOURCE_ACCESS_SEGMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT("BCE0680",
             "error.resource.access.segment.is.not.allowed.after.rest.segment"),
-    ERROR_INVALID_TOKEN_IN_REG_EXP("BCE0680", "error.invalid.token.in.reg.exp"),
-    ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP("BCE0681", "error.invalid.unicode.property.escape.in.reg.exp"),
-    ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0682", "error.invalid.quantifier.in.reg.exp"),
-    ERROR_INVALID_CHARACTER_SET_IN_REG_EXP("BCE0683", "error.invalid.character.set.in.reg.exp"),
-    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0684", "error.invalid.flag.in.reg.exp")
+    ERROR_INVALID_TOKEN_IN_REG_EXP("BCE0681", "error.invalid.token.in.reg.exp"),
+    ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP("BCE0682", "error.invalid.unicode.property.escape.in.reg.exp"),
+    ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp"),
+    ERROR_INVALID_CHARACTER_SET_IN_REG_EXP("BCE0684", "error.invalid.character.set.in.reg.exp"),
+    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0685", "error.invalid.flag.in.reg.exp")
     ;
 
     String diagnosticId;
