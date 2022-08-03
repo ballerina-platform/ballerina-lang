@@ -708,25 +708,39 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (context.currentSemanticModel().isEmpty()) {
             return Optional.empty();
         }
-        Optional<Symbol> optionalSymbol = context.currentSemanticModel().get()
-                .symbol(fromClauseNode.typedBindingPattern().bindingPattern());
-        if (optionalSymbol.isEmpty()) {
-            return Optional.empty();
-        }
 
-        // type symbol of the Type Binding Pattern
-        Optional<TypeSymbol> typeSymbol = SymbolUtil.getTypeDescriptor(optionalSymbol.get());
-        if (typeSymbol.isEmpty()) {
-            return Optional.empty();
-        }
-        if (typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
-            return Optional.empty();
-        }
         if (context.getCursorPositionInTree() > fromClauseNode.inKeyword().textRange().endOffset()) {
+            Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(fromClauseNode.expression());
+
+            if (typeSymbol.isPresent()) {
+                return typeSymbol;
+            }
+
+            Optional<Symbol> optionalSymbol = context.currentSemanticModel().get()
+                    .symbol(fromClauseNode.typedBindingPattern().bindingPattern());
+            if (optionalSymbol.isEmpty()) {
+                return Optional.empty();
+            }
+
+            typeSymbol = SymbolUtil.getTypeDescriptor(optionalSymbol.get());
+            if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                return Optional.empty();
+            }
             return Optional.of(context.currentSemanticModel()
                     .get().types().builder().ARRAY_TYPE.withType(typeSymbol.get()).build());
         }
-        return typeSymbol;
+
+        Optional<Symbol> optionalSymbol = context.currentSemanticModel().get()
+                .symbol(fromClauseNode.typedBindingPattern().bindingPattern());
+        if (optionalSymbol.isEmpty()) {
+            return context.currentSemanticModel().get()
+                    .typeOf(fromClauseNode.expression())
+                    .filter(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.ARRAY)
+                    .map(typeSymbol -> (ArrayTypeSymbol) typeSymbol)
+                    .map(ArrayTypeSymbol::memberTypeDescriptor);
+        }
+
+        return Optional.empty();
     }
 
     @Override
