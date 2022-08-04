@@ -591,8 +591,18 @@ public class SymbolFactory {
 
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
             if (entry.getKey().pkgID.equals(annotPkgId)) {
-                return createAnnotationSymbol((BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(
-                        entry.getValue(), annotTagRef));
+                BAnnotationSymbol annotSymbol =
+                        (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(entry.getValue(), annotTagRef);
+
+                // Constant annotation attachments
+                if (annotationAttachmentSymbol instanceof
+                        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) {
+                    return createConstAnnotation(annotSymbol,
+                            ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol)
+                                    annotationAttachmentSymbol).attachmentValueSymbol);
+                }
+
+                return createAnnotationSymbol(annotSymbol);
             }
         }
         throw new AssertionError("Cannot lookup annotation symbol: symbol environment not available " +
@@ -657,5 +667,31 @@ public class SymbolFactory {
         String fieldName = symbol.name.value;
         BStructureType type = (BStructureType) symbol.owner.type;
         return type.fields.get(fieldName);
+    }
+
+    private BallerinaAnnotationSymbol createConstAnnotation(BAnnotationSymbol symbol,
+                                                            BConstantSymbol attachmentValueSymbol) {
+        BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
+                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.getOriginalName().getValue(), symbol,
+                        this.context);
+        if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
+        // Skipping the compiler-generated singleton type `true`.
+        if (symbol.attachedType != null && !types.isAssignable(symbol.attachedType, this.symTable.trueType)) {
+            symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType));
+        }
+
+        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        }
+
+        if (attachmentValueSymbol != null) {
+            symbolBuilder.withAttachmentValueSymbol(createConstantSymbol(attachmentValueSymbol,
+                    attachmentValueSymbol.name.getValue()));
+        }
+
+        return symbolBuilder.build();
     }
 }

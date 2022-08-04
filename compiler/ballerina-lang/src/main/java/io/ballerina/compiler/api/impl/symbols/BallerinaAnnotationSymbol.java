@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -46,18 +47,20 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
 
     private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
+    private final ConstantSymbol attachmentValueSymbol;
     private final List<AnnotationAttachPoint> attachPoints;
     private final List<AnnotationSymbol> annots;
     private final Documentation docAttachment;
     private final boolean deprecated;
 
     private BallerinaAnnotationSymbol(String name, List<Qualifier> qualifiers, TypeSymbol typeDescriptor,
-                                      List<AnnotationAttachPoint> attachPoints, List<AnnotationSymbol> annots,
-                                      BSymbol bSymbol, CompilerContext context) {
+                                      ConstantSymbol attachmentValueSymbol, List<AnnotationAttachPoint> attachPoints,
+                                      List<AnnotationSymbol> annots, BSymbol bSymbol, CompilerContext context) {
         super(name, SymbolKind.ANNOTATION, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
+        this.attachmentValueSymbol = attachmentValueSymbol;
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(bSymbol);
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
@@ -118,6 +121,10 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         return transformer.transform(this);
     }
 
+    public ConstantSymbol getAttachmentValueSymbol() {
+        return attachmentValueSymbol;
+    }
+
     /**
      * Represents Ballerina Annotation Symbol Builder.
      *
@@ -128,6 +135,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         private final List<Qualifier> qualifiers = new ArrayList<>();
         private TypeSymbol typeDescriptor;
         private List<AnnotationAttachPoint> attachPoints;
+        private ConstantSymbol attachmentValueSymbol;
         private List<AnnotationSymbol> annots = new ArrayList<>();
 
         public AnnotationSymbolBuilder(String name, BAnnotationSymbol annotationSymbol, CompilerContext context) {
@@ -136,8 +144,9 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         }
 
         public BallerinaAnnotationSymbol build() {
-            return new BallerinaAnnotationSymbol(this.name, this.qualifiers, this.typeDescriptor, this.attachPoints,
-                                                 this.annots, this.bSymbol, this.context);
+            return new BallerinaAnnotationSymbol(this.name, this.qualifiers, this.typeDescriptor,
+                                                 this.attachmentValueSymbol, this.attachPoints, this.annots,
+                                                 this.bSymbol, this.context);
         }
 
         /**
@@ -147,6 +156,11 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
          */
         private void withAttachPoints(BAnnotationSymbol annotationSymbol) {
             this.attachPoints = getAttachPoints(annotationSymbol.maskedPoints);
+        }
+
+        public AnnotationSymbolBuilder withAttachmentValueSymbol(ConstantSymbol attachmentValueSymbol) {
+            this.attachmentValueSymbol = attachmentValueSymbol;
+            return this;
         }
 
         public AnnotationSymbolBuilder withQualifier(Qualifier qualifier) {
