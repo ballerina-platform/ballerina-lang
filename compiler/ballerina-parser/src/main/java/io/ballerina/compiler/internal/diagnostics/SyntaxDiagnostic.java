@@ -24,6 +24,7 @@ import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -74,7 +75,7 @@ public class SyntaxDiagnostic extends Diagnostic {
 
     @Override
     public List<DiagnosticProperty<?>> properties() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
