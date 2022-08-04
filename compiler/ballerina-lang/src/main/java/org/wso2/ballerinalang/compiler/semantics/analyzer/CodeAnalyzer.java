@@ -1070,6 +1070,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case SIMPLE_VARIABLE_REF:
                 constValAndType.put(((BLangSimpleVarRef) constPattern.expr).variableName, constPattern.getBType());
                 break;
+            case UNARY_EXPR:
+                BLangNumericLiteral newNumericLiteral = Types.constructNumericLiteralFromUnaryExpr(
+                        (BLangUnaryExpr) constPattern.expr);
+                constValAndType.put(newNumericLiteral.value, null);
         }
         return constValAndType;
     }
@@ -3205,9 +3209,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
-        boolean failureHandled = data.failureHandled;
-        data.failureHandled = true;
-        data.errorTypes.push(new LinkedHashSet<>());
         boolean prevQueryToTableWithKey = data.queryToTableWithKey;
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
         data.queryToMap = queryExpr.isMap;
@@ -3227,8 +3228,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
             analyzeNode(clause, data);
         }
-        data.failureHandled = failureHandled;
-        data.errorTypes.pop();
         data.withinQuery = prevWithinQuery;
         data.queryToTableWithKey = prevQueryToTableWithKey;
     }
@@ -3239,7 +3238,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failureHandled = true;
         boolean prevWithinQuery = data.withinQuery;
         data.withinQuery = true;
-        data.errorTypes.push(new LinkedHashSet<>());
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3257,7 +3255,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         validateActionParentNode(queryAction.pos, queryAction);
         data.failureHandled = prevFailureHandled;
         data.withinQuery = prevWithinQuery;
-        data.errorTypes.pop();
     }
 
     @Override

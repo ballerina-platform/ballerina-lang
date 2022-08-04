@@ -155,6 +155,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final BLangMissingNodesHelper missingNodesHelper;
     private final Unifier unifier;
+    private final SemanticAnalyzer semanticAnalyzer;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -175,6 +176,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
     }
 
@@ -1411,10 +1413,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 finiteTypeNode.pos, SOURCE);
 
+        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
+        // Note: calling semanticAnalyzer form symbolResolver is a temporary fix.
+        semanticAnalyzer.analyzeNode(finiteTypeNode, data.env);
+
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        for (BLangExpression literal : finiteTypeNode.valueSpace) {
-            literal.setBType(symTable.getTypeFromTag(literal.getBType().tag));
-            finiteType.addValue(literal);
+        for (BLangExpression expressionOrLiteral : finiteTypeNode.valueSpace) {
+            finiteType.addValue(expressionOrLiteral);
         }
         finiteTypeSymbol.type = finiteType;
 
