@@ -2492,9 +2492,8 @@ public class FormattingTreeModifier extends TreeModifier {
     public TableConstructorExpressionNode transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
         Token tableKeyword = formatToken(tableConstructorExpressionNode.tableKeyword(), 1, 0);
         KeySpecifierNode keySpecifier = formatNode(tableConstructorExpressionNode.keySpecifier().orElse(null), 1, 0);
-        SeparatedNodeList<Node> rows = tableConstructorExpressionNode.rows();
         int rowTrailingWS = 0, rowTrailingNL = 0;
-        if (rows.size() > 1 || (rows.size() == 1 && shouldExpand(rows.get(0)))) {
+        if (shouldExpand(tableConstructorExpressionNode)) {
             rowTrailingNL++;
         } else {
             rowTrailingWS++;
@@ -4269,6 +4268,18 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     private boolean shouldExpand(Node node) {
         return node.toSourceCode().trim().contains(System.lineSeparator());
+    }
+
+    /**
+     * Check whether a table constructor expression needs to be expanded in to multiple lines.
+     *
+     * @param tableConstructor Table constructor expression
+     * @return <code>true</code> If the table constructor expression needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(TableConstructorExpressionNode tableConstructor) {
+        SeparatedNodeList<Node> rows = tableConstructor.rows();
+        return (rows.size() > 1 || (rows.size() == 1) && shouldExpand(rows.get(0)));
     }
 
     /**
