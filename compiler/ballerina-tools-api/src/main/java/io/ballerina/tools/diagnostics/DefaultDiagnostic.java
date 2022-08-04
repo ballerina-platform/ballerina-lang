@@ -23,6 +23,7 @@ import io.ballerina.tools.text.LineRange;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * An internal implementation of the {@code Diagnostic} class that is used by the {@code DiagnosticFactory}
@@ -88,5 +89,23 @@ class DefaultDiagnostic extends Diagnostic {
                     + filePath + ":" + oneBasedLineRange + "] " + message();
         }
         return diagnosticInfo().severity().toString() + " " + message();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DefaultDiagnostic that = (DefaultDiagnostic) o;
+        return Objects.equals(location, that.location)
+                && Objects.equals(message, that.message);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(location, message);
     }
 }
