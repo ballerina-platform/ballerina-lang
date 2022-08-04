@@ -834,7 +834,7 @@ public class BTestRunner {
                 typeList.add(Boolean.TYPE);
             }
         } else {
-            Class<?> type = getArgTypeToClassMapping(TypeUtils.getReferredType(bArray.getElementType()));
+            Class<?> type = getArgTypeToClassMapping(TypeUtils.getType(bArray.getElementType()));
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 typeList.add(type);
