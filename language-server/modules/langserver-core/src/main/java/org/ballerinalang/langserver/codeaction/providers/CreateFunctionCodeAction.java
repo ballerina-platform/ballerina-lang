@@ -137,8 +137,8 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
 
     private boolean isInvalidReturnType(CodeActionContext context, FunctionCallExpressionNode callExpr) {
         SemanticModel semanticModel = context.currentSemanticModel().get();
-        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
-        typeFinder.findTypeOf(callExpr);
+        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel, callExpr);
+        callExpr.accept(typeFinder);
         Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
         Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
         
