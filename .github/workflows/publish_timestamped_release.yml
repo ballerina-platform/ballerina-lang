@@ -1,9 +1,6 @@
-name: Publish Timestamped Snapshot Artifacts (master)
+name: Publish Timestamped Snapshot Artifacts
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
@@ -43,17 +40,6 @@ jobs:
             ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
             ./gradlew publish
             ./gradlew createCodeCoverageReport
-            curl -X POST \
-            'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
-            -H 'Accept: application/vnd.github.v3+json' \
-            -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
-            --data "{
-              \"event_type\": \"update_timestamped_version\",
-              \"client_payload\": {
-                \"branch\": \"master\",
-                \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
-              }
-            }"
 
       -   name: Generate Codecov Report
           uses: codecov/codecov-action@v1
