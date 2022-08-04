@@ -37,7 +37,7 @@ public class PrintClosureMap {
         printBlockClosureMap(obj);
         System.out.println("______ Printing param closure maps");
         printParamClosureMaps(obj);
-        System.out.println("______ INTERNAL BALLERINA DEBUG END -------");
+        System.out.println("______ INTERNAL BALLERINA DEBUG END -------\n");
     }
 
     private static void printBlockClosureMap(BObject obj) {
