@@ -3849,14 +3849,8 @@ public class FormattingTreeModifier extends TreeModifier {
                                                                             int separatorTrailingNL,
                                                                             int listTrailingWS,
                                                                             int listTrailingNL) {
-        return formatSeparatedNodeList(nodeList,
-                itemTrailingWS,
-                itemTrailingNL,
-                separatorTrailingWS,
-                separatorTrailingNL,
-                listTrailingWS,
-                listTrailingNL,
-                false);
+        return formatSeparatedNodeList(nodeList, itemTrailingWS, itemTrailingNL, separatorTrailingWS,
+                separatorTrailingNL, listTrailingWS, listTrailingNL, false);
     }
 
     /**
