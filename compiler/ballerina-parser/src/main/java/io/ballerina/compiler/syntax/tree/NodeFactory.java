@@ -3171,5 +3171,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expression.internalNode());
         return stSpreadMemberNode.createUnlinkedFacade();
     }
+
+    public static MemberTypeDescriptorNode createMemberTypeDescriptorNode(
+            NodeList<AnnotationNode> annotations,
+            TypeDescriptorNode typeDescriptor) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+
+        STNode stMemberTypeDescriptorNode = STNodeFactory.createMemberTypeDescriptorNode(
+                annotations.underlyingListNode().internalNode(),
+                typeDescriptor.internalNode());
+        return stMemberTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 

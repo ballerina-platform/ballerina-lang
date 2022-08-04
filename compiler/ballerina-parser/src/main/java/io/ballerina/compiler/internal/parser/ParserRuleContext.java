@@ -716,6 +716,8 @@ public enum ParserRuleContext {
     TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
     ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
     ANNOTATION_DECL_START("annotation-declaration-start"),
+    TUPLE_MEMBERS("tuple-members"),
+    TUPLE_MEMBER("tuple-member"),
     ;
 
     private String value;
