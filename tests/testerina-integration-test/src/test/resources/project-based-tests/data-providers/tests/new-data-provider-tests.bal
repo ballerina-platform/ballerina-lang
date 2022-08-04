@@ -312,7 +312,7 @@ function dataGen11() returns (string[][]) {
 
 function dataGen12() returns map<[error, string]> {
     error e = error("foo");
-    
+
     return {
         "foo": [e, "foo"]
     };
