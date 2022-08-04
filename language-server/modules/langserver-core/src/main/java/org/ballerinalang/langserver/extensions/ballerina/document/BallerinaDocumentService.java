@@ -46,7 +46,6 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataResponse;
-import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -325,7 +324,8 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 int charValue = request.getLineRange().getStart().getCharacter();
 
                 // Get the symbol of function
-                Optional<Symbol> functionSymbol = semanticModel.get().symbol(srcFile.get(), LinePosition.from(lineValue, charValue));
+                Optional<Symbol> functionSymbol = semanticModel.get().symbol(srcFile.get(),
+                        LinePosition.from(lineValue, charValue));
 
                 // Get the file path of the function symbol
                 String functionPath = functionSymbol.get().getLocation().get().lineRange().filePath();
@@ -337,7 +337,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 project.get().currentPackage().modules().forEach(module -> {
                     module.documentIds().forEach(id -> {
                         Document document = module.document(id);
-                        if(functionPath.equals(document.name())) {
+                        if (functionPath.equals(document.name())) {
                             // Get the nodes from the found document
                             SyntaxTree st = document.syntaxTree();
                             FindNodes findNodes = new FindNodes();
@@ -350,14 +350,17 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                             functionNodes.forEach(node -> {
                                 int nodeStartLine = node.lineRange().startLine().line();
                                 int nodeEndLine = node.lineRange().endLine().line();
-                                int symbolLine = functionSymbol.get().getLocation().get().lineRange().startLine().line();
+                                int symbolLine = functionSymbol.get().getLocation()
+                                        .get().lineRange().startLine().line();
                                 boolean withinRange = nodeStartLine <= symbolLine && nodeEndLine >= symbolLine;
 
-                                if(functionSymbol.get().nameEquals(node.functionName().text()) && withinRange) {
+                                if (functionSymbol.get().nameEquals(node.functionName().text()) && withinRange) {
 
                                     // Get the new semantic model for found document
-                                    PackageCompilation packageCompilation = document.module().packageInstance().getCompilation();
-                                    SemanticModel semanticModelNew = packageCompilation.getSemanticModel(document.module().moduleId());
+                                    PackageCompilation packageCompilation = document.module()
+                                            .packageInstance().getCompilation();
+                                    SemanticModel semanticModelNew = packageCompilation
+                                            .getSemanticModel(document.module().moduleId());
 
                                     // Get the file path of the found node definition
                                     Path defFilePath = PathUtil.getPathFromLocation(module, node.location());
