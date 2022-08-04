@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.package internal;
 
+import ballerina/test;
+
 public class Window {
     public string v = "hello";
     public int a = 1;
@@ -41,9 +43,31 @@ public class SampleWindow {
     }
 }
 
-function testObjectFunctionPointer() returns int {
+function testObjectFunctionPointer() {
     Window win = new LengthWindow();
     (function () returns int) pointer = () => win.process();
     win = new SampleWindow();
-    return pointer();
+    test:assertTrue(pointer() is int);
+    test:assertEquals(pointer(), 18);
+}
+
+class ABC {
+    function foo(int a, int b) returns int {
+        return a + b;
+    }
+
+    function (int x, int y) returns (int) bar;
+
+    function init() {
+        self.bar = self.foo;
+    }
+
+    function baz() returns int {
+        return self.bar(4, 7) - self.foo(2, 1);
+    }
+}
+
+function testObjectFunctionPointerFieldAccess() {
+    ABC a = new();
+    test:assertEquals(a.baz(), 8);
 }

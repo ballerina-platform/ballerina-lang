@@ -371,14 +371,18 @@ public class ObjectTest {
         Assert.assertEquals(returns, 89L);
     }
 
-    @Test(description = "Test function references from an object")
-    public void testFunctionReferencesFromObjects() {
+    @Test(description = "Test function references from an object", dataProvider = "functionReferencesFromObjectTests")
+    public void testFunctionReferencesFromObjects(String functionName) {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
-        Object returns = BRunUtil.invoke(compileResult, "testObjectFunctionPointer");
+        BRunUtil.invoke(compileResult, functionName);
+    }
 
-        Assert.assertSame(returns.getClass(), Long.class);
-
-        Assert.assertEquals(returns, 18L);
+    @DataProvider
+    private Object[] functionReferencesFromObjectTests() {
+        return new String[]{
+                "testObjectFunctionPointer",
+                "testObjectFunctionPointerFieldAccess"
+        };
     }
 
     @Test(description = "Test object any type field as a constructor parameter")
