@@ -2838,15 +2838,19 @@ function testEnsureTypeWithInferredArgument() {
     int|error age = p.age.ensureType();
     assertEquality(24, age);
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/29219
-    //any a = <string[]> ["hello", "world"];
-    //string[] strArray = checkpanic a.ensureType();
-    //assertEquality(a, strArray);
-    //string[]|error strArray2 = value:ensureType(a);
-    //assertEquality(a, strArray2);
+    any a = <string[]> ["hello", "world"];
+    string[] strArray = checkpanic a.ensureType();
+    assertEquality(a, strArray);
+    string[]|error strArray2 = value:ensureType(a);
+    assertEquality(a, strArray2);
 
-    //int[]|error intArr = a.ensureType();
-    //assertEquality(a, intArr);
+    int[]|error intArr = a.ensureType();
+    assertTrue(intArr is error);
+    if (intArr is error) {
+        assertEquality("{ballerina}TypeCastError", intArr.message());
+        assertEquality("incompatible types: 'string[]' cannot be cast to 'int[]'",
+        <string> checkpanic intArr.detail()["message"]);
+    }
 }
 
 function testEnsureTypeFloatToIntNegative() {
