@@ -1753,7 +1753,7 @@
                 },
                 {
                     "name": "clientUri",
-                    "type": "ExpressionNode"
+                    "type": "BasicLiteralNode"
                 },
                 {
                     "name": "asKeyword",
@@ -1780,7 +1780,7 @@
                 },
                 {
                     "name": "clientUri",
-                    "type": "ExpressionNode"
+                    "type": "BasicLiteralNode"
                 },
                 {
                     "name": "asKeyword",

@@ -1301,7 +1301,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ClientDeclarationNode clientDeclarationNode) {
         Token clientKeyword =
                 modifyToken(clientDeclarationNode.clientKeyword());
-        ExpressionNode clientUri =
+        BasicLiteralNode clientUri =
                 modifyNode(clientDeclarationNode.clientUri());
         Token asKeyword =
                 modifyToken(clientDeclarationNode.asKeyword());
@@ -1322,7 +1322,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ModuleClientDeclarationNode moduleClientDeclarationNode) {
         Token clientKeyword =
                 modifyToken(moduleClientDeclarationNode.clientKeyword());
-        ExpressionNode clientUri =
+        BasicLiteralNode clientUri =
                 modifyNode(moduleClientDeclarationNode.clientUri());
         Token asKeyword =
                 modifyToken(moduleClientDeclarationNode.asKeyword());

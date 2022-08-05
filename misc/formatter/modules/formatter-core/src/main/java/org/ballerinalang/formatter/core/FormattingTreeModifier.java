@@ -3579,7 +3579,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ModuleClientDeclarationNode transform(
             ModuleClientDeclarationNode moduleClientDeclarationNode) {
         Token clientKeyword = formatToken(moduleClientDeclarationNode.clientKeyword(), 1, 0);
-        ExpressionNode clientUri = formatNode(moduleClientDeclarationNode.clientUri(), 1, 0);
+        BasicLiteralNode clientUri = formatNode(moduleClientDeclarationNode.clientUri(), 1, 0);
         Token asKeyword = formatToken(moduleClientDeclarationNode.asKeyword(), 1, 0);
         IdentifierToken clientPrefix = formatNode(moduleClientDeclarationNode.clientPrefix(), 0, 0);
         Token semicolonToken = formatToken(moduleClientDeclarationNode.semicolonToken(), env.trailingWS,
@@ -3596,7 +3596,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ClientDeclarationNode transform(ClientDeclarationNode clientDeclarationNode) {
         Token clientKeyword = formatToken(clientDeclarationNode.clientKeyword(), 1, 0);
-        ExpressionNode clientUri = formatNode(clientDeclarationNode.clientUri(), 1, 0);
+        BasicLiteralNode clientUri = formatNode(clientDeclarationNode.clientUri(), 1, 0);
         Token asKeyword = formatToken(clientDeclarationNode.asKeyword(), 1, 0);
         IdentifierToken prefix = formatNode(clientDeclarationNode.clientPrefix(), 0, 0);
         Token semicolonToken = formatToken(clientDeclarationNode.semicolonToken(), env.trailingWS, env.trailingNL);

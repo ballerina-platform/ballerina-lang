@@ -1251,7 +1251,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ClientDeclarationNode createClientDeclarationNode(
             Token clientKeyword,
-            ExpressionNode clientUri,
+            BasicLiteralNode clientUri,
             Token asKeyword,
             IdentifierToken clientPrefix,
             Token semicolonToken) {
@@ -1272,7 +1272,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ModuleClientDeclarationNode createModuleClientDeclarationNode(
             Token clientKeyword,
-            ExpressionNode clientUri,
+            BasicLiteralNode clientUri,
             Token asKeyword,
             IdentifierToken clientPrefix,
             Token semicolonToken) {

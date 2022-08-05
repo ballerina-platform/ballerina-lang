@@ -36,7 +36,7 @@ public class ModuleClientDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(0);
     }
 
-    public ExpressionNode clientUri() {
+    public BasicLiteralNode clientUri() {
         return childInBucket(1);
     }
 
@@ -74,7 +74,7 @@ public class ModuleClientDeclarationNode extends ModuleMemberDeclarationNode {
 
     public ModuleClientDeclarationNode modify(
             Token clientKeyword,
-            ExpressionNode clientUri,
+            BasicLiteralNode clientUri,
             Token asKeyword,
             IdentifierToken clientPrefix,
             Token semicolonToken) {
@@ -107,7 +107,7 @@ public class ModuleClientDeclarationNode extends ModuleMemberDeclarationNode {
     public static class ModuleClientDeclarationNodeModifier {
         private final ModuleClientDeclarationNode oldNode;
         private Token clientKeyword;
-        private ExpressionNode clientUri;
+        private BasicLiteralNode clientUri;
         private Token asKeyword;
         private IdentifierToken clientPrefix;
         private Token semicolonToken;
@@ -129,7 +129,7 @@ public class ModuleClientDeclarationNode extends ModuleMemberDeclarationNode {
         }
 
         public ModuleClientDeclarationNodeModifier withClientUri(
-                ExpressionNode clientUri) {
+                BasicLiteralNode clientUri) {
             Objects.requireNonNull(clientUri, "clientUri must not be null");
             this.clientUri = clientUri;
             return this;
