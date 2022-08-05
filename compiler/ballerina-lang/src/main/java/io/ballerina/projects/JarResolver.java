@@ -146,7 +146,10 @@ public class JarResolver {
             if (libraryPaths.contains(newEntry)) {
                 JarLibrary existingEntry = libraryPaths.stream().filter(jarLibrary1 ->
                         jarLibrary1.equals(newEntry)).findAny().orElseThrow();
-
+                if (existingEntry.groupId().isEmpty() || existingEntry.artifactId().isEmpty() ||
+                        existingEntry.version().isEmpty()) {
+                    continue;
+                }
                 ComparableVersion existingVersion = new ComparableVersion(existingEntry.version().orElseThrow());
                 ComparableVersion newVersion = new ComparableVersion(newEntry.version().get());
 

@@ -69,6 +69,39 @@ function testSimpleQueryAction2() returns int{
     return count;
 }
 
+function testSimpleQueryAction3() returns error? {
+    string result1 = check simpleQueryAction();
+    var result2 = check simpleQueryAction();
+    assertEquality(result1, "string 1");
+    assertEquality(result2, "string 1");
+
+    error? result3 = simpleQueryAction2();
+    var result4 = simpleQueryAction2();
+    assertEquality(result3, ());
+    assertEquality(result4, ());
+}
+
+function simpleQueryAction() returns string|error {
+    check from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return "string 1";
+    };
+    return "string 2";
+}
+
+function simpleQueryAction2() returns error? {
+    check from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return;
+    };
+    return;
+}
+
+function returnNil() {
+}
+
 function testSimpleQueryActionWithRecordVariable() returns FullName[]{
 
     Person p1 = {firstName:"Alex", lastName: "George", age: 23};

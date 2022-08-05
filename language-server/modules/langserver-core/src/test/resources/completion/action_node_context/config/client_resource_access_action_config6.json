@@ -1,0 +1,122 @@
+{
+  "position": {
+    "line": 35,
+    "character": 13
+  },
+  "source": "action_node_context/source/client_resource_access_action_source6.bal",
+  "items": [
+    {
+      "label": "remote1()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "remote1",
+      "insertText": "remote1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "/path1",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "path1|get",
+      "insertText": "/path1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "/.post(string a, int b)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` a  \n- `int` b"
+        }
+      },
+      "sortText": "C",
+      "filterText": "post",
+      "insertText": "/.post(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/[string... ids]",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
+        }
+      },
+      "sortText": "C",
+      "filterText": "get",
+      "insertText": "/[${1:\"\"}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "/path1/[string id1]",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
+        }
+      },
+      "sortText": "C",
+      "filterText": "path1|get",
+      "insertText": "/path1/[${1:\"\"}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "/path1/[string id1]/path2",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "path1|path2|get",
+      "insertText": "/path1/[${1:\"\"}]/path2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "/path1/[string id1]/path2/[string... ids].post(string b, string... ids2)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
+        }
+      },
+      "sortText": "C",
+      "filterText": "path1|path2|post",
+      "insertText": "/path1/[${1:\"\"}]/path2/[${2:\"\"}].post(${3})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}
