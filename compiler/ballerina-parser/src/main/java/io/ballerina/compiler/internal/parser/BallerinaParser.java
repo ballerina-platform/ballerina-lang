@@ -9997,7 +9997,8 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseClientDeclOrVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers,
                                             boolean isModuleVar) {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
                 reportInvalidMetaData(metadata, "client declaration");
                 reportInvalidQualifier(publicQualifier);
@@ -10006,10 +10007,11 @@ public class BallerinaParser extends AbstractParser {
                 if (isModuleVar) {
                     return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
                 }
+
                 return parseVariableDecl(getAnnotations(metadata), publicQualifier, new ArrayList<>(), qualifiers,
                                          false);
             default:
-                recover(peek(), ParserRuleContext.CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL);
+                recover(nextToken, ParserRuleContext.CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL);
                 return parseClientDeclOrVarDecl(metadata, publicQualifier, qualifiers, isModuleVar);
         }
     }
@@ -10028,25 +10030,22 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseClientDeclaration(STNode clientKeyword, boolean isModuleVar) {
         startContext(ParserRuleContext.CLIENT_DECLARATION);
-
         STNode clientDeclUri = parseStringLiteral();
-        STNode clientDecl = parseClientDeclWithAlias(clientKeyword, clientDeclUri, isModuleVar);
-        
-        endContext();
-        return clientDecl;
-    }
-
-    private STNode parseClientDeclWithAlias(STNode clientKeyword, STNode clientDeclUri, boolean isModuleVar) {
-
         STNode asKeyword = parseAsKeyword();
         STNode prefix = parseClientDeclPrefix();
-
         STNode semicolon = parseSemicolon();
+
+        STNode clientDecl;
         if (isModuleVar) {
-            return STNodeFactory.createModuleClientDeclarationNode(clientKeyword, clientDeclUri, asKeyword, prefix,
+            clientDecl =  STNodeFactory.createModuleClientDeclarationNode(clientKeyword, clientDeclUri, asKeyword,
+                                                                          prefix, semicolon);
+        } else {
+            clientDecl = STNodeFactory.createClientDeclarationNode(clientKeyword, clientDeclUri, asKeyword, prefix,
                                                                    semicolon);
         }
-        return STNodeFactory.createClientDeclarationNode(clientKeyword, clientDeclUri, asKeyword, prefix, semicolon);
+
+        endContext();
+        return clientDecl;
     }
 
     private STNode parseClientDeclPrefix() {

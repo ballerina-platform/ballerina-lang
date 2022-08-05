@@ -342,7 +342,6 @@ public class SyntaxErrors {
             case ABSTRACT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_ABSTRACT_KEYWORD;
             case CLIENT_KEYWORD:
-            case CLIENT_DECLARATION:
                 return DiagnosticErrorCode.ERROR_MISSING_CLIENT_KEYWORD;
             case IMPORT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_IMPORT_KEYWORD;

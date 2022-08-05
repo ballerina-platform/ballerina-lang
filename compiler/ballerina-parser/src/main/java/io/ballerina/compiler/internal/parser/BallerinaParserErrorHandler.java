@@ -1190,9 +1190,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.IS_KEYWORD ||
                             nextToken.kind == SyntaxKind.NOT_IS_KEYWORD;
                     break;
-//                case CLIENT_DECLARATION:
-//                    hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD;
-//                    break;
+
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.
                 case VARIABLE_REF:
@@ -3318,9 +3316,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (parentCtx == ParserRuleContext.SERVICE_DECL) {
                     return ParserRuleContext.ON_KEYWORD;
                 }
+
                 if (parentCtx == ParserRuleContext.CLIENT_DECLARATION) {
                     return ParserRuleContext.AS_KEYWORD;
                 }
+
                 return ParserRuleContext.COLON; // mapping constructor key
             case COMPUTED_FIELD_NAME:
                 return ParserRuleContext.OPEN_BRACKET;
@@ -5941,7 +5941,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ABSTRACT_KEYWORD:
                 return SyntaxKind.ABSTRACT_KEYWORD;
             case CLIENT_KEYWORD:
-            case CLIENT_DECLARATION:
                 return SyntaxKind.CLIENT_KEYWORD;
             case IF_KEYWORD:
                 return SyntaxKind.IF_KEYWORD;
