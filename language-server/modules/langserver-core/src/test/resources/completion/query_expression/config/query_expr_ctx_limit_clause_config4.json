@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 16,
-    "character": 23
+    "line": 11,
+    "character": 27
   },
-  "source": "query_expression/source/query_expr_ctx_limit_clause_source2.bal",
+  "source": "query_expression/source/query_expr_ctx_limit_clause_source4.bal",
   "items": [
     {
       "label": "module1",
@@ -13,6 +13,78 @@
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "runtime",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.test",
@@ -39,12 +111,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "test/local_project2",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "array",
-      "insertText": "array",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -58,17 +130,17 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.array;\n"
+          "newText": "import test/local_project2;\n"
         }
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "test/local_project1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "java",
-      "insertText": "java",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -82,7 +154,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import test/local_project1;\n"
         }
       ]
     },
@@ -111,12 +183,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "runtime",
-      "insertText": "runtime",
+      "filterText": "java",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -130,7 +202,31 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "array",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -164,6 +260,14 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     },
     {
@@ -346,6 +450,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -418,19 +531,26 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "outputNameString",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "F",
-      "insertText": "outputNameString",
+      "label": "findToptenCountriesByAthletes()",
+      "kind": "Function",
+      "detail": "error?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error?`   \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "findToptenCountriesByAthletes",
+      "insertText": "findToptenCountriesByAthletes()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customerList",
+      "label": "listResult",
       "kind": "Variable",
-      "detail": "Customer[]",
+      "detail": "string[]",
       "sortText": "F",
-      "insertText": "customerList",
+      "insertText": "listResult",
       "insertTextFormat": "Snippet"
     },
     {
@@ -442,50 +562,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Customer",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "Q",
-      "insertText": "Customer",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "onConflictError",
+      "label": "athletesByCountry",
       "kind": "Variable",
-      "detail": "error",
+      "detail": "map\u003cint\u003e",
       "sortText": "F",
-      "insertText": "onConflictError",
+      "insertText": "athletesByCountry",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testIterableOperation()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "G",
-      "filterText": "testIterableOperation",
-      "insertText": "testIterableOperation()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "personList",
+      "label": "xlimit",
       "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "F",
-      "insertText": "personList",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "xlimit",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "c3",
+      "label": "zlimit",
       "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "F",
-      "insertText": "c3",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "zlimit",
       "insertTextFormat": "Snippet"
     },
     {
@@ -500,43 +597,26 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Person",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "Q",
-      "insertText": "Person",
+      "label": "findNumOfAthletesBycountry()",
+      "kind": "Function",
+      "detail": "map\u003cint\u003e|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `map\u003cint\u003e|error`   \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "findNumOfAthletesBycountry",
+      "insertText": "findNumOfAthletesBycountry()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p1",
+      "label": "alimit",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "string",
       "sortText": "F",
-      "insertText": "p1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p2",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "F",
-      "insertText": "p2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c1",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "F",
-      "insertText": "c1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c2",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "F",
-      "insertText": "c2",
+      "insertText": "alimit",
       "insertTextFormat": "Snippet"
     },
     {
@@ -596,116 +676,47 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "null",
-      "insertText": "null",
+      "label": "funcString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "funcString",
+      "insertText": "funcString()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "test/project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "project2",
-      "insertText": "project2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project2;\n"
+      "label": "intVar",
+      "kind": "Variable",
+      "detail": "0",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
         }
-      ]
+      },
+      "sortText": "AB",
+      "insertText": "intVar",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "test/project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "project1",
-      "insertText": "project1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project1;\n"
+      "label": "funcInt()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
-      ]
-    },
-    {
-      "label": "test/local_project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "local_project2",
-      "insertText": "local_project2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project2;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/local_project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "local_project1",
-      "insertText": "local_project1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project1;\n"
-        }
-      ]
-    },
-    {
-      "label": "function",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "function",
+      },
+      "sortText": "AC",
+      "filterText": "funcInt",
+      "insertText": "funcInt()",
       "insertTextFormat": "Snippet"
     }
   ]
