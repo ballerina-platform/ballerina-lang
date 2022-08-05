@@ -55,7 +55,6 @@ public class ShellWrapper {
     private static final String TEMP_FILE_SUFFIX = ".bal";
     private static final String COMMAND_PREFIX = "/";
 
-
     private static class InstanceHolder {
         private static final ShellWrapper instance = new ShellWrapper();
     }
