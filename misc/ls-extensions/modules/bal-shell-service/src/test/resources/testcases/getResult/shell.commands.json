@@ -3,7 +3,7 @@
     "source": "/help",
     "result": {
       "errors":["Parsing the node from the statement failed."],
-      "diagnostics":["Please note that Ballerina shell commands are not supported in here."],
+      "diagnostics":[],
       "metaInfo":{"definedVars":[],"moduleDclns":[]},
       "consoleOut":""
     }
@@ -12,7 +12,7 @@
     "source": "/xyz",
     "result": {
       "errors":["Parsing the node from the statement failed."],
-      "diagnostics":["Please note that Ballerina shell commands are not supported in here."],
+      "diagnostics":[],
       "metaInfo":{"definedVars":[],"moduleDclns":[]},
       "consoleOut":""
     }
