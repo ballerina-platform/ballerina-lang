@@ -886,8 +886,7 @@ public class CentralAPIClient {
         Optional<ResponseBody> body = Optional.ofNullable(response.body());
         if (body.isPresent()) {
             // If search request was sent wrongly
-            if (response.code() == HTTP_BAD_REQUEST ||
-                    response.code() == HTTP_NOT_FOUND) {
+            if (response.code() == HTTP_BAD_REQUEST || response.code() == HTTP_NOT_FOUND) {
                 Error error = new Gson().fromJson(body.get().string(), Error.class);
                 if (error.getMessage() != null && !"".equals(error.getMessage())) {
                     throw new CentralClientException(error.getMessage());
@@ -899,18 +898,9 @@ public class CentralAPIClient {
                 handleUnauthorizedResponse(body);
             }
 
-            // If error occurred at remote repository
-            if (response.code() == HTTP_INTERNAL_ERROR ||
-                    response.code() == HTTP_UNAVAILABLE) {
-                Error error = new Gson().fromJson(body.get().string(), Error.class);
-                if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                    throw new CentralClientException(msg + " reason:" + error.getMessage());
-                }
-            }
-
-            // If invalid/no response received at the gateway server
-            if (response.code() == HTTP_BAD_GATEWAY ||
-                    response.code() == HTTP_GATEWAY_TIMEOUT) {
+            // If error occurred at remote repository or invalid/no response received at the gateway server
+            if (response.code() == HTTP_INTERNAL_ERROR || response.code() == HTTP_UNAVAILABLE ||
+                    response.code() == HTTP_BAD_GATEWAY || response.code() == HTTP_GATEWAY_TIMEOUT) {
                 Error error = new Gson().fromJson(body.get().string(), Error.class);
                 if (error.getMessage() != null && !"".equals(error.getMessage())) {
                     throw new CentralClientException(msg + " reason:" + error.getMessage());
