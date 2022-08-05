@@ -142,6 +142,23 @@ function checkAnyDataEquality() {
     test:assertFalse((a == g) || !(a != g));
 }
 
+type IntOne 1;
+type FloatOne 1.0;
+type IntTwo 2;
+type FloatTwo 2f;
+
+function checkFiniteTypeEquality() {
+    IntOne intOne_1 = 1;
+    IntOne intOne_2 = 1;
+    IntTwo intTwo = 2;
+    FloatOne floatOne = 1f;
+    FloatTwo floatTwo = 2.0;
+
+    test:assertTrue((intOne_1 == intOne_2) && !(intOne_1 != intOne_2));
+    test:assertTrue((floatOne != floatTwo) && !(floatOne == floatTwo));
+    test:assertFalse((intOne_1 == intTwo) && !(intOne_1 != intTwo));
+}
+
 type ErrorDetail record {
     string message?;
     error cause?;
