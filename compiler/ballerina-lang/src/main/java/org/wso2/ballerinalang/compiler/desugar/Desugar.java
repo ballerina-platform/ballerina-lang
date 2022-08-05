@@ -7711,11 +7711,6 @@ public class Desugar extends BLangNodeVisitor {
         result = rewriteExpr(constructStringTemplateConcatExpression(stringTemplateLiteral.exprs));
     }
 
-    @Override
-    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        result = rewriteExpr(constructStringTemplateConcatExpression(regExpTemplateLiteral.exprs));
-    }
-
     /**
      * The raw template literal gets desugared to a type init expression. For each literal, a new object class type
      * def is generated from the object type. The type init expression creates an instance of this generated object
@@ -8341,6 +8336,13 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstRef constantRef) {
         result = ASTBuilderUtil.createLiteral(constantRef.pos, constantRef.getBType(), constantRef.value);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        regExpTemplateLiteral.pattern =
+                rewriteExpr(constructStringTemplateConcatExpression(regExpTemplateLiteral.patternFragments));
+        result = regExpTemplateLiteral;
     }
 
     // private functions
