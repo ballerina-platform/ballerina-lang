@@ -232,12 +232,12 @@ public class TestCentralApiClient extends CentralAPIClient {
 
         // invalidRequestErrorMessage here might not be identical to the actual HTTP response error message
         String invalidResponseErrorMessage = "package not found: foo/sf:*_any";
-        String errorWithNoResponseBodyMessage = "error: failed to pull the package: 'foo/sf:1.3.5'. " +
+        String unexpectedResponseErrorMessage = "error: failed to pull the package: 'foo/sf:1.3.5'. " +
                 "BALA content download from '" + this.balaUrl + "' failed.";
-        String remoteRepositoryErrorMessage = errorWithNoResponseBodyMessage + " reason:" + invalidResponseErrorMessage;
+        String remoteRepositoryErrorMessage = unexpectedResponseErrorMessage + " reason:" + invalidResponseErrorMessage;
         String responseString = "{\"message\": \"" + invalidResponseErrorMessage + "\"}";
 
-        Object[][] data = new Object[6][3];
+        Object[][] data = new Object[7][3];
         data[0] = new Object[]{HttpURLConnection.HTTP_NOT_FOUND, invalidResponseErrorMessage,
                 getResponseBody(responseString)};
         data[1] = new Object[]{HttpURLConnection.HTTP_INTERNAL_ERROR, remoteRepositoryErrorMessage,
@@ -249,8 +249,12 @@ public class TestCentralApiClient extends CentralAPIClient {
         data[4] = new Object[]{HttpURLConnection.HTTP_GATEWAY_TIMEOUT, remoteRepositoryErrorMessage,
                 getResponseBody(responseString)};
 
+        // test BALA download with a response status code not handled specifically
+        data[5] = new Object[]{HttpURLConnection.HTTP_FORBIDDEN, unexpectedResponseErrorMessage,
+                getResponseBody(responseString)};
+
         // test BALA download with no response body
-        data[5] = new Object[]{HttpURLConnection.HTTP_UNAVAILABLE, errorWithNoResponseBodyMessage, null};
+        data[6] = new Object[]{HttpURLConnection.HTTP_UNAVAILABLE, unexpectedResponseErrorMessage, null};
         return data;
     }
 
