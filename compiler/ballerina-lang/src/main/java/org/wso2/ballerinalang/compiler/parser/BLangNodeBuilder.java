@@ -350,6 +350,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -2342,12 +2343,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangNode xmlTemplateLiteral = createXmlTemplateLiteral(expressionNode);
                 xmlTemplateLiteral.pos = getPosition(expressionNode);
                 return xmlTemplateLiteral;
-            // This will be handled with the rest of the implementation.
-            case REGEX_TEMPLATE_EXPRESSION:
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case RAW_TEMPLATE_EXPRESSION:
                 return createRawTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
+            case REGEX_TEMPLATE_EXPRESSION:
+                return createRegExpTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -5314,6 +5315,40 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         return literal;
+    }
+
+    private BLangNode createRegExpTemplateLiteral(NodeList<Node> memberNodes, Location location) {
+        BLangRegExpTemplateLiteral regExpTemplateLiteral =
+                (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
+        for (Node memberNode : memberNodes) {
+            BLangExpression expression = (BLangExpression) memberNode.apply(this);
+            // Wrap interpolations in a non-capturing group (?:re).
+            if (memberNode.kind() == SyntaxKind.INTERPOLATION) {
+                regExpTemplateLiteral.exprs.add(createRegExpStringLiteral(expression.pos, "(?:"));
+                regExpTemplateLiteral.exprs.add(expression);
+                regExpTemplateLiteral.exprs.add(createRegExpStringLiteral(expression.pos, ")"));
+            } else {
+                regExpTemplateLiteral.exprs.add(expression);
+            }
+        }
+
+        if (regExpTemplateLiteral.exprs.isEmpty()) {
+            BLangLiteral emptyLiteral = createEmptyLiteral();
+            emptyLiteral.pos = location;
+            regExpTemplateLiteral.exprs.add(emptyLiteral);
+        }
+
+        regExpTemplateLiteral.pos = location;
+        return regExpTemplateLiteral;
+    }
+
+    private BLangLiteral createRegExpStringLiteral(Location pos, String value) {
+        BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        bLiteral.pos = pos;
+        bLiteral.setBType(symTable.stringType);
+        bLiteral.value = value;
+        bLiteral.originalValue = value;
+        return bLiteral;
     }
 
     private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
