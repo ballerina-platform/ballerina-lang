@@ -245,6 +245,11 @@ public class IfElseStmtTest {
         Assert.assertEquals(actual, 20, "elseif condition scope not set properly");
     }
 
+    @Test(description = "Test is condition with circular tuples inside a if block")
+    public void testCustomCircularTupleTypeWithIsCheck() {
+        BRunUtil.invoke(result, "testCustomCircularTupleTypeWithIsCheck");
+    }
+
     @Test()
     public void ifStmtNegativeTest() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
