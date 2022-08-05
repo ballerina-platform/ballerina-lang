@@ -706,11 +706,6 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     @Override
-    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
-
-    }
-
-    @Override
     public void visit(BLangDoClause doClause, AnalyzerData data) {
         SymbolEnv doEnv = doClause.env;
         data.loopAndDoClauseEnvs.add(doEnv);
@@ -748,6 +743,10 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             analyzeReachability((BLangNode) letVariable.definitionNode, data);
         }
         data.statementReturnsPanicsOrFails = returnStateBefore;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
     }
 
     private void checkStatementExecutionValidity(BLangStatement statement, AnalyzerData data) {

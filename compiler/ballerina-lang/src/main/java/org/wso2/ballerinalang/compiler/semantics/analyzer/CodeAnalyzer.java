@@ -2894,10 +2894,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
-    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
-    }
-
-    @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral, AnalyzerData data) {
         analyzeExprs(rawTemplateLiteral.strings, data);
         analyzeExprs(rawTemplateLiteral.insertions, data);
@@ -3382,6 +3378,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
             logDeprecatedWaring(annotAccessExpr.annotationName.toString(), annotationSymbol, annotAccessExpr.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
     }
 
     private void logDeprecatedWaring(String deprecatedConstruct, BSymbol symbol, Location pos) {

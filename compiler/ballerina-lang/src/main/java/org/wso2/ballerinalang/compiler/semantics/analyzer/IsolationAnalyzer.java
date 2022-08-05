@@ -1677,13 +1677,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        for (BLangExpression expr : regExpTemplateLiteral.exprs) {
-            analyzeNode(expr, env);
-        }
-    }
-
-    @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         for (BLangExpression insertion : rawTemplateLiteral.insertions) {
             analyzeNode(insertion, env);
@@ -2013,6 +2006,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangExpression childIndex = xmlNavigation.childIndex;
         if (childIndex != null) {
             analyzeNode(childIndex, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        for (BLangExpression expr : regExpTemplateLiteral.patternFragments) {
+            analyzeNode(expr, env);
         }
     }
 

@@ -2892,10 +2892,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     @Override
-    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
-    }
-
-    @Override
     public void visit(BLangMappingMatchPattern mappingMatchPattern, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         BRecordTypeSymbol recordSymbol = symbolEnter.createAnonRecordSymbol(currentEnv, mappingMatchPattern.pos);
@@ -2939,6 +2935,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         mappingMatchPattern.setBType(types.resolvePatternTypeFromMatchExpr(mappingMatchPattern,
                                                                            recordVarType, currentEnv));
         assignTypesToMemberPatterns(mappingMatchPattern, mappingMatchPattern.getBType(), data);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
     }
 
     private void assignTypesToMemberPatterns(BLangMatchPattern matchPattern, BType bType, AnalyzerData data) {

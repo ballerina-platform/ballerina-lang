@@ -5324,18 +5324,18 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangExpression expression = (BLangExpression) memberNode.apply(this);
             // Wrap interpolations in a non-capturing group (?:re).
             if (memberNode.kind() == SyntaxKind.INTERPOLATION) {
-                regExpTemplateLiteral.exprs.add(createRegExpStringLiteral(expression.pos, "(?:"));
-                regExpTemplateLiteral.exprs.add(expression);
-                regExpTemplateLiteral.exprs.add(createRegExpStringLiteral(expression.pos, ")"));
+                regExpTemplateLiteral.patternFragments.add(createRegExpStringLiteral(expression.pos, "(?:"));
+                regExpTemplateLiteral.patternFragments.add(expression);
+                regExpTemplateLiteral.patternFragments.add(createRegExpStringLiteral(expression.pos, ")"));
             } else {
-                regExpTemplateLiteral.exprs.add(expression);
+                regExpTemplateLiteral.patternFragments.add(expression);
             }
         }
 
-        if (regExpTemplateLiteral.exprs.isEmpty()) {
+        if (regExpTemplateLiteral.patternFragments.isEmpty()) {
             BLangLiteral emptyLiteral = createEmptyLiteral();
             emptyLiteral.pos = location;
-            regExpTemplateLiteral.exprs.add(emptyLiteral);
+            regExpTemplateLiteral.patternFragments.add(emptyLiteral);
         }
 
         regExpTemplateLiteral.pos = location;

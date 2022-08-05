@@ -131,10 +131,6 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
     }
 
     @Override
-    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
-    }
-
-    @Override
     public void visit(BLangSimpleVariable varNode, AnalyzerData data) {
         validateNoParameters(varNode);
         validateReturnParameter(varNode, null, false);
@@ -264,6 +260,10 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
                 Symbols.isFlagOn(classDefinition.symbol.flags, Flags.DEPRECATED), classDefinition.pos);
         validateDeprecatedParametersDocumentation(classDefinition.markdownDocumentationAttachment, classDefinition.pos);
 
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
     }
 
     private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,

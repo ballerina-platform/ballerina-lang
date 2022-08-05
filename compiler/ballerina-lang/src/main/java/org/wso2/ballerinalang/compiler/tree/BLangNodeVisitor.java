@@ -704,10 +704,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         throw new AssertionError();
     }
@@ -1053,6 +1049,10 @@ public abstract class BLangNodeVisitor {
     }
     
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
         throw new AssertionError();
     }
 }

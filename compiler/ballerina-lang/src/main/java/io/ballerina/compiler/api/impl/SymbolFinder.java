@@ -113,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1601,6 +1602,12 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(resourceAccessInvocation.requiredArgs);
         lookupNodes(resourceAccessInvocation.restArgs);
         lookupNode(resourceAccessInvocation.expr);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        lookupNode(regExpTemplateLiteral.pattern);
+        lookupNodes(regExpTemplateLiteral.patternFragments);
     }
 
     private boolean setEnclosingNode(BSymbol symbol, Location pos) {

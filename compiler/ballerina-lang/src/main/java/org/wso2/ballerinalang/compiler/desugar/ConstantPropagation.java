@@ -708,12 +708,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        rewrite(regExpTemplateLiteral.exprs);
-        result = regExpTemplateLiteral;
-    }
-
-    @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         rewrite(rawTemplateLiteral.strings);
         rewrite(rawTemplateLiteral.insertions);
@@ -1098,6 +1092,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
             }
         }
         result = varRefExpr;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        rewrite(regExpTemplateLiteral.patternFragments);
+        result = regExpTemplateLiteral;
     }
 
     @SuppressWarnings("unchecked")

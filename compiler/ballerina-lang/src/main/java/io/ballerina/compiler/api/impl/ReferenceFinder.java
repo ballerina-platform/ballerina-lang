@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1299,6 +1300,12 @@ public class ReferenceFinder extends BaseVisitor {
             addIfSameSymbol(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos);
         }
         addIfSameSymbol(resourceAccessInvocation.symbol, resourceAccessInvocation.pos);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        find(regExpTemplateLiteral.patternFragments);
+        find(regExpTemplateLiteral.pattern);
     }
 
     // Private methods

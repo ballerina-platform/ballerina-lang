@@ -1410,13 +1410,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRegExpTemplateLiteral source) {
-        BLangRegExpTemplateLiteral clone = new BLangRegExpTemplateLiteral();
-        source.cloneRef = clone;
-        clone.exprs = cloneList(source.exprs);
-    }
-
-    @Override
     public void visit(BLangRawTemplateLiteral source) {
         BLangRawTemplateLiteral clone = new BLangRawTemplateLiteral();
         source.cloneRef = clone;
@@ -2320,5 +2313,13 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.isService = source.isService;
 
         source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral source) {
+        BLangRegExpTemplateLiteral clone = new BLangRegExpTemplateLiteral();
+        source.cloneRef = clone;
+        clone.patternFragments = cloneList(source.patternFragments);
+        clone.pattern = clone(source.pattern);
     }
 }

@@ -1796,11 +1796,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        regExpTemplateLiteral.exprs.forEach(expr -> analyzeNode(expr, env));
-    }
-
-    @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         for (BLangLiteral string : rawTemplateLiteral.strings) {
             analyzeNode(string, env);
@@ -2195,6 +2190,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (!this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
         }
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        regExpTemplateLiteral.patternFragments.forEach(expr -> analyzeNode(expr, env));
     }
 
     /**
