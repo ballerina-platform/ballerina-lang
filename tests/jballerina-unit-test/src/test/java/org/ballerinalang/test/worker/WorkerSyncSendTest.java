@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) (2018-2022), WSO2 Inc. (http://www.wso2.com).
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -96,7 +96,7 @@ public class WorkerSyncSendTest {
         }
         Assert.assertNotNull(expectedException);
         String result = "error: error3 {\"message\":\"msg3\"}\n" +
-                "\tat sync-send:$lambda$_15(sync-send.bal:295)";
+                "\tat sync-send:$lambda$_15(sync-send.bal:312)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -116,7 +116,7 @@ public class WorkerSyncSendTest {
         }
         Assert.assertNotNull(expectedException);
         String result = "error: err from panic from w2\n" +
-                "\tat sync-send:$lambda$_19(sync-send.bal:348)";
+                "\tat sync-send:$lambda$_19(sync-send.bal:365)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -130,7 +130,7 @@ public class WorkerSyncSendTest {
         }
         Assert.assertNotNull(expectedException);
         String result = "error: err from panic from w1 w1\n" +
-                "\tat sync-send:$lambda$_20(sync-send.bal:364)";
+                "\tat sync-send:$lambda$_20(sync-send.bal:381)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -144,7 +144,7 @@ public class WorkerSyncSendTest {
         }
         Assert.assertNotNull(expectedException);
         String result = "error: err from panic from w2\n" +
-                "\tat sync-send:$lambda$_23(sync-send.bal:396)";
+                "\tat sync-send:$lambda$_23(sync-send.bal:413)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -158,7 +158,7 @@ public class WorkerSyncSendTest {
         }
         Assert.assertNotNull(expectedException);
         String result = "error: err from panic from w3w3\n" +
-                "\tat sync-send:$lambda$_26(sync-send.bal:436)";
+                "\tat sync-send:$lambda$_26(sync-send.bal:453)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -182,6 +182,11 @@ public class WorkerSyncSendTest {
     @Test
     public void testSyncSendAfterSend() {
         BRunUtil.invoke(result, "testSyncSendAfterSend");
+    }
+
+    @Test
+    public void testAsyncSend() {
+        BRunUtil.invoke(result, "testAsyncSend");
     }
 
     @Test
