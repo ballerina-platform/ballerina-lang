@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a response which consist of types info of given symbol(s).
+ * Represents a response which consist of types info of given symbols.
  */
-public class TypesResponseForSymbol {
+public class TypesFromSymbolResponse {
     private List<ResolvedTypeForSymbol> types;
 
-    public TypesResponseForSymbol() {
+    public TypesFromSymbolResponse() {
         types = new ArrayList<>();
     }
 
