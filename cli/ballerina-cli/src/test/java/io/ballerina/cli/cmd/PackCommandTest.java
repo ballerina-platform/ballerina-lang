@@ -219,15 +219,17 @@ public class PackCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pack an empty package with empty Non Default")
-    public void testPackEmptyNonDefaultModule() {
+    public void testPackEmptyNonDefaultModule() throws IOException {
         Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
+        String buildLog = readOutput(true);
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-nondefault-module.txt"));
+        Assert.assertFalse(projectPath.resolve("target").resolve("bala")
                 .resolve("wso2-emptyNonDefaultModule-any-0.1.0.bala").toFile().exists());
     }
 
