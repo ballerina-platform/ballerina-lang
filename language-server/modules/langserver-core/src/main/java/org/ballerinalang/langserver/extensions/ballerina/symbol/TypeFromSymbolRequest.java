@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,23 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
+import io.ballerina.tools.text.LinePosition;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 /**
- * Represents a request to get type info given for given positions of expressions.
+ * Represents a request to get type info given for given positions of symbols.
  */
-public class TypeFromExpressionRequest {
+public class TypeFromSymbolRequest {
     private TextDocumentIdentifier documentIdentifier;
+    private LinePosition[] positions;
 
-    private ExpressionRange[] expressionRanges;
+    public LinePosition[] getPositions() {
+        return positions;
+    }
+
+    public void setPositions(LinePosition[] positions) {
+        this.positions = positions;
+    }
 
     public TextDocumentIdentifier getDocumentIdentifier() {
         return documentIdentifier;
@@ -31,13 +39,5 @@ public class TypeFromExpressionRequest {
 
     public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
         this.documentIdentifier = documentIdentifier;
-    }
-
-    public ExpressionRange[] getExpressionRanges() {
-        return expressionRanges;
-    }
-
-    public void setExpressionRanges(ExpressionRange[] expressionRanges) {
-        this.expressionRanges = expressionRanges;
     }
 }

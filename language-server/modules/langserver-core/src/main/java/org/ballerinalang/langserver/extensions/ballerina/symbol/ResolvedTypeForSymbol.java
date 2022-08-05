@@ -15,29 +15,33 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
-import org.eclipse.lsp4j.TextDocumentIdentifier;
+import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
 /**
- * Represents a request to get type info given for given positions of expressions.
+ * Represents a type info with the position identifier
  */
-public class TypeFromExpressionRequest {
-    private TextDocumentIdentifier documentIdentifier;
+public class ResolvedTypeForSymbol {
+    private Type type;
+    private LinePosition requestedPosition;
 
-    private ExpressionRange[] expressionRanges;
-
-    public TextDocumentIdentifier getDocumentIdentifier() {
-        return documentIdentifier;
+    public ResolvedTypeForSymbol(LinePosition requestedPosition) {
+        this.requestedPosition = requestedPosition;
     }
 
-    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
-        this.documentIdentifier = documentIdentifier;
+    public Type getType() {
+        return type;
     }
 
-    public ExpressionRange[] getExpressionRanges() {
-        return expressionRanges;
+    public void setType(Type type) {
+        this.type = type;
     }
 
-    public void setExpressionRanges(ExpressionRange[] expressionRanges) {
-        this.expressionRanges = expressionRanges;
+    public LinePosition getRequestedPosition() {
+        return requestedPosition;
+    }
+
+    public void setRequestedPosition(LinePosition requestedPosition) {
+        this.requestedPosition = requestedPosition;
     }
 }
