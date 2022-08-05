@@ -2603,6 +2603,19 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
     }
 
+    public void loadRegExpType() {
+        ScopeEntry entry = symTable.langStringModuleSymbol.scope.lookup(Names.REG_EXP);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.regExpType = (BIntersectionType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("built-in 'lang.string:RegExp' type not found");
+    }
+
     private static class ParameterizedTypeInfo {
         BType paramValueType;
         int index = -1;

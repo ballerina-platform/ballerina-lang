@@ -178,6 +178,7 @@ public class Bootstrap {
         symbolTable.langStreamModuleSymbol = loadLangLibFromBala(STREAM, compilerContext);
         symbolTable.langTableModuleSymbol = loadLangLibFromBala(TABLE, compilerContext);
         symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
+        symResolver.loadRegExpType();
         symbolTable.langTypedescModuleSymbol = loadLangLibFromBala(TYPEDESC, compilerContext);
         symbolTable.langXmlModuleSymbol = loadLangLibFromBala(XML, compilerContext);
         symbolTable.langBooleanModuleSymbol = loadLangLibFromBala(BOOLEAN, compilerContext);

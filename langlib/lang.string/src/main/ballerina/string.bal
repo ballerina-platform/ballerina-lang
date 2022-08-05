@@ -20,6 +20,8 @@ import ballerina/jballerina.java;
 @builtinSubtype
 type Char string;
 
+public type RegExp anydata & readonly;
+
 # Returns the length of the string.
 #
 # + str - the string
