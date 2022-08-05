@@ -147,6 +147,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
@@ -201,6 +202,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TUPLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_B_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE;
@@ -1909,6 +1911,14 @@ public class JvmInstructionGen {
         this.storeToVar(xmlLoadIns.lhsOp.variableDcl);
     }
 
+    void generateNewRegExpIns(BIRNonTerminator.NewRegExp newRegExp) {
+        this.mv.visitTypeInsn(NEW, REG_EXP_VALUE);
+        this.mv.visitInsn(DUP);
+        this.loadVar(newRegExp.patternOp.variableDcl);
+        this.mv.visitMethodInsn(INVOKESPECIAL, REG_EXP_VALUE, JVM_INIT_METHOD, INIT_WITH_B_STRING, false);
+        this.storeToVar(newRegExp.lhsOp.variableDcl);
+    }
+
     void generateTypeofIns(BIRNonTerminator.UnaryOP unaryOp) {
 
         this.loadVar(unaryOp.rhsOp.variableDcl);
@@ -2156,6 +2166,9 @@ public class JvmInstructionGen {
                     break;
                 case XML_ATTRIBUTE_LOAD:
                     generateXMLAttrLoadIns((FieldAccess) inst);
+                    break;
+                case NEW_REG_EXP:
+                    generateNewRegExpIns((BIRNonTerminator.NewRegExp) inst);
                     break;
                 case FP_LOAD:
                     generateFPLoadIns((BIRNonTerminator.FPLoad) inst);

@@ -75,6 +75,7 @@ public class JvmConstants {
     public static final String TUPLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TupleValueImpl";
     public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TableValueImpl";
     public static final String SIMPLE_VALUE = "io/ballerina/runtime/internal/values/SimpleValue";
+    public static final String REG_EXP_VALUE = "io/ballerina/runtime/internal/values/RegExpValue";
 
     public static final String B_HANDLE = "io/ballerina/runtime/api/values/BHandle";
 
