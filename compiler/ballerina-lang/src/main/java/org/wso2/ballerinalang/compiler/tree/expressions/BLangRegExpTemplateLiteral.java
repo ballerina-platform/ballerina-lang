@@ -32,21 +32,22 @@ import java.util.List;
  */
 public class BLangRegExpTemplateLiteral extends BLangExpression implements RegExpTemplateLiteralNode {
 
-    // BLangNodes
-    public List<BLangExpression> exprs;
+    public List<BLangExpression> patternFragments;
+
+    public BLangExpression pattern;
 
     public BLangRegExpTemplateLiteral() {
-        exprs = new ArrayList<>();
+        patternFragments = new ArrayList<>();
     }
 
     @Override
     public List<BLangExpression> getExpressions() {
-        return exprs;
+        return patternFragments;
     }
 
     @Override
     public void addExpressions(ExpressionNode expression) {
-        this.exprs.add((BLangExpression) expression);
+        this.patternFragments.add((BLangExpression) expression);
     }
 
     @Override
@@ -71,6 +72,6 @@ public class BLangRegExpTemplateLiteral extends BLangExpression implements RegEx
 
     @Override
     public String toString() {
-        return "BLangRegExpTemplateLiteral: " + exprs;
+        return "BLangRegExpTemplateLiteral: " + patternFragments;
     }
 }
