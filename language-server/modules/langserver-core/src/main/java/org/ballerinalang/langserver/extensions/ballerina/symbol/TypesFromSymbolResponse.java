@@ -15,19 +15,24 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
-import org.ballerinalang.diagramutil.connector.models.connector.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represents a response which consist of type info of a given symbol.
+ * Represents a response which consist of types info of given symbol(s).
  */
-public class TypeFromSymbolResponse {
-    private Type type;
+public class TypesResponseForSymbol {
+    private List<ResolvedTypeForSymbol> types;
 
-    public Type getType() {
-        return type;
+    public TypesResponseForSymbol() {
+        types = new ArrayList<>();
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public List<ResolvedTypeForSymbol> getTypes() {
+        return types;
+    }
+
+    public void setTypes(List<ResolvedTypeForSymbol> types) {
+        this.types = types;
     }
 }
