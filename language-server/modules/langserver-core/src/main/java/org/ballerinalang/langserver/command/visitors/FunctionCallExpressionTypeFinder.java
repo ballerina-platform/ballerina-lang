@@ -158,7 +158,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             Types types = semanticModel.types();
             TypeBuilder builder = types.builder();
             UnionTypeSymbol unionTypeSymbol =
-                    builder.UNION_TYPE.withMemberTypes(typeSymbol, types.ANY).build();
+                    builder.UNION_TYPE.withMemberTypes(typeSymbol, types.NIL).build();
             checkAndSetTypeResult(unionTypeSymbol);
             return;
         }
