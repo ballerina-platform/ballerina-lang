@@ -643,6 +643,12 @@ public class BIROptimizer {
             this.optimizeNode(newXMLElement.defaultNsURIOp, this.env);
         }
 
+        @Override
+        public void visit(BIRNonTerminator.NewRegExp newRegExp) {
+            this.optimizeNode(newRegExp.lhsOp, this.env);
+            this.optimizeNode(newRegExp.patternOp, this.env);
+        }
+
         // Operands
         @Override
         public void visit(BIROperand birVarRef) {

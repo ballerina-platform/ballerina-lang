@@ -543,6 +543,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         writeType(newTypeDesc.type);
     }
 
+    @Override
+    public void visit(BIRNonTerminator.NewRegExp newRegExp) {
+        newRegExp.lhsOp.accept(this);
+        newRegExp.patternOp.accept(this);
+    }
+
     // Positions
     void writePosition(Location pos) {
         BIRWriterUtils.writePosition(pos, this.buf, this.cp);

@@ -237,6 +237,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.NewRegExp newRegExp) {
+        throw new AssertionError();
+    }
+
     // Operands
     public void visit(BIROperand birVarRef) {
         throw new AssertionError();

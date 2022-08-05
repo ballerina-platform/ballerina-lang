@@ -137,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -2322,6 +2323,22 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = unLockedBB;
 
         lockDetailsHolder.removeLastLock();
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(regExpTemplateLiteral.getBType(),
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        regExpTemplateLiteral.pattern.accept(this);
+        BIROperand regExpIndex = this.env.targetOperand;
+
+        BIRNonTerminator.NewRegExp newRegExp = new BIRNonTerminator.NewRegExp(regExpTemplateLiteral.pos, toVarRef,
+                regExpIndex);
+        setScopeAndEmit(newRegExp);
+        this.env.targetOperand = toVarRef;
     }
 
     private void setScopeAndEmit(BIRNonTerminator instruction) {

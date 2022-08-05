@@ -824,4 +824,28 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New RegExp instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewRegExp extends BIRNonTerminator {
+        public BIROperand patternOp;
+
+        public NewRegExp(Location pos, BIROperand lhsOp, BIROperand patternOp) {
+            super(pos, InstructionKind.NEW_REG_EXP);
+            this.lhsOp = lhsOp;
+            this.patternOp = patternOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{patternOp};
+        }
+    }
 }
