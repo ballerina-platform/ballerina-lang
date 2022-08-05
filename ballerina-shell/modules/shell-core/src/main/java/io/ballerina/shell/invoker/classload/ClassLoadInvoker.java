@@ -520,6 +520,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         for (GlobalVariableSymbol globalVariableSymbol : globalVarSymbols) {
             Identifier variableName = globalVariableSymbol.getName();
+            Identifier variableNameConverted = new Identifier(variableName.getUnicodeConvertedName());
             TypeSymbol typeSymbol = globalVariableSymbol.getTypeSymbol();
 
             // Is a built-in variable/function
@@ -527,7 +528,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 continue;
             }
             // Is not a variable defined by the snippet in question
-            if (!definedVariables.contains(variableName)) {
+            if (!definedVariables.contains(variableName) && !definedVariables.contains(variableNameConverted)) {
                 continue;
             }
 
@@ -619,12 +620,13 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             String value = StringUtils.shortenedString(objStr);
             if (!entry.getQualifiersAndMetadata().isEmpty()) {
                 varString = String.format("(%s) %s %s %s = %s",
-                        entry.getVariableName(), entry.getQualifiersAndMetadata().strip(), entry.getType(),
-                        entry.getVariableName(), value);
+                        entry.getVariableName().getUnicodeConvertedName(), entry.getQualifiersAndMetadata().strip(),
+                        entry.getType(), entry.getVariableName().getUnicodeConvertedName(), value);
                 finalVariablesDeclarations.add(varString);
             } else {
                 varString = String.format("(%s) %s %s = %s",
-                        entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
+                        entry.getVariableName().getUnicodeConvertedName(), entry.getType(),
+                        entry.getVariableName().getUnicodeConvertedName(), value);
                 variablesDeclarations.add(varString);
             }
         }
@@ -633,7 +635,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             if (entry.getValue().getRootNode().kind() == SyntaxKind.CONST_DECLARATION) {
                 ConstantDeclarationNode constantDeclarationNode =
                         (ConstantDeclarationNode) entry.getValue().getRootNode();
-                String varName = constantDeclarationNode.variableName().text();
+                String varName = StringUtils.convertUnicodeToCharacter(constantDeclarationNode.variableName().text());
                 String constKeyword = constantDeclarationNode.constKeyword().text();
                 String value = constantDeclarationNode.initializer().toString();
                 Optional<TypeDescriptorNode> typeDescriptorNode = constantDeclarationNode.typeDescriptor();
@@ -646,7 +648,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
                 constDeclarations.add(varString);
             }
-
         }
 
         if (variablesDeclarations.size() > 0) {
@@ -674,7 +675,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             String type = entry.getType();
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
             String objStr = StringUtils.getExpressionStringValue(obj);
-            AvailableVariable varObject = new AvailableVariable(entry.getVariableName().toString(), type, objStr);
+            AvailableVariable varObject = new AvailableVariable(
+                    entry.getVariableName().getUnicodeConvertedName(), type, objStr);
             varMap.add(varObject);
         }
         return varMap;

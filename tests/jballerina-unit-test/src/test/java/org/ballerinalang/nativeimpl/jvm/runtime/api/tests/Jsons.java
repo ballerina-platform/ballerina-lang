@@ -44,4 +44,8 @@ public class Jsons {
             throw new ErrorValue(StringUtils.fromString("provided typedesc does not describe a record type."));
         }
     }
+
+    public static BString convertJSONToString(Object jValue) {
+        return StringUtils.fromString(StringUtils.getJsonString(jValue));
+    }
 }

@@ -99,6 +99,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         String res = getResponse(sourcePath, finalRange, codeActionContext);
 
         List<CodeActionObj> mismatchedCodeActions = new ArrayList<>();
+        int matchedCodeActionsCount = 0;
         for (CodeActionObj expected : testConfig.expected) {
             // Create an object to keep track of the actual code action received
             CodeActionObj actual = new CodeActionObj();
@@ -116,7 +117,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 if (!expected.title.equals(actualTitle)) {
                     continue;
                 }
-
+                matchedCodeActionsCount++;
                 // We have to make sure the title is a match since we are checking against all the
                 // code actions received.
                 actual.title = actualTitle;
@@ -193,12 +194,21 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         }
         TestUtil.closeDocument(getServiceEndpoint(), sourcePath);
 
-        String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
+        String cursorStartStr = range.getStart().getLine() + ":" + range.getStart().getCharacter();
+        String cursorEndStr = range.getEnd().getLine() + ":" + range.getEnd().getCharacter();
         if (!mismatchedCodeActions.isEmpty()) {
 //            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
-            Assert.fail(String.format("Cannot find expected code action(s) for: '%s', cursor at [%s] in '%s': %s",
+            Assert.fail(
+                    String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
                     Arrays.toString(mismatchedCodeActions.toArray()),
-                    cursorStr, sourcePath, testConfig.description));
+                    cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
+        }
+
+        if (matchedCodeActionsCount != testConfig.expected.size()) {
+            Assert.fail(
+                    String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
+                    Arrays.toString(mismatchedCodeActions.toArray()),
+                    cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
         }
     }
 
@@ -262,7 +272,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         responseJson.remove("id");
         return responseJson;
     }
-    
+
     @BeforeClass
     public void setup() {
         workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
@@ -295,7 +305,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     public abstract Object[][] dataProvider();
 
     public abstract String getResourceDir();
-    
+
     @AfterClass
     public void cleanUp() {
         this.serverContext = null;
