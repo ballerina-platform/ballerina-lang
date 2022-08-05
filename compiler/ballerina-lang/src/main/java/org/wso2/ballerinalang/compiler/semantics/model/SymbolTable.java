@@ -214,6 +214,8 @@ public class SymbolTable {
     public BPackageSymbol langTransactionModuleSymbol;
     public BPackageSymbol internalTransactionModuleSymbol;
 
+    public BPackageSymbol langRegexpModuleSymbol;
+
     private Names names;
     private Types types;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
@@ -423,7 +425,9 @@ public class SymbolTable {
                                                 Map.entry(Names.TABLE, this.langTableModuleSymbol),
                                                 Map.entry(Names.TRANSACTION, this.langTransactionModuleSymbol),
                                                 Map.entry(Names.TYPEDESC, this.langTypedescModuleSymbol),
-                                                Map.entry(Names.XML, this.langXmlModuleSymbol));
+                                                Map.entry(Names.XML, this.langXmlModuleSymbol),
+                                                Map.entry(Names.REGEXP, this.langRegexpModuleSymbol)
+                );
     }
 
     public void initializeType(BType type, String name, SymbolOrigin origin) {

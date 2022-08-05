@@ -803,6 +803,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 break;
             case TypeTags.INTERSECTION:
                 return lookupLangLibMethod(((BIntersectionType) type).effectiveType, name, env);
+            case TypeTags.REGEXP:
+                bSymbol = lookupMethodInModule(symTable.langRegexpModuleSymbol, name, env);
+                break;
             default:
                 bSymbol = symTable.notFoundSymbol;
         }

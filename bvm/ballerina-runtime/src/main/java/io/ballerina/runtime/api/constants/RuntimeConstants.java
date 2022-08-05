@@ -78,6 +78,7 @@ public class RuntimeConstants {
     public static final String DECIMAL_LANG_LIB = "lang.decimal";
     public static final String BOOLEAN_LANG_LIB = "lang.boolean";
     public static final String TRANSACTION_LANG_LIB = "lang.transaction";
+    public static final String REGEXP_LANG_LIB = "lang.regexp";
 
     // Workers
     public static final String DEFAULT_WORKER_NAME = "default";

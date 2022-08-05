@@ -74,6 +74,7 @@ public class Names {
     public static final Name XML = new Name("xml");
     public static final Name JSON = new Name("json");
     public static final Name ANYDATA = new Name("anydata");
+    public static final Name REGEXP = new Name("regexp");
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
