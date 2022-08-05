@@ -17,7 +17,6 @@ package io.ballerina.shell.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.ExceptionStatus;
 import io.ballerina.shell.NotebookReturnValue;
@@ -39,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,9 +104,7 @@ public class ShellWrapper {
                 throw new SnippetException();
             } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.TREE_PARSER_FAILED) {
                 if (source.startsWith(COMMAND_PREFIX)) {
-                    List<Diagnostic> diagnostics = Collections.singletonList(Diagnostic.error(
-                            "Please note that Ballerina shell commands are not supported in here."));
-                    output.addOutputDiagnostics(diagnostics);
+                    // remove diagnostics added by parser due to the command prefix
                     evaluator.resetDiagnostics();
                 }
                 throw new TreeParserException();
