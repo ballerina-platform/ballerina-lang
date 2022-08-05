@@ -15,29 +15,24 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
-import org.eclipse.lsp4j.TextDocumentIdentifier;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represents a request to get type info given for given positions of expressions.
+ * Represents a response which consist of types info of given expressions.
  */
-public class TypeFromExpressionRequest {
-    private TextDocumentIdentifier documentIdentifier;
+public class TypesFromExpressionResponse {
+    private List<ResolvedTypeForExpression> types;
 
-    private ExpressionRange[] expressionRanges;
-
-    public TextDocumentIdentifier getDocumentIdentifier() {
-        return documentIdentifier;
+    public TypesFromExpressionResponse() {
+        types = new ArrayList<>();
     }
 
-    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
-        this.documentIdentifier = documentIdentifier;
+    public List<ResolvedTypeForExpression> getTypes() {
+        return types;
     }
 
-    public ExpressionRange[] getExpressionRanges() {
-        return expressionRanges;
-    }
-
-    public void setExpressionRanges(ExpressionRange[] expressionRanges) {
-        this.expressionRanges = expressionRanges;
+    public void setTypes(List<ResolvedTypeForExpression> types) {
+        this.types = types;
     }
 }
