@@ -90,6 +90,9 @@ public class MatchStmtListMatchPatternTest {
                 "testListMatchPattern37",
                 "testListMatchPattern38",
                 "testListMatchPattern39",
+                "testListMatchPattern40",
+                "testListMatchPattern41",
+                "testListMatchPattern42",
                 "testListMatchPatternWithArrayAndAnydataIntersection",
         };
     }
