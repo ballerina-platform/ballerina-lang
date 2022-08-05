@@ -65,6 +65,7 @@ import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
+import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
@@ -507,6 +508,9 @@ public class TypeChecker {
                     return false;
                 }
                 return isHandleValueRefEqual(lhsValue, rhsValue);
+            case TypeTags.REG_EXP_TYPE_TAG:
+                return rhsType.getTag() == TypeTags.REG_EXP_TYPE_TAG && isEqual((RegExpValue) lhsValue,
+                        (RegExpValue) rhsValue);
         }
 
         return false;
@@ -2941,6 +2945,9 @@ public class TypeChecker {
             case TypeTags.TABLE_TAG:
                 return rhsValTypeTag == TypeTags.TABLE_TAG &&
                         isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
+            case TypeTags.REG_EXP_TYPE_TAG:
+                return rhsValTypeTag == TypeTags.REG_EXP_TYPE_TAG && isEqual((RegExpValue) lhsValue,
+                        (RegExpValue) rhsValue);
         }
         return false;
     }
@@ -3048,6 +3055,17 @@ public class TypeChecker {
         }
 
         return false;
+    }
+
+    /**
+     * Deep equality check for regular expressions.
+     *
+     * @param lhsRegExp Regular expression on the left hand side
+     * @param rhsRegExp Regular expression on the right hand side
+     * @return True if the regular expression values are equal, else false.
+     */
+    private static boolean isEqual(RegExpValue lhsRegExp, RegExpValue rhsRegExp) {
+        return lhsRegExp.getRegExpValue().equals(rhsRegExp.getRegExpValue());
     }
 
     /**
