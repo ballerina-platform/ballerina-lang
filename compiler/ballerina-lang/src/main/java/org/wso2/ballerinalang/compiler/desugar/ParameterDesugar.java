@@ -446,6 +446,11 @@ public class ParameterDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        result = resourceAccessInvocation;
+    }
+
+    @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         SymbolEnv funcEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.getBType().tsymbol.scope, env);
         for (BLangSimpleVariable param : functionTypeNode.params) {

@@ -311,7 +311,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Then resolve user defined types without analyzing type definitions that get added while analyzing other nodes
         for (int i = 0; i < copyOfOriginalTopLevelNodes.size(); i++)  {
             if (copyOfOriginalTopLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
-                analyzeDef((BLangNode) copyOfOriginalTopLevelNodes.get(i), data);
+                analyzeNode((BLangNode) copyOfOriginalTopLevelNodes.get(i), data);
             }
         }
 
