@@ -95,3 +95,17 @@ configurable json unionVar2 = ?;
 
 // Unsupported tuple type
 configurable [int, string, json] tupleVar = ?;
+
+// Unsupported nil type
+type Person6 record {|
+    () field1;
+    string? field2;
+|};
+
+configurable () nilVar = ?;
+configurable ()[] nilArr = ?;
+configurable string? nilUnion = ?;
+configurable map<()> nilMap = ?;
+configurable Person6 nilRecord1 = ?;
+// configurable Person6 nilRecord2 = {field1: (), field2: "abc"};
+configurable table<map<()>> nilTable = ?;
