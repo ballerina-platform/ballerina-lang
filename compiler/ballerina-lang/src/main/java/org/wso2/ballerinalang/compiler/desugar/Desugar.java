@@ -5797,6 +5797,7 @@ public class Desugar extends BLangNodeVisitor {
             if (fieldNames.contains(fieldName)) {
                 continue;
             }
+            fieldNames.add(fieldName);
             BInvokableSymbol invokableSymbol = entry.getValue();
             BLangInvocation closureInvocation = getInvocation(invokableSymbol);
             BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
@@ -5815,17 +5816,19 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         List<String> fieldNames = getNamesOfRecordFields(fields);
+        Location pos = recordLiteral.pos;
+        updateFieldsOfRecordLiteral((BRecordType) type, fields, fieldNames, pos);
+    }
 
-        BRecordType recordType = (BRecordType) type;
+    private void updateFieldsOfRecordLiteral(BRecordType recordType, List<RecordLiteralNode.RecordField> fields,
+                                             List<String> fieldNames, Location pos) {
         Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
-        updateFieldsOfRecordLiteral(fields, fieldNames, defaultValues, recordLiteral.pos);
+        updateFieldsOfRecordLiteral(fields, fieldNames, defaultValues, pos);
 
         List<BType> typeInclusions = recordType.typeInclusions;
 
         for (BType typeInclusion : typeInclusions) {
-            type = Types.getReferredType(typeInclusion);
-            defaultValues = ((BRecordTypeSymbol) type.tsymbol).defaultValues;
-            updateFieldsOfRecordLiteral(fields, fieldNames, defaultValues, recordLiteral.pos);
+            updateFieldsOfRecordLiteral((BRecordType) Types.getReferredType(typeInclusion), fields, fieldNames, pos);
         }
     }
 
