@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
@@ -71,6 +72,7 @@ public class TestProcessor {
     private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
+    private static final String TEST_EXECUTE_FILE_PREFIX = "test_execute-generated_";
     private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
@@ -151,7 +153,7 @@ public class TestProcessor {
         String testModuleName = packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
         TestSuite testSuite = new TestSuite(module.descriptor().name().toString(), testModuleName,
                 module.descriptor().packageName().toString(), module.descriptor().org().value(),
-                module.descriptor().version().toString());
+                module.descriptor().version().toString(), getExecutePath(module));
         TesterinaRegistry.getInstance().getTestSuites().put(
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
@@ -564,5 +566,22 @@ public class TestProcessor {
 
         String fieldName = ((BasicLiteralNode) fieldNameNode).literalToken().text();
         return fieldName.substring(1, fieldName.length() - 1);
+    }
+
+    /**
+     * Get the execution path string from {@code Module}
+     *
+     * @param module Module
+     * @return String
+     */
+    private String getExecutePath(Module module) {
+        for (DocumentId docId : module.testDocumentIds()) {
+            if (module.document(docId).name().startsWith(TEST_EXECUTE_FILE_PREFIX)) {
+                String executePath = module.document(docId).name();
+                return executePath.substring(0, executePath.length() - 4);
+            }
+        }
+        //TODO: Throw an exception for not generating the test execution file. Currently, this handles at BTestRunner
+        return "";
     }
 }
