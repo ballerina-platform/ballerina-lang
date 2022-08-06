@@ -1299,6 +1299,17 @@ public class BIRPackageSymbolEnter {
                         recordType.fields.put(structField.name.value, structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
+                    int defaultValues = inputStream.readInt();
+                    for (int i = 0; i < defaultValues; i++) {
+                        String paramName = getStringCPEntryValue(inputStream);
+                        BInvokableSymbol invokableSymbol = getSymbolOfClosure();
+                        recordSymbol.defaultValues.put(paramName, invokableSymbol);
+                    }
+
+                    int typeInclusions = inputStream.readInt();
+                    for (int i = 0; i < typeInclusions; i++) {
+                        recordType.typeInclusions.add(readTypeFromCp());
+                    }
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
