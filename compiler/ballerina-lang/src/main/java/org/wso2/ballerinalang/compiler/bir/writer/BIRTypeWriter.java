@@ -412,16 +412,13 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(field.type);
         }
 
+        writeTypeInclusions(bRecordType.typeInclusions);
+
         buff.writeInt(tsymbol.defaultValues.size());
         tsymbol.defaultValues.forEach((k, v) -> {
             buff.writeInt(addStringCPEntry(k));
             writeSymbolOfClosure(v);
         });
-
-        buff.writeInt(bRecordType.typeInclusions.size());
-        for (BType type : bRecordType.typeInclusions) {
-            writeTypeCpIndex(type);
-        }
     }
 
     @Override

@@ -461,17 +461,18 @@ types:
         type: record_field
         repeat: expr
         repeat-expr: record_fields_count
-      - id: has_init_function
-        type: s1
-      - id: record_init_function
-        type: record_init_function
-        if: has_init_function == 1
       - id: type_inclusions_count
         type: s4
       - id: type_inclusions_cp_index
         type: s4
         repeat: expr
         repeat-expr: type_inclusions_count
+      - id: default_values
+        type: s4
+      - id: default_value
+        type: default_value_body
+        repeat: expr
+        repeat-expr: default_values
   record_field:
     seq:
       - id: name_cp_index
