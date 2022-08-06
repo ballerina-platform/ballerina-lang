@@ -18,16 +18,16 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
-import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.plugins.CodeGenerator;
+import io.ballerina.projects.plugins.CodeGeneratorContext;
 
 /**
- * Compiler plugin for the Testerina module.
+ * Code generator for the Testerina module.
  */
-public class TesterinaCompilerPlugin extends CompilerPlugin {
+public class TesterinaCodeGenerator extends CodeGenerator {
 
     @Override
-    public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeGenerator(new TesterinaCodeGenerator());
+    public void init(CodeGeneratorContext generatorContext) {
+        generatorContext.addSourceGeneratorTask(new TestExecutionGenerationTask());
     }
 }
