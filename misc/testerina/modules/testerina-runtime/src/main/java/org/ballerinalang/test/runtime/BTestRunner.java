@@ -262,6 +262,16 @@ public class BTestRunner {
         } catch (Throwable e) {
             throw new BallerinaTestException("failed to load configuration class :" + configClassName);
         }
+        String testExecuteClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
+                suite.getTestPackageID(),
+                suite.getVersion(),
+                suite.getExecuteFilePath());
+        Class<?> testExecuteClazz;
+        try {
+            testExecuteClazz = classLoader.loadClass(testExecuteClassName);
+        } catch (Throwable e) {
+            throw new BallerinaTestException("failed to load test execution class :" + testExecuteClassName);
+        }
         Scheduler scheduler = new Scheduler(4, false);
         Scheduler initScheduler = new Scheduler(4, false);
         // 'shouldSkip' sets to true if beforeSuite, beforeEach or afterEach functions fail
@@ -271,23 +281,17 @@ public class BTestRunner {
         tReport.setReportRequired(suite.isReportRequired());
         // Initialize the test suite.
         // This will init and start the test module.
-        startSuite(suite, initScheduler, initClazz, configClazz);
-        // Run Before suite functions
-        executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip, shouldSkipAfterSuite);
-        // Run Tests
-        executeTests(suite, packageName, classLoader, scheduler, shouldSkip);
-        // Run After suite functions
-        executeAfterSuiteFunctions(suite, classLoader, scheduler, shouldSkipAfterSuite);
+        startSuite(suite, initScheduler, initClazz, configClazz, testExecuteClazz);
         // Call module stop and test stop function
         stopSuite(scheduler, initClazz);
-        // print module test results
-        tReport.printTestSuiteSummary(packageName);
     }
 
-    private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> configClazz) {
+    private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz,
+                            Class<?> configClazz, Class<?> testExecuteClazz) {
         TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
         TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
         TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
+        TesterinaFunction testExecute = new TesterinaFunction(testExecuteClazz, "__execute__", initScheduler);
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
 
@@ -308,6 +312,12 @@ public class BTestRunner {
         // properly.
         start.setName("$moduleStart");
         response = start.invoke();
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("Dependant module start for test suite failed due to error : " +
+                    formatErrorMessage((Throwable) response), (Throwable) response);
+        }
+
+        response = testExecute.invoke();
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Dependant module start for test suite failed due to error : " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
