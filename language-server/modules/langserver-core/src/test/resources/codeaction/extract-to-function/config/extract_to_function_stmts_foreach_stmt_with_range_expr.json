@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 4
+    },
+    "end": {
+      "line": 4,
+      "character": 5
+    }
+  },
+  "source": "extract_to_function_stmts_foreach_stmt_with_range_expr.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 1
+            },
+            "end": {
+              "line": 5,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(int localVar) {\n    foreach int iter in 0...localVar {\n        doSomething(iter);\n    }\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 5
+            }
+          },
+          "newText": "extracted(localVar);"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for foreach statement, checks when action-or-expr is an range-expr"
+}

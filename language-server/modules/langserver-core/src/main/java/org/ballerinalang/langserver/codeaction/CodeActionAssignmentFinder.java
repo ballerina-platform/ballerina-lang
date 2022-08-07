@@ -129,6 +129,7 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
     public void visit(VariableDeclarationNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.typedBindingPattern().bindingPattern());
         symbol.ifPresent(varDeclarationSymbols::add);
+        // todo visit initializer
     }
 
     @Override
