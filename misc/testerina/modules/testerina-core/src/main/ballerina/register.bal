@@ -20,6 +20,10 @@ final TestRegistry afterSuiteRegistry = new ();
 final TestRegistry beforeEachRegistry = new ();
 final TestRegistry afterEachRegistry = new ();
 
+final GroupRegistry beforeGroupsRegistry = new ();
+final GroupRegistry afterGroupsRegistry = new ();
+final GroupStatusRegistry groupStatusRegistry = new ();
+
 public function registerTest(string name, function f) returns error? {
     if options.tests.length() == 0 || options.tests.indexOf(name) is int {
         check processAnnotation(name, f);
@@ -28,18 +32,17 @@ public function registerTest(string name, function f) returns error? {
 
 type TestFunction record {|
     string name;
-    function testFunction;
+    function executableFunction;
     DataProviderReturnType? params = ();
     function? before = ();
     function? after = ();
+    boolean alwaysRun = false;
+    string[] groups = [];
+    boolean skip = false;
 |};
 
 class TestRegistry {
-    private TestFunction[] registry;
-
-    function init() {
-        self.registry = [];
-    }
+    private final TestFunction[] registry = [];
 
     function addFunction(*TestFunction functionDetails) {
         self.registry.push(functionDetails);
@@ -47,3 +50,57 @@ class TestRegistry {
 
     function getFunctions() returns TestFunction[] => self.registry;
 }
+
+class GroupRegistry {
+    private final map<TestFunction[]> registry = {};
+
+    function addFunction(string group, TestFunction testFunction) {
+        if self.registry.hasKey(group) {
+            self.registry.get(group).push(testFunction);
+        } else {
+            self.registry[group] = [testFunction];
+        }
+    }
+
+    function getFunctions(string group) returns TestFunction[]? {
+        if self.registry.hasKey(group) {
+            return self.registry.get(group);
+        }
+        return;
+    }
+}
+
+class GroupStatusRegistry {
+    private final map<int> totalTests = {};
+    private final map<int> executedTests = {};
+    private final map<boolean> skip = {};
+
+    function firstExecuted(string group) returns boolean => self.executedTests.get(group) > 0;
+
+    function lastExecuted(string group) returns boolean => self.executedTests.get(group) == self.totalTests.get(group);
+
+    function incrementTotalTest(string group) {
+        self.skip[group] = false;
+        if self.totalTests.hasKey(group) {
+            self.totalTests[group] = self.totalTests.get(group) + 1;
+        } else {
+            self.totalTests[group] = 1;
+            self.executedTests[group] = 0;
+        }
+    }
+
+    function incrementExecutedTest(string group) {
+        if self.executedTests.hasKey(group) {
+            self.executedTests[group] = self.executedTests.get(group) + 1;
+        } else {
+            self.executedTests[group] = 1;
+        }
+    }
+
+    function setSkipAfterGroup(string group) {
+        self.skip[group] = true;
+    }
+
+    function getSkipAfterGroup(string group) returns boolean => self.skip.get(group);
+}
+
