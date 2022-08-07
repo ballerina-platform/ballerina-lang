@@ -40,8 +40,14 @@ public function report() {
     passed.forEach(entry => println("\t\t[pass] " + entry));
     failed.forEach(function([string, error] entry) {
         println("\t\t[fail] " + entry[0] + ":");
-        println("\n\t\t    " + (<error>entry[1]).message());
+        println("\n\t\t    " + formatError(entry[1].message()));
     });
 
     testSuiteResult();
+}
+
+function formatError(string message) returns string {
+    string[] lines = split(message, "\n");
+    lines.push("");
+    return string:'join("\n\t\t\t", ...lines);
 }
