@@ -38,14 +38,7 @@ public function execute() returns map<error?> {
 
 function executeFunctions(TestRegistry registry, TestLifeCycle lifeCycle) {
     foreach TestFunction testFunction in registry.getFunctions() {
-        if testFunction.params != () {
-            //TODO: generate an error
-        } else {
-            any|error output = trap function:call(testFunction.testFunction);
-            if output is error { //TODO: return the error
-    
-            }
-        }
+        error? gen = executeFunction(testFunction.testFunction);
     }
 }
 
@@ -53,32 +46,45 @@ function executeTests() returns map<error?> {
     map<error?> result = {};
     foreach TestFunction testFunction in testRegistry.getFunctions() {
         executeFunctions(beforeEachRegistry, BEFORE_EACH);
+        if testFunction.before is function {
+            error? forNow = executeFunction(<function>testFunction.before);
+        }
 
         DataProviderReturnType? params = testFunction.params;
         if params is map<any[]> {
             foreach [string, any[]] entry in params.entries() {
-                executeFunction(result, testFunction.testFunction, testFunction.name + "#" + entry[0], entry[1]);
+                executeTestFunction(result, testFunction.testFunction, testFunction.name + "#" + entry[0], entry[1]);
             }
         } else if params is any[][] {
             int i = 0;
             foreach any[] entry in params {
-                executeFunction(result, testFunction.testFunction, testFunction.name + "#" + i.toString(), entry);
+                executeTestFunction(result, testFunction.testFunction, testFunction.name + "#" + i.toString(), entry);
                 i += 1;
             }
         } else {
-            executeFunction(result, testFunction.testFunction, testFunction.name);
+            executeTestFunction(result, testFunction.testFunction, testFunction.name);
         }
 
+        if testFunction.after is function {
+            error? forNow = executeFunction(<function>testFunction.after);
+        }
         executeFunctions(afterEachRegistry, AFTER_EACH);
     }
     return result;
 }
 
-function executeFunction(map<error?> result, function testFunction, string name, (any|error)[]? params = ()) {
+function executeTestFunction(map<error?> result, function testFunction, string name, (any|error)[]? params = ()) {
     any|error output = params == () ? trap function:call  (testFunction) : trap function:call  (testFunction, ... params);
     if output is error {
         onFailed(name, output);
     } else {
         onPassed(name);
+    }
+}
+
+function executeFunction(function f) returns error? {
+    any|error output = trap function:call(f);
+    if output is error {
+        return output;
     }
 }
