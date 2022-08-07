@@ -14,8 +14,34 @@
 // specific language governing permissions and limitations
 // under the License.
 
-final map<function> testRegistry = {};
+final TestRegistry testRegistry = new ();
+final TestRegistry beforeSuiteRegistry = new ();
+final TestRegistry afterSuiteRegistry = new ();
+final TestRegistry beforeEachRegistry = new ();
+final TestRegistry afterEachRegistry = new ();
 
-public function registerTest(string name, function f) {
-    testRegistry[name] = f;            
+public function registerTest(string name, function f) returns error? {
+    if options.tests.length() == 0 || options.tests.indexOf(name) is int {
+        check processAnnotation(name, f);
+    }
+}
+
+type TestFunction record {|
+    string name;
+    function testFunction;
+    DataProviderReturnType? params = ();
+|};
+
+class TestRegistry {
+    private TestFunction[] registry;
+
+    function init() {
+        self.registry = [];
+    }
+
+    function addFunction(*TestFunction functionDetails) {
+        self.registry.push(functionDetails);
+    }
+
+    function getFunctions() returns TestFunction[] => self.registry;
 }

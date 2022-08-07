@@ -25,15 +25,11 @@
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
-    function() returns (any|error) dataProvider?;
+    function() returns DataProviderReturnType dataProvider?;
     function() returns (any|error) before?;
     function() returns (any|error) after?;
     function[] dependsOn = [];
 };
-
-public type FactoryConfig record {|
-    boolean enable = true;
-|};
 
 # Configuration of the function to be mocked.
 #
@@ -70,8 +66,8 @@ public type AfterGroupsConfig record {
 # Identifies test function.
 public annotation TestConfig Config on function;
 
-# Identifies test factory function.
-public annotation FactoryConfig Factory on function ;
+# Identifies test factory function for dynamic test registration.
+public annotation Factory on function ;
 
 # Identifies beforeSuite function.
 public annotation BeforeSuite on function;
