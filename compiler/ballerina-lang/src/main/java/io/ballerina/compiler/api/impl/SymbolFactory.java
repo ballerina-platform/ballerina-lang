@@ -85,12 +85,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -533,9 +536,13 @@ public class SymbolFactory {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol,
                                                                   this.context);
-        symbolBuilder.withConstValue(constantSymbol.getConstValue())
-                .withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.type))
-                .withBroaderTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
+        symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.type))
+                      .withBroaderTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
+
+        // Check whether the constant-symbol has a missing constant expression
+        if (constantSymbol.getConstValue() != null) {
+            symbolBuilder.withConstValue(createConstantValue((BLangConstantValue) constantSymbol.getConstValue()));
+        }
 
         if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
@@ -546,6 +553,31 @@ public class SymbolFactory {
         }
 
         return symbolBuilder.build();
+    }
+
+    private BallerinaConstantSymbol.BallerinaConstantValue createConstantValue(BLangConstantValue constantValue) {
+        if (constantValue!= null && constantValue.value instanceof BLangConstantValue) {
+            return createConstantValue((BLangConstantValue) constantValue.value);
+        }
+
+        if (constantValue.value instanceof HashMap) {
+            Map constValueMap = (Map) constantValue.value;
+            Map<String, BallerinaConstantSymbol.BallerinaConstantValue> constSymbolMap = new LinkedHashMap<>();
+            constValueMap.forEach((key, value) -> {
+                BallerinaConstantSymbol.BallerinaConstantValue newContValue;
+                if (value instanceof BLangConstantValue) {
+                    newContValue = createConstantValue((BLangConstantValue) value);
+                    constSymbolMap.put((String) key, newContValue);
+                }
+            });
+            return createConstantValue(constSymbolMap, constantValue.type);
+        }
+
+        return createConstantValue(constantValue.value, constantValue.type);
+    }
+
+    private BallerinaConstantSymbol.BallerinaConstantValue createConstantValue(Object value, BType bType) {
+        return new BallerinaConstantSymbol.BallerinaConstantValue(value, typesFactory.getTypeDescriptor(bType));
     }
 
     /**
