@@ -58,20 +58,24 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_statements_list_with_asgnmntAndCompAsgnmnt_sameVar.json"},
                 {"extract_to_function_statements_list_with_moduleVar_assignmentStatement.json"},
                 {"extract_to_function_statements_list_with_moduleVar_comAssignmentStatement.json"},
+//                {"extract_to_function_stmts_list_with_action_stmt_start_and_wait.json"},
 
                 {"extract_to_function_stmts_block_stmt_inside_block.json"},
-//                {"extract_to_function_stmts_block_stmt_with_block.json"}, // todo (removed this support for now)
+//                {"extract_to_function_stmts_block_stmt_with_block.json"}, // todo (support this)
 
                 {"extract_to_function_stmts_local_var_decl_with_init.json"},
                 {"extract_to_function_stmts_local_var_decl_with_init_range_till_closing_bracket.json"},
                 {"extract_to_function_stmts_local_var_decl_without_init.json"}, //todo check this for other statements as well
+//                {"extract_to_function_stmts_local_var_decl_with_start_action.json"},  // todo conform with spec for every case to allow these
+//                {"extract_to_function_stmts_local_var_decl_with_wait_action_without_start_action.json"},
+//                {"extract_to_function_stmts_local_var_decl_with_wait_action_with_future_param.json"},
 
                 {"extract_to_function_stmts_assignment_stmt_moduleVar.json"},
                 {"extract_to_function_stmts_com_assignment_stmt_moduleVar.json"},
 
                 {"extract_to_function_stmts_if_else_stmt_with_if_only.json"},
-                {"extract_to_function_stmts_if_else_stmt_with_if_and_else.json"},
-                {"extract_to_function_stmts_if_else_stmt_with_else_if.json"},
+                {"extract_to_function_stmts_if_else_stmt_with_if_and_else.json"}, // todo (support this)
+//                {"extract_to_function_stmts_if_else_stmt_with_else_if.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_nested_if.json"},
 
                 {"extract_to_function_stmts_while_stmt.json"},
@@ -79,17 +83,12 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 {"extract_to_function_stmts_return_stmt.json"},
 
-                // todo
-//                {"extract_to_function_stmts_action_stmt.json"},
+                {"extract_to_function_stmts_lock_stmt.json"},
 
-//                {"extract_to_function_stmts_lock_stmt.json"},
-//
-//                {"extract_to_function_stmts_named_worker_decl_stmt.json"},
-//
-//                {"extract_to_function_stmts_fork_stmt.json"},
-//
-//                {"extract_to_function_stmts_foreach_stmt.json"},
-//
+                {"extract_to_function_stmts_foreach_stmt.json"},
+                {"extract_to_function_stmts_foreach_stmt_with_range_expr.json"},
+                {"extract_to_function_stmts_foreach_stmt_without_iterable_declared_inside.json"},
+// todo
 //                {"extract_to_function_stmts_transaction_stmt.json"},
 //
 //                {"extract_to_function_stmts_rollback_stmt.json"},
@@ -140,6 +139,10 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_stmts_panic_statement.json"},
 
                 {"negative_extract_to_function_stmts_return_stmt_without_action_or_expr.json"},
+
+                {"negative_extract_to_function_stmts_lock_stmt.json"},
+
+                {"negative_extract_to_function_stmts_foreach_stmt.json"},
         };
     }
 
