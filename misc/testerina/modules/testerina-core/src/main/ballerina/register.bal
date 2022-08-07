@@ -30,6 +30,8 @@ type TestFunction record {|
     string name;
     function testFunction;
     DataProviderReturnType? params = ();
+    function? before = ();
+    function? after = ();
 |};
 
 class TestRegistry {
