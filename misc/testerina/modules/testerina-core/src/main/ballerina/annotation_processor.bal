@@ -1,19 +1,3 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 type AnnotationProcessor function (string name, function f) returns boolean|error;
 
 AnnotationProcessor[] annotationProcessors = [
@@ -43,20 +27,20 @@ function processAnnotation(string name, function f) returns error? {
 function processConfigAnnotation(string name, function f) returns boolean|error {
     TestConfig? config = (typeof f).@Config;
     if config != () {
-        if !(options.groups.length() > 0 ? checkGroup(config.groups) : true && checkTest(name)) {
+        if !config.enable || !(options.groups.length() > 0 ? checkGroup(config.groups) : true && checkTest(name)) {
             return true;
         }
+        DataProviderReturnType? params = ();
         if config.dataProvider != () {
-            DataProviderReturnType|error params = trap config.dataProvider();
-            if params is error {
-                //TODO: append the data provider function's name if possible
-                return error(string `Error while executing the dataProvider, ${params.message()}`);
+            DataProviderReturnType|error providerOutput = trap config.dataProvider();
+            if providerOutput is error {
+                return error(string `Failed to execute the dataProvider for '${name}', ${providerOutput.message()}`);
+            } else {
+                params = providerOutput;
             }
-            testRegistry.addFunction(name = name, testFunction = f, params = params);
         }
-        else if config.enable {
-            testRegistry.addFunction(name = name, testFunction = f);
-        }
+        testRegistry.addFunction(name = name, testFunction = f, params = params,
+            before = config.before, after = config.after);
         return true;
     }
     return false;
@@ -68,9 +52,7 @@ function processBeforeSuiteAnnotation(string name, function f) returns boolean|e
         beforeSuiteRegistry.addFunction(name = name, testFunction = f);
         return true;
     }
-
     return false;
-
 }
 
 function processAfterSuiteAnnotation(string name, function f) returns boolean|error {

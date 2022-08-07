@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java;
-
 const string assertFailureErrorCategory = "assert-failure";
 const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
@@ -380,24 +378,3 @@ isolated function compareMapValues(map<anydata> actualMap, map<anydata> expected
     }
     return diff;
 }
-
-isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
-    name : "sprintf",
-    'class : "org.ballerinalang.testerina.natives.io.Sprintf"
-} external;
-
-isolated function getBallerinaType((any|error) value) returns string = @java:Method {
-    name : "getBallerinaType",
-    'class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
-} external;
-
-isolated function getStringDiff(string actual, string expected) returns string = @java:Method {
-     name : "getStringDiff",
-     'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
- } external;
-
-
-isolated function getKeysDiff(string[] actualKeys, string[] expectedKeys) returns string = @java:Method {
-    name: "getKeysDiff",
-    'class: "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
-} external;
