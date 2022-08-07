@@ -39,9 +39,8 @@ type AssertError record {
 # + category - Error category
 #
 # + return - An AssertError with custom message and category
-public isolated function createBallerinaError(string errorMessage, string category) returns error {
-    error e = error(errorMessage);
-    return e;
+public isolated function createBallerinaError(string errorMessage, string category) returns TestError {
+    return error(errorMessage);
 }
 
 # Asserts whether the given condition is true. If it is not, a AssertError is thrown with the given errorMessage.
