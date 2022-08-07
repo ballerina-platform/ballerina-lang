@@ -62,8 +62,7 @@ import java.util.Optional;
 public class TestExecutionGenerationTask implements GeneratorTask<SourceGeneratorContext> {
 
     private static final String TEST_REGISTER_FUNCTION = "registerTest";
-    private static final String TEST_EXECUTE_FUNCTION = "execute";
-    private static final String TEST_REPORT_FUNCTION = "report";
+    private static final String TEST_RUNNER_FUNCTION = "startTestRunner";
     private static final String TEST_ORG_NAME = "ballerina";
     private static final String TEST_MODULE_NAME = "test";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
@@ -101,24 +100,9 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                             func.functionSignature().returnTypeDesc())));
         }
 
-        // Add the statement, 'map<error?> result = test:execute();'
-        MapTypeDescriptorNode resultDescriptor = NodeFactory.createMapTypeDescriptorNode(
-                NodeFactory.createToken(SyntaxKind.MAP_KEYWORD),
-                NodeFactory.createTypeParameterNode(
-                        NodeFactory.createToken(SyntaxKind.LT_TOKEN),
-                        NodeFactory.createOptionalTypeDescriptorNode(
-                                NodeFactory.createIdentifierToken(SyntaxKind.ERROR_KEYWORD.stringValue()),
-                                NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN)
-                        ),
-                        NodeFactory.createToken(SyntaxKind.GT_TOKEN)
-                )
-        );
-        statements.add(getFunctionCallStatement("result", resultDescriptor,
-                getTestFunctionCall(TEST_EXECUTE_FUNCTION, NodeFactory.createSeparatedNodeList(new ArrayList<>()))));
-
-        // Add the statement, 'test:report(result);'
-        statements.add(getFunctionCallStatement(getTestFunctionCall(TEST_REPORT_FUNCTION,
-                NodeFactory.createSeparatedNodeList(List.of(NodeFactory.createIdentifierToken("result"))))));
+        // Add the statement, 'test:startTestRunner();'
+        statements.add(getFunctionCallStatement(getTestFunctionCall(TEST_RUNNER_FUNCTION,
+                NodeFactory.createSeparatedNodeList(new ArrayList<>()))));
 
         // Construct the test execution function
         FunctionBodyBlockNode functionBodyNode = NodeFactory.createFunctionBodyBlockNode(
