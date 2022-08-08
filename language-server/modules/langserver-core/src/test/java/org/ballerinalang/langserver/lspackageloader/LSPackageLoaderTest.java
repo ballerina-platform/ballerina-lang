@@ -66,7 +66,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         TestUtil.openDocument(endpoint, sourcePath);
 
         BallerinaLanguageServer languageServer = this.getLanguageServer();
-        EventSyncPubSubHolder eventSyncPubSubHolder = 
+        EventSyncPubSubHolder eventSyncPubSubHolder =
                 EventSyncPubSubHolder.getInstance(languageServer.getServerContext());
         DocumentServiceContext documentServiceContext =
                 ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
@@ -105,6 +105,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
                         .map(LSPackageLoader.PackageInfo::new)
                         .collect(Collectors.toList()).get(0);
                 this.remoteRepoPackages.add(packageInfo);
+                return List.of(packageInfo);
             }
             return null;
         }).when(lsPackageLoader).updatePackageMap(Mockito.any());
