@@ -804,10 +804,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(groupByClauseNode);
     }
 
-    public T transform(GroupingKeyVarNameNode groupingKeyVarNameNode) {
-        return transformSyntaxNode(groupingKeyVarNameNode);
-    }
-
     public T transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
         return transformSyntaxNode(groupingKeyVarDeclarationNode);
     }

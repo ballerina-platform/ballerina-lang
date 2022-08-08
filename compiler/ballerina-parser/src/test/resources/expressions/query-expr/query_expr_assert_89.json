@@ -302,7 +302,7 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "GROUPING_KEY_VAR_NAME",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
@@ -320,7 +320,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "GROUPING_KEY_VAR_NAME",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {

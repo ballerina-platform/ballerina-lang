@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -45,6 +46,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -57,9 +59,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -116,9 +120,11 @@
                 },
                 {
                   "kind": "QUERY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "QUERY_PIPELINE",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "FROM_CLAUSE",
@@ -261,9 +267,11 @@
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "GROUP_BY_CLAUSE",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "GROUP_KEYWORD",
@@ -291,15 +299,18 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "GROUPING_KEY_VAR_DECLARATION",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "VAR_TYPE_DESC",
+                                          "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
                                             {
-                                              "kind": "VAR_KEYWORD",
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "price1",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "WHITESPACE_MINUTIAE",
@@ -314,11 +325,11 @@
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "price",
+                                              "value": "price2",
                                               "trailingMinutiae": [
                                                 {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
+                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                  "value": "\n"
                                                 }
                                               ]
                                             }
@@ -326,53 +337,22 @@
                                         },
                                         {
                                           "kind": "EQUAL_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_EQUAL_TOKEN"
                                           ]
                                         },
                                         {
-                                          "kind": "BINARY_EXPRESSION",
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "price1",
-                                                  "trailingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "PLUS_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "price2",
-                                                  "trailingMinutiae": [
-                                                    {
-                                                      "kind": "END_OF_LINE_MINUTIAE",
-                                                      "value": "\n"
-                                                    }
-                                                  ]
-                                                }
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_IDENTIFIER"
                                               ]
                                             }
                                           ]

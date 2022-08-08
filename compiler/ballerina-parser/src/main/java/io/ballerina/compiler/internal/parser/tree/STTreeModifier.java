@@ -2476,14 +2476,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STGroupingKeyVarNameNode transform(
-            STGroupingKeyVarNameNode groupingKeyVarNameNode) {
-        STNode variableName = modifyNode(groupingKeyVarNameNode.variableName);
-        return groupingKeyVarNameNode.modify(
-                variableName);
-    }
-
-    @Override
     public STGroupingKeyVarDeclarationNode transform(
             STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
         STNode typeDescriptor = modifyNode(groupingKeyVarDeclarationNode.typeDescriptor);

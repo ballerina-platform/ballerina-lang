@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -36,7 +36,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public IdentifierToken variableName() {
+    public CaptureBindingPatternNode variableName() {
         return childInBucket(1);
     }
 
@@ -69,7 +69,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
 
     public GroupingKeyVarDeclarationNode modify(
             TypeDescriptorNode typeDescriptor,
-            IdentifierToken variableName,
+            CaptureBindingPatternNode variableName,
             Token equalsToken,
             Node initializer) {
         if (checkForReferenceEquality(
@@ -99,7 +99,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
     public static class GroupingKeyVarDeclarationNodeModifier {
         private final GroupingKeyVarDeclarationNode oldNode;
         private TypeDescriptorNode typeDescriptor;
-        private IdentifierToken variableName;
+        private CaptureBindingPatternNode variableName;
         private Token equalsToken;
         private Node initializer;
 
@@ -119,7 +119,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
         }
 
         public GroupingKeyVarDeclarationNodeModifier withVariableName(
-                IdentifierToken variableName) {
+                CaptureBindingPatternNode variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;

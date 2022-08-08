@@ -12146,9 +12146,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse group by clause.
-     * <p>
-     * <code>group-by-clause := group by grouping-key-list
-     * </code>
+     * <code>group-by-clause := group by grouping-key-list</code>
      *
      * @return Parsed node
      */
@@ -12226,7 +12224,6 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse grouping key.
-     * <p>
      * <code>grouping-key-list := grouping-key ["," grouping-key]*</code>
      *
      * @return Parsed node
@@ -12235,7 +12232,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> groupingKeys = new ArrayList<>();
         STToken nextToken = peek();
 
-        if (isEndOfGroupBYKeyListElement(nextToken.kind)) {
+        if (isEndOfGroupByKeyListElement(nextToken.kind)) {
             return STNodeFactory.createEmptyNodeList();
         }
 
@@ -12246,16 +12243,18 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining grouping keys
         nextToken = peek();
         STNode groupingKeyListMemberEnd;
-        while (!isEndOfGroupBYKeyListElement(nextToken.kind)) {
+        while (!isEndOfGroupByKeyListElement(nextToken.kind)) {
             groupingKeyListMemberEnd = parseGroupingKeyListMemberEnd();
             if (groupingKeyListMemberEnd == null) {
                 break;
             }
+
             groupingKeys.add(groupingKeyListMemberEnd);
             groupingKey = parseGroupingKey(isRhsExpr);
             groupingKeys.add(groupingKey);
             nextToken = peek();
         }
+
         return STNodeFactory.createNodeList(groupingKeys);
     }
 
@@ -12298,7 +12297,17 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(orderKeys);
     }
 
-    private boolean isEndOfGroupBYKeyListElement(SyntaxKind tokenKind) {
+    private boolean isEndOfGroupByListOrListElement(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case COMMA_TOKEN:
+            case EOF_TOKEN:
+                return true;
+            default:
+                return isQueryClauseStartToken(tokenKind);
+        }
+    }
+
+    private boolean isEndOfGroupByKeyListElement(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case COMMA_TOKEN:
                 return false;
@@ -12378,19 +12387,18 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseGroupingKeyVariableDeclaration(boolean isRhsExpr) {
         startContext(ParserRuleContext.GROUPING_KEY_LIST_VAR_DECLARATION);
-        STNode groupingKeyElementTypeDec =
+        STNode groupingKeyElementTypeDesc =
                 parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY);
-        STNode groupingKeyVarName = parseVariableName();
+        STNode groupingKeyVarName = STNodeFactory.createCaptureBindingPatternNode(parseVariableName());
         STNode equalsToken = parseAssignOp();
         STNode groupingKeyExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         endContext();
-        return STNodeFactory.createGroupingKeyVarDeclarationNode(groupingKeyElementTypeDec, groupingKeyVarName,
+        return STNodeFactory.createGroupingKeyVarDeclarationNode(groupingKeyElementTypeDesc, groupingKeyVarName,
                 equalsToken, groupingKeyExpression);
     }
 
     /**
      * Parse grouping key.
-     * <p>
      * <code>grouping-key := variable-name | inferable-type-descriptor variable-name "=" expression</code>
      *
      * @return Parsed node
@@ -12398,9 +12406,9 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseGroupingKey(boolean isRhsExpr) {
         STToken nextToken = peek();
         SyntaxKind nextTokenKind = nextToken.kind;
-        if (nextTokenKind == SyntaxKind.IDENTIFIER_TOKEN) {
-            return STNodeFactory.createGroupingKeyVarNameNode(parseVariableName());
-        } else if (nextTokenKind == SyntaxKind.VAR_KEYWORD || isTypeStartingToken(nextTokenKind, nextToken)) {
+        if (nextTokenKind == SyntaxKind.IDENTIFIER_TOKEN && isEndOfGroupByListOrListElement(getNextNextToken().kind)) {
+            return STNodeFactory.createSimpleNameReferenceNode(parseVariableName());
+        } else if (isTypeStartingToken(nextTokenKind, nextToken)) {
             return parseGroupingKeyVariableDeclaration(isRhsExpr);
         }
         recover(nextToken, ParserRuleContext.GROUPING_KEY_LIST_ELEMENT);

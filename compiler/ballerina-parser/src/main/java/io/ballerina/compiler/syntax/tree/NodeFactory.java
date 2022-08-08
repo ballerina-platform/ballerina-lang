@@ -3045,18 +3045,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stGroupByClauseNode.createUnlinkedFacade();
     }
 
-    public static GroupingKeyVarNameNode createGroupingKeyVarNameNode(
-            IdentifierToken variableName) {
-        Objects.requireNonNull(variableName, "variableName must not be null");
-
-        STNode stGroupingKeyVarNameNode = STNodeFactory.createGroupingKeyVarNameNode(
-                variableName.internalNode());
-        return stGroupingKeyVarNameNode.createUnlinkedFacade();
-    }
-
     public static GroupingKeyVarDeclarationNode createGroupingKeyVarDeclarationNode(
             TypeDescriptorNode typeDescriptor,
-            IdentifierToken variableName,
+            CaptureBindingPatternNode variableName,
             Token equalsToken,
             Node initializer) {
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
