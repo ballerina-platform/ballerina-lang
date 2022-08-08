@@ -2611,7 +2611,7 @@ json  p = {
     ],
     married: false,
     bloodType: {
-        group: "O",
+        bloodGroup: "O",
         RHD: "+"
     }
 };
@@ -2760,7 +2760,7 @@ function testEnsureType() {
     assert(<float|string>(checkpanic testEnsureTypeWithUnion2()), name2);
     assert(<json>(checkpanic testEnsureTypeWithJson1()), 24);
     assert(<json>(checkpanic testEnsureTypeWithJson2()),h1);
-    assert(<json>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
+    assert(<json>(checkpanic testEnsureTypeWithJson3()), {bloodGroup: "O", RHD: "+"});
     assert(<json>(checkpanic testEnsureTypeWithJson4()), [125.0/3.0, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
     assert(<json>(checkpanic testEnsureTypeWithJson5()), 72.5);
@@ -2768,7 +2768,7 @@ function testEnsureType() {
     assert(<boolean>(checkpanic testEnsureTypeWithCast1()), false);
     assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [125.0/3.0, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
-    assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
+    assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {bloodGroup: "O", RHD: "+"});
     assert(testEnsureTypeFunction() is int:Unsigned32, true);
     assert(testEnsureTypeFunction1() is string, true);
     assert(testEnsureTypeFunction2() is string[], true);
