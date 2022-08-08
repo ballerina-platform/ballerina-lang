@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
 import ballerina/jballerina.java;
+import ballerina/test;
 
 string append = "";
 function simpleSyncSend() returns string {
