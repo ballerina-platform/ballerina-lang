@@ -18,6 +18,8 @@
 package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.TypeBuilder;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -29,6 +31,8 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
+import io.ballerina.compiler.api.symbols.StringTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
@@ -709,35 +713,67 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
+        // from typed-binding-pattern in <cursor>
         if (context.getCursorPositionInTree() > fromClauseNode.inKeyword().textRange().endOffset()) {
             Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(fromClauseNode.expression());
 
             if (typeSymbol.isPresent()) {
                 return typeSymbol;
             }
-
             Optional<Symbol> optionalSymbol = context.currentSemanticModel().get()
                     .symbol(fromClauseNode.typedBindingPattern().bindingPattern());
             if (optionalSymbol.isEmpty()) {
                 return Optional.empty();
             }
-
             typeSymbol = SymbolUtil.getTypeDescriptor(optionalSymbol.get());
+
             if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
                 return Optional.empty();
             }
-            return Optional.of(context.currentSemanticModel()
-                    .get().types().builder().ARRAY_TYPE.withType(typeSymbol.get()).build());
+            Types types = context.currentSemanticModel().get().types();
+            TypeBuilder builder = types.builder();
+            List<TypeSymbol> unionTypeMembers = new ArrayList<>(
+                    List.of(builder.ARRAY_TYPE.withType(typeSymbol.get()).build(),
+                            builder.MAP_TYPE.withTypeParam(typeSymbol.get()).build(),
+                            builder.STREAM_TYPE.withValueType(typeSymbol.get()).build()));
+            if (CommonUtil.getRawType(typeSymbol.get()).typeKind() == TypeDescKind.RECORD) {
+                unionTypeMembers
+                        .add(builder.TABLE_TYPE.withRowType(CommonUtil.getRawType(typeSymbol.get())).build());
+            }
+            if (typeSymbol.get() instanceof StringTypeSymbol) unionTypeMembers.add(types.STRING);
+            if (typeSymbol.get().typeKind() == TypeDescKind.XML) unionTypeMembers.add(types.XML);
+            UnionTypeSymbol unionTypeSymbol = builder.UNION_TYPE
+                    .withMemberTypes(unionTypeMembers.toArray(TypeSymbol[]::new)).build();
+            return Optional.of(unionTypeSymbol);
         }
 
+        // from <cursor> in iterable
         Optional<Symbol> optionalSymbol = context.currentSemanticModel().get()
                 .symbol(fromClauseNode.typedBindingPattern().bindingPattern());
         if (optionalSymbol.isEmpty()) {
-            return context.currentSemanticModel().get()
-                    .typeOf(fromClauseNode.expression())
-                    .filter(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.ARRAY)
-                    .map(typeSymbol -> (ArrayTypeSymbol) typeSymbol)
-                    .map(ArrayTypeSymbol::memberTypeDescriptor);
+            Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get()
+                    .typeOf(fromClauseNode.expression());
+            if (typeSymbol.isEmpty()) {
+                return typeSymbol;
+            }
+            if (typeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
+                return Optional.of(((ArrayTypeSymbol) typeSymbol.get()).memberTypeDescriptor());
+            }
+            if (typeSymbol.get().typeKind() == TypeDescKind.STRING) {
+                return Optional.of(context.currentSemanticModel().get().types().STRING);
+            }
+            if (typeSymbol.get().typeKind() == TypeDescKind.TABLE) {
+                return Optional.of(((TableTypeSymbol) typeSymbol.get()).rowTypeParameter());
+            }
+            if (typeSymbol.get().typeKind() == TypeDescKind.STREAM) {
+                return Optional.of(((StreamTypeSymbol) typeSymbol.get()).typeParameter());
+            }
+            if (typeSymbol.get().typeKind() == TypeDescKind.XML) {
+                return Optional.of(context.currentSemanticModel().get().types().XML);
+            }
+            if (typeSymbol.get().typeKind() == TypeDescKind.MAP) {
+                return Optional.of(((MapTypeSymbol) typeSymbol.get()).typeParam());
+            }
         }
 
         return Optional.empty();

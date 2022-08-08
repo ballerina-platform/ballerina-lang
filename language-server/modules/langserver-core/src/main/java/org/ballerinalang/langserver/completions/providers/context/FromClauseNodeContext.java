@@ -128,16 +128,11 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
         completionItems.forEach(lsCItem -> {
             String sortText = SortingUtil.genSortText(3) +
                     SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
-            Optional<TypeSymbol> optionalTypeSymbol = SortingUtil.getSymbolFromCompletionItem(lsCItem);
             if (context.getCursorPositionInTree() > node.inKeyword().textRange().endOffset()
-                    && expectedTypeSymbol.isPresent() && optionalTypeSymbol.isPresent()
+                    && expectedTypeSymbol.isPresent()
                     && SortingUtil.isCompletionItemAssignable(lsCItem, expectedTypeSymbol.get())) {
-                if (optionalTypeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
-                    sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(1);
-                }
-                if (optionalTypeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
-                    sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(2);
-                }
+                sortText = SortingUtil.genSortText(1)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             } else if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
                 sortText = SortingUtil.genSortText(1)
                         + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem, 2));
