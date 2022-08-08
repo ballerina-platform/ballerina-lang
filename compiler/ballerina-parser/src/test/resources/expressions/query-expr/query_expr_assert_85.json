@@ -310,12 +310,17 @@
                                           ]
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "totPrice",
-                                          "trailingMinutiae": [
+                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "totPrice",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -378,7 +383,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "GROUPING_KEY_VAR_NAME",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",

@@ -803,10 +803,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(groupByClauseNode);
     }
 
-    public void visit(GroupingKeyVarNameNode groupingKeyVarNameNode) {
-        visitSyntaxNode(groupingKeyVarNameNode);
-    }
-
     public void visit(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
         visitSyntaxNode(groupingKeyVarDeclarationNode);
     }

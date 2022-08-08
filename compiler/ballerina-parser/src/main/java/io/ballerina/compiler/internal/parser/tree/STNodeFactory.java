@@ -2311,13 +2311,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 groupingKey);
     }
 
-    public static STNode createGroupingKeyVarNameNode(
-            STNode variableName) {
-
-        return new STGroupingKeyVarNameNode(
-                variableName);
-    }
-
     public static STNode createGroupingKeyVarDeclarationNode(
             STNode typeDescriptor,
             STNode variableName,
