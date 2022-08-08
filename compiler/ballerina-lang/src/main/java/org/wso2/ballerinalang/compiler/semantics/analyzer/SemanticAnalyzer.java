@@ -2955,16 +2955,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case LIST_MATCH_PATTERN:
                 BLangListMatchPattern listMatchPattern = (BLangListMatchPattern) matchPattern;
                 if (patternType.tag == TypeTags.UNION) {
-                    BType mergedType = null;
                     for (BType type : ((BUnionType) patternType).getMemberTypes()) {
                         assignTypesToMemberPatterns(listMatchPattern, type, data);
-                        if (mergedType == null) {
-                            mergedType = listMatchPattern.getBType();
-                            continue;
-                        }
-                        mergedType = this.types.mergeTypes(mergedType, listMatchPattern.getBType());
                     }
-                    listMatchPattern.setBType(mergedType);
+                    listMatchPattern.setBType(patternType);
                     return;
                 }
                 if (patternType.tag == TypeTags.ARRAY) {
@@ -2997,15 +2991,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 List<BType> types = patternTupleType.tupleTypes;
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
                 List<BType> memberTypes = new ArrayList<>();
-                int memberTypesLength = Math.min(matchPatterns.size(), types.size());
-                for (int i = 0; i < memberTypesLength; i++) {
+                for (int i = 0; i < matchPatterns.size(); i++) {
                     assignTypesToMemberPatterns(matchPatterns.get(i), types.get(i), data);
                     memberTypes.add(matchPatterns.get(i).getBType());
-                }
-                if (memberTypesLength < matchPatterns.size()) {
-                    for (int i = 0; i < matchPatterns.size() - memberTypesLength; i++) {
-                        memberTypes.add(symTable.neverType);
-                    }
                 }
                 BTupleType tupleType = new BTupleType(memberTypes);
 
@@ -3076,7 +3064,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             if (patternRestType != null) {
                 return new BArrayType(patternRestType);
             } else {
-                return new BArrayType(symTable.neverType);
+                return new BArrayType(symTable.anyOrErrorType);
             }
         }
     }

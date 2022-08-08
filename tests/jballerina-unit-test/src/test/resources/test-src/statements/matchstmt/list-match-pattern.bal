@@ -965,7 +965,7 @@ function testListMatchPattern35() {
     assertEquals(listMatchPattern35(x3, t2), "match 4");
 }
 
-function listMatchPattern35(T4 x, T4[]? t) returns string {
+function listMatchPattern35(T4 x, T4[]? t) returns string? {
     match x {
         "int" => {
             return "match 1";
@@ -1266,6 +1266,172 @@ function listMatchPattern42(T10 t, anydata a) returns string {
         [...var x] => {
             assertEquals(x, a);
             return "match 5";
+        }
+    }
+}
+
+public type T11 [int, T11, T11...]|[T11...]|["int"];
+
+public function testListMatchPattern43() {
+    T11[] t1 = [["int"], ["int"], ["int"]];
+    T11 x1 = [1, ["int"], ["int"]];
+    T11 x2 = [1, ["int"], ["int"], ["int"], ["int"], ["int"], ["int"], ["int"]];
+    T11 x3 = [["int"], ["int"], ["int"], ["int"]];
+    T11 x4 = [["int"]];
+    T11 x5 = [t1, ["int"]];
+
+    assertEquals(listMatchPattern43(x1, [1, ["int"], ["int"]]), "match 1");
+    assertEquals(listMatchPattern43(x2,
+                [1, ["int"], ["int"], ["int"], ["int"], [["int"], ["int"], ["int"]]]), "match 3");
+    assertEquals(listMatchPattern43(x3, [["int"], ["int"], ["int"], [["int"]]]), "match 4");
+    assertEquals(listMatchPattern43(x4, [["int"]]), "match 2");
+    assertEquals(listMatchPattern43(x5, [t1, ["int"]]), "match 5");
+}
+
+function listMatchPattern43(T11 t, anydata a) returns string {
+    match t {
+        [var x, var y, var z] => {
+            assertEquals([x, y, z], a);
+            return "match 1";
+        }
+        [var x] => {
+            assertEquals([x], a);
+            return "match 2";
+        }
+        [var p, var q, var r, var s, var y, ...var z] => {
+            assertEquals([p, q, r, s, y, z], a);
+            return "match 3";
+        }
+        [var p, var q, var r, ...var z] => {
+            assertEquals([p, q, r, z], a);
+            return "match 4";
+        }
+        [...var x] => {
+            assertEquals(x, a);
+            return "match 5";
+        }
+    }
+}
+
+public type T12 [int, T12[], T12...]|[T12[]...]|"int";
+public type T13 [int, T13, T13, T13[]...]|[T13...]|"int";
+
+public function testListMatchPattern44() {
+    T12[] t1 = ["int", "int", "int"];
+    T12 x1 = [1, t1, "int", "int"];
+    T12 x2 = [1, t1, "int", "int", "int", "int", "int", "int", "int"];
+    T12 x3 = [t1, t1, t1, t1, t1];
+    T12 x4 = [t1];
+    T12 x5 = [t1, t1];
+
+    T13[] t2 = ["int", "int", "int"];
+    T13 y1 = [1, "int", "int", t2, t2];
+    T13 y2 = [1, "int", "int", t2, t2, t2, t2, t2, t2, t2];
+    T13 y3 = [t2, t2, t2, t2, t2, t2];
+    T13 y4 = [t2];
+    T13 y5 = [t2, t2];
+
+    assertEquals(listMatchPattern44(x1, [1, t1, "int", "int"]), "match 1");
+    assertEquals(listMatchPattern44(x2, [1, t1, "int", "int", "int", "int", ["int", "int", "int"]]), "match 3");
+    assertEquals(listMatchPattern44(x3, [t1, t1, t1, t1, [t1]]), "match 4");
+    assertEquals(listMatchPattern44(x4, [t1]), "match 2");
+    assertEquals(listMatchPattern44(x5, [t1, t1]), "match 5");
+
+    assertEquals(listMatchPattern44(y1, [1, "int", "int", t2, t2]), "match 1");
+    assertEquals(listMatchPattern44(y2, [1, "int", "int", t1, t2, t2, t2, [t2, t2, t2]]), "match 3");
+    assertEquals(listMatchPattern44(y3, [t2, t2, t2, t2, t2, [t2]]), "match 4");
+    assertEquals(listMatchPattern44(y4, [t2]), "match 2");
+    assertEquals(listMatchPattern44(y5, [t2, t2]), "match 5");
+}
+
+function listMatchPattern44(T12|T13 t, anydata a) returns string? {
+    if t is T12 {
+        match t {
+            [var p, var x, var y, var z] => {
+                assertEquals([p, x, y, z], a);
+                return "match 1";
+            }
+            [var x] => {
+                assertEquals([x], a);
+                return "match 2";
+            }
+            [var p, var q, var r, var s, var u, var y, ...var z] => {
+                assertEquals([p, q, r, s, u, y, z], a);
+                return "match 3";
+            }
+            [var m, var p, var q, var r, ...var z] => {
+                assertEquals([m, p, q, r, z], a);
+                return "match 4";
+            }
+            [...var x] => {
+                assertEquals(x, a);
+                return "match 5";
+            }
+        }
+    } else {
+        match t {
+            [var p, var q, var x, var y, var z] => {
+                assertEquals([p, q, x, y, z], a);
+                return "match 1";
+            }
+            [var x] => {
+                assertEquals([x], a);
+                return "match 2";
+            }
+            [var p, var q, var r, var s, var u, var v, var y, ...var z] => {
+                assertEquals([p, q, r, s, u, v, y, z], a);
+                return "match 3";
+            }
+            [var m, var n, var p, var q, var r, ...var z] => {
+                assertEquals([m, n, p, q, r, z], a);
+                return "match 4";
+            }
+            [...var x] => {
+                assertEquals(x, a);
+                return "match 5";
+            }
+        }
+    }
+}
+
+public type T14 [string]|[int, string]|[int, int, string];
+public type T15 [int]|[T15, T15]|[T15[], T15[], T15[]];
+
+public function testListMatchPattern45() {
+    T14 x1 = ["string"];
+    T14 x2 = [1, "string"];
+    T14 x3 = [1, 1, "string"];
+
+    T15 y1 = [1];
+    T15[] t2 = [y1, y1];
+    T15 y2 = [y1, y1];
+    T15 y3 = [t2, t2, t2];
+
+    assertEquals(listMatchPattern45(x1, x1), "match 3");
+    assertEquals(listMatchPattern45(x2, x2), "match 2");
+    assertEquals(listMatchPattern45(x3, x3), "match 1");
+
+    assertEquals(listMatchPattern45(y1, y1), "match 3");
+    assertEquals(listMatchPattern45(y2, y2), "match 2");
+    assertEquals(listMatchPattern45(y3, y3), "match 1");
+}
+
+function listMatchPattern45(T14|T15 t, anydata a) returns string? {
+    match t {
+        [var p, var x, var y, ...var z] => {
+            assertEquals([p, x, y], a);
+            assertEquals(z == [], true);
+            return "match 1";
+        }
+        [var p, var x, ...var z] => {
+            assertEquals([p, x], a);
+            assertEquals(<anydata>z == [], true);
+            return "match 2";
+        }
+        [var p, ...var z] => {
+            assertEquals([p], a);
+            assertEquals(<anydata>z == [], true);
+            return "match 3";
         }
     }
 }

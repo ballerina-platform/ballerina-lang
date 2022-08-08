@@ -1420,9 +1420,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (listMatchPattern.matchExpr == null) {
             return;
         }
-        BType matchExprType = types.getReferredType(listMatchPattern.matchExpr.getBType());
-        listMatchPattern.isLastPattern = types.isAssignable(matchExprType, listMatchPattern.getBType())
-                && !isConstMatchPatternExist(listMatchPattern);
+        listMatchPattern.isLastPattern = types.isSameType(listMatchPattern.getBType(),
+                listMatchPattern.matchExpr.getBType()) && !isConstMatchPatternExist(listMatchPattern);
     }
 
     private boolean isConstMatchPatternExist(BLangMatchPattern matchPattern) {

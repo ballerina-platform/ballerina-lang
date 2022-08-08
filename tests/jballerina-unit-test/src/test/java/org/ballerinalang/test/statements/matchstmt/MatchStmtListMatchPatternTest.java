@@ -93,6 +93,9 @@ public class MatchStmtListMatchPatternTest {
                 "testListMatchPattern40",
                 "testListMatchPattern41",
                 "testListMatchPattern42",
+                "testListMatchPattern43",
+                "testListMatchPattern44",
+                "testListMatchPattern45",
                 "testListMatchPatternWithArrayAndAnydataIntersection",
         };
     }
@@ -128,7 +131,7 @@ public class MatchStmtListMatchPatternTest {
     @Test(description = "invalid match patterns")
     public void testListMatchPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 6);
-        Assert.assertEquals(resultNegative.getWarnCount(), 76);
+        Assert.assertEquals(resultNegative.getWarnCount(), 94);
         Assert.assertEquals(resultNegative.getHintCount(), 2);
         int i = -1;
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 20, 9);
@@ -220,6 +223,24 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 201, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 201, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 201, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 216, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 225, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 233, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 242, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 251, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 260, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 273, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 282, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 290, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 299, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 308, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 317, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 333, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 342, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 351, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 364, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 373, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 382, 9);
     }
 
     @Test(description = "test negative semantics")
