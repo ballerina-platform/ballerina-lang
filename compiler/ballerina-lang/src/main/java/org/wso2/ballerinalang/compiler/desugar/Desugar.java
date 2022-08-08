@@ -437,7 +437,6 @@ public class Desugar extends BLangNodeVisitor {
         this.largeMethodSplitter = LargeMethodSplitter.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
-        this.names = Names.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
