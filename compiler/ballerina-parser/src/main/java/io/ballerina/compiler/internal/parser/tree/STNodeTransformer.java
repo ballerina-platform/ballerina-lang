@@ -793,10 +793,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(groupByClauseNode);
     }
 
-    public T transform(STGroupingKeyVarNameNode groupingKeyVarNameNode) {
-        return transformSyntaxNode(groupingKeyVarNameNode);
-    }
-
     public T transform(STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
         return transformSyntaxNode(groupingKeyVarDeclarationNode);
     }

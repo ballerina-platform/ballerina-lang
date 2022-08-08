@@ -4216,17 +4216,6 @@
       ]
     },
     {
-      "name": "GroupingKeyVarNameNode",
-      "base": "Node",
-      "kind": "GROUPING_KEY_VAR_NAME",
-      "attributes": [
-        {
-          "name": "variableName",
-          "type": "IdentifierToken"
-        }
-      ]
-    },
-    {
       "name": "GroupingKeyVarDeclarationNode",
       "base": "Node",
       "kind": "GROUPING_KEY_VAR_DECLARATION",
@@ -4237,7 +4226,7 @@
         },
         {
           "name": "variableName",
-          "type": "IdentifierToken"
+          "type": "CaptureBindingPatternNode"
         },
         {
           "name": "equalsToken",
