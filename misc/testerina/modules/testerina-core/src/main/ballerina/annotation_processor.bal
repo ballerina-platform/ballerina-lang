@@ -21,7 +21,7 @@ function processAnnotation(string name, function f) returns error? {
 
     // Process the register functions under the test factory method.
     // Currently the dynamic registration does not support groups filtration.
-    if !annotationProcessed && options.groups.length() == 0 && checkTest(name) {
+    if !annotationProcessed && filterGroups.length() == 0 && checkTest(name) {
         testRegistry.addFunction(name = name, executableFunction = f);
     }
 }
@@ -29,7 +29,7 @@ function processAnnotation(string name, function f) returns error? {
 function processConfigAnnotation(string name, function f) returns boolean|error {
     TestConfig? config = (typeof f).@Config;
     if config != () {
-        if !config.enable || !(options.groups.length() > 0 ? checkGroup(config.groups) : true && checkTest(name)) {
+        if !config.enable || !(filterGroups.length() > 0 ? checkGroup(config.groups) : true && checkTest(name)) {
             return true;
         }
         DataProviderReturnType? params = ();
@@ -114,7 +114,7 @@ function processAfterGroupsAnnotation(string name, function f) returns boolean|e
 
 function checkGroup(string[] groups) returns boolean {
     foreach string group in groups {
-        if options.groups.indexOf(group) is int {
+        if filterGroups.indexOf(group) is int {
             return true;
         }
     }
@@ -122,4 +122,4 @@ function checkGroup(string[] groups) returns boolean {
 }
 
 function checkTest(string name) returns boolean =>
-    options.tests.length() > 0 ? (options.tests.indexOf(name) is int) : true;
+    filterTests.length() > 0 ? (filterTests.indexOf(name) is int) : true;

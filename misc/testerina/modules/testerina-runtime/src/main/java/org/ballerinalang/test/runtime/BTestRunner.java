@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestArguments;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
 import org.ballerinalang.test.runtime.entity.TesterinaReport;
@@ -102,6 +103,7 @@ public class BTestRunner {
     private PrintStream outStream;
     private TesterinaReport tReport;
     private Path targetPath;
+    private TestArguments args;
 
     private List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t",
             "\"", "\\", "!", "`"));
@@ -114,11 +116,12 @@ public class BTestRunner {
      * @param outStream The info log stream.
      * @param errStream The error log strem.
      */
-    public BTestRunner(PrintStream outStream, PrintStream errStream, Path targetPath) {
+    public BTestRunner(PrintStream outStream, PrintStream errStream, Path targetPath, TestArguments args) {
         this.outStream = outStream;
         this.errStream = errStream;
         tReport = new TesterinaReport(this.outStream);
         this.targetPath = targetPath;
+        this.args = args;
     }
 
     /**
@@ -313,7 +316,11 @@ public class BTestRunner {
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
 
-        response = testExecute.invoke();
+        Class<?>[] argTypes = new Class[] {Strand.class, BString.class, boolean.class, BString.class,
+                boolean.class, BString.class, boolean.class};
+        Object[] argValues = new Object[] {null, args.getGroups(), true, args.getDisableGroups(), true,
+                args.getTests(), true};
+        response = testExecute.invoke(argTypes, argValues);
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Dependant module start for test suite failed due to error : " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
