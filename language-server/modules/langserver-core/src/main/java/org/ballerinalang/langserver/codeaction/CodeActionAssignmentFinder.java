@@ -18,10 +18,10 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.BreakStatementNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
+import io.ballerina.compiler.syntax.tree.FailStatementNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
@@ -105,11 +105,6 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
     }
 
     @Override
-    public void visit(BlockStatementNode node) {
-        node.statements().forEach(statementNode -> statementNode.accept(this));
-    }
-
-    @Override
     public void visit(AssignmentStatementNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.varRef());
         if (symbol.isPresent() && !assignmentStatementSymbols.contains(symbol.get())) {
@@ -129,7 +124,7 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
     public void visit(VariableDeclarationNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.typedBindingPattern().bindingPattern());
         symbol.ifPresent(varDeclarationSymbols::add);
-        // todo visit initializer
+        super.visit(node);
     }
 
     @Override
@@ -154,6 +149,11 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
 
     @Override
     public void visit(ContinueStatementNode node) {
+        this.isExtractable = false;
+    }
+
+    @Override
+    public void visit(FailStatementNode failStatementNode) {
         this.isExtractable = false;
     }
 }
