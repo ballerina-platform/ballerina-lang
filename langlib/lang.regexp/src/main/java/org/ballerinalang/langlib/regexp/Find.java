@@ -18,11 +18,24 @@
 
 package org.ballerinalang.langlib.regexp;
 
+import io.ballerina.runtime.api.values.BString;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Native implementation of lang.regexp:search(string).
  *
  * @since 1.2.0
  */
-public class Search {
-
+public class Find {
+    public static void find(BString re, BString str, long startIndex) {
+        Pattern pattern = Pattern.compile(re.getValue());
+        Matcher matcher = pattern.matcher(str.getValue());
+        while (matcher.find() && matcher.start() >= startIndex) {
+            System.out.print("Start index: " + matcher.start());
+            System.out.print(" End index: " + matcher.end());
+            System.out.println(" Found: " + matcher.group());
+        }
+    }
 }

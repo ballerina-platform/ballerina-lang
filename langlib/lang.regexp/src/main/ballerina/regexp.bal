@@ -13,6 +13,87 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+// These functions will all be isolated and public
+// regexp module
 
-public function main () {
-}
+// Given that we cannot introduce a new keyword, we need some magic
+// to define a type that refers to RegExp.  This is one possible way.
+//@builtinSubtype
+//type RegExp anydata;
+
+type RegExp string;
+
+type Span readonly & object {
+   int startIndex;
+   int endIndex;
+   // This avoids constructing a potentially long string unless and until it is needed
+   isolated function substring() returns string;
+};
+
+type Groups readonly & [Span, Span?...];
+
+//# Returns the span of the first match that starts at or after startIndex.
+//function find(RegExp re, string str, int startIndex = 0) returns Span? = @java:Method {
+//   'class: "org.ballerinalang.langlib.regexp.Find",
+//   name: "find"
+//} external;
+
+function find(RegExp re, string str, int startIndex = 0) = @java:Method {
+   'class: "org.ballerinalang.langlib.regexp.Find",
+   name: "find"
+} external;
+
+//// If we have named groups, then we will add another function to handle them.
+//
+//function findGroups(RegExp re, string str, int startIndex = 0) returns Groups?;
+//// We can in the future add a type parameter to RegExp corresponding to the type of Groups
+//// Then we would get
+//// function findGroups(RegExp<GroupsType>, string, int = 0) returns GroupsType?;
+//
+//# Return all non-overlapping matches
+//// XXX better for the next two to return iterable object
+//function findAll(RegExp re, string str, int startIndex = 0) returns Span[];
+//function findAllGroups(RegExp re, string str, int startIndex = 0) returns Groups[]
+//
+//function matchAt(RegExp re, string str, int startIndex = 0) returns Span?;
+//function matchGroupsAt(RegExp re, string str, int startIndex = 0) returns  Groups?;
+//
+//// We cannot use "all" here in the name because "findAll" is using "all" with another meaning
+//# Is there a match of the RegExp that starts at the beginning of the string and ends at the end of the string?
+//function isFullMatch(RegExp re, string str) returns boolean;
+//function fullMatchGroups(RegExp re, string str) return Groups?;
+//
+//type ReplacerFunction function(Groups groups) returns string;
+//type Replacement ReplacerFunction|string;
+//
+//// Replaces the first occurrence if any.
+//function replace(RegExp re, Replacement replacement, int startIndex = 0) returns string;
+//// Replace all non-overlapping occurrences.
+//function replaceAll(RegExp re, Replacement replacement, int startIndex = 0) returns string;
+//
+//function fromString(string str) returns RegExp|error;
+
+// TBD: split
+
+
+// string module
+//
+//import ballerina/lang.regexp;
+//
+//type RegExp regexp:RegExp;
+//
+//# True if there is a match of `re` against all of `str`.
+//# Use `includesMatch` to test whether `re` matches somewhere in `str`.
+//// Arguable that this should be called `fullyMatches`, but string is providing
+//// simplified conceptual model of regular expressions, and at this level
+//// `matches` feels good enough.
+//// Need to be careful about cycle between this module and regexp module.
+//function matches(string str, RegExp re) return boolean {
+//   returns re.fullyMatches(str);
+//}
+//
+//# True if there is a match for `re` anywhere in `str`
+//// we already have includes(string, substr, int startIndex)
+//function includesMatch(string str, RegExp re, int startIndex = 0) returns boolean {
+//   returns re.find(str, startIndex) != ();
+//}
