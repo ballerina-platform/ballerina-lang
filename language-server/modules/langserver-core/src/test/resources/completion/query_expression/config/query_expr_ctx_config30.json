@@ -640,7 +640,7 @@
       "label": "customerList",
       "kind": "Variable",
       "detail": "Customer[]",
-      "sortText": "AA",
+      "sortText": "AB",
       "insertText": "customerList",
       "insertTextFormat": "Snippet"
     },
@@ -648,7 +648,7 @@
       "label": "filteredCustomers",
       "kind": "Variable",
       "detail": "Customer[]",
-      "sortText": "AA",
+      "sortText": "AB",
       "insertText": "filteredCustomers",
       "insertTextFormat": "Snippet"
     },
@@ -687,7 +687,7 @@
       "label": "customers",
       "kind": "Variable",
       "detail": "Customer[]",
-      "sortText": "AA",
+      "sortText": "AB",
       "insertText": "customers",
       "insertTextFormat": "Snippet"
     },
@@ -701,7 +701,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Customer[]`   \n  \n"
         }
       },
-      "sortText": "AA",
+      "sortText": "AC",
       "filterText": "getCustomers",
       "insertText": "getCustomers()",
       "insertTextFormat": "Snippet"
