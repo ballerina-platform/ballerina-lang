@@ -1428,6 +1428,14 @@ public class Types {
         return constraint;
     }
 
+    public static BType getEffectiveType(BType type) {
+        type = Types.getReferredType(type);
+        if (type.tag == TypeTags.INTERSECTION) {
+            return ((BIntersectionType) type).effectiveType;
+        }
+        return type;
+    }
+
     boolean isSelectivelyImmutableType(BType type, PackageID packageID) {
         return isSelectivelyImmutableType(type, new HashSet<>(), false, packageID);
     }
