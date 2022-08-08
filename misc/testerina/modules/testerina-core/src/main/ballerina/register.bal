@@ -25,7 +25,7 @@ final GroupRegistry afterGroupsRegistry = new ();
 final GroupStatusRegistry groupStatusRegistry = new ();
 
 public function registerTest(string name, function f) returns error? {
-    if options.tests.length() == 0 || options.tests.indexOf(name) is int {
+    if filterTests.length() == 0 || filterTests.indexOf(name) is int {
         check processAnnotation(name, f);
     }
 }

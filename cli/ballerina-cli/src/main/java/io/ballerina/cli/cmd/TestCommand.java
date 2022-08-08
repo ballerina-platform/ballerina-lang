@@ -122,11 +122,11 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
     private boolean listGroups;
 
-    @CommandLine.Option(names = "--groups", split = ",", description = "test groups to be executed")
-    private List<String> groupList;
+    @CommandLine.Option(names = "--groups", description = "test groups to be executed")
+    private String groupList;
 
-    @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
-    private List<String> disableGroupList;
+    @CommandLine.Option(names = "--disable-groups", description = "test groups to be disabled")
+    private String disableGroupList;
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
     private Boolean testReport;
@@ -140,8 +140,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private Boolean observabilityIncluded;
 
-    @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
-    private List<String> testList;
+    @CommandLine.Option(names = "--tests", description = "Test functions to be executed")
+    private String testList;
 
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
