@@ -215,6 +215,10 @@ public class ValueComparisonUtils {
 
         if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
             return Long.compare((long) lhsValue, (long) rhsValue);
+        } else if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.BYTE_TAG == rhsTypeTag) {
+            return Long.compare((long) lhsValue, (int) rhsValue);
+        } else if (TypeTags.BYTE_TAG == lhsTypeTag && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
+            return Long.compare((int) lhsValue, (long) rhsValue);
         }
 
         if (lhsTypeTag == rhsTypeTag) {
