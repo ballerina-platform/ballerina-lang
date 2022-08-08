@@ -26,7 +26,6 @@ import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -35,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -62,11 +62,16 @@ import java.util.Optional;
 public class TestExecutionGenerationTask implements GeneratorTask<SourceGeneratorContext> {
 
     private static final String TEST_REGISTER_FUNCTION = "registerTest";
-    private static final String TEST_RUNNER_FUNCTION = "startTestRunner";
+    private static final String SET_OPTIONS_FUNCTION = "setTestOptions";
+    private static final String START_SUITE_FUNCTION = "startSuite";
     private static final String TEST_ORG_NAME = "ballerina";
     private static final String TEST_MODULE_NAME = "test";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
     private static final String TEST_EXEC_FILENAME = "test_execute";
+
+    private static final String GROUPS_PARAMETER = "groups";
+    private static final String DISABLE_GROUPS_PARAMETER = "disableGroups";
+    private static final String TESTS_PARAMETER = "tests";
 
     @Override
     public void generate(SourceGeneratorContext generatorContext) {
@@ -81,6 +86,12 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
     private static TextDocument generateDocument(Module module) {
 
         List<StatementNode> statements = new ArrayList<>();
+
+        // Add the statement, 'test:setTestOptions(<args[]>);'
+        statements.add(getFunctionCallStatement(getTestFunctionCall(SET_OPTIONS_FUNCTION, getFunctionParamList(
+                getPositionalArg(GROUPS_PARAMETER),
+                getPositionalArg(DISABLE_GROUPS_PARAMETER),
+                getPositionalArg(TESTS_PARAMETER)))));
 
         // Register all the test cases of the module
         for (DocumentId documentId : module.testDocumentIds()) {
@@ -100,8 +111,8 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                             func.functionSignature().returnTypeDesc())));
         }
 
-        // Add the statement, 'test:startTestRunner();'
-        statements.add(getFunctionCallStatement(getTestFunctionCall(TEST_RUNNER_FUNCTION,
+        // Add the statement, 'test:startSuite();'
+        statements.add(getFunctionCallStatement(getTestFunctionCall(START_SUITE_FUNCTION,
                 NodeFactory.createSeparatedNodeList(new ArrayList<>()))));
 
         // Construct the test execution function
@@ -218,28 +229,6 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
     }
 
-    public static StatementNode getFunctionCallStatement(String varName, TypeDescriptorNode typeDescriptorNode,
-                                                         ExpressionNode expression) {
-
-        CaptureBindingPatternNode captureBindingPatternNode = NodeFactory.createCaptureBindingPatternNode(
-                NodeFactory.createIdentifierToken(
-                        varName,
-                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" ")),
-                        NodeFactory.createEmptyMinutiaeList()));
-        TypedBindingPatternNode typedBindingPatternNode = NodeFactory.createTypedBindingPatternNode(
-                typeDescriptorNode, captureBindingPatternNode);
-        return NodeFactory.createVariableDeclarationNode(
-                NodeFactory.createEmptyNodeList(),
-                null,
-                typedBindingPatternNode,
-                NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN),
-                expression,
-                NodeFactory.createToken(
-                        SyntaxKind.SEMICOLON_TOKEN,
-                        NodeFactory.createEmptyMinutiaeList(),
-                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
-    }
-
     private static CheckExpressionNode getCheckedExpressionStatement(ExpressionNode expression) {
 
         return NodeFactory.createCheckExpressionNode(
@@ -273,14 +262,34 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                                 NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))));
 
         ReturnTypeDescriptorNode returnTypeDescriptorNode =
-                NodeFactory.createReturnTypeDescriptorNode(NodeFactory
-                                .createToken(SyntaxKind.RETURNS_KEYWORD, NodeFactory.createMinutiaeList(
-                                                NodeFactory.createWhitespaceMinutiae(" ")),
-                                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
+                NodeFactory.createReturnTypeDescriptorNode(
+                        NodeFactory.createToken(SyntaxKind.RETURNS_KEYWORD, NodeFactory.createMinutiaeList(
+                                        NodeFactory.createWhitespaceMinutiae(" ")),
+                                NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
                         NodeFactory.createEmptyNodeList(), optionalErrorTypeDescriptorNode);
 
         return NodeFactory.createFunctionSignatureNode(NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
-                NodeFactory.createSeparatedNodeList(),
+                NodeFactory.createSeparatedNodeList(getStringParameter(GROUPS_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(DISABLE_GROUPS_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(TESTS_PARAMETER)),
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
+    }
+
+    private static RequiredParameterNode getStringParameter(String varName) {
+
+        return NodeFactory.createRequiredParameterNode(
+                NodeFactory.createEmptyNodeList(),
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createToken(
+                        SyntaxKind.STRING_KEYWORD,
+                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" ")),
+                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" ")))),
+                NodeFactory.createIdentifierToken(varName)
+        );
+    }
+
+    private static PositionalArgumentNode getPositionalArg(String argName) {
+
+        return NodeFactory.createPositionalArgumentNode(
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(argName)));
     }
 }

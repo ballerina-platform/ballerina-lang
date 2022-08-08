@@ -107,14 +107,14 @@ public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
     private final String includesInCoverage;
-    private List<String> groupList;
-    private List<String> disableGroupList;
+    private String groupList;
+    private String disableGroupList;
     private boolean report;
     private boolean coverage;
     private String coverageReportFormat;
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
-    private List<String> singleExecTests;
+    private String singleExecTests;
     private Map<String, Module> coverageModules;
 
     TestReport testReport;
@@ -126,8 +126,8 @@ public class RunTestsTask implements Task {
         this.coverageReportFormat = coverageFormat;
     }
 
-    public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes, String coverageFormat,
+    public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
+                        String disableGroupList, String testList, String includes, String coverageFormat,
                         Map<String, Module> modules) {
         this.out = out;
         this.err = err;
@@ -135,9 +135,9 @@ public class RunTestsTask implements Task {
         this.isRerunTestExecution = rerunTests;
 
         // If rerunTests is true, we get the rerun test list and assign it to 'testList'
-        if (this.isRerunTestExecution) {
-            testList = new ArrayList<>();
-        }
+//        if (this.isRerunTestExecution) {
+//            testList = new ArrayList<>();
+//        }
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -161,7 +161,7 @@ public class RunTestsTask implements Task {
             start = System.currentTimeMillis();
         }
 
-        filterTestGroups();
+//        filterTestGroups();
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
 
@@ -218,13 +218,13 @@ public class RunTestsTask implements Task {
                 hasTests = true;
             }
 
-            if (isRerunTestExecution) {
-                singleExecTests = readFailedTestsFromFile(target.path());
-            }
+//            if (isRerunTestExecution) {
+//                singleExecTests = readFailedTestsFromFile(target.path());
+//            }
             if (isSingleTestExecution || isRerunTestExecution) {
                 // Update data driven tests with key
-                updatedSingleExecTests = filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, updatedSingleExecTests));
+//                updatedSingleExecTests = filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
+//                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, updatedSingleExecTests));
             }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 suite.setSourceFileName(project.sourceRoot().getFileName().toString());
@@ -427,14 +427,13 @@ public class RunTestsTask implements Task {
         }
     }
 
-
     private void filterTestGroups() {
         TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
         if (disableGroupList != null) {
-            testerinaRegistry.setGroups(disableGroupList);
+//            testerinaRegistry.setGroups(disableGroupList);
             testerinaRegistry.setShouldIncludeGroups(false);
         } else if (groupList != null) {
-            testerinaRegistry.setGroups(groupList);
+//            testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
         }
     }
@@ -567,6 +566,9 @@ public class RunTestsTask implements Task {
         cmdArgs.add(jacocoAgentJarPath);
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
+        cmdArgs.add(this.groupList != null ? this.groupList : "");
+        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
+        cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();

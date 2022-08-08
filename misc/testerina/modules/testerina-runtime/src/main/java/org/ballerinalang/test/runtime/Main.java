@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
+import org.ballerinalang.test.runtime.entity.TestArguments;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
@@ -82,6 +83,7 @@ public class Main {
             String jacocoAgentJarPath = args[1];
             boolean report = Boolean.parseBoolean(args[2]);
             boolean coverage = Boolean.parseBoolean(args[3]);
+            TestArguments testArgs = new TestArguments(args[3], args[4], args[5]);
 
             if (report || coverage) {
                 testReport = new TestReport();
@@ -125,7 +127,7 @@ public class Main {
 
                         Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
-                                targetPath, classLoader);
+                                targetPath, classLoader, testArgs);
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -140,10 +142,10 @@ public class Main {
     }
 
     private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath,
-                                     Path targetPath, ClassLoader classLoader) throws IOException {
+                                     Path targetPath, ClassLoader classLoader, TestArguments args) throws IOException {
         int exitStatus = 0;
         try {
-            TesterinaUtils.executeTests(sourceRootPath, targetPath, testSuite, classLoader);
+            TesterinaUtils.executeTests(sourceRootPath, targetPath, testSuite, classLoader, args);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {

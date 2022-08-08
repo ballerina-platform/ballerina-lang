@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestArguments;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
@@ -82,10 +83,10 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, Path targetPath, TestSuite testSuite, ClassLoader classLoader)
-            throws RuntimeException {
+    public static void executeTests(Path sourceRootPath, Path targetPath, TestSuite testSuite,
+                                    ClassLoader classLoader, TestArguments args) throws RuntimeException {
         try {
-            BTestRunner testRunner = new BTestRunner(outStream, errStream, targetPath);
+            BTestRunner testRunner = new BTestRunner(outStream, errStream, targetPath, args);
             // Run the tests
             testRunner.runTest(testSuite, classLoader);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
