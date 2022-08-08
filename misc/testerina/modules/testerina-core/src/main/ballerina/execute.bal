@@ -32,15 +32,15 @@ function executeTests() {
 
         if !testFunction.skip && !shouldSkip {
             DataProviderReturnType? params = testFunction.params;
-            if params is map<any[]> {
-                foreach [string, any[]] entry in params.entries() {
+            if params is map<AnyOrError[]> {
+                foreach [string, AnyOrError[]] entry in params.entries() {
                     if executeDataDrivenTest(testFunction, testFunction.name + "#" + entry[0], entry[1]) {
                         break;
                     }
                 }
-            } else if params is any[][] {
+            } else if params is AnyOrError[][] {
                 int i = 0;
-                foreach any[] entry in params {
+                foreach AnyOrError[] entry in params {
                     if executeDataDrivenTest(testFunction, testFunction.name + "#" + i.toString(), entry) {
                         break;
                     }
@@ -140,7 +140,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
     }
 }
 
-function executeDataDrivenTest(TestFunction testFunction, string name, any[] params) returns boolean {
+function executeDataDrivenTest(TestFunction testFunction, string name, AnyOrError[] params) returns boolean {
     ExecutionError? err = executeTestFunction(testFunction, name, params);
     if err is ExecutionError {
         onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name
@@ -161,7 +161,7 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function executeTestFunction(TestFunction testFunction, string name, (any)[]? params = ()) returns ExecutionError? {
+function executeTestFunction(TestFunction testFunction, string name, AnyOrError[]? params = ()) returns ExecutionError? {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is error {
