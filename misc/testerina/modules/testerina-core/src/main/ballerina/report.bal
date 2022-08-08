@@ -15,15 +15,15 @@
 // under the License.
 
 string[] passed = [];
-[string, error][] failed = [];
+[string, string][] failed = [];
 string[] skipped = [];
 
 function onPassed(string testName) {
     passed.push(testName);
 }
 
-function onFailed(string testName, error errorDetails) {
-    failed.push([testName, errorDetails]);
+function onFailed(string testName, string errorMessage) {
+    failed.push([testName, errorMessage]);
 }
 
 function onSkipped(string testName) {
@@ -38,9 +38,9 @@ function testSuiteResult() {
 
 public function report() {
     passed.forEach(entry => println("\t\t[pass] " + entry));
-    failed.forEach(function([string, error] entry) {
+    failed.forEach(function([string, string] entry) {
         println("\t\t[fail] " + entry[0] + ":");
-        println("\n\t\t    " + formatError(entry[1].message()));
+        println("\n\t\t    " + formatError(entry[1]));
     });
 
     testSuiteResult();
