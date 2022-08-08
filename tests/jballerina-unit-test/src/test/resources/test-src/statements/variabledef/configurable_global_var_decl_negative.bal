@@ -107,5 +107,4 @@ configurable ()[] nilArr = ?;
 configurable string? nilUnion = ?;
 configurable map<()> nilMap = ?;
 configurable Person6 nilRecord1 = ?;
-// configurable Person6 nilRecord2 = {field1: (), field2: "abc"};
 configurable table<map<()>> nilTable = ?;

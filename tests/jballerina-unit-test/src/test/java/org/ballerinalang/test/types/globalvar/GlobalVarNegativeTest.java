@@ -165,16 +165,21 @@ public class GlobalVarNegativeTest {
                 " & readonly)'\n\t" +
                 "tuple element type '(json & readonly)' is not supported", 97, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '()'", 105, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(()[] & readonly)'\n" +
-                "\tarray element type '()' is not supported", 106, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(string? & readonly)'\n" +
-                "\tunion member type '()' is not supported", 107, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(map<()> & readonly)'\n" +
-                "\tmap constraint type '()' is not supported", 108, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person6 & readonly)'\n" +
-                "\tunion member type '()' is not supported", 109, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<map<()>> & readonly)'\n" +
-                "\tmap constraint type '()' is not supported", 111, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(()[] & readonly)'\n\t" +
+                "array element type '()' is not supported", 106, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(string? & readonly)'\n\t" +
+                "union member type '()' is not supported", 107, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(map<()> & readonly)'\n\t" +
+                "map constraint type '()' is not supported", 108, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for" +
+                " '(Person6 & readonly)'\n\t" +
+                "record field type '()' of field 'nilRecord1.field1' is not supported", 109, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(table<map<()>> & readonly)'\n\t" +
+                "map constraint type '()' is not supported", 110, 1);
 
         Assert.assertEquals(result.getErrorCount(), i);
     }

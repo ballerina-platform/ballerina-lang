@@ -1245,21 +1245,24 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 break;
             case RECORD:
                 BRecordType recordType = (BRecordType) type;
-                Map<BField, List<String>> fieldTypeMap = getRecordFields(recordType);
-                for (Map.Entry<BField, List<String>> fieldEntry : fieldTypeMap.entrySet()) {
-                    BField field = fieldEntry.getKey();
-                    BType fieldType = field.getType();
-                    String fieldName = varName + "." + fieldEntry.getValue().get(0);
+                Set<BType> invalidTypeSet = new HashSet<>();
+                recordType.getFields().forEach((fieldName, field) -> {
+                    BType fieldType = field.type;
+                    String fieldString = varName + "." + fieldName;
+                    String message = "record field type '" + fieldType + "' of field '" + fieldString +
+                            "' is not supported";
+                    if (invalidTypeSet.contains(fieldType)) {
+                        errors.add(message);
+                        return;
+                    }
                     if (isNilableDefaultField(field, fieldType)) {
-                        continue;
+                        return;
                     }
-                    if (!isSupportedConfigType(fieldType, errors, fieldName, unresolvedTypes, isRequired)) {
-                        for (String name : fieldEntry.getValue()) {
-                            errors.add("record field type '" + fieldType + "' of field '" + varName + "." + name + "'" +
-                                    " is not supported");
-                        }
+                    if (!isSupportedConfigType(fieldType, errors, fieldString, unresolvedTypes, isRequired)) {
+                        errors.add(message);
+                        invalidTypeSet.add(fieldType);
                     }
-                }
+                });
                 break;
             case MAP:
                 BMapType mapType = (BMapType) type;
@@ -1322,23 +1325,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         }
         return false;
-    }
-
-    private Map<BField, List<String>> getRecordFields(BRecordType recordType) {
-        Map<BType, BField> fieldTypeMap = new HashMap<>();
-        Map<BField, List<String>> resultMap = new HashMap<>();
-        for (BField field : recordType.getFields().values()) {
-            String fieldName = field.getName().getValue();
-            BType fieldType = field.getType();
-            if (fieldTypeMap.containsKey(fieldType)) {
-                BField bField = fieldTypeMap.get(fieldType);
-                resultMap.get(bField).add(fieldName);
-            } else {
-                resultMap.put(field, new ArrayList<>(Arrays.asList(fieldName)));
-                fieldTypeMap.put(fieldType, field);
-            }
-        }
-        return resultMap;
     }
 
     private void validateListenerCompatibility(BLangSimpleVariable varNode, BType rhsType) {
