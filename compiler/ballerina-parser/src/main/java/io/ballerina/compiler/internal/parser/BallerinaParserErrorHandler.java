@@ -1769,6 +1769,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ORDER_CLAUSE_END;
             case GROUPING_KEY_LIST_ELEMENT_END:
                 return ParserRuleContext.GROUP_BY_CLAUSE_END;
+            case GROUPING_KEY_LIST_ELEMENT:
+                return ParserRuleContext.VARIABLE_REF;
             case STREAM_TYPE_FIRST_PARAM_RHS:
                 return ParserRuleContext.GT;
             case TEMPLATE_MEMBER:
