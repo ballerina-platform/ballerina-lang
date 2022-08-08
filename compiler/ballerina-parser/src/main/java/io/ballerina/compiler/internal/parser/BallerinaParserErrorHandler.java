@@ -198,7 +198,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ON_FAIL_OPTIONAL_BINDING_PATTERN =
             { ParserRuleContext.BLOCK_STMT, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
 
-    private static final ParserRuleContext[] GROUPING_KEY_LIST_ELEMENT=
+    private static final ParserRuleContext[] GROUPING_KEY_LIST_ELEMENT =
             { ParserRuleContext.VARIABLE_REF, ParserRuleContext.GROUPING_KEY_LIST_VAR_DECLARATION };
 
     private static final ParserRuleContext[] GROUPING_KEY_LIST_ELEMENT_END =
