@@ -246,44 +246,53 @@
                           ]
                         },
                         {
-                          "kind": "ASSIGNMENT_STATEMENT",
+                          "kind": "INVALID_EXPRESSION_STATEMENT",
                           "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_EXPRESSION_STATEMENT"
+                          ],
                           "children": [
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "kind": "BINARY_EXPRESSION",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "k",
-                                  "leadingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "        "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "k",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "        "
+                                        }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "EQUAL_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_EQUAL_TOKEN"
-                              ]
-                            },
-                            {
-                              "kind": "NUMERIC_LITERAL",
-                              "children": [
+                                },
                                 {
-                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                  "value": "5"
+                                  "kind": "PLUS_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_BINARY_OPERATOR"
+                                  ]
+                                },
+                                {
+                                  "kind": "NUMERIC_LITERAL",
+                                  "children": [
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                      "value": "5"
+                                    }
+                                  ]
                                 }
                               ]
                             },

@@ -4,7 +4,17 @@
   "children": [
     {
       "kind": "LIST",
-      "children": []
+      "children": [
+        {
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -17,7 +27,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "value": "main"
     },
     {
       "kind": "LIST",
@@ -69,53 +79,6 @@
               ],
               "children": [
                 {
-                  "kind": "TRAP_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "TRAP_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "INVALID_EXPRESSION_STATEMENT",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_EXPRESSION_STATEMENT"
-              ],
-              "children": [
-                {
                   "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
@@ -131,6 +94,14 @@
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "//cursor"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         }
                       ]
                     }
@@ -147,61 +118,67 @@
               ]
             },
             {
-              "kind": "ACTION_STATEMENT",
+              "kind": "LOCAL_VAR_DECL",
               "children": [
                 {
-                  "kind": "TRAP_ACTION",
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "TRAP_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "START_ACTION",
+                      "kind": "INT_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "LIST",
-                          "children": []
-                        },
-                        {
-                          "kind": "START_KEYWORD",
+                          "kind": "INT_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
                             }
                           ]
-                        },
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
                         {
-                          "kind": "FUNCTION_CALL",
-                          "children": [
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "y",
+                          "trailingMinutiae": [
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "OPEN_PAREN_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "CLOSE_PAREN_TOKEN"
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }
                       ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "NUMERIC_LITERAL",
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                      "value": "3"
                     }
                   ]
                 },

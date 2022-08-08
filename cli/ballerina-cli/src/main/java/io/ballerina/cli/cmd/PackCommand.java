@@ -239,7 +239,7 @@ public class PackCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream))
+                .addTask(new CompileTask(outStream, errStream, true))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
