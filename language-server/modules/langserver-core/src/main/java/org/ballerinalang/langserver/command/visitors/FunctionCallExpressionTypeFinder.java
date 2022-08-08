@@ -441,10 +441,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(ConditionalExpressionNode conditionalExpressionNode) {
-        if (this.functionCallExpr != null &&
+        // Check if the function call expression is in LHS expression first
+        if (!conditionalExpressionNode.lhsExpression().isMissing() &&
                 PositionUtil.isWithinLineRange(this.functionCallExpr.lineRange(),
                         conditionalExpressionNode.lhsExpression().lineRange())) {
-            checkAndSetTypeResult(semanticModel.types().BOOLEAN);
+            checkAndSetTypeResult(this.semanticModel.types().BOOLEAN);
             return;
         }
         Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(conditionalExpressionNode.middleExpression())
