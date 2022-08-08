@@ -1,17 +1,13 @@
 name: Publish Timestamped Snapshot Artifacts
 
 on:
-  push:
-    branches:
-      - 2201.0.x
-      - 2201.0.3-stage-new
-
   workflow_dispatch:
 
 jobs:
   publish-ballerina-lang:
     name: Build and Publish Ballerina Lang
     runs-on: ubuntu-latest
+    timeout-minutes: 240
     if: github.repository_owner == 'ballerina-platform'
     steps:
       -   name: Checkout Repository
@@ -20,7 +16,7 @@ jobs:
       -   name: Set up JDK 11
           uses: actions/setup-java@v2
           with:
-            distribution: 'adopt'
+            distribution: 'temurin'
             java-version: '11'
 
       -   name: Initialize Sub Modules
@@ -35,27 +31,16 @@ jobs:
             echo $updatedVersion
             echo TIMESTAMPED_VERSION=$updatedVersion >> $GITHUB_ENV
             sed -i "s/version=\(.*\)/version=$updatedVersion/g" gradle.properties
-
       -   name: Build and Publish
           env:
             publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
             publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           run: |
-            ./gradlew clean build publish -x createJavadoc --scan --continue --rerun-tasks
+            ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
+            ./gradlew publish
             ./gradlew createCodeCoverageReport
-            curl -X POST \
-            'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
-            -H 'Accept: application/vnd.github.v3+json' \
-            -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
-            --data "{
-              \"event_type\": \"update_timestamped_version\",
-              \"client_payload\": {
-                \"branch\": \"2201.0.x\",
-                \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
-              }
-            }"
-
       -   name: Generate Codecov Report
           uses: codecov/codecov-action@v1
           with:
             files: ./.jacoco/reports/jacoco/report.xml
+            
