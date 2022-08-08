@@ -226,12 +226,13 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
         return typeList;
     }
 
-    /* A visitor to find check expression exist inside a Node */
+    /**
+     * A visitor to find check expression exist inside a Node
+     */
     static class CheckExprNodeFinder extends NodeVisitor {
 
         private CheckExpressionNode checkExpressionNode = null;
 
-        @Override
         public void visit(FunctionDefinitionNode functionDefinitionNode) {
             functionDefinitionNode.functionBody().accept(this);
         }
