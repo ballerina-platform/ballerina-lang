@@ -354,26 +354,27 @@ public class Desugar extends BLangNodeVisitor {
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
     public static final String XML_GET_CONTENT_OF_TEXT = "getContent";
 
-    private SymbolTable symTable;
-    private SymbolResolver symResolver;
+    private final SymbolTable symTable;
+    private final SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
-    private ClosureDesugar closureDesugar;
-    private QueryDesugar queryDesugar;
-    private TransactionDesugar transactionDesugar;
-    private ObservabilityDesugar observabilityDesugar;
-    private Code2CloudDesugar code2CloudDesugar;
-    private AnnotationDesugar annotationDesugar;
-    private Types types;
-    private Names names;
-    private ServiceDesugar serviceDesugar;
+    private final ClosureDesugar closureDesugar;
+    private final QueryDesugar queryDesugar;
+    private final TransactionDesugar transactionDesugar;
+    private final ObservabilityDesugar observabilityDesugar;
+    private final Code2CloudDesugar code2CloudDesugar;
+    private final AnnotationDesugar annotationDesugar;
+    private final Types types;
+    private final Names names;
+    private final ServiceDesugar serviceDesugar;
+    private final NodeCloner nodeCloner;
+    private final SemanticAnalyzer semanticAnalyzer;
+    private final BLangAnonymousModelHelper anonModelHelper;
+    private final Unifier unifier;
+    private final MockDesugar mockDesugar;
+    private final ClassClosureDesugar classClosureDesugar;
+    private final LargeMethodSplitter largeMethodSplitter;
+
     private BLangNode result;
-    private NodeCloner nodeCloner;
-    private SemanticAnalyzer semanticAnalyzer;
-    private BLangAnonymousModelHelper anonModelHelper;
-    private Unifier unifier;
-    private MockDesugar mockDesugar;
-    private ClassClosureDesugar classClosureDesugar;
-    private LargeMethodSplitter largeMethodSplitter;
 
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
     private BLangOnFailClause onFailClause;
