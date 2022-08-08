@@ -583,19 +583,19 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 //                SyntaxKind.BREAK_STATEMENT, // do not support
                 SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT,
 //                SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT, // has been removed from spec // todo confirm
-//                SyntaxKind.ACTION_STATEMENT,
+//                SyntaxKind.ACTION_STATEMENT, //todo block these from finder //do not support for now
                 SyntaxKind.LOCK_STATEMENT,
 //                SyntaxKind.NAMED_WORKER_DECLARATION, // do not support
-//                SyntaxKind.FORK_STATEMENT,
-                SyntaxKind.FOREACH_STATEMENT
-//                SyntaxKind.TRANSACTION_STATEMENT,
-//                SyntaxKind.ROLLBACK_STATEMENT,
-//                SyntaxKind.RETRY_STATEMENT,
-//                SyntaxKind.XML_NAMESPACE_DECLARATION,
-//                SyntaxKind.MATCH_STATEMENT,
-//                SyntaxKind.INVALID_EXPRESSION_STATEMENT,
-//                SyntaxKind.DO_STATEMENT,
-//                SyntaxKind.FAIL_STATEMENT
+//                SyntaxKind.FORK_STATEMENT, // do not support for now
+                SyntaxKind.FOREACH_STATEMENT,
+//                SyntaxKind.TRANSACTION_STATEMENT, // do not support for now
+//                SyntaxKind.ROLLBACK_STATEMENT, // do not support
+//                SyntaxKind.RETRY_STATEMENT, // do not support
+//                SyntaxKind.XML_NAMESPACE_DECLARATION, // ??? do we need to?
+                SyntaxKind.MATCH_STATEMENT, // todo add test cases
+//                SyntaxKind.INVALID_EXPRESSION_STATEMENT,// do not support
+                SyntaxKind.DO_STATEMENT // todo add test cases
+//                SyntaxKind.FAIL_STATEMENT // do not support
         );
     }
 }

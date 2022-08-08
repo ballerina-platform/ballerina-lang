@@ -89,19 +89,12 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_foreach_stmt_with_range_expr.json"},
                 {"extract_to_function_stmts_foreach_stmt_without_iterable_declared_inside.json"},
 // todo
-//                {"extract_to_function_stmts_transaction_stmt.json"},
-//
-//                {"extract_to_function_stmts_rollback_stmt.json"},
-//
-//                {"extract_to_function_stmts_retry_stmt.json"},
-//
 //                {"extract_to_function_stmts_xml_namespace_decl_stmt.json"},
 //
-//                {"extract_to_function_stmts_match_stmt.json"},
-//
-//                {"extract_to_function_stmts_invalid_expression_stmt.json"},
-//
-//                {"extract_to_function_stmts_do_stmt.json"},
+                {"extract_to_function_stmts_match_stmt_without_return_stmt.json"},
+
+                {"extract_to_function_stmts_do_stmt_without_onfail_stmt.json"},
+//                {"extract_to_function_stmts_do_stmt_with_onfail_stmt.json"}, // todo add this support
 //
 //                {"extract_to_function_stmts_fail_stmt.json"},
         };
@@ -143,6 +136,11 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_stmts_lock_stmt.json"},
 
                 {"negative_extract_to_function_stmts_foreach_stmt.json"},
+                {"negative_extract_to_function_stmts_foreach_stmt_with_return_without_expr.json"},
+                {"negative_extract_to_function_stmts_foreach_stmt_with_return_with_expr.json"},
+
+                {"negative_extract_to_function_stmts_match_stmt_match_clause.json"},
+                {"negative_extract_to_function_stmts_match_stmt_without_varDecl.json"},
         };
     }
 
