@@ -16,9 +16,8 @@
 
 boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
-boolean shouldAfterEachSkip = false;
 
-public function startTestRunner() {
+public function startSuite() {
     executeBeforeSuiteFunctions();
     executeTests();
     executeAfterSuiteFunctions();
@@ -35,16 +34,23 @@ function executeTests() {
             DataProviderReturnType? params = testFunction.params;
             if params is map<any[]> {
                 foreach [string, any[]] entry in params.entries() {
-                    executeTestFunction(testFunction, testFunction.name + "#" + entry[0], entry[1]);
+                    if executeDataDrivenTest(testFunction, testFunction.name + "#" + entry[0], entry[1]) {
+                        break;
+                    }
                 }
             } else if params is any[][] {
                 int i = 0;
                 foreach any[] entry in params {
-                    executeTestFunction(testFunction, testFunction.name + "#" + i.toString(), entry);
+                    if executeDataDrivenTest(testFunction, testFunction.name + "#" + i.toString(), entry) {
+                        break;
+                    }
                     i += 1;
                 }
             } else {
-                executeTestFunction(testFunction, testFunction.name);
+                ExecutionError? err = executeTestFunction(testFunction, testFunction.name);
+                if err is ExecutionError {
+                    onFailed(testFunction.name, err.message());
+                }
             }
         } else {
             onSkipped(testFunction.name);
@@ -90,7 +96,7 @@ function executeAfterEachFunctions() {
 
 function executeBeforeFunction(TestFunction testFunction) {
     if testFunction.before is function && !shouldSkip && !testFunction.skip {
-        ExecutionError? err = executeFunction(testFunction);
+        ExecutionError? err = executeFunction(<function>testFunction.before);
         if err is ExecutionError {
             testFunction.skip = true;
             printExecutionError(err, "before test function for the test");
@@ -100,7 +106,7 @@ function executeBeforeFunction(TestFunction testFunction) {
 
 function executeAfterFunction(TestFunction testFunction) {
     if testFunction.after is function && !shouldSkip && !testFunction.skip {
-        ExecutionError? err = executeFunction(testFunction);
+        ExecutionError? err = executeFunction(<function>testFunction.after);
         if err is ExecutionError {
             printExecutionError(err, "after test function for the test");
         }
@@ -134,9 +140,18 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
     }
 }
 
-function printExecutionError(ExecutionError err, string functionSuffix) {
-    println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + err.message());
+function executeDataDrivenTest(TestFunction testFunction, string name, any[] params) returns boolean {
+    ExecutionError? err = executeTestFunction(testFunction, name, params);
+    if err is ExecutionError {
+        onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name
+            + "]\n" + getErrorMessage(err));
+        return true;
+    }
+    return false;
 }
+
+function printExecutionError(ExecutionError err, string functionSuffix)
+    => println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + err.message());
 
 function executeFunctions(TestFunction[] testFunctions, boolean skip = false) returns ExecutionError? {
     foreach TestFunction testFunction in testFunctions {
@@ -146,20 +161,25 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function executeTestFunction(TestFunction testFunction, string name, any[]? params = ()) {
+function executeTestFunction(TestFunction testFunction, string name, (any)[]? params = ()) returns ExecutionError? {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is error {
-        onFailed(name, output);
+        return error(getErrorMessage(output), functionName = testFunction.name);
     } else {
         onPassed(name);
         testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
     }
 }
 
-function executeFunction(TestFunction testFunction) returns ExecutionError? {
-    any|error output = trap function:call(testFunction.executableFunction);
+function executeFunction(TestFunction|function testFunction) returns ExecutionError? {
+    any|error output = trap function:call(testFunction is function ? testFunction : testFunction.executableFunction);
     if output is error {
-        return error(output.message(), functionName = testFunction.name);
+        return error(getErrorMessage(output), functionName = testFunction is function ? "" : testFunction.name);
     }
+}
+
+function getErrorMessage(error err) returns string {
+    string|error message = err.detail()["message"].ensureType();
+    return message is error ? err.message() : message;
 }
