@@ -355,6 +355,7 @@ public class GreaterLessThanOperationTest {
                 "testTypeComparison9",
                 "testTypeComparison10",
                 "testTypeComparison11",
+                "testTypeComparison12",
                 "testUnionComparison1",
                 "testUnionComparison2",
                 "testUnionComparison3",
@@ -394,7 +395,8 @@ public class GreaterLessThanOperationTest {
                 "testUnorderedTypeComparison26",
                 "testUnorderedTypeComparison27",
                 "testUnorderedTypeComparison28",
-                "testUnorderedTypeComparison29"
+                "testUnorderedTypeComparison29",
+                "testUnorderedTypeComparison30"
         };
     }
 }
