@@ -1436,6 +1436,19 @@ function listMatchPattern45(T14|T15 t, anydata a) returns string? {
     }
 }
 
+public type T16 [string, int];
+
+public function testListMatchPattern46() returns string {
+    T16 a = ["string", 1];
+    string b;
+    match a {
+        [_, var x] => {
+            b = "string";
+        }
+    }
+    return b;
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

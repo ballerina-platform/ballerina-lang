@@ -384,3 +384,18 @@ function testUnrechableMatchPaternWithTuples4() {
         }
     }
 }
+
+public type T5 [string, int];
+
+public function testUnrechableMatchPaternWithTuples5() returns string {
+    T5 a = ["string", 1];
+    string b;
+    match a {
+        [_, var x] => {
+            _ = x;
+            b = "string";
+            return b;
+        }
+    }
+    return b; // Error: unreachable code
+}
