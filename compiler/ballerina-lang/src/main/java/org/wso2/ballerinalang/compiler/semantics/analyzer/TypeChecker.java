@@ -9016,7 +9016,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private Name getCurrentCompUnit(BLangNode node) {
+    public Name getCurrentCompUnit(BLangNode node) {
         return names.fromString(node.pos.lineRange().filePath());
     }
 
@@ -9333,7 +9333,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private void logUndefinedSymbolError(Location pos, String name) {
+    public void logUndefinedSymbolError(Location pos, String name) {
         if (!missingNodesHelper.isMissingNode(name)) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, name);
         }

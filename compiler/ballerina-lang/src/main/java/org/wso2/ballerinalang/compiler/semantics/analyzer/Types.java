@@ -7068,4 +7068,17 @@ public class Types {
         int letCount = 0;
         boolean nonErrorLoggingCheck = false;
     }
+
+    /**
+     * Holds common analyzer data between {@link TypeResolver} and {@link ConstantTypeChecker}.
+     */
+    public static class CommonConstantAnalyzerData {
+        Stack<SymbolEnv> queryEnvs = new Stack<>();
+        Stack<BLangNode> queryFinalClauses = new Stack<>();
+        boolean checkWithinQueryExpr = false;
+        HashSet<BType> checkedErrorList = new HashSet<>();
+        boolean breakToParallelQueryEnv = false;
+        int letCount = 0;
+        boolean nonErrorLoggingCheck = false;
+    }
 }

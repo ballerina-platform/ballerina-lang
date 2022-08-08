@@ -65,11 +65,14 @@ public class TypeResolver {
     private final Types types;
     private final ConstantValueResolver constResolver;
     private final TypeParamAnalyzer typeParamAnalyzer;
+    private final ConstantTypeChecker constantTypeChecker;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
 
     private List<BLangTypeDefinition> resolvingtypeDefinitions = new ArrayList<>();
     private List<BIntersectionType> intersectionTypeList;
+    public HashSet<BLangConstant> resolvedConstants;
+    private HashSet<BLangConstant> resolvingConstants;
 
     public TypeResolver(CompilerContext context) {
         context.put(TYPE_RESOLVER_KEY, this);
@@ -84,6 +87,7 @@ public class TypeResolver {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.constResolver = ConstantValueResolver.getInstance(context);
+        this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
     }
 
     public static TypeResolver getInstance(CompilerContext context) {
@@ -1455,6 +1459,13 @@ public class TypeResolver {
     }
 
     private void resolveConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
+        resolvingConstants.add(constant);
+        definConstant(symEnv, modTable, constant);
+        resolvingConstants.remove(constant);
+        resolvedConstants.add(constant);
+    }
+
+    private void definConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
 //        SemType semtype;
 //        if (constant.associatedTypeDefinition != null) {
 //            semtype = resolvetypeDefinition(semtypeEnv, modTable, constant.associatedTypeDefinition, 0);
@@ -1463,69 +1474,67 @@ public class TypeResolver {
 //        }
 //        addSemtypeBType(constant.getTypeNode(), semtype);
 //        semtypeEnv.addTypeDef(constant.name.value, semtype);
+        BType staticType = null;
+        constant.symbol = symEnter.getConstantSymbol(constant);
+        if (constant.typeNode != null) {
+            staticType = resolveTypeDesc(symEnv, modTable, constant.associatedTypeDefinition, 0, constant.typeNode);//symResolver.resolveTypeNode(constant.typeNode, symEnv);
+        }
+        AnalyzerData data = new AnalyzerData(symEnv);
+        BType type = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
+        if (type == symTable.semanticError) {
+            return;
+        }
 
-//        BType staticType;
-//        if (constant.typeNode != null) {
-//            staticType = resolveTypeDesc(symEnv, modTable, constant.associatedTypeDefinition, 0, constant.typeNode);//symResolver.resolveTypeNode(constant.typeNode, symEnv);
-//            constant.symbol = symEnter.getConstantSymbol(constant);
-//        } else {
-//            staticType = symTable.semanticError;
-//        }
-//        BConstantSymbol constantSymbol = symEnter.getConstantSymbol(constant);
-//        constant.symbol = constantSymbol;
-//
-//        NodeKind nodeKind = constant.expr.getKind();
-//        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
-//            if (constant.typeNode != null) {
-//                BType referredType = Types.getReferredType(staticType);
-//                if (types.isValidLiteral((BLangLiteral) constant.expr, referredType)) {
-//                    // A literal type constant is defined with correct type.
-//                    // Update the type of the finiteType node to the static type.
-//                    // This is done to make the type inferring work.
-//                    // eg: const decimal d = 5.0;
-//                    BLangFiniteTypeNode finiteType = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
-//                    BLangExpression valueSpaceExpr = finiteType.valueSpace.iterator().next();
-//                    valueSpaceExpr.setBType(referredType);
-//                    defineNode(constant.associatedTypeDefinition, env);
-//
-//                    constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-//                    constantSymbol.literalType = referredType;
-//                } else {
-//                    // A literal type constant is defined with some incorrect type. Set the original
-//                    // types and continue the flow and let it fail at semantic analyzer.
-//                    defineNode(constant.associatedTypeDefinition, env);
-//                    constantSymbol.type = staticType;
-//                    constantSymbol.literalType = constant.expr.getBType();
-//                }
-//            } else {
-//                // A literal type constant is defined without the type.
-//                // Then the type of the symbol is the finite type.
+        BConstantSymbol constantSymbol = symEnter.getConstantSymbol(constant);
+        constant.symbol = constantSymbol;
+
+        if (constant.typeNode != null) {
+            BType referredType = Types.getReferredType(staticType);
+            if (types.isValidLiteral((BLangLiteral) constant.expr, referredType)) {
+                // A literal type constant is defined with correct type.
+                // Update the type of the finiteType node to the static type.
+                // This is done to make the type inferring work.
+                // eg: const decimal d = 5.0;
+                BLangFiniteTypeNode finiteType = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
+                BLangExpression valueSpaceExpr = finiteType.valueSpace.iterator().next();
+                valueSpaceExpr.setBType(referredType);
 //                defineNode(constant.associatedTypeDefinition, env);
-//                constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-//                constantSymbol.literalType = constant.expr.getBType();
-//            }
-//            if (constantSymbol.type.tag != TypeTags.TYPEREFDESC) {
-//                constantSymbol.type.tsymbol.flags |= constant.associatedTypeDefinition.symbol.flags;
-//            }
-//
-//        } else if (constant.typeNode != null) {
-//            constantSymbol.type = constantSymbol.literalType = staticType;
-//        }
-//        constantSymbol.markdownDocumentation = symEnter.getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-//        if (symEnter.isDeprecated(constant.annAttachments)) {
-//            constantSymbol.flags |= Flags.DEPRECATED;
-//        }
-//        // Add the symbol to the enclosing scope.
-//        if (!symResolver.checkForUniqueSymbol(constant.name.pos, symEnv, constantSymbol)) {
-//            return;
-//        }
-//
-//        if (constant.symbol.name == Names.IGNORE) {
-//            // Avoid symbol definition for constants with name '_'
-//            return;
-//        }
-//        // Add the symbol to the enclosing scope.
-//        symEnv.scope.define(constantSymbol.name, constantSymbol);
+
+                constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+                constantSymbol.literalType = referredType;
+            } else {
+                // A literal type constant is defined with some incorrect type. Set the original
+                // types and continue the flow and let it fail at semantic analyzer.
+//                defineNode(constant.associatedTypeDefinition, env);
+                constantSymbol.type = staticType;
+                constantSymbol.literalType = constant.expr.getBType();
+            }
+        } else {
+            // A literal type constant is defined without the type.
+            // Then the type of the symbol is the finite type.
+//            defineNode(constant.associatedTypeDefinition, env);
+            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+            constantSymbol.literalType = constant.expr.getBType();
+        }
+        if (constantSymbol.type.tag != TypeTags.TYPEREFDESC) {
+            constantSymbol.type.tsymbol.flags |= constant.associatedTypeDefinition.symbol.flags;
+        }
+
+        constantSymbol.markdownDocumentation = symEnter.getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
+        if (symEnter.isDeprecated(constant.annAttachments)) {
+            constantSymbol.flags |= Flags.DEPRECATED;
+        }
+        // Add the symbol to the enclosing scope.
+        if (!symResolver.checkForUniqueSymbol(constant.name.pos, symEnv, constantSymbol)) {
+            return;
+        }
+
+        if (constant.symbol.name == Names.IGNORE) {
+            // Avoid symbol definition for constants with name '_'
+            return;
+        }
+        // Add the symbol to the enclosing scope.
+        symEnv.scope.define(constantSymbol.name, constantSymbol);
     }
 
 //    private BType evaluateConst(BLangConstant constant) {
@@ -1542,4 +1551,22 @@ public class TypeResolver {
 //                throw new AssertionError("Expression type not implemented for const semtype");
 //        }
 //    }
+
+    /**
+     * @since 3.0.0
+     */
+    public static class AnalyzerData {
+        SymbolEnv env;
+        BType expType;
+        Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
+        boolean notCompletedNormally;
+        boolean breakFound;
+        Types.CommonConstantAnalyzerData commonAnalyzerData = new Types.CommonConstantAnalyzerData();
+        Stack<SymbolEnv> prevEnvs = new Stack<>();
+        Map<String, BLangNode> modTable;
+
+        public AnalyzerData(SymbolEnv env) {
+            this.env = env;
+        }
+    }
 }
