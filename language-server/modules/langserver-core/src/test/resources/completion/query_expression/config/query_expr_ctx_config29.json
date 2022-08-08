@@ -524,7 +524,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `stream\u003cMedalStatsRecord, error?\u003e|error`   \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "AC",
       "filterText": "getMedalStats",
       "insertText": "getMedalStats()",
       "insertTextFormat": "Snippet"
