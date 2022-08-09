@@ -740,8 +740,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 unionTypeMembers
                         .add(builder.TABLE_TYPE.withRowType(CommonUtil.getRawType(typeSymbol.get())).build());
             }
-            if (typeSymbol.get() instanceof StringTypeSymbol) unionTypeMembers.add(types.STRING);
-            if (typeSymbol.get().typeKind() == TypeDescKind.XML) unionTypeMembers.add(types.XML);
+            if (typeSymbol.get() instanceof StringTypeSymbol) {
+                unionTypeMembers.add(types.STRING);
+            }
+            if (typeSymbol.get().typeKind() == TypeDescKind.XML) {
+                unionTypeMembers.add(types.XML);
+            }
             UnionTypeSymbol unionTypeSymbol = builder.UNION_TYPE
                     .withMemberTypes(unionTypeMembers.toArray(TypeSymbol[]::new)).build();
             return Optional.of(unionTypeSymbol);
