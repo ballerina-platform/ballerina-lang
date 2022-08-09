@@ -1739,7 +1739,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case VARIABLE:
                 BLangSimpleVariable varNode = (BLangSimpleVariable) node;
                 BLangExpression expr = varNode.expr;
-                return expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
+                return expr != null && (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR ||
+                        expr.getKind() == LITERAL) &&
                         isValidContextForInferredArray(node.parent);
             default:
                 return false;

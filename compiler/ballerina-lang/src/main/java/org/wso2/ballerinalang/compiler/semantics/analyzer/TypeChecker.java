@@ -196,7 +196,9 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -242,6 +244,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private static final String FUNCTION_NAME_SHIFT = "shift";
     private static final String FUNCTION_NAME_UNSHIFT = "unshift";
     private static final String FUNCTION_NAME_ENSURE_TYPE = "ensureType";
+    private static final String BASE_16 = "base16";
 
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final BLangDiagnosticLog dlog;
@@ -452,7 +455,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (literalType == symTable.semanticError || literalExpr.isFiniteContext) {
             return;
         }
-        data.resultType = types.checkType(literalExpr, literalType, data.expType);
+        if (literalType.tag == TypeTags.ARRAY) {
+            data.resultType = checkByteArrayType(literalExpr, literalType, data);
+        } else {
+            data.resultType = types.checkType(literalExpr, literalType, data.expType);
+        }
     }
 
     @Override
@@ -868,10 +875,72 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
             // check whether this is a byte array
-            literalType = new BArrayType(symTable.byteType);
+            byte[] byteArray = convertToByteArray(literalExpr);
+            literalType = new BArrayType(symTable.byteType, null, byteArray.length,
+                    BArrayState.CLOSED);
         }
 
         return literalType;
+    }
+
+    private byte[] convertToByteArray(BLangLiteral literalExpr) {
+        String[] elements = getLiteralTextValue(literalExpr.toString());
+        elements[1] = elements[1].replaceAll("\\s+","");
+        if (elements[0].contains(BASE_16)) {
+            return hexStringToByteArray(elements[1]);
+        }
+        return Base64.getDecoder().decode(elements[1].getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static byte[] hexStringToByteArray(String base16String) {
+        int arrayLength = base16String.length();
+        byte[] byteArray = new byte[arrayLength / 2];
+        for (int i = 0; i < arrayLength; i += 2) {
+            byteArray[i] = (byte) ((Character.digit(base16String.charAt(i), 16) << 4)
+                    + Character.digit(base16String.charAt(i + 1), 16));
+        }
+        return byteArray;
+    }
+
+    private String[] getLiteralTextValue(String literalExprText) {
+        String nodeText = literalExprText.replace("\t", "").replace("\n", "").replace("\r", "")
+                .replace(" ", "");
+        String[] result = new String[2];
+        result[0] = nodeText.substring(0, nodeText.indexOf('`'));
+        result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
+        return result;
+    }
+
+    private BType checkByteArrayType(BLangLiteral literalExpr, BType literalType, AnalyzerData data) {
+        byte[] byteArray = convertToByteArray(literalExpr);
+        if (literalExpr.expectedType.tag == TypeTags.ARRAY) {
+            return checkByteArrayCompatibility(
+                    literalExpr, (BArrayType) literalExpr.expectedType, (BArrayType) literalType, byteArray, data);
+        }
+        return types.checkType(literalExpr, literalType, data.expType);
+    }
+
+    private BType checkByteArrayCompatibility(BLangLiteral literalExpr, BArrayType arrayType, BArrayType literalType,
+                                              byte[] byteArray, AnalyzerData data) {
+        if (arrayType.state == BArrayState.INFERRED) {
+            arrayType.size = byteArray.length;
+            arrayType.state = BArrayState.CLOSED;
+        }
+
+        if (arrayType.state != BArrayState.OPEN && byteArray.length != arrayType.size) {
+            return symTable.semanticError;
+        }
+
+        if (Symbols.isFlagOn(arrayType.flags, Flags.READONLY)) {
+            boolean isNotValid = false;
+            for (int i=0; i < byteArray.length; i++) {
+                isNotValid =
+                        types.checkType(literalExpr, symTable.byteType, arrayType.eType) == symTable.semanticError;
+            }
+            literalExpr.impConversionExpr = null;
+            return isNotValid ? symTable.semanticError : arrayType;
+        }
+        return data.resultType = types.checkType(literalExpr, literalType, data.expType);
     }
 
     private BType getTypeMatchingFloatOrDecimal(BType finiteType, Set<BType> memberTypes, BLangLiteral literalExpr,
