@@ -34,18 +34,18 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
     public final STNode typeDescriptor;
     public final STNode variableName;
     public final STNode equalsToken;
-    public final STNode initializer;
+    public final STNode expression;
 
     STGroupingKeyVarDeclarationNode(
             STNode typeDescriptor,
             STNode variableName,
             STNode equalsToken,
-            STNode initializer) {
+            STNode expression) {
         this(
                 typeDescriptor,
                 variableName,
                 equalsToken,
-                initializer,
+                expression,
                 Collections.emptyList());
     }
 
@@ -53,19 +53,19 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
             STNode typeDescriptor,
             STNode variableName,
             STNode equalsToken,
-            STNode initializer,
+            STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.GROUPING_KEY_VAR_DECLARATION, diagnostics);
         this.typeDescriptor = typeDescriptor;
         this.variableName = variableName;
         this.equalsToken = equalsToken;
-        this.initializer = initializer;
+        this.expression = expression;
 
         addChildren(
                 typeDescriptor,
                 variableName,
                 equalsToken,
-                initializer);
+                expression);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -73,7 +73,7 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
                 this.typeDescriptor,
                 this.variableName,
                 this.equalsToken,
-                this.initializer,
+                this.expression,
                 diagnostics);
     }
 
@@ -81,12 +81,12 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
             STNode typeDescriptor,
             STNode variableName,
             STNode equalsToken,
-            STNode initializer) {
+            STNode expression) {
         if (checkForReferenceEquality(
                 typeDescriptor,
                 variableName,
                 equalsToken,
-                initializer)) {
+                expression)) {
             return this;
         }
 
@@ -94,7 +94,7 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
                 typeDescriptor,
                 variableName,
                 equalsToken,
-                initializer,
+                expression,
                 diagnostics);
     }
 
