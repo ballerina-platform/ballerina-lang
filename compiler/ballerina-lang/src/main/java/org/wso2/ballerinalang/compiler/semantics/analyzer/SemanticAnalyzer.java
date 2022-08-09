@@ -1246,17 +1246,17 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 recordType.getFields().forEach((fieldName, field) -> {
                     BType fieldType = field.type;
                     String fieldString = varName + "." + fieldName;
-                    String message = "record field type '" + fieldType + "' of field '" + fieldString +
-                            "' is not supported";
                     if (invalidTypeSet.contains(fieldType)) {
-                        errors.add(message);
+                        errors.add("record field type '" + fieldType + "' of field '" + fieldString + "' is not " +
+                                "supported");
                         return;
                     }
                     if (isNilableDefaultField(field, fieldType)) {
                         return;
                     }
                     if (!isSupportedConfigType(fieldType, errors, fieldString, unresolvedTypes, isRequired)) {
-                        errors.add(message);
+                        errors.add("record field type '" + fieldType + "' of field '" + fieldString + "' is not " +
+                                "supported");
                         invalidTypeSet.add(fieldType);
                     }
                 });
