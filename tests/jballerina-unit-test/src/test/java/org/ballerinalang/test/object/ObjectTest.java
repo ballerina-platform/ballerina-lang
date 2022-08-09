@@ -45,15 +45,18 @@ public class ObjectTest {
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
 
     private CompileResult checkInInitializerResult;
+    private CompileResult checkFunctionReferencesResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
+        checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
     }
 
     @AfterClass
     public void tearDown() {
         checkInInitializerResult = null;
+        checkFunctionReferencesResult = null;
     }
 
     @Test(description = "Test Basic object as struct")
@@ -373,8 +376,7 @@ public class ObjectTest {
 
     @Test(description = "Test function references from an object", dataProvider = "functionReferencesFromObjectTests")
     public void testFunctionReferencesFromObjects(String functionName) {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
-        BRunUtil.invoke(compileResult, functionName);
+        BRunUtil.invoke(checkFunctionReferencesResult, functionName);
     }
 
     @DataProvider

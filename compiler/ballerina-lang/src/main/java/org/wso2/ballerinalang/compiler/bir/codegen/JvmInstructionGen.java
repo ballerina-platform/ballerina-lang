@@ -1429,10 +1429,9 @@ public class JvmInstructionGen {
     }
 
     void generateObjectStoreIns(BIRNonTerminator.FieldAccess objectStoreIns) {
+        // visit object_ref
+        this.loadVar(objectStoreIns.lhsOp.variableDcl);
         if (objectStoreIns.onInitialization) {
-            // visit object_ref
-            this.loadVar(objectStoreIns.lhsOp.variableDcl);
-
             BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
             String className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectType.tsymbol.pkgID),
                     toNameString(objectType));
@@ -1444,9 +1443,6 @@ public class JvmInstructionGen {
                     SET_ON_INIT, false);
             return;
         }
-        // visit object_ref
-        this.loadVar(objectStoreIns.lhsOp.variableDcl);
-
         visitKeyValueExpressions(objectStoreIns);
         // invoke set() method
         this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set", SET_ON_INIT, true);

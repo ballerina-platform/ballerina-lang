@@ -47,7 +47,6 @@ function testObjectFunctionPointer() {
     Window win = new LengthWindow();
     (function () returns int) pointer = () => win.process();
     win = new SampleWindow();
-    test:assertTrue(pointer() is int);
     test:assertEquals(pointer(), 18);
 }
 
