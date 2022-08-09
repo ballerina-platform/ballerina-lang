@@ -94,4 +94,17 @@ class PositionUtil {
                 || (startLine == endLine && startLine == cursorLine)
                 && startColumn <= cursorColumn);
     }
+
+    static boolean posWithinRange(LinePosition position, LineRange enclRange) {
+        int posLine = position.line();
+        int posOffset = position.offset();
+
+        int enclStartLine = enclRange.startLine().line();
+        int enclEndLine = enclRange.endLine().line();
+        int enclStartOffset = enclRange.startLine().offset();
+        int enclEndOffset = enclRange.endLine().offset();
+
+        return (posLine == enclStartLine && posOffset  >= enclStartOffset || posLine > enclStartLine)
+                && (posLine == enclEndLine && posOffset <= enclEndOffset || posLine < enclEndLine);
+    }
 }
