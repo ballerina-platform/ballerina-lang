@@ -9525,7 +9525,19 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isMapJson(BType originalType) {
-        return originalType.tag == TypeTags.MAP && ((BMapType) originalType).getConstraint().tag == TypeTags.JSON;
+        if (originalType.tag != TypeTags.MAP) {
+            return false;
+        }
+        BType constraintType = getConstraintType((BMapType) originalType);
+        return constraintType.tag == TypeTags.JSON;
+    }
+
+    private BType getConstraintType(BMapType mapType) {
+        BType constraintType = mapType.getConstraint();
+        if (constraintType.tag == TypeTags.MAP) {
+            return getConstraintType((BMapType) constraintType);
+        }
+        return constraintType;
     }
 
     private void pushToMatchStatementStack(BLangMatchStatement matchStmt, BLangMatchClause successClause,
