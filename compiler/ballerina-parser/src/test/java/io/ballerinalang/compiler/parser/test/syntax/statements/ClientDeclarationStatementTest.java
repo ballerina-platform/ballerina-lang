@@ -84,4 +84,9 @@ public class ClientDeclarationStatementTest extends AbstractStatementTest {
     public void testMissingSemicolon() {
         testFile("client-decl-stmt/client_decl_stmt_source_11.bal", "client-decl-stmt/client_decl_stmt_assert_11.json");
     }
+
+    @Test
+    public void testRecoveryWithMultipleClientDeclStmts() {
+        testFile("client-decl-stmt/client_decl_stmt_source_12.bal", "client-decl-stmt/client_decl_stmt_assert_12.json");
+    }
 }
