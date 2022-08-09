@@ -132,7 +132,7 @@ public class MatchStmtListMatchPatternTest {
     @Test(description = "invalid match patterns")
     public void testListMatchPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 7);
-        Assert.assertEquals(resultNegative.getWarnCount(), 94);
+        Assert.assertEquals(resultNegative.getWarnCount(), 98);
         Assert.assertEquals(resultNegative.getHintCount(), 2);
         int i = -1;
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'a'", 20, 9);
@@ -243,6 +243,10 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 373, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 382, 9);
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 400, 5);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 408, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 417, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 427, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 436, 9);
     }
 
     @Test(description = "test negative semantics")

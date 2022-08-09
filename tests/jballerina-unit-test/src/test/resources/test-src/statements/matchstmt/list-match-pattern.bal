@@ -568,12 +568,12 @@ function testListMatchPattern19() {
 }
 
 function listMatchPattern20() returns string {
-   [boolean, string] | [int, string, decimal] v = [1, "A", 1.1d];
-   match v {
-       [var i, ...var s] => {
-           return "i: " + i.toString() + " s: " + s.toString();
-       }
-   }
+    [boolean, string] | [int, string, decimal] v = [1, "A", 1.1d];
+    match v {
+        [var i, ...var s] => {
+            return "i: " + i.toString() + " s: " + s.toString();
+        }
+    }
 }
 
 function testListMatchPattern20() {
@@ -892,15 +892,15 @@ function testListMatchPattern32() {
 }
 
 function listMatchPattern32(T t) returns string|int {
-   string|int s;
+    string|int s;
 
-   match t {
-       [_, var val] => {
-           s = val;
-       }
-   }
+    match t {
+        [_, var val] => {
+            s = val;
+        }
+    }
 
-   return s;
+    return s;
 }
 
 type T2 readonly & ([1, string]|[2, string]|[3, string]);
@@ -916,15 +916,15 @@ function testListMatchPattern33() {
 }
 
 function listMatchPattern33(T2 t) returns string {
-   string s;
+    string s;
 
-   match t {
-       [_, var val] => {
-           s = val;
-       }
-   }
+    match t {
+        [_, var val] => {
+            s = val;
+        }
+    }
 
-   return s;
+    return s;
 }
 
 type T3 readonly & S3;

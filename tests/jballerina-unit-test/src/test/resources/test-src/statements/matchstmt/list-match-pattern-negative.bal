@@ -399,3 +399,43 @@ public function testUnrechableMatchPaternWithTuples5() returns string {
     }
     return b; // Error: unreachable code
 }
+
+public function testUnrechableMatchPaternWithTuples6() {
+    T5 a = ["string", 1];
+    match a {
+        [_, _] => {
+        }
+        [...var x] => { //Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match a {
+        [var x, _] => {
+            _ = x;
+        }
+        [...var x] => { //Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match a {
+        [var x, var y] => {
+            _ = x;
+            _ = y;
+        }
+        [...var x] => { //Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match a {
+        [...var x] => {
+            _ = x;
+        }
+        [var x, var y] => { //Warning: unreachable pattern
+            _ = x;
+            _ = y;
+        }
+    }
+}

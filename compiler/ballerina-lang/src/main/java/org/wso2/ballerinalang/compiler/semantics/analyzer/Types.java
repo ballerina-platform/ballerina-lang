@@ -6084,6 +6084,10 @@ public class Types {
             return true;
         }
 
+        if (type.isCyclic) {
+            return false;
+        }
+
         Set<BType> memberTypes = new HashSet<>();
         boolean hasFillerValue = false;
 
@@ -6095,13 +6099,6 @@ public class Types {
                     hasFillerValue = true;
                 }
             } else {
-                if (member.tag == TypeTags.TUPLE) {
-                    for (BType tupleType: ((BTupleType) member).tupleTypes) {
-                        if (tupleType.tsymbol.getName().equals(type.tsymbol.getName())) {
-                            return false;
-                        }
-                    }
-                }
                 memberTypes.add(member);
                 if (!hasFillerValue && hasFillerValue(member)) {
                     hasFillerValue = true;

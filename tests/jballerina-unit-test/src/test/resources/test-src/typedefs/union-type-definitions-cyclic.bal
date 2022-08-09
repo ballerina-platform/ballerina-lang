@@ -287,6 +287,12 @@ public type T6 T5[];
 public type T7 ["|", T7[], T7...] | "int" ;
 public type T8 T7[];
 
+public type T9 ["|", T9, T9, T9...] | "int" ;
+public type T10 T9[];
+
+public type T11 ["|", T11, T11[], T11[]...] | "int" ;
+public type T12 T11[];
+
 function testRecursiveTupleTypeDefinitions() {
     T1 t1 = ["|", "int", ["|", "int", "int"], "int"];
     T2 t2 = [["|", "int", ["|", "int", "int"], "int"], "int"];
@@ -315,6 +321,15 @@ function testRecursiveTupleTypeDefinitions() {
     assert(t10 is T7, true);
     assert(t11 is T8, true);
     assert(t12 is T8, true);
+
+    T9 t13 = ["|", "int", "int", "int", "int"];
+    T10 t14 = [t13, t13];
+    T11 t15 = ["|", "int", ["int", "int"], ["int", "int"], ["int", "int"]];
+    T12 t16 = [t15, t15];
+    assert(t13 is T9, true);
+    assert(t14 is T10, true);
+    assert(t15 is T11, true);
+    assert(t16 is T12, true);
 }
 
 function assert(anydata expected, anydata actual) {
