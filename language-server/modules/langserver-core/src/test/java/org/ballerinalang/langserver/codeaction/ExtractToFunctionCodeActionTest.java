@@ -46,20 +46,20 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
         return new Object[][]{
                 // statements and list
 
-                {"extract_to_function_statements_list_without_return.json"},
-                {"extract_to_function_statements_list_with_return.json"},
-                {"extract_to_function_statements_list_with_param_without_return.json"},
-                {"extract_to_function_statements_list_with_param_with_return.json"},
-                {"extract_to_function_statements_list_with_const_with_return.json"},
-                {"extract_to_function_statements_list_with_moduleVar_with_return.json"},
-                {"extract_to_function_statements_list_assigned_twice.json"},
-                {"extract_to_function_statements_list_multipleLocalVarDefsInRange_with_single_return.json"},
-                {"extract_to_function_statements_list_varDeclOnlyInRange_return_single.json"},
-                {"extract_to_function_statements_list_with_ifElseStatement.json"},
-                {"extract_to_function_statements_list_with_compound_assignments.json"},
-                {"extract_to_function_statements_list_with_asgnmntAndCompAsgnmnt_sameVar.json"},
-                {"extract_to_function_statements_list_with_moduleVar_assignmentStatement.json"},
-                {"extract_to_function_statements_list_with_moduleVar_comAssignmentStatement.json"},
+                {"extract_to_function_stmts_list_without_return.json"},
+                {"extract_to_function_stmts_list_with_return.json"},
+                {"extract_to_function_stmts_list_with_param_without_return.json"},
+                {"extract_to_function_stmts_list_with_param_with_return.json"},
+                {"extract_to_function_stmts_list_with_const_with_return.json"},
+                {"extract_to_function_stmts_list_with_moduleVar_with_return.json"},
+                {"extract_to_function_stmts_list_assigned_twice.json"},
+                {"extract_to_function_stmts_list_multipleLocalVarDefsInRange_with_single_return.json"},
+                {"extract_to_function_stmts_list_varDeclOnlyInRange_return_single.json"},
+                {"extract_to_function_stmts_list_with_ifElseStatement.json"},
+                {"extract_to_function_stmts_list_with_compound_assignments.json"},
+                {"extract_to_function_stmts_list_with_asgnmntAndCompAsgnmnt_sameVar.json"},
+                {"extract_to_function_stmts_list_with_moduleVar_assignmentStatement.json"},
+                {"extract_to_function_stmts_list_with_moduleVar_comAssignmentStatement.json"},
 
                 {"extract_to_function_stmts_block_stmt_inside_block.json"},
 
@@ -96,13 +96,13 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
         return new Object[][]{
                 // statements and list
 
-                {"negative_extract_to_function_statements_list_with_multiple_assignments.json"},
-                {"negative_extract_to_function_statements_list_with_multiple_comAssignments.json"},
-                {"negative_extract_to_function_statements_list_with_multiple_varDecls_referredAfterRange.json"},
-                {"negative_extract_to_function_statements_list_with_compoundAss_without_varDecl.json"},
-                {"negative_extract_to_function_statements_list_with_assignment_and_compAssignment.json"},
-                {"negative_extract_to_function_statements_list_with_multiple_moduleVar_assignments.json"},
-                {"negative_extract_to_function_statements_list_with_multiple_moduleVar_and_localVar_assignments.json"},
+                {"negative_extract_to_function_stmts_list_with_mul_asgnmts.json"},
+                {"negative_extract_to_function_stmts_list_with_mul_comAsgnmts.json"},
+                {"neg_extract_to_function_stmts_list_with_mul_varDecls_referredAfterRange.json"},
+                {"negative_extract_to_function_stmts_list_with_cmpAss_without_varDecl.json"},
+                {"negative_extract_to_function_stmts_list_with_asgnmt_and_cmpAsgnmt.json"},
+                {"negative_extract_to_function_stmts_list_with_mul_modVar_asgmnts.json"},
+                {"neg_extract_to_function_stmts_list_with_mul_modVar_and_locVar_asgmts.json"},
                 {"negative_extract_to_function_stmts_list_with_while_loop_with_return_inside.json"},
                 {"negative_extract_to_function_stmts_list_with_while_loop_with_panic_inside.json"},
 
