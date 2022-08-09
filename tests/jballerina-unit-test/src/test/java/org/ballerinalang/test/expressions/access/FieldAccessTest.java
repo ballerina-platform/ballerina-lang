@@ -127,7 +127,7 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
                 "fields of non-nilable types, field 'z' is undeclared in record(s) 'CD' and type includes nil in " +
                 "record(s) 'BC'", 331, 17);
-        validateError(negativeResult, i, "undefined field 'id' in | '(AB|BC)'", 337, 5);
+        validateError(negativeResult, i, "undefined field 'id' in union '(AB|BC)'", 337, 5);
     }
 
     @Test(dataProvider = "recordFieldAccessFunctions")
