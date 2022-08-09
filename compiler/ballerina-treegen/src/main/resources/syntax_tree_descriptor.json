@@ -1748,6 +1748,11 @@
             "kind": "CLIENT_DECLARATION",
             "attributes": [
                 {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "clientKeyword",
                     "type": "Token"
                 },
@@ -1774,6 +1779,11 @@
             "base": "ModuleMemberDeclarationNode",
             "kind": "MODULE_CLIENT_DECLARATION",
             "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
                 {
                     "name": "clientKeyword",
                     "type": "Token"

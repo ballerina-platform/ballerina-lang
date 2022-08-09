@@ -1299,6 +1299,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public ClientDeclarationNode transform(
             ClientDeclarationNode clientDeclarationNode) {
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(clientDeclarationNode.annotations());
         Token clientKeyword =
                 modifyToken(clientDeclarationNode.clientKeyword());
         BasicLiteralNode clientUri =
@@ -1310,6 +1312,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token semicolonToken =
                 modifyToken(clientDeclarationNode.semicolonToken());
         return clientDeclarationNode.modify(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,
@@ -1320,6 +1323,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public ModuleClientDeclarationNode transform(
             ModuleClientDeclarationNode moduleClientDeclarationNode) {
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(moduleClientDeclarationNode.annotations());
         Token clientKeyword =
                 modifyToken(moduleClientDeclarationNode.clientKeyword());
         BasicLiteralNode clientUri =
@@ -1331,6 +1336,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token semicolonToken =
                 modifyToken(moduleClientDeclarationNode.semicolonToken());
         return moduleClientDeclarationNode.modify(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,

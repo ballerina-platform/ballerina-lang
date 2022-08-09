@@ -32,24 +32,28 @@ public class ClientDeclarationNode extends StatementNode {
         super(internalNode, position, parent);
     }
 
-    public Token clientKeyword() {
-        return childInBucket(0);
+    public NodeList<AnnotationNode> annotations() {
+        return new NodeList<>(childInBucket(0));
     }
 
-    public BasicLiteralNode clientUri() {
+    public Token clientKeyword() {
         return childInBucket(1);
     }
 
-    public Token asKeyword() {
+    public BasicLiteralNode clientUri() {
         return childInBucket(2);
     }
 
-    public IdentifierToken clientPrefix() {
+    public Token asKeyword() {
         return childInBucket(3);
     }
 
-    public Token semicolonToken() {
+    public IdentifierToken clientPrefix() {
         return childInBucket(4);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(5);
     }
 
     @Override
@@ -65,6 +69,7 @@ public class ClientDeclarationNode extends StatementNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "annotations",
                 "clientKeyword",
                 "clientUri",
                 "asKeyword",
@@ -73,12 +78,14 @@ public class ClientDeclarationNode extends StatementNode {
     }
 
     public ClientDeclarationNode modify(
+            NodeList<AnnotationNode> annotations,
             Token clientKeyword,
             BasicLiteralNode clientUri,
             Token asKeyword,
             IdentifierToken clientPrefix,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                annotations.underlyingListNode(),
                 clientKeyword,
                 clientUri,
                 asKeyword,
@@ -88,6 +95,7 @@ public class ClientDeclarationNode extends StatementNode {
         }
 
         return NodeFactory.createClientDeclarationNode(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,
@@ -106,6 +114,7 @@ public class ClientDeclarationNode extends StatementNode {
      */
     public static class ClientDeclarationNodeModifier {
         private final ClientDeclarationNode oldNode;
+        private NodeList<AnnotationNode> annotations;
         private Token clientKeyword;
         private BasicLiteralNode clientUri;
         private Token asKeyword;
@@ -114,11 +123,19 @@ public class ClientDeclarationNode extends StatementNode {
 
         public ClientDeclarationNodeModifier(ClientDeclarationNode oldNode) {
             this.oldNode = oldNode;
+            this.annotations = oldNode.annotations();
             this.clientKeyword = oldNode.clientKeyword();
             this.clientUri = oldNode.clientUri();
             this.asKeyword = oldNode.asKeyword();
             this.clientPrefix = oldNode.clientPrefix();
             this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public ClientDeclarationNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
         }
 
         public ClientDeclarationNodeModifier withClientKeyword(
@@ -158,6 +175,7 @@ public class ClientDeclarationNode extends StatementNode {
 
         public ClientDeclarationNode apply() {
             return oldNode.modify(
+                    annotations,
                     clientKeyword,
                     clientUri,
                     asKeyword,

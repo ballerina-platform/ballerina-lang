@@ -1250,11 +1250,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ClientDeclarationNode createClientDeclarationNode(
+            NodeList<AnnotationNode> annotations,
             Token clientKeyword,
             BasicLiteralNode clientUri,
             Token asKeyword,
             IdentifierToken clientPrefix,
             Token semicolonToken) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(clientKeyword, "clientKeyword must not be null");
         Objects.requireNonNull(clientUri, "clientUri must not be null");
         Objects.requireNonNull(asKeyword, "asKeyword must not be null");
@@ -1262,6 +1264,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stClientDeclarationNode = STNodeFactory.createClientDeclarationNode(
+                annotations.underlyingListNode().internalNode(),
                 clientKeyword.internalNode(),
                 clientUri.internalNode(),
                 asKeyword.internalNode(),
@@ -1271,11 +1274,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ModuleClientDeclarationNode createModuleClientDeclarationNode(
+            NodeList<AnnotationNode> annotations,
             Token clientKeyword,
             BasicLiteralNode clientUri,
             Token asKeyword,
             IdentifierToken clientPrefix,
             Token semicolonToken) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(clientKeyword, "clientKeyword must not be null");
         Objects.requireNonNull(clientUri, "clientUri must not be null");
         Objects.requireNonNull(asKeyword, "asKeyword must not be null");
@@ -1283,6 +1288,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stModuleClientDeclarationNode = STNodeFactory.createModuleClientDeclarationNode(
+                annotations.underlyingListNode().internalNode(),
                 clientKeyword.internalNode(),
                 clientUri.internalNode(),
                 asKeyword.internalNode(),

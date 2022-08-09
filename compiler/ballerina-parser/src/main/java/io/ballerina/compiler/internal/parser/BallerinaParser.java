@@ -10002,7 +10002,7 @@ public class BallerinaParser extends AbstractParser {
             case STRING_LITERAL_TOKEN:
                 reportInvalidMetaData(metadata, "client declaration");
                 reportInvalidQualifier(publicQualifier);
-                return parseClientDeclaration(qualifiers.get(qualifiers.size() - 1), isModuleVar);
+                return parseClientDeclaration(metadata, qualifiers.get(qualifiers.size() - 1), isModuleVar);
             case OBJECT_KEYWORD:
                 if (isModuleVar) {
                     return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
@@ -10028,24 +10028,20 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return client declaration node
      */
-    private STNode parseClientDeclaration(STNode clientKeyword, boolean isModuleVar) {
+    private STNode parseClientDeclaration(STNode annotations, STNode clientKeyword, boolean isModuleDecl) {
         startContext(ParserRuleContext.CLIENT_DECLARATION);
         STNode clientDeclUri = parseStringLiteral();
         STNode asKeyword = parseAsKeyword();
         STNode prefix = parseClientDeclPrefix();
         STNode semicolon = parseSemicolon();
-
-        STNode clientDecl;
-        if (isModuleVar) {
-            clientDecl =  STNodeFactory.createModuleClientDeclarationNode(clientKeyword, clientDeclUri, asKeyword,
-                                                                          prefix, semicolon);
-        } else {
-            clientDecl = STNodeFactory.createClientDeclarationNode(clientKeyword, clientDeclUri, asKeyword, prefix,
-                                                                   semicolon);
-        }
-
         endContext();
-        return clientDecl;
+
+        if (isModuleDecl) {
+            return STNodeFactory.createModuleClientDeclarationNode(annotations, clientKeyword, clientDeclUri, asKeyword,
+                                                                   prefix, semicolon);
+        }
+        return STNodeFactory.createClientDeclarationNode(annotations, clientKeyword, clientDeclUri, asKeyword, prefix,
+                                                         semicolon);
     }
 
     private STNode parseClientDeclPrefix() {

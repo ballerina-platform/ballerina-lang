@@ -957,6 +957,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createClientDeclarationNode(
+            STNode annotations,
             STNode clientKeyword,
             STNode clientUri,
             STNode asKeyword,
@@ -964,6 +965,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STClientDeclarationNode(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,
@@ -972,6 +974,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createModuleClientDeclarationNode(
+            STNode annotations,
             STNode clientKeyword,
             STNode clientUri,
             STNode asKeyword,
@@ -979,6 +982,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STModuleClientDeclarationNode(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,

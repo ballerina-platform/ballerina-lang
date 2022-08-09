@@ -31,6 +31,7 @@ import java.util.Collections;
  * @since 2201.3.0
  */
 public class STModuleClientDeclarationNode extends STModuleMemberDeclarationNode {
+    public final STNode annotations;
     public final STNode clientKeyword;
     public final STNode clientUri;
     public final STNode asKeyword;
@@ -38,12 +39,14 @@ public class STModuleClientDeclarationNode extends STModuleMemberDeclarationNode
     public final STNode semicolonToken;
 
     STModuleClientDeclarationNode(
+            STNode annotations,
             STNode clientKeyword,
             STNode clientUri,
             STNode asKeyword,
             STNode clientPrefix,
             STNode semicolonToken) {
         this(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,
@@ -53,6 +56,7 @@ public class STModuleClientDeclarationNode extends STModuleMemberDeclarationNode
     }
 
     STModuleClientDeclarationNode(
+            STNode annotations,
             STNode clientKeyword,
             STNode clientUri,
             STNode asKeyword,
@@ -60,6 +64,7 @@ public class STModuleClientDeclarationNode extends STModuleMemberDeclarationNode
             STNode semicolonToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.MODULE_CLIENT_DECLARATION, diagnostics);
+        this.annotations = annotations;
         this.clientKeyword = clientKeyword;
         this.clientUri = clientUri;
         this.asKeyword = asKeyword;
@@ -67,6 +72,7 @@ public class STModuleClientDeclarationNode extends STModuleMemberDeclarationNode
         this.semicolonToken = semicolonToken;
 
         addChildren(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,
@@ -76,6 +82,7 @@ public class STModuleClientDeclarationNode extends STModuleMemberDeclarationNode
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STModuleClientDeclarationNode(
+                this.annotations,
                 this.clientKeyword,
                 this.clientUri,
                 this.asKeyword,
@@ -85,12 +92,14 @@ public class STModuleClientDeclarationNode extends STModuleMemberDeclarationNode
     }
 
     public STModuleClientDeclarationNode modify(
+            STNode annotations,
             STNode clientKeyword,
             STNode clientUri,
             STNode asKeyword,
             STNode clientPrefix,
             STNode semicolonToken) {
         if (checkForReferenceEquality(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,
@@ -100,6 +109,7 @@ public class STModuleClientDeclarationNode extends STModuleMemberDeclarationNode
         }
 
         return new STModuleClientDeclarationNode(
+                annotations,
                 clientKeyword,
                 clientUri,
                 asKeyword,
