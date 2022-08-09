@@ -180,7 +180,7 @@ public class BMainInstance implements BMain {
                 envProperties, clientArgs, leechers, sourceRoot);
     }
 
-    private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    public synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
@@ -587,7 +587,7 @@ public class BMainInstance implements BMain {
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
-
+            addJavaAgents(envProperties);
             Map<String, String> env = processBuilder.environment();
             env.putAll(envProperties);
 

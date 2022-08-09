@@ -33,6 +33,20 @@ public class Function extends Construct {
     public List<DefaultableVariable> parameters;
     @Expose
     public List<Variable> returnParameters;
+    @Expose
+    List<AnnotationAttachment> annotationAttachments;
+
+    public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,
+                    boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters,
+                    List<AnnotationAttachment> annotationAttachments) {
+        super(name, description, isDeprecated);
+        this.isRemote = isRemote;
+        this.isExtern = isExtern;
+        this.parameters = parameters;
+        this.returnParameters = returnParameters;
+        this.isIsolated = isIsolated;
+        this.annotationAttachments = annotationAttachments;
+    }
 
     public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,
                     boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters) {

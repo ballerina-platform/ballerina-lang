@@ -69,6 +69,39 @@ function testSimpleQueryAction2() returns int{
     return count;
 }
 
+function testSimpleQueryAction3() returns error? {
+    string result1 = check simpleQueryAction();
+    var result2 = check simpleQueryAction();
+    assertEquality(result1, "string 1");
+    assertEquality(result2, "string 1");
+
+    error? result3 = simpleQueryAction2();
+    var result4 = simpleQueryAction2();
+    assertEquality(result3, ());
+    assertEquality(result4, ());
+}
+
+function simpleQueryAction() returns string|error {
+    check from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return "string 1";
+    };
+    return "string 2";
+}
+
+function simpleQueryAction2() returns error? {
+    check from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return;
+    };
+    return;
+}
+
+function returnNil() {
+}
+
 function testSimpleQueryActionWithRecordVariable() returns FullName[]{
 
     Person p1 = {firstName:"Alex", lastName: "George", age: 23};
@@ -577,6 +610,58 @@ function foo4() returns string|error? {
         return "str1";
     };
     return "str2";
+}
+
+function foo5() {
+    int i = 2;
+    error? res = from int _ in []
+    do {
+        foreach string _ in [] {
+            int _ = i;
+        }
+    };
+}
+
+function foo6((string?)[] str) returns string[] {
+    string[] arr = [];
+    error? res = from var x in str
+    do {
+        if x is string {
+            foreach var _ in 1...2 {
+                arr.push(x);
+            }
+        }
+    };
+    if res is error {
+        panic res;
+    }
+    return arr;
+}
+
+public function foo7() returns map<int> {
+    string[][] fruits = [["apple", "orange", "banana"], ["orange", "apple", "banana"], ["banana"], ["apple"], ["orange"]];
+
+    map<int> count = {};
+    error? res = from string[] fruit in fruits.toStream()
+            do {
+                string[] tokens = fruit;
+                foreach string token in tokens {
+                    if token != "" {
+                        int? frequency = count[token];
+                        count[token] = frequency is int ? frequency + 1 : 1;
+                    }
+                }
+            };
+    if res is error {
+        panic res;
+    }
+    return count;
+}
+
+function testForeachStmtInsideDoClause() {
+    foo5();
+    assertEquality(foo6(["Hello", (), "World"]) == ["Hello", "Hello", "World", "World"], true);
+    assertEquality(foo7() == {"apple":3, "orange":3, "banana":3}, true);
 }
 
 function testQueryActionWithDoClauseContainsCheck() {

@@ -1046,4 +1046,8 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangResourceFunction resourceFunction) {
         throw new AssertionError();
     }
+    
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        throw new AssertionError();
+    }
 }

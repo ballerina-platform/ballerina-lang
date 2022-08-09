@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -61,7 +62,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getValueFromKeyValueNode;
@@ -146,11 +146,10 @@ public class ConfigValueCreator {
     }
 
     private BArray createArrayValue(TomlNode tomlValue, ArrayType arrayType) {
-        Type elementType = arrayType.getElementType();
+        Type elementType = TypeUtils.getReferredType(arrayType.getElementType());
         if (isSimpleType(elementType.getTag())) {
             tomlValue = getValueFromKeyValueNode(tomlValue);
-            return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
-                    arrayType.getElementType());
+            return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType, elementType);
         } else {
             return getNonSimpleTypeArray(tomlValue, arrayType, elementType);
         }
@@ -169,11 +168,11 @@ public class ConfigValueCreator {
             case TypeTags.TUPLE_TAG:
                 tomlValue = getValueFromKeyValueNode(tomlValue);
                 return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
-                        getEffectiveType(arrayType.getElementType()));
+                        getEffectiveType(TypeUtils.getReferredType(arrayType.getElementType())));
             case TypeTags.ARRAY_TAG:
                 tomlValue = getValueFromKeyValueNode(tomlValue);
                 return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
-                        arrayType.getElementType());
+                        TypeUtils.getReferredType(arrayType.getElementType()));
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 return getMapValueArray(tomlValue, arrayType, elementType);
@@ -232,7 +231,8 @@ public class ConfigValueCreator {
             case TypeTags.ARRAY_TAG:
                 ArrayType arrayType = (ArrayType) elementType;
                 balValue = createArrayFromSimpleTomlValue(
-                        (TomlArrayValueNode) tomlValueNode, arrayType, arrayType.getElementType());
+                        (TomlArrayValueNode) tomlValueNode, arrayType,
+                        TypeUtils.getReferredType(arrayType.getElementType()));
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
@@ -266,7 +266,7 @@ public class ConfigValueCreator {
             if (field == null) {
                 field = Utils.createAdditionalField(recordType, fieldName, value);
             }
-            Type fieldType = getReferredType(field.getFieldType());
+            Type fieldType = TypeUtils.getReferredType(field.getFieldType());
             Object objectValue = createValue(value, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }

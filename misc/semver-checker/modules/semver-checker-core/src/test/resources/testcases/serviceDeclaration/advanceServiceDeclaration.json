@@ -58,25 +58,25 @@
           "versionImpact": "major",
           "childDiffs": [
             {
+              "kind": "service",
               "type": "modified",
               "versionImpact": "major",
-              "kind": "service",
               "childDiffs": [
                 {
+                  "kind": "service listener expression",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "kind": "unknown",
                   "message": "service listener expression is modified"
                 },
                 {
+                  "kind": "remote function",
                   "type": "new",
-                  "versionImpact": "minor",
-                  "kind": "remote function"
+                  "versionImpact": "minor"
                 },
                 {
+                  "kind": "service field",
                   "type": "removed",
-                  "versionImpact": "major",
-                  "kind": "service field"
+                  "versionImpact": "major"
                 }
               ]
             }

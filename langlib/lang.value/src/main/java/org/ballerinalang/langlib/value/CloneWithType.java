@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
@@ -56,7 +57,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
@@ -132,7 +132,7 @@ public class CloneWithType {
     }
 
     private static Type getTargetFromTypeDesc(Type targetType) {
-        Type referredType = getReferredType(targetType);
+        Type referredType = TypeUtils.getReferredType(targetType);
         if (referredType.getTag() == TypeTags.TYPEDESC_TAG) {
             return ((TypedescType) referredType).getConstraint();
         }
@@ -225,14 +225,12 @@ public class CloneWithType {
     private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
                                                          BTypedesc t, RecordType recordType,
                                                          Type restFieldType, Map<String, Type> targetTypeField) {
-        BMap<BString, Object> newRecord;
         Map<String, Object> valueMap = new HashMap<>();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertRecordEntry(unresolvedValues, t, restFieldType, targetTypeField, entry);
             valueMap.put(entry.getKey().toString(), newValue);
         }
-        newRecord = ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
-        return newRecord;
+        return ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
     }
 
     private static BMap<?, ?> convertToRecordWithTypeDesc(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,

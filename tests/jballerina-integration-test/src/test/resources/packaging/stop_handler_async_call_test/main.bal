@@ -23,27 +23,27 @@ int count = 0;
 function stopHandlerFunc1() returns error? {
     runtime:sleep(2);
     incrementCount();
-    assertCount(7);
+    assertCount(6);
     println("Stopped stopHandlerFunc1");
 }
 
 function stopHandlerFunc2() returns error? {
     incrementCount();
-    assertCount(6);
+    assertCount(5);
     println("Stopped stopHandlerFunc2");
 }
 
 function stopHandlerFunc3() returns error? {
     runtime:sleep(2);
     incrementCount();
-    assertCount(4);
+    assertCount(3);
     println("Stopped stopHandlerFunc3");
 }
 
 function stopHandlerFunc4() returns error? {
     runtime:sleep(2);
     incrementCount();
-    assertCount(5);
+    assertCount(4);
     println("Stopped stopHandlerFunc4");
 }
 
@@ -59,36 +59,8 @@ public function main() {
     incrementCount();
     assertCount(2);
     runtime:onGracefulStop(stopHandlerFunc3);
+    runtime:sleep(3);
 }
-
-
-public class ABC {
-
-    private string name = "";
-
-    public function init(string name){
-        self.name = name;
-    }
-
-    public function 'start() returns error? {
-        incrementCount();
-        assertCount(3);
-    }
-
-    public function gracefulStop() returns error? {
-    }
-
-    public function immediateStop() returns error? {
-    }
-
-    public function attach(service object {} s, string[]|string? name = ()) returns error? {
-    }
-
-    public function detach(service object {} s) returns error? {
-    }
-}
-
-listener ABC ep = new ABC("ModA");
 
 function incrementCount() {
     count += 1;

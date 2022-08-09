@@ -20,6 +20,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 
@@ -35,7 +36,7 @@ public class Lists {
             return array.getRefValue(index);
         }
 
-        switch (((BArrayType) array.getType()).getElementType().getTag()) {
+        switch (TypeUtils.getReferredType(((BArrayType) array.getType()).getElementType()).getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 return Boolean.valueOf(array.getBoolean(index));
             case TypeTags.BYTE_TAG:

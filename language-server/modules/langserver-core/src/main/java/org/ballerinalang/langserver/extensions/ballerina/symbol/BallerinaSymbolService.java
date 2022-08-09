@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -167,20 +168,22 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         request.getPosition().getCharacter());
                 Optional<? extends Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
 
+                Range nodeRange = new Range(request.getPosition(), request.getPosition());
+                NonTerminalNode nodeAtCursor = CommonUtil.findNode(nodeRange, srcFile.get().syntaxTree());
+
                 if (symbolAtCursor.isEmpty()) {
-                    Range nodeRange = new Range(request.getPosition(), request.getPosition());
-                    NonTerminalNode nodeAtCursor = CommonUtil.findNode(nodeRange, srcFile.get().syntaxTree());
                     if (nodeAtCursor != null) {
                         MatchedExpressionNodeResolver exprResolver = new MatchedExpressionNodeResolver(nodeAtCursor);
                         Optional<ExpressionNode> expr = exprResolver.findExpression(nodeAtCursor);
                         if (expr.isPresent()) {
-                            return getDocMetadataForNewExpression(expr.get(), context, symbolInfoResponse);
+                            return getDocMetadataForNewExpression(expr.get(), context, symbolInfoResponse,
+                                    nodeAtCursor);
                         }
                     }
                     return symbolInfoResponse;
                 }
 
-                return getSymbolDocMetadata(symbolAtCursor.get(), symbolInfoResponse, context);
+                return getSymbolDocMetadata(symbolAtCursor.get(), symbolInfoResponse, context, nodeAtCursor);
 
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaSymbol/getSymbol' failed!";
@@ -227,7 +230,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
     }
 
     private SymbolInfoResponse getDocMetadataForNewExpression(Node exprNode, DocumentServiceContext context,
-                                                             SymbolInfoResponse symbolInfoResponse) {
+                                                              SymbolInfoResponse symbolInfoResponse,
+                                                              NonTerminalNode nodeAtCursor) {
         switch (exprNode.kind()) {
             case IMPLICIT_NEW_EXPRESSION:
             case EXPLICIT_NEW_EXPRESSION:
@@ -258,14 +262,14 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     }
 
                     MethodSymbol initMethodSymbol = classSymbol.initMethod().get();
-                    return getSymbolDocMetadata(initMethodSymbol, symbolInfoResponse, context);
+                    return getSymbolDocMetadata(initMethodSymbol, symbolInfoResponse, context, nodeAtCursor);
                 }
         }
         return symbolInfoResponse;
     }
 
     private SymbolInfoResponse getSymbolDocMetadata(Symbol symbolAtCursor, SymbolInfoResponse symbolInfoResponse,
-                                                   DocumentServiceContext context) {
+                                                    DocumentServiceContext context, NonTerminalNode nodeAtCursor) {
         Optional<Documentation> documentation = symbolAtCursor instanceof Documentable ?
                 ((Documentable) symbolAtCursor).documentation() : Optional.empty();
 
@@ -281,8 +285,9 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
             if (functionSymbol.typeDescriptor().params().isPresent()) {
                 List<ParameterSymbol> parameterSymbolList = functionSymbol.typeDescriptor().params().get();
 
-                parameterSymbolList.stream().filter((parameterSymbol) ->
-                        parameterSymbol.getName().isPresent())
+                parameterSymbolList
+                        .subList(skipFirstParam(symbolAtCursor, nodeAtCursor) ? 1 : 0, parameterSymbolList.size())
+                        .stream().filter((parameterSymbol) -> parameterSymbol.getName().isPresent())
                         .forEach(parameterSymbol -> {
 
                             symbolParams.add(new SymbolDocumentation.ParameterInfo(
@@ -319,6 +324,13 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         symbolInfoResponse.setSymbolKind(symbolAtCursor.kind());
 
         return symbolInfoResponse;
+    }
+
+    private boolean skipFirstParam(Symbol symbolAtCursor, NonTerminalNode nodeAtCursor) {
+        return (symbolAtCursor.kind() == SymbolKind.FUNCTION || symbolAtCursor.kind() == SymbolKind.METHOD)
+                && (symbolAtCursor.getModule().isPresent() &&
+                CommonUtil.isLangLib(symbolAtCursor.getModule().get().id()) &&
+                nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE);
     }
 
     @Override

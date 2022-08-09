@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -347,6 +348,18 @@ public abstract class BIRNode {
         public List<BIRAnnotationAttachment> returnTypeAnnots;
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
+
+        // Below fields will only be available on resource functions
+        // TODO: consider creating a sub class for resource functions issue: #36964
+        public List<BIRVariableDcl> pathParams;
+        
+        public BIRVariableDcl restPathParam;
+        
+        public List<Name> resourcePath;
+        
+        public Name accessor;
+        
+        public BTupleType resourcePathType;
 
         public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
                            BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,
