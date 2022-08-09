@@ -89,7 +89,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
         Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(matchedCodeActionNode);
         if (context.currentSemanticModel().isEmpty() || enclosingNode.isEmpty()
-                || enclosingNode.get().kind() != SyntaxKind.FUNCTION_DEFINITION) { // todo remove this to allow global level extract to funcs
+                || enclosingNode.get().kind() != SyntaxKind.FUNCTION_DEFINITION) {
             return Collections.emptyList();
         }
 
@@ -98,7 +98,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         Position endPosOfEnclosingNode = PositionUtil.toPosition(enclosingNode.get().lineRange().endLine());
         Position endPosOfStatements
                 = new Position(endPosOfEnclosingNode.getLine(), endPosOfEnclosingNode.getCharacter() - 1);
-        Range rangeAfterHighlightedRange = new Range(context.range().getEnd(), endPosOfStatements); // todo check whether startPos correct here
+        Range rangeAfterHighlightedRange = new Range(context.range().getEnd(), endPosOfStatements);
 
         List<Symbol> bindingSymbolsBeforeEndOfRange = getVisibleSymbols(context, context.range().getEnd()).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.CONSTANT
@@ -568,34 +568,16 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     public static List<SyntaxKind> getSupportedStatementSyntaxKindsList() {
         return List.of(
                 SyntaxKind.LIST, // not a statement
-//                SyntaxKind.BLOCK_STATEMENT, // todo should support
                 SyntaxKind.LOCAL_VAR_DECL,
                 SyntaxKind.ASSIGNMENT_STATEMENT,
                 SyntaxKind.IF_ELSE_STATEMENT,
-//                SyntaxKind.ELSE_BLOCK, // do not support
-
                 SyntaxKind.WHILE_STATEMENT,
-//                SyntaxKind.CALL_STATEMENT, // do not support, no point supporting
-//                SyntaxKind.PANIC_STATEMENT, // do not support, if found inside one of other do not provide? // todo verify
                 SyntaxKind.RETURN_STATEMENT,
-
-//                SyntaxKind.CONTINUE_STATEMENT, // do not support
-//                SyntaxKind.BREAK_STATEMENT, // do not support
                 SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT,
-//                SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT, // has been removed from spec // todo confirm
-//                SyntaxKind.ACTION_STATEMENT, //todo block these from finder //do not support for now
                 SyntaxKind.LOCK_STATEMENT,
-//                SyntaxKind.NAMED_WORKER_DECLARATION, // do not support
-//                SyntaxKind.FORK_STATEMENT, // do not support for now
                 SyntaxKind.FOREACH_STATEMENT,
-//                SyntaxKind.TRANSACTION_STATEMENT, // do not support for now
-//                SyntaxKind.ROLLBACK_STATEMENT, // do not support
-//                SyntaxKind.RETRY_STATEMENT, // do not support
-//                SyntaxKind.XML_NAMESPACE_DECLARATION, // ??? do we need to?
-                SyntaxKind.MATCH_STATEMENT, // todo add test cases
-//                SyntaxKind.INVALID_EXPRESSION_STATEMENT,// do not support
-                SyntaxKind.DO_STATEMENT // todo add test cases
-//                SyntaxKind.FAIL_STATEMENT // do not support
+                SyntaxKind.MATCH_STATEMENT,
+                SyntaxKind.DO_STATEMENT
         );
     }
 }
