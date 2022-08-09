@@ -2315,13 +2315,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode typeDescriptor,
             STNode variableName,
             STNode equalsToken,
-            STNode initializer) {
+            STNode expression) {
 
         return new STGroupingKeyVarDeclarationNode(
                 typeDescriptor,
                 variableName,
                 equalsToken,
-                initializer);
+                expression);
     }
 
     public static STNode createOnFailClauseNode(

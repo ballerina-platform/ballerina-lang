@@ -44,7 +44,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
         return childInBucket(2);
     }
 
-    public Node initializer() {
+    public ExpressionNode expression() {
         return childInBucket(3);
     }
 
@@ -64,19 +64,19 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
                 "typeDescriptor",
                 "variableName",
                 "equalsToken",
-                "initializer"};
+                "expression"};
     }
 
     public GroupingKeyVarDeclarationNode modify(
             TypeDescriptorNode typeDescriptor,
             CaptureBindingPatternNode variableName,
             Token equalsToken,
-            Node initializer) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 typeDescriptor,
                 variableName,
                 equalsToken,
-                initializer)) {
+                expression)) {
             return this;
         }
 
@@ -84,7 +84,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
                 typeDescriptor,
                 variableName,
                 equalsToken,
-                initializer);
+                expression);
     }
 
     public GroupingKeyVarDeclarationNodeModifier modify() {
@@ -101,14 +101,14 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
         private TypeDescriptorNode typeDescriptor;
         private CaptureBindingPatternNode variableName;
         private Token equalsToken;
-        private Node initializer;
+        private ExpressionNode expression;
 
         public GroupingKeyVarDeclarationNodeModifier(GroupingKeyVarDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.typeDescriptor = oldNode.typeDescriptor();
             this.variableName = oldNode.variableName();
             this.equalsToken = oldNode.equalsToken();
-            this.initializer = oldNode.initializer();
+            this.expression = oldNode.expression();
         }
 
         public GroupingKeyVarDeclarationNodeModifier withTypeDescriptor(
@@ -132,10 +132,10 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
             return this;
         }
 
-        public GroupingKeyVarDeclarationNodeModifier withInitializer(
-                Node initializer) {
-            Objects.requireNonNull(initializer, "initializer must not be null");
-            this.initializer = initializer;
+        public GroupingKeyVarDeclarationNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
             return this;
         }
 
@@ -144,7 +144,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
                     typeDescriptor,
                     variableName,
                     equalsToken,
-                    initializer);
+                    expression);
         }
     }
 }
