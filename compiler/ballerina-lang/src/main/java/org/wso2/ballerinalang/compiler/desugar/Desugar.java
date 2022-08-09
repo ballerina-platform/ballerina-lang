@@ -6596,7 +6596,7 @@ public class Desugar extends BLangNodeVisitor {
         bLangInvocation.parent = resourceAccessInvocation.parent;
         bLangInvocation.pos = resourceAccessInvocation.pos;
 
-        rewriteInvocation(bLangInvocation, false);
+        result = rewriteExpr(bLangInvocation);
     }
 
     private BLangInvocation createInvocationForPathParams(

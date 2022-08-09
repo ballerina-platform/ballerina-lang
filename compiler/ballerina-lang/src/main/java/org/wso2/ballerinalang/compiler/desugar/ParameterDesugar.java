@@ -438,6 +438,11 @@ public class ParameterDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        result = resourceAccessInvocation;
+    }
+
+    @Override
     public void visit(BLangTableKeyTypeConstraint keyTypeConstraint) {
         keyTypeConstraint.keyType = rewrite(keyTypeConstraint.keyType, env);
         result = keyTypeConstraint;
