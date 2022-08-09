@@ -1227,10 +1227,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case FINITE:
                 return types.isAnydata(type);
             case NIL:
-                if (isRequired) {
-                    return false;
-                }
-                break;
+                return !isRequired;
             case ARRAY:
                 BType elementType = Types.getReferredType(((BArrayType) type).eType);
 
