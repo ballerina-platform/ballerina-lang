@@ -318,7 +318,8 @@ public class ValueComparisonUtils {
         return decimalValue.valueKind == DecimalValueKind.ZERO || decimalValue.valueKind == DecimalValueKind.OTHER;
     }
 
-    private static int compareArrayValues(Object lhsValue, Object rhsValue, int lhsTypeTag, int rhsTypeTag, String direction) {
+    private static int compareArrayValues(Object lhsValue, Object rhsValue, int lhsTypeTag, int rhsTypeTag,
+                                          String direction) {
         int lengthVal1;
         int lengthVal2;
         if (lhsTypeTag == TypeTags.ARRAY_TAG) {
@@ -355,7 +356,8 @@ public class ValueComparisonUtils {
                 if (rhsTypeTag == TypeTags.ARRAY_TAG) {
                     c = compareValues(((TupleValueImpl) lhsValue).get(i), ((BArray) rhsValue).get(i), direction);
                 } else {
-                    c = compareValues(((TupleValueImpl) lhsValue).get(i), ((TupleValueImpl) rhsValue).get(i), direction);
+                    c = compareValues(((TupleValueImpl) lhsValue).get(i), ((TupleValueImpl) rhsValue).get(i),
+                            direction);
                 }
             }
             if (c != 0) {
