@@ -2113,6 +2113,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
+        this.acceptNode(foreach.body);
     }
 
     @Override
