@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) (2021-2022), WSO2 Inc. (http://www.wso2.com).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,6 +16,7 @@
  * under the License.
  *
  */
+
 package org.ballerinalang.test.expressions.trap;
 
 import org.ballerinalang.test.BAssertUtil;
@@ -35,16 +36,15 @@ import org.testng.annotations.Test;
 public class TrapOperatorTest {
 
     CompileResult result;
-    CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/trap/trap-expr.bal");
-        resultNegative = BCompileUtil.compile("test-src/expressions/trap/trap_negative.bal");
     }
 
     @Test
     public void testTrapNegative() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/expressions/trap/trap_negative.bal");
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int', found '(int|error)'", 18, 13);
