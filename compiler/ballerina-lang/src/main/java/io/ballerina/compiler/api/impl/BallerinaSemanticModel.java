@@ -27,10 +27,7 @@ import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
@@ -139,8 +136,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
-                                                         position.line(), position.line(),
-                                                         position.offset(), position.offset());
+                position.line(), position.line(),
+                position.offset(), position.offset());
 
         Set<DiagnosticState> statesSet = new HashSet<>(Arrays.asList(states));
         Set<Symbol> compiledSymbols = new HashSet<>();
@@ -385,12 +382,18 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     @Override
     public Optional<TypeSymbol> expectedType(Document sourceDocument, LinePosition linePosition) {
+        Optional<TypeSymbol> typeSymbol;
         BLangCompilationUnit compilationUnit = getCompilationUnit(sourceDocument);
         SyntaxTree syntaxTree = sourceDocument.syntaxTree();
         Node node = findNode(linePosition, syntaxTree);
         ExpectedTypeFinder expectedTypeFinder = new ExpectedTypeFinder(new BallerinaSemanticModel(this.bLangPackage,
-                this.compilerContext), compilationUnit, typesFactory, linePosition);
-        Optional<TypeSymbol> typeSymbol = node.apply(expectedTypeFinder);
+                this.compilerContext), compilationUnit, typesFactory, linePosition, symbolFactory, symbolTable);
+        if (node.kind() == SyntaxKind.LIST) {
+            typeSymbol = node.parent().apply(expectedTypeFinder);
+        } else {
+            typeSymbol = node.apply(expectedTypeFinder);
+        }
+
         return typeSymbol;
     }
 
