@@ -614,7 +614,7 @@ function foo4() returns string|error? {
 
 function foo5() {
     int i = 2;
-    from int _ in []
+    error? res = from int _ in []
     do {
         foreach string _ in [] {
             int _ = i;
