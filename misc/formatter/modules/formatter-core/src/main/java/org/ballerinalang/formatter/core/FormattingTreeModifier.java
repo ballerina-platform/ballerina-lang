@@ -3578,6 +3578,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ModuleClientDeclarationNode transform(
             ModuleClientDeclarationNode moduleClientDeclarationNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(moduleClientDeclarationNode.annotations(), 1, 0, 1, 0);
         Token clientKeyword = formatToken(moduleClientDeclarationNode.clientKeyword(), 1, 0);
         BasicLiteralNode clientUri = formatNode(moduleClientDeclarationNode.clientUri(), 1, 0);
         Token asKeyword = formatToken(moduleClientDeclarationNode.asKeyword(), 1, 0);
@@ -3585,6 +3586,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolonToken = formatToken(moduleClientDeclarationNode.semicolonToken(), env.trailingWS,
                                            env.trailingNL);
         return moduleClientDeclarationNode.modify()
+                .withAnnotations(annotations)
                 .withClientKeyword(clientKeyword)
                 .withClientUri(clientUri)
                 .withAsKeyword(asKeyword)
@@ -3595,6 +3597,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ClientDeclarationNode transform(ClientDeclarationNode clientDeclarationNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(clientDeclarationNode.annotations(), 1, 0, 1, 0);
         Token clientKeyword = formatToken(clientDeclarationNode.clientKeyword(), 1, 0);
         BasicLiteralNode clientUri = formatNode(clientDeclarationNode.clientUri(), 1, 0);
         Token asKeyword = formatToken(clientDeclarationNode.asKeyword(), 1, 0);
@@ -3602,6 +3605,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolonToken = formatToken(clientDeclarationNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return clientDeclarationNode.modify()
+                .withAnnotations(annotations)
                 .withClientKeyword(clientKeyword)
                 .withClientUri(clientUri)
                 .withAsKeyword(asKeyword)
