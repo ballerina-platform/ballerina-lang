@@ -3133,13 +3133,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(groupingKeyVarDeclarationNode.variableName());
         Token equalsToken =
                 modifyToken(groupingKeyVarDeclarationNode.equalsToken());
-        Node initializer =
-                modifyNode(groupingKeyVarDeclarationNode.initializer());
+        ExpressionNode expression =
+                modifyNode(groupingKeyVarDeclarationNode.expression());
         return groupingKeyVarDeclarationNode.modify(
                 typeDescriptor,
                 variableName,
                 equalsToken,
-                initializer);
+                expression);
     }
 
     @Override

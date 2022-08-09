@@ -4218,8 +4218,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "initializer",
-                    "type": "Node"
+                    "name": "expression",
+                    "type": "ExpressionNode"
                 }
             ]
         },

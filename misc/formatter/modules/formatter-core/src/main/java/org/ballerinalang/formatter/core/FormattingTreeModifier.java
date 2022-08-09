@@ -146,6 +146,8 @@ import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerina.compiler.syntax.tree.GroupByClauseNode;
+import io.ballerina.compiler.syntax.tree.GroupingKeyVarDeclarationNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
@@ -3306,6 +3308,35 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOrderKeyword(orderKeyword)
                 .withByKeyword(byKeyword)
                 .withOrderKey(orderKey)
+                .apply();
+    }
+
+    @Override
+    public GroupByClauseNode transform(GroupByClauseNode groupByClauseNode) {
+        Token groupKeyword = formatToken(groupByClauseNode.groupKeyword(), 1, 0);
+        Token byKeyword = formatToken(groupByClauseNode.byKeyword(), 1, 0);
+        SeparatedNodeList<Node> groupingKey = formatSeparatedNodeList(groupByClauseNode.groupingKey(),
+                0, 0, env.trailingWS, env.trailingNL);
+
+        return groupByClauseNode.modify()
+                .withGroupKeyword(groupKeyword)
+                .withByKeyword(byKeyword)
+                .withGroupingKey(groupingKey)
+                .apply();
+    }
+
+    @Override
+    public GroupingKeyVarDeclarationNode transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        TypeDescriptorNode typeDescriptor = formatNode(groupingKeyVarDeclarationNode.typeDescriptor(), 1, 0);
+        CaptureBindingPatternNode variableName = formatNode(groupingKeyVarDeclarationNode.variableName(), 1, 0);
+        Token equalsToken = formatToken(groupingKeyVarDeclarationNode.equalsToken(), 1, 0);
+        ExpressionNode expression = formatNode(groupingKeyVarDeclarationNode.expression(), env.trailingWS, env.trailingNL);
+
+        return groupingKeyVarDeclarationNode.modify()
+                .withTypeDescriptor(typeDescriptor)
+                .withVariableName(variableName)
+                .withEqualsToken(equalsToken)
+                .withExpression(expression)
                 .apply();
     }
 

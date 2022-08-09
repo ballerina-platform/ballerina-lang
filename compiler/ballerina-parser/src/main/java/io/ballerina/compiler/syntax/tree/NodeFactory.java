@@ -3049,17 +3049,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             TypeDescriptorNode typeDescriptor,
             CaptureBindingPatternNode variableName,
             Token equalsToken,
-            Node initializer) {
+            ExpressionNode expression) {
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(variableName, "variableName must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
-        Objects.requireNonNull(initializer, "initializer must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stGroupingKeyVarDeclarationNode = STNodeFactory.createGroupingKeyVarDeclarationNode(
                 typeDescriptor.internalNode(),
                 variableName.internalNode(),
                 equalsToken.internalNode(),
-                initializer.internalNode());
+                expression.internalNode());
         return stGroupingKeyVarDeclarationNode.createUnlinkedFacade();
     }
 
