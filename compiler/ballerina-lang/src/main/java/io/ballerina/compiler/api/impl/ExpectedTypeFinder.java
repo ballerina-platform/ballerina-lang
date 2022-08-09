@@ -1,85 +1,102 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package io.ballerina.compiler.api.impl;
 
-
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
-import io.ballerina.compiler.api.impl.util.CommonUtil;
 import io.ballerina.compiler.api.impl.util.SymbolUtils;
-import io.ballerina.compiler.api.impl.util.TypeResolverUtil;
-import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.MapTypeSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
-import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TableTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
-import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
-
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
 /**
  *
- * @since 2.0.0
+ * @since 2201.2.1
  */
 public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     private final SemanticModel semanticModel;
     private final BLangCompilationUnit bLangCompilationUnit;
-    //TODO remove and add semantic model
     private final List<Node> visitedNodes = new ArrayList<>();
     private final TypesFactory typesFactory;
+    private final SymbolFactory symbolFactory;
 
     private final LinePosition linePosition;
 
     private final NodeFinder nodeFinder;
+    private final SymbolFinder symbolFinder;
+
+    private final SymbolTable symbolTable;
 
     public  ExpectedTypeFinder(SemanticModel semanticModel, BLangCompilationUnit bLangCompilationUnit,
-                              TypesFactory typesFactory, LinePosition linePosition) {
+                               TypesFactory typesFactory, LinePosition linePosition, SymbolFactory symbolFactory,
+                               SymbolTable symbolTable) {
         this.semanticModel = semanticModel;
         this.bLangCompilationUnit = bLangCompilationUnit;
         this.typesFactory = typesFactory;
         this.linePosition = linePosition;
         this.nodeFinder = new NodeFinder(true);
+        this.symbolFinder = new SymbolFinder();
+        this.symbolFactory = symbolFactory;
+        this.symbolTable = symbolTable;
     }
 
     @Override
@@ -90,16 +107,14 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         // sample case 2
         // if (x < <cursor>) ; cursor position node is null
         //
-        BLangNode lookUpNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (lookUpNode == null) {
+
+        Optional<Symbol> symbol = lookupSymbol(this.bLangCompilationUnit, linePosition);
+        if (symbol.isEmpty()) {
             return Optional.empty();
         }
-        // function main() {
-        //   while<cursor>
-        // cant use BType
 
-        // check whether is it possible to generalize this case
-        return Optional.of(typesFactory.getTypeDescriptor(((BLangSimpleVarRef) lookUpNode).expectedType));
+        return SymbolUtils.getTypeDescriptor(symbol.get());
+
     }
 
     @Override
@@ -122,24 +137,20 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(ModuleVariableDeclarationNode node) {
-        Optional<ExpressionNode> initializer = node.initializer();
-        if (initializer.isPresent() && PositionUtil.posWithinRange(linePosition, initializer.get().lineRange())) {
-            return this.visit(initializer.get());
-        }
-
-        return Optional.empty();
+        return this.visit(node.typedBindingPattern().bindingPattern());
     }
 
     @Override
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
-        if (node.initializer().isPresent()
-                && PositionUtil.posWithinRange(linePosition, node.initializer().get().lineRange())) {
-            BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.initializer().get().lineRange());
-            return Optional.
-                    of(typesFactory.getTypeDescriptor(((BLangExpression) bLangNode).expectedType));
-        }
-
-        return Optional.empty();
+        // node.initializer() approach issue
+        // node.initializer().get().lineRange() provide (96.0) instead if (95.11)
+//        if (node.initializer().isPresent()
+//                && PositionUtil.posWithinRange(linePosition, node.initializer().get().lineRange())) {
+//            BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.initializer().get().lineRange());
+//            return Optional.
+//                    of(typesFactory.getTypeDescriptor(((BLangExpression) bLangNode).expectedType));
+//        }
+        return this.visit(node.typedBindingPattern().bindingPattern()); // Pass to captureBindingPattern
     }
 
     @Override
@@ -172,10 +183,72 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
-        return Optional.of(typesFactory.
-                getTypeDescriptor(nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange()).getBType()));
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
+
+        if (bLangNode instanceof BLangInvocation) {
+            Optional<BLangExpression> argument = ((BLangInvocation) bLangNode).argExprs.stream()
+                    .filter(argumentNode -> PositionUtil.posWithinRange(linePosition,
+                            argumentNode.getPosition().lineRange()))
+                    .findFirst();
+
+            if (argument.isPresent()) {
+                return Optional.
+                        of(typesFactory.getTypeDescriptor(argument.get().expectedType));
+            }
+        }
+
+        // check if its in the body and return function return type
+        return Optional.empty();
     }
 
+    @Override
+    public Optional<TypeSymbol> transform(MethodCallExpressionNode node) {
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
+
+        if (bLangNode instanceof BLangInvocation) {
+            Optional<BLangExpression> argument = ((BLangInvocation) bLangNode).argExprs.stream()
+                    .filter(argumentNode -> PositionUtil.posWithinRange(linePosition,
+                            argumentNode.getPosition().lineRange()))
+                    .findFirst();
+
+            if (argument.isPresent()) {
+                return Optional.
+                        of(typesFactory.getTypeDescriptor(argument.get().expectedType));
+            }
+        }
+
+        // check if its in the body and return function return type
+        return Optional.empty();
+    }
+
+    public Optional<TypeSymbol> transform(QualifiedNameReferenceNode node) {
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
+        return Optional.of(typesFactory.getTypeDescriptor
+                (nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange()).getBType()));
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(PositionalArgumentNode node) {
+        return this.visit(node.expression());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(FunctionDefinitionNode node) {
+        Optional<Symbol> lookupSymbol = lookupSymbol(this.bLangCompilationUnit, linePosition);
+        if (lookupSymbol.isPresent() &&
+                lookupSymbol.get() instanceof FunctionSymbol) {
+            return (((BallerinaFunctionSymbol) lookupSymbol.get()).typeDescriptor().returnTypeDescriptor());
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ImplicitNewExpressionNode node) {
+        // need to check arguments
+        // check within the parameterContext
+        return Optional.empty();
+    }
     @Override
     public Optional<TypeSymbol> transform(IfElseStatementNode node) {
         // sample case 1
@@ -198,22 +271,16 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return this.visit(node.condition());
         }
 
-        //TODO recheck this
-        return this.visit(node);
+        return Optional.empty();
     }
 
     @Override
     public Optional<TypeSymbol> transform(WhileStatementNode node) {
-        //TODO check sample case
-        //function main() {
-        //    while <cursor> {}
-        //}
         if (PositionUtil.posWithinRange(linePosition, node.condition().lineRange())) {
             return this.visit(node.condition());
         }
 
-        //TODO recheck this
-        return this.visit(node);
+        return Optional.empty();
     }
 
     @Override
@@ -223,8 +290,44 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
-        // check for more sample cases
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
+        if (bLangNode instanceof BLangIndexBasedAccess) {
+            return Optional.
+                    of(typesFactory.getTypeDescriptor(((BLangIndexBasedAccess) bLangNode).expectedType));
+        }
+
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(RemoteMethodCallActionNode node) {
+        // Approach 1 - following returns null symobl
+        // Optional<Symbol> methodSymbol = lookupSymbol(this.bLangCompilationUnit, linePosition);
+
+        // Approach 2
+        // ((BLangInvocation.BLangActionInvocation) nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange()))
+        // .argExprs.get(0).expectedType
+        // above statement returns null for the expected type
+        // ((BLangInvocation.BLangActionInvocation) nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange()))
+        // .argExprs.get(0).getBType() can be used
+
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
+        if (bLangNode instanceof BLangInvocation.BLangActionInvocation) {
+            BLangInvocation.BLangActionInvocation bLangActionInvocation = (BLangInvocation.BLangActionInvocation)
+                    nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
+            Optional<BLangExpression> argument = bLangActionInvocation.argExprs.stream().filter
+                            (argumentNode -> PositionUtil.posWithinRange(linePosition, argumentNode.getPosition()
+                                    .lineRange())).findFirst();
+            return Optional.of(typesFactory.getTypeDescriptor(argument.get().expectedType));
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(CaptureBindingPatternNode node) {
+        return Optional.of(typesFactory.getTypeDescriptor
+                (nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange()).getBType()));
     }
 
     private Optional<TypeSymbol> visit(Node node) {
@@ -235,4 +338,56 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         visitedNodes.add(node);
         return node.apply(this);
     }
+
+    // lookupSymbol implementation and need to check the possibility to refactor this
+    private Optional<Symbol> lookupSymbol(BLangCompilationUnit compilationUnit, LinePosition position) {
+        SymbolFinder symbolFinder = new SymbolFinder();
+        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
+
+        if (symbolAtCursor == null || symbolAtCursor == symbolTable.notFoundSymbol) {
+            return Optional.empty();
+        }
+
+        if (symbolAtCursor.kind == SymbolKind.TYPE_DEF
+                && isCursorNotAtDefinition(compilationUnit, symbolAtCursor, position)) {
+            return Optional.ofNullable(
+                    typesFactory.getTypeDescriptor(((BTypeDefinitionSymbol) symbolAtCursor).referenceType));
+        }
+
+        if (isTypeSymbol(symbolAtCursor) &&
+                (isInlineSingletonType(symbolAtCursor) || isInlineErrorType(symbolAtCursor)
+                        || isCursorNotAtDefinition(compilationUnit, symbolAtCursor, position))) {
+            return Optional.ofNullable(
+                    typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
+        }
+
+        return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor,
+                symbolAtCursor.getOriginalName().getValue()));
+    }
+
+    private boolean isCursorNotAtDefinition(BLangCompilationUnit compilationUnit, BSymbol symbolAtCursor,
+                                            LinePosition cursorPos) {
+        return !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
+                && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
+                && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));
+    }
+
+    private boolean isTypeSymbol(BSymbol tSymbol) {
+        if (tSymbol.kind == SymbolKind.TYPE_DEF) {
+            return true;
+        }
+        return tSymbol instanceof BTypeSymbol && !Symbols.isTagOn(tSymbol, PACKAGE)
+                && !Symbols.isTagOn(tSymbol, ANNOTATION);
+    }
+
+    private boolean isInlineSingletonType(BSymbol symbol) {
+        // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
+        return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
+                ((BFiniteType) symbol.type).getValueSpace().size() == 1;
+    }
+
+    private boolean isInlineErrorType(BSymbol symbol) {
+        return symbol.type.tag == TypeTags.ERROR && Symbols.isFlagOn(symbol.type.flags, Flags.ANONYMOUS);
+    }
+
 }
