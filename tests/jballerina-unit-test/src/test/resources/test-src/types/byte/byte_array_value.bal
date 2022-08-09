@@ -21,6 +21,9 @@ function base16ByteArrayLiteralWithWS() {
     
     byte[] byteArray2 = base16 `a	d`;
     assertEquality(byteArray2, base16 `ad`);
+
+    byte[3] byteArray3 = base16 `ab a       c a    d`;
+    assertEquality(byteArray3, base16 `ab ac ad`);
 }
 
 function base64ByteArrayLiteralWithWS() {
