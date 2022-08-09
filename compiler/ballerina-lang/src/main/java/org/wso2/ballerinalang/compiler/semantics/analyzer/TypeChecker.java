@@ -885,7 +885,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private byte[] convertToByteArray(BLangLiteral literalExpr) {
         String[] elements = getLiteralTextValue(literalExpr.toString());
-        elements[1] = elements[1].replaceAll("\\s+","");
         if (elements[0].contains(BASE_16)) {
             return hexStringToByteArray(elements[1]);
         }
@@ -896,7 +895,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         int arrayLength = base16String.length();
         byte[] byteArray = new byte[arrayLength / 2];
         for (int i = 0; i < arrayLength; i += 2) {
-            byteArray[i] = (byte) ((Character.digit(base16String.charAt(i), 16) << 4)
+            byteArray[i / 2] = (byte) ((Character.digit(base16String.charAt(i), 16) << 4)
                     + Character.digit(base16String.charAt(i + 1), 16));
         }
         return byteArray;
@@ -928,6 +927,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (arrayType.state != BArrayState.OPEN && byteArray.length != arrayType.size) {
+            dlog.error(literalExpr.pos, DiagnosticErrorCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
+                    byteArray.length);
             return symTable.semanticError;
         }
 
