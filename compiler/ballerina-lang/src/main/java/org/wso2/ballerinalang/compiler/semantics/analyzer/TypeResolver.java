@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -1458,22 +1457,14 @@ public class TypeResolver {
 //        }
     }
 
-    private void resolveConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
-        resolvingConstants.add(constant);
-        definConstant(symEnv, modTable, constant);
+    public void resolveConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
+        resolvingConstants.add(constant); // To identify cycles
+        defineConstant(symEnv, modTable, constant);
         resolvingConstants.remove(constant);
         resolvedConstants.add(constant);
     }
 
-    private void definConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
-//        SemType semtype;
-//        if (constant.associatedTypeDefinition != null) {
-//            semtype = resolvetypeDefinition(semtypeEnv, modTable, constant.associatedTypeDefinition, 0);
-//        } else {
-//            semtype = evaluateConst(constant);
-//        }
-//        addSemtypeBType(constant.getTypeNode(), semtype);
-//        semtypeEnv.addTypeDef(constant.name.value, semtype);
+    private void defineConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
         BType staticType = null;
         constant.symbol = symEnter.getConstantSymbol(constant);
         if (constant.typeNode != null) {
@@ -1555,7 +1546,7 @@ public class TypeResolver {
     /**
      * @since 3.0.0
      */
-    public static class AnalyzerData {
+    public static class AnalyzerData extends SemanticAnalyzer.AnalyzerData {
         SymbolEnv env;
         BType expType;
         Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;

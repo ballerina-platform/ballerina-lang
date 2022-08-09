@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -15,18 +16,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
+import org.wso2.ballerinalang.compiler.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -74,12 +67,60 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return constTypeChecker;
     }
 
-    public BType checkConstExpr(BLangExpression expr, TypeResolver.AnalyzerData data) {
-        return null;
+    public BType checkConstExpr(BLangExpression expr, AnalyzerData data) {
+        return checkConstExpr(expr, data.env, null, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 
-    public BType checkConstExpr(BLangExpression expr, BType expType, TypeResolver.AnalyzerData data) {
-        return null;
+    public BType checkConstExpr(BLangExpression expr, BType expType, AnalyzerData data) {
+        return checkConstExpr(expr, data.env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
+    }
+
+    public BType checkConstExpr(BLangExpression expr, SymbolEnv env, BType expType, DiagnosticCode diagCode,
+                                AnalyzerData data) {
+        if (expr.typeChecked) {
+            return expr.getBType();
+        }
+
+        if (expType.tag == TypeTags.INTERSECTION) {
+            expType = ((BIntersectionType) expType).effectiveType;
+        }
+
+        SymbolEnv prevEnv = data.env;
+        BType preExpType = data.expType;
+        DiagnosticCode preDiagCode = data.diagCode;
+        data.env = env;
+        data.diagCode = diagCode;
+        data.expType = expType;
+        data.isTypeChecked = true;
+        expr.expectedType = expType;
+
+        expr.accept(this, data);
+
+        expr.setTypeCheckedType(data.resultType);
+        expr.typeChecked = data.isTypeChecked;
+        data.env = prevEnv;
+        data.expType = preExpType;
+        data.diagCode = preDiagCode;
+
+        validateAndSetExprExpectedType(expr, data);
+
+        return data.resultType;
+    }
+
+    public void validateAndSetExprExpectedType(BLangExpression expr, AnalyzerData data) {
+        if (data.resultType.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
+        }
+
+        // If the expected type is a map, but a record type is inferred due to the presence of `readonly` fields in
+        // the mapping constructor expression, we don't override the expected type.
+        if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR && expr.expectedType != null &&
+                Types.getReferredType(expr.expectedType).tag == TypeTags.MAP
+                && Types.getReferredType(expr.getBType()).tag == TypeTags.RECORD) {
+            return;
+        }
+
+        expr.expectedType = data.resultType;
     }
 
     @Override
@@ -92,53 +133,22 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     }
 
-    //
-//    public BType checkConstExpr(BLangExpression expr, SymbolEnv env, BType expType, DiagnosticCode diagCode,
-//                                TypeResolver.AnalyzerData data) {
-//        if (expr.typeChecked) {
-//            return expr.getBType();
-//        }
-//
-//        if (expType.tag == TypeTags.INTERSECTION) {
-//            expType = ((BIntersectionType) expType).effectiveType;
-//        }
-//
-//        SymbolEnv prevEnv = data.env;
-//        BType preExpType = data.expType;
-//        DiagnosticCode preDiagCode = data.diagCode;
-//        data.env = env;
-//        data.diagCode = diagCode;
-//        data.expType = expType;
-//        data.isTypeChecked = true;
-//
-//        BType referredExpType = Types.getReferredType(expType);
-//        if (referredExpType.tag == TypeTags.INTERSECTION) {
-//            expType = ((BIntersectionType) referredExpType).effectiveType;
-//        }
-//        expr.expectedType = expType;
-//
-//        expr.accept(this, data);
-//
-//        BType resultRefType = Types.getReferredType(data.resultType);
-//        if (resultRefType.tag == TypeTags.INTERSECTION) {
-//            data.resultType = ((BIntersectionType) resultRefType).effectiveType;
-//        }
-//
-//        expr.setTypeCheckedType(data.resultType);
-//        expr.typeChecked = data.isTypeChecked;
-//        data.env = prevEnv;
-//        data.expType = preExpType;
-//        data.diagCode = preDiagCode;
-//
-////        validateAndSetExprExpectedType(expr, data);
-//
-//        return data.resultType;
-//    }
 //
 //    private Name getCurrentCompUnit(BLangNode node) {
 //        return names.fromString(node.pos.lineRange().filePath());
 //    }
-//
+
+    @Override
+    public void visit(BLangLiteral literalExpr, AnalyzerData data) {
+
+        BType literalType = typeChecker.setLiteralValueAndGetType(literalExpr, data.expType, data);
+        if (literalType == symTable.semanticError || literalExpr.isFiniteContext) {
+            return;
+        }
+        data.resultType = types.checkType(literalExpr, literalType, data.expType);
+    }
+
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr, AnalyzerData data) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -167,33 +177,21 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
             BSymbol symbol = getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias), varName, data);
-            // if no symbol, check same for object attached function
-            if (symbol == symTable.notFoundSymbol && data.env.enclType != null) {
-                Name objFuncName = names.fromString(Symbols
-                        .getAttachedFuncSymbolName(data.env.enclType.getBType().tsymbol.name.value, varName.value));
-                symbol = symResolver.resolveStructField(varRefExpr.pos, data.env, objFuncName,
-                        data.env.enclType.getBType().tsymbol);
-            }
+            // if no symbol, check same for object attached function // swj: do we need this?
+//            if (symbol == symTable.notFoundSymbol && data.env.enclType != null) {
+//                Name objFuncName = names.fromString(Symbols
+//                        .getAttachedFuncSymbolName(data.env.enclType.getBType().tsymbol.name.value, varName.value));
+//                symbol = symResolver.resolveStructField(varRefExpr.pos, data.env, objFuncName,
+//                        data.env.enclType.getBType().tsymbol);
+//            }
 
-            // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
-            //  locally defined record type defs. This check should be removed once local var referencing is supported.
             if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) symbol;
                 varRefExpr.symbol = constSymbol;
-                BType symbolType = symbol.type;
-                BType expectedType = Types.getReferredType(data.expType);
-                if (symbolType != symTable.noType && expectedType.tag == TypeTags.FINITE ||
-                        (expectedType.tag == TypeTags.UNION && types.getAllTypes(expectedType, true).stream()
-                                .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
-                                        types.isAssignable(symbolType, memType)))) {
-                    actualType = symbolType;
-                } else {
-                    actualType = constSymbol.literalType;
-                }
-
+                actualType = symbol.type;
             } else {
-                varRefExpr.symbol = symbol; // Set notFoundSymbol
-                typeChecker.logUndefinedSymbolError(varRefExpr.pos, varName.value);
+                varRefExpr.symbol = symbol;
+                dlog.error(varRefExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
             }
         }
 
@@ -204,8 +202,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         if (pkgAlias == Names.EMPTY && data.modTable.containsKey(varName)) {
             BLangNode node = data.modTable.get(varName);
             if (node.getKind() == NodeKind.CONSTANT) {
-                if (((BLangConstant) node).symbol == null) {
-
+                if (!typeResolver.resolvedConstants.contains((BLangConstant) node)) {
+                    typeResolver.resolveConstant(data.env, data.modTable, (BLangConstant) node);
                 }
             } else {
                 dlog.error(pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
@@ -215,115 +213,116 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgAlias, varName);
     }
 
+    public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
+        BType expType = data.expType;
+        int expTypeTag = Types.getReferredType(expType).tag;
+
+        if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.READONLY) {
+            expType = typeChecker.defineInferredRecordType(recordLiteral, expType, data);
+        } else if (expTypeTag == TypeTags.OBJECT) {
+            dlog.error(recordLiteral.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL, expType);
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
+        data.resultType = typeChecker.getEffectiveMappingType(recordLiteral,
+                typeChecker.checkMappingConstructorCompatibility(expType, recordLiteral, data), data);
+    }
+
+    public void visit(BLangUnaryExpr unaryExpr, AnalyzerData data) {
+        BType exprType;
+        BType actualType = symTable.semanticError;
+        if (OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
+            exprType = checkConstExpr(unaryExpr.expr, data);
+            if (exprType != symTable.semanticError) {
+                actualType = exprType;
+            }
+        } else if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
+            exprType = checkConstExpr(unaryExpr.expr, data);
+            if (exprType != symTable.semanticError) {
+                actualType = new BTypedescType(exprType, null);
+            }
+        } else {
+            //allow both addition and subtraction operators to get expected type as Decimal
+            boolean decimalAddNegate = data.expType.tag == TypeTags.DECIMAL &&
+                    (OperatorKind.ADD.equals(unaryExpr.operator) || OperatorKind.SUB.equals(unaryExpr.operator));
+            exprType = decimalAddNegate ? checkConstExpr(unaryExpr.expr, data.expType, data) :
+                    checkConstExpr(unaryExpr.expr, data);
+            if (exprType != symTable.semanticError) {
+                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.operator, exprType);
+                if (symbol == symTable.notFoundSymbol) {
+                    symbol = symResolver.getUnaryOpsForTypeSets(unaryExpr.operator, exprType);
+                }
+                if (symbol == symTable.notFoundSymbol) {
+                    dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
+                            unaryExpr.operator, exprType);
+                } else {
+                    unaryExpr.opSymbol = (BOperatorSymbol) symbol;
+                    actualType = symbol.type.getReturnType();
+                }
+            }
+        }
+
+        data.resultType = types.checkType(unaryExpr, actualType, data.expType);
+    }
+
     //
-//    @Override
-//    public void visit(BLangBinaryExpr binaryExpr, ConstantTypeChecker.AnalyzerData data) {
-//        // Bitwise operator should be applied for the future types in the wait expression
-////        if (data.expType.tag == TypeTags.FUTURE && binaryExpr.opKind == OperatorKind.BITWISE_OR) {
-////            BType lhsResultType = checkConstExpr(binaryExpr.lhsExpr, data.expType, data);
-////            BType rhsResultType = checkConstExpr(binaryExpr.rhsExpr, data.expType, data);
-////            // Return if both or atleast one of lhs and rhs types are errors
-////            if (lhsResultType == symTable.semanticError || rhsResultType == symTable.semanticError) {
-////                data.resultType = symTable.semanticError;
-////                return;
-////            }
-////            data.resultType = BUnionType.create(null, lhsResultType, rhsResultType);
-////            return;
-////        }
-////
-////        SymbolEnv rhsExprEnv;
-////        BType lhsType;
-////        BType referredExpType = Types.getReferredType(binaryExpr.expectedType);
-////        if (referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
-////                isOptionalFloatOrDecimal(referredExpType)) {
-////            lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, binaryExpr, data);
-////        } else {
-////            lhsType = checkExpr(binaryExpr.lhsExpr, data);
-////        }
-////
-////        if (binaryExpr.opKind == OperatorKind.AND) {
-////            rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, data.env, true);
-////        } else if (binaryExpr.opKind == OperatorKind.OR) {
-////            rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, data.env, true);
-////        } else {
-////            rhsExprEnv = data.env;
-////        }
-////
-////        BType rhsType;
-////
-////        if (referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
-////                isOptionalFloatOrDecimal(referredExpType)) {
-////            rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr, data);
-////        } else {
-////            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
-////        }
-////
-////        // Set error type as the actual type.
-////        BType actualType = symTable.semanticError;
-////
-////        //noinspection SwitchStatementWithTooFewBranches
-////        switch (binaryExpr.opKind) {
-////            // Do not lookup operator symbol for xml sequence additions
-////            case ADD:
-////                BType leftConstituent = getXMLConstituents(lhsType);
-////                BType rightConstituent = getXMLConstituents(rhsType);
-////
-////                if (leftConstituent != null && rightConstituent != null) {
-////                    actualType = new BXMLType(BUnionType.create(null, leftConstituent, rightConstituent), null);
-////                    break;
-////                }
-////                // Fall through
-////            default:
-////                if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
-////                    // Look up operator symbol if both rhs and lhs types aren't error or xml types
-////                    BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
-////
-////                    if (opSymbol == symTable.notFoundSymbol) {
-////                        opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
-////                    }
-////
-////                    if (opSymbol == symTable.notFoundSymbol) {
-////                        opSymbol = symResolver.getBinaryBitwiseOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
-////                    }
-////
-////                    if (opSymbol == symTable.notFoundSymbol) {
-////                        opSymbol = symResolver.getArithmeticOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
-////                    }
-////
-////                    if (opSymbol == symTable.notFoundSymbol) {
-////                        opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
-////                                binaryExpr, data.env);
-////                    }
-////
-////                    if (opSymbol == symTable.notFoundSymbol) {
-////                        opSymbol = symResolver.getBinaryComparisonOpForTypeSets(binaryExpr.opKind, lhsType, rhsType);
-////                    }
-////
-////                    if (opSymbol == symTable.notFoundSymbol) {
-////                        opSymbol = symResolver.getRangeOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
-////                    }
-////
-////                    if (opSymbol == symTable.notFoundSymbol) {
-////                        DiagnosticErrorCode errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES;
-////
-////                        if ((binaryExpr.opKind == OperatorKind.DIV || binaryExpr.opKind == OperatorKind.MOD) &&
-////                                lhsType.tag == TypeTags.INT &&
-////                                (rhsType.tag == TypeTags.DECIMAL || rhsType.tag == TypeTags.FLOAT)) {
-////                            errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION;
-////                        }
-////
-////                        dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
-////                    } else {
-////                        binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
-////                        actualType = opSymbol.type.getReturnType();
-////                    }
-////                }
-////        }
-////
-////        data.resultType = types.checkType(binaryExpr, actualType, data.expType);
-//    }
-//
-    public static class AnalyzerData {
+    @Override
+    public void visit(BLangBinaryExpr binaryExpr, ConstantTypeChecker.AnalyzerData data) {
+        BType lhsType = checkConstExpr(binaryExpr.lhsExpr, data);
+        BType rhsType = checkConstExpr(binaryExpr.rhsExpr, data);
+
+        // Set error type as the actual type.
+        BType actualType = symTable.semanticError;
+
+        if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
+            // Look up operator symbol if both rhs and lhs types aren't error or xml types
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+            }
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getBinaryBitwiseOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+            }
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getArithmeticOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+            }
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
+                        binaryExpr, data.env);
+            }
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getBinaryComparisonOpForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+            }
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getRangeOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+            }
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                DiagnosticErrorCode errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES;
+
+                if ((binaryExpr.opKind == OperatorKind.DIV || binaryExpr.opKind == OperatorKind.MOD) &&
+                        lhsType.tag == TypeTags.INT &&
+                        (rhsType.tag == TypeTags.DECIMAL || rhsType.tag == TypeTags.FLOAT)) {
+                    errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION;
+                }
+
+                dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
+            } else {
+                binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
+                actualType = opSymbol.type.getReturnType();
+            }
+        }
+        data.resultType = types.checkType(binaryExpr, actualType, data.expType);
+    }
+
+    public static class AnalyzerData extends TypeChecker.AnalyzerData {
         public SymbolEnv env;
         boolean isTypeChecked;
         Stack<SymbolEnv> prevEnvs;
@@ -332,5 +331,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BType expType;
         BType resultType;
         Map<String, BLangNode> modTable;
+        boolean hasInferredType;
     }
 }
