@@ -9,7 +9,7 @@
       "character": 15
     }
   },
-  "source": "negative_extract_to_function_statements_list_with_multiple_varDecls_referredAfterRange.bal",
+  "source": "neg_extract_to_function_stmts_list_with_mul_varDecls_referredAfterRange.bal",
   "expected": [
     {
       "title": "Extract to function"

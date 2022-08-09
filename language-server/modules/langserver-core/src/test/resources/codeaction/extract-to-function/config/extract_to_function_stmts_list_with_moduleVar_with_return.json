@@ -1,15 +1,15 @@
 {
   "range": {
     "start": {
-      "line": 1,
+      "line": 3,
       "character": 4
     },
     "end": {
-      "line": 3,
-      "character": 14
+      "line": 4,
+      "character": 36
     }
   },
-  "source": "extract_to_function_statements_list_assigned_twice.bal",
+  "source": "extract_to_function_stmts_list_with_moduleVar_with_return.bal",
   "expected": [
     {
       "title": "Extract to function",
@@ -18,28 +18,28 @@
         {
           "range": {
             "start": {
-              "line": 6,
+              "line": 7,
               "character": 1
             },
             "end": {
-              "line": 6,
+              "line": 7,
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int a \u003d 10;\n    a \u003d a + 1;\n    a \u003d a + 2;\n    return a;\n}"
+          "newText": "\n\nfunction extracted() returns int {\n    int localVar \u003d 10;\n    localVar \u003d localVar + moduleVar;\n    return localVar;\n}"
         },
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 3,
               "character": 4
             },
             "end": {
-              "line": 3,
-              "character": 14
+              "line": 4,
+              "character": 36
             }
           },
-          "newText": "int a \u003d extracted();"
+          "newText": "int localVar \u003d extracted();"
         }
       ]
     }

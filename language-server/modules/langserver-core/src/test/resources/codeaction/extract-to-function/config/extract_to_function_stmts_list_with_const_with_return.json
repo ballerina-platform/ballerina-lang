@@ -6,10 +6,10 @@
     },
     "end": {
       "line": 4,
-      "character": 19
+      "character": 35
     }
   },
-  "source": "extract_to_function_statements_list_with_moduleVar_assignmentStatement.bal",
+  "source": "extract_to_function_stmts_list_with_const_with_return.bal",
   "expected": [
     {
       "title": "Extract to function",
@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() {\n    moduleVar \u003d moduleVar + 1;\n    doSomething(1);\n}"
+          "newText": "\n\nfunction extracted() returns int {\n    int localVar \u003d 10;\n    localVar \u003d localVar + CONSTANT;\n    return localVar;\n}"
         },
         {
           "range": {
@@ -36,10 +36,10 @@
             },
             "end": {
               "line": 4,
-              "character": 19
+              "character": 35
             }
           },
-          "newText": "extracted();"
+          "newText": "int localVar \u003d extracted();"
         }
       ]
     }

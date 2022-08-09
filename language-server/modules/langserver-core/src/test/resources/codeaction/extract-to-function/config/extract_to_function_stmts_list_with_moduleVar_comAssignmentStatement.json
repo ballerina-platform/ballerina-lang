@@ -1,15 +1,15 @@
 {
   "range": {
     "start": {
-      "line": 2,
+      "line": 3,
       "character": 4
     },
     "end": {
-      "line": 3,
-      "character": 22
+      "line": 4,
+      "character": 19
     }
   },
-  "source": "extract_to_function_statements_list_varDeclOnlyInRange_return_single.bal",
+  "source": "extract_to_function_stmts_list_with_moduleVar_comAssignmentStatement.bal",
   "expected": [
     {
       "title": "Extract to function",
@@ -18,28 +18,28 @@
         {
           "range": {
             "start": {
-              "line": 6,
+              "line": 7,
               "character": 1
             },
             "end": {
-              "line": 6,
+              "line": 7,
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int localVar1 \u003d 1;\n    int localVar2 \u003d 2;\n    return localVar1;\n}"
+          "newText": "\n\nfunction extracted() {\n    moduleVar +\u003d 1;\n    doSomething(1);\n}"
         },
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 4
             },
             "end": {
-              "line": 3,
-              "character": 22
+              "line": 4,
+              "character": 19
             }
           },
-          "newText": "int localVar1 \u003d extracted();"
+          "newText": "extracted();"
         }
       ]
     }
