@@ -325,20 +325,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     private BType getMapType(BType type) {
-        BType refType = Types.getReferredType(type);
-        if (refType.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                BType tempType = getMapType(memberType);
-                if (tempType != symTable.noType) {
-                    return tempType;
-                }
-            }
-        } else if (refType.tag == TypeTags.INTERSECTION) {
-            return getMapType(((BIntersectionType) refType).effectiveType);
-        } else if (refType.tag == TypeTags.MAP) {
-            return refType;
+        BType resultantType = types.getSafeType(Types.getReferredType(type), false, true);
+        if (resultantType.tag == TypeTags.INTERSECTION) {
+            return getMapType(((BIntersectionType) resultantType).effectiveType);
         }
-        return symTable.noType;
+        return resultantType;
     }
 
     private boolean isXml(BType type) {
