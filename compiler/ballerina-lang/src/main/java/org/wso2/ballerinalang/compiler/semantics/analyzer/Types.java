@@ -354,14 +354,25 @@ public class Types {
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
-        TypePair pair = new TypePair(source, target);
-        if (unresolvedTypes.contains(pair)) {
+        TypePair pair = null;
+        if (!isValueType(source) && !isValueType(target)) {
+            pair = new TypePair(source, target);
+            if (!unresolvedTypes.add(pair)) {
+                return true;
+            }
+        }
+
+        BTypeVisitor<BType, Boolean> sameTypeVisitor = new BSameTypeVisitor(unresolvedTypes, this::isSameType);
+
+        if (target.accept(sameTypeVisitor, source)) {
             return true;
         }
-        unresolvedTypes.add(pair);
 
-        BTypeVisitor<BType, Boolean> sameTypeVisitor = new BSameTypeVisitor(unresolvedTypes);
-        return target.accept(sameTypeVisitor, source);
+        if (pair != null) {
+            unresolvedTypes.remove(pair);
+        }
+
+        return false;
     }
 
     public boolean isValueType(BType type) {
@@ -1569,10 +1580,6 @@ public class Types {
         return TypeParamAnalyzer.isTypeParam(type.retType);
     }
 
-    private boolean isSameFunctionType(BInvokableType source, BInvokableType target, Set<TypePair> unresolvedTypes) {
-        return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isSameType);
-    }
-
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
         if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
@@ -1636,16 +1643,6 @@ public class Types {
         }
 
         return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType) && hasSameTypeElements;
-    }
-
-    public boolean isSameStreamType(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (target.tag != TypeTags.STREAM || source.tag != TypeTags.STREAM) {
-            return false;
-        }
-        BStreamType lhsStreamType = (BStreamType) target;
-        BStreamType rhsStreamType = (BStreamType) source;
-        return isSameType(lhsStreamType.constraint, rhsStreamType.constraint, unresolvedTypes)
-                && isSameType(lhsStreamType.completionType, rhsStreamType.completionType, unresolvedTypes);
     }
 
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
@@ -2624,8 +2621,11 @@ public class Types {
 
         Set<TypePair> unresolvedTypes;
 
-        BSameTypeVisitor(Set<TypePair> unresolvedTypes) {
+        TypeEqualityPredicate equality;
+
+        BSameTypeVisitor(Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
             this.unresolvedTypes = unresolvedTypes;
+            this.equality = equality;
         }
 
         @Override
@@ -2635,6 +2635,7 @@ public class Types {
             if (t == s) {
                 return true;
             }
+
             switch (t.tag) {
                 case TypeTags.INT:
                 case TypeTags.BYTE:
@@ -2650,10 +2651,8 @@ public class Types {
                     return t.tag == s.tag && hasSameReadonlyFlag(s, t)
                             && (TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s));
                 default:
-                    break;
+                    return false;
             }
-            return false;
-
         }
 
         @Override
@@ -2668,27 +2667,19 @@ public class Types {
 
         @Override
         public Boolean visit(BAnydataType t, BType s) {
-            if (t == s) {
-                return true;
-            }
-            return t.tag == s.tag;
+            return t == s || t.tag == s.tag;
         }
 
         @Override
         public Boolean visit(BMapType t, BType s) {
-            if (s.tag != TypeTags.MAP || !hasSameReadonlyFlag(s, t)) {
-                return false;
-            }
-            // At this point both source and target types are of map types. Inorder to be equal in type as whole
-            // constraints should be in equal type.
-            BMapType sType = ((BMapType) s);
-            return isSameType(sType.constraint, t.constraint, this.unresolvedTypes);
+            return s.tag == TypeTags.MAP && hasSameReadonlyFlag(s, t) &&
+                    equality.test(((BMapType) s).constraint, t.constraint, this.unresolvedTypes);
         }
 
         @Override
         public Boolean visit(BFutureType t, BType s) {
             return s.tag == TypeTags.FUTURE &&
-                    isSameType(t.constraint, ((BFutureType) s).constraint, this.unresolvedTypes);
+                    equality.test(((BFutureType) s).constraint, t.constraint, this.unresolvedTypes);
         }
 
         @Override
@@ -2708,15 +2699,8 @@ public class Types {
 
         @Override
         public Boolean visit(BObjectType t, BType s) {
-            if (t == s) {
-                return true;
-            }
-
-            if (s.tag != TypeTags.OBJECT) {
-                return false;
-            }
-
-            return t.tsymbol.pkgID.equals(s.tsymbol.pkgID) && t.tsymbol.name.equals(s.tsymbol.name);
+            return t == s || (s.tag == TypeTags.OBJECT && t.tsymbol.pkgID.equals(s.tsymbol.pkgID) &&
+                    t.tsymbol.name.equals(s.tsymbol.name));
         }
 
         @Override
@@ -2730,47 +2714,52 @@ public class Types {
             }
 
             BRecordType source = (BRecordType) s;
+            LinkedHashMap<String, BField> sFields = source.fields;
+            LinkedHashMap<String, BField> tFields = t.fields;
 
-            if (source.fields.size() != t.fields.size()) {
+            if (sFields.size() != tFields.size()) {
                 return false;
             }
 
-            for (BField sourceField : source.fields.values()) {
-                if (t.fields.containsKey(sourceField.name.value)) {
-                    BField targetField = t.fields.get(sourceField.name.value);
-                    if (isSameType(sourceField.type, targetField.type, new HashSet<>(this.unresolvedTypes)) &&
+            for (BField sourceField : sFields.values()) {
+                if (tFields.containsKey(sourceField.name.value)) {
+                    BField targetField = tFields.get(sourceField.name.value);
+                    if ((!Symbols.isFlagOn(targetField.symbol.flags, Flags.READONLY) ||
+                            Symbols.isFlagOn(sourceField.symbol.flags, Flags.READONLY)) &&
                             hasSameOptionalFlag(sourceField.symbol, targetField.symbol) &&
-                            (!Symbols.isFlagOn(targetField.symbol.flags, Flags.READONLY) ||
-                                     Symbols.isFlagOn(sourceField.symbol.flags, Flags.READONLY))) {
+                            equality.test(sourceField.type, targetField.type, new HashSet<>(this.unresolvedTypes))) {
                         continue;
                     }
                 }
                 return false;
             }
-            return isSameType(source.restFieldType, t.restFieldType, new HashSet<>(this.unresolvedTypes));
+            return equality.test(source.restFieldType, t.restFieldType, new HashSet<>(this.unresolvedTypes));
         }
 
         private boolean hasSameOptionalFlag(BVarSymbol s, BVarSymbol t) {
             return ((s.flags & Flags.OPTIONAL) ^ (t.flags & Flags.OPTIONAL)) != Flags.OPTIONAL;
         }
 
-        private boolean hasSameReadonlyFlag(BType source, BType target) {
+        boolean hasSameReadonlyFlag(BType source, BType target) {
             return Symbols.isFlagOn(target.flags, Flags.READONLY) == Symbols.isFlagOn(source.flags, Flags.READONLY);
         }
 
         @Override
         public Boolean visit(BTupleType t, BType s) {
-            if (((!t.tupleTypes.isEmpty() && checkAllTupleMembersBelongNoType(t.tupleTypes)) ||
+            List<BType> tTupleTypes = t.tupleTypes;
+            if (((!tTupleTypes.isEmpty() && checkAllTupleMembersBelongNoType(tTupleTypes)) ||
                     (t.restType != null && t.restType.tag == TypeTags.NONE)) &&
-                            !(s.tag == TypeTags.ARRAY && ((BArrayType) s).state == BArrayState.OPEN)) {
+                    !(s.tag == TypeTags.ARRAY && ((BArrayType) s).state == BArrayState.OPEN)) {
                 return true;
             }
 
             if (s.tag != TypeTags.TUPLE || !hasSameReadonlyFlag(s, t)) {
                 return false;
             }
+
             BTupleType source = (BTupleType) s;
-            if (source.tupleTypes.size() != t.tupleTypes.size()) {
+            List<BType> sTupleTypes = source.tupleTypes;
+            if (sTupleTypes.size() != tTupleTypes.size()) {
                 return false;
             }
 
@@ -2780,11 +2769,11 @@ public class Types {
                 return false;
             }
 
-            for (int i = 0; i < source.tupleTypes.size(); i++) {
-                if (t.getTupleTypes().get(i) == symTable.noType) {
+            for (int i = 0; i < sTupleTypes.size(); i++) {
+                if (tTupleTypes.get(i) == symTable.noType) {
                     continue;
                 }
-                if (!isSameType(source.getTupleTypes().get(i), t.tupleTypes.get(i), this.unresolvedTypes)) {
+                if (!equality.test(sTupleTypes.get(i), tTupleTypes.get(i), new HashSet<>(this.unresolvedTypes))) {
                     return false;
                 }
             }
@@ -2793,12 +2782,18 @@ public class Types {
                 return true;
             }
 
-            return isSameType(sourceRestType, targetRestType, this.unresolvedTypes);
+            return equality.test(sourceRestType, targetRestType, new HashSet<>(this.unresolvedTypes));
         }
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return s.tag == TypeTags.STREAM && isSameStreamType(s, t, this.unresolvedTypes);
+            if (s.tag != TypeTags.STREAM) {
+                return false;
+            }
+
+            BStreamType source = (BStreamType) s;
+            return equality.test(source.constraint, t.constraint, unresolvedTypes)
+                    && equality.test(source.completionType, t.completionType, unresolvedTypes);
         }
 
         @Override
@@ -2808,7 +2803,8 @@ public class Types {
 
         @Override
         public Boolean visit(BInvokableType t, BType s) {
-            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, this.unresolvedTypes);
+            return s.tag == TypeTags.INVOKABLE &&
+                    checkFunctionTypeEquality((BInvokableType) s, t, this.unresolvedTypes, equality);
         }
 
         @Override
@@ -2827,16 +2823,21 @@ public class Types {
             Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.getMemberTypes().size());
             Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.getMemberTypes().size());
 
-            sourceTypes.add(sUnionType);
+            if (sUnionType.isCyclic) {
+                sourceTypes.add(sUnionType);
+            }
+            if (tUnionType.isCyclic) {
+                targetTypes.add(tUnionType);
+            }
+
             sourceTypes.addAll(sUnionType.getMemberTypes());
-            targetTypes.add(tUnionType);
             targetTypes.addAll(tUnionType.getMemberTypes());
 
             boolean notSameType = sourceTypes
                     .stream()
                     .map(sT -> targetTypes
                             .stream()
-                            .anyMatch(it -> isSameType(it, sT, this.unresolvedTypes)))
+                            .anyMatch(it -> equality.test(sT, it, new HashSet<>(this.unresolvedTypes))))
                     .anyMatch(foundSameType -> !foundSameType);
             return !notSameType;
         }
@@ -2860,7 +2861,7 @@ public class Types {
                 boolean foundSameType = false;
 
                 for (BType targetType : targetTypes) {
-                    if (isSameType(sourceType, targetType, this.unresolvedTypes)) {
+                    if (equality.test(sourceType, targetType, new HashSet<>(this.unresolvedTypes))) {
                         foundSameType = true;
                         break;
                     }
@@ -2889,19 +2890,17 @@ public class Types {
                 return true;
             }
 
-            return isSameType(source.detailType, t.detailType, this.unresolvedTypes);
+            return equality.test(source.detailType, t.detailType, this.unresolvedTypes);
         }
 
         @Override
         public Boolean visit(BTypedescType t, BType s) {
-
             if (s.tag != TypeTags.TYPEDESC) {
                 return false;
             }
             BTypedescType sType = ((BTypedescType) s);
-            return isSameType(sType.constraint, t.constraint, this.unresolvedTypes);
+            return equality.test(sType.constraint, t.constraint, this.unresolvedTypes);
         }
-
 
         @Override
         public Boolean visit(BFiniteType t, BType s) {
@@ -2915,7 +2914,8 @@ public class Types {
             }
 
             BParameterizedType sType = (BParameterizedType) s;
-            return isSameType(sType.paramValueType, t.paramValueType) && sType.paramSymbol.equals(t.paramSymbol);
+            return sType.paramSymbol.equals(t.paramSymbol) &&
+                    equality.test(sType.paramValueType, t.paramValueType, new HashSet<>());
         }
 
         public Boolean visit(BTypeReferenceType t, BType s) {
@@ -2924,9 +2924,9 @@ public class Types {
                 constraint = getReferredType(((BTypeReferenceType) s).referredType);
             }
             BType target = getReferredType(t.referredType);
-            return isSameType(target, constraint);
+            return equality.test(target, constraint, new HashSet<>());
         }
-    };
+    }
 
     @Deprecated
     public boolean isSameBIRShape(BType source, BType target) {
@@ -2936,21 +2936,26 @@ public class Types {
     private boolean isSameBIRShape(BType source, BType target, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
-        if (!unresolvedTypes.add(new TypePair(source, target))) {
+        TypePair pair = new TypePair(source, target);
+        if (!unresolvedTypes.add(pair)) {
             return true;
         }
 
-        BIRSameShapeVisitor birSameShapeVisitor = new BIRSameShapeVisitor(unresolvedTypes);
-        return target.accept(birSameShapeVisitor, source);
+        BIRSameShapeVisitor birSameShapeVisitor = new BIRSameShapeVisitor(unresolvedTypes, this::isSameBIRShape);
+
+        if (target.accept(birSameShapeVisitor, source)) {
+            return true;
+        }
+
+        unresolvedTypes.remove(pair);
+        return false;
     }
 
     @Deprecated
-    private class BIRSameShapeVisitor implements BTypeVisitor<BType, Boolean> {
+    private class BIRSameShapeVisitor extends BSameTypeVisitor {
 
-        Set<TypePair> unresolvedTypes;
-
-        BIRSameShapeVisitor(Set<TypePair> unresolvedTypes) {
-            this.unresolvedTypes = unresolvedTypes;
+        BIRSameShapeVisitor(Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
+            super(unresolvedTypes, equality);
         }
 
         @Override
@@ -2997,282 +3002,6 @@ public class Types {
         }
 
         @Override
-        public Boolean visit(BBuiltInRefType t, BType s) {
-            return t == s;
-        }
-
-        @Override
-        public Boolean visit(BAnyType t, BType s) {
-            return t == s;
-        }
-
-        @Override
-        public Boolean visit(BAnydataType t, BType s) {
-            if (t == s) {
-                return true;
-            }
-            return t.tag == s.tag;
-        }
-
-        @Override
-        public Boolean visit(BMapType t, BType s) {
-            if (s.tag != TypeTags.MAP || !hasSameReadonlyFlag(s, t)) {
-                return false;
-            }
-            // At this point both source and target types are of map types. Inorder to be equal in type as whole
-            // constraints should be in equal type.
-            BMapType sType = ((BMapType) s);
-            return isSameBIRShape(sType.constraint, t.constraint, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BFutureType t, BType s) {
-            return s.tag == TypeTags.FUTURE &&
-                    isSameBIRShape(t.constraint, ((BFutureType) s).constraint, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BXMLType t, BType s) {
-            return visit((BBuiltInRefType) t, s);
-        }
-
-        @Override
-        public Boolean visit(BJSONType t, BType s) {
-            return s.tag == TypeTags.JSON && hasSameReadonlyFlag(s, t);
-        }
-
-        @Override
-        public Boolean visit(BArrayType t, BType s) {
-            if (s.tag != TypeTags.ARRAY || !hasSameReadonlyFlag(s, t)) {
-                return false;
-            }
-
-            BArrayType sArrayType = (BArrayType) s;
-
-            boolean hasSameTypeElements = isSameBIRShape(t.eType, sArrayType.eType, unresolvedTypes);
-            if (t.state == BArrayState.OPEN) {
-                return (sArrayType.state == BArrayState.OPEN) && hasSameTypeElements;
-            }
-
-            return t.size == sArrayType.size && hasSameTypeElements;
-        }
-
-        @Override
-        public Boolean visit(BObjectType t, BType s) {
-            if (t == s) {
-                return true;
-            }
-
-            if (s.tag != TypeTags.OBJECT) {
-                return false;
-            }
-
-            return t.tsymbol.pkgID.equals(s.tsymbol.pkgID) && t.tsymbol.name.equals(s.tsymbol.name);
-        }
-
-        @Override
-        public Boolean visit(BRecordType t, BType s) {
-            if (t == s) {
-                return true;
-            }
-
-            if (s.tag != TypeTags.RECORD || !hasSameReadonlyFlag(s, t)) {
-                return false;
-            }
-
-            BRecordType source = (BRecordType) s;
-
-            if (source.fields.size() != t.fields.size()) {
-                return false;
-            }
-
-            for (BField sourceField : source.fields.values()) {
-                if (t.fields.containsKey(sourceField.name.value)) {
-                    BField targetField = t.fields.get(sourceField.name.value);
-                    if (isSameBIRShape(sourceField.type, targetField.type, this.unresolvedTypes) &&
-                            hasSameOptionalFlag(sourceField.symbol, targetField.symbol) &&
-                            (!Symbols.isFlagOn(targetField.symbol.flags, Flags.READONLY) ||
-                                    Symbols.isFlagOn(sourceField.symbol.flags, Flags.READONLY))) {
-                        continue;
-                    }
-                }
-                return false;
-            }
-            return isSameBIRShape(source.restFieldType, t.restFieldType, this.unresolvedTypes);
-        }
-
-        private boolean hasSameOptionalFlag(BVarSymbol s, BVarSymbol t) {
-            return ((s.flags & Flags.OPTIONAL) ^ (t.flags & Flags.OPTIONAL)) != Flags.OPTIONAL;
-        }
-
-        private boolean hasSameReadonlyFlag(BType source, BType target) {
-            return Symbols.isFlagOn(target.flags, Flags.READONLY) == Symbols.isFlagOn(source.flags, Flags.READONLY);
-        }
-
-        public Boolean visit(BTupleType t, BType s) {
-            if (((!t.tupleTypes.isEmpty() && checkAllTupleMembersBelongNoType(t.tupleTypes)) ||
-                    (t.restType != null && t.restType.tag == TypeTags.NONE)) &&
-                    !(s.tag == TypeTags.ARRAY && ((BArrayType) s).state == BArrayState.OPEN)) {
-                return true;
-            }
-
-            if (s.tag != TypeTags.TUPLE || !hasSameReadonlyFlag(s, t)) {
-                return false;
-            }
-            BTupleType source = (BTupleType) s;
-            if (source.tupleTypes.size() != t.tupleTypes.size()) {
-                return false;
-            }
-
-            BType sourceRestType = source.restType;
-            BType targetRestType = t.restType;
-            if ((sourceRestType == null || targetRestType == null) && sourceRestType != targetRestType) {
-                return false;
-            }
-
-            for (int i = 0; i < source.tupleTypes.size(); i++) {
-                if (t.getTupleTypes().get(i) == symTable.noType) {
-                    continue;
-                }
-                if (!isSameBIRShape(source.getTupleTypes().get(i), t.tupleTypes.get(i), this.unresolvedTypes)) {
-                    return false;
-                }
-            }
-
-            if (sourceRestType == null || targetRestType == symTable.noType) {
-                return true;
-            }
-
-            return isSameBIRShape(sourceRestType, targetRestType, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BStreamType t, BType s) {
-            if (s.tag != TypeTags.STREAM) {
-                return false;
-            }
-
-            BStreamType sStreamType = (BStreamType) s;
-
-            return isSameBIRShape(t.constraint, sStreamType.constraint, unresolvedTypes)
-                    && isSameBIRShape(t.completionType, sStreamType.completionType, unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BTableType t, BType s) {
-            return t == s;
-        }
-
-        @Override
-        public Boolean visit(BInvokableType t, BType s) {
-            return s.tag == TypeTags.INVOKABLE && isSameFunctionBIRShape((BInvokableType) s, t, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BUnionType tUnionType, BType s) {
-            if (s.tag != TypeTags.UNION || !hasSameReadonlyFlag(s, tUnionType)) {
-                return false;
-            }
-
-            BUnionType sUnionType = (BUnionType) s;
-
-            if (sUnionType.getMemberTypes().size()
-                    != tUnionType.getMemberTypes().size()) {
-                return false;
-            }
-
-            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.getMemberTypes().size());
-            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.getMemberTypes().size());
-
-            if (sUnionType.isCyclic) {
-                sourceTypes.add(sUnionType);
-            }
-            sourceTypes.addAll(sUnionType.getMemberTypes());
-            if (tUnionType.isCyclic) {
-                targetTypes.add(tUnionType);
-            }
-            targetTypes.addAll(tUnionType.getMemberTypes());
-
-            boolean notSameType = false;
-            for (BType sT : sourceTypes) {
-                boolean foundSameType = false;
-                for (BType it : targetTypes) {
-                    if (isSameBIRShape(it, sT, this.unresolvedTypes)) {
-                        foundSameType = true;
-                        break;
-                    }
-                }
-                if (!foundSameType) {
-                    notSameType = true;
-                    break;
-                }
-            }
-            return !notSameType;
-        }
-
-        @Override
-        public Boolean visit(BIntersectionType tIntersectionType, BType s) {
-            if (s.tag != TypeTags.INTERSECTION || !hasSameReadonlyFlag(s, tIntersectionType)) {
-                return false;
-            }
-
-            BIntersectionType sIntersectionType = (BIntersectionType) s;
-
-            if (sIntersectionType.getConstituentTypes().size() != tIntersectionType.getConstituentTypes().size()) {
-                return false;
-            }
-
-            Set<BType> sourceTypes = new LinkedHashSet<>(sIntersectionType.getConstituentTypes());
-            Set<BType> targetTypes = new LinkedHashSet<>(tIntersectionType.getConstituentTypes());
-
-            for (BType sourceType : sourceTypes) {
-                boolean foundSameType = false;
-
-                for (BType targetType : targetTypes) {
-                    if (isSameBIRShape(sourceType, targetType, this.unresolvedTypes)) {
-                        foundSameType = true;
-                        break;
-                    }
-                }
-
-                if (!foundSameType) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public Boolean visit(BErrorType t, BType s) {
-            if (s.tag != TypeTags.ERROR) {
-                return false;
-            }
-            BErrorType source = (BErrorType) s;
-
-            if (!source.typeIdSet.equals(t.typeIdSet)) {
-                return false;
-            }
-
-            if (source.detailType == t.detailType) {
-                return true;
-            }
-
-            return isSameBIRShape(source.detailType, t.detailType, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BTypedescType t, BType s) {
-
-            if (s.tag != TypeTags.TYPEDESC) {
-                return false;
-            }
-            BTypedescType sType = ((BTypedescType) s);
-            return isSameBIRShape(sType.constraint, t.constraint, this.unresolvedTypes);
-        }
-
-
-        @Override
         public Boolean visit(BFiniteType t, BType s) {
             if (s.tag != TypeTags.FINITE) {
                 return false;
@@ -3288,16 +3017,6 @@ public class Types {
             return hasSameMembers(sourceValueSpace, targetValueSpace);
         }
 
-        @Override
-        public Boolean visit(BParameterizedType t, BType s) {
-            if (s.tag != TypeTags.PARAMETERIZED_TYPE) {
-                return false;
-            }
-
-            BParameterizedType sType = (BParameterizedType) s;
-            return isSameBIRShape(sType.paramValueType, t.paramValueType) && sType.paramSymbol.equals(t.paramSymbol);
-        }
-
         public Boolean visit(BTypeReferenceType t, BType s) {
             if (s.tag != TypeTags.TYPEREFDESC) {
                 return false;
@@ -3311,11 +3030,6 @@ public class Types {
             String targetPkgId = CompilerUtils.getPackageIDStringWithMajorVersion(targetTSymbol.pkgID);
             return sourcePkgId.equals(targetPkgId) && sourceTSymbol.name.equals(targetTSymbol.name);
         }
-    }
-
-    private boolean isSameFunctionBIRShape(BInvokableType source, BInvokableType target,
-                                           Set<TypePair> unresolvedTypes) {
-        return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isSameBIRShape);
     }
 
     private boolean hasSameMembers(Set<BLangExpression> sourceValueSpace, Set<BLangExpression> targetValueSpace) {
@@ -3584,7 +3298,7 @@ public class Types {
         public Boolean visit(BParameterizedType t, BType s) {
             return false;
         }
-    };
+    }
 
     private boolean checkUnionHasSameType(LinkedHashSet<BType> memberTypes, BType baseType) {
         boolean isSameType = false;
