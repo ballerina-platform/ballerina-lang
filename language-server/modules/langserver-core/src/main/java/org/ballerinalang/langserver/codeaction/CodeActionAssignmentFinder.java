@@ -18,17 +18,14 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.BreakStatementNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
-import io.ballerina.compiler.syntax.tree.FailStatementNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.eclipse.lsp4j.Range;
@@ -138,22 +135,53 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
     }
 
     @Override
-    public void visit(PanicStatementNode node) {
-        this.isExtractable = false;
+    protected void visitSyntaxNode(Node node) {
+        if (node instanceof Token) {
+            node.accept(this);
+            return;
+        }
+
+        if (isSyntaxKindNotSupported(node.kind())) {
+            this.isExtractable = false;
+            return;
+        }
+
+        NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
+        for (Node child : nonTerminalNode.children()) {
+            child.accept(this);
+        }
     }
 
-    @Override
-    public void visit(BreakStatementNode node) {
-        this.isExtractable = false;
-    }
-
-    @Override
-    public void visit(ContinueStatementNode node) {
-        this.isExtractable = false;
-    }
-
-    @Override
-    public void visit(FailStatementNode failStatementNode) {
-        this.isExtractable = false;
+    private boolean isSyntaxKindNotSupported(SyntaxKind syntaxKind) {
+        switch (syntaxKind) {
+            // statements
+            case BREAK_STATEMENT:
+            case CONTINUE_STATEMENT:
+            case PANIC_STATEMENT:
+            case FAIL_STATEMENT:
+            case NAMED_WORKER_DECLARATION:
+            case FORK_STATEMENT:
+            case TRANSACTION_STATEMENT:
+            case ROLLBACK_STATEMENT:
+            case RETRY_STATEMENT:
+            case XML_NAMESPACE_DECLARATION:
+                // actions
+            case REMOTE_METHOD_CALL_ACTION:
+            case BRACED_ACTION:
+            case CHECK_ACTION:
+            case START_ACTION:
+            case TRAP_ACTION:
+            case FLUSH_ACTION:
+            case ASYNC_SEND_ACTION:
+            case SYNC_SEND_ACTION:
+            case RECEIVE_ACTION:
+            case WAIT_ACTION:
+            case QUERY_ACTION:
+            case COMMIT_ACTION:
+            case CLIENT_RESOURCE_ACCESS_ACTION:
+                return true;
+            default:
+                return false;
+        }
     }
 }
