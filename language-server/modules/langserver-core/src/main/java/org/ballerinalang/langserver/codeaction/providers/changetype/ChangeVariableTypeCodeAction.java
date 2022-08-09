@@ -194,11 +194,12 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPatternNode;
                 return Optional.of(captureBindingPatternNode.variableName().text());
             case MODULE_VAR_DECL:
-                 BindingPatternNode mBindingPatternNode = ((ModuleVariableDeclarationNode) matchedNode).typedBindingPattern().bindingPattern();
-                 if (mBindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
-                     return Optional.empty();
-                 }
-                 return Optional.of(((CaptureBindingPatternNode) mBindingPatternNode).variableName().text());
+                ModuleVariableDeclarationNode modVarDecl = (ModuleVariableDeclarationNode) matchedNode;
+                BindingPatternNode bindingPattern = modVarDecl.typedBindingPattern().bindingPattern();
+                if (bindingPattern.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
+                    return Optional.empty();
+                }
+                return Optional.of(((CaptureBindingPatternNode) bindingPattern).variableName().text());
             case ASSIGNMENT_STATEMENT:
                 AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
                 Node varRef = assignmentStmtNode.varRef();
