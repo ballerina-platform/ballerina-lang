@@ -33,12 +33,12 @@ public class ClientDeclarationTest extends AbstractDeclarationTest {
         testFile("client-decl/client_decl_source_01.bal", "client-decl/client_decl_assert_01.json");
     }
 
-    // Recovery tests
-
     @Test
-    public void testMissingSemicolon() {
+    public void testClientDeclWithAnnotations() {
         testFile("client-decl/client_decl_source_02.bal", "client-decl/client_decl_assert_02.json");
     }
+
+    // Recovery tests
 
     @Test
     public void testMissingAliasAndSemicolon() {
@@ -78,5 +78,10 @@ public class ClientDeclarationTest extends AbstractDeclarationTest {
     @Test
     public void testMissingAlias() {
         testFile("client-decl/client_decl_source_10.bal", "client-decl/client_decl_assert_10.json");
+    }
+
+    @Test
+    public void testMissingSemicolon() {
+        testFile("client-decl/client_decl_source_11.bal", "client-decl/client_decl_assert_11.json");
     }
 }

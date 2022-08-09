@@ -10000,7 +10000,6 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
-                reportInvalidMetaData(metadata, "client declaration");
                 reportInvalidQualifier(publicQualifier);
                 return parseClientDeclaration(metadata, qualifiers.get(qualifiers.size() - 1), isModuleVar);
             case OBJECT_KEYWORD:
