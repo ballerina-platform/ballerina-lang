@@ -933,13 +933,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (Symbols.isFlagOn(arrayType.flags, Flags.READONLY)) {
-            boolean isNotValid = false;
-            for (int i=0; i < byteArray.length; i++) {
-                isNotValid =
-                        types.checkType(literalExpr, symTable.byteType, arrayType.eType) == symTable.semanticError;
-            }
+            boolean isValidType =
+                        types.checkType(literalExpr, symTable.byteType, arrayType.eType) != symTable.semanticError;
             literalExpr.impConversionExpr = null;
-            return isNotValid ? symTable.semanticError : arrayType;
+            return isValidType ? arrayType : symTable.semanticError;
         }
         return data.resultType = types.checkType(literalExpr, literalType, data.expType);
     }
