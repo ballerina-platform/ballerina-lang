@@ -841,17 +841,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
         finiteTypeNode.pos = identifierPos;
 
-            // Create a new anonymous type definition.
-            BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-            this.anonTypeNameSuffixes.push(constantNode.name.value);
-            String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, anonTypeNameSuffixes);
-            this.anonTypeNameSuffixes.pop();
-            IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
-            typeDef.setName(anonTypeGenName);
-            typeDef.flagSet.add(Flag.PUBLIC);
-            typeDef.flagSet.add(Flag.ANONYMOUS);
-            typeDef.typeNode = finiteTypeNode;
-            typeDef.pos = pos;
+        // Create a new anonymous type definition.
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        this.anonTypeNameSuffixes.push(constantNode.name.value);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, anonTypeNameSuffixes);
+        this.anonTypeNameSuffixes.pop();
+        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
+        typeDef.setName(anonTypeGenName);
+        typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
+        typeDef.typeNode = finiteTypeNode;
+        typeDef.pos = pos;
 
         // We add this type definition to the `associatedTypeDefinition` field of the constant node. Then when we
         // visit the constant node, we visit this type definition as well. By doing this, we don't need to change
