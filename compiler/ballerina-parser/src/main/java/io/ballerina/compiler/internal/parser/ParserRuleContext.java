@@ -332,7 +332,6 @@ public enum ParserRuleContext {
     ORDER_KEY_LIST("order-key-list"),
     ORDER_KEY_LIST_END("order-key-list-end"),
     GROUP_BY_CLAUSE("group-by-clause"),
-    GROUPING_KEY_LIST("grouping-key-list"),
     GROUPING_KEY_LIST_VAR_DECLARATION("grouping-key-list-var-declaration"),
     GROUPING_KEY_LIST_VAR_DECLARATION_END("grouping-key-list-var-declaration-end"),
     GROUPING_KEY_LIST_ELEMENT("grouping-key-list-element"),
