@@ -112,9 +112,6 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
         List<CodeAction> codeActions = new ArrayList<>();
         boolean returnTypeDescPresent = funcDef.get().functionSignature().returnTypeDesc().isPresent();
 
-        CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
-        funcDef.get().accept(checkExprNodeFinder);
-
         if (checkExprDiagnostic) {
             // Add error return type for check expression
             if (returnTypeDescPresent) {
@@ -146,7 +143,9 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                     combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
                 }
             }
-
+            
+            CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
+            funcDef.get().accept(checkExprNodeFinder);
             if (checkExprNodeFinder.containCheckExprNode()) {
                 combinedTypes.add(Collections.singletonList("error"));
             }
