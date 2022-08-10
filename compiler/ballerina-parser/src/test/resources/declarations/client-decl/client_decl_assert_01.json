@@ -12,6 +12,10 @@
           "kind": "MODULE_CLIENT_DECLARATION",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "CLIENT_KEYWORD",
               "trailingMinutiae": [
                 {

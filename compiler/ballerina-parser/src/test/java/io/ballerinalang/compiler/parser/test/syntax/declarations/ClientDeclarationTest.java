@@ -89,4 +89,9 @@ public class ClientDeclarationTest extends AbstractDeclarationTest {
     public void testRecoveryWithMultipleClientDecls() {
         testFile("client-decl/client_decl_source_12.bal", "client-decl/client_decl_assert_12.json");
     }
+
+    @Test
+    public void testInvalidQualifiers() {
+        testFile("client-decl/client_decl_source_13.bal", "client-decl/client_decl_assert_13.json");
+    }
 }

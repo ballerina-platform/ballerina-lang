@@ -10000,8 +10000,9 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
-                reportInvalidQualifier(publicQualifier);
-                return parseClientDeclaration(metadata, qualifiers.get(qualifiers.size() - 1), isModuleVar);
+                reportInvalidQualifiersOnClientDecl(publicQualifier, qualifiers);
+                return parseClientDeclaration(getAnnotations(metadata), qualifiers.get(qualifiers.size() - 1),
+                                              isModuleVar);
             case OBJECT_KEYWORD:
                 if (isModuleVar) {
                     return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
@@ -10012,6 +10013,15 @@ public class BallerinaParser extends AbstractParser {
             default:
                 recover(nextToken, ParserRuleContext.CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL);
                 return parseClientDeclOrVarDecl(metadata, publicQualifier, qualifiers, isModuleVar);
+        }
+    }
+
+    private void reportInvalidQualifiersOnClientDecl(STNode publicQualifier, List<STNode> qualifiers) {
+        reportInvalidQualifier(publicQualifier);
+        for (STNode qualifier : qualifiers) {
+            if (qualifier.kind != SyntaxKind.CLIENT_KEYWORD) {
+                reportInvalidQualifier(qualifier);
+            }
         }
     }
 

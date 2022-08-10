@@ -69,6 +69,7 @@ public class ParserTestRunner {
         hashSet.add("client_decl_stmt_source_10.bal");
         hashSet.add("client_decl_stmt_source_11.bal");
         hashSet.add("client_decl_stmt_source_12.bal");
+        hashSet.add("client_decl_stmt_source_13.bal");
         hashSet.add("client_decl_source_01.bal");
         hashSet.add("client_decl_source_02.bal");
         hashSet.add("client_decl_source_03.bal");
@@ -81,6 +82,7 @@ public class ParserTestRunner {
         hashSet.add("client_decl_source_10.bal");
         hashSet.add("client_decl_source_11.bal");
         hashSet.add("client_decl_source_12.bal");
+        hashSet.add("client_decl_source_13.bal");
         return hashSet;
     }
 
