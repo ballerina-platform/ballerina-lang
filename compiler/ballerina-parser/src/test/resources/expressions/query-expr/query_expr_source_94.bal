@@ -1,5 +1,5 @@
 function testGroupBy() {
     var res = from var {price1, price2, name} in orders
-        group by int price = price1 +
+        group by int price = price1 + price2 price1
         select name;
 }

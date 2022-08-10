@@ -77,6 +77,8 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.GroupByClauseNode;
+import io.ballerina.compiler.syntax.tree.GroupingKeyVarDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
@@ -146,8 +148,6 @@ import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
-import io.ballerina.compiler.syntax.tree.GroupByClauseNode;
-import io.ballerina.compiler.syntax.tree.GroupingKeyVarDeclarationNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
@@ -3330,7 +3330,8 @@ public class FormattingTreeModifier extends TreeModifier {
         TypeDescriptorNode typeDescriptor = formatNode(groupingKeyVarDeclarationNode.typeDescriptor(), 1, 0);
         CaptureBindingPatternNode variableName = formatNode(groupingKeyVarDeclarationNode.variableName(), 1, 0);
         Token equalsToken = formatToken(groupingKeyVarDeclarationNode.equalsToken(), 1, 0);
-        ExpressionNode expression = formatNode(groupingKeyVarDeclarationNode.expression(), env.trailingWS, env.trailingNL);
+        ExpressionNode expression = formatNode(groupingKeyVarDeclarationNode.expression(), env.trailingWS,
+                env.trailingNL);
 
         return groupingKeyVarDeclarationNode.modify()
                 .withTypeDescriptor(typeDescriptor)
