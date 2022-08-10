@@ -209,7 +209,9 @@ public class ValueCreator {
      * @param type   {@code ArrayType} of the array.
      * @param length maximum length
      * @return       fixed length ref value array
+     * @deprecated          use {@link #createArrayValue(ArrayType)} instead
      */
+    @Deprecated
     public static BArray createArrayValue(ArrayType type, int length) {
         return new ArrayValueImpl(type, length);
     }
@@ -221,9 +223,23 @@ public class ValueCreator {
      * @param size          array size
      * @param initialValues initial values
      * @return              fixed length ref value array
+     * @deprecated          use {@link #createArrayValue(ArrayType, BListInitialValueEntry[])} instead
      */
+    @Deprecated
     public static BArray createArrayValue(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
         return new ArrayValueImpl(type, size, initialValues);
+    }
+
+    /**
+     *
+     * Create a ref value array with given type and initial values.
+     *
+     * @param type          {@code ArrayType} of the array.
+     * @param initialValues initial values
+     * @return              ref value array
+     */
+    public static BArray createArrayValue(ArrayType type, BListInitialValueEntry[] initialValues) {
+        return new ArrayValueImpl(type, initialValues);
     }
 
     /**

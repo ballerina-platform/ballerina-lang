@@ -134,7 +134,7 @@ public class Values {
         TupleType tupleType = TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_STRING,
                 PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_STRING));
         if (funcType.isEmpty()) {
-            return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType, 0), 0);
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType, 0));
         }
         RemoteMethodType remoteType = (RemoteMethodType) funcType.get();
         Parameter[] parameters = remoteType.getParameters();
@@ -149,7 +149,7 @@ public class Values {
             elements[i] = ValueCreator
                     .createListInitialValueEntry(ValueCreator.createTupleValue(tupleType, 3, initialTupleValues));
         }
-        return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType), len, elements);
+        return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType), elements);
     }
 
     public static BString getFunctionString(BObject object, BString methodName) {
@@ -182,8 +182,8 @@ public class Values {
         assert arrayType.isPresent();
         List<Type> constituentTypes = arrayType.get().getConstituentTypes();
         int size = constituentTypes.size();
-        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, size)
-                , size);
+        BArray arrayValue =
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, size));
         int index = 0;
         for (Type type : constituentTypes) {
             arrayValue.add(index, StringUtils.fromString(type.toString()));
@@ -196,7 +196,7 @@ public class Values {
         List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
-                size), size);
+                size));
         int index = 0;
         for (TypeId typeId : typeIds) {
             arrayValue.add(index, StringUtils.fromString(typeId.getName()));
