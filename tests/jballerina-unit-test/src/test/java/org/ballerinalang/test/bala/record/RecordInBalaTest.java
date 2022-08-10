@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.bala.record;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,6 +45,16 @@ public class RecordInBalaTest {
         BRunUtil.invoke(result, "testORRestFieldInCR");
         BRunUtil.invoke(result, "testCRRestFieldInOR");
         BRunUtil.invoke(result, "testCRRestFieldInCR");
+    }
+
+    @Test
+    public void negativeTests() {
+        CompileResult result = BCompileUtil.compile("test-src/record/record_negative_bala.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'testorg/foo.records:1.0.0:" +
+                "(testorg/foo.records:1:Interceptor & readonly)', found 'PersonInterceptor'", 10, 40);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'testorg/foo.records:1.0.0:Foo'" +
+                ", found '[Bar]'", 10, 71);
     }
 
     @Test
