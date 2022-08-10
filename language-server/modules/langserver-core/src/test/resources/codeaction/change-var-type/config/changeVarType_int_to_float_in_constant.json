@@ -1,24 +1,24 @@
  {
    "position": {
      "line": 0,
-     "character": 8
+     "character": 24
    },
-   "description": "Change variable type from int to float in module level var",
-   "source": "changeVarType_int_to_float.bal",
+   "description": "Change variable type from int to float in module level constant",
+   "source": "changeVarType_int_to_float_in_constant.bal",
    "expected": [
      {
-       "title": "Change variable \u0027x\u0027 type to \u0027float\u0027",
+       "title": "Change constant 'OIL_PRICE' type to 'float'",
        "kind": "quickfix",
        "edits": [
          {
            "range": {
              "start": {
                "line": 0,
-               "character": 0
+               "character": 6
              },
              "end": {
                "line": 0,
-               "character": 3
+               "character": 9
              }
            },
            "newText": "float"
