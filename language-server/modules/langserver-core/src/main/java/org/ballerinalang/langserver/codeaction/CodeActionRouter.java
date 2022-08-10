@@ -28,9 +28,8 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
@@ -61,19 +60,19 @@ public class CodeActionRouter {
         CodeActionProvidersHolder codeActionProvidersHolder
                 = CodeActionProvidersHolder.getInstance(ctx.languageServercontext());
 
-        // Get available node-type based code-actions
+        // Get available range based code-actions
         SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
-        Position position = ctx.cursorPosition();
+        Range highlightedRange = ctx.range();
         // Run code action node analyzer
-        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(position, syntaxTree);
+        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(highlightedRange, syntaxTree);
         Optional<NonTerminalNode> codeActionNode = analyzer.getCodeActionNode();
-        CodeActionNodeType matchedNodeType = analyzer.getCodeActionNodeType();
-        if (codeActionNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
+        SyntaxKind syntaxKind = analyzer.getSyntaxKind();
+        if (codeActionNode.isPresent() && syntaxKind != SyntaxKind.NONE) {
             Range range = PositionUtil.toRange(codeActionNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(codeActionNode.get(), range);
             TypeSymbol matchedTypeSymbol = getMatchedTypeSymbol(ctx, expressionNode).orElse(null);
 
-            NodeBasedPositionDetails posDetails = NodeBasedPositionDetailsImpl.PositionDetailsBuilder.newBuilder()
+            RangeBasedPositionDetails posDetails = RangeBasedPositionDetailsImpl.PositionDetailsBuilder.newBuilder()
                     .setTopLevelNodeType(matchedTypeSymbol)
                     .setTopLevelNode(codeActionNode.get())
                     .setCodeActionNode(codeActionNode.get())
@@ -82,13 +81,16 @@ public class CodeActionRouter {
                     .setStatementNode(analyzer.getStatementNode().orElse(null))
                     .build();
 
-            codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType, ctx).forEach(provider -> {
+            codeActionProvidersHolder.getActiveRangeBasedProviders(syntaxKind, ctx).forEach(provider -> {
                 try {
                     // Check whether the code action request has been cancelled
                     // in order to avoid unnecessary calculations
                     ctx.checkCancelled();
 
-                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx, posDetails);
+                    if (!provider.validate(ctx, posDetails)) {
+                        return;
+                    }
+                    List<CodeAction> codeActionsOut = provider.getCodeActions(ctx, posDetails);
                     if (codeActionsOut != null) {
                         codeActionsOut.forEach(codeAction ->
                                 TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, provider));
@@ -103,12 +105,12 @@ public class CodeActionRouter {
         // Get available diagnostics based code-actions
         ctx.diagnostics(ctx.filePath()).stream().
                 filter(diag -> PositionUtil
-                        .isWithinRange(position, PositionUtil.toRange(diag.location().lineRange()))
+                        .isRangeWithinRange(highlightedRange, PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .forEach(diagnostic -> {
                     DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
                     codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx)
-                                             .forEach(provider -> {
+                            .forEach(provider -> {
                                 try {
                                     // Check whether the code action request has been cancelled
                                     // in order to avoid unnecessary calculations
@@ -117,8 +119,8 @@ public class CodeActionRouter {
                                     if (!provider.validate(diagnostic, positionDetails, ctx)) {
                                         return;
                                     }
-                                    List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic,
-                                            positionDetails, ctx);
+                                    List<CodeAction> codeActionsOut = provider
+                                            .getCodeActions(diagnostic, positionDetails, ctx);
                                     codeActionsOut.forEach(codeAction ->
                                             TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction,
                                                     provider));

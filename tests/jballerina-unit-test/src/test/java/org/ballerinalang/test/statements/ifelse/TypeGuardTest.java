@@ -1097,8 +1097,6 @@ public class TypeGuardTest {
         BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
                                  22, 15);
         BAssertUtil.validateError(result, index++, "unreachable code", 25, 9);
-        // Invalid
-        BAssertUtil.validateError(result, index++, "this function must return a result", 28, 1);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 

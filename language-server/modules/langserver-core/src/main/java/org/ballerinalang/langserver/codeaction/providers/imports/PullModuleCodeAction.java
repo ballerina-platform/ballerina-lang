@@ -18,11 +18,13 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
@@ -40,16 +42,22 @@ import java.util.Optional;
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class PullModuleCodeAction extends AbstractCodeActionProvider {
+public class PullModuleCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Pull Module";
 
     private static final int MISSING_MODULE_NAME_INDEX = 0;
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
+
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Optional<String> moduleName = getMissingModuleNameFromDiagnostic(diagnostic);
         if (moduleName.isEmpty()) {
             return Collections.emptyList();
@@ -63,7 +71,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
         String commandTitle = CommandConstants.PULL_MOD_TITLE;
         Command command = new Command(commandTitle, PullModuleExecutor.COMMAND, args);
-        CodeAction action = createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
+        CodeAction action = CodeActionUtil.createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
         return Collections.singletonList(action);
     }
 

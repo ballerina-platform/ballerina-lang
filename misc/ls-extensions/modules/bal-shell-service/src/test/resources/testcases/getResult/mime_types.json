@@ -35,7 +35,7 @@
     "source": "e",
     "result": {
       "shellValue": {
-        "value":"{\"username\":\"John\",\"salary\":100,\"fullname\":{\"firstname\":\"John\",\"lastname\":\"Doe\"}}",
+        "value":"{\"username\":\"John\", \"salary\":100, \"fullname\":{\"firstname\":\"John\", \"lastname\":\"Doe\"}}",
         "mimeType":"ballerina-notebook/json-view",
         "type":"Employee"
       },
@@ -80,7 +80,7 @@
     "source": "t",
     "result": {
       "shellValue": {
-        "value": "[{\"username\":\"John\",\"salary\":100,\"fullname\":{\"firstname\":\"John\",\"lastname\":\"Doe\"}},{\"username\":\"Adam\",\"salary\":300,\"fullname\":{\"firstname\":\"Adam\",\"lastname\":\"Smith\"}},{\"username\":\"Jake\",\"salary\":100,\"fullname\":{\"firstname\":\"jake\",\"lastname\":\"Peralta\"}}]",
+        "value": "[{\"username\":\"John\", \"salary\":100, \"fullname\":{\"firstname\":\"John\", \"lastname\":\"Doe\"}}, {\"username\":\"Adam\", \"salary\":300, \"fullname\":{\"firstname\":\"Adam\", \"lastname\":\"Smith\"}}, {\"username\":\"Jake\", \"salary\":100, \"fullname\":{\"firstname\":\"jake\", \"lastname\":\"Peralta\"}}]",
         "mimeType":"ballerina-notebook/table-view",
         "type":"table<Employee> key(username)"
       },
