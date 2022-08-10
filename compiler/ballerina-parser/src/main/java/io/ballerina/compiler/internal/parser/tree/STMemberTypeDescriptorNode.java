@@ -28,7 +28,7 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2201.2.0
+ * @since 2201.3.0
  */
 public class STMemberTypeDescriptorNode extends STNode {
     public final STNode annotations;

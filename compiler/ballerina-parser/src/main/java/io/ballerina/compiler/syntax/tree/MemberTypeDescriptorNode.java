@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.2.0
+ * @since 2201.3.0
  */
 public class MemberTypeDescriptorNode extends NonTerminalNode {
 
@@ -78,7 +78,7 @@ public class MemberTypeDescriptorNode extends NonTerminalNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2.0.0
+     * @since 2201.3.0
      */
     public static class MemberTypeDescriptorNodeModifier {
         private final MemberTypeDescriptorNode oldNode;

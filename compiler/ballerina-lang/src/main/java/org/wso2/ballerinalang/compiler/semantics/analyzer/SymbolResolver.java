@@ -1424,7 +1424,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BType> memberTypes = new ArrayList<>();
+        List<BType> memberTypes = new ArrayList<>(tupleTypeNode.memberTypeNodes.size());
         for (BLangMemberTypeNode memTypeNode : tupleTypeNode.memberTypeNodes) {
             BType type = resolveTypeNode(memTypeNode.typeNode, data, data.env);
 

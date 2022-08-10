@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * {@code BLangUnionTypeNode} represents a tuple type node in Ballerina
+ * {@code BLangTupleTypeNode} represents a tuple type node in Ballerina
  * <p>
  * e.g. [int, float , string]
  *

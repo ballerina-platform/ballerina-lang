@@ -26,16 +26,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 
 /**
- * {@code BLangUnionTypeNode} represents a non-rest member of a tuple.
+ * {@code BLangMemberTypeNode} represents a non-rest member of a tuple.
  *
- * @since 2201.2.0
+ * @since 2201.3.0
  */
 public class BLangMemberTypeNode extends BLangType implements AnnotatableNode {
 
@@ -44,7 +43,7 @@ public class BLangMemberTypeNode extends BLangType implements AnnotatableNode {
     public Set<Flag> flagSet;
 
     public BLangMemberTypeNode() {
-        this.annAttachments = new ArrayList<>();
+        this.annAttachments = null;
         this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
