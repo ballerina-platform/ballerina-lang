@@ -1,11 +1,11 @@
 {
   "range": {
     "start": {
-      "line": 2,
-      "character": 35
+      "line": 1,
+      "character": 4
     },
     "end": {
-      "line": 4,
+      "line": 9,
       "character": 5
     }
   },
@@ -18,15 +18,15 @@
         {
           "range": {
             "start": {
-              "line": 5,
+              "line": 10,
               "character": 1
             },
             "end": {
-              "line": 5,
+              "line": 10,
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int a \u003d 10;\n    a \u003d a + 1;\n    return a;\n}"
+          "newText": "\n\nfunction extracted(int param) {\n    int localVar \u003d 0;\n    do {\n        if param \u003d\u003d 0 {\n            fail error(\"cannot divide by zero\");\n        }\n        localVar /\u003d param;\n    } on fail var e {\n    \tdoSomething(e.message());\n    }\n}"
         },
         {
           "range": {
@@ -35,11 +35,11 @@
               "character": 4
             },
             "end": {
-              "line": 2,
-              "character": 14
+              "line": 9,
+              "character": 5
             }
           },
-          "newText": "int a \u003d extracted();"
+          "newText": "extracted(param);"
         }
       ]
     }
