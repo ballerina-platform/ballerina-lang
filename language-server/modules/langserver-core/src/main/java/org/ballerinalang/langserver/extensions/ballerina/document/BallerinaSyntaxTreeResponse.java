@@ -59,5 +59,8 @@ public class BallerinaSyntaxTreeResponse {
     public void setDefFilePath(String defFilePath) {
         this.defFilePath = defFilePath;
     }
+    public String getDefFilePath() {
+        return defFilePath;
+    }
 
 }
