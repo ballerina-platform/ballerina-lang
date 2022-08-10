@@ -1621,7 +1621,7 @@ public class BIRPackageSymbolEnter {
                     int funcCount = inputStream.readInt();
                     for (int i = 0; i < funcCount; i++) {
                         //populate intersection type object functions
-                        if (isImmutable(objectSymbol.flags) && Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
+                        if (isImmutable(objectSymbol.flags)) {
                             populateIntersectionTypeReferencedFunctions(inputStream, objectSymbol);
                         } else {
                             ignoreAttachedFunc();
@@ -1752,9 +1752,9 @@ public class BIRPackageSymbolEnter {
             String attachedFuncName = getStringCPEntryValue(inputStream);
             String attachedFuncOrigName = getStringCPEntryValue(inputStream);
             var attachedFuncFlags = inputStream.readLong();
+            BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
             if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
                     Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
-                BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
                 Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
                         objectSymbol.name.value, attachedFuncName));
                 Name funcOrigName = names.fromString(attachedFuncOrigName);
