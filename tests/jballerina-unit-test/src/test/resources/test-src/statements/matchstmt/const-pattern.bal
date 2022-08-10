@@ -704,7 +704,6 @@ function testMatchStmtInsideForeachString1() {
             }
         }
     }
-
     assertEquals("OneOtherTwo", output);
 }
 
@@ -726,7 +725,6 @@ function testMatchStmtInsideForeachString2() {
             }
         }
     }
-
     assertEquals("OneOtherTwo", output);
 }
 
