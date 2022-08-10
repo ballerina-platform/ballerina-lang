@@ -43,6 +43,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -402,6 +403,25 @@ public class Values {
             }
         }
         return constraintError;
+    }
+
+    public static BArray getIntArray(BTypedesc typedesc) {
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BArray arrayValue = ValueCreator.createArrayValue(arrayType);
+        arrayValue.add(0, 1L);
+        arrayValue.add(1, 2L);
+        arrayValue.add(2, 3L);
+        return arrayValue;
+    }
+
+    public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        int size = array.size();
+        BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
+        for (int i = 0; i < size; i++) {
+            elements[i] = ValueCreator.createListInitialValueEntry(array.get(i));
+        }
+        return ValueCreator.createArrayValue(arrayType, elements);
     }
 
 }

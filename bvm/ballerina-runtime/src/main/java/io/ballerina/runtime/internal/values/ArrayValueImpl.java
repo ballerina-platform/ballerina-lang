@@ -88,10 +88,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.refValues = values;
         this.arrayType = type;
         this.size = values.length;
-        if (type.getTag() == TypeTags.ARRAY_TAG) {
-            this.elementType = type.getElementType();
-            this.elementReferredType = TypeUtils.getReferredType(this.elementType);
-        }
+        this.elementType = type.getElementType();
+        this.elementReferredType = TypeUtils.getReferredType(this.elementType);
         this.typedesc = getTypedescValue(arrayType, this);
     }
 

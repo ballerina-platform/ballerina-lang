@@ -209,7 +209,7 @@ public class ValueCreator {
      * @param type   {@code ArrayType} of the array.
      * @param length maximum length
      * @return       fixed length ref value array
-     * @deprecated          use {@link #createArrayValue(ArrayType)} instead
+     * @deprecated   use {@link #createArrayValue(ArrayType)} instead
      */
     @Deprecated
     public static BArray createArrayValue(ArrayType type, int length) {
