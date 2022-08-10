@@ -46,7 +46,6 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataResponse;
-import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -59,6 +58,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -299,11 +299,9 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeByName(BallerinaSyntaxTreeByNameRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            var result = new Object() {
-                String sourceCode = null;
-                JsonElement jsonSyntaxTree = null;
-                String defFilePath = null;
-            };
+            AtomicReference<String> sourceCode = new AtomicReference<>();
+            AtomicReference<JsonElement> jsonSyntaxTree = new AtomicReference<>();
+            AtomicReference<String> defFilePath = new AtomicReference<>();
             BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
             Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
@@ -360,20 +358,20 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                                     SemanticModel semanticModelNew = packageCompilation.getSemanticModel(document.module().moduleId());
 
                                     // Get the file path of the found node definition
-                                    Path defFilePath = PathUtil.getPathFromLocation(module, node.location());
+                                    Path defFilePathLocation = PathUtil.getPathFromLocation(module, node.location());
                                     // Set the node syntax tree JSON with type info and source code.
-                                    result.jsonSyntaxTree = DiagramUtil.getSyntaxTreeJSON(node, semanticModelNew);
-                                    result.sourceCode = node.toSourceCode();
-                                    result.defFilePath = defFilePath.toUri().toString();
+                                    jsonSyntaxTree.set(DiagramUtil.getSyntaxTreeJSON(node, semanticModelNew));
+                                    sourceCode.set(node.toSourceCode());
+                                    defFilePath.set(defFilePathLocation.toUri().toString());
                                 }
                             });
                         }
                     });
                 });
-                reply.setSource(result.sourceCode);
-                reply.setSyntaxTree(result.jsonSyntaxTree);
+                reply.setSource(sourceCode.get());
+                reply.setSyntaxTree(jsonSyntaxTree.get());
                 reply.setParseSuccess(reply.getSyntaxTree() != null);
-                reply.setDefFilePath(result.defFilePath);
+                reply.setDefFilePath(defFilePath.get());
                 return reply;
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
