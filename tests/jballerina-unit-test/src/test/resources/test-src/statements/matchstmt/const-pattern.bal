@@ -714,6 +714,70 @@ function constPatternWithPredeclaredPrefix2(int[] x) returns int {
     }
 }
 
+function testMatchStmtInsideForeachString1() {
+    string input = "1x2";
+    string output = "";
+    foreach string char in input {
+        match char {
+            "1" => {
+                output = output.concat("One");
+            }
+            "2" => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+
+    assertEquals("OneOtherTwo", output);
+}
+
+type CHAR string;
+
+function testMatchStmtInsideForeachString2() {
+    CHAR input = "1x2";
+    string output = "";
+    foreach string char in input {
+        match char {
+            "1" => {
+                output = output.concat("One");
+            }
+            "2" => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+
+    assertEquals("OneOtherTwo", output);
+}
+
+function testMatchStmtInsideForeachInt() {
+    int:Signed8[] input = [7, 2, 2];
+    string output = "";
+    foreach int number in input {
+        match number {
+            2 => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+    assertEquals("OtherTwoTwo", output);
+}
+
+function testMatchStmtInsideForeach() {
+    testMatchStmtInsideForeachString1();
+    testMatchStmtInsideForeachString2();
+    testMatchStmtInsideForeachInt();
+}
+
 function constPatternWithPredeclaredPrefix3(map<int> x) returns int {
     match x {
         {i: int:MIN_VALUE, j: int:MAX_VALUE} => {
