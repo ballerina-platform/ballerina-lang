@@ -150,6 +150,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -217,6 +218,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangClientDeclaration clientDeclaration) {
         throw new AssertionError();
     }
 
@@ -326,6 +331,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
         throw new AssertionError();
     }
 
