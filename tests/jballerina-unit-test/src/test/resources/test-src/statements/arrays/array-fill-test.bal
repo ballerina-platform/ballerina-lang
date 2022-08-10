@@ -429,11 +429,6 @@ type Default record {|
     string name = "Tom";
 |};
 
-type Default1 record {|
-    int id = 0;
-    string name = "Tom";
-|};
-
 function testReadOnlyArrayFill() {
     int[2] & readonly arr1 = [];
     int[4][2] & readonly arr2 = [];

@@ -533,7 +533,6 @@ public class ArrayFillTest {
         BRunUtil.invoke(compileResult, "testReadOnlyArrayFill");
     }
 
-
     @Test
     public void testFiniteTypeUnionArrayFill() {
         BRunUtil.invoke(compileResult, "testFiniteTypeUnionArrayFill");
