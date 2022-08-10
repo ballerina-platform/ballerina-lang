@@ -196,9 +196,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -875,7 +873,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
             // check whether this is a byte array
-            byte[] byteArray = convertToByteArray(literalExpr);
+            byte[] byteArray = Types.convertToByteArray((String) literalExpr.value);
             literalType = new BArrayType(symTable.byteType, null, byteArray.length,
                     BArrayState.CLOSED);
         }
@@ -883,35 +881,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return literalType;
     }
 
-    private byte[] convertToByteArray(BLangLiteral literalExpr) {
-        String[] elements = getLiteralTextValue(literalExpr.toString());
-        if (elements[0].contains(BASE_16)) {
-            return hexStringToByteArray(elements[1]);
-        }
-        return Base64.getDecoder().decode(elements[1].getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static byte[] hexStringToByteArray(String base16String) {
-        int arrayLength = base16String.length();
-        byte[] byteArray = new byte[arrayLength / 2];
-        for (int i = 0; i < arrayLength; i += 2) {
-            byteArray[i / 2] = (byte) ((Character.digit(base16String.charAt(i), 16) << 4)
-                    + Character.digit(base16String.charAt(i + 1), 16));
-        }
-        return byteArray;
-    }
-
-    private String[] getLiteralTextValue(String literalExprText) {
-        String nodeText = literalExprText.replace("\t", "").replace("\n", "").replace("\r", "")
-                .replace(" ", "");
-        String[] result = new String[2];
-        result[0] = nodeText.substring(0, nodeText.indexOf('`'));
-        result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
-        return result;
-    }
 
     private BType checkByteArrayType(BLangLiteral literalExpr, BType literalType, AnalyzerData data) {
-        byte[] byteArray = convertToByteArray(literalExpr);
+        byte[] byteArray = Types.convertToByteArray((String) literalExpr.value);
         if (literalExpr.expectedType.tag == TypeTags.ARRAY) {
             return checkByteArrayCompatibility(
                     literalExpr, (BArrayType) literalExpr.expectedType, (BArrayType) literalType, byteArray, data);

@@ -287,10 +287,8 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -5705,13 +5703,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangNode rewriteBlobLiteral(BLangLiteral literalExpr) {
-        String[] result = getBlobTextValue((String) literalExpr.value);
-        byte[] values;
-        if (BASE_64.equals(result[0])) {
-            values = Base64.getDecoder().decode(result[1].getBytes(StandardCharsets.UTF_8));
-        } else {
-            values = hexStringToByteArray(result[1]);
-        }
+        byte[] values = Types.convertToByteArray((String) literalExpr.value);
         BLangArrayLiteral arrayLiteralNode = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteralNode.setBType(literalExpr.getBType());
         arrayLiteralNode.pos = literalExpr.pos;
@@ -5720,24 +5712,6 @@ public class Desugar extends BLangNodeVisitor {
             arrayLiteralNode.exprs.add(createByteLiteral(literalExpr.pos, b));
         }
         return arrayLiteralNode;
-    }
-
-    private String[] getBlobTextValue(String blobLiteralNodeText) {
-        String nodeText = blobLiteralNodeText.replace("\t", "").replace("\n", "").replace("\r", "")
-                .replace(" ", "");
-        String[] result = new String[2];
-        result[0] = nodeText.substring(0, nodeText.indexOf('`'));
-        result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
-        return result;
-    }
-
-    private static byte[] hexStringToByteArray(String str) {
-        int len = str.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
-        }
-        return data;
     }
 
     @Override
