@@ -149,6 +149,7 @@ public class MatchStmtConstPatternTest {
 
     @Test
     public void testMatchStmtInsideForeach() {
+        Assert.assertFalse(result.getDiagnosticResult().hasWarnings());
         BRunUtil.invoke(result, "testMatchStmtInsideForeach");
     }
 
