@@ -241,7 +241,7 @@ public class Main {
                 try {
                     testClass = classLoader.loadClass(testClassName);
                 } catch (Throwable e) {
-                    throw new BallerinaTestException("failed to load Test init class :" + testClassName);
+                    throw new BallerinaTestException("failed to load class :" + testClassName);
                 }
                 for (Method method2 : testClass.getDeclaredMethods()) {
                     if (method2.getName().equals(desugaredMockFunctionName)) {

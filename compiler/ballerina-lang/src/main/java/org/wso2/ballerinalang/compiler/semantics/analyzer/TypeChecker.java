@@ -3661,9 +3661,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // targetResourceFunc symbol params will contain path params and rest path params as well, 
         // hence we need to remove path params from the list before calling to `checkInvocationParamAndReturnType` 
         // method otherwise we get `missing required parameter` error
+        BInvokableSymbol targetResourceSym = targetResourceFunc.symbol;
+        BInvokableType targetResourceSymType = targetResourceSym.getType();
         List<BVarSymbol> originalInvocableTSymParams =
-                ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params;
-        List<BType> originalInvocableSymParamTypes = targetResourceFunc.symbol.getType().paramTypes;
+                ((BInvokableTypeSymbol) targetResourceSymType.tsymbol).params;
+        List<BType> originalInvocableSymParamTypes = targetResourceSymType.paramTypes;
         int pathParamCount = targetResourceFunc.pathParams.size() + (targetResourceFunc.restPathParam == null ? 0 : 1);
         int totalParamsCount = originalInvocableSymParamTypes.size();
         int functionParamCount = totalParamsCount - pathParamCount;
@@ -3674,13 +3676,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         params.addAll(originalInvocableTSymParams.subList(pathParamCount, totalParamsCount));
         paramTypes.addAll(originalInvocableSymParamTypes.subList(pathParamCount, totalParamsCount));
 
-        ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = params;
-        targetResourceFunc.symbol.getType().paramTypes = paramTypes;
+        ((BInvokableTypeSymbol) targetResourceSymType.tsymbol).params = params;
+        targetResourceSym.params = params;
+        targetResourceSymType.paramTypes = paramTypes;
 
         checkInvocationParamAndReturnType(resourceAccessInvoc, data);
 
-        ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = originalInvocableTSymParams;
-        targetResourceFunc.symbol.getType().paramTypes = originalInvocableSymParamTypes;
+        ((BInvokableTypeSymbol) targetResourceSymType.tsymbol).params = originalInvocableTSymParams;
+        targetResourceSym.params = originalInvocableTSymParams;
+        targetResourceSymType.paramTypes = originalInvocableSymParamTypes;
     }
 
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BType type, AnalyzerData data) {
@@ -8359,7 +8363,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fieldAccessExpr.originalType = actualType;
             if (actualType == symTable.semanticError) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
-                        fieldName, varRefType.tsymbol.type.getKind().typeName(), varRefType);
+                        fieldName,
+                        varRefType.getKind() == TypeKind.UNION ? "union" : varRefType.getKind().typeName(), varRefType);
             }
         } else if (types.isLax(varRefType)) {
             if (fieldAccessExpr.isLValue) {

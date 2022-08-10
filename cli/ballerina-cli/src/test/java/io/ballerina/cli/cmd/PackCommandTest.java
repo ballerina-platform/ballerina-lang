@@ -1,8 +1,11 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
@@ -298,4 +301,60 @@ public class PackCommandTest extends BaseCommandTest {
                 getOutput("pack-empty-package-with-compiler-plugin.txt"));
     }
 
+    @BeforeGroups("packWithCompilerPlugin")
+    private void buildAndCacheCompilerPluginPackage() {
+        Path compilerPluginPath = this.testResources.resolve("compiler-plugins")
+                .resolve("package_comp_plugin_code_modify_add_function");
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.toString());
+    }
+
+    @Test(description = "Pack a non template package with a compiler plugin dependency",
+            groups = {"packWithCompilerPlugin"})
+    public void testPackNonTemplatePackageWithACompilerPackageDependency() throws IOException {
+
+        // BALA should contain the source documents modified by the compiler plugin
+        Path projectPath = this.testResources.resolve("projects-using-compiler-plugins")
+                .resolve("package_plugin_code_modify_user_not_template");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("samjs-package_plugin_code_modify_user_not_template-any-0.1.0.bala");
+        Assert.assertTrue(balaFilePath.toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String mainBalContent = Files.readString(balaDestPath.resolve("modules")
+                .resolve("package_plugin_code_modify_user_not_template").resolve("main.bal"));
+        Assert.assertTrue(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
+                "returns error? {\n}"));
+    }
+
+    @Test(description = "Pack a template package with a compiler plugin dependency",
+            groups = {"packWithCompilerPlugin"})
+    public void testPackTemplatePackageWithACompilerPackageDependency() throws IOException {
+
+        // BALA should contain the original source documents and not documents modified by the compiler plugin
+        Path projectPath = this.testResources.resolve("projects-using-compiler-plugins")
+                .resolve("package_plugin_code_modify_user_template");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("samjs-package_plugin_code_modify_user_template-any-0.1.0.bala");
+        Assert.assertTrue(balaFilePath.toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String mainBalContent = Files.readString(balaDestPath.resolve("modules")
+                .resolve("package_plugin_code_modify_user_template").resolve("main.bal"));
+        Assert.assertFalse(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
+                "returns error? {\n}"));
+    }
 }

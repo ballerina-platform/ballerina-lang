@@ -527,7 +527,7 @@ public class RunTestsTask implements Task {
             if (!mockClassNames.isEmpty()) {
                 // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
                 // support dynamic class file transformations while instrumenting.
-                List<URL> jarUrlList = getCurrentProjectModuleJarUrlList(jBallerinaBackend, currentPackage);
+                List<URL> jarUrlList = getModuleJarUrlList(jBallerinaBackend, currentPackage);
                 Path instrumentDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
                         .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR);
                 JacocoInstrumentUtils.instrumentOffline(jarUrlList, instrumentDir, mockClassNames);
@@ -654,7 +654,7 @@ public class RunTestsTask implements Task {
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());
 
-        List<Path> jarList = getExclusionPathList(jBallerinaBackend, currentPackage);
+        List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
         dependencies.removeAll(jarList);
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
@@ -662,20 +662,20 @@ public class RunTestsTask implements Task {
         return classPath.toString();
     }
 
-    private List<Path> getExclusionPathList(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
-        List<Path> exclusionPathList = new ArrayList<>();
+    private List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> moduleJarPaths = new ArrayList<>();
 
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
 
             PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
                     module.moduleName());
-            exclusionPathList.add(generatedJarLibrary.path());
+            moduleJarPaths.add(generatedJarLibrary.path());
 
             if (!module.testDocumentIds().isEmpty()) {
                 PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
                         currentPackage.packageId(), module.moduleName());
-                exclusionPathList.add(codeGeneratedTestLibrary.path());
+                moduleJarPaths.add(codeGeneratedTestLibrary.path());
             }
         }
 
@@ -683,25 +683,22 @@ public class RunTestsTask implements Task {
             Package pkg = resolvedPackageDependency.packageInstance();
             for (ModuleId moduleId : pkg.moduleIds()) {
                 Module module = pkg.module(moduleId);
-                exclusionPathList.add(
+                moduleJarPaths.add(
                         jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
             }
         }
 
-        return exclusionPathList.stream().distinct().collect(Collectors.toList());
+        return moduleJarPaths.stream().distinct().collect(Collectors.toList());
     }
 
-
-    private List<URL> getCurrentProjectModuleJarUrlList(JBallerinaBackend jBallerinaBackend, Package currentPackage)
+    private List<URL> getModuleJarUrlList(JBallerinaBackend jBallerinaBackend, Package currentPackage)
             throws MalformedURLException {
-        List<URL> exclusionPathList = new ArrayList<>();
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            Module module = currentPackage.module(moduleId);
-            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
-                    module.moduleName());
-            exclusionPathList.add(generatedJarLibrary.path().toUri().toURL());
+        List<Path> moduleJarPaths = getModuleJarPaths(jBallerinaBackend, currentPackage);
+        List<URL> moduleJarUrls = new ArrayList<>(moduleJarPaths.size());
+        for (Path path : moduleJarPaths) {
+            moduleJarUrls.add(path.toUri().toURL());
         }
-        return exclusionPathList;
+        return moduleJarUrls;
     }
 
 }
