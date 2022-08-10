@@ -1,6 +1,5 @@
 package org.ballerinalang.langserver.extensions.document;
 
-import com.google.gson.JsonElement;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.util.FileUtils;
