@@ -1857,7 +1857,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 variable.getBType(), env.scope.owner, variable.pos, VIRTUAL);
     }
 
-    void handleDeclaredVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
+    void resolveDeclaredVariables(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
         rhsType = getApplicableRhsType(rhsType);
 
         switch (variable.getKind()) {
@@ -3632,7 +3632,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, currentEnv);
         // Check foreach node's variables and set types.
         handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
-                false, blockEnv);
+                blockEnv);
         boolean prevBreakFound = data.breakFound;
         // Analyze foreach node's statements.
         data.env = blockEnv;
@@ -3652,13 +3652,19 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
         if (onFailVarDefNode != null) {
             // Check on-fail node's variables and set types.
-            handleForeachDefinitionVariables(onFailVarDefNode, symTable.errorType,
-                    onFailClause.isDeclaredWithVar, true, onFailEnv);
             BLangVariable onFailVarNode = (BLangVariable) onFailVarDefNode.getVariable();
-            if (!types.isAssignable(onFailVarNode.getBType(), symTable.errorType)) {
-                dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR,
-                        onFailVarNode.getBType());
+            BType typeNodeType;
+
+            if (onFailVarNode.isDeclaredWithVar) {
+                typeNodeType = symTable.errorType;
+            } else {
+                typeNodeType = symResolver.resolveTypeNode(onFailVarNode.getTypeNode(), onFailEnv);
+                if (!types.isAssignable(typeNodeType, symTable.errorType)) {
+                    dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR,
+                            typeNodeType);
+                }
             }
+            resolveDeclaredVariables(onFailVarNode, typeNodeType, onFailEnv);
         }
         data.env = onFailEnv;
         analyzeStmt(onFailClause.body, data);
@@ -3706,7 +3712,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (errorExpressionType == symTable.semanticError ||
                 !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
-            dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
+            dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpressionType);
         }
         data.notCompletedNormally = true;
     }
@@ -4151,32 +4157,29 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void handleForeachDefinitionVariables(VariableDefinitionNode variableDefinitionNode, BType varType,
-                                                  boolean isDeclaredWithVar, boolean isOnFailDef, SymbolEnv blockEnv) {
+                                                  boolean isDeclaredWithVar, SymbolEnv blockEnv) {
         BLangVariable variableNode = (BLangVariable) variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
         if (isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
+            resolveDeclaredVariables(variableNode, varType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
-        if (isOnFailDef) {
-            BType sourceType = varType;
-            varType = typeNodeType;
-            typeNodeType = sourceType;
-        }
+
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
+            resolveDeclaredVariables(variableNode, typeNodeType, blockEnv);
             return;
         }
-        // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
+
         if (variableNode.typeNode != null && variableNode.typeNode.pos != null) {
             dlog.error(variableNode.typeNode.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, varType, typeNodeType);
         }
-        handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
+
+        resolveDeclaredVariables(variableNode, varType, blockEnv);
     }
 
     private BLangExpression getBinaryExpr(BLangExpression lExpr,

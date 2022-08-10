@@ -6250,7 +6250,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Check whether the foreach node's variables are declared with var.
         if (bLangInputClause.isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, bLangInputClause.varType, blockEnv);
+            semanticAnalyzer.resolveDeclaredVariables(variableNode, bLangInputClause.varType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
@@ -6258,7 +6258,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(bLangInputClause.varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, bLangInputClause.varType, blockEnv);
+            semanticAnalyzer.resolveDeclaredVariables(variableNode, bLangInputClause.varType, blockEnv);
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
@@ -6266,7 +6266,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             dlog.error(variableNode.typeNode.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     bLangInputClause.varType, typeNodeType);
         }
-        semanticAnalyzer.handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
+        semanticAnalyzer.resolveDeclaredVariables(variableNode, typeNodeType, blockEnv);
     }
 
     private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, AnalyzerData data) {
