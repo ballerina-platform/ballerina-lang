@@ -120,7 +120,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .concat(localVarSymbolsDeclarationsBeforeStartOfRange.stream(), parameterSymbols.stream())
                 .collect(Collectors.toList());
 
-        // local var symbols which are referred in the selected range and parameter symbols if referred in the selected range
+        // local var symbols which are referred in the selected range and parameter symbols if referred in the
+        // selected range
         List<Symbol> argsSymbolsForExtractFunction = new ArrayList<>();
         visibleLocalAndParamSymbolsToRange.forEach(symbol -> {
             Optional<Location> anyLocationReferred = semanticModel.references(symbol).stream()
@@ -136,10 +137,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 = new ExtractToFunctionAnalyzer(context.range(), semanticModel);
         extractToFunctionAnalyzer.analyze(matchedCodeActionNode);
 
-        boolean extractable = extractToFunctionAnalyzer.isExtractable();
-        if (!extractable) {
+        if (!extractToFunctionAnalyzer.isExtractable()) {
             return Collections.emptyList();
         }
+
         // these assigned symbols can be either localVar or moduleVar
         List<Symbol> assignmentStatementSymbolsInRange = extractToFunctionAnalyzer.getAssignmentStatementSymbols();
         List<Symbol> localVarDeclarationSymbolsInRange = extractToFunctionAnalyzer.getVarDeclarationSymbols();
@@ -189,13 +190,24 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        String returnTypeDescriptor = "";
+        Optional<VariableSymbol> updatingVar = Optional.empty();
+        Optional <String> possibleTypeOfUpdatingVar = Optional.empty();
         if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
-            Optional<String> possibleType = CodeActionUtil.getPossibleType(localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor(), new ArrayList<>(), context);
-            if (possibleType.isEmpty()) {
-                return Collections.emptyList();
+            updatingVar = Optional.of(localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.iterator().next());
+        }
+
+        if (updatingVar.isPresent()) {
+            Optional<String> posType =
+                    CodeActionUtil.getPossibleType(updatingVar.get().typeDescriptor(), new ArrayList<>(), context);
+            if (posType.isEmpty()) {
+               return Collections.emptyList();
             }
-            returnTypeDescriptor = String.format("returns %s", possibleType.get());
+            possibleTypeOfUpdatingVar = posType;
+        }
+
+        String returnTypeDescriptor = "";
+        if (updatingVar.isPresent()) {
+            returnTypeDescriptor = String.format("returns %s", possibleTypeOfUpdatingVar.get());
         } else if (matchedCodeActionNode.kind() == SyntaxKind.RETURN_STATEMENT
                 && ((ReturnStatementNode) matchedCodeActionNode).expression().isPresent()) {
             Optional<TypeSymbol> typeSymbol =
@@ -235,10 +247,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         }
 
         String functionName = getFunctionName(context);
-        // todo get a better logic for following
         String returnStatement = "";
-        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
-            returnStatement = String.format("return %s;", localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).getName().get());
+        if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
+            returnStatement = String.format("return %s;", updatingVar.get().getName().get());
         }
         String funcBody = getFunctionBodyForStatements(selectedNodes);
 
@@ -246,34 +257,36 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         boolean newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
         extractFunctionInsertRange = PositionUtil.toRange(enclosingNode.get().lineRange().endLine());
-        // todo end
 
         //Check if the function call is invoked from an isolated context.
 //        IsolatedBlockResolver isolatedBlockResolver = new IsolatedBlockResolver();
 //        Boolean isIsolated = isolatedBlockResolver.findIsolatedBlock(matchedCodeActionNode);
 
-        String extractFunction = generateFunction(functionName, argsForExtractFunction, returnTypeDescriptor, returnStatement, newLineAtEnd, false, funcBody);
+        String extractFunction = generateFunction(functionName, argsForExtractFunction, returnTypeDescriptor,
+                returnStatement, newLineAtEnd, false, funcBody);
         String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, true);
-        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
+
+        if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
             //todo try to use this once. this is already used in "return <>" and "returns <>"
-            Optional<String> possibleType = CodeActionUtil.getPossibleType(localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor(), new ArrayList<>(), context);
-            String varName = localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).getName().get();
-            // possibleType.isPresent() is already checked
-            replaceFunctionCall = String.format("%s %s = %s", possibleType.get(), varName, replaceFunctionCall);
+            String varName = updatingVar.get().getName().get();
+            replaceFunctionCall =
+                    String.format("%s %s = %s", possibleTypeOfUpdatingVar.get(), varName, replaceFunctionCall);
         } else if (matchedCodeActionNode.kind() == SyntaxKind.RETURN_STATEMENT) {
             replaceFunctionCall = String.format("return %s",replaceFunctionCall);
         }
 
         //todo change with newLineAtEnd
-        Position replaceFunctionCallStartPosition = PositionUtil.toPosition(selectedNodes.get(0).lineRange().startLine());
-        Position replaceFunctionCallEndPosition = PositionUtil.toPosition(selectedNodes.get(selectedNodes.size() - 1).lineRange().endLine());
-        Range replaceFunctionCallInsertRange = new Range(replaceFunctionCallStartPosition, replaceFunctionCallEndPosition);
+        Position replaceFuncCallStartPos = PositionUtil.toPosition(selectedNodes.get(0).lineRange().startLine());
+        Position replaceFuncCallEndPos = PositionUtil
+                .toPosition(selectedNodes.get(selectedNodes.size() - 1).lineRange().endLine());
+        Range replaceFunctCallInsertRange = new Range(replaceFuncCallStartPos, replaceFuncCallEndPos);
 
         TextEdit extractFunctionEdit = new TextEdit(extractFunctionInsertRange, extractFunction); // at the end
-        TextEdit replaceFunctionCallEdit = new TextEdit(replaceFunctionCallInsertRange, replaceFunctionCall);
+        TextEdit replaceFunctionCallEdit = new TextEdit(replaceFunctCallInsertRange, replaceFunctionCall);
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
-                List.of(extractFunctionEdit, replaceFunctionCallEdit), context.fileUri(), CodeActionKind.RefactorExtract);
+                List.of(extractFunctionEdit, replaceFunctionCallEdit), context.fileUri(),
+                CodeActionKind.RefactorExtract);
 
         return List.of(codeAction);
     }
@@ -308,27 +321,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                     .collect(Collectors.joining(""));
         }
     }
-
-//    private void getReturnTypeDesc() {
-//        String returnTypeDescriptor = "";
-//        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
-//            Optional<String> possibleType = CodeActionUtil.getPossibleType(localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.get(0).typeDescriptor(), new ArrayList<>(), context);
-//            if (possibleType.isEmpty()) {
-//                return Collections.emptyList();
-//            }
-//            returnTypeDescriptor = String.format("returns %s", possibleType.get());
-//        } else if (matchedCodeActionNode.kind() == SyntaxKind.RETURN_STATEMENT
-//                && ((ReturnStatementNode) matchedCodeActionNode).expression().isPresent()) {
-//            Optional<TypeSymbol> typeSymbol =
-//                    semanticModel.typeOf(((ReturnStatementNode) matchedCodeActionNode).expression().get());
-//            if (typeSymbol.isPresent() && (typeSymbol.get().typeKind() != TypeDescKind.COMPILATION_ERROR
-//                    || typeSymbol.get().typeKind() != TypeDescKind.NONE)) {
-//                returnTypeDescriptor = String.format("returns %s", typeSymbol.get().typeKind().getName());
-//            } else {
-//                return Collections.emptyList();
-//            }
-//        }
-//    }
 
     private List<CodeAction> getCodeActionsForExpressions(CodeActionContext context,
                                                           RangeBasedPositionDetails posDetails) {
