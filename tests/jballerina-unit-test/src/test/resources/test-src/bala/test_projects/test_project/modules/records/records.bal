@@ -19,3 +19,16 @@ public type Corge record {|
    string b = "world";
    string[] c = <readonly> ["x", "y"];
 |};
+
+public type Config record {|
+    readonly readonly & Interceptor[] interceptors = [];
+    Foo foo;
+|};
+
+public type Interceptor distinct service object {
+    isolated remote function execute() returns anydata|error;
+};
+
+public type Foo readonly & object {
+   public isolated function fooFunc() returns string;
+};
