@@ -147,6 +147,11 @@ public class MatchStmtConstPatternTest {
         BRunUtil.invoke(result, "testConstPatternWithPredeclaredPrefix");
     }
 
+    @Test
+    public void testMatchStmtInsideForeach() {
+        BRunUtil.invoke(result, "testMatchStmtInsideForeach");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testConstPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);
