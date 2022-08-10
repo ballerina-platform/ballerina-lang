@@ -38,11 +38,12 @@ import java.util.Optional;
  * Node visitor for extract to function code action. This will determine,
  * 1. Symbols which get assigned to some expression inside the selected range
  * 2. Symbols which are declared inside the selected range
- * 3. Nodes which are inside the selected range
+ * 3. Whether the selected range is extractable
+ * 4. Nodes which are inside the selected range which should be extracted
  *
  * @since 2201.2.1
  */
-public class CodeActionAssignmentFinder extends NodeVisitor {
+public class ExtractToFunctionAnalyzer extends NodeVisitor {
     private final List<Symbol> assignmentStatementSymbols = new ArrayList<>();
     private final List<Symbol> varDeclarationSymbols = new ArrayList<>();
     private final List<Node> selectedNodes = new ArrayList<>();
@@ -50,20 +51,27 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
     private final Range selectedRange;
     private final SemanticModel semanticModel;
 
-    public CodeActionAssignmentFinder(Range selectedRange, SemanticModel semanticModel) {
+    public ExtractToFunctionAnalyzer(Range selectedRange, SemanticModel semanticModel) {
         this.selectedRange = selectedRange;
         this.semanticModel = semanticModel;
     }
-//todo change the name
-    public void assignmentFinder(NonTerminalNode node) {
+
+    public void analyze(NonTerminalNode node) {
         if (node.kind() == SyntaxKind.LIST) {
             node.children().forEach(children -> {
+                /*
+                * When the matched code action is a LIST it contains all the child nodes which are not even
+                * selected(highlighted), this check is added to find and ignore such child nodes.
+                */
                 if (PositionUtil.isRangeWithinRange(PositionUtil.toRange(children.lineRange()), selectedRange)) {
                     selectedNodes.add(children);
                     children.accept(this);
                 }
             });
         } else {
+            /*
+             * Code action is provided only when the matched code action node is fully within the selected range.
+             */
             if (!PositionUtil.isRangeWithinRange(PositionUtil.toRange(node.lineRange()), selectedRange)) {
                 this.isExtractable = false;
                 return;
@@ -95,10 +103,7 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
             // this is when selected if-else-stmt is inside another if-else-stmt
             this.isExtractable = false;
         }
-        node.ifBody().accept(this);
-        if (node.elseBody().isPresent()) {
-            node.elseBody().get().accept(this);
-        }
+        super.visit(node);
     }
 
     @Override
@@ -141,7 +146,7 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
             return;
         }
 
-        if (isSyntaxKindNotSupported(node.kind())) {
+        if (isSyntaxKindNotSupportedWithinRange(node.kind())) {
             this.isExtractable = false;
             return;
         }
@@ -152,20 +157,19 @@ public class CodeActionAssignmentFinder extends NodeVisitor {
         }
     }
 
-    private boolean isSyntaxKindNotSupported(SyntaxKind syntaxKind) {
+    private boolean isSyntaxKindNotSupportedWithinRange(SyntaxKind syntaxKind) {
         switch (syntaxKind) {
             // statements
             case BREAK_STATEMENT:
             case CONTINUE_STATEMENT:
             case PANIC_STATEMENT:
-            case FAIL_STATEMENT:
             case NAMED_WORKER_DECLARATION:
             case FORK_STATEMENT:
             case TRANSACTION_STATEMENT:
             case ROLLBACK_STATEMENT:
             case RETRY_STATEMENT:
             case XML_NAMESPACE_DECLARATION:
-                // actions
+            // actions
             case REMOTE_METHOD_CALL_ACTION:
             case BRACED_ACTION:
             case CHECK_ACTION:

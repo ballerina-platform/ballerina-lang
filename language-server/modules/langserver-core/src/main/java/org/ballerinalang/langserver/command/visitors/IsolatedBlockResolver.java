@@ -17,14 +17,7 @@
  */
 package org.ballerinalang.langserver.command.visitors;
 
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.NodeTransformer;
-import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.*;
 
 import java.util.Optional;
 
@@ -34,6 +27,10 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class IsolatedBlockResolver extends NodeTransformer<Boolean> {
+
+    public Boolean findIsolatedBlock(NonTerminalNode node) {
+        return node.apply(this);
+    }
 
     public Boolean findIsolatedBlock(FunctionCallExpressionNode functionCallExpressionNode) {
         return functionCallExpressionNode.apply(this);

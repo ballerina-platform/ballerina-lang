@@ -65,7 +65,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 {"extract_to_function_stmts_local_var_decl_with_init.json"},
                 {"extract_to_function_stmts_local_var_decl_with_init_range_till_closing_bracket.json"},
-                {"extract_to_function_stmts_local_var_decl_without_init.json"}, //todo check this for other statements as well
+                {"extract_to_function_stmts_local_var_decl_without_init.json"},
 
                 {"extract_to_function_stmts_assignment_stmt_moduleVar.json"},
                 {"extract_to_function_stmts_com_assignment_stmt_moduleVar.json"},
@@ -88,6 +88,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_match_stmt_without_return_stmt.json"},
 
                 {"extract_to_function_stmts_do_stmt_without_onfail_stmt.json"},
+                {"extract_to_function_stmts_do_stmt_with_onfail_stmt.json"},
         };
     }
 
@@ -135,7 +136,6 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
 //                {"negative_extract_to_function_stmts_block_stmt.json"},
 //                {"negative_extract_to_function_stmts_if_else_stmt_else_if.json"},
-//                {"extract_to_function_stmts_do_stmt_with_onfail_stmt.json"},
 
                 {"negative_extract_to_function_stmts_call_stmt.json"},
                 {"negative_extract_to_function_stmts_panic_stmt.json"},
