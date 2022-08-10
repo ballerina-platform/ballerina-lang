@@ -706,7 +706,6 @@ public class TomlProvider implements ConfigProvider {
             case TABLE_ARRAY:
                 visitedNodes.add(tomlValue);
                 List<TomlTableNode> tableNodeList = ((TomlTableArrayNode) tomlValue).children();
-                validateArraySize(tomlValue, variableName, arrayType, tableNodeList.size());
                 for (int i = 0; i < tableNodeList.size(); i++) {
                     validateValue(tableNodeList.get(i), variableName + "[" + i + "]", elementType);
                 }
@@ -714,7 +713,6 @@ public class TomlProvider implements ConfigProvider {
             case ARRAY:
                 visitedNodes.add(tomlValue);
                 List<TomlValueNode> nodeList = ((TomlArrayValueNode) tomlValue).elements();
-                validateArraySize(tomlValue, variableName, arrayType, nodeList.size());
                 for (int i = 0; i < nodeList.size(); i++) {
                     validateValue(nodeList.get(i), variableName + "[" + i + "]", elementType);
                 }
@@ -726,16 +724,6 @@ public class TomlProvider implements ConfigProvider {
                 return;
             default:
                 throwTypeIncompatibleError(tomlValue, variableName, arrayType);
-        }
-    }
-
-    private void validateArraySize(TomlNode tomlValue, String variableName, ArrayType arrayType, int tomlArraySize) {
-        // remove this check after fix #35522
-        int arraySize = arrayType.getSize();
-        if (arraySize != tomlArraySize && arrayType.getState() != ArrayType.ArrayState.OPEN) {
-            invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_SIZE_MISMATCH, getLineRange(tomlValue), variableName, arraySize,
-                    tomlArraySize);
         }
     }
 
@@ -751,7 +739,6 @@ public class TomlProvider implements ConfigProvider {
         }
         visitedNodes.add(tomlValue);
         TomlArrayValueNode arrayNode = (TomlArrayValueNode) valueNode;
-        validateArraySize(arrayNode, variableName, arrayType, arrayNode.elements().size());
         validateArrayElements(variableName, arrayNode.elements(), elementType);
     }
 
@@ -761,7 +748,6 @@ public class TomlProvider implements ConfigProvider {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         visitedNodes.add(tomlValue);
-        validateArraySize(tomlValue, variableName, arrayType, tomlValue.children().size());
         for (TomlNode tomlValueNode : tomlValue.children()) {
             validateUnionValue(tomlValueNode, variableName, elementType);
         }
@@ -772,7 +758,6 @@ public class TomlProvider implements ConfigProvider {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
-        validateArraySize(tomlValue, variableName, arrayType, arrayList.size());
         validateArrayElements(variableName, arrayList, TypeUtils.getReferredType(arrayType.getElementType()));
     }
 

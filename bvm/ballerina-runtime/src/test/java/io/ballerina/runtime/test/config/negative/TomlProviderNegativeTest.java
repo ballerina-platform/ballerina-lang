@@ -177,36 +177,6 @@ public class TomlProviderNegativeTest {
         };
     }
 
-    @Test(dataProvider = "array-size-negative-tests")
-    public void testArraySizeNegative(Type elementType, String varName, String errorMsg) {
-        ArrayType arrayType = TypeCreator.createArrayType(elementType, 2, true);
-        VariableKey arr = new VariableKey(ROOT_MODULE, varName,
-                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0,
-                        true), true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{arr}));
-        validateTomlProviderErrors("ArrayWrongSize", errorMsg, configVarMap, 14, 0);
-    }
-
-    @DataProvider(name = "array-size-negative-tests")
-    public Object[][] getArraySizeNegativeTests() {
-        MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
-        return new Object[][]{
-                {PredefinedTypes.TYPE_INT, "intArr", "[ArrayWrongSize.toml:(1:10,1:22)] the size for " +
-                        "configurable variable 'intArr' is expected to be '2', but found '4'"},
-                {TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true), "mapArr",
-                        "[ArrayWrongSize.toml:(4:1,5:6)] the size for configurable variable 'mapArr' is " +
-                                "expected to be '2', but found '3'"},
-                {TypeCreator.createMapType(TYPE_ANYDATA, true), "mapAnydataArr",
-                        "[ArrayWrongSize.toml:(13:1,14:8)] the size for configurable variable 'mapAnydataArr' " +
-                                "is expected to be '2', but found '3'"},
-                {TYPE_ANYDATA, "anydataArr1", "[ArrayWrongSize.toml:(2:15,2:29)] the size for configurable " +
-                        "variable 'anydataArr1' is expected to be '2', but found '3'"},
-                {TypeCreator.createUnionType(List.of(mapType, PredefinedTypes.TYPE_INT), true), "anydataArr2",
-                        "[ArrayWrongSize.toml:(22:1,23:8)] the size for configurable variable" +
-                                " 'anydataArr2' is expected to be '2', but found '3'"},
-        };
-    }
-
     @Test(dataProvider = "record-negative-tests")
     public void testRecordNegativeConfig(String tomlFileName, String errorMsg, int errorCount) {
         Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);

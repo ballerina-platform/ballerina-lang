@@ -424,6 +424,37 @@ function noFillerValueCase6() {
     arr12[1] = "k";
 }
 
+type Default record {|
+    int id = 0;
+    string name = "Tom";
+|};
+
+type Default1 record {|
+    int id = 0;
+    string name = "Tom";
+|};
+
+function testReadOnlyArrayFill() {
+    int[2] & readonly arr1 = [];
+    int[4][2] & readonly arr2 = [];
+    [int, string][4] & readonly arr3 = [];
+    map<int>[2] & readonly arr4 = [];
+    Default[4] & readonly arr5 = [];
+    table<Default>[2] & readonly arr6 = [];
+    xml[2] & readonly arr7 = [];
+    any[4] & readonly arr8 = [];
+
+    assertEquality("[0,0]", arr1.toString());
+    assertEquality("[[0,0],[0,0],[0,0],[0,0]]", arr2.toString());
+    assertEquality("[[0,\"\"],[0,\"\"],[0,\"\"],[0,\"\"]]", arr3.toString());
+    assertEquality("[{},{}]", arr4.toString());
+    assertEquality("[{\"id\":0,\"name\":\"Tom\"},{\"id\":0,\"name\":\"Tom\"},{\"id\":0,\"name\":\"Tom\"},"+
+    "{\"id\":0,\"name\":\"Tom\"}]", arr5.toString());
+    assertEquality("[[],[]]", arr6.toString());
+    assertEquality("[``,``]", arr7.toString());
+    assertEquality("[null,null,null,null]", arr8.toString());
+}
+
 function testXMLSubtypesArrayFill() {
     string errorMsg = "{ballerina/lang.array}IllegalListInsertion";
     string errorDetails = "{\"message\":\"array of length 0 cannot be expanded into array of length 2 without" +
