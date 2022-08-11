@@ -26,6 +26,11 @@ public function startSuite() {
 
 function executeTests() {
     foreach TestFunction testFunction in testRegistry.getFunctions() {
+        if testFunction.diagnostics != () {
+            onFailed(testFunction.name, (<error>testFunction.diagnostics).message());
+            continue;
+        }
+        
         executeBeforeGroupFunctions(testFunction);
         executeBeforeEachFunctions();
         executeBeforeFunction(testFunction);
@@ -143,7 +148,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
 function executeDataDrivenTest(TestFunction testFunction, string name, AnyOrError[] params) returns boolean {
     ExecutionError? err = executeTestFunction(testFunction, name, params);
     if err is ExecutionError {
-        onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name
+        onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name 
             + "]\n" + getErrorMessage(err));
         return true;
     }
@@ -164,11 +169,13 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
 function executeTestFunction(TestFunction testFunction, string name, AnyOrError[]? params = ()) returns ExecutionError? {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
-    if output is error {
-        return error(getErrorMessage(output), functionName = testFunction.name);
-    } else {
+    if output is TestError {
+        onFailed(name, getErrorMessage(output));
+    } else if output is any {
         onPassed(name);
         testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
+    } else {
+        return error(getErrorMessage(output), functionName = testFunction.name);
     }
 }
 
