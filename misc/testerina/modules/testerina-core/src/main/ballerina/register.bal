@@ -24,9 +24,9 @@ final GroupRegistry beforeGroupsRegistry = new ();
 final GroupRegistry afterGroupsRegistry = new ();
 final GroupStatusRegistry groupStatusRegistry = new ();
 
-public function registerTest(string name, function f) returns error? {
+public function registerTest(string name, function f) {
     if filterTests.length() == 0 || filterTests.indexOf(name) is int {
-        check processAnnotation(name, f);
+        processAnnotation(name, f);
     }
 }
 
@@ -39,6 +39,7 @@ type TestFunction record {|
     boolean alwaysRun = false;
     string[] groups = [];
     boolean skip = false;
+    error? diagnostics = ();
 |};
 
 class TestRegistry {
@@ -48,7 +49,7 @@ class TestRegistry {
         self.registry.push(functionDetails);
     }
 
-    function getFunctions() returns TestFunction[] => self.registry;
+    function getFunctions() returns TestFunction[] => self.registry.sort(key = testFunctionsSort);
 }
 
 class GroupRegistry {
@@ -104,3 +105,4 @@ class GroupStatusRegistry {
     function getSkipAfterGroup(string group) returns boolean => self.skip.get(group);
 }
 
+isolated function testFunctionsSort(TestFunction testFunction) returns string => testFunction.name;
