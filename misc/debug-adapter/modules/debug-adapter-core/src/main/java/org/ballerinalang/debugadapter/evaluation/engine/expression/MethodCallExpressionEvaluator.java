@@ -26,6 +26,7 @@ import com.sun.jdi.VoidValue;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -164,7 +165,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                 throw createEvaluationException(CLASS_NOT_FOUND, className);
             }
 
-            Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
+            Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName, null);
             if (objectMethodDef.isEmpty()) {
                 throw createEvaluationException(OBJECT_METHOD_NOT_FOUND, methodName.trim(), className);
             }
@@ -248,12 +249,18 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                 .findFirst()
                 .map(symbol -> (ClassSymbol) symbol);
     }
-
-    protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
+    protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef,
+                                                             String methodName,
+                                                             Qualifier qualifier) {
         return classDef.methods().values()
                 .stream()
+                .filter(methodSymbol -> qualifier == null || methodSymbol.qualifiers().contains(qualifier))
                 .filter(methodSymbol -> modifyName(methodSymbol.getName().get()).equals(methodName))
                 .findFirst();
+    }
+
+    protected Optional<MethodSymbol> findRemoteMethodInClass(ClassSymbol classDef, String methodName) {
+        return findObjectMethodInClass(classDef, methodName, Qualifier.REMOTE);
     }
 
     private GeneratedInstanceMethod getObjectMethodByName(BVariable objectVar, String methodName)

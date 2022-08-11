@@ -114,7 +114,7 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
             throw createEvaluationException(CLASS_NOT_FOUND, className);
         }
 
-        Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
+        Optional<MethodSymbol> objectMethodDef = findRemoteMethodInClass(classDef.get(), methodName);
         if (objectMethodDef.isEmpty()) {
             throw createEvaluationException(REMOTE_METHOD_NOT_FOUND, syntaxNode.methodName().toString().trim(),
                     className);
