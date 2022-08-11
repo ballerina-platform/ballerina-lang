@@ -186,8 +186,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
         SeparatedNodeList<FunctionArgumentNode> separatedNodeList = getFunctionParamList(testName, testFunction);
 
-        return getFunctionCallStatement(getCheckedExpressionStatement(getTestFunctionCall(
-                TEST_REGISTER_FUNCTION, separatedNodeList)));
+        return getFunctionCallStatement(getTestFunctionCall(TEST_REGISTER_FUNCTION, separatedNodeList));
     }
 
     private static StatementNode invokeFactoryFunction(String functionName,

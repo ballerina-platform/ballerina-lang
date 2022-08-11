@@ -1,4 +1,4 @@
-type AnnotationProcessor function (string name, function f) returns boolean|error;
+type AnnotationProcessor function (string name, function f) returns boolean;
 
 AnnotationProcessor[] annotationProcessors = [
     processConfigAnnotation,
@@ -10,10 +10,10 @@ AnnotationProcessor[] annotationProcessors = [
     processAfterGroupsAnnotation
 ];
 
-function processAnnotation(string name, function f) returns error? {
+function processAnnotation(string name, function f) {
     boolean annotationProcessed = false;
     foreach AnnotationProcessor annotationProcessor in annotationProcessors {
-        if (check annotationProcessor(name, f)) {
+        if (annotationProcessor(name, f)) {
             annotationProcessed = true;
             break;
         }
@@ -21,35 +21,37 @@ function processAnnotation(string name, function f) returns error? {
 
     // Process the register functions under the test factory method.
     // Currently the dynamic registration does not support groups filtration.
-    if !annotationProcessed && filterGroups.length() == 0 && checkTest(name) {
+    if !annotationProcessed && filterGroups.length() == 0 {
         testRegistry.addFunction(name = name, executableFunction = f);
     }
 }
 
-function processConfigAnnotation(string name, function f) returns boolean|error {
+function processConfigAnnotation(string name, function f) returns boolean {
     TestConfig? config = (typeof f).@Config;
     if config != () {
-        if !config.enable || !(filterGroups.length() > 0 ? checkGroup(config.groups) : true && checkTest(name)) {
+        if !config.enable || !(filterGroups.length() > 0 ? checkGroup(config.groups) : true) {
             return true;
         }
         DataProviderReturnType? params = ();
+        error? diagnostics = ();
         if config.dataProvider != () {
             DataProviderReturnType|error providerOutput = trap config.dataProvider();
             if providerOutput is error {
-                return error(string `Failed to execute the dataProvider for '${name}', ${providerOutput.message()}`);
+                diagnostics = error(
+                    string `Failed to execute the data provider for '${name}', ` + "\n" + providerOutput.message());
             } else {
                 params = providerOutput;
             }
         }
         config.groups.forEach(group => groupStatusRegistry.incrementTotalTest(group));
-        testRegistry.addFunction(name = name, executableFunction = f, params = params,
-            before = config.before, after = config.after, groups = config.groups);
+        testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
+        after = config.after, groups = config.groups, diagnostics = diagnostics);
         return true;
     }
     return false;
 }
 
-function processBeforeSuiteAnnotation(string name, function f) returns boolean|error {
+function processBeforeSuiteAnnotation(string name, function f) returns boolean {
     boolean? isTrue = (typeof f).@BeforeSuite;
     if isTrue == true {
         beforeSuiteRegistry.addFunction(name = name, executableFunction = f);
@@ -58,7 +60,7 @@ function processBeforeSuiteAnnotation(string name, function f) returns boolean|e
     return false;
 }
 
-function processAfterSuiteAnnotation(string name, function f) returns boolean|error {
+function processAfterSuiteAnnotation(string name, function f) returns boolean {
     AfterSuiteConfig? config = (typeof f).@AfterSuite;
     if config != () {
         afterSuiteRegistry.addFunction(name = name, executableFunction = f, alwaysRun = config.alwaysRun);
@@ -67,7 +69,7 @@ function processAfterSuiteAnnotation(string name, function f) returns boolean|er
     return false;
 }
 
-function processBeforeEachAnnotation(string name, function f) returns boolean|error {
+function processBeforeEachAnnotation(string name, function f) returns boolean {
     boolean? isTrue = (typeof f).@BeforeEach;
     if isTrue == true {
         beforeEachRegistry.addFunction(name = name, executableFunction = f);
@@ -76,7 +78,7 @@ function processBeforeEachAnnotation(string name, function f) returns boolean|er
     return false;
 }
 
-function processAfterEachAnnotation(string name, function f) returns boolean|error {
+function processAfterEachAnnotation(string name, function f) returns boolean {
     boolean? isTrue = (typeof f).@AfterEach;
     if isTrue == true {
         afterEachRegistry.addFunction(name = name, executableFunction = f);
@@ -85,7 +87,7 @@ function processAfterEachAnnotation(string name, function f) returns boolean|err
     return false;
 }
 
-function processBeforeGroupsAnnotation(string name, function f) returns boolean|error {
+function processBeforeGroupsAnnotation(string name, function f) returns boolean {
     BeforeGroupsConfig? config = (typeof f).@BeforeGroups;
     if config != () {
         TestFunction testFunction = {
@@ -98,13 +100,13 @@ function processBeforeGroupsAnnotation(string name, function f) returns boolean|
     return false;
 }
 
-function processAfterGroupsAnnotation(string name, function f) returns boolean|error {
+function processAfterGroupsAnnotation(string name, function f) returns boolean {
     AfterGroupsConfig? config = (typeof f).@AfterGroups;
     if config != () {
         TestFunction testFunction = {
             name: name,
             executableFunction: f,
-            alwaysRun: config.alwaysRun 
+            alwaysRun: config.alwaysRun
         };
         config.value.forEach(group => afterGroupsRegistry.addFunction(group, testFunction));
         return true;
@@ -120,6 +122,3 @@ function checkGroup(string[] groups) returns boolean {
     }
     return false;
 }
-
-function checkTest(string name) returns boolean =>
-    filterTests.length() > 0 ? (filterTests.indexOf(name) is int) : true;
