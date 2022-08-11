@@ -192,8 +192,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
-        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
-        typeFinder.findTypeOf(fnCallExprNode.get());
+        FunctionCallExpressionTypeFinder typeFinder =
+                new FunctionCallExpressionTypeFinder(semanticModel, fnCallExprNode.get());
+        fnCallExprNode.get().accept(typeFinder);
         Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
         Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
 

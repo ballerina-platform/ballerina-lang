@@ -17,11 +17,13 @@
  */
 package org.ballerinalang.test.access;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Negative test cases for checking rules on private types/fields access in ballerina.
@@ -32,49 +34,49 @@ public class AccessLevelsNegativeTest {
     public void testPrivateAccessLevel() {
         CompileResult compileResult = BCompileUtil.compile("test-src/access/private_access_negative.bal");
 
-        String expectedErrMsg = "attempt to expose non-public symbol ";
+        String expectedWarningMsg = "attempt to expose non-public symbol ";
         int i = 0;
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 11, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildFoo'", 23, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 24, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 25, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildFoo'", 28, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Bar'", 44, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 44, 55);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 44, 76);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Bar'", 49, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 49, 55);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 49, 76);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 54, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 59, 26);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 59, 48);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 76, 45);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 77, 45);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 126, 6);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 127, 6);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 128, 6);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildFoo'", 133, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'ChildRecord'", 134, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 135, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 136, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 154, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 154, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 154, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 163, 33);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 163, 33);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 163, 33);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Baz'", 165, 37);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'Foo'", 166, 37);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarRecord'", 167, 37);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'FooTypeObj'", 191, 1);
-//        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'BarTypeRecord'", 193, 1);
-        Assert.assertEquals(compileResult.getErrorCount(), i);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 11, 1);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'ChildFoo'", 23, 5);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 24, 5);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 25, 5);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'ChildFoo'", 28, 5);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Bar'", 44, 1);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 44, 55);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 44, 76);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Bar'", 49, 1);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 49, 55);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 49, 76);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 54, 1);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 59, 26);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 59, 48);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 76, 45);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 77, 45);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 126, 6);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 127, 6);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'BarRecord'", 128, 6);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'ChildFoo'", 133, 5);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'ChildRecord'", 134, 5);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 135, 5);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 136, 5);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'BarRecord'", 154, 1);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 154, 1);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 154, 1);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'BarRecord'", 163, 33);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 163, 33);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 163, 33);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 165, 37);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 166, 37);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'BarRecord'", 167, 37);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'FooTypeObj'", 191, 1);
+//        validateWarning(compileResult, i++, expectedWarningMsg + "'BarTypeRecord'", 193, 1);
+        Assert.assertEquals(compileResult.getWarnCount(), i);
     }
 
     @Test
     public void testPrivateTypeAccessNegative() {
         CompileResult pkgB = BCompileUtil.compile("test-src/access/pvtAccessTest");
-        BAssertUtil.validateError(pkgB, 0, "attempt to refer to non-accessible symbol 'Bar'", 22, 2);
-        BAssertUtil.validateError(pkgB, 1, "unknown type 'Bar'", 22, 2);
+        validateError(pkgB, 0, "attempt to refer to non-accessible symbol 'Bar'", 22, 2);
+        validateError(pkgB, 1, "unknown type 'Bar'", 22, 2);
     }
 }

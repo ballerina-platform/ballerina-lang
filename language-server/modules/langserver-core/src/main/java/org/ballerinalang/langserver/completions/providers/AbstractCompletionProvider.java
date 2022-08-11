@@ -91,6 +91,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -108,6 +109,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PATH_PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
@@ -181,8 +183,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             if (processedSymbols.contains(symbol)) {
                 return;
             }
-            if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
-                completionItems.addAll(populateBallerinaFunctionCompletionItems(symbol, ctx));
+            if (symbol.kind() == FUNCTION || symbol.kind() == METHOD || symbol.kind() == RESOURCE_METHOD) {
+                FunctionSymbol functionSymbol = (FunctionSymbol) symbol;
+                if (functionSymbol.getName().isPresent() && !functionSymbol.getName().get().contains("$")) {
+                    completionItems.addAll(populateBallerinaFunctionCompletionItems((FunctionSymbol) symbol, ctx));
+                }
             } else if (symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, constantCItem));
@@ -198,7 +203,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                  */
                 String typeName = (typeDesc == null || typeDesc.typeKind() == null) ? "" :
                         NameUtil.getModifiedTypeName(ctx, typeDesc);
-                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, 
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol,
                         varSymbol.getName().orElse(""), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
 
@@ -284,7 +289,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         if (nodeAtCursor.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return completionItems;
         }
-        String prefix = ((SimpleNameReferenceNode) nodeAtCursor).name().text();
+        String prefix = ((SimpleNameReferenceNode) nodeAtCursor).name().text().toLowerCase((Locale.ENGLISH));
         context.currentDocImportsMap().forEach((importDeclarationNode, moduleSymbol) -> {
             List<Symbol> symbols = moduleSymbol.allSymbols();
             CodeActionModuleId moduleId = CodeActionModuleId.from(importDeclarationNode);
@@ -358,7 +363,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
-        List<LSPackageLoader.PackageInfo> packages = 
+        List<LSPackageLoader.PackageInfo> packages =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
@@ -420,7 +425,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context completion context
      * @param node    node to evaluate upon
      * @return {@link Boolean}
-     * @deprecated Use {@link QNameRefCompletionUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)} 
+     * @deprecated Use {@link QNameRefCompletionUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)}
      * instead
      */
     @Deprecated(forRemoval = true)
@@ -489,19 +494,17 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param symbol symbol Entry
      * @return completion item
      */
-    private List<LSCompletionItem> populateBallerinaFunctionCompletionItems(Symbol symbol,
+    private List<LSCompletionItem> populateBallerinaFunctionCompletionItems(FunctionSymbol symbol,
                                                                             BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
-            return completionItems;
-        }
         Optional<TypeSymbol> contextType = context.getContextType();
-        if (contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUNCTION) {
+        if (contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUNCTION
+                && symbol.kind() != RESOURCE_METHOD) {
             CompletionItem pointerCompletionItem =
-                    FunctionCompletionItemBuilder.buildFunctionPointer((FunctionSymbol) symbol, context);
+                    FunctionCompletionItemBuilder.buildFunctionPointer(symbol, context);
             completionItems.add(new FunctionPointerCompletionItem(context, symbol, pointerCompletionItem));
         }
-        CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
+        CompletionItem completionItem = FunctionCompletionItemBuilder.build(symbol, context);
         completionItems.add(new SymbolCompletionItem(context, symbol, completionItem));
         return completionItems;
     }

@@ -18,6 +18,10 @@ function testOpenRecordAssignabilityNegative() {
     record {int|string|boolean a; int|boolean b;} r1 = {a: 1, b: true};
     record {int|string|boolean a; int|string b;} r2 = r1;
     record {int|string|boolean a; int|string b;} _ = r1;
+
+    boolean|string|int|record {boolean|string b;} r3 = {b : true};
+    boolean|string|int|record {boolean|int b;} r4 = r3;
+    boolean|string|int|record {boolean|int b;} _ = r3;
 }
 
 function testClosedRecordAssignabilityNegative() {
@@ -32,4 +36,8 @@ function testClosedRecordAssignabilityNegative() {
     record {|int|string|boolean a; int|boolean b; int|boolean...;|} r5 = {a: 1, b: true, "c": true};
     record {|int|string|boolean a; int|string b; int|string...;|} r6 = r5;
     record {|int|string|boolean a; int|string b; int|string...;|} _ = r5;
+
+    boolean|string|int|record {|boolean|string b;|} r7 = {b : true};
+    boolean|string|int|record {|boolean|int b;|} r8 = r7;
+    boolean|string|int|record {|boolean|int b;|} _ = r7;
 }

@@ -115,3 +115,39 @@ function complexArrayTypes() {
     (Bar & readonly)[3][4] i;
     (Bar & readonly)[4] j;
 }
+
+type Student record {|
+    int id;
+    string name;
+|};
+
+type StuTable table<Student>;
+
+enum myEnum {
+    RED = "DER",
+    GREEN,
+    BLUE = "BLUE"
+}
+
+const MYCONST = "389";
+
+type Cus record {|
+    int id;
+    string name;
+|};
+
+class MyCls {
+    private int x;
+
+    function init() {
+        self.x = 0;
+    }
+
+    public function getX() returns int {
+        return self.x;
+    }
+
+    public function setX(int x) {
+        self.x = x;
+    }
+}
