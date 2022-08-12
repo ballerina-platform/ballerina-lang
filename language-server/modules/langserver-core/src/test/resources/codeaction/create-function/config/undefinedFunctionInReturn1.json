@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 2,
+    "character": 16
+  },
+  "source": "createUndefinedFunctionInReturn1.bal",
+  "description": "Create undefined function in a return statement within another block statement node",
+  "expected": [
+    {
+      "title": "Create function 'getReturnVal(...)'",
+      "kind": "quickfix",
+      "command": {
+        "title": "Create function 'getReturnVal(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 2,
+                "character": 11
+              },
+              "end": {
+                "line": 2,
+                "character": 26
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
