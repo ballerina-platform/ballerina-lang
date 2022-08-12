@@ -203,7 +203,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
     }
 
     private boolean isValidType(TypeSymbol typeSymbol) {
-        if (typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+        if (typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR || typeSymbol.typeKind() == TypeDescKind.NONE) {
             return false;
         }
         if (typeSymbol.typeKind() == TypeDescKind.MAP) {
