@@ -14,40 +14,47 @@
 // specific language governing permissions and limitations
 // under the License.
 
-string[] passed = [];
-[string, string][] failed = [];
-string[] skipped = [];
+type ReportGenerate function (ReportData data);
 
-function onPassed(string testName) {
-    passed.push(testName);
-}
+ReportData reportData = new ();
 
-function onFailed(string testName, string errorMessage) {
-    failed.push([testName, errorMessage]);
-}
+ReportGenerate[] reportGenerators = [consoleReport];
 
-function onSkipped(string testName) {
-    skipped.push(testName);
-}
-
-function testSuiteResult() {
-    println("\t\t" + passed.length().toString() + " passing");
-    println("\t\t" + failed.length().toString() + " failing");
-    println("\t\t" + skipped.length().toString() + " skipped");
-}
-
-public function report() {
-    passed.forEach(entry => println("\t\t[pass] " + entry));
-    failed.forEach(function([string, string] entry) {
+function consoleReport(ReportData data) {
+    data.passedCases().forEach(entry => println("\t\t[pass] " + entry));
+    data.failedCases().entries().forEach(function([string, string] entry) {
         println("\t\t[fail] " + entry[0] + ":");
-        println("\n\t\t    " + formatError(entry[1]));
+        println("\n\t\t    " + formatFailedError(entry[1]));
     });
 
-    testSuiteResult();
+    println("\t\t" + data.passedCount().toString() + " passing");
+    println("\t\t" + data.failedCount().toString() + " failing");
+    println("\t\t" + data.skippedCount().toString() + " skipped");
 }
 
-function formatError(string message) returns string {
+function formatFailedError(string message) returns string {
     string[] lines = split(message, "\n");
     lines.push("");
     return string:'join("\n\t\t\t", ...lines);
 }
+
+class ReportData {
+    private string[] passed = [];
+    private map<string> failed = {};
+    private string[] skipped = [];
+
+    function onPassed(string name) => self.passed.push(name);
+    function onFailed(string name, string errorMessage) {
+        self.failed[name] = errorMessage;
+    }
+    function onSkipped(string name) => self.skipped.push(name);
+
+    function passedCases() returns string[] => self.passed;
+    function failedCases() returns map<string> => self.failed;
+    function skippedCases() returns string[] => self.skipped;
+
+    function passedCount() returns int => self.passed.length();
+    function failedCount() returns int => self.failed.length();
+    function skippedCount() returns int => self.skipped.length();
+}
+
