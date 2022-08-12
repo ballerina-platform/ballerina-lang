@@ -29,7 +29,8 @@ function processAnnotation(string name, function f) {
 function processConfigAnnotation(string name, function f) returns boolean {
     TestConfig? config = (typeof f).@Config;
     if config != () {
-        if !config.enable || !(filterGroups.length() > 0 ? checkGroup(config.groups) : true) {
+        if !config.enable || (filterGroups.length() == 0 ? false : !hasGroup(config.groups, filterGroups))
+            || (filterDisableGroups.length() == 0 ? false : hasGroup(config.groups, filterDisableGroups)) {
             return true;
         }
         DataProviderReturnType? params = ();
@@ -114,9 +115,9 @@ function processAfterGroupsAnnotation(string name, function f) returns boolean {
     return false;
 }
 
-function checkGroup(string[] groups) returns boolean {
+function hasGroup(string[] groups, string[] filter) returns boolean {
     foreach string group in groups {
-        if filterGroups.indexOf(group) is int {
+        if filter.indexOf(group) is int {
             return true;
         }
     }
