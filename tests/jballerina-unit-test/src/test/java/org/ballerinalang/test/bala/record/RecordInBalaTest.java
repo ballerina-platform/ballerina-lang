@@ -50,11 +50,12 @@ public class RecordInBalaTest {
     @Test
     public void negativeTests() {
         CompileResult result = BCompileUtil.compile("test-src/record/record_negative_bala.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'testorg/foo.records:1.0.0:" +
-                "(testorg/foo.records:1:Interceptor & readonly)', found 'PersonInterceptor'", 10, 40);
-        BAssertUtil.validateError(result, 1, "incompatible types: expected 'testorg/foo.records:1.0.0:Foo'" +
-                ", found '[Bar]'", 10, 71);
+        int count = 0;
+        BAssertUtil.validateError(result, count++, "incompatible types: expected 'testorg/foo.records:1.0.0:" +
+                "(testorg/foo.records:1:Interceptor & readonly)', found 'PersonInterceptor'", 26, 40);
+        BAssertUtil.validateError(result, count++, "incompatible types: expected 'testorg/foo.records:1.0.0:Foo'" +
+                ", found '[Bar]'", 26, 71);
+        Assert.assertEquals(result.getErrorCount(), count);
     }
 
     @Test
