@@ -31,6 +31,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.ModuleResolver;
+import io.ballerina.projects.internal.NullLocation;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.PackageResolutionDiagnostic;
@@ -54,6 +55,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -242,13 +244,11 @@ public class PackageResolution {
 
         // TODO: Move to compiler extension once new Compiler Extension model is introduced
         if (compilationOptions.observabilityIncluded()) {
-            {
-                String moduleName = Names.OBSERVE.getValue();
-                ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
-                        PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), moduleName,
-                        PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
-                allModuleLoadRequests.add(observeModuleLoadReq);
-            }
+            String moduleName = Names.OBSERVE.getValue();
+            ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
+                    PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), moduleName,
+                    PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
+            allModuleLoadRequests.add(observeModuleLoadReq);
         }
 
         // TODO Can we make this a builtin compiler plugin
@@ -260,6 +260,8 @@ public class PackageResolution {
                     PackageDependencyScope.DEFAULT, DependencyResolutionType.COMPILER_PLUGIN);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
+
+        loadConstraintPackage(allModuleLoadRequests);
 
         return allModuleLoadRequests;
     }
@@ -290,6 +292,17 @@ public class PackageResolution {
         //3 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
                 packageResolver, resolutionOptions);
+    }
+
+    private void loadConstraintPackage(LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests) {
+        Optional<PackageDescriptor> packageDescriptor = getConstraintPackageDescFromPackageManifest();
+        if (packageDescriptor.isEmpty()) {
+            return;
+        }
+        ModuleLoadRequest constraintModuleLoadReq = new ModuleLoadRequest(
+                packageDescriptor.get().org(), packageDescriptor.get().name().value(), PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.COMPILER_PLUGIN);
+        allModuleLoadRequests.add(constraintModuleLoadReq);
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
@@ -343,6 +356,10 @@ public class PackageResolution {
                         resolutionResp.resolvedPackage(),
                         resolutionReq.scope(),
                         resolutionReq.resolutionType());
+                if (isConstraintPackage(resolvedPkg) && !isValidConstraintPackage(resolvedPkg.packageInstance())) {
+                        addInvalidConstraintPackageResolution(resolvedPkg.packageInstance());
+                        continue;
+                }
                 resolvedPkgContainer.add(pkgDesc.org(), pkgDesc.name(), resolvedPkg);
             }
         }
@@ -368,6 +385,44 @@ public class PackageResolution {
             }
         }
         return depGraphBuilder.build();
+    }
+
+    private boolean isConstraintPackage(ResolvedPackageDependency resolvedPackage) {
+        Optional<PackageDescriptor> packageDescriptor = getConstraintPackageDescFromPackageManifest();
+        if (packageDescriptor.isEmpty()) {
+            return false;
+        }
+        return resolvedPackage.packageInstance().packageOrg().equals(packageDescriptor.get().org())
+                && resolvedPackage.packageInstance().packageName().equals(packageDescriptor.get().name())
+                && resolvedPackage.dependencyResolvedType().equals(DependencyResolutionType.COMPILER_PLUGIN);
+    }
+
+    private boolean isValidConstraintPackage(Package constraintPackage) {
+        Iterator<Module> moduleIterator =  constraintPackage.modules().iterator();
+        Module firstModule = moduleIterator.next();
+        return firstModule.isDefaultModule() && !moduleIterator.hasNext()
+                && firstModule.documentIds().isEmpty() && constraintPackage.compilerPluginToml().isPresent();
+    }
+
+    private void addInvalidConstraintPackageResolution(Package constraintPackage) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                DiagnosticErrorCode.INVALID_MODULE_DECLARATION.diagnosticId(),
+                "invaild constraint package: '" + constraintPackage.descriptor() + "'",
+                DiagnosticErrorCode.INVALID_MODULE_DECLARATION.severity());
+        diagnosticList.add(new PackageDiagnostic(diagnosticInfo,
+                new NullLocation(constraintPackage.descriptor().name().toString())));
+    }
+
+    private Optional<PackageDescriptor> getConstraintPackageDescFromPackageManifest() {
+        String constraintPackage = rootPackageContext.packageManifest().constraint();
+        PackageDescriptor packageDescriptor = null;
+        if (constraintPackage != null && !constraintPackage.isEmpty()) {
+            String[] constraintSplits = constraintPackage.split("/");
+            String orgName = constraintSplits[0].strip();
+            String packageName = constraintSplits[1].strip();
+            packageDescriptor = PackageDescriptor.from(PackageOrg.from(orgName), PackageName.from(packageName));
+        }
+        return Optional.ofNullable(packageDescriptor);
     }
 
     private ResolutionRequest createFromDepNode(DependencyNode depNode) {
