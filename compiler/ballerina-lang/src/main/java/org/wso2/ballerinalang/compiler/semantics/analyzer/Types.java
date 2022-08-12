@@ -895,16 +895,9 @@ public class Types {
             return isFiniteTypeAssignable((BFiniteType) source, target, unresolvedTypes);
         }
 
-        if ((targetTag == TypeTags.UNION || sourceTag == TypeTags.UNION)) {
-            boolean isAssignableToUnion = isAssignableToUnionType(source, target, unresolvedTypes);
-            if (isAssignableToUnion) {
-                return true;
-            }
-
-            TypePair pair = new TypePair(source, target);
-            if (unresolvedTypes.contains(pair)) {
-                unresolvedTypes.remove(pair);
-            }
+        if ((targetTag == TypeTags.UNION || sourceTag == TypeTags.UNION) &&
+                isAssignableToUnionType(source, target, unresolvedTypes)) {
+            return true;
         }
 
         if (targetTag == TypeTags.JSON) {
@@ -3809,6 +3802,7 @@ public class Types {
                 }
             }
             if (sourceTypeIsNotAssignableToAnyTargetType) {
+                unresolvedTypes.remove(pair);
                 return false;
             }
         }
@@ -3838,6 +3832,7 @@ public class Types {
                 }
             }
             if (sourceTypeIsNotAssignableToAnyTargetType) {
+                unresolvedTypes.remove(pair);
                 return false;
             }
         }
