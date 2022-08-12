@@ -1,0 +1,5 @@
+[package]
+org = "foo"
+name = "package_m"
+version = "0.1.0"
+constraint="foo/constraint2"
