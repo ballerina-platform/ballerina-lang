@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
@@ -91,6 +92,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -124,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -1238,6 +1241,38 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDeclaration) {
+        BLangIdentifier prefix = clientDeclaration.prefix;
+        Name prefixName = names.fromIdNode(prefix);
+
+        BClientDeclarationSymbol clientDeclarationSymbol =
+                Symbols.createClientDeclarationSymbol(prefixName, (String) clientDeclaration.uri.value,
+                                                      env.enclPkg.symbol.pkgID, env.scope.owner, prefix.pos,
+                                                      getOrigin(prefixName));
+        clientDeclaration.symbol = clientDeclarationSymbol;
+
+        // Check for module imports with the same prefix separately since the owner for a module is not the current
+        // module.
+        BSymbol foundSym = symResolver.lookupSymbolInPrefixSpace(env, clientDeclarationSymbol.name);
+        if ((foundSym.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
+            foundSym = symTable.notFoundSymbol;
+        }
+
+        if (foundSym != symTable.notFoundSymbol) {
+            dlog.error(clientDeclaration.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, clientDeclarationSymbol.name);
+            return;
+        }
+
+        // Define it in the enclosing scope. This will check for the owner equality.
+        defineSymbol(prefix.pos, clientDeclarationSymbol);
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
+        defineNode(clientDeclarationStatement.clientDeclaration, env);
     }
 
     private void defineTypeNodes(List<BLangNode> typeDefs, SymbolEnv env) {

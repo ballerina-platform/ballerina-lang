@@ -3492,7 +3492,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ClientDeclarationNode clientDeclarationNode) {
         BLangClientDeclaration clientDeclaration = (BLangClientDeclaration) TreeBuilder.createClientDeclarationNode();
 
-        clientDeclaration.uri = createExpression(clientDeclarationNode.clientUri());
+        clientDeclaration.uri = createSimpleLiteral(clientDeclarationNode.clientUri());
         clientDeclaration.prefix = createIdentifier(clientDeclarationNode.clientPrefix());
         clientDeclaration.pos = getPosition(clientDeclarationNode);
         clientDeclaration.annAttachments = applyAll(clientDeclarationNode.annotations());
@@ -3507,7 +3507,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ModuleClientDeclarationNode moduleClientDeclarationNode) {
         BLangClientDeclaration clientDeclaration = (BLangClientDeclaration) TreeBuilder.createClientDeclarationNode();
-        clientDeclaration.uri = createExpression(moduleClientDeclarationNode.clientUri());
+        clientDeclaration.uri = createSimpleLiteral(moduleClientDeclarationNode.clientUri());
         clientDeclaration.prefix = createIdentifier(moduleClientDeclarationNode.clientPrefix());
         clientDeclaration.pos = getPosition(moduleClientDeclarationNode);
         clientDeclaration.annAttachments = applyAll(moduleClientDeclarationNode.annotations());

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 
 /**
  * Represent a client declaration.
@@ -26,9 +26,9 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  */
 public interface ClientDeclarationNode extends TopLevelNode {
 
-    ExpressionNode getUri();
+    LiteralNode getUri();
 
-    void setUri(ExpressionNode uri);
+    void setUri(LiteralNode uri);
 
     IdentifierNode getPrefix();
 

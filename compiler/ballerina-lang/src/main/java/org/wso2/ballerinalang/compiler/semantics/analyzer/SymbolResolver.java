@@ -157,6 +157,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final Unifier unifier;
     private final SemanticAnalyzer semanticAnalyzer;
 
+    private final Map<Location, PackageID> clientDeclarations;
+
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
         if (symbolResolver == null) {
@@ -178,6 +180,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
+        // TODO: 2022-08-12 Get from context.
+        this.clientDeclarations = new HashMap<>();
     }
 
     @Override
@@ -473,14 +477,21 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // Lookup for an imported package
         ScopeEntry entry = env.scope.lookup(pkgAlias);
         while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.XMLNS) == SymTag.XMLNS) {
-                return entry.symbol;
+            BSymbol symbol = entry.symbol;
+            int tag = symbol.tag;
+
+            if ((tag & SymTag.XMLNS) == SymTag.XMLNS) {
+                return symbol;
             }
 
-            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
-                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
-                ((BPackageSymbol) entry.symbol).isUsed = true;
-                return entry.symbol;
+            if ((tag & SymTag.CLIENT_DECL) == SymTag.CLIENT_DECL) {
+                return resolveClientDeclPrefix(symbol);
+            }
+
+            if ((tag & SymTag.IMPORT) == SymTag.IMPORT &&
+                    ((BPackageSymbol) symbol).compUnit.equals(compUnit)) {
+                ((BPackageSymbol) symbol).isUsed = true;
+                return symbol;
             }
 
             entry = entry.next;
@@ -2615,6 +2626,21 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             this.paramValueType = paramValueType;
             this.index = index;
         }
+    }
+
+    private BSymbol resolveClientDeclPrefix(BSymbol symbol) {
+        Location location = symbol.pos;
+        if (!this.clientDeclarations.containsKey(location)) {
+            return symTable.notFoundSymbol;
+        }
+
+        PackageID packageID = this.clientDeclarations.get(location);
+        for (BPackageSymbol moduleSymbol : symTable.pkgEnvMap.keySet()) {
+            if (packageID.equals(moduleSymbol.pkgID)) {
+                return moduleSymbol;
+            }
+        }
+        return symTable.notFoundSymbol;
     }
 
     /**

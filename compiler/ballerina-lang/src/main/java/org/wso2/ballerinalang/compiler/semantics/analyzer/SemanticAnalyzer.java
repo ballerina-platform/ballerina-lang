@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttach
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -412,6 +413,27 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangClientDeclaration clientDeclaration, AnalyzerData data) {
+        SymbolEnv currentEnv = data.env;
+        symbolEnter.defineNode(clientDeclaration, currentEnv);
+
+        BClientDeclarationSymbol symbol = (BClientDeclarationSymbol) clientDeclaration.symbol;
+
+        List<BLangAnnotationAttachment> annAttachments = clientDeclaration.annAttachments;
+
+        for (BLangAnnotationAttachment annotationAttachment : annAttachments) {
+            // TODO: 2022-08-12 Update to proper point once finalized.
+            annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+            annotationAttachment.accept(this, data);
+
+            BAnnotationAttachmentSymbol annotationAttachmentSymbol = annotationAttachment.annotationAttachmentSymbol;
+            if (annotationAttachmentSymbol != null) {
+                symbol.addAnnotation(annotationAttachmentSymbol);
+            }
+        }
+        validateAnnotationAttachmentCount(annAttachments);
+
+        typeChecker.checkExpr(clientDeclaration.uri, currentEnv, symTable.stringType, data.prevEnvs,
+                              data.commonAnalyzerData);
     }
 
     @Override

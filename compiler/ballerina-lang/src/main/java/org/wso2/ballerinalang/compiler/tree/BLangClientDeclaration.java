@@ -20,10 +20,11 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.ClientDeclarationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,13 +34,13 @@ import java.util.List;
  */
 public class BLangClientDeclaration extends BLangNode implements ClientDeclarationNode {
 
-    public BLangExpression uri;
+    public BLangLiteral uri;
     public BLangIdentifier prefix;
-    public List<BLangAnnotationAttachment> annAttachments;
+    public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
 
     public BSymbol symbol;
 
-    public ExpressionNode getUri() {
+    public LiteralNode getUri() {
         return uri;
     }
 
@@ -63,8 +64,8 @@ public class BLangClientDeclaration extends BLangNode implements ClientDeclarati
         return modifier.transform(this, props);
     }
 
-    public void setUri(ExpressionNode uri) {
-        this.uri = (BLangExpression) uri;
+    public void setUri(LiteralNode uri) {
+        this.uri = (BLangLiteral) uri;
     }
 
     @Override
