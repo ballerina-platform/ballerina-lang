@@ -37,6 +37,7 @@ public class PackageJson {
     private List<String> export; //?
     private List<String> include;
     private String visibility;
+    private String constraint;
 
     // Distribution details
     private String ballerina_version;
@@ -124,12 +125,20 @@ public class PackageJson {
         return include;
     }
 
+    public String getConstraint() {
+        return this.constraint;
+    }
+
     public void setExport(List<String> export) {
         this.export = export;
     }
 
     public void setInclude(List<String> include) {
         this.include = include;
+    }
+
+    public void setConstraint(String constraint) {
+        this.constraint = constraint;
     }
 
     public String getVisibility() {

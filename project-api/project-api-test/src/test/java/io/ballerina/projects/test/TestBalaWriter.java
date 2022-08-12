@@ -156,6 +156,8 @@ public class TestBalaWriter {
 
             Assert.assertEquals(Paths.get(packageJson.getIcon()), Paths.get("docs/samplePng01.png"));
             Assert.assertTrue(balaExportPath.resolve(packageJson.getIcon()).toFile().exists());
+
+            Assert.assertEquals(packageJson.getConstraint(), "foo/transformer");
         }
 
         // compiler-plugin.json

@@ -155,6 +155,7 @@ public abstract class BalaWriter {
         packageJson.setInclude(packageManifest.includes());
         packageJson.setVisibility(packageManifest.visibility());
         packageJson.setTemplate(packageManifest.template());
+        packageJson.setConstraint(packageManifest.constraint());
 
         packageJson.setPlatform(target);
         packageJson.setBallerinaVersion(BALLERINA_SHORT_VERSION);

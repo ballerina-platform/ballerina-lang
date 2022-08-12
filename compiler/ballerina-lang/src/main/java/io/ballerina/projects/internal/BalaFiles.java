@@ -403,13 +403,13 @@ public class BalaFiles {
                                 packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
                                 packageJson.getExport(), packageJson.getInclude(), packageJson.getSourceRepository(),
                                 packageJson.getBallerinaVersion(), packageJson.getVisibility(),
-                                packageJson.getTemplate()))
+                                packageJson.getTemplate(), packageJson.getConstraint()))
                 .orElseGet(() -> PackageManifest
                         .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
                                 packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
                                 packageJson.getInclude(), packageJson.getSourceRepository(),
                                 packageJson.getBallerinaVersion(), packageJson.getVisibility(),
-                                packageJson.getTemplate()));
+                                packageJson.getTemplate(), packageJson.getConstraint()));
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {

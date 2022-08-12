@@ -40,6 +40,7 @@ public class PackageJson {
     private List<String> include;
     private String visibility;
     private String icon;
+    private String constraint;
 
     // Distribution details
     private String ballerina_version;
@@ -147,6 +148,14 @@ public class PackageJson {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public String getConstraint() {
+        return constraint;
+    }
+
+    public void setConstraint(String constraint) {
+        this.constraint = constraint;
     }
 
     public String getBallerinaVersion() {

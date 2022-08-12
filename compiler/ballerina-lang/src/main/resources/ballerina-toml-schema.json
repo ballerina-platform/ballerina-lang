@@ -94,6 +94,64 @@
             "pattern": "invalid 'version' under [package]: 'version' should be compatible with semver"
           }
         },
+        "constraint": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+/[a-zA-Z0-9_.]+$",
+          "message": {
+            "pattern": "invalid 'constraint' under [package]: 'constraint' can only contain two strings of alphanumerics and underscores separated by a forward slash"
+          },
+          "allOf": [
+            {
+              "type": "string",
+              "pattern": "^(?!.*__).*$",
+              "message": {
+                "pattern": "invalid 'constraint' under [package]: 'constraint' cannot have consecutive underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "(^(?!_).+)?",
+              "message": {
+                "pattern": "invalid 'constraint' under [package]: org part of 'constraint' cannot have initial underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "(^[^/]*(/?)$)|(.*?/)((?!_).+)",
+              "message": {
+                "pattern": "invalid 'constraint' under [package]: name part of 'constraint' cannot have initial underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "(^[^/]*$)|(.*(?<!_))(\/.*)",
+              "message": {
+                "pattern": "invalid 'constraint' under [package]: org part of 'constraint' cannot have trailing underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": ".*(?<!_)$",
+              "message": {
+                "pattern": "invalid 'constraint' under [package]: name part of 'constraint' cannot have trailing underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "(^(?![0-9]).+)?",
+              "message": {
+                "pattern": "invalid 'constraint' under [package]: org part of 'constraint' cannot have initial numeric characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "(^[^/]*(/?)$)|(.*?\/)((?![0-9]).+)",
+              "message": {
+                "pattern": "invalid 'constraint' under [package]: name part of 'constraint' cannot have initial numeric characters"
+              }
+            }
+          ]
+        },
         "license": {
           "type": "array",
           "items": {

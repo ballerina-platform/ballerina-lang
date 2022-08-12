@@ -96,6 +96,7 @@ public class ManifestBuilder {
     public static final String ICON = "icon";
     public static final String DISTRIBUTION = "distribution";
     public static final String VISIBILITY = "visibility";
+    public static final String CONSTRAINT = "constraint";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -168,6 +169,7 @@ public class ManifestBuilder {
         String visibility = "";
         boolean template = false;
         String icon = "";
+        String constraint = "";
 
         if (!tomlAstNode.entries().isEmpty()) {
             TopLevelNode topLevelPkgNode = tomlAstNode.entries().get(PACKAGE);
@@ -183,6 +185,7 @@ public class ManifestBuilder {
                 visibility = getStringValueFromTomlTableNode(pkgNode, VISIBILITY, "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
                 icon = getStringValueFromTomlTableNode(pkgNode, ICON, "");
+                constraint = getStringValueFromTomlTableNode(pkgNode, CONSTRAINT, "");
 
                 // we ignore file types except png here, since file type error will be shown
                 validateIconPathForPng(icon, pkgNode);
@@ -216,7 +219,7 @@ public class ManifestBuilder {
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
                 diagnostics(), license, authors, keywords, exported, includes, repository, ballerinaVersion, visibility,
-                template, icon);
+                template, icon, constraint);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {

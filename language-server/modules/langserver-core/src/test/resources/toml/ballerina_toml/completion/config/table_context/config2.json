@@ -78,6 +78,13 @@
       "detail": "Boolean",
       "sortText": "A",
       "insertText": "template=${1:false}"
+    },
+    {
+      "label": "constraint",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "constraint=\"${1:}\""
     }
   ]
 }
