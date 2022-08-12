@@ -330,11 +330,11 @@ function testTupleWithSingletonTypes() {
     assertEquality(b, d);
 }
 
-function returnTupleWithSingletonType() returns X1 {
+public function returnTupleWithSingletonType() returns X1 {
     return ["x"];
 }
 
-function returnTupleWithSingletonType2() returns X2 {
+public function returnTupleWithSingletonType2() returns X2 {
     return ["x", 2, ()];
 }
 
