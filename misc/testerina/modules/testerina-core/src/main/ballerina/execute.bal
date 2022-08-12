@@ -21,13 +21,13 @@ public function startSuite() {
     executeBeforeSuiteFunctions();
     executeTests();
     executeAfterSuiteFunctions();
-    report();
+    consoleReport(reportData);
 }
 
 function executeTests() {
     foreach TestFunction testFunction in testRegistry.getFunctions() {
         if testFunction.diagnostics != () {
-            onFailed(testFunction.name, (<error>testFunction.diagnostics).message());
+            reportData.onFailed(testFunction.name, (<error>testFunction.diagnostics).message());
             continue;
         }
         
@@ -54,11 +54,11 @@ function executeTests() {
             } else {
                 ExecutionError? err = executeTestFunction(testFunction, testFunction.name);
                 if err is ExecutionError {
-                    onFailed(testFunction.name, err.message());
+                    reportData.onFailed(testFunction.name, err.message());
                 }
             }
         } else {
-            onSkipped(testFunction.name);
+            reportData.onSkipped(testFunction.name);
         }
 
         executeAfterFunction(testFunction);
@@ -148,7 +148,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
 function executeDataDrivenTest(TestFunction testFunction, string name, AnyOrError[] params) returns boolean {
     ExecutionError? err = executeTestFunction(testFunction, name, params);
     if err is ExecutionError {
-        onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name 
+        reportData.onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name 
             + "]\n" + getErrorMessage(err));
         return true;
     }
@@ -170,9 +170,9 @@ function executeTestFunction(TestFunction testFunction, string name, AnyOrError[
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is TestError {
-        onFailed(name, getErrorMessage(output));
+        reportData.onFailed(name, getErrorMessage(output));
     } else if output is any {
-        onPassed(name);
+        reportData.onPassed(name);
         testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
     } else {
         return error(getErrorMessage(output), functionName = testFunction.name);
