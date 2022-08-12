@@ -478,11 +478,12 @@ public class BallerinaParser extends AbstractParser {
             case XMLNS_KEYWORD:
             case ENUM_KEYWORD:
             case CLASS_KEYWORD:
+                // Top level qualifier or client declaration
+            case CLIENT_KEYWORD:
                 // Top level qualifiers
             case TRANSACTIONAL_KEYWORD:
             case ISOLATED_KEYWORD:
             case DISTINCT_KEYWORD:
-            case CLIENT_KEYWORD:
             case READONLY_KEYWORD:
             case SERVICE_KEYWORD:
             case CONFIGURABLE_KEYWORD:
@@ -1050,6 +1051,10 @@ public class BallerinaParser extends AbstractParser {
             default:
                 if (isPossibleServiceDecl(qualifiers)) {
                     return parseServiceDeclOrVarDecl(metadata, publicQualifier, qualifiers);
+                }
+                
+                if (isPossibleClientDecl(qualifiers)) {
+                    return parseClientDeclOrVarDecl(metadata, publicQualifier, qualifiers, true);
                 }
 
                 if (isTypeStartingToken(nextToken.kind) && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
@@ -2233,6 +2238,14 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
+    }
+    
+    private boolean isPossibleClientDecl(List<STNode> qualifiers) {
+        if (qualifiers.isEmpty()) {
+            return false;
+        }
+
+        return qualifiers.get(qualifiers.size() - 1).kind == SyntaxKind.CLIENT_KEYWORD;
     }
 
     private STNode parseParameterRhs() {
@@ -4392,6 +4405,11 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseStatement(STNode annots, List<STNode> qualifiers) {
         parseTypeDescQualifiers(qualifiers);
         STToken nextToken = peek();
+
+        if (isPossibleClientDecl(qualifiers)) {
+            return parseClientDeclOrVarDeclStatement(annots, qualifiers);
+        }
+
         if (isPredeclaredIdentifier(nextToken.kind)) {
             return parseStmtStartsWithTypeOrExpr(getAnnotations(annots), qualifiers);
         }
@@ -9970,6 +9988,78 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(peek(), ParserRuleContext.NAMESPACE_PREFIX);
             return parseNamespacePrefix();
+        }
+    }
+
+    private STNode parseClientDeclOrVarDeclStatement(STNode metadata, List<STNode> qualifiers) {
+        return parseClientDeclOrVarDecl(metadata, STNodeFactory.createEmptyNode(), qualifiers, false);
+    }
+
+    private STNode parseClientDeclOrVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers,
+                                            boolean isModuleVar) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case STRING_LITERAL_TOKEN:
+                reportInvalidQualifiersOnClientDecl(publicQualifier, qualifiers);
+                return parseClientDeclaration(getAnnotations(metadata), qualifiers.get(qualifiers.size() - 1),
+                                              isModuleVar);
+            case OBJECT_KEYWORD:
+                if (isModuleVar) {
+                    return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
+                }
+
+                return parseVariableDecl(getAnnotations(metadata), publicQualifier, new ArrayList<>(), qualifiers,
+                                         false);
+            default:
+                recover(nextToken, ParserRuleContext.CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL);
+                return parseClientDeclOrVarDecl(metadata, publicQualifier, qualifiers, isModuleVar);
+        }
+    }
+
+    private void reportInvalidQualifiersOnClientDecl(STNode publicQualifier, List<STNode> qualifiers) {
+        reportInvalidQualifier(publicQualifier);
+        for (STNode qualifier : qualifiers) {
+            if (qualifier.kind != SyntaxKind.CLIENT_KEYWORD) {
+                reportInvalidQualifier(qualifier);
+            }
+        }
+    }
+
+    /**
+     * Parse client declaration.
+     * <p>
+     * <code>client-decl := client client-decl-uri as client-decl-prefix;
+     * <br/>
+     * client-decl-uri := string-literal
+     * <br/>
+     * client-decl-prefix := identifier
+     * </code>
+     *
+     * @return client declaration node
+     */
+    private STNode parseClientDeclaration(STNode annotations, STNode clientKeyword, boolean isModuleDecl) {
+        startContext(ParserRuleContext.CLIENT_DECLARATION);
+        STNode clientDeclUri = parseStringLiteral();
+        STNode asKeyword = parseAsKeyword();
+        STNode prefix = parseClientDeclPrefix();
+        STNode semicolon = parseSemicolon();
+        endContext();
+
+        if (isModuleDecl) {
+            return STNodeFactory.createModuleClientDeclarationNode(annotations, clientKeyword, clientDeclUri, asKeyword,
+                                                                   prefix, semicolon);
+        }
+        return STNodeFactory.createClientDeclarationNode(annotations, clientKeyword, clientDeclUri, asKeyword, prefix,
+                                                         semicolon);
+    }
+
+    private STNode parseClientDeclPrefix() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            recover(peek(), ParserRuleContext.CLIENT_DECL_PREFIX);
+            return parseClientDeclPrefix();
         }
     }
 
