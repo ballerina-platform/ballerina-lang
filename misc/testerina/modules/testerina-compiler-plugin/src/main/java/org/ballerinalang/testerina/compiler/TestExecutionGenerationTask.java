@@ -105,10 +105,11 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                     statements.add(invokeRegisterFunction(func.functionName().toString(),
                             func.functionName().toString())));
 
-            // Add the statements, 'check <function>()'
-            testFunctionVisitor.getTestDynamicFunctions().forEach(func ->
-                    statements.add(invokeFactoryFunction(func.functionName().toString(),
-                            func.functionSignature().returnTypeDesc())));
+            //TODO: Enable dynamic registration upon approval
+//            // Add the statements, 'check <function>()'
+//            testFunctionVisitor.getTestDynamicFunctions().forEach(func ->
+//                    statements.add(invokeFactoryFunction(func.functionName().toString(),
+//                            func.functionSignature().returnTypeDesc())));
         }
 
         // Add the statement, 'test:startSuite();'
