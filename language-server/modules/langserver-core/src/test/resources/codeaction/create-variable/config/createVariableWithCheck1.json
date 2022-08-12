@@ -1,0 +1,55 @@
+{
+  "position": {
+    "line": 5,
+    "character": 4
+  },
+  "source": "createVariableWithCheck.bal",
+  "expected": [
+    {
+      "title": "Create variable and check error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "int intWithError \u003d "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 50
+            },
+            "end": {
+              "line": 4,
+              "character": 50
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    }
+  ],
+  "description": "Parent function has no return type"
+}
