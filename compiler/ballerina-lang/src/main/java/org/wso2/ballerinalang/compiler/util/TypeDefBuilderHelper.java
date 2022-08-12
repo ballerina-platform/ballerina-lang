@@ -215,7 +215,6 @@ public class TypeDefBuilderHelper {
         typeDefinition.setBType(type);
         typeDefinition.symbol = symbol;
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
-        typeDefinition.pos = typeNode.getPosition();
         env.enclPkg.addTypeDefinition(typeDefinition);
         return typeDefinition;
     }
@@ -359,7 +358,7 @@ public class TypeDefBuilderHelper {
         }
         BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
                 ASTBuilderUtil.createIdentifier(pos,
-                        TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
+                        TypeDefBuilderHelper.getPackageAlias(env, null,
                                 origStructureType.tsymbol.pkgID)),
                 ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
         origTypeRef.pos = pos;

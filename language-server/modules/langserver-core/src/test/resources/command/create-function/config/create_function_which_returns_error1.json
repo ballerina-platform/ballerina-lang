@@ -29,7 +29,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction getER1() returns ER1 {\n    return error (\"\");\n}\n"
+                "newText": "\n\nfunction getER1() returns ER1 {\n    return error(\"\");\n}\n"
               }
             ]
           }
