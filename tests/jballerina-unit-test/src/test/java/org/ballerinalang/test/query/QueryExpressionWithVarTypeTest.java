@@ -252,6 +252,11 @@ public class QueryExpressionWithVarTypeTest {
         BRunUtil.invoke(result, "testQueryConstructingTableWithVar");
     }
 
+    @Test(description = "Test method call expressions on query expressions")
+    public void testMethodCallExprsOnQueryExprs() {
+        BRunUtil.invoke(result, "testMethodCallExprsOnQueryExprs");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
