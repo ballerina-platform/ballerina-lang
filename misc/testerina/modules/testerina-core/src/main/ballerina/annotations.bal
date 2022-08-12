@@ -66,8 +66,9 @@ public type AfterGroupsConfig record {
 # Identifies test function.
 public annotation TestConfig Config on function;
 
+//TODO: Enable dynamic registration upon approval
 # Identifies test factory function for dynamic test registration.
-public annotation Factory on function;
+// public annotation Factory on function;
 
 # Identifies beforeSuite function.
 public annotation BeforeSuite on function;
