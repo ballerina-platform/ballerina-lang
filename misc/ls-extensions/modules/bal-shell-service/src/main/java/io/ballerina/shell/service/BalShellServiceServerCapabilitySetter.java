@@ -26,7 +26,7 @@ import java.util.Optional;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter")
-public class BalShellServiceServerCapabilitiesSetter extends
+public class BalShellServiceServerCapabilitySetter extends
         BallerinaServerCapabilitySetter<BalShellServiceServerCapabilities> {
 
     @Override
