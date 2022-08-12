@@ -19,11 +19,10 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
-import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -35,8 +34,7 @@ import java.util.List;
  *
  * @since 2201.3.0
  */
-// TODO: 2022-08-11 can we remove VariableSymbol?
-public class BClientDeclarationSymbol extends BSymbol implements VariableSymbol, AnnotationSymbol {
+public class BClientDeclarationSymbol extends BSymbol implements Annotatable {
 
     private List<BAnnotationAttachmentSymbol> annotationAttachments;
 
@@ -47,11 +45,6 @@ public class BClientDeclarationSymbol extends BSymbol implements VariableSymbol,
         super(SymTag.CLIENT_DECL, 0, prefix, pkgID, new BNoType(TypeTags.NONE), owner, pos, origin);
         this.uri = uri;
         this.kind = SymbolKind.CLIENT_DECL;
-    }
-
-    @Override
-    public Object getConstValue() {
-        return null;
     }
 
     @Override
