@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.extensions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListRequest;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
@@ -30,6 +31,8 @@ import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCalls
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromSymbolRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromSymbolResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -42,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Provides util methods for testing lang-server extension apis.
@@ -56,6 +60,7 @@ public class LSExtensionTestUtil {
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
     private static final String GET_SYMBOL = "ballerinaSymbol/getSymbol";
+    private static final String GET_TYPE_FROM_SYMBOL = "ballerinaSymbol/getTypeFromSymbol";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -188,6 +193,24 @@ public class LSExtensionTestUtil {
         symbolInfoRequest.setTextDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
         CompletableFuture result = serviceEndpoint.request(GET_SYMBOL, symbolInfoRequest);
         return GSON.fromJson(getResult(result), SymbolInfoResponse.class);
+    }
+
+    /**
+     * Get the ballerinaDocument/getTypeFromSymbol response.
+     *
+     * @param filePath          Path of the Bal file
+     * @param positions         Positions of the symbols to get associated types
+     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static TypesFromSymbolResponse getTypeFromSymbol(String filePath, LinePosition[] positions,
+                                                            Endpoint serviceEndpoint
+                                                            ) throws ExecutionException, InterruptedException {
+        TypeFromSymbolRequest typeFromSymbolRequest = new TypeFromSymbolRequest();
+        typeFromSymbolRequest.setPositions(positions);
+        typeFromSymbolRequest.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture<?> result = serviceEndpoint.request(GET_TYPE_FROM_SYMBOL, typeFromSymbolRequest);
+        return (TypesFromSymbolResponse) result.get();
     }
 
 }
