@@ -46,11 +46,17 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 public class CompileTask implements Task {
     private final transient PrintStream out;
     private final transient PrintStream err;
+    private final boolean compileForBalPack;
     private final boolean isPackageModified;
 
-    public CompileTask(PrintStream out, PrintStream err, boolean isPackageModified) {
+    public CompileTask(PrintStream out, PrintStream err) {
+        this(out, err, false, true);
+    }
+
+    public CompileTask(PrintStream out, PrintStream err, boolean compileForBalPack, boolean isPackageModified) {
         this.out = out;
         this.err = err;
+        this.compileForBalPack = compileForBalPack;
         this.isPackageModified = isPackageModified;
     }
 
@@ -103,12 +109,18 @@ public class CompileTask implements Task {
                 if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
                     // BalaProject is a read-only project.
                     // Hence, we run the code generators/ modifiers only for BuildProject and SingleFileProject
-                    if (this.isPackageModified) {
-                        // Run code gen and modify plugins, if project has updated only
-                        DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
-                                .runCodeGenAndModifyPlugins();
-                        if (codeGenAndModifyDiagnosticResult != null) {
-                            diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+
+                    if (!project.kind().equals(ProjectKind.BALA_PROJECT) && !isPackCmdForATemplatePkg(project)) {
+                        // SingleFileProject cannot hold additional sources or resources
+                        // and BalaProjects is a read-only project.
+                        // Hence, we run the code generators only for BuildProject.
+                        if (this.isPackageModified) {
+                            // Run code gen and modify plugins, if project has updated only
+                            DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
+                                    .runCodeGenAndModifyPlugins();
+                            if (codeGenAndModifyDiagnosticResult != null) {
+                                diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                            }
                         }
                     }
                 }
@@ -165,5 +177,9 @@ public class CompileTask implements Task {
         } catch (ProjectException e) {
             throw createLauncherException("compilation failed: " + e.getMessage());
         }
+    }
+
+    private boolean isPackCmdForATemplatePkg(Project project) {
+        return compileForBalPack && project.currentPackage().manifest().template();
     }
 }

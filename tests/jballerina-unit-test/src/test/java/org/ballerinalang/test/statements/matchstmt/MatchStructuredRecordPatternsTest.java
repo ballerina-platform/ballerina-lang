@@ -194,7 +194,7 @@ public class MatchStructuredRecordPatternsTest {
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "restparam : {}");
         Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true}");
-        Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var3\":true,\"var2\":true}");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true,\"var3\":true}");
     }
 
     @Test(description = "Test structured pattern with closed record")
