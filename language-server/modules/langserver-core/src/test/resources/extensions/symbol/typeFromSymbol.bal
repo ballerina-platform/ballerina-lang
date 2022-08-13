@@ -70,9 +70,9 @@ function transform(Input input, Input2 Input2) returns Output => {
         MessageContent: {
             Assets: from var item in input.Assets
                 select {
-                    Type: item.Type,
-                    Id: item.Id,
-                    Confirmed: item.Confirmed
+                    OType: item.Type,
+                    OId: item.Id,
+                    OConfirmed: item.Confirmed
                 }
         },
         MessageGuid: input.MessageProperties.AuditId,
