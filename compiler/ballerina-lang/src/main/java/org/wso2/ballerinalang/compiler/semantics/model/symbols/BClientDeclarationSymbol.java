@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ import java.util.List;
  */
 public class BClientDeclarationSymbol extends BSymbol implements Annotatable {
 
-    private List<BAnnotationAttachmentSymbol> annotationAttachments;
+    private List<BAnnotationAttachmentSymbol> annotationAttachments = new ArrayList<>();
 
     public String uri;
 
@@ -64,5 +65,9 @@ public class BClientDeclarationSymbol extends BSymbol implements Annotatable {
     @Override
     public List<? extends AnnotationAttachmentSymbol> getAnnotations() {
         return this.annotationAttachments;
+    }
+
+    public String getUri() {
+        return this.uri;
     }
 }
