@@ -29,10 +29,7 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSynta
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromSymbolRequest;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromSymbolResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.*;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -61,6 +58,7 @@ public class LSExtensionTestUtil {
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
     private static final String GET_SYMBOL = "ballerinaSymbol/getSymbol";
     private static final String GET_TYPE_FROM_SYMBOL = "ballerinaSymbol/getTypeFromSymbol";
+    private static final String GET_TYPE_FROM_EXPRESSION = "ballerinaSymbol/getTypeFromExpression";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -213,4 +211,21 @@ public class LSExtensionTestUtil {
         return (TypesFromSymbolResponse) result.get();
     }
 
+    /**
+     * Get the ballerinaDocument/getTypeFromExpression response.
+     *
+     * @param filePath          Path of the Bal file
+     * @param ranges            Ranges of the expressions to get associated types
+     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static TypesFromExpressionResponse getTypeFromExpression(String filePath, ExpressionRange[] ranges,
+                                                                    Endpoint serviceEndpoint
+                                                                    ) throws ExecutionException, InterruptedException {
+        TypeFromExpressionRequest typeFromExpressionRequest = new TypeFromExpressionRequest();
+        typeFromExpressionRequest.setExpressionRanges(ranges);
+        typeFromExpressionRequest.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture<?> result = serviceEndpoint.request(GET_TYPE_FROM_EXPRESSION, typeFromExpressionRequest);
+        return (TypesFromExpressionResponse) result.get();
+    }
 }
