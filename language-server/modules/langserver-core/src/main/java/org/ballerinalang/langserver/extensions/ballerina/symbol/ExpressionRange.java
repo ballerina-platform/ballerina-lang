@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
 import io.ballerina.tools.text.LinePosition;
 
 /**
- * Represents a range of a construct in the source document
+ * Represents a range of a construct in the source document.
  */
 public class ExpressionRange {
     private LinePosition startPosition;

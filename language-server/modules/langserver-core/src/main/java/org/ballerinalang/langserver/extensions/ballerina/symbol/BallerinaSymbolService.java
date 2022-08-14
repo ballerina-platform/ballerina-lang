@@ -151,10 +151,11 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 return typesResponse;
             }
             List<ResolvedTypeForExpression> types = new ArrayList<>();
-            for(ExpressionRange range: request.getExpressionRanges()) {
+            for (ExpressionRange range: request.getExpressionRanges()) {
                 ResolvedTypeForExpression resolvedType = new ResolvedTypeForExpression(range);
                 try {
-                    Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+                    Optional<SemanticModel> semanticModel =
+                            this.workspaceManagerProxy.get().semanticModel(filePath.get());
                     if (semanticModel.isEmpty()) {
                         return typesResponse;
                     }
@@ -190,10 +191,11 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 return typeFromSymbolResponse;
             }
             List<ResolvedTypeForSymbol> types = new ArrayList<>();
-            for(LinePosition position: request.getPositions()) {
+            for (LinePosition position: request.getPositions()) {
                 ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(position);
                 try {
-                    Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+                    Optional<SemanticModel> semanticModel =
+                            this.workspaceManagerProxy.get().semanticModel(filePath.get());
                     if (semanticModel.isEmpty()) {
                         return typeFromSymbolResponse;
                     }

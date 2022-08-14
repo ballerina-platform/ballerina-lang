@@ -29,7 +29,13 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSynta
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.*;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.ExpressionRange;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromExpressionRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromSymbolRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromExpressionResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromSymbolResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
