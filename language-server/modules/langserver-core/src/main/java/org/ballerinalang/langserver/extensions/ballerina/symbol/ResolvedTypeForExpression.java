@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
 /**
- * Represents a type info with the range identifier
+ * Represents a type info with the range identifier.
  */
 public class ResolvedTypeForExpression {
     private Type type;

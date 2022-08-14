@@ -100,33 +100,6 @@ public class TypeFromSymbolTest {
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
 
-    @Test(description = "type info retrieved for a type from a std lib module")
-    public void testTypeFromStdLibType() throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);
-        TestUtil.openDocument(serviceEndpoint, inputFile);
-
-        LinePosition position = LinePosition.from(67, 32);
-        LinePosition[] positions = {position};
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypeFromSymbol(
-                inputFile.toString(), positions, this.serviceEndpoint);
-
-        Assert.assertNotNull(typesFromSymbolResponse.getTypes());
-
-        ResolvedTypeForSymbol type = typesFromSymbolResponse.getTypes().get(0);
-        Assert.assertTrue(isPositionsEquals(position, type.getRequestedPosition()));
-        Assert.assertTrue(type.getType() instanceof RecordType);
-
-        RecordType outerRecordType = (RecordType) type.getType();
-        Assert.assertEquals(outerRecordType.fields.size(), 1);
-        Assert.assertEquals(outerRecordType.fields.get(0).name, "bucket");
-        Assert.assertTrue(outerRecordType.fields.get(0) instanceof RecordType);
-
-        RecordType innerRecordType = (RecordType) outerRecordType.fields.get(0);
-        Assert.assertEquals(innerRecordType.fields.size(), 4);
-        Assert.assertEquals(innerRecordType.fields.get(2).name, "rejectedCount");
-        Assert.assertTrue(innerRecordType.fields.get(2).defaultable);
-    }
-
     @Test(description = "type info retrieved for multiple symbols")
     public void testTypesForMultipleSymbols() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);

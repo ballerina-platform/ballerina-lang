@@ -33,11 +33,11 @@ public class TypeFromExpressionRequest {
         this.documentIdentifier = documentIdentifier;
     }
 
-    public ExpressionRange[] getExpressionRanges() {
+    protected ExpressionRange[] getExpressionRanges() {
         return expressionRanges;
     }
 
     public void setExpressionRanges(ExpressionRange[] expressionRanges) {
-        this.expressionRanges = expressionRanges;
+        this.expressionRanges = expressionRanges == null ? null : expressionRanges.clone();
     }
 }
