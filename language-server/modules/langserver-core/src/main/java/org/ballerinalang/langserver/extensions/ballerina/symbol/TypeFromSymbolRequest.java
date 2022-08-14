@@ -25,12 +25,12 @@ public class TypeFromSymbolRequest {
     private TextDocumentIdentifier documentIdentifier;
     private LinePosition[] positions;
 
-    public LinePosition[] getPositions() {
+    protected LinePosition[] getPositions() {
         return positions;
     }
 
     public void setPositions(LinePosition[] positions) {
-        this.positions = positions;
+        this.positions = positions == null ? null : positions.clone();
     }
 
     public TextDocumentIdentifier getDocumentIdentifier() {

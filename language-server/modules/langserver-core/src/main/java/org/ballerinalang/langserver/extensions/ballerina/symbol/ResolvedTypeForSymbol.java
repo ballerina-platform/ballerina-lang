@@ -19,7 +19,7 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
 /**
- * Represents a type info with the position identifier
+ * Represents a type info with the position identifier.
  */
 public class ResolvedTypeForSymbol {
     private Type type;
