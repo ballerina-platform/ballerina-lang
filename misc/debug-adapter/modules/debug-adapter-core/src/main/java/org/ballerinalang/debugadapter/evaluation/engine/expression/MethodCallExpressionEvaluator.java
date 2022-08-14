@@ -46,6 +46,7 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.AbstractMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -165,7 +166,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                 throw createEvaluationException(CLASS_NOT_FOUND, className);
             }
 
-            Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName, null);
+            Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
             if (objectMethodDef.isEmpty()) {
                 throw createEvaluationException(OBJECT_METHOD_NOT_FOUND, methodName.trim(), className);
             }
@@ -250,17 +251,23 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                 .map(symbol -> (ClassSymbol) symbol);
     }
     protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef,
-                                                             String methodName,
-                                                             Qualifier qualifier) {
-        return classDef.methods().values()
-                .stream()
-                .filter(methodSymbol -> qualifier == null || methodSymbol.qualifiers().contains(qualifier))
+                                                             String methodName) {
+        return classDef.methods().values().stream()
                 .filter(methodSymbol -> modifyName(methodSymbol.getName().get()).equals(methodName))
                 .findFirst();
     }
 
+    protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef,
+                                                             String methodName,
+                                                             List<Qualifier> qualifiers) {
+        return classDef.methods().values().stream()
+                .filter(methodSymbol -> new HashSet<>(methodSymbol.qualifiers()).containsAll(qualifiers))
+                .filter(methodSymbol -> methodSymbol.getName().get().equals(methodName))
+                .findFirst();
+    }
+
     protected Optional<MethodSymbol> findRemoteMethodInClass(ClassSymbol classDef, String methodName) {
-        return findObjectMethodInClass(classDef, methodName, Qualifier.REMOTE);
+        return findObjectMethodInClass(classDef, methodName, List.of(Qualifier.REMOTE, Qualifier.ISOLATED));
     }
 
     private GeneratedInstanceMethod getObjectMethodByName(BVariable objectVar, String methodName)
