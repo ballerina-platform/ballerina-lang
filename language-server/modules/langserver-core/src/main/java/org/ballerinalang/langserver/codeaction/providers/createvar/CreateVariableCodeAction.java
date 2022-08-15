@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -56,6 +57,7 @@ import java.util.stream.Collectors;
 public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Create Variable";
+    private static final String RENAME_COMMAND = "Rename Variable";
 
     /**
      * {@inheritDoc}
@@ -208,10 +210,10 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
 
         // Taking the start position of the first text edit assuming that the variable creation edit is the first edit
         // in the list.
-        int startPos = PositionUtil.getTextEdit(syntaxTree.get(), textEdits.get(0)).range().startOffset();
+        int startPos = CommonUtil.getTextEdit(syntaxTree.get(), textEdits.get(0)).range().startOffset();
         int sum = 0;
         for (TextEdit textEdit : textEdits) {
-            io.ballerina.tools.text.TextEdit edits = PositionUtil.getTextEdit(syntaxTree.get(), textEdit);
+            io.ballerina.tools.text.TextEdit edits = CommonUtil.getTextEdit(syntaxTree.get(), textEdit);
             if (edits.range().startOffset() < startPos) {
                 sum = sum + edits.text().length();
             }
@@ -219,8 +221,8 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
 
         startPos = startPos + sum + renameOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (lsClientCapabilities.getInitializationOptions().isRefactorRename()) {
-            codeAction.setCommand(new Command("Rename Variable", "ballerina.action.rename",
+        if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(RENAME_COMMAND, "ballerina.action.rename",
                     List.of(context.fileUri(), startPos)));
         }
     }

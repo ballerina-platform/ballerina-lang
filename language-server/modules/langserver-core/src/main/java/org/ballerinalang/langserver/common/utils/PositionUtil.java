@@ -23,8 +23,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextEdit;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -187,21 +185,5 @@ public class PositionUtil {
     public static int getPositionOffset(Position position, SyntaxTree syntaxTree) {
         LinePosition linePos = LinePosition.from(position.getLine(), position.getCharacter());
         return syntaxTree.textDocument().textPositionFrom(linePos);
-    }
-
-    /**
-     * Returns ballerina text edit for a given lsp4j text edit.
-     *
-     * @param syntaxTree syntax tree
-     * @param textEdit   lsp4j text edit
-     * @return Ballerina text edit
-     */
-    public static TextEdit getTextEdit(SyntaxTree syntaxTree, org.eclipse.lsp4j.TextEdit textEdit) {
-        TextDocument textDocument = syntaxTree.textDocument();
-        Position startPos = textEdit.getRange().getStart();
-        Position endPos = textEdit.getRange().getEnd();
-        int start = textDocument.textPositionFrom(LinePosition.from(startPos.getLine(), startPos.getCharacter()));
-        int end = textDocument.textPositionFrom(LinePosition.from(endPos.getLine(), endPos.getCharacter()));
-        return TextEdit.from(TextRange.from(start, end - start), textEdit.getNewText());
     }
 }

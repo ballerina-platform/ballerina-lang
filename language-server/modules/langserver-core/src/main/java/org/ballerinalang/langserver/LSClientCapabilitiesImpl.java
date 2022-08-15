@@ -142,7 +142,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         initializationOptions.setEnableSemanticTokens(enableSemanticTokens);
 
         Object renameSupport = initOptions.get(InitializationOptions.KEY_RENAME_SUPPORT);
-        boolean enableRenameSupport = renameSupport == null ||
+        boolean enableRenameSupport = renameSupport != null &&
                 Boolean.parseBoolean(String.valueOf(renameSupport));
         initializationOptions.setSupportRenamePopup(enableRenameSupport);
 
@@ -211,7 +211,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         }
 
         @Override
-        public boolean isRefactorRename() {
+        public boolean isRefactorRenameSupported() {
             return supportRenamePopup;
         }
 
