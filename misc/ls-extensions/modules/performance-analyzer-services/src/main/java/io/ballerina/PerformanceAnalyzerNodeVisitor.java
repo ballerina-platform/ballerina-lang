@@ -575,11 +575,21 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     public HashMap<String, Object> getActionInvocations() {
 
         ParserUtil.getReducedTree(this.startNode);
-        workers.put("mainWorker", this.startNode);
 
         HashMap<String, Object> invocationInfo = new HashMap<>();
         invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);
         invocationInfo.put(ACTION_INVOCATION_KEY, this.startNode);
+        return invocationInfo;
+    }
+    public HashMap<String, Object> getWorkers() {
+
+        this.workers.values().forEach(ParserUtil::getReducedTree);
+        ParserUtil.getReducedTree(this.startNode);
+        this.workers.put("mainWorker", this.startNode);
+
+        HashMap<String, Object> invocationInfo = new HashMap<>();
+        invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);
+        invocationInfo.put(ACTION_INVOCATION_KEY, this.workers);
         return invocationInfo;
     }
 
