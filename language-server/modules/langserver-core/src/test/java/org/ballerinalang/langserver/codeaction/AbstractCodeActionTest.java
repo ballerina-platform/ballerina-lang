@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
     private  WorkspaceManager workspaceManager;
