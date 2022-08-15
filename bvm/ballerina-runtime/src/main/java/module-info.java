@@ -69,7 +69,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
     exports io.ballerina.runtime.internal.configurable.providers.toml to org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime,
-            org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function;
+            org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function, io.ballerina.lang.regexp;
     exports io.ballerina.runtime.observability.metrics.noop;
     exports io.ballerina.runtime.observability.tracer.noop;
 }

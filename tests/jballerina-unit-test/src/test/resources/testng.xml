@@ -25,6 +25,7 @@
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.test.access.*"/>
+            <package name="org.ballerinalang.test.sandbox.*"/>
             <package name="org.ballerinalang.test.action.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.bala.*"/>

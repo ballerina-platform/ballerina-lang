@@ -16,6 +16,8 @@
 // These functions will all be isolated and public
 // regexp module
 
+import ballerina/jballerina.java;
+
 // Given that we cannot introduce a new keyword, we need some magic
 // to define a type that refers to RegExp.  This is one possible way.
 //@builtinSubtype
@@ -23,22 +25,26 @@
 
 type RegExp string;
 
-type Span readonly & object {
-   int startIndex;
-   int endIndex;
+public type Span readonly & object {
+   public int startIndex;
+   public int endIndex;
+   public string substr;
    // This avoids constructing a potentially long string unless and until it is needed
-   isolated function substring() returns string;
+   public isolated function substring() returns string;
 };
 
 type Groups readonly & [Span, Span?...];
 
-//# Returns the span of the first match that starts at or after startIndex.
-//function find(RegExp re, string str, int startIndex = 0) returns Span? = @java:Method {
-//   'class: "org.ballerinalang.langlib.regexp.Find",
-//   name: "find"
-//} external;
+# Returns the span of the first match that starts at or after startIndex.
+function find(RegExp re, string str, int startIndex = 0) returns Span? {
+    anydata[] resultArr = findImpl(re, str, startIndex);
+    if (resultArr is [int, int, string]) {
+        Span s = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
+        return s;
+    }
+}
 
-function find(RegExp re, string str, int startIndex = 0) = @java:Method {
+function findImpl(RegExp re, string str, int startIndex = 0) returns anydata[] = @java:Method {
    'class: "org.ballerinalang.langlib.regexp.Find",
    name: "find"
 } external;

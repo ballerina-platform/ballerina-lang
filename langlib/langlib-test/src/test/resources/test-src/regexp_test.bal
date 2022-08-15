@@ -15,8 +15,10 @@
 // under the License.
 
 import ballerina/lang.regexp;
+import ballerina/io;
 
 function testFind() {
-
+    var reg = re `.s`;
+    io:print(re.find("as"));
 }
 
