@@ -5990,7 +5990,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (data.commonAnalyzerData.checkWithinQueryExpr) {
-            if (queryExpr.isTable) {
+            if (queryExpr.isTable || queryExpr.isMap) {
                 completionTypes.addAll(data.commonAnalyzerData.checkedErrorList);
             }
             if (completionTypes.isEmpty()) {

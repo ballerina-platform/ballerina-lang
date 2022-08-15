@@ -1381,17 +1381,6 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
                                                 select {id: item, value: item.toBalString()};
     assertEqual(table2, error("Greater than 20!"));
 
-    map<int>|error map2 = map from var item in check (map from var firstNo in [1, 4, 4, 10]
-                            select [firstNo.toBalString(), firstNo] on conflict error("Error"))
-                                select [item.toBalString(), item];
-    assertEqual(map2, error("Error"));
-
-    table<record {| readonly int id; string value; |}>|error table3 = table key() from var item in
-                                    (check table key(id) from var firstNo in [1, 4, 4, 10]
-                                        select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error"))
-                                            select item;
-    assertEqual(table3, error("Error"));
-
     map<int>|error map3 = map from var item in (from var integer in (from var integer in evenNumberStream select integer) select integer)
                             select [item.toBalString(), item];
     assertEqual(map3, error("Greater than 20!"));
