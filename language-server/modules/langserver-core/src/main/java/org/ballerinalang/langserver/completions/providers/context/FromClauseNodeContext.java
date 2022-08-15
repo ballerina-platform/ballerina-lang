@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,23 +124,29 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
                 TypeDescKind.STREAM, TypeDescKind.XML);
 
         Optional<TypeSymbol> expectedTypeSymbol = context.getContextType();
-        completionItems.forEach(lsCItem -> {
-            String sortText = SortingUtil.genSortText(3) +
-                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
-            if (context.getCursorPositionInTree() > node.inKeyword().textRange().endOffset()
-                    && expectedTypeSymbol.isPresent()
-                    && SortingUtil.isCompletionItemAssignable(lsCItem, expectedTypeSymbol.get())) {
-                sortText = SortingUtil.genSortText(1)
-                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
-            } else if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
-                sortText = SortingUtil.genSortText(1)
-                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem, 2));
-            } else if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL &&
-                    lsCItem.getCompletionItem().getKind() == CompletionItemKind.Function) {
-                sortText = SortingUtil.genSortText(2);
-            }
-            lsCItem.getCompletionItem().setSortText(sortText);
-        });
+        if (context.getCursorPositionInTree() > node.inKeyword().position()) {
+            completionItems.forEach(lsCItem -> {
+                String sortText = SortingUtil.genSortText(3) +
+                        SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
+                if (expectedTypeSymbol.isPresent()
+                        && SortingUtil.isCompletionItemAssignable(lsCItem, expectedTypeSymbol.get())) {
+                    sortText = SortingUtil.genSortText(1)
+                            + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
+                } else if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
+                    sortText = SortingUtil.genSortText(1)
+                            + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem, 2));
+                }
+                lsCItem.getCompletionItem().setSortText(sortText);
+            });
+        } else if (onTypedBindingPatternContext(context, node)) {
+            completionItems.forEach(lsCItem -> {
+                String sortText;
+                sortText = expectedTypeSymbol
+                        .map(typeSymbol -> SortingUtil.genSortTextByAssignability(context, lsCItem, typeSymbol))
+                        .orElseGet(() -> SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
+                lsCItem.getCompletionItem().setSortText(sortText);
+            });
+        }
     }
 
     private boolean onTypedBindingPatternContext(BallerinaCompletionContext context, FromClauseNode node) {
