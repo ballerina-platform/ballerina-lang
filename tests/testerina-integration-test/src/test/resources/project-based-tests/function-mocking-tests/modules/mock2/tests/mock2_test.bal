@@ -15,14 +15,26 @@
 // under the License.
 
 // Function to be mocked from another module
-public function intAdd2(int a, int b) returns (int) {
-    return a + b;
+
+import ballerina/test;
+
+@test:Mock {
+    functionName: "module2_intAdd"
+}
+test:MockFunction mock_intAddX = new();
+
+@test:Config {}
+public function test1() {
+    test:when(mock_intAddX).thenReturn(10);
+    test:assertEquals(module2_intAdd(2, 3), 10);
 }
 
-public function intSubtract7(int a, int b, int c) returns (int) {
-    return a - b - c;
+@test:Config {}
+public function test2() {
+    test:assertEquals(intAdd2(5, 4), 9);
 }
 
-public function module2_intAdd(int a, int b) returns (int) {
-    return a + b;
+@test:Config {}
+public function test3() {
+    test:assertEquals(intSubtract7(5, 3, 2), 0);
 }

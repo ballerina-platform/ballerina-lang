@@ -265,22 +265,26 @@ public class Main {
             } else if (functionNames.contains(MOCK_LEGACY_DELIMITER + method1.getName())) {
                 String key = className + MOCK_LEGACY_DELIMITER + method1.getName();
                 String mockFunctionName = suite.getMockFunctionNamesMap().get(key);
-                String mockFunctionClassName = suite.getTestUtilityFunctions().get(mockFunctionName);
-                Class<?> mockFunctionClass;
-                try {
-                    mockFunctionClass = classLoader.loadClass(mockFunctionClassName);
-                } catch (ClassNotFoundException e) {
-                    throw new BallerinaTestException("failed to load class: " + mockFunctionClassName);
-                }
-                for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
-                    if (method2.getName().equals(mockFunctionName)) {
-                        if (!readFromBytes) {
-                            classFile = replaceMethodBody(method1, method2, instrumentDir, coverage);
-                            readFromBytes = true;
-                        } else {
-                            classFile = replaceMethodBody(classFile, method1, method2);
+                if (mockFunctionName != null) {
+                    String mockFunctionClassName = suite.getTestUtilityFunctions().get(mockFunctionName);
+                    Class<?> mockFunctionClass;
+                    try {
+                        mockFunctionClass = classLoader.loadClass(mockFunctionClassName);
+                    } catch (ClassNotFoundException e) {
+                        throw new BallerinaTestException("failed to load class: " + mockFunctionClassName);
+                    }
+                    for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
+                        if (method2.getName().equals(mockFunctionName)) {
+                            if (!readFromBytes) {
+                                classFile = replaceMethodBody(method1, method2, instrumentDir, coverage);
+                                readFromBytes = true;
+                            } else {
+                                classFile = replaceMethodBody(classFile, method1, method2);
+                            }
                         }
                     }
+                } else {
+                    continue;
                 }
             }
         }
