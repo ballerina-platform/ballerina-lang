@@ -89,9 +89,13 @@ public class ManifestBuilder {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
+    private static final String INCLUDE = "include";
     private static final String PLATFORM = "platform";
     private static final String SCOPE = "scope";
     private static final String TEMPLATE = "template";
+    public static final String ICON = "icon";
+    public static final String DISTRIBUTION = "distribution";
+    public static final String VISIBILITY = "visibility";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -158,6 +162,7 @@ public class ManifestBuilder {
         List<String> authors = Collections.emptyList();
         List<String> keywords = Collections.emptyList();
         List<String> exported = Collections.emptyList();
+        List<String> includes = Collections.emptyList();
         String repository = "";
         String ballerinaVersion = "";
         String visibility = "";
@@ -172,41 +177,15 @@ public class ManifestBuilder {
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
+                includes = getStringArrayFromPackageNode(pkgNode, INCLUDE);
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
-                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
-                visibility = getStringValueFromTomlTableNode(pkgNode, "visibility", "");
+                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, DISTRIBUTION, "");
+                visibility = getStringValueFromTomlTableNode(pkgNode, VISIBILITY, "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
-                icon = getStringValueFromTomlTableNode(pkgNode, "icon", "");
+                icon = getStringValueFromTomlTableNode(pkgNode, ICON, "");
 
-                // validate icon path for only png files
-                // we ignore other file types here, since file type error will be shown
-                if (icon != null && hasPngExtension(icon)) {
-                    Path iconPath = Paths.get(icon);
-                    if (!iconPath.isAbsolute()) {
-                        iconPath = this.projectPath.resolve(iconPath);
-                    }
-
-                    if (Files.notExists(iconPath)) {
-                        // validate icon path
-                        // if file path does not exist, throw this error
-                        reportDiagnostic(pkgNode.entries().get("icon"),
-                                "could not locate icon path '" + icon + "'",
-                                "error.invalid.path", DiagnosticSeverity.ERROR);
-                    } else {
-                        // validate file content
-                        // if other file types renamed as png, throw this error
-                        try {
-                            if (!FileUtils.isValidPng(iconPath)) {
-                                reportDiagnostic(pkgNode.entries().get("icon"),
-                                        "invalid 'icon' under [package]: 'icon' can only have 'png' images",
-                                        "error.invalid.icon", DiagnosticSeverity.ERROR);
-                            }
-                        } catch (IOException e) {
-                            // should not reach to this line
-                            throw new ProjectException("failed to read icon: '" + icon + "'");
-                        }
-                    }
-                }
+                // we ignore file types except png here, since file type error will be shown
+                validateIconPathForPng(icon, pkgNode);
             }
         }
 
@@ -236,7 +215,7 @@ public class ManifestBuilder {
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility,
+                diagnostics(), license, authors, keywords, exported, includes, repository, ballerinaVersion, visibility,
                 template, icon);
     }
 
@@ -246,31 +225,52 @@ public class ManifestBuilder {
         String name;
         String version;
 
+        String errorMessage = "missing table '[package]' in 'Ballerina.toml'. Defaulting to:\n" +
+                "[package]\n" +
+                "org = \"" + defaultOrg().value() + "\"\n" +
+                "name = \"" + defaultName(this.projectPath).value() + "\"\n" +
+                "version = \"" + defaultVersion().value().toString() + "\"";
+
         if (tomlTableNode.entries().isEmpty()) {
+            reportDiagnostic(tomlTableNode, errorMessage,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
         if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
+            reportDiagnostic(tomlTableNode, errorMessage,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
-        if (pkgNode.entries().isEmpty()) {
-            return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
-        }
 
         org = getStringValueFromTomlTableNode(pkgNode, "org");
         if (org == null) {
             org = defaultOrg().value();
+            reportDiagnostic(pkgNode, "missing key 'org' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'org = \"" + org + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
         }
         name = getStringValueFromTomlTableNode(pkgNode, "name");
         if (name == null) {
             name = defaultName(this.projectPath).value();
+            reportDiagnostic(pkgNode, "missing key 'name' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'name = \"" + name + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
         }
         version = getStringValueFromTomlTableNode(pkgNode, VERSION);
         if (version == null) {
             version = defaultVersion().value().toString();
+            reportDiagnostic(pkgNode, "missing key 'version' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'version = \"" + version + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
         }
 
         // check org is valid identifier
@@ -293,6 +293,36 @@ public class ManifestBuilder {
         }
 
         return PackageDescriptor.from(PackageOrg.from(org), PackageName.from(name), PackageVersion.from(version));
+    }
+
+    private void validateIconPathForPng(String icon, TomlTableNode pkgNode) {
+        if (icon != null && hasPngExtension(icon)) {
+            Path iconPath = Paths.get(icon);
+            if (!iconPath.isAbsolute()) {
+                iconPath = this.projectPath.resolve(iconPath);
+            }
+
+            if (Files.notExists(iconPath)) {
+                // validate icon path
+                // if file path does not exist, throw this error
+                reportDiagnostic(pkgNode.entries().get(ICON),
+                        "could not locate icon path '" + icon + "'",
+                        "error.invalid.path", DiagnosticSeverity.ERROR);
+            } else {
+                // validate file content
+                // if other file types renamed as png, throw this error
+                try {
+                    if (!FileUtils.isValidPng(iconPath)) {
+                        reportDiagnostic(pkgNode.entries().get("icon"),
+                                "invalid 'icon' under [package]: 'icon' can only have 'png' images",
+                                "error.invalid.icon", DiagnosticSeverity.ERROR);
+                    }
+                } catch (IOException e) {
+                    // should not reach to this line
+                    throw new ProjectException("failed to read icon: '" + icon + "'");
+                }
+            }
+        }
     }
 
     private BuildOptions parseBuildOptions() {
@@ -432,8 +462,6 @@ public class ManifestBuilder {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
-        Boolean experimental =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
         Boolean observabilityIncluded =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
         Boolean testReport =
@@ -457,7 +485,6 @@ public class ManifestBuilder {
 
         buildOptionsBuilder
                 .setOffline(offline)
-                .setExperimental(experimental)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setTestReport(testReport)
                 .setCodeCoverage(codeCoverage)

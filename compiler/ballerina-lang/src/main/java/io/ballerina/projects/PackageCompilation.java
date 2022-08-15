@@ -40,7 +40,6 @@ import java.util.function.Function;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 
@@ -84,7 +83,6 @@ public class PackageCompilation {
     private void setCompilerOptions(CompilationOptions compilationOptions) {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(OFFLINE, Boolean.toString(compilationOptions.offlineBuild()));
-        options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
@@ -196,10 +194,13 @@ public class PackageCompilation {
         // add dependency manifest diagnostics
         diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
-        for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-            moduleContext.compile(compilerContext);
-            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+        if (!packageResolution.diagnosticResult().hasErrors()) {
+            for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                moduleContext.compile(compilerContext);
+                for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project()));
+                }
             }
         }
         // add plugin diagnostics

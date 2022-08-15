@@ -9,27 +9,28 @@ DESCRIPTION
        Compile the current package and run it. This command does not produce
        an executable program.
 
-       The run command executes the program when a JAR file produced by 'bal build'
-       is given as the argument. If not, compiles and runs the given package
-       or .bal file.
+       The `run` command executes the program when a JAR file produced by
+       'bal build' is given as the argument. If not, compiles and runs the given
+       package or .bal file.
 
        A Ballerina program consists of one or more modules; one of these modules
        is distinguished as the root module, which is the default module of
        current package.
 
        Ballerina program execution consists of two consecutive phases.
-       The initialization phase initializes all modules of a program one after another.
-       If a module defines a function named 'init()', it will be invoked during this phase.
-       If the root module of the program defines a public function named 'main()',
-       then it will be invoked.
+       The initialization phase initializes all modules of a program one after
+       another. If a module defines a function named 'init()', it will be
+       invoked during this phase. If the root module of the program defines a
+       public function named 'main()', then it will be invoked.
 
        If the initialization phase of program execution completes successfully,
-       then execution proceeds to the listening phase. If there are no module listeners,
-       then the listening phase immediately terminates successfully. Otherwise,
-       the listening phase initializes module listeners.
+       then execution proceeds to the listening phase. If there are no module
+       listeners, then the listening phase immediately terminates successfully.
+       Otherwise, the listening phase initializes the module listeners.
 
-       A service declaration is syntactic sugar for creating a service object and
-       attaching it to the module listener specified in the service declaration.
+       A service declaration is the syntactic sugar for creating a service object
+       and attaching it to the module listener specified in the service
+       declaration.
 
        Note: Running individual '.bal' files of a package is not allowed.
 
@@ -42,12 +43,14 @@ OPTIONS
            Include the dependencies that are required to enable observability.
 
        --offline
-           Proceed without accessing the network. Attempt to proceed with the previously
-           downloaded dependencies in local caches, fail otherwise.
+           Proceed without accessing the network. Attempt to proceed with the
+           previously downloaded dependencies in local caches, will fail
+           otherwise.
 
        --sticky
-       	   Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
-           If the file doesn't exist, this option is ignored.
+       	   Attempt to stick to the dependency versions available in the
+       	   'Dependencies.toml' file. If the file doesn't exist, this option
+       	   is ignored.
 
        --target-dir <path>
            Target directory path. The directory path can be absolute or relative

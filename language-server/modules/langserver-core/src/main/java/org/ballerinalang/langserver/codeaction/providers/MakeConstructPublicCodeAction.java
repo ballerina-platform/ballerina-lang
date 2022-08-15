@@ -24,10 +24,15 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -46,19 +51,28 @@ import java.util.Optional;
  * @since 2201.0.4
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
+public class MakeConstructPublicCodeAction implements DiagnosticBasedCodeActionProvider {
     public static final String NAME = "Make Construct Public";
-    public static final String DIAGNOSTIC_CODE = "BCE2038";
+    public static final String DIAGNOSTIC_CODE = "BCE20022";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) &&
+                context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
+
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
+        Range diagnosticRange = PositionUtil.toRange(diagnostic.location().lineRange());
         if (!DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
                 || context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
         }
-        Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
         Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(nonTerminalNode);
         if (symbol.isEmpty() || symbol.get().getModule().isEmpty()) {
@@ -69,7 +83,7 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<Path> filePath = CommonUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
+        Optional<Path> filePath = PathUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
         if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
             return Collections.emptyList();
         }
@@ -90,7 +104,8 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
         TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
         String commandTitle = String.format(CommandConstants.MAKE_CONSTRUCT_PUBLIC, symbol.get().getName().orElse(""));
-        return List.of(createCodeAction(commandTitle, editList, uri.toString(), CodeActionKind.QuickFix));
+        return List.of(CodeActionUtil.createCodeAction(commandTitle, editList, uri.toString(),
+                CodeActionKind.QuickFix));
     }
 
     private static Optional<Position> getStartPosition(Node node) {
@@ -98,25 +113,20 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
 
         if (typeKind.equals(SyntaxKind.TYPE_DEFINITION)) {
             TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
-            return Optional.of(CommonUtil.toPosition(typeDefinitionNode.typeKeyword().lineRange().startLine()));
+            return Optional.of(PositionUtil.toPosition(typeDefinitionNode.typeKeyword().lineRange().startLine()));
         }
         if (typeKind.equals(SyntaxKind.CLASS_DEFINITION)) {
             Position startPosition;
             ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
             if (classDefinitionNode.classTypeQualifiers().isEmpty()) {
-                startPosition = CommonUtil.toPosition(classDefinitionNode.classKeyword().lineRange().startLine());
+                startPosition = PositionUtil.toPosition(classDefinitionNode.classKeyword().lineRange().startLine());
             } else {
-                startPosition = CommonUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)
+                startPosition = PositionUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)
                         .lineRange().startLine());
             }
             return Optional.of(startPosition);
         }
         return Optional.empty();
-    }
-
-    @Override
-    public int priority() {
-        return super.priority();
     }
 
     @Override

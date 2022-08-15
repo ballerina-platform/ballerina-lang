@@ -63,7 +63,10 @@ class CodeGeneratorManager {
 
     CodeGeneratorResult runCodeGenerators(Package currentPackage) {
         CodeGenTaskResult codeGenTaskResult = getCodeGenTaskResult();
-        if (codeGenTaskResult.containsSourceFile() || codeGenTaskResult.containsResourceFile()) {
+        if (codeGenTaskResult.containsSourceFile()
+                || codeGenTaskResult.containsTestSourceFile()
+                || codeGenTaskResult.containsResourceFile()
+                || codeGenTaskResult.containsTestResourceFile()) {
             Package packageWithGenSources = new PackageModifier().modifyPackage(currentPackage, codeGenTaskResult);
             return new CodeGeneratorResult(packageWithGenSources, codeGenTaskResult.reportedDiagnostics());
         } else {
@@ -106,7 +109,9 @@ class CodeGeneratorManager {
 
             resultBuilder.addDiagnostics(sourceGenContext.reportedDiagnostics());
             resultBuilder.addSourceFiles(sourceGenContext.generatedSourceFiles());
+            resultBuilder.addTestSourceFiles(sourceGenContext.generatedTestSourceFiles());
             resultBuilder.addResourceFiles(sourceGenContext.generatedResourceFiles());
+            resultBuilder.addTestResourceFiles(sourceGenContext.generatedTestResourceFiles());
         }
     }
 
@@ -253,7 +258,9 @@ class CodeGeneratorManager {
         private final PackageCompilation compilation;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
         private final List<GeneratedSourceFile> sourceFiles = new ArrayList<>();
+        private final List<GeneratedTestFile> testSourceFiles = new ArrayList<>();
         private final List<GeneratedResourceFile> resourceFiles = new ArrayList<>();
+        private final List<GeneratedTestResourceFile> testResourceFiles = new ArrayList<>();
 
         private final ModuleId defaultModuleId;
 
@@ -298,6 +305,30 @@ class CodeGeneratorManager {
         }
 
         @Override
+        public void addTestSourceFile(TextDocument textDocument, String filenamePrefix, ModuleId moduleId) {
+            if (this.currentPackage.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.UNSUPPORTED_COMPILER_PLUGIN_TYPE.diagnosticId(),
+                        "Skipped adding the generated test source file with prefix \"" + filenamePrefix +
+                                "\". Test source file generation is not supported with standalone bal files",
+                        DiagnosticSeverity.WARNING);
+                reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
+                return;
+            }
+            if (currentPackage.moduleIds().contains(moduleId)) {
+                testSourceFiles.add(new GeneratedTestFile(textDocument, filenamePrefix, moduleId));
+            } else {
+                throw new IllegalArgumentException("There is no such module in the current package " +
+                        "with the given identifier: " + moduleId);
+            }
+        }
+
+        @Override
+        public void addTestSourceFile(TextDocument textDocument, String filenamePrefix) {
+            addTestSourceFile(textDocument, filenamePrefix, defaultModuleId);
+        }
+
+        @Override
         public void addResourceFile(byte[] content, String fileName, ModuleId moduleId) {
             if (currentPackage.moduleIds().contains(moduleId)) {
                 resourceFiles.add(new GeneratedResourceFile(content, fileName, moduleId));
@@ -313,6 +344,21 @@ class CodeGeneratorManager {
         }
 
         @Override
+        public void addTestResourceFile(byte[] content, String fileName, ModuleId moduleId) {
+            if (currentPackage.moduleIds().contains(moduleId)) {
+                testResourceFiles.add(new GeneratedTestResourceFile(content, fileName, moduleId));
+            } else {
+                throw new IllegalArgumentException("There is no such module in the current package " +
+                        "with the given identifier: " + moduleId);
+            }
+        }
+
+        @Override
+        public void addTestResourceFile(byte[] content, String fileName) {
+            addTestResourceFile(content, fileName, defaultModuleId);
+        }
+
+        @Override
         public void reportDiagnostic(Diagnostic diagnostic) {
             diagnostics.add(diagnostic);
         }
@@ -325,8 +371,16 @@ class CodeGeneratorManager {
             return sourceFiles;
         }
 
+        Collection<GeneratedTestFile> generatedTestSourceFiles() {
+            return testSourceFiles;
+        }
+
         Collection<GeneratedResourceFile> generatedResourceFiles() {
             return resourceFiles;
+        }
+
+        Collection<GeneratedTestResourceFile> generatedTestResourceFiles() {
+            return testResourceFiles;
         }
     }
 
@@ -374,12 +428,60 @@ class CodeGeneratorManager {
         }
     }
 
+    private static class GeneratedTestFile {
+        private final TextDocument textDocument;
+        private final String filenamePrefix;
+        private final ModuleId moduleId;
+
+        public GeneratedTestFile(TextDocument textDocument, String filenamePrefix, ModuleId moduleId) {
+            this.textDocument = textDocument;
+            this.filenamePrefix = filenamePrefix;
+            this.moduleId = moduleId;
+        }
+
+        public TextDocument textDocument() {
+            return textDocument;
+        }
+
+        public String filenamePrefix() {
+            return filenamePrefix;
+        }
+
+        public ModuleId moduleId() {
+            return moduleId;
+        }
+    }
+
     private static class GeneratedResourceFile {
         private final byte[] content;
         private final String filename;
         private final ModuleId moduleId;
 
         public GeneratedResourceFile(byte[] content, String filename, ModuleId moduleId) {
+            this.content = content;
+            this.filename = filename;
+            this.moduleId = moduleId;
+        }
+
+        public byte[] content() {
+            return content;
+        }
+
+        public String filename() {
+            return filename;
+        }
+
+        public ModuleId moduleId() {
+            return moduleId;
+        }
+    }
+
+    private static class GeneratedTestResourceFile {
+        private final byte[] content;
+        private final String filename;
+        private final ModuleId moduleId;
+
+        public GeneratedTestResourceFile(byte[] content, String filename, ModuleId moduleId) {
             this.content = content;
             this.filename = filename;
             this.moduleId = moduleId;
@@ -445,14 +547,20 @@ class CodeGeneratorManager {
     private static class CodeGenTaskResult {
         private final List<Diagnostic> reportedDiagnostics;
         private final Map<ModuleId, List<GeneratedSourceFile>> sourceFilesMap;
+        private final Map<ModuleId, List<GeneratedTestFile>> testSourceFilesMap;
         private final Map<ModuleId, List<GeneratedResourceFile>> resourceFilesMap;
+        private final Map<ModuleId, List<GeneratedTestResourceFile>> testResourceFilesMap;
 
         public CodeGenTaskResult(List<Diagnostic> reportedDiagnostics,
                                  Map<ModuleId, List<GeneratedSourceFile>> sourceFilesMap,
-                                 Map<ModuleId, List<GeneratedResourceFile>> resourceFilesMap) {
+                                 Map<ModuleId, List<GeneratedTestFile>> testSourceFilesMap,
+                                 Map<ModuleId, List<GeneratedResourceFile>> resourceFilesMap,
+                                 Map<ModuleId, List<GeneratedTestResourceFile>> testResourceFilesMap) {
             this.reportedDiagnostics = reportedDiagnostics;
             this.sourceFilesMap = sourceFilesMap;
+            this.testSourceFilesMap = testSourceFilesMap;
             this.resourceFilesMap = resourceFilesMap;
+            this.testResourceFilesMap = testResourceFilesMap;
         }
 
         Collection<Diagnostic> reportedDiagnostics() {
@@ -466,6 +574,13 @@ class CodeGeneratorManager {
             return sourceFilesMap.get(moduleId);
         }
 
+        Collection<GeneratedTestFile> testSourceFiles(ModuleId moduleId) {
+            if (testSourceFilesMap.get(moduleId) == null) {
+                return Collections.emptyList();
+            }
+            return testSourceFilesMap.get(moduleId);
+        }
+
         Collection<GeneratedResourceFile> resourceFiles(ModuleId moduleId) {
             if (resourceFilesMap.get(moduleId) == null) {
                 return Collections.emptyList();
@@ -473,24 +588,43 @@ class CodeGeneratorManager {
             return resourceFilesMap.get(moduleId);
         }
 
+        Collection<GeneratedTestResourceFile> testResourceFiles(ModuleId moduleId) {
+            if (testResourceFilesMap.get(moduleId) == null) {
+                return Collections.emptyList();
+            }
+            return testResourceFilesMap.get(moduleId);
+        }
+
         boolean containsSourceFile() {
             return !sourceFilesMap.isEmpty();
         }
 
+        boolean containsTestSourceFile() {
+            return !testSourceFilesMap.isEmpty();
+        }
+
         boolean containsResourceFile() {
             return !resourceFilesMap.isEmpty();
+        }
+
+        boolean containsTestResourceFile() {
+            return !testResourceFilesMap.isEmpty();
         }
     }
 
     private static class CodeGeneratorTaskResultBuilder {
         private final List<Diagnostic> reportedDiagnostics;
         private final List<GeneratedSourceFile> generatedSourceFiles;
+        private final List<GeneratedTestFile> generatedTestSourceFiles;
         private final List<GeneratedResourceFile> generatedResourceFiles;
+        private final List<GeneratedTestResourceFile> generatedTestResourceFiles;
 
         CodeGeneratorTaskResultBuilder() {
             this.reportedDiagnostics = new ArrayList<>();
             this.generatedSourceFiles = new ArrayList<>();
+            this.generatedTestSourceFiles = new ArrayList<>();
             this.generatedResourceFiles = new ArrayList<>();
+            this.generatedTestResourceFiles = new ArrayList<>();
         }
 
         CodeGeneratorTaskResultBuilder addDiagnostics(Collection<Diagnostic> diagnostics) {
@@ -503,8 +637,18 @@ class CodeGeneratorManager {
             return this;
         }
 
+        CodeGeneratorTaskResultBuilder addTestSourceFiles(Collection<GeneratedTestFile> testSourceFiles) {
+            generatedTestSourceFiles.addAll(testSourceFiles);
+            return this;
+        }
+
         CodeGeneratorTaskResultBuilder addResourceFiles(Collection<GeneratedResourceFile> resourceFiles) {
             generatedResourceFiles.addAll(resourceFiles);
+            return this;
+        }
+
+        CodeGeneratorTaskResultBuilder addTestResourceFiles(Collection<GeneratedTestResourceFile> testResourceFiles) {
+            generatedTestResourceFiles.addAll(testResourceFiles);
             return this;
         }
 
@@ -513,11 +657,21 @@ class CodeGeneratorManager {
             for (GeneratedSourceFile sourceFile : generatedSourceFiles) {
                 sourceFilesMap.computeIfAbsent(sourceFile.moduleId(), key -> new ArrayList<>()).add(sourceFile);
             }
+            Map<ModuleId, List<GeneratedTestFile>> testSourceFilesMap = new HashMap<>();
+            for (GeneratedTestFile testFile : generatedTestSourceFiles) {
+                testSourceFilesMap.computeIfAbsent(testFile.moduleId(), key -> new ArrayList<>()).add(testFile);
+            }
             Map<ModuleId, List<GeneratedResourceFile>> resourceFilesMap = new HashMap<>();
             for (GeneratedResourceFile resourceFile : generatedResourceFiles) {
                 resourceFilesMap.computeIfAbsent(resourceFile.moduleId(), key -> new ArrayList<>()).add(resourceFile);
             }
-            return new CodeGenTaskResult(reportedDiagnostics, sourceFilesMap, resourceFilesMap);
+            Map<ModuleId, List<GeneratedTestResourceFile>> testResourceFilesMap = new HashMap<>();
+            for (GeneratedTestResourceFile testResourceFile : generatedTestResourceFiles) {
+                testResourceFilesMap.computeIfAbsent(testResourceFile.moduleId(), key -> new ArrayList<>())
+                        .add(testResourceFile);
+            }
+            return new CodeGenTaskResult(reportedDiagnostics, sourceFilesMap, testSourceFilesMap,
+                    resourceFilesMap, testResourceFilesMap);
         }
     }
 
@@ -572,9 +726,20 @@ class CodeGeneratorManager {
                 addGeneratedDocument(uniqueFilename, sourceFile.textDocument, modifier, moduleId);
             }
 
+            for (GeneratedTestFile testSourceFile : codeGenTaskResult.testSourceFiles(moduleId)) {
+                String uniqueFilename = getUniqueFilename(testSourceFile, docNames);
+                docNames.add(uniqueFilename);
+                addGeneratedTestDocument(uniqueFilename, testSourceFile.textDocument, modifier, moduleId);
+            }
+
             for (GeneratedResourceFile resourceFile : codeGenTaskResult.resourceFiles(moduleId)) {
                 docNames.add(resourceFile.filename());
                 addGeneratedResource(resourceFile.filename(), resourceFile.content, modifier, moduleId);
+            }
+
+            for (GeneratedTestResourceFile testResourceFile : codeGenTaskResult.testResourceFiles(moduleId)) {
+                docNames.add(testResourceFile.filename());
+                addGeneratedTestResource(testResourceFile.filename(), testResourceFile.content, modifier, moduleId);
             }
 
             return modifier.apply().packageInstance();
@@ -589,6 +754,15 @@ class CodeGeneratorManager {
             modifier.addResource(resourceConfig);
         }
 
+        private void addGeneratedTestResource(String newTestResourceFilename,
+                                              byte[] content,
+                                              Module.Modifier modifier,
+                                              ModuleId moduleId) {
+            DocumentId documentId = DocumentId.create(newTestResourceFilename, moduleId);
+            ResourceConfig resourceConfig = ResourceConfig.from(documentId, newTestResourceFilename, content);
+            modifier.addTestResource(resourceConfig);
+        }
+
         private void addGeneratedDocument(String newDocFilename,
                                           TextDocument textDocument,
                                           Module.Modifier modifier,
@@ -599,9 +773,30 @@ class CodeGeneratorManager {
             modifier.addDocument(documentConfig);
         }
 
+        private void addGeneratedTestDocument(String newDocFilename,
+                                              TextDocument textDocument,
+                                              Module.Modifier modifier,
+                                              ModuleId moduleId) {
+            DocumentId documentId = DocumentId.create(newDocFilename, moduleId);
+            DocumentConfig documentConfig = DocumentConfig.from(documentId,
+                    textDocument.toString(), newDocFilename);
+            modifier.addTestDocument(documentConfig);
+        }
+
         private String getUniqueFilename(GeneratedSourceFile sourceFile, List<String> docNames) {
             GeneratedFilename genFileName = new GeneratedFilename(
                     sourceFile.filenamePrefix(), getNextFilenameCounter());
+            // Making sure that we have a unique filename
+            while (!uniqueFileName(genFileName.toString(), docNames)) {
+                genFileName.updateUniqueCounter(getNextFilenameCounter());
+            }
+
+            return genFileName.toString();
+        }
+
+        private String getUniqueFilename(GeneratedTestFile testSourceFile, List<String> docNames) {
+            GeneratedFilename genFileName = new GeneratedFilename(
+                    testSourceFile.filenamePrefix(), getNextFilenameCounter());
             // Making sure that we have a unique filename
             while (!uniqueFileName(genFileName.toString(), docNames)) {
                 genFileName.updateUniqueCounter(getNextFilenameCounter());

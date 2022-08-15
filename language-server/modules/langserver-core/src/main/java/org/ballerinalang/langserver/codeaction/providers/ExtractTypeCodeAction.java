@@ -28,11 +28,13 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -51,21 +53,21 @@ import java.util.stream.Collectors;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
+public class ExtractTypeCodeAction implements RangeBasedCodeActionProvider {
 
     private static final String RECORD_NAME_PREFIX = "Record";
 
-    public ExtractTypeCodeAction() {
-        super(List.of(CodeActionNodeType.RECORD));
+    public List<SyntaxKind> getSyntaxKinds() {
+        return List.of(SyntaxKind.RECORD_TYPE_DESC);
     }
 
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context, NodeBasedPositionDetails posDetails) {
-        if (posDetails.matchedTopLevelNode().kind() != SyntaxKind.RECORD_TYPE_DESC) {
+    public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
+        if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.RECORD_TYPE_DESC) {
             return Collections.emptyList();
         }
 
-        RecordTypeDescriptorNode node = (RecordTypeDescriptorNode) posDetails.matchedTopLevelNode();
+        RecordTypeDescriptorNode node = (RecordTypeDescriptorNode) posDetails.matchedCodeActionNode();
         if (node.parent().kind() == SyntaxKind.TYPE_DEFINITION || context.currentSyntaxTree().isEmpty()) {
             return Collections.emptyList();
         }
@@ -89,12 +91,12 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-        String typeName = CommonUtil.generateTypeName(RECORD_NAME_PREFIX, visibleSymbolNames);
+        String typeName = NameUtil.generateTypeName(RECORD_NAME_PREFIX, visibleSymbolNames);
 
-        Range extractedRecordRange = new Range(CommonUtil.toPosition(lastTypeDefPosition),
-                CommonUtil.toPosition(lastTypeDefPosition));
-        Range originalNodeRange = new Range(CommonUtil.toPosition(node.lineRange().startLine()),
-                CommonUtil.toPosition(node.lineRange().endLine()));
+        Range extractedRecordRange = new Range(PositionUtil.toPosition(lastTypeDefPosition),
+                PositionUtil.toPosition(lastTypeDefPosition));
+        Range originalNodeRange = new Range(PositionUtil.toPosition(node.lineRange().startLine()),
+                PositionUtil.toPosition(node.lineRange().endLine()));
 
         // Create type def text
         String typeDesc = String.format("type %s %s;", typeName, node.toSourceCode());
@@ -107,11 +109,11 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         typeDesc = String.format("%n%n%s", typeDesc);
-        
+
         TextEdit typeDescEdit = new TextEdit(extractedRecordRange, typeDesc);
         TextEdit replaceEdit = new TextEdit(originalNodeRange, typeName);
-        CodeAction codeAction = createCodeAction(CommandConstants.EXTRACT_TYPE, List.of(typeDescEdit, replaceEdit),
-                context.fileUri(), CodeActionKind.RefactorExtract);
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TYPE,
+                List.of(typeDescEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
         return List.of(codeAction);
     }
 

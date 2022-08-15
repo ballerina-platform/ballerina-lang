@@ -16,12 +16,14 @@
 
 import ballerina/jballerina.java;
 
+public type PositiveInt int;
+
 public client class PublicClientObject {
     remote function getRemoteCounter(int num, decimal value, string msg = "test message") {
     }
 
     public function testFunction(int num, decimal value, string msg = "test message") {
-    // do nothing
+        // do nothing
     }
 }
 
@@ -51,7 +53,7 @@ public distinct service class Iterable {
     }
 }
 
-public distinct service class Collection  {
+public distinct service class Collection {
     *Iterable;
     *Common;
 
@@ -76,7 +78,7 @@ public distinct class Fruit {
     }
 }
 
-public distinct class Apple  {
+public distinct class Apple {
     *Fruit;
     *Common;
 

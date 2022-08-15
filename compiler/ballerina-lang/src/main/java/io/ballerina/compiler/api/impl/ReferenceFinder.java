@@ -107,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -1046,11 +1045,6 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        find(tableMultiKeyExpr.multiKeyIndexExprs);
-    }
-
-    @Override
     public void visit(BLangObjectConstructorExpression objConstructor) {
         find(objConstructor.classNode);
     }
@@ -1291,6 +1285,20 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangRestMatchPattern restMatchPattern) {
         addIfSameSymbol(restMatchPattern.symbol, restMatchPattern.variableName.pos);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        find(resourceAccessInvocation.expr);
+        find(resourceAccessInvocation.requiredArgs);
+        find(resourceAccessInvocation.annAttachments);
+        find(resourceAccessInvocation.restArgs);
+        find(resourceAccessInvocation.resourceAccessPathSegments);
+
+        if (!resourceAccessInvocation.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos);
+        }
+        addIfSameSymbol(resourceAccessInvocation.symbol, resourceAccessInvocation.pos);
     }
 
     // Private methods

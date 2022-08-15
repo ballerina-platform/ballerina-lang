@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -24,6 +25,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
@@ -37,8 +39,8 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
@@ -276,8 +278,45 @@ public class SortingUtil {
      * @return True if assignable
      */
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() == TypeDescKind.TYPEDESC && completionItem.getType() == SYMBOL) {
+            Optional<Symbol> optionalSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
+            if (optionalSymbol.isPresent() && (optionalSymbol.get().kind() == SymbolKind.TYPE_DEFINITION
+                    || optionalSymbol.get().kind() == SymbolKind.TYPE)) {
+                Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(typeSymbol);
+                if (optionalTypeParamTypeSymbol.isPresent()) {
+                    Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
+                    return optionalTypeSymbol.isPresent() 
+                            && optionalTypeSymbol.get().subtypeOf(optionalTypeParamTypeSymbol.get());
+                }
+            }
+        }
+        if (completionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter) {
+            return false;
+        }
         Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
         return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
+    }
+
+    /**
+     * Get the type symbol of the type parameter from the given type symbol.
+     * 
+     * @param typeSymbol Type Symbol
+     * @return Type Symbol or Empty if type parameter is not present
+     */
+    public static Optional<TypeSymbol> getTypeParameterFromTypeSymbol(TypeSymbol typeSymbol) {
+        Optional<TypeSymbol> optionalTypeSymbol;
+        switch (typeSymbol.typeKind()) {
+            case TYPEDESC:
+                optionalTypeSymbol = ((TypeDescTypeSymbol) typeSymbol).typeParameter();
+                break;
+            case FUTURE:
+                optionalTypeSymbol = ((FutureTypeSymbol) typeSymbol).typeParameter();
+                break;
+            default:
+                optionalTypeSymbol = Optional.empty();
+                break;
+        }
+        return optionalTypeSymbol;
     }
 
     /**
@@ -398,14 +437,14 @@ public class SortingUtil {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (typeDesc.get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) typeDesc.get();
-            String alias = QNameReferenceUtil.getAlias(qNameRef);
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+            String alias = QNameRefCompletionUtil.getAlias(qNameRef);
+            Optional<ModuleSymbol> moduleSymbol = ModuleUtil.searchModuleForAlias(context, alias);
 
             if (moduleSymbol.isEmpty()) {
                 return Optional.empty();
             }
             String identifier = qNameRef.identifier().text();
-            return CommonUtil.getTypeFromModule(context, alias, identifier);
+            return ModuleUtil.getTypeFromModule(context, alias, identifier);
         }
         if (typeDesc.get().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String nameRef = ((SimpleNameReferenceNode) typeDesc.get()).name().text();
@@ -454,7 +493,7 @@ public class SortingUtil {
      * @return Rank
      */
     public static int toRank(BallerinaCompletionContext context, LSCompletionItem completionItem, int rankOffset) {
-        boolean onQnameRef = QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor());
+        boolean onQnameRef = QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor());
         int rank = -1;
         CompletionItemKind completionItemKind = completionItem.getCompletionItem().getKind();
         switch (completionItem.getType()) {
@@ -541,27 +580,27 @@ public class SortingUtil {
     /**
      * Checks whether the symbol completion item is within the range of given node and cursor.
      *
-     * @param context       Completion Context
-     * @param lsCItem       LS Completion Item
-     * @param startNode     Starting Node
-     * @return  {@link Boolean}
+     * @param context   Completion Context
+     * @param lsCItem   LS Completion Item
+     * @param startNode Starting Node
+     * @return {@link Boolean}
      */
-    public static boolean isSymbolCItemWithinNodeAndCursor(BallerinaCompletionContext context, 
-                                                               LSCompletionItem lsCItem, Node startNode) {
-        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL 
+    public static boolean isSymbolCItemWithinNodeAndCursor(BallerinaCompletionContext context,
+                                                           LSCompletionItem lsCItem, Node startNode) {
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL
                 || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
-                return false;
+            return false;
         }
         return ((SymbolCompletionItem) lsCItem).getSymbol().get().getLocation()
                 .filter(location -> startNode.textRange().startOffset() < location.textRange().startOffset())
                 .filter(location -> location.textRange().endOffset() < context.getCursorPositionInTree())
                 .isPresent();
     }
-    
+
     /**
      * Loop through the parent clauseNode to find the outermost Query Expression Node if exists.
      *
-     * @param clauseNode           clauseNode
+     * @param clauseNode clauseNode
      * @return {@link Optional}    outermost QueryExpressionNode related to the clause node
      */
     public static Optional<QueryExpressionNode> getTheOutermostQueryExpressionNode(Node clauseNode) {

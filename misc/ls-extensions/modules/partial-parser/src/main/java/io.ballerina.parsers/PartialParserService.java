@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
@@ -109,6 +110,41 @@ public class PartialParserService implements ExtendedLanguageServerService {
 
             ModuleMemberDeclarationNode expressionNode = NodeParser.parseModuleMemberDeclaration(formattedSourceCode);
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
+            STResponse response = new STResponse();
+            response.setSyntaxTree(syntaxTreeJSON);
+            return response;
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<STResponse> getSTForModulePart(PartialSTRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
+                    request.getStModification());
+            String formattedSourceCode = getModuleMemberFormattedSource(statement);
+
+            ModulePartNode modulePartNode = SyntaxTree.from(TextDocuments.from(formattedSourceCode)).rootNode();
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(modulePartNode);
+            STResponse response = new STResponse();
+            response.setSyntaxTree(syntaxTreeJSON);
+            return response;
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<STResponse> getSTForResource(PartialSTRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            String serviceMemberSource = "service / on new http:Listener(9090) {" + request.getCodeSnippet() + "}";
+            String statement = STModificationUtil.getModifiedStatement(serviceMemberSource,
+                    request.getStModification());
+            String formattedSourceCode = getModuleMemberFormattedSource(statement);
+
+            ModuleMemberDeclarationNode moduleMemberDeclaration = NodeParser.
+                    parseModuleMemberDeclaration(formattedSourceCode);
+            ServiceDeclarationNode serviceDeclaration = (ServiceDeclarationNode) moduleMemberDeclaration;
+
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON((FunctionDefinitionNode) (serviceDeclaration.
+                    members().get(0)));
             STResponse response = new STResponse();
             response.setSyntaxTree(syntaxTreeJSON);
             return response;

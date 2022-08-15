@@ -197,6 +197,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.VALUE);
         dependentModuleArray.add(PackageID.ERROR);
         dependentModuleArray.add(PackageID.FLOAT);
+        dependentModuleArray.add(PackageID.FUNCTION);
         dependentModuleArray.add(PackageID.FUTURE);
         dependentModuleArray.add(PackageID.INT);
         dependentModuleArray.add(PackageID.MAP);
@@ -399,7 +400,7 @@ public class JvmPackageGen {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
-            JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
+            JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
             JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
@@ -786,7 +787,7 @@ public class JvmPackageGen {
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass
                 , typeHashVisitor);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
-                                             typeHashVisitor, jarEntries);
+                                             typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);

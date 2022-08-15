@@ -18,16 +18,18 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,21 +38,25 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class RemoveUnreachableCodeCodeAction extends AbstractCodeActionProvider {
+public class RemoveUnreachableCodeCodeAction implements DiagnosticBasedCodeActionProvider {
 
     private static final String CODE_ACTION_NAME = "REMOVE_UNREACHABLE_CODE";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, 
-                                                    DiagBasedPositionDetails positionDetails, 
-                                                    CodeActionContext context) {
-        if (!DiagnosticErrorCode.UNREACHABLE_CODE.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DiagnosticErrorCode.UNREACHABLE_CODE.diagnosticId().equals(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
+
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
 
         LineRange lineRange = diagnostic.location().lineRange();
-        TextEdit edit = new TextEdit(CommonUtil.toRange(lineRange), "");
-        return List.of(createCodeAction(CommandConstants.REMOVE_UNREACHABLE_CODE_TITLE, List.of(edit),
+        TextEdit edit = new TextEdit(PositionUtil.toRange(lineRange), "");
+        return List.of(CodeActionUtil.createCodeAction(CommandConstants.REMOVE_UNREACHABLE_CODE_TITLE, List.of(edit),
                 context.fileUri(), CodeActionKind.QuickFix));
     }
 

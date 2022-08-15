@@ -58,8 +58,6 @@ public enum CompilerOptionName {
 
     LOCK_ENABLED("lockEnabled"),
 
-    EXPERIMENTAL("experimental"),
-
     LIST_CONFLICTED_CLASSES("listConflictedClasses"),
 
     STICKY("sticky"),

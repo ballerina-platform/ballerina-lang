@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 31,
+    "character": 28
+  },
+  "source": {
+    "file": "hover_for_api_docs.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "`int` GLOBAL_VAR  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina\\/module1\\/0.1.0\\/variables#GLOBAL_VAR)"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

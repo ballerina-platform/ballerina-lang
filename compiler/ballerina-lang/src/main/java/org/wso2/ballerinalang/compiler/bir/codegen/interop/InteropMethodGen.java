@@ -152,7 +152,7 @@ public class InteropMethodGen {
 
         Label paramLoadLabel = labelGen.getLabel("param_load");
         mv.visitLabel(paramLoadLabel);
-        mv.visitLineNumber(birFunc.pos.lineRange().startLine().line(), paramLoadLabel);
+        mv.visitLineNumber(birFunc.pos.lineRange().startLine().line() + 1, paramLoadLabel);
 
         // birFunc.localVars contains all the function parameters as well as added boolean parameters to indicate the
         //  availability of default values.
@@ -276,7 +276,7 @@ public class InteropMethodGen {
 
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
-        mv.visitLineNumber(birFunc.pos.lineRange().startLine().line(), retLabel);
+        mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
         termGen.genReturnTerm(returnVarRefIndex, birFunc);
         mv.visitMaxs(200, 400);
         mv.visitEnd();
@@ -301,7 +301,7 @@ public class InteropMethodGen {
             // process terminator
             if (!(terminator instanceof BIRTerminator.Return)) {
                 JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
-                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null);
+                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null, -1, -1, null);
                 lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, basicBlock, funcName, labelGen,
                         lastScope, visitedScopesSet);
             }
@@ -309,7 +309,8 @@ public class InteropMethodGen {
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1);
+                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1, -1,
+                        terminator.pos, null, null, -1);
             }
         }
     }

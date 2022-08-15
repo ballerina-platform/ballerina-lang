@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -110,5 +111,32 @@ public class CheckPanicExpressionOperatorTest {
                 "not allowed here", 18, 16);
         BAssertUtil.validateError(compileResult, 1, "expression of type 'never' or equivalent to type 'never' " +
                 "not allowed here", 28, 16);
+    }
+
+    @Test
+    public void testCheckingExprWithNoErrorType() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/expressions/checkpanicexpr/check_panic_expr_with_no_error_type.bal");
+
+        int i = 0;
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 23, 19);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 37, 29);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 41, 29);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 45, 29);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 49, 29);
+        Assert.assertEquals(compileResult.getWarnCount(), i);
+
+        BRunUtil.invoke(compileResult, "testCheckingExprWithNoErrorType");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negative = null;
     }
 }

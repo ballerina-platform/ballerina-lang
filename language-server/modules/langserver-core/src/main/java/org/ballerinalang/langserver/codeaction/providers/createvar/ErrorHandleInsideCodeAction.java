@@ -20,10 +20,10 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -54,15 +54,19 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
-            return Collections.emptyList();
-        }
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
 
-        Optional<TypeSymbol> typeDescriptor = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
+
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
+        Optional<TypeSymbol> typeDescriptor = getExpectedTypeSymbol(positionDetails);
         if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
@@ -70,14 +74,14 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         String uri = context.fileUri();
         UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor.get();
 
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeDescriptor.get(),
-                                                                          context);
+                context);
 
         // Add type guard code action
         String commandTitle = CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE;
         List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name, range, unionType,
-                                                                          context);
+                context);
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }
@@ -85,7 +89,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         edits.add(createVarTextEdits.edits.get(0));
         // Add all the import text edits excluding duplicates
         createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
-        return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(commandTitle, edits, uri, 
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, uri,
                 CodeActionKind.QuickFix));
     }
 

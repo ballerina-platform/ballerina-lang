@@ -28,8 +28,8 @@ public class BlockStatementTest extends AbstractStatementTest {
 
     @Test
     public void testComplexBlockStmt() {
-        testFile("block-stmt/block_stmt_source_01.bal",
-        "block-stmt/block_stmt_assert_01.json");
+        testFile("block-stmt/block_stmt_source_01.bal", "block-stmt/block_stmt_assert_01.json");
+        testFile("block-stmt/block_stmt_source_08.bal", "block-stmt/block_stmt_assert_08.json");
     }
 
     @Test

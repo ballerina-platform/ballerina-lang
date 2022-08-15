@@ -22,11 +22,14 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -45,20 +48,24 @@ import java.util.Optional;
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ImportModuleCodeAction extends AbstractCodeActionProvider {
+public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Import Module";
 
     private static final String UNDEFINED_MODULE = "undefined module";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return diagnostic.message().startsWith(UNDEFINED_MODULE)
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
+
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        if (!(diagnostic.message().startsWith(UNDEFINED_MODULE))) {
-            return actions;
-        }
         String uri = context.fileUri();
         String diagnosticMessage = diagnostic.message();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
@@ -73,15 +80,16 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                 })
                 .forEach(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
-                    String moduleName = CommonUtil.escapeModuleName(pkgName);
+                    String moduleName = ModuleUtil.escapeModuleName(pkgName);
                     Position insertPos = getImportPosition(context);
                     String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
                             + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
                     String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
-                                                        pkgEntry.packageOrg().value() + "/" + moduleName);
+                            pkgEntry.packageOrg().value() + "/" + moduleName);
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
-                    CodeAction action = createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
+                    CodeAction action = CodeActionUtil
+                            .createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
                     actions.add(action);
                 });
         return actions;

@@ -21,11 +21,14 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.FailStatementResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -44,29 +47,31 @@ import java.util.Optional;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddOnFailCodeAction extends AbstractCodeActionProvider {
+public class AddOnFailCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Add on-fail clause";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return (DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
+                .equals(diagnostic.diagnosticInfo().code()) ||
+                DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
+                        .equals(diagnostic.diagnosticInfo().code()))
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
 
-        if (!(DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
-                .equals(diagnostic.diagnosticInfo().code())) &&
-                !(DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
-                        .equals(diagnostic.diagnosticInfo().code()))) {
-            return Collections.emptyList();
-        }
-
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Node nodeAtDiagnostic = positionDetails.matchedNode();
         List<TextEdit> edits = new ArrayList<>();
         String commandTitle;
 
         FailStatementResolver finder = new FailStatementResolver(diagnostic);
         Optional<Node> failStatementResolverNode = finder.getRegularCompoundStatementNode(nodeAtDiagnostic);
-        
+
         if (failStatementResolverNode.isPresent()
                 && failStatementResolverNode.get().kind() == SyntaxKind.WHILE_KEYWORD) {
             while (nodeAtDiagnostic.kind() == SyntaxKind.WHILE_STATEMENT) {
@@ -74,13 +79,13 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
             }
             edits.add(getSurroundWithOnFailEditText(nodeAtDiagnostic));
             commandTitle = CommandConstants.SURROUND_WITH_DO_ON_FAIL;
-            return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
+            return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                     CodeActionKind.QuickFix));
         }
-        
+
         if (failStatementResolverNode.isPresent()) {
             LinePosition regularCompoundStmtLinePosition = failStatementResolverNode.get().lineRange().endLine();
-            Position onFailPosLine = new Position(regularCompoundStmtLinePosition.line(), 
+            Position onFailPosLine = new Position(regularCompoundStmtLinePosition.line(),
                     regularCompoundStmtLinePosition.offset());
 
             String spaces = " ".repeat(regularCompoundStmtLinePosition.offset() - 1);
@@ -93,10 +98,10 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
             commandTitle = CommandConstants.SURROUND_WITH_DO_ON_FAIL;
         }
 
-        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
     }
- 
+
     public TextEdit getSurroundWithOnFailEditText(Node node) {
         while (!StatementNode.class.isAssignableFrom(node.getClass())) {
             node = node.parent();
@@ -114,10 +119,9 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
                 + tabShiftedDoStatement + spaces
                 + "} on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                 + CommonUtil.LINE_SEPARATOR + spaces + "}";
-        TextEdit textEdit = new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo);
-        return textEdit;
+        return new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo);
     }
-    
+
     @Override
     public String getName() {
         return NAME;

@@ -33,6 +33,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     CORRUPTED_DEPENDENCIES_TOML("BCE5003", "corrupted.dependencies.toml"),
     INCOMPATIBLE_DEPENDENCY_VERSIONS("BCE5004", "incompatible.dependency.versions"),
     PACKAGE_NOT_FOUND("BCE5005", "package.not.found"),
+    MISSING_PKG_INFO_IN_BALLERINA_TOML("BCE5006", "missing.package.info"),
     MODULE_NOT_FOUND("BCE5100", "module.not.found"),
     UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5200", "unsupported.compiler.plugin.type")
     ;

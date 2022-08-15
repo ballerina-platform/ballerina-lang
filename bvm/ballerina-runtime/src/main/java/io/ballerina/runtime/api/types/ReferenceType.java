@@ -24,4 +24,13 @@ package io.ballerina.runtime.api.types;
  * @since 2.0.0
  */
 public interface ReferenceType extends Type {
+
+    /**
+     * Get the referred type of the type if it is a type-reference type.
+     *
+     * @return the referred type
+     */
+    default Type getReferredType() {
+        return this;
+    }
 }

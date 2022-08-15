@@ -111,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -764,10 +763,6 @@ abstract class BaseVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-    }
-
-    @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
     }
 
@@ -1042,4 +1037,6 @@ abstract class BaseVisitor extends BLangNodeVisitor {
     @Override
     public void visit(BLangClassDefinition classDefinition) {
     }
+
+    public abstract void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation);
 }

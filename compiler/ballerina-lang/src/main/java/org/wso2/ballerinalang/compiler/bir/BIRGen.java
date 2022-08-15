@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -648,6 +649,34 @@ public class BIRGen extends BLangNodeVisitor {
             addRestParam(birFunc, astFunc.restParam.symbol, astFunc.restParam.pos);
         }
 
+        if (astFunc.flagSet.contains(Flag.RESOURCE)) {
+            BTypeSymbol parentTSymbol = astFunc.parent.getBType().tsymbol;
+            // Parent symbol will always be BObjectTypeSymbol for resource functions
+            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) parentTSymbol;
+            for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
+                if (func.funcName.value.equals(funcName.value)) {
+                    BResourceFunction resourceFunction = (BResourceFunction) func;
+                    
+                    List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams;
+                    List<BIRVariableDcl> pathParams = new ArrayList<>(pathParamSymbols.size());
+                    for (BVarSymbol pathParamSym : pathParamSymbols) {
+                        pathParams.add(createBIRVarDeclForPathParam(pathParamSym));
+                    }
+                    birFunc.pathParams = pathParams;
+                            
+                    BVarSymbol restPathParamSym = resourceFunction.restPathParam;
+                    if (restPathParamSym != null) {
+                        birFunc.restPathParam = createBIRVarDeclForPathParam(restPathParamSym);
+                    }
+
+                    birFunc.resourcePath = resourceFunction.resourcePath;
+                    birFunc.accessor = resourceFunction.accessor;
+                    birFunc.resourcePathType = resourceFunction.resourcePathType;
+                    break;
+                }
+            }
+        }
+
         if (astFunc.interfaceFunction || Symbols.isNative(astFunc.symbol)) {
             this.env.clear();
             return;
@@ -673,6 +702,11 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.clear();
         birFunc.dependentGlobalVars = astFunc.symbol.dependentGlobalVars.stream()
                 .map(varSymbol -> this.globalVarMap.get(varSymbol)).collect(Collectors.toSet());
+    }
+    
+    private BIRVariableDcl createBIRVarDeclForPathParam(BVarSymbol pathParamSym) {
+        return new BIRVariableDcl(pathParamSym.pos, pathParamSym.type, this.env.nextLocalVarId(names), 
+                VarScope.FUNCTION, VarKind.ARG, pathParamSym.name.value);
     }
 
     private BIRVariableDcl getSelf(BSymbol receiver) {
@@ -1131,7 +1165,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangWorkerSend workerSend) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
-        this.env.enclBasicBlocks.add(thenBB);
+
         workerSend.expr.accept(this);
 
         String channelName = this.env.enclFunc.workerName.value + "->" + workerSend.workerIdentifier.value;
@@ -1141,6 +1175,7 @@ public class BIRGen extends BLangNodeVisitor {
                 workerSend.pos, names.fromString(channelName), this.env.targetOperand, isOnSameStrand, false, null,
                 thenBB, this.currentScope);
 
+        this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
     }
 
@@ -2171,7 +2206,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        visitTypedesc(typeLoad.pos, typeLoad.symbol.type, Collections.emptyList());
+        BType type = typeLoad.symbol.tag == SymTag.TYPE_DEF ?
+                ((BTypeDefinitionSymbol) typeLoad.symbol).referenceType : typeLoad.symbol.type;
+        visitTypedesc(typeLoad.pos, type, Collections.emptyList());
     }
 
     private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls) {

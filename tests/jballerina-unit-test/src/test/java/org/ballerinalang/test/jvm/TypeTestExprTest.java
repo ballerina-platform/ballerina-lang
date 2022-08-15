@@ -141,6 +141,11 @@ public class TypeTestExprTest {
         BRunUtil.invoke(compileResult, "testIsLikeForTupleWithOutRestDescriptor");
     }
 
+    @Test
+    public void testTypeTestingInReadonlyRecord() {
+        BRunUtil.invoke(compileResult, "testTypeTestingInReadonlyRecord");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

@@ -26,6 +26,7 @@ import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -43,6 +44,7 @@ import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
+import org.ballerinalang.test.runtime.util.JacocoInstrumentUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TestProcessor;
@@ -61,6 +63,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,6 +84,8 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DI
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_ANNOTATION_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODULE_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
@@ -109,6 +115,8 @@ public class RunTestsTask implements Task {
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
     private List<String> singleExecTests;
+    private Map<String, Module> coverageModules;
+
     TestReport testReport;
 
     public RunTestsTask(PrintStream out, PrintStream err, String includes, String coverageFormat) {
@@ -119,7 +127,8 @@ public class RunTestsTask implements Task {
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes, String coverageFormat) {
+                        List<String> disableGroupList, List<String> testList, String includes, String coverageFormat,
+                        Map<String, Module> modules) {
         this.out = out;
         this.err = err;
         this.isSingleTestExecution = false;
@@ -142,6 +151,7 @@ public class RunTestsTask implements Task {
         }
         this.includesInCoverage = includes;
         this.coverageReportFormat = coverageFormat;
+        this.coverageModules = modules;
     }
 
     @Override
@@ -188,8 +198,10 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-        for (ModuleId moduleId : project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            Module module = project.currentPackage().module(moduleId);
+        List<String> mockClassNames = new ArrayList<>();
+        for (ModuleDescriptor moduleDescriptor :
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
@@ -222,6 +234,17 @@ public class RunTestsTask implements Task {
                     module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
             testSuiteMap.put(resolvedModuleName, suite);
             moduleNamesList.add(resolvedModuleName);
+            Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
+            for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
+                String key = entry.getKey();
+                String functionToMockClassName;
+                if (key.contains(MOCK_ANNOTATION_DELIMITER)) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_ANNOTATION_DELIMITER));
+                } else {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                }
+                mockClassNames.add(functionToMockClassName);
+            }
         }
 
         writeToTestSuiteJson(testSuiteMap, testsCachePath);
@@ -229,7 +252,7 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                testResult = runTestSuit(testsCachePath, target, project.currentPackage(), jBallerinaBackend);
+                testResult = runTestSuit(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
@@ -248,7 +271,7 @@ public class RunTestsTask implements Task {
                         throw createLauncherException("error occurred while generating test report :", e);
                     }
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while running tests", e);
             }
@@ -379,7 +402,8 @@ public class RunTestsTask implements Task {
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
-            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.coverageReportFormat);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.coverageReportFormat,
+                    this.coverageModules.get(module.moduleName().toString()));
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -484,9 +508,9 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path testCachePath, Target target, Package currentPackage,
-                            JBallerinaBackend jBallerinaBackend) throws IOException,
-            InterruptedException {
+    private int runTestSuit(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
+                            List<String> mockClassNames) throws IOException, InterruptedException,
+            ClassNotFoundException {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
@@ -496,15 +520,23 @@ public class RunTestsTask implements Task {
         cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
-
+        String jacocoAgentJarPath = "";
         if (coverage) {
-            String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+            jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                     .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
+            if (!mockClassNames.isEmpty()) {
+                // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
+                // support dynamic class file transformations while instrumenting.
+                List<URL> jarUrlList = getModuleJarUrlList(jBallerinaBackend, currentPackage);
+                Path instrumentDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
+                        .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR);
+                JacocoInstrumentUtils.instrumentOffline(jarUrlList, instrumentDir, mockClassNames);
+            }
             String agentCommand = "-javaagent:"
                     + jacocoAgentJarPath
                     + "=destfile="
                     + target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
-                    .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
+                    .resolve(TesterinaConstants.EXEC_FILE_NAME);
             if (!TesterinaConstants.DOT.equals(packageName) && this.includesInCoverage == null) {
                 // add user defined classes for generating the jacoco exec file
                 agentCommand += ",includes=" + orgName + ".*";
@@ -524,6 +556,7 @@ public class RunTestsTask implements Task {
         // Adds arguments to be read at the Test Runner
         // Index [0 - 3...]
         cmdArgs.add(target.path().toString());
+        cmdArgs.add(jacocoAgentJarPath);
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
 
@@ -621,7 +654,7 @@ public class RunTestsTask implements Task {
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());
 
-        List<Path> jarList = getExclusionPathList(jBallerinaBackend, currentPackage);
+        List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
         dependencies.removeAll(jarList);
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
@@ -629,20 +662,20 @@ public class RunTestsTask implements Task {
         return classPath.toString();
     }
 
-    private List<Path> getExclusionPathList(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
-        List<Path> exclusionPathList = new ArrayList<>();
+    private List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> moduleJarPaths = new ArrayList<>();
 
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
 
             PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
                     module.moduleName());
-            exclusionPathList.add(generatedJarLibrary.path());
+            moduleJarPaths.add(generatedJarLibrary.path());
 
             if (!module.testDocumentIds().isEmpty()) {
                 PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
                         currentPackage.packageId(), module.moduleName());
-                exclusionPathList.add(codeGeneratedTestLibrary.path());
+                moduleJarPaths.add(codeGeneratedTestLibrary.path());
             }
         }
 
@@ -650,12 +683,22 @@ public class RunTestsTask implements Task {
             Package pkg = resolvedPackageDependency.packageInstance();
             for (ModuleId moduleId : pkg.moduleIds()) {
                 Module module = pkg.module(moduleId);
-                exclusionPathList.add(
+                moduleJarPaths.add(
                         jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
             }
         }
 
-        return exclusionPathList.stream().distinct().collect(Collectors.toList());
+        return moduleJarPaths.stream().distinct().collect(Collectors.toList());
+    }
+
+    private List<URL> getModuleJarUrlList(JBallerinaBackend jBallerinaBackend, Package currentPackage)
+            throws MalformedURLException {
+        List<Path> moduleJarPaths = getModuleJarPaths(jBallerinaBackend, currentPackage);
+        List<URL> moduleJarUrls = new ArrayList<>(moduleJarPaths.size());
+        for (Path path : moduleJarPaths) {
+            moduleJarUrls.add(path.toUri().toURL());
+        }
+        return moduleJarUrls;
     }
 
 }

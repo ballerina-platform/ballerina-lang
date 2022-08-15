@@ -15,6 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
@@ -31,9 +34,11 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -57,16 +62,20 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
     public static final String NAME = "Change Variable Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
 
         Optional<TypeSymbol> foundType;
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
@@ -77,7 +86,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             foundType = positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
         }
-        if (foundType.isEmpty()) {
+        if (foundType.isEmpty() || !isValidType(foundType.get())) {
             return Collections.emptyList();
         }
 
@@ -104,9 +113,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 continue;
             }
             List<TextEdit> edits = new ArrayList<>();
-            edits.add(new TextEdit(CommonUtil.toRange(typeNode.get().lineRange()), type));
+            edits.add(new TextEdit(PositionUtil.toRange(typeNode.get().lineRange()), type));
             String commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
-            actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
+            actions.add(CodeActionUtil
+                    .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;
     }
@@ -126,12 +136,12 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
         return Optional.empty();
     }
-    
-    boolean isVariableNode (NonTerminalNode sNode) {
+
+    boolean isVariableNode(NonTerminalNode sNode) {
         return sNode != null &&
                 (sNode.kind() == SyntaxKind.LOCAL_VAR_DECL ||
-                sNode.kind() == SyntaxKind.MODULE_VAR_DECL ||
-                sNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) &&
+                        sNode.kind() == SyntaxKind.MODULE_VAR_DECL ||
+                        sNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) &&
                 (sNode.kind() != SyntaxKind.POSITIONAL_ARG || sNode.kind() != SyntaxKind.NAMED_ARG);
     }
 
@@ -190,5 +200,19 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             default:
                 return Optional.empty();
         }
+    }
+
+    private boolean isValidType(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            return false;
+        }
+        if (typeSymbol.typeKind() == TypeDescKind.MAP) {
+            return ((MapTypeSymbol) typeSymbol).typeParam().typeKind() != TypeDescKind.COMPILATION_ERROR;
+        }
+        if (typeSymbol.typeKind() == TypeDescKind.TABLE) {
+            return ((TableTypeSymbol) typeSymbol).rowTypeParameter().typeKind() != TypeDescKind.COMPILATION_ERROR;
+        }
+
+        return true;
     }
 }

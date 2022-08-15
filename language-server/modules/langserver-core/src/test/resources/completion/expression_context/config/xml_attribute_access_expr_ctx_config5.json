@@ -8,7 +8,7 @@
     {
       "label": "TEST_STRING_CONST1",
       "kind": "Variable",
-      "detail": "HELLO WORLD",
+      "detail": "\"HELLO WORLD\"",
       "documentation": {
         "right": {
           "kind": "markdown",

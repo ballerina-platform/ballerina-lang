@@ -102,7 +102,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -885,11 +884,6 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        lookupNodes(tableMultiKeyExpr.multiKeyIndexExprs);
-    }
-
-    @Override
     public void visit(BLangArrayType arrayType) {
         lookupNode(arrayType.elemtype);
     }
@@ -943,6 +937,16 @@ class NodeFinder extends BaseVisitor {
         lookupNodes(classDefinition.functions);
         lookupNodes(classDefinition.typeRefs);
         setEnclosingNode(classDefinition, classDefinition.name.pos);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        lookupNodes(resourceAccessInvocation.annAttachments);
+        lookupNode(resourceAccessInvocation.expr);
+        lookupNode(resourceAccessInvocation.resourceAccessPathSegments);
+        lookupNodes(resourceAccessInvocation.requiredArgs);
+        lookupNodes(resourceAccessInvocation.restArgs);
+        setEnclosingNode(resourceAccessInvocation, resourceAccessInvocation.pos);
     }
 
     @Override

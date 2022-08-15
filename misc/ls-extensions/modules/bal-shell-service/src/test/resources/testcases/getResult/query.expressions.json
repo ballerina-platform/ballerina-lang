@@ -1,0 +1,181 @@
+[
+  {
+    "source": "int[] nums = [1, 2, 3, 4];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["nums"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int[] numsTimes10 = from var i in nums select i * 10;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["numsTimes10"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "numsTimes10",
+    "result": {
+      "shellValue": {
+        "value":"[10, 20, 30, 40]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"int[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "from var i in nums where i % 2 == 0 select i;",
+    "result": {
+      "shellValue": {
+        "value":"[2, 4]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"int[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type Person record {string first; string last; int yearOfBirth; };",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Person"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Person[] persons = [{first: \"Melina\", last: \"Kodel\", yearOfBirth: 1994}, {first: \"Tom\", last: \"Riddle\", yearOfBirth: 1926}];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["persons"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "from var {first: f, last: l} in persons select {first: f, last: l};",
+    "result": {
+      "shellValue": {
+        "value":"[{\"first\":\"Melina\", \"last\":\"Kodel\"}, {\"first\":\"Tom\", \"last\":\"Riddle\"}]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"map\u003c(any|error)\u003e[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "from var {first, last} in persons select {first, last};",
+    "result": {
+      "shellValue": {
+        "value":"[{\"first\":\"Melina\", \"last\":\"Kodel\"}, {\"first\":\"Tom\", \"last\":\"Riddle\"}]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"map\u003c(any|error)\u003e[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string[] names = from var {first, last} in persons let int len1 = first.length() where len1 > 0 let int len2 = last.length() where len2 > 0 let string name = first + \" \" + last select name;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["names"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "names",
+    "result": {
+      "shellValue": {
+        "value":"[\"Melina Kodel\", \"Tom Riddle\"]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"string[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type Employee record { string firstName; string lastName; decimal salary;};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Employee"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee[] employees = [ {firstName: \"Jones\", lastName: \"Welsh\", salary: 1000.00}, {firstName: \"Anne\", lastName: \"Frank\", salary: 5000.00}, {firstName: \"Rocky\", lastName: \"Irving\", salary: 6000.00}, {firstName: \"Anne\", lastName: \"Perera\", salary: 3000.00}, {firstName: \"Jermaine\", lastName: \"Perera\", salary: 4000.00}, {firstName: \"Miya\", lastName: \"Bauer\", salary: 9000.00}, {firstName: \"Rocky\", lastName: \"Puckett\", salary: 6000.00}, {firstName: \"Jermaine\", lastName: \"Kent\", salary: 4000.00}];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["employees"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee[] sorted = from var e in employees order by e.firstName ascending, e.lastName descending select e;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["sorted"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "sorted",
+    "result": {
+      "shellValue": {
+        "value":"[{\"firstName\":\"Anne\", \"lastName\":\"Perera\", \"salary\":3000.00}, {\"firstName\":\"Anne\", \"lastName\":\"Frank\", \"salary\":5000.00}, {\"firstName\":\"Jermaine\", \"lastName\":\"Perera\", \"salary\":4000.00}, {\"firstName\":\"Jermaine\", \"lastName\":\"Kent\", \"salary\":4000.00}, {\"firstName\":\"Jones\", \"lastName\":\"Welsh\", \"salary\":1000.00}, {\"firstName\":\"Miya\", \"lastName\":\"Bauer\", \"salary\":9000.00}, {\"firstName\":\"Rocky\", \"lastName\":\"Puckett\", \"salary\":6000.00}, {\"firstName\":\"Rocky\", \"lastName\":\"Irving\", \"salary\":6000.00}]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"Employee[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee[] top3 = from var e in employees order by e.salary descending limit 3 select e;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["top3"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "top3",
+    "result": {
+      "shellValue": {
+        "value":"[{\"firstName\":\"Miya\", \"lastName\":\"Bauer\", \"salary\":9000.00}, {\"firstName\":\"Rocky\", \"lastName\":\"Irving\", \"salary\":6000.00}, {\"firstName\":\"Rocky\", \"lastName\":\"Puckett\", \"salary\":6000.00}]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"Employee[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

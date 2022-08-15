@@ -20,7 +20,6 @@ package org.ballerinalang.test.statements.arrays;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
@@ -79,22 +78,12 @@ public class ArrayLValueFillTest {
         }
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/20983
-    @Test(enabled = false)
-    public void test2DObjectArrays2() {
-        BArray arr = (BArray) BRunUtil.invoke(compileResult, "test2DObjectArrays2");
-
-        assertEquals(arr.size(), 3);
-        assertEquals(((BArray) arr.getRefValue(0)).size(), 0);
-        assertEquals(((BArray) arr.getRefValue(1)).size(), 0);
-        assertEquals(((BArray) arr.getRefValue(2)).size(), 2);
-
-        BArray peopleArr = (BArray) arr.getRefValue(2);
-        for (int i = 0; i < peopleArr.size(); i++) {
-            BMap person = (BMap) peopleArr.getRefValue(i);
-            assertEquals(getType(person).getName(), "PersonObj");
-            assertEquals(person.get(StringUtils.fromString("name")).toString(), "John Doe");
-        }
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
+                    "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
+                    "filler values.*")
+    public void testObjectArrays2() {
+        BRunUtil.invoke(compileResult, "testObjectArrays2");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -147,7 +136,8 @@ public class ArrayLValueFillTest {
                 "test2DArrayInATuple",
                 "testFiniteTyped2DArrays",
                 "testMapArrayAsAnLValue",
-                "testMDArrayFillerValues"
+                "testMDArrayFillerValues",
+                "test2DObjectArrays2"
         };
     }
 

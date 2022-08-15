@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -35,6 +37,7 @@ public interface CodeActionContext extends DocumentServiceContext {
      *
      * @return {@link Position}
      */
+    @Deprecated(forRemoval = true)
     Position cursorPosition();
 
     /**
@@ -57,4 +60,27 @@ public interface CodeActionContext extends DocumentServiceContext {
      * @return {@link Integer} offset of the cursor
      */
     int cursorPositionInTree();
+
+
+    /**
+     * Get the node at cursor.
+     *
+     * @return {@link Node} node at the cursor
+     */
+    @Deprecated(forRemoval = true)
+    Node nodeAtCursor();
+
+    /**
+     * Get the selected range.
+     *
+     * @return {@link Range}
+     */
+    Range range();
+
+    /**
+     * Get the node at selected range.
+     *
+     * @return {@link Node}
+     */
+    Node nodeAtRange();
 }

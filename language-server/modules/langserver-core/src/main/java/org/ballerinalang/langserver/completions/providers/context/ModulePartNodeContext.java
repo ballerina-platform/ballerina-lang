@@ -25,13 +25,13 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, context));
         } else if (onSuggestionsAfterQualifiers(context, node)
-                && !QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+                && !QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             /*
                 Covers the following.
                 <qualifier> <cursor>
@@ -149,10 +149,10 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
 
     private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Symbol> predicate =
                     symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
-            List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
+            List<Symbol> types = QNameRefCompletionUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             return this.getCompletionItemList(types, context);
         }

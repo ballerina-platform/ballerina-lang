@@ -356,6 +356,22 @@
           "newText": "import test/local_project1;\n"
         }
       ]
+    },
+    {
+      "label": "NEW_XML_TYPE",
+      "kind": "TypeParameter",
+      "detail": "Element",
+      "sortText": "AN",
+      "insertText": "NEW_XML_TYPE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

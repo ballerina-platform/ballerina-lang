@@ -53,7 +53,7 @@ public class MultiModuleTransactionTestCase extends BaseTest {
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
         LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
 
-        balClient.runMain("build", new String[]{"-a", "--experimental"}, new HashMap<>(), new String[]{},
+        balClient.runMain("build", new String[]{"-a"}, new HashMap<>(), new String[]{},
                 new LogLeecher[]{module1BuildLeecher, module2BuildLeecher}, basePath);
         module1BuildLeecher.waitForText(5000);
         module2BuildLeecher.waitForText(5000);

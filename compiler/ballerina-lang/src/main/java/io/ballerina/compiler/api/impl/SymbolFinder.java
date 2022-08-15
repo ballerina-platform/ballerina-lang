@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentableNode;
@@ -118,7 +119,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -375,7 +375,8 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (annAttachmentNode.annotationSymbol != null
-                && setEnclosingNode(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos)) {
+                && (setEnclosingNode(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos) ||
+                        annAttachmentNode.annotationSymbol.getOrigin().equals(SymbolOrigin.BUILTIN))) {
             return;
         }
 
@@ -1130,11 +1131,6 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        super.visit(tableMultiKeyExpr);
-    }
-
-    @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
         super.visit(transactionalExpr);
     }
@@ -1593,6 +1589,18 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(xmlNavigation.expr);
         lookupNode(xmlNavigation.childIndex);
         lookupNodes(xmlNavigation.filters);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        if (setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.pos)) {
+            return;
+        }
+        lookupNodes(resourceAccessInvocation.annAttachments);
+        lookupNode(resourceAccessInvocation.resourceAccessPathSegments);
+        lookupNodes(resourceAccessInvocation.requiredArgs);
+        lookupNodes(resourceAccessInvocation.restArgs);
+        lookupNode(resourceAccessInvocation.expr);
     }
 
     private boolean setEnclosingNode(BSymbol symbol, Location pos) {

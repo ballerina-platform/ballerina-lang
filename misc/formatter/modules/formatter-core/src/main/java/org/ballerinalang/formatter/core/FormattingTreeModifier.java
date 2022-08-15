@@ -37,9 +37,11 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
+import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
@@ -165,6 +167,7 @@ import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredExpressionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourceAccessRestSegmentNode;
 import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
@@ -312,13 +315,20 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBracketToken = formatToken(resourcePathParameterNode.openBracketToken(), 0, 0);
         NodeList<AnnotationNode> annotations = formatNodeList(resourcePathParameterNode.annotations(), 1, 0, 1, 0);
         TypeDescriptorNode typeDescriptor;
-        if (resourcePathParameterNode.ellipsisToken().isPresent()) {
-            typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 0, 0);
-        } else {
+        if (resourcePathParameterNode.ellipsisToken().isEmpty() && resourcePathParameterNode.paramName().isPresent()) {
             typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 1, 0);
+        } else {
+            typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 0, 0);
         }
-        Token ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
-        Token paramName = formatToken(resourcePathParameterNode.paramName(), 0, 0);
+        
+        Token ellipsisToken;
+        if (resourcePathParameterNode.paramName().isPresent()) {
+            ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
+        } else {
+            ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 0, 0);
+        }
+
+        Token paramName = formatToken(resourcePathParameterNode.paramName().orElse(null), 0, 0);
         Token closeBracketToken = formatToken(resourcePathParameterNode.closeBracketToken(), env.trailingWS,
                 env.trailingNL);
 
@@ -964,8 +974,8 @@ public class FormattingTreeModifier extends TreeModifier {
     public OnFailClauseNode transform(OnFailClauseNode onFailClauseNode) {
         Token onKeyword = formatToken(onFailClauseNode.onKeyword(), 1, 0);
         Token failKeyword = formatToken(onFailClauseNode.failKeyword(), 1, 0);
-        TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor(), 1, 0);
-        IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName(), 1, 0);
+        TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor().orElse(null), 1, 0);
+        IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName().orElse(null), 1, 0);
         BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
 
@@ -3476,6 +3486,83 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public ClientResourceAccessActionNode transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+        ExpressionNode expressionNode = formatNode(clientResourceAccessActionNode.expression(), 0, 0);
+        Token rightArrowToken  = formatNode(clientResourceAccessActionNode.rightArrowToken(), 0, 0);
+        Token slashToken;
+        if (clientResourceAccessActionNode.resourceAccessPath().isEmpty() && 
+                clientResourceAccessActionNode.methodName().isEmpty() && 
+                clientResourceAccessActionNode.arguments().isEmpty()) {
+            slashToken = formatNode(clientResourceAccessActionNode.slashToken(), env.trailingWS, env.trailingNL);
+        } else {
+            slashToken = formatNode(clientResourceAccessActionNode.slashToken(), 0, 0);
+        }
+
+        SeparatedNodeList<Node> resourceAccessPath;
+        if (clientResourceAccessActionNode.methodName().isEmpty() && 
+                clientResourceAccessActionNode.arguments().isEmpty()) {
+            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
+                    0, 0, 0, env.trailingWS, env.trailingNL);
+        } else {
+            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
+                    0, 0, 0, 0, 0);
+        }
+
+        SimpleNameReferenceNode methodName;
+        if (clientResourceAccessActionNode.arguments().isEmpty()) {
+            methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 
+                    env.trailingWS, env.trailingNL);
+        } else {
+            methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 0, 0);
+        }
+
+        Token dotToken = formatToken(clientResourceAccessActionNode.dotToken().orElse(null), 0, 0);
+        ParenthesizedArgList argumentNode = 
+                formatNode(clientResourceAccessActionNode.arguments().orElse(null), env.trailingWS, env.trailingNL);
+        
+        return clientResourceAccessActionNode.modify()
+                .withExpression(expressionNode)
+                .withRightArrowToken(rightArrowToken)
+                .withSlashToken(slashToken)
+                .withResourceAccessPath(resourceAccessPath)
+                .withDotToken(dotToken)
+                .withMethodName(methodName)
+                .withArguments(argumentNode)
+                .apply();
+    }
+    
+    @Override
+    public ComputedResourceAccessSegmentNode transform(
+            ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        Token openBracket = formatToken(computedResourceAccessSegmentNode.openBracketToken(), 0, 0);
+        ExpressionNode expressionNode = formatNode(computedResourceAccessSegmentNode.expression(), 0, 0);
+        Token closeBracket = formatToken(computedResourceAccessSegmentNode.closeBracketToken(), env.trailingWS,
+                env.trailingNL);
+        
+        return computedResourceAccessSegmentNode.modify()
+                .withOpenBracketToken(openBracket)
+                .withExpression(expressionNode)
+                .withCloseBracketToken(closeBracket)
+                .apply();
+    }
+
+    @Override
+    public ResourceAccessRestSegmentNode transform(ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        Token openBracket = formatToken(resourceAccessRestSegmentNode.openBracketToken(), 0, 0);
+        Token ellipsis = formatToken(resourceAccessRestSegmentNode.ellipsisToken(), 0, 0);
+        ExpressionNode expressionNode = formatNode(resourceAccessRestSegmentNode.expression(), 0, 0);
+        Token closeBracket = formatToken(resourceAccessRestSegmentNode.closeBracketToken(), env.trailingWS,
+                env.trailingNL);
+
+        return resourceAccessRestSegmentNode.modify()
+                .withOpenBracketToken(openBracket)
+                .withEllipsisToken(ellipsis)
+                .withExpression(expressionNode)
+                .withCloseBracketToken(closeBracket)
+                .apply();
+    }
+    
+    @Override
     public IdentifierToken transform(IdentifierToken identifier) {
         return formatToken(identifier, env.trailingWS, env.trailingNL);
     }
@@ -3513,7 +3600,16 @@ public class FormattingTreeModifier extends TreeModifier {
             env.trailingNL = trailingNL;
             env.trailingWS = trailingWS;
 
+            // Cache the current node and parent before format.
+            // Because reference to the nodes will change after modifying.
+            T oldNode = node;
+            Node parent = node.parent();
+
             node = (T) node.apply(this);
+
+            if (options.getLineWrapping() && shouldWrapLine(oldNode, parent)) {
+                node = wrapLine(oldNode, parent);
+            }
 
             env.trailingNL = prevTrailingNL;
             env.trailingWS = prevTrailingWS;
@@ -3804,6 +3900,95 @@ public class FormattingTreeModifier extends TreeModifier {
         } else {
             env.lineLength = node.location().lineRange().endLine().offset();
         }
+    }
+
+    /**
+     * Check whether the current line should be wrapped.
+     *
+     * @param node Node that is being formatted
+     * @param parent
+     * @return Flag indicating whether to wrap the current line or not
+     */
+    private boolean shouldWrapLine(Node node, Node parent) {
+        boolean exceedsColumnLimit = env.lineLength > options.getColumnLimit();
+        boolean descendantNeedWrapping = env.nodeToWrap == node;
+        if (!exceedsColumnLimit && !descendantNeedWrapping) {
+            return false;
+        }
+
+        // Currently wrapping a line is supported at following levels:
+        SyntaxKind kind = node.kind();
+        switch (kind) {
+            case SIMPLE_NAME_REFERENCE:
+            case QUALIFIED_NAME_REFERENCE:
+                if (node.parent().kind() == SyntaxKind.ANNOTATION) {
+                    break;
+                }
+                return true;
+
+            // Parameters
+            case DEFAULTABLE_PARAM:
+            case REQUIRED_PARAM:
+            case REST_PARAM:
+
+                // Func-call arguments
+            case POSITIONAL_ARG:
+            case NAMED_ARG:
+            case REST_ARG:
+
+            case RETURN_TYPE_DESCRIPTOR:
+            case ANNOTATION_ATTACH_POINT:
+                return true;
+
+            // Template literals are multi line tokens, and newline are
+            // part of the content. Hence we cannot wrap those.
+            case XML_TEMPLATE_EXPRESSION:
+            case STRING_TEMPLATE_EXPRESSION:
+            case TEMPLATE_STRING:
+                break;
+            default:
+                // Expressions
+                if (SyntaxKind.BINARY_EXPRESSION.compareTo(kind) <= 0 &&
+                        SyntaxKind.OBJECT_CONSTRUCTOR.compareTo(kind) >= 0) {
+                    return true;
+                }
+
+                // Everything else is not supported
+                break;
+        }
+
+        // We reach here, if the current node exceeds the limit, but it is
+        // not a wrapping-point. Then we ask the parent to wrap itself.
+        env.nodeToWrap = parent;
+
+        return false;
+    }
+
+    /**
+     * Wrap the node. This is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
+     * will start from the current level of indentation.
+     *
+     * @param <T> Node type
+     * @param node Node to be wrapped
+     * @param parent
+     * @return Wrapped node
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends Node> T wrapLine(T node, Node parent) {
+        env.leadingNL += 1;
+        env.lineLength = 0;
+        env.hasNewline = true;
+        node = (T) node.apply(this);
+
+        // Sometimes wrapping the current node wouldn't be enough. Therefore, if the column
+        // length exceeds even after wrapping current node, then ask the parent node to warp.
+        if (env.lineLength > options.getColumnLimit()) {
+            env.nodeToWrap = parent;
+        } else {
+            env.nodeToWrap = null;
+        }
+
+        return node;
     }
 
     /**

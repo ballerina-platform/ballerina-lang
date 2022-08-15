@@ -20,6 +20,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -28,10 +29,21 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 public class TypeReferenceTests {
 
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/types/typereftype/type_reference.bal");
+    }
+
     @Test
     public void testTypeRef() {
-        CompileResult positiveCompileResult = BCompileUtil.compile("test-src/types/typereftype/type_reference.bal");
-        BRunUtil.invoke(positiveCompileResult, "testTypeRef");
+        BRunUtil.invoke(result, "testTypeRef");
+    }
+
+    @Test
+    public void testUnionTypeRefWithMap() {
+        BRunUtil.invoke(result, "testUnionTypeRefWithMap");
     }
 
     @Test(description = "Test basics types")

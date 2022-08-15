@@ -54,6 +54,7 @@ public class Names {
     public static final Name DECIMAL = new Name("decimal");
     public static final Name ERROR = new Name("error");
     public static final Name FLOAT = new Name("float");
+    public static final Name FUNCTION = new Name("function");
     public static final Name FUTURE = new Name("future");
     public static final Name INT = new Name("int");
     public static final Name BOOLEAN = new Name("boolean");

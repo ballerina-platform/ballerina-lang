@@ -16,6 +16,14 @@
 
 type MyError1 error<record { int x; }>;
 type MyError2 error<record { int y; }>;
+type MyError3 error;
+type MyError4 error;
+type MyError5 distinct error;
+type MyError6 distinct error;
+type MyError7 distinct error & readonly;
+type MyError8 distinct error & readonly;
+type MyError9 distinct error|int;
+type MyError10 distinct error|int;
 
 function testNegative1() {
     int v1 = 0;
@@ -46,4 +54,80 @@ function testNegative2() {
         error("Message", error("Msg"), x = 4) | error("Message", error("Msg"), x = 3) => {}
         error MyError1("Message", x = 4) | error MyError1("Message", x = 4) => {} // unreachable pattern
     }
+}
+
+function testNegative3() {
+    error v1 = getCustomError();
+    match v1 {
+        var errorA if v1 is MyError1 => { } // unused variable 'errorA'
+        var errorB if v1 is MyError2 => { } // unused variable 'errorB'
+    }
+
+    error? v2 = getCustomError();
+    match v2 {
+        var errorC if v2 is MyError1 => { } // unused variable 'errorC'
+        var errorD if v2 is MyError2 => { } // unused variable 'errorD'
+    }
+}
+
+function testNegative4() {
+    error v1 = getCustomError();
+    match v1 {
+        var errorA if v1 is MyError3 => { } // unused variable 'errorA'
+                                            // unnecessary condition: expression will always evaluate to 'true'
+        var errorB if v1 is MyError4 => { } // unused variable 'errorB', unreachable pattern
+                                            // unnecessary condition: expression will always evaluate to 'true'
+    }
+
+    error? v2 = getCustomError();
+    match v2 {
+        var errorC if v2 is MyError3 => { } // unused variable 'errorC'
+        var errorD if v2 is MyError4 => { } // unused variable 'errorD', unreachable pattern
+    }
+}
+
+function testNegative5() {
+    error v1 = getCustomError();
+    match v1 {
+        var errorA if v1 is MyError5 => { } // unused variable 'errorA'
+        var errorB if v1 is MyError6 => { } // unused variable 'errorB'
+    }
+
+    error? v2 = getCustomError();
+    match v2 {
+        var errorC if v2 is MyError5 => { } // unused variable 'errorC'
+        var errorD if v2 is MyError6 => { } // unused variable 'errorD'
+    }
+}
+
+function testNegative6() {
+    error v1 = getCustomError();
+    match v1 {
+        var errorA if v1 is MyError7 => { } // unused variable 'errorA'
+        var errorB if v1 is MyError8 => { } // unused variable 'errorB'
+    }
+
+    error? v2 = getCustomError();
+    match v2 {
+        var errorC if v2 is MyError7 => { } // unused variable 'errorC'
+        var errorD if v2 is MyError8 => { } // unused variable 'errorD'
+    }
+}
+
+function testNegative7() {
+    error v1 = getCustomError();
+    match v1 {
+        var errorA if v1 is MyError9 => { } // unused variable 'errorA'
+        var errorB if v1 is MyError10 => { } // unused variable 'errorB'
+    }
+
+    error? v2 = getCustomError();
+    match v2 {
+        var errorC if v2 is MyError9 => { } // unused variable 'errorC'
+        var errorD if v2 is MyError10 => { } // unused variable 'errorD'
+    }
+}
+
+function getCustomError() returns error {
+    return error MyError1("Message", x = 2);
 }

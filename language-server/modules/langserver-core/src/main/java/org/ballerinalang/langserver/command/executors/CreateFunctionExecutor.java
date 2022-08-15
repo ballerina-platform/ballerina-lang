@@ -39,6 +39,9 @@ import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -95,7 +98,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             }
         }
 
-        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(uri);
         if (range == null || filePath.isEmpty()) {
             throw new UserErrorException("Invalid parameters received for the create function command!");
         }
@@ -158,11 +161,11 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             }
 
             if (type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                varName = CommonUtil.generateParameterName(varName, argIndex,
+                varName = NameUtil.generateParameterName(varName, argIndex,
                         CommonUtil.getRawType(type.get()), visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, type.get()) + " " + varName);
             } else {
-                varName = CommonUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
+                varName = NameUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, null) + " " + varName);
             }
             visibleSymbolNames.add(varName);
@@ -184,13 +187,14 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         Range insertRange;
         if (enclosingNode.isPresent()) {
             newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
-            insertRange = CommonUtil.toRange(enclosingNode.get().lineRange().endLine());
+            insertRange = PositionUtil.toRange(enclosingNode.get().lineRange().endLine());
         } else {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
-        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
-        typeFinder.findTypeOf(fnCallExprNode.get());
+        FunctionCallExpressionTypeFinder typeFinder =
+                new FunctionCallExpressionTypeFinder(semanticModel, fnCallExprNode.get());
+        fnCallExprNode.get().accept(typeFinder);
         Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
         Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
 

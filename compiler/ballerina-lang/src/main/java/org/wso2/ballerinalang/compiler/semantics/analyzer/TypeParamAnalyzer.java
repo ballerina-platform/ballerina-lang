@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -68,6 +69,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -270,7 +272,13 @@ public class TypeParamAnalyzer {
             case TypeTags.ANY:
                 return new BAnyType(type.tag, null, name, flags);
             case TypeTags.ANYDATA:
-                BAnydataType anydataType = new BAnydataType((BUnionType) type);
+                BUnionType unionType = (BUnionType) type;
+                BAnydataType anydataType = new BAnydataType(unionType);
+                Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
+                                                                                   unionType);
+                if (immutableType.isPresent()) {
+                    Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, immutableType.get());
+                }
                 anydataType.name = name;
                 anydataType.flags |= flags;
                 return anydataType;
@@ -643,7 +651,9 @@ public class TypeParamAnalyzer {
     private void findTypeParamInInvokableType(Location loc, BInvokableType expType,
                                               BInvokableType actualType, SymbolEnv env, HashSet<BType> resolvedTypes,
                                               FindTypeParamResult result) {
-
+        if (Symbols.isFlagOn(expType.flags, Flags.ANY_FUNCTION)) {
+            return;
+        }
         for (int i = 0; i < expType.paramTypes.size() && i < actualType.paramTypes.size(); i++) {
             findTypeParam(loc, expType.paramTypes.get(i), actualType.paramTypes.get(i), env, resolvedTypes, result,
                           true);
@@ -842,7 +852,7 @@ public class TypeParamAnalyzer {
             return matchingBoundNonReadOnlyType;
         }
 
-        if (!types.isSelectivelyImmutableType(matchingBoundNonReadOnlyType)) {
+        if (!types.isSelectivelyImmutableType(matchingBoundNonReadOnlyType, env.enclPkg.packageID)) {
             return symTable.semanticError;
         }
 
@@ -1041,7 +1051,7 @@ public class TypeParamAnalyzer {
             BResourceFunction resourceFunction = (BResourceFunction) expFunc;
             return new BResourceFunction(resourceFunction.funcName, invokableSymbol, matchType,
                     resourceFunction.resourcePath, resourceFunction.accessor, resourceFunction.pathParams,
-                    resourceFunction.restPathParam, expFunc.pos);
+                    resourceFunction.restPathParam, resourceFunction.resourcePathType, expFunc.pos);
         }
         return new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos);
     }

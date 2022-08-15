@@ -24,13 +24,14 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.changetype.TypeCastCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -38,7 +39,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,17 +57,18 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
 
     public AddCheckCodeAction() {
         super();
-        this.codeActionNodeTypes = Arrays.asList(CodeActionNodeType.LOCAL_VARIABLE,
-                CodeActionNodeType.ASSIGNMENT);
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
 
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         //Check if there is a check expression already present.
         MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
@@ -97,13 +98,13 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             return Collections.emptyList();
         }
 
-        Position pos = CommonUtil.toRange(diagnostic.location().lineRange()).getStart();
+        Position pos = PositionUtil.toRange(diagnostic.location().lineRange()).getStart();
         // The following code may sound odd. But as per the diagnostic, when the error is in the expr of a braced 
         // expression, the diagnostic location points to the braced expression itself. To overcome that, here we
         // treat braced expressions specially and add 'check' within the parentheses.
         if (expressionNode.get().kind() == SyntaxKind.BRACED_EXPRESSION) {
             BracedExpressionNode bracedExpressionNode = (BracedExpressionNode) expressionNode.get();
-            pos = CommonUtil.toRange(bracedExpressionNode.expression().location().lineRange()).getStart();
+            pos = PositionUtil.toRange(bracedExpressionNode.expression().location().lineRange()).getStart();
         }
 
         List<TextEdit> edits = new ArrayList<>(CodeActionUtil.getAddCheckTextEdits(
@@ -118,11 +119,11 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             WaitActionNode waitActionNode = (WaitActionNode) expressionNode.get();
             Optional<TypeSymbol> tSymbol = context.currentSemanticModel().get().typeOf(waitActionNode.waitFutureExpr());
             if (tSymbol.map(CommonUtil::getRawType).filter(t -> t.typeKind() != TypeDescKind.FUTURE).isPresent()) {
-                return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
+                return Collections.singletonList(CodeActionUtil.createCodeAction(
                         CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
             }
         }
-        return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
+        return Collections.singletonList(CodeActionUtil.createCodeAction(
                 CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri(), CodeActionKind.QuickFix));
     }
 

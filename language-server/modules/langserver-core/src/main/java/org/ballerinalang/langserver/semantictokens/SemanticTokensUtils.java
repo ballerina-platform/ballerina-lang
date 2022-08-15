@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.semantictokens;
 
 import io.ballerina.projects.Document;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.eclipse.lsp4j.Registration;
@@ -53,7 +53,7 @@ public class SemanticTokensUtils {
      */
     public static SemanticTokens getSemanticTokens(SemanticTokensContext semanticTokensContext) {
         String fileUri = semanticTokensContext.fileUri();
-        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
         if (filePath.isEmpty()) {
             return new SemanticTokens(Collections.emptyList());
         }

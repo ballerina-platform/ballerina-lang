@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -24,6 +27,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -31,6 +35,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.nio.file.Path;
@@ -49,6 +54,8 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     private int cursorPositionInTree = -1;
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
+    private Node nodeAtCursor;
+    private Node nodeAtRange;
 
     @Deprecated(forRemoval = true)
     public CodeActionContextImpl(LSOperation operation,
@@ -153,5 +160,30 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
         public CodeActionContextBuilder self() {
             return this;
         }
+    }
+
+    @Override
+    public Node nodeAtCursor() {
+        if (this.nodeAtCursor == null) {
+            SyntaxTree syntaxTree = this.currentSyntaxTree().orElseThrow();
+            NonTerminalNode matchedNode = CommonUtil.findNode(new Range(this.cursorPosition(),
+                    this.cursorPosition()), syntaxTree);
+            this.nodeAtCursor = matchedNode;
+        }
+        return this.nodeAtCursor;
+    }
+
+    @Override
+    public Range range() {
+        return this.params.getRange();
+    }
+
+    @Override
+    public Node nodeAtRange() {
+        if (this.nodeAtRange == null) {
+            SyntaxTree syntaxTree = this.currentSyntaxTree().orElseThrow();
+            this.nodeAtRange = CommonUtil.findNode(range(), syntaxTree);
+        }
+        return this.nodeAtRange;
     }
 }

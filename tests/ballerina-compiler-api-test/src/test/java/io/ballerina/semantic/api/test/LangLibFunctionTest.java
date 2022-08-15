@@ -243,7 +243,8 @@ public class LangLibFunctionTest {
 
         List<String> elementFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes",
                                             "getDescendants");
-        List<String> piFuncs = List.of("getTarget");
+        List<String> piFuncs = List.of("getTarget", "getContent");
+        List<String> commentFuncs = List.of("getContent");
 
         return new Object[][]{
                 {67, 8, XML, expFunctions},
@@ -251,7 +252,8 @@ public class LangLibFunctionTest {
                         .collect(Collectors.toList())},
                 {76, 31, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), piFuncs.stream())
                         .collect(Collectors.toList())},
-                {77, 17, TYPE_REFERENCE, expFunctions},
+                {77, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), commentFuncs.stream())
+                        .collect(Collectors.toList())},
                 {78, 14, TYPE_REFERENCE, expFunctions},
         };
     }

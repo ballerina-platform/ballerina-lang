@@ -18,21 +18,18 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
@@ -63,34 +60,37 @@ public class CodeActionRouter {
         CodeActionProvidersHolder codeActionProvidersHolder
                 = CodeActionProvidersHolder.getInstance(ctx.languageServercontext());
 
-        // Get available node-type based code-actions
+        // Get available range based code-actions
         SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
-        Position position = ctx.cursorPosition();
-        Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(position, syntaxTree);
-        CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(topLevelNode.orElse(null));
-        if (topLevelNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
-            Range range = CommonUtil.toRange(topLevelNode.get().lineRange());
-            Node expressionNode = CodeActionUtil.largestExpressionNode(topLevelNode.get(), range);
+        Range highlightedRange = ctx.range();
+        // Run code action node analyzer
+        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(highlightedRange, syntaxTree);
+        Optional<NonTerminalNode> codeActionNode = analyzer.getCodeActionNode();
+        SyntaxKind syntaxKind = analyzer.getSyntaxKind();
+        if (codeActionNode.isPresent() && syntaxKind != SyntaxKind.NONE) {
+            Range range = PositionUtil.toRange(codeActionNode.get().lineRange());
+            Node expressionNode = CodeActionUtil.largestExpressionNode(codeActionNode.get(), range);
             TypeSymbol matchedTypeSymbol = getMatchedTypeSymbol(ctx, expressionNode).orElse(null);
 
-            LinePosition cursorPosition = LinePosition.from(position.getLine(), position.getCharacter());
-            int cursorPosOffset = syntaxTree.textDocument().textPositionFrom(cursorPosition);
-            NodeBasedPositionDetailsImpl.PositionDetailsBuilder positionDetailsBuilder =
-                    new NodeBasedPositionDetailsImpl.PositionDetailsBuilder(matchedTypeSymbol);
-            CodeActionNodeAnalyzer nodeAnalyzer = new CodeActionNodeAnalyzer(positionDetailsBuilder, cursorPosOffset);
-            nodeAnalyzer.visit(CommonUtil.findNode(new Range(position, position), syntaxTree));
-            NodeBasedPositionDetails posDetails = positionDetailsBuilder
-                    .setTopLevelNode(topLevelNode.get())
-                    .setStatementNode(matchedStatementNode(ctx, syntaxTree))
+            RangeBasedPositionDetails posDetails = RangeBasedPositionDetailsImpl.PositionDetailsBuilder.newBuilder()
+                    .setTopLevelNodeType(matchedTypeSymbol)
+                    .setTopLevelNode(codeActionNode.get())
+                    .setCodeActionNode(codeActionNode.get())
+                    .setDocumentableNode(analyzer.getDocumentableNode().orElse(null))
+                    .setEnclosingDocumentableNode(analyzer.getEnclosingDocumentableNode().orElse(null))
+                    .setStatementNode(analyzer.getStatementNode().orElse(null))
                     .build();
 
-            codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType, ctx).forEach(provider -> {
+            codeActionProvidersHolder.getActiveRangeBasedProviders(syntaxKind, ctx).forEach(provider -> {
                 try {
                     // Check whether the code action request has been cancelled
                     // in order to avoid unnecessary calculations
                     ctx.checkCancelled();
 
-                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx, posDetails);
+                    if (!provider.validate(ctx, posDetails)) {
+                        return;
+                    }
+                    List<CodeAction> codeActionsOut = provider.getCodeActions(ctx, posDetails);
                     if (codeActionsOut != null) {
                         codeActionsOut.forEach(codeAction ->
                                 TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, provider));
@@ -104,13 +104,13 @@ public class CodeActionRouter {
         }
         // Get available diagnostics based code-actions
         ctx.diagnostics(ctx.filePath()).stream().
-                filter(diag -> CommonUtil
-                        .isWithinRange(position, CommonUtil.toRange(diag.location().lineRange()))
+                filter(diag -> PositionUtil
+                        .isRangeWithinRange(highlightedRange, PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .forEach(diagnostic -> {
                     DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
                     codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx)
-                            .stream().forEach(provider -> {
+                            .forEach(provider -> {
                                 try {
                                     // Check whether the code action request has been cancelled
                                     // in order to avoid unnecessary calculations
@@ -119,8 +119,8 @@ public class CodeActionRouter {
                                     if (!provider.validate(diagnostic, positionDetails, ctx)) {
                                         return;
                                     }
-                                    List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic,
-                                            positionDetails, ctx);
+                                    List<CodeAction> codeActionsOut = provider
+                                            .getCodeActions(diagnostic, positionDetails, ctx);
                                     codeActionsOut.forEach(codeAction ->
                                             TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction,
                                                     provider));
@@ -133,18 +133,6 @@ public class CodeActionRouter {
                             });
                 });
         return codeActions;
-    }
-
-    private static NonTerminalNode matchedStatementNode(CodeActionContext ctx, SyntaxTree syntaxTree) {
-        Position cursorPos = ctx.cursorPosition();
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(cursorPos, cursorPos), syntaxTree);
-        while (matchedNode.parent() != null &&
-                matchedNode.parent().kind() != SyntaxKind.MODULE_PART &&
-                matchedNode.parent().kind() != SyntaxKind.FUNCTION_BODY_BLOCK &&
-                !(matchedNode.parent() instanceof BlockStatementNode)) {
-            matchedNode = matchedNode.parent();
-        }
-        return matchedNode;
     }
 
     private static Optional<TypeSymbol> getMatchedTypeSymbol(CodeActionContext context, Node node) {

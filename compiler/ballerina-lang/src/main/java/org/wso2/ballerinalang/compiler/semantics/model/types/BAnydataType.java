@@ -57,7 +57,6 @@ public class BAnydataType extends BUnionType {
     public BAnydataType(BUnionType type) {
         super(type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()), type.isNullable(),
                 Symbols.isFlagOn(type.flags, Flags.READONLY));
-        this.immutableType = type.immutableType;
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
         this.name = type.name;

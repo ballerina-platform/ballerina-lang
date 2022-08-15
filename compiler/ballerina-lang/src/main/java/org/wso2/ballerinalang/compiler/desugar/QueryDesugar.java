@@ -33,9 +33,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -92,7 +95,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -147,9 +149,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -172,6 +171,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -207,6 +207,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
     private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
+    private static final Name QUERY_ADD_TO_MAP_FUNCTION = new Name("addToMap");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
@@ -248,9 +249,11 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @param queryExpr query expression to be desugared.
      * @param env       symbol env.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return desugared query expression.
      */
-    BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
+    BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env,
+                                     List<BLangStatement> stmtsToBePropagated) {
         containsCheckExpr = false;
         HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
         this.checkedErrorList = new HashSet<>();
@@ -258,8 +261,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         Location pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env,
+                queryBlock, stmtsToBePropagated);
         BLangStatementExpression streamStmtExpr;
+        BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
+                Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.setBType(streamRef.getBType());
@@ -269,19 +275,36 @@ public class QueryDesugar extends BLangNodeVisitor {
                     : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr), pos);
+                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr, isReadonly), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
                     addTypeConversionExpr(result,
                             queryExpr.getBType()));
             streamStmtExpr.setBType(tableRef.getBType());
             onConflictExpr = null;
+        } else if (queryExpr.isMap) {
+            onConflictExpr = (onConflictExpr == null)
+                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
+                    : onConflictExpr;
+            BMapType mapType = (BMapType) ((BUnionType) queryExpr.getBType()).getMemberTypes()
+                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.MAP)
+                    .findFirst().orElse(symTable.mapType);
+            BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
+                    mapType, new ArrayList<>());
+            BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
+                    QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
+            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                    addTypeConversionExpr(result, queryExpr.getBType()));
+            streamStmtExpr.setBType(queryExpr.getBType());
+            onConflictExpr = null;
         } else {
             BLangVariableReference result;
             BType refType = Types.getReferredType(queryExpr.getBType());
-            if (TypeTags.isXMLTypeTag(refType.tag) || (refType.tag == TypeTags.UNION
-                    && ((BUnionType) refType).getMemberTypes().stream().allMatch(memType ->
-                                    TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag)))) {
-                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
+            if (isXml(refType)) {
+                if (types.isSubTypeOfReadOnly(refType, env)) {
+                    isReadonly.value = true;
+                }
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION,
+                        Lists.of(streamRef, isReadonly), pos);
             } else if (TypeTags.isStringTypeTag(refType.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
@@ -295,7 +318,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 arr.exprs = new ArrayList<>();
                 arr.setBType(arrayType);
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
-                        Lists.of(streamRef, arr), pos);
+                        Lists.of(streamRef, arr, isReadonly), pos);
             }
             if (containsCheckExpr) {
                 // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
@@ -315,14 +338,37 @@ public class QueryDesugar extends BLangNodeVisitor {
         return streamStmtExpr;
     }
 
+    private boolean isXml(BType type) {
+        BType refType = Types.getReferredType(type);
+
+        if (TypeTags.isXMLTypeTag(refType.tag)) {
+            return true;
+        }
+        switch (refType.tag) {
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
+                    if (!isXml(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.INTERSECTION:
+                return isXml(((BIntersectionType) refType).getEffectiveType());
+            default:
+                return false;
+        }
+    }
+
     /**
      * Desugar query action.
      *
-     * @param queryAction query action to be desugared.
-     * @param env         symbol env.
+     * @param queryAction         query action to be desugared.
+     * @param env                 symbol env.
+     * @param stmtsToBePropagated statements to be propagated to do clause.
      * @return desugared query action.
      */
-    BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env) {
+    BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env,
+                                     List<BLangStatement> stmtsToBePropagated) {
         containsCheckExpr = false;
         HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
         this.checkedErrorList = new HashSet<>();
@@ -334,11 +380,11 @@ public class QueryDesugar extends BLangNodeVisitor {
             returnType = ((BInvokableType) invokableSymbol.type).retType;
         }
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, returnType, env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, returnType, env, queryBlock, stmtsToBePropagated);
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                 QUERY_CONSUME_STREAM_FUNCTION, returnType, Lists.of(streamRef), pos);
         BLangStatementExpression stmtExpr;
-        if (!containsCheckExpr && queryAction.returnsWithinDoClause) {
+        if (queryAction.returnsWithinDoClause) {
             BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, result);
             BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(pos);
             ifBody.stmts.add(returnStmt);
@@ -369,51 +415,59 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param resultType result type of the query output.
      * @param env symbol env.
      * @param block parent block to write to.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created _StreamPipeline.
      */
-    BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env, BLangBlockStmt block) {
+    BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env,
+                                       BLangBlockStmt block, List<BLangStatement> stmtsToBePropagated) {
         this.env = env;
         BLangFromClause initFromClause = (BLangFromClause) clauses.get(0);
         final BLangVariableReference initPipeline = addPipeline(block, initFromClause.pos,
                 initFromClause.collection, resultType);
-        BLangVariableReference initFrom = addInputFunction(block, initFromClause);
+        BLangVariableReference initFrom = addInputFunction(block, initFromClause, stmtsToBePropagated);
         addStreamFunction(block, initPipeline, initFrom);
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
                     BLangFromClause fromClause = (BLangFromClause) clause;
-                    BLangVariableReference nestedFromFunc = addNestedFromFunction(block, fromClause);
+                    BLangVariableReference nestedFromFunc = addNestedFromFunction(block, fromClause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, nestedFromFunc);
-                    BLangVariableReference fromInputFunc = addInputFunction(block, fromClause);
+                    BLangVariableReference fromInputFunc = addInputFunction(block, fromClause, stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, fromInputFunc);
                     break;
                 case JOIN:
                     BLangJoinClause joinClause = (BLangJoinClause) clause;
                     BLangVariableReference joinPipeline = addPipeline(block, joinClause.pos,
                             joinClause.collection, resultType);
-                    BLangVariableReference joinInputFunc = addInputFunction(block, joinClause);
+                    BLangVariableReference joinInputFunc = addInputFunction(block, joinClause, stmtsToBePropagated);
                     addStreamFunction(block, joinPipeline, joinInputFunc);
-                    BLangVariableReference joinFunc = addJoinFunction(block, joinClause, joinPipeline);
+                    BLangVariableReference joinFunc = addJoinFunction(block, joinClause, joinPipeline,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, joinFunc);
                     break;
                 case LET_CLAUSE:
-                    BLangVariableReference letFunc = addLetFunction(block, (BLangLetClause) clause);
+                    BLangVariableReference letFunc = addLetFunction(block, (BLangLetClause) clause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, letFunc);
                     break;
                 case WHERE:
-                    BLangVariableReference whereFunc = addWhereFunction(block, (BLangWhereClause) clause);
+                    BLangVariableReference whereFunc = addWhereFunction(block, (BLangWhereClause) clause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, whereFunc);
                     break;
                 case ORDER_BY:
-                    BLangVariableReference orderFunc = addOrderByFunction(block, (BLangOrderByClause) clause);
+                    BLangVariableReference orderFunc = addOrderByFunction(block, (BLangOrderByClause) clause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, orderFunc);
                     break;
                 case SELECT:
-                    BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause);
+                    BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, selectFunc);
                     break;
                 case DO:
-                    BLangVariableReference doFunc = addDoFunction(block, (BLangDoClause) clause);
+                    BLangVariableReference doFunc = addDoFunction(block, (BLangDoClause) clause, stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, doFunc);
                     break;
                 case LIMIT:
@@ -452,7 +506,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
         BType constraintType = resultType;
-        BType completionType = symTable.nilType;
+        BType completionType = symTable.errorOrNilType;
         BType refType = Types.getReferredType(resultType);
         if (refType.tag == TypeTags.ARRAY) {
             constraintType = ((BArrayType) refType).eType;
@@ -480,15 +534,18 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return frame;
      * });
      *
-     * @param blockStmt  parent block to write to.
-     * @param inputClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param inputClause         to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created from _StreamFunction.
      */
-    BLangVariableReference addInputFunction(BLangBlockStmt blockStmt, BLangInputClause inputClause) {
+    BLangVariableReference addInputFunction(BLangBlockStmt blockStmt, BLangInputClause inputClause,
+                                            List<BLangStatement> stmtsToBePropagated) {
         Location pos = inputClause.pos;
         // function(_Frame frame) returns _Frame|error? { return frame; }
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
         BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
 
         // frame["x"] = x;, note: stmts will get added in reverse order.
@@ -525,11 +582,13 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return collection;
      * });
      *
-     * @param blockStmt  parent block to write to.
-     * @param fromClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param fromClause          to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created from _StreamFunction.
      */
-    BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
+    BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause,
+                                                 List<BLangStatement> stmtsToBePropagated) {
         Location pos = fromClause.pos;
         // function(_Frame frame) returns any|error? { return collection; }
         BLangUnionTypeNode returnType = getAnyAndErrorTypeNode();
@@ -537,6 +596,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         returnNode.expr = fromClause.collection;
         returnNode.pos = pos;
         BLangLambdaFunction lambda = createLambdaFunction(pos, returnType, returnNode, false);
+        ((BLangBlockFunctionBody) lambda.function.body).stmts.addAll(0, stmtsToBePropagated);
         lambda.accept(this);
         // at this point;
         // function(_Frame frame) returns any|error? {
@@ -556,11 +616,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return variableReference to created join _StreamFunction.
      */
     BLangVariableReference addJoinFunction(BLangBlockStmt blockStmt, BLangJoinClause joinClause,
-                                           BLangVariableReference joinPipeline) {
+                                           BLangVariableReference joinPipeline,
+                                           List<BLangStatement> stmtsToBePropagated) {
         BLangExpression lhsExpr = (BLangExpression) joinClause.onClause.getLeftExpression();
         BLangExpression rhsExpr = (BLangExpression) joinClause.onClause.getRightExpression();
-        BLangLambdaFunction lhsKeyFunction = createKeyFunction(lhsExpr);
-        BLangLambdaFunction rhsKeyFunction = createKeyFunction(rhsExpr);
+        BLangLambdaFunction lhsKeyFunction = createKeyFunction(lhsExpr, stmtsToBePropagated);
+        BLangLambdaFunction rhsKeyFunction = createKeyFunction(rhsExpr, stmtsToBePropagated);
         if (joinClause.isOuterJoin) {
             List<BVarSymbol> symbols =
                     getIntroducedSymbols((BLangVariable) joinClause.variableDefinitionNode.getVariable());
@@ -580,11 +641,13 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return frame;
      * });
      *
-     * @param blockStmt parent block to write to.
-     * @param letClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param letClause           to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created let _StreamFunction.
      */
-    BLangVariableReference addLetFunction(BLangBlockStmt blockStmt, BLangLetClause letClause) {
+    BLangVariableReference addLetFunction(BLangBlockStmt blockStmt, BLangLetClause letClause,
+                                          List<BLangStatement> stmtsToBePropagated) {
         Location pos = letClause.pos;
         // function(_Frame frame) returns _Frame|error? { return frame; }
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
@@ -601,6 +664,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
             setSymbolOwner((BLangVariable) letVariable.definitionNode.getVariable(), env.scope.owner);
         }
+        body.stmts.addAll(0, stmtsToBePropagated);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
     }
@@ -611,17 +675,21 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return <int>frame["x"] > 0;
      * });
      *
-     * @param blockStmt   parent block to write to.
-     * @param whereClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param whereClause         to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created filter _StreamFunction.
      */
-    BLangVariableReference addWhereFunction(BLangBlockStmt blockStmt, BLangWhereClause whereClause) {
+    BLangVariableReference addWhereFunction(BLangBlockStmt blockStmt, BLangWhereClause whereClause,
+                                            List<BLangStatement> stmtsToBePropagated) {
         Location pos = whereClause.pos;
         BLangLambdaFunction lambda = createFilterLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
-        returnNode.setExpression(whereClause.expression);
+        body.stmts.addAll(0, stmtsToBePropagated);
+        returnNode.expr = desugar.addConversionExprIfRequired(whereClause.expression,
+                lambda.function.returnTypeNode.getBType());
         body.addStatement(returnNode);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
@@ -633,14 +701,17 @@ public class QueryDesugar extends BLangNodeVisitor {
      * _Frame frame = {"orderKey": frame["x2"] + frame["y2"], $orderDirection$: true + false"};
      * });
      *
-     * @param blockStmt parent block to write to.
-     * @param orderByClause  to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param orderByClause       to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created orderBy _StreamFunction.
      */
-    BLangVariableReference addOrderByFunction(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause) {
+    BLangVariableReference addOrderByFunction(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause,
+                                              List<BLangStatement> stmtsToBePropagated) {
         Location pos = orderByClause.pos;
         BLangLambdaFunction lambda = createActionLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
         BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
 
@@ -672,7 +743,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION, Lists.of(lambda), pos);
     }
 
-
     /**
      * Desugar selectClause to below and return a reference to created select _StreamFunction.
      * _StreamFunction selectFunc = createSelectFunction(function(_Frame frame) returns _Frame|error? {
@@ -682,14 +752,17 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return frame;
      * });
      *
-     * @param blockStmt    parent block to write to.
-     * @param selectClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param selectClause        to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created select _StreamFunction.
      */
-    BLangVariableReference addSelectFunction(BLangBlockStmt blockStmt, BLangSelectClause selectClause) {
+    BLangVariableReference addSelectFunction(BLangBlockStmt blockStmt, BLangSelectClause selectClause,
+                                             List<BLangStatement> stmtsToBePropagated) {
         Location pos = selectClause.pos;
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
         BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
         // $frame$["$value$"] = select-expr;
@@ -706,14 +779,17 @@ public class QueryDesugar extends BLangNodeVisitor {
      * int y2 = <int> frame["y2"];
      * });
      *
-     * @param blockStmt parent block to write to.
-     * @param doClause  to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param doClause            to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created do _StreamFunction.
      */
-    BLangVariableReference addDoFunction(BLangBlockStmt blockStmt, BLangDoClause doClause) {
+    BLangVariableReference addDoFunction(BLangBlockStmt blockStmt, BLangDoClause doClause,
+                                         List<BLangStatement> stmtsToBePropagated) {
         Location pos = doClause.pos;
         BLangLambdaFunction lambda = createActionLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
         for (BLangStatement stmt : doClause.body.stmts) {
             body.addStatement(stmt);
         }
@@ -730,10 +806,11 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addLimitFunction(BLangBlockStmt blockStmt, BLangLimitClause limitClause) {
         Location pos = limitClause.pos;
+        BLangUnionTypeNode returnTypeNode = getIntErrorTypeNode();
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.expr = desugar.addConversionExprIfRequired(limitClause.expression, symTable.intType);
+        returnNode.expr = desugar.addConversionExprIfRequired(limitClause.expression, returnTypeNode.getBType());
         returnNode.pos = pos;
-        BLangLambdaFunction limitFunction = createLambdaFunction(pos, getIntTypeNode(), returnNode, false);
+        BLangLambdaFunction limitFunction = createLambdaFunction(pos, returnTypeNode, returnNode, false);
         limitFunction.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LIMIT_FUNCTION, Lists.of(limitFunction), pos);
     }
@@ -783,10 +860,18 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType tableType = type;
         BType refType = Types.getReferredType(type);
         if (refType.tag == TypeTags.UNION) {
-            tableType = ((BUnionType) refType).getMemberTypes()
-                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.TABLE)
-                    .findFirst().orElse(symTable.tableType);
+            tableType = symTable.tableType;
+            for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
+                int memberTypeTag = Types.getReferredType(memberType).tag;
+                if (memberTypeTag == TypeTags.TABLE) {
+                    tableType = memberType;
+                } else if (memberTypeTag == TypeTags.INTERSECTION &&
+                        ((BIntersectionType) memberType).effectiveType.tag == TypeTags.TABLE) {
+                    tableType = ((BIntersectionType) memberType).effectiveType;
+                }
+            }
         }
+
         final List<IdentifierNode> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
         BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
                 TreeBuilder.createTableConstructorExpressionNode();
@@ -848,8 +933,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return created lambda function.
      */
     private BLangLambdaFunction createFilterLambda(Location pos) {
-        // returns boolean
-        BLangValueType returnType = getBooleanTypeNode();
+        // returns boolean|error
+        BLangUnionTypeNode returnType = getBooleanErrorTypeNode();
         return createLambdaFunction(pos, returnType, null, false);
     }
 
@@ -1122,13 +1207,15 @@ public class QueryDesugar extends BLangNodeVisitor {
      * }
      *
      * @param expr key function expression.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return created key function lambda.
      */
-    private BLangLambdaFunction createKeyFunction(BLangExpression expr) {
+    private BLangLambdaFunction createKeyFunction(BLangExpression expr, List<BLangStatement> stmtsToBePropagated) {
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyType);
+        returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyOrErrorType);
         returnNode.pos = expr.pos;
-        BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyTypeNode(), returnNode, false);
+        BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyAndErrorTypeNode(), returnNode, false);
+        ((BLangBlockFunctionBody) keyFunction.function.body).stmts.addAll(0, stmtsToBePropagated);
         keyFunction.accept(this);
         return keyFunction;
     }
@@ -1283,6 +1370,26 @@ public class QueryDesugar extends BLangNodeVisitor {
         unionTypeNode.memberTypeNodes.add(getFrameTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
         unionTypeNode.memberTypeNodes.add(getNilTypeNode());
+        unionTypeNode.desugared = true;
+        return unionTypeNode;
+    }
+
+    private BLangUnionTypeNode getBooleanErrorTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.errorType, symTable.booleanType);
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.setBType(unionType);
+        unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
+        unionTypeNode.memberTypeNodes.add(getBooleanTypeNode());
+        unionTypeNode.desugared = true;
+        return unionTypeNode;
+    }
+
+    private BLangUnionTypeNode getIntErrorTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.errorType, symTable.intType);
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.setBType(unionType);
+        unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
+        unionTypeNode.memberTypeNodes.add(getIntTypeNode());
         unionTypeNode.desugared = true;
         return unionTypeNode;
     }
@@ -1537,6 +1644,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
+            if (symbol instanceof BVarSymbol) {
+                BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
+                if (originalSymbol != null) {
+                    symbol = originalSymbol;
+                }
+            }
             if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
@@ -1813,22 +1926,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        this.acceptNode(bLangMatchExpression.expr);
-        bLangMatchExpression.patternClauses.forEach(pattern -> {
-            this.acceptNode(pattern.expr);
-            this.acceptNode(pattern.variable);
-        });
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-    }
-
-    @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         containsCheckExpr = true;
-        this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        if (this.checkedErrorList != null && checkedExpr.equivalentErrorTypeList != null) {
+            this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        }
         this.acceptNode(checkedExpr.expr);
     }
 
@@ -1905,17 +2007,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         this.acceptNode(bLangErrorVariableDef.errorVariable);
-    }
-
-    @Override
-    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        this.acceptNode(bLangMatchStmtStaticBindingPatternClause.literal);
-    }
-
-    @Override
-    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
-        this.acceptNode(bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable);
-        this.acceptNode(bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr);
     }
 
     @Override
@@ -2019,19 +2110,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchNode) {
-        this.acceptNode(matchNode.expr);
-        matchNode.patternClauses.forEach(pattern -> this.acceptNode(pattern));
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        this.acceptNode(patternClauseNode.body);
-        this.acceptNode(patternClauseNode.matchExpr);
-        this.acceptNode(patternClauseNode.variable);
-    }
-
-    @Override
     public void visit(BLangQueryExpr queryExpr) {
         SymbolEnv prevQueryEnv = this.queryEnv;
         queryExpr.getQueryClauses().forEach(clause -> this.acceptNode(clause));
@@ -2041,6 +2119,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
+        this.acceptNode(foreach.body);
     }
 
     @Override
