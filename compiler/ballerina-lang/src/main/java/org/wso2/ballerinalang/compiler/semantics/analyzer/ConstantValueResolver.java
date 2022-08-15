@@ -134,6 +134,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constantMap.clear();
     }
 
+    public void resolve(BLangConstant constant, PackageID packageID, SymbolEnv symEnv) {
+        this.dlog.setCurrentPackageId(packageID);
+        this.pkgID = packageID;
+        this.symEnv = symEnv;
+        this.unresolvedConstants = new HashMap<>();
+        this.unresolvedConstants.put(constant.symbol, constant);
+        constant.accept(this);
+        constantMap.clear();
+    }
+
     @Override
     public void visit(BLangConstant constant) {
         if (!unresolvedConstants.containsKey(constant.symbol)) {

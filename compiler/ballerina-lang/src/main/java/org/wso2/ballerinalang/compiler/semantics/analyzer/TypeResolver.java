@@ -70,8 +70,9 @@ public class TypeResolver {
 
     private List<BLangTypeDefinition> resolvingtypeDefinitions = new ArrayList<>();
     private List<BIntersectionType> intersectionTypeList;
-    public HashSet<BLangConstant> resolvedConstants;
-    private HashSet<BLangConstant> resolvingConstants;
+    public HashSet<BLangConstant> resolvedConstants = new HashSet<>();
+    private HashSet<BLangConstant> resolvingConstants = new HashSet<>();
+    private BLangPackage pkgNode;
 
     public TypeResolver(CompilerContext context) {
         context.put(TYPE_RESOLVER_KEY, this);
@@ -98,14 +99,15 @@ public class TypeResolver {
         return typeResolver;
     }
 
-    public void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
+    public void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv, BLangPackage pkgNode) {
+        this.pkgNode = pkgNode;
         Map<String, BLangNode> modTable = new LinkedHashMap<>();
         for (BLangNode typeAndClassDef : moduleDefs) {
             modTable.put(symEnter.getTypeOrClassName(typeAndClassDef), typeAndClassDef);
         }
         modTable = Collections.unmodifiableMap(modTable);
 
-        constResolver.resolve(pkgEnv.enclPkg.constants, pkgEnv.enclPkg.packageID, pkgEnv);
+//        constResolver.resolve(pkgEnv.enclPkg.constants, pkgEnv.enclPkg.packageID, pkgEnv);
 
         for (BLangNode def : moduleDefs) {
             if (def.getKind() == NodeKind.CLASS_DEFN) {
@@ -1458,57 +1460,49 @@ public class TypeResolver {
     }
 
     public void resolveConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
-        resolvingConstants.add(constant); // To identify cycles
+        if (!resolvingConstants.add(constant)) { // To identify cycles
+            dlog.error(constant.pos, DiagnosticErrorCode.CONSTANT_CYCLIC_REFERENCE, this.resolvingConstants);
+            return;
+        }
         defineConstant(symEnv, modTable, constant);
         resolvingConstants.remove(constant);
         resolvedConstants.add(constant);
     }
 
     private void defineConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
-        BType staticType = null;
+        BType staticType = symTable.noType;
         constant.symbol = symEnter.getConstantSymbol(constant);
-        if (constant.typeNode != null) {
-            staticType = resolveTypeDesc(symEnv, modTable, constant.associatedTypeDefinition, 0, constant.typeNode);//symResolver.resolveTypeNode(constant.typeNode, symEnv);
+        BLangTypeDefinition typeDef = constant.associatedTypeDefinition;
+        if (typeDef != null) {
+            resolvetypeDefinition(symEnv, modTable, typeDef, 0);
         }
-        AnalyzerData data = new AnalyzerData(symEnv);
+        if (constant.typeNode != null) {
+            staticType = resolveTypeDesc(symEnv, modTable, typeDef, 0, constant.typeNode);//symResolver.resolveTypeNode(constant.typeNode, symEnv);
+        }
+        ConstantTypeChecker.AnalyzerData data = new ConstantTypeChecker.AnalyzerData();
+        data.env = symEnv;
+        data.modTable = modTable;
         BType type = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
+
         if (type == symTable.semanticError) {
             return;
+        } else if (staticType == symTable.noType) {
+            staticType = type;
         }
 
         BConstantSymbol constantSymbol = symEnter.getConstantSymbol(constant);
         constant.symbol = constantSymbol;
 
-        if (constant.typeNode != null) {
-            BType referredType = Types.getReferredType(staticType);
-            if (types.isValidLiteral((BLangLiteral) constant.expr, referredType)) {
-                // A literal type constant is defined with correct type.
-                // Update the type of the finiteType node to the static type.
-                // This is done to make the type inferring work.
-                // eg: const decimal d = 5.0;
-                BLangFiniteTypeNode finiteType = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
-                BLangExpression valueSpaceExpr = finiteType.valueSpace.iterator().next();
-                valueSpaceExpr.setBType(referredType);
-//                defineNode(constant.associatedTypeDefinition, env);
-
-                constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-                constantSymbol.literalType = referredType;
-            } else {
-                // A literal type constant is defined with some incorrect type. Set the original
-                // types and continue the flow and let it fail at semantic analyzer.
-//                defineNode(constant.associatedTypeDefinition, env);
-                constantSymbol.type = staticType;
-                constantSymbol.literalType = constant.expr.getBType();
-            }
+        BType referredType = Types.getReferredType(staticType);
+        if (typeDef == null) {
+            constantSymbol.type = referredType;
         } else {
-            // A literal type constant is defined without the type.
-            // Then the type of the symbol is the finite type.
-//            defineNode(constant.associatedTypeDefinition, env);
-            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-            constantSymbol.literalType = constant.expr.getBType();
+            constantSymbol.type = typeDef.symbol.type;
         }
-        if (constantSymbol.type.tag != TypeTags.TYPEREFDESC) {
-            constantSymbol.type.tsymbol.flags |= constant.associatedTypeDefinition.symbol.flags;
+        constantSymbol.literalType = referredType;
+
+        if (constantSymbol.type.tag != TypeTags.TYPEREFDESC && typeDef != null) {
+            constantSymbol.type.tsymbol.flags |= typeDef.symbol.flags;
         }
 
         constantSymbol.markdownDocumentation = symEnter.getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
@@ -1526,6 +1520,7 @@ public class TypeResolver {
         }
         // Add the symbol to the enclosing scope.
         symEnv.scope.define(constantSymbol.name, constantSymbol);
+        constResolver.resolve(constant, pkgNode.packageID, symEnv);
     }
 
 //    private BType evaluateConst(BLangConstant constant) {
@@ -1546,18 +1541,19 @@ public class TypeResolver {
     /**
      * @since 3.0.0
      */
-    public static class AnalyzerData extends SemanticAnalyzer.AnalyzerData {
-        SymbolEnv env;
-        BType expType;
-        Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
-        boolean notCompletedNormally;
-        boolean breakFound;
-        Types.CommonConstantAnalyzerData commonAnalyzerData = new Types.CommonConstantAnalyzerData();
-        Stack<SymbolEnv> prevEnvs = new Stack<>();
-        Map<String, BLangNode> modTable;
-
-        public AnalyzerData(SymbolEnv env) {
-            this.env = env;
-        }
-    }
+//    public static class AnalyzerData extends SemanticAnalyzer.AnalyzerData {
+//        SymbolEnv env;
+//        BType expType;
+//        Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
+//        boolean notCompletedNormally;
+//        boolean breakFound;
+//        Types.CommonConstantAnalyzerData commonAnalyzerData = new Types.CommonConstantAnalyzerData();
+//        Stack<SymbolEnv> prevEnvs = new Stack<>();
+//        Map<String, BLangNode> modTable;
+//
+//        public AnalyzerData(SymbolEnv env) {
+//            super();
+//            this.env = env;
+//        }
+//    }
 }

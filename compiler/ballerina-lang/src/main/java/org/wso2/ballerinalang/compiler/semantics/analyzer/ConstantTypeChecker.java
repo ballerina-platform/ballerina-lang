@@ -68,7 +68,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     public BType checkConstExpr(BLangExpression expr, AnalyzerData data) {
-        return checkConstExpr(expr, data.env, null, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
+        return checkConstExpr(expr, data.env, symTable.noType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 
     public BType checkConstExpr(BLangExpression expr, BType expType, AnalyzerData data) {
@@ -79,10 +79,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                                 AnalyzerData data) {
         if (expr.typeChecked) {
             return expr.getBType();
-        }
-
-        if (expType.tag == TypeTags.INTERSECTION) {
-            expType = ((BIntersectionType) expType).effectiveType;
         }
 
         SymbolEnv prevEnv = data.env;

@@ -429,7 +429,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (runTypeResolver) {
             SymbolEnv prevEnv = this.env;
             this.env = cloneEnv;
-            typeResolver.defineBTypes(typeAndClassDefsCloned, cloneEnv);
+            typeResolver.defineBTypes(typeAndClassDefsCloned, cloneEnv, pkgNode);
             this.env = prevEnv;
         }
 
