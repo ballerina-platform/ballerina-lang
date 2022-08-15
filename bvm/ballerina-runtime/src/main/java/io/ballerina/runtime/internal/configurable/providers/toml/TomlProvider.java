@@ -693,6 +693,8 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
             case TypeTags.JSON_TAG:
+                visitedNodes.add(tomlValue);
+                tomlValue = getValueFromKeyValueNode(tomlValue);
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
             default:
@@ -747,12 +749,11 @@ public class TomlProvider implements ConfigProvider {
             validateMapUnionArray((TomlTableArrayNode) tomlValue, variableName, arrayType, elementType);
             return;
         }
-        TomlValueNode valueNode = ((TomlKeyValueNode) tomlValue).value();
-        if (!checkEffectiveTomlType(valueNode.kind(), arrayType, variableName)) {
+        if (!checkEffectiveTomlType(tomlValue.kind(), arrayType, variableName)) {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         visitedNodes.add(tomlValue);
-        TomlArrayValueNode arrayNode = (TomlArrayValueNode) valueNode;
+        TomlArrayValueNode arrayNode = (TomlArrayValueNode) tomlValue;
         validateArraySize(arrayNode, variableName, arrayType, arrayNode.elements().size());
         validateArrayElements(variableName, arrayNode.elements(), elementType);
     }

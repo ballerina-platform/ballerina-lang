@@ -183,8 +183,8 @@ public class ConfigValueCreator {
                 if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
                     return getMapValueArray(tomlValue, arrayType, elementType);
                 } else {
-                    valueNode = ((TomlKeyValueNode) tomlValue).value();
-                    return createArrayFromSimpleTomlValue((TomlArrayValueNode) valueNode, arrayType, elementType);
+                    tomlValue = getValueFromKeyValueNode(tomlValue);
+                    return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType, elementType);
                 }
             default:
                 return getNonSimpleTypeArray(tomlValue, arrayType, ((IntersectionType) elementType).getEffectiveType());

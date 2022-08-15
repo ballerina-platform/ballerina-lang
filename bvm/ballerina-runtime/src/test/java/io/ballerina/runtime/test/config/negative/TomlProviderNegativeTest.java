@@ -244,13 +244,11 @@ public class TomlProviderNegativeTest {
     }
 
     @Test()
-    public void testInvalidMapType() {
-        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true);
-        VariableKey mapInt = new VariableKey(ROOT_MODULE, "mapVar", mapType, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapInt}));
-        String errorMsg = "configurable variable 'mapVar' with type 'map<int> & readonly' is not " +
-                "supported";
-        validateTomlProviderErrors("InvalidMapType", errorMsg, configVarMap, 4, 0);
+    public void testInvalidType() {
+        VariableKey anyVar = new VariableKey(ROOT_MODULE, "anyVar", PredefinedTypes.TYPE_ANY, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{anyVar}));
+        String errorMsg = "configurable variable 'anyVar' with type 'any' is not supported";
+        validateTomlProviderErrors("InvalidType", errorMsg, configVarMap, 4, 0);
     }
 
     @Test()
