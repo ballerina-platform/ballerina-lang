@@ -160,6 +160,9 @@ public class BuildCommand implements BLauncherCmd {
             " the services in the current package")
     private Boolean exportOpenAPI;
 
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation")
+    private Boolean enableCache;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -241,11 +244,11 @@ public class BuildCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(isPackageModified), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified))
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -271,7 +274,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
-                .setExportOpenAPI(exportOpenAPI);
+                .setExportOpenAPI(exportOpenAPI)
+                .setEnableCache(enableCache);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

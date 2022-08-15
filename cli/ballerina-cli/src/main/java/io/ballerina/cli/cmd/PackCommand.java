@@ -82,6 +82,9 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation")
+    private Boolean enableCache;
+
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
@@ -238,9 +241,9 @@ public class PackCommand implements BLauncherCmd {
         boolean isPackageModified = isProjectUpdated(project);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(isPackageModified), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, true, isPackageModified))
+                .addTask(new CompileTask(outStream, errStream, true, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();

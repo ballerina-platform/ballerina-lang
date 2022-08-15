@@ -48,16 +48,22 @@ public class CompileTask implements Task {
     private final transient PrintStream err;
     private final boolean compileForBalPack;
     private final boolean isPackageModified;
+    private final boolean cachesEnabled;
 
     public CompileTask(PrintStream out, PrintStream err) {
-        this(out, err, false, true);
+        this(out, err, false, true, false);
     }
 
-    public CompileTask(PrintStream out, PrintStream err, boolean compileForBalPack, boolean isPackageModified) {
+    public CompileTask(PrintStream out,
+                       PrintStream err,
+                       boolean compileForBalPack,
+                       boolean isPackageModified,
+                       boolean cachesEnabled) {
         this.out = out;
         this.err = err;
         this.compileForBalPack = compileForBalPack;
         this.isPackageModified = isPackageModified;
+        this.cachesEnabled = cachesEnabled;
     }
 
     @Override
@@ -114,7 +120,7 @@ public class CompileTask implements Task {
                         // SingleFileProject cannot hold additional sources or resources
                         // and BalaProjects is a read-only project.
                         // Hence, we run the code generators only for BuildProject.
-                        if (this.isPackageModified) {
+                        if (this.isPackageModified && this.cachesEnabled) {
                             // Run code gen and modify plugins, if project has updated only
                             DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
                                     .runCodeGenAndModifyPlugins();

@@ -56,6 +56,9 @@ OPTIONS
            Target directory path. The directory path can be absolute or relative
            to the current package.
 
+       --enable-cache
+           Enable caches for the compilation.
+
 
 ARGUMENTS
        --

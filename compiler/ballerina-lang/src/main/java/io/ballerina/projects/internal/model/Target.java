@@ -199,8 +199,8 @@ public class Target {
     /**
      * Clean any files that created from the build.
      */
-    public void clean(boolean isModified) throws IOException {
-        if (isModified) {
+    public void clean(boolean isModified, boolean cacheEnabled) throws IOException {
+        if (isModified || !cacheEnabled) {
             // Remove from cache
             ProjectUtils.deleteDirectory(this.cache);
         }

@@ -51,6 +51,9 @@ OPTIONS
        --target-dir <path>
            Target directory path.
 
+       --enable-cache
+            Enable caches for the compilation.
+
 
 EXAMPLES
        Build the current package. This will generate an 'app.jar' file in the

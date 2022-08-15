@@ -841,7 +841,7 @@ public class BuildCommandTest extends BaseCommandTest {
         long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
         BuildCommand secondBuildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(secondBuildCommand).parse();
+        new CommandLine(secondBuildCommand).parseArgs("--enable-cache");
         secondBuildCommand.execute();
         long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
@@ -862,7 +862,7 @@ public class BuildCommandTest extends BaseCommandTest {
         long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs("--enable-cache");
         buildCommand.execute();
         long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
