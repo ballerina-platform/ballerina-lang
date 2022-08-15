@@ -1,4 +1,47 @@
 {
-  "type": "error",
-  "message": "ENDPOINT_RESOLVE_ERROR"
+  "endpoints": {
+    "0": {
+      "pkgID": "ballerina/http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post",
+      "pos": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 5,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 5,
+          "offset": 28
+        }
+      }
+    }
+  },
+  "actionInvocations": {
+    "workers": {
+      "mainWorker": {
+        "nextNode": {
+          "endPointRef": "${json-unit.ignore}",
+          "name": "forward",
+          "path": "/",
+          "pos": "main.bal/(6:36,6:63)",
+          "nextNode": null
+        }
+      },
+      "w1": {
+        "nextNode": {
+          "endPointRef": "${json-unit.ignore}",
+          "name": "forward",
+          "path": "/",
+          "pos": "main.bal/(12:45,12:72)",
+          "nextNode": null
+        }
+      },
+      "w2": {
+        "nextNode": null
+      }
+    }
+  },
+  "type": "Success",
+  "message": "Success"
 }
