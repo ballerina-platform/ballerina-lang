@@ -1,9 +1,13 @@
 {
-  "line": 0,
-  "character": 31,
+  "position": {
+    "line": 0,
+    "character": 31
+  },
+  "source": "extract_type_in_return_type_desc1.bal",
   "expected": [
     {
       "title": "Extract type",
+      "kind": "refactor.extract",
       "edits": [
         {
           "range": {

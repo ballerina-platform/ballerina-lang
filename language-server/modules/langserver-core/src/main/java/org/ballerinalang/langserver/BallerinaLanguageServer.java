@@ -37,6 +37,8 @@ import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.util.LSClientUtil;
+import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.CodeActionOptions;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.CompletionRegistrationOptions;
@@ -119,13 +121,16 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setDocumentSymbolProvider(true);
-        res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setDocumentRangeFormattingProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(false);
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
+
+        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor, 
+                CodeActionKind.QuickFix, CodeActionKind.Source));
+        res.getCapabilities().setCodeActionProvider(codeActionOptions);
 
         // Hover, references and definition support will be registered dynamically if supported
         if (!LSClientUtil.isDynamicHoverRegistrationSupported(params.getCapabilities().getTextDocument())) {

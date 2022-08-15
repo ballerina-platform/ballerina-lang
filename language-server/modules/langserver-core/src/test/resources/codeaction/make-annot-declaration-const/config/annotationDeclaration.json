@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 24,
+  "position": {
+    "line": 1,
+    "character": 24
+  },
+  "source": "annotationDeclaration.bal",
   "expected": [
     {
       "title": "Convert \u0027annot_decl\u0027 to constant",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

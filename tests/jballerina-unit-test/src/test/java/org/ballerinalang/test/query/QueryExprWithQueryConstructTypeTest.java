@@ -258,8 +258,6 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
                 "maps or tables with key specifiers", 95, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "maps or tables with key specifiers", 103, 14);
-        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
                 "maps or tables with key specifiers", 119, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
                 "maps or tables with key specifiers", 126, 47);

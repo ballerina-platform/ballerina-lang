@@ -18,6 +18,7 @@
 package org.ballerinalang.test.klass;
 
 import org.ballerinalang.nativeimpl.jvm.servicetests.ServiceValue;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -52,13 +53,13 @@ public class ServiceClassTest {
         int index = 0;
         validateError(result, index++,
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, " +
-                        "found 'json'", 37, 31);
+                        "found 'json'", 37, 32);
         validateError(result, index++,
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, " +
-                        "found 'anydata'", 37, 40);
+                        "found 'anydata'", 37, 41);
         validateError(result, index++,
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as rest path param, " +
-                        "found 'anydata'", 37, 64);
+                        "found 'anydata'", 37, 65);
         Assert.assertEquals(index, 3);
     }
 
@@ -67,10 +68,6 @@ public class ServiceClassTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/klass/service_type_resource_method_decl_neg.bal");
         int index = 0;
-        validateError(result, index++, "resource method declarations are not allowed in an object type definition",
-                19, 5);
-        validateError(result, index++, "resource method declarations are not allowed in an object type definition",
-                20, 5);
         validateError(result, index++, "no implementation found for the method 'onMesage' of class 'SClass'", 23, 1);
         validateError(result, index++, "incompatible types: expected 'Foo', found 'Baz'", 88, 13);
         Assert.assertEquals(result.getErrorCount(), index);
@@ -83,10 +80,60 @@ public class ServiceClassTest {
         int index = 0;
         validateError(result, index++, "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
                         "are supported as path params, found 'other'",
-                22, 28);
+                24, 29);
         validateError(result, index++, "undefined module 'module1'",
-                22, 29);
-        validateError(result, index++, "unknown type 'RequestMessage'", 22, 29);
+                24, 29);
+        validateError(result, index++, "unknown type 'RequestMessage'", 24, 29);
+        BAssertUtil.validateError(result, index++,
+                "redeclared symbol 'a'", 35, 56);
+        BAssertUtil.validateError(result, index++,
+                "redeclared symbol 'name'", 39, 69);
+        BAssertUtil.validateError(result, index++,
+                "redeclared symbol '$anonType$_2.$get$path$*$foo2'", 43, 27);
+        BAssertUtil.validateError(result, index++,
+                "resource path segment is not allowed after resource path rest parameter",
+                47, 47);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
+                        "are supported as path params, found 'string?'", 51, 38);
+        BAssertUtil.validateError(result, index++,
+                "missing resource path in resource accessor definition",
+                55, 27);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as" +
+                        " path params, found 'record {| int a; anydata...; |}'", 59, 43);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as" +
+                        " path params, found 'record {| int a; anydata...; |}'", 63, 44);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as rest path " +
+                        "param, found 'xml'", 67, 40);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path " +
+                        "params, found 'xml'", 71, 41);
+        BAssertUtil.validateError(result, index++,
+                "redeclared symbol '$anonType$_2.$get$xmlPath2$*'", 75, 27);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path" +
+                        " params, found 'xml'", 75, 41);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path " +
+                        "params, found 'map<string>'", 79, 40);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path " +
+                        "params, found 'map<string>'", 83, 41);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path " +
+                        "params, found '(int|error)'", 87, 47);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path " +
+                        "params, found '(int|error)'", 91, 48);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path " +
+                        "params, found 'error'", 95, 42);
+        BAssertUtil.validateError(result, index++,
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path " +
+                        "params, found 'error'", 99, 43);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

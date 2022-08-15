@@ -1,0 +1,7 @@
+[package]
+org = "testOrg"
+name = "testPackageWithModules"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = false

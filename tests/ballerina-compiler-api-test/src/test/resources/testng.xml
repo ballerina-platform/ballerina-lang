@@ -41,6 +41,7 @@
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
             <class name="io.ballerina.semantic.api.test.VisitorAPITest" />
             <class name="io.ballerina.semantic.api.test.TypesTest" />
+            <class name="io.ballerina.semantic.api.test.TypeBuildersTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
@@ -59,6 +60,7 @@
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInMatchStmtTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInRecordTypeDefTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInRegCompoundStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInResourceAccessActionTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInServiceDeclTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInTestsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInTransactionalStmtTest" />
@@ -125,6 +127,7 @@
 
             <!--Actions-->
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInQueryActionsTest" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInResourceAccessActionTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInSendReceiveFlushActionsTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInTypeCastActionsTest" />
@@ -179,6 +182,7 @@
 
             <!--Type Of-->
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfInResourceAccessActionTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfRegressionTest" />
 

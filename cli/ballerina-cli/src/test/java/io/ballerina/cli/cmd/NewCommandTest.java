@@ -352,6 +352,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path packageDir = tmpDir.resolve("sample-multi_module");
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("natives.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("libs/protobuf-native-1.0.1.txt")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.timestamp")));
@@ -359,6 +360,8 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/int.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/string.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/" +
+                ProjectConstants.MODULE_MD_FILE_NAME)));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String expectedTomlContent = "[package]\n" +
@@ -462,6 +465,124 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"pramodya\"\n" +
                 "name = \"winery\"\n" +
                 "version = \"0.1.0\""));
+    }
+    @Test(description = "Test new command by pulling a central template that has simple include patterns")
+    public void testNewCommandTemplateWithSimpleIncludePatterns() throws IOException {
+        // Publish template to the central
+        cacheBalaToCentralRepository(testResources.resolve("balacache-dependencies").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("any"), "foo", "winery", "0.1.0", "any");
+
+        // Create a new package with the foo/winery:0.1.0 template
+        String packageName = "sample_project";
+        String[] args = {packageName, "-t", "foo/winery:0.1.0"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        // Check if the package directory is created
+        Path packageDir = tmpDir.resolve(packageName);
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML)));
+
+        // Check if the include files are copied
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-file.json")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include/file")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include-dir/include_text_file.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include-dir/include_image.png")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/services/non-default-module-include/file")));
+        Assert.assertTrue(Files.exists(
+                packageDir.resolve("modules/services/non-default-module-include-dir/include_text_file.txt")));
+        Assert.assertTrue(Files.exists(
+                packageDir.resolve("modules/services/non-default-module-include-dir/include_image.png")));
+    }
+
+    @Test(description = "Test new command by pulling a central template that has complex include patterns")
+    public void testNewCommandTemplateWithComplexIncludePatterns() throws IOException {
+        // Publish template to the central
+        cacheBalaToCentralRepository(testResources.resolve("balacache-dependencies")
+                .resolve("foo-include_test-any-0.1.0"), "foo", "include_test", "0.1.0", "any");
+
+        // Create a new package with the foo/winery:0.1.0 template
+        String packageName = "include_pattern_project";
+        String[] args = {packageName, "-t", "foo/include_test:0.1.0"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        // Check if the package directory is created
+        Path packageDir = tmpDir.resolve(packageName);
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML)));
+
+        // Check if the include files are copied
+        // foo
+        Assert.assertTrue(Files.exists(packageDir.resolve("foo/temp.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/foo")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/services/foo/temp.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/services/include-resources/foo")));
+
+        // /bar
+        Assert.assertTrue(Files.exists(packageDir.resolve("bar")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources/bar")));
+
+        // baz/
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/baz")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources2/baz")));
+
+        // /qux/, /quux/
+        Assert.assertTrue(Files.exists(packageDir.resolve("qux/temp.txt")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources/qux/temp.txt")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("quux")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources/quux")));
+
+        // *.html
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/temp.html")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources/html.txt")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources/html/temp.txt")));
+
+        // foo*bar.*
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/foobar.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/foobazbar.txt")));
+
+        // plug?
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources2/plugs")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources2/plug")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources2/plugged")));
+
+        // thud[ab]
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources2/range/thuda")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources2/range/thudb")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources2/range/thudc")));
+
+        // fred[q-s]
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources2/range/fredp")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources2/range/fredq")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources2/range/fredr")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources2/range/freds")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources2/range/fredt")));
+
+        // **/grault/garply
+        Assert.assertTrue(Files.exists(packageDir.resolve("grault/garply/temp.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/grault/garply/temp.txt")));
+
+        // waldo/xyzzy/**
+        Assert.assertTrue(Files.exists(packageDir.resolve("waldo/xyzzy/temp.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/waldo/xyzzy/temp.txt")));
+
+        // babble/**/bar
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/babble/fuu/bar")));
+
+        // *.rs - include all files with extension .rs
+        // !corge.rs - exclude only corge.rs
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/wombat.rs")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/garply.rs")));
+        Assert.assertFalse(Files.exists(packageDir.resolve("include-resources/corge.rs")));
+
+        // exact file paths
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/thud/temp.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-resources/x.js")));
     }
 
     @Test(description = "Test new command without arguments")

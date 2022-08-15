@@ -140,6 +140,11 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getExport().get(0), "winery");
             Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
 
+            Assert.assertFalse(packageJson.getInclude().isEmpty());
+            Assert.assertEquals(packageJson.getInclude().get(0), "**/include-file.*");
+            Assert.assertEquals(packageJson.getInclude().get(1), "**/*module-include/file");
+            Assert.assertEquals(packageJson.getInclude().get(2), "**/*-module-include-dir");
+
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
             Assert.assertEquals(packageJson.getPlatform(), "java11");
@@ -182,6 +187,26 @@ public class TestBalaWriter {
         // check icon
         Path iconPath = balaExportPath.resolve("docs").resolve("samplePng01.png");
         Assert.assertTrue(iconPath.toFile().exists());
+
+        // check for includes
+        Path defaultModuleIncludeJson = balaExportPath.resolve("include-file.json");
+        Assert.assertTrue(defaultModuleIncludeJson.toFile().exists());
+        Path defaultModuleIncludeFile = balaExportPath.resolve("default-module-include/file");
+        Assert.assertTrue(defaultModuleIncludeFile.toFile().exists());
+        Path defaultModuleIncludeTextFile = balaExportPath.resolve("default-module-include-dir/include_text_file.txt");
+        Assert.assertTrue(defaultModuleIncludeTextFile.toFile().exists());
+        Path defaultModuleIncludeImageFile = balaExportPath.resolve("default-module-include-dir/include_image.png");
+        Assert.assertTrue(defaultModuleIncludeImageFile.toFile().exists());
+
+        Path nonDefaultModuleIncludeFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include/file");
+        Assert.assertTrue(nonDefaultModuleIncludeFile.toFile().exists());
+        Path nonDefaultModuleIncludeTextFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include-dir/include_text_file.txt");
+        Assert.assertTrue(nonDefaultModuleIncludeTextFile.toFile().exists());
+        Path nonDefaultModuleIncludeImageFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include-dir/include_image.png");
+        Assert.assertTrue(nonDefaultModuleIncludeImageFile.toFile().exists());
 
         // module sources
         // default module
@@ -430,7 +455,7 @@ public class TestBalaWriter {
         Assert.assertTrue(balaExportPath.resolve(BALA_DOCS_DIR).resolve("samplePng01.png").toFile().exists());
     }
 
-    @Test(description = "tests build project with a invalid svg icon renamed as png")
+    @Test(description = "tests build project with an invalid svg icon renamed as png")
     public void testBuildProjectWithInvalidIcon(ITestContext ctx) {
         Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithInvalidIcon");
         ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
@@ -443,6 +468,169 @@ public class TestBalaWriter {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
         Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
                 "invalid 'icon' under [package]: 'icon' can only have 'png' images");
+    }
+
+    @Test(description = "tests build project with different include patterns")
+    public void testBuildProjectWithIncludes(ITestContext ctx) throws IOException {
+        Gson gson = new Gson();
+        Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithInclude");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
+
+        BuildProject buildProject = BuildProject.load(packagePath);
+        PackageCompilation packageCompilation = buildProject.currentPackage().getCompilation();
+
+        Target target = new Target(buildProject.sourceRoot());
+        Path balaPath = target.getBalaPath();
+
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
+        Assert.assertTrue(emitResult.successful());
+
+        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-include_test-any-0.1.0.bala")),
+                String.valueOf(balaExportPath));
+
+        Path packageJsonPath = balaExportPath.resolve("package.json");
+        Assert.assertTrue(packageJsonPath.toFile().exists());
+
+        try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
+            PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
+            Assert.assertFalse(packageJson.getInclude().isEmpty());
+            Assert.assertEquals(packageJson.getInclude().get(0), "foo");
+            Assert.assertEquals(packageJson.getInclude().get(1), "/bar");
+            Assert.assertEquals(packageJson.getInclude().get(2), "baz/");
+            Assert.assertEquals(packageJson.getInclude().get(3), "/qux/");
+            Assert.assertEquals(packageJson.getInclude().get(4), "/quux/");
+            Assert.assertEquals(packageJson.getInclude().get(5), "*.html");
+            Assert.assertEquals(packageJson.getInclude().get(6), "foo*bar.*");
+            Assert.assertEquals(packageJson.getInclude().get(7), "plug?");
+            Assert.assertEquals(packageJson.getInclude().get(8), "thud[ab]");
+            Assert.assertEquals(packageJson.getInclude().get(9), "fred[q-s]");
+            Assert.assertEquals(packageJson.getInclude().get(10), "**/grault/garply");
+            Assert.assertEquals(packageJson.getInclude().get(11), "waldo/xyzzy/**");
+            Assert.assertEquals(packageJson.getInclude().get(12), "babble/**/bar");
+            Assert.assertEquals(packageJson.getInclude().get(13), "*.rs");
+            Assert.assertEquals(packageJson.getInclude().get(14), "!corge.rs");
+            Assert.assertEquals(packageJson.getInclude().get(15), "include-resources/thud");
+            Assert.assertEquals(packageJson.getInclude().get(16), "include-resources/x.js");
+        }
+
+        // foo
+        Path simplePatternDirInDefaultModule = balaExportPath.resolve("foo/temp.txt");
+        Assert.assertTrue(simplePatternDirInDefaultModule.toFile().exists());
+        Path simplePatternFileInDefaultModule = balaExportPath.resolve("include-resources/foo");
+        Assert.assertTrue(simplePatternFileInDefaultModule.toFile().exists());
+        Path simplePatternDirInNonDefaultModule = balaExportPath
+                .resolve("modules/include_test.services/foo/temp.txt");
+        Assert.assertTrue(simplePatternDirInNonDefaultModule.toFile().exists());
+        Path simplePatternFileInNonDefaultModule = balaExportPath
+                .resolve("modules/include_test.services/include-resources/foo");
+        Assert.assertTrue(simplePatternFileInNonDefaultModule.toFile().exists());
+
+        // /bar
+        Path rootOnlyPatternFileInRoot = balaExportPath.resolve("bar");
+        Assert.assertTrue(rootOnlyPatternFileInRoot.toFile().exists());
+        Path rootOnlyPatternFileNotInRoot = balaExportPath.resolve("include-resources/bar");
+        Assert.assertFalse(rootOnlyPatternFileNotInRoot.toFile().exists());
+        Path rootOnlyPatternFileInNonDefaultModule = balaExportPath
+                .resolve("modules/include_test.services/include-resources/bar/temp.txt");
+        Assert.assertFalse(rootOnlyPatternFileInNonDefaultModule.toFile().exists());
+
+        // baz/
+        Path dirOnlyPatternDir = balaExportPath.resolve("include-resources/baz");
+        Assert.assertTrue(dirOnlyPatternDir.toFile().exists());
+        Path dirOnlyPatternFile = balaExportPath.resolve("include-resources2/baz");
+        Assert.assertFalse(dirOnlyPatternFile.toFile().exists());
+
+        // /qux/, /quux/
+        Path rootOnlyDirOnlyPatternDirInRoot = balaExportPath.resolve("qux/temp.txt");
+        Assert.assertTrue(rootOnlyDirOnlyPatternDirInRoot.toFile().exists());
+        Path rootOnlyDirOnlyPatternDirNotInRoot = balaExportPath.resolve("include-resources/qux/temp.txt");
+        Assert.assertFalse(rootOnlyDirOnlyPatternDirNotInRoot.toFile().exists());
+        Path rootOnlyDirOnlyPatternFileInRoot = balaExportPath.resolve("quux");
+        Assert.assertFalse(rootOnlyDirOnlyPatternFileInRoot.toFile().exists());
+        Path rootOnlyDirOnlyPatternFileNotInRoot = balaExportPath.resolve("include-resources/quux");
+        Assert.assertFalse(rootOnlyDirOnlyPatternFileNotInRoot.toFile().exists());
+
+        // *.html
+        Path starPatternFileMatchingExt = balaExportPath.resolve("include-resources/temp.html");
+        Assert.assertTrue(starPatternFileMatchingExt.toFile().exists());
+        Path starPatternFileNotMatchingExt = balaExportPath.resolve("include-resources/html.txt");
+        Assert.assertFalse(starPatternFileNotMatchingExt.toFile().exists());
+        Path starPatternDirMatchingExt = balaExportPath.resolve("include-resources/html/temp.txt");
+        Assert.assertFalse(starPatternDirMatchingExt.toFile().exists());
+
+        // foo*bar.*
+        Path starPatternFile1 = balaExportPath.resolve("include-resources/foobar.txt");
+        Assert.assertTrue(starPatternFile1.toFile().exists());
+        Path starPatternFile2 = balaExportPath.resolve("include-resources/foobazbar.txt");
+        Assert.assertTrue(starPatternFile2.toFile().exists());
+
+        // plug?
+        Path anySingleCharPatternMatchingFile = balaExportPath.resolve("include-resources2/plugs");
+        Assert.assertTrue(anySingleCharPatternMatchingFile.toFile().exists());
+        Path anySingleCharPatternNotMatchingFile1 = balaExportPath.resolve("include-resources2/plug");
+        Assert.assertFalse(anySingleCharPatternNotMatchingFile1.toFile().exists());
+        Path anySingleCharPatternNotMatchingFile2 = balaExportPath.resolve("include-resources2/plugged");
+        Assert.assertFalse(anySingleCharPatternNotMatchingFile2.toFile().exists());
+
+        // thud[ab]
+        Path rangePatternMatchingFile1 = balaExportPath.resolve("include-resources2/range/thuda");
+        Assert.assertTrue(rangePatternMatchingFile1.toFile().exists());
+        Path rangePatternMatchingFile2 = balaExportPath.resolve("include-resources2/range/thudb");
+        Assert.assertTrue(rangePatternMatchingFile2.toFile().exists());
+        Path rangePatternNotMatchingFile3 = balaExportPath.resolve("include-resources2/range/thudc");
+        Assert.assertFalse(rangePatternNotMatchingFile3.toFile().exists());
+
+        // fred[q-s]
+        Path rangePatternNotMatchingFile4 = balaExportPath.resolve("include-resources2/range/fredp");
+        Assert.assertFalse(rangePatternNotMatchingFile4.toFile().exists());
+        Path rangePatternMatchingFile5 = balaExportPath.resolve("include-resources2/range/fredq");
+        Assert.assertTrue(rangePatternMatchingFile5.toFile().exists());
+        Path rangePatternMatchingFile6 = balaExportPath.resolve("include-resources2/range/fredr");
+        Assert.assertTrue(rangePatternMatchingFile6.toFile().exists());
+        Path rangePatternMatchingFile7 = balaExportPath.resolve("include-resources2/range/freds");
+        Assert.assertTrue(rangePatternMatchingFile7.toFile().exists());
+        Path rangePatternNotMatchingFile8 = balaExportPath.resolve("include-resources2/range/fredt");
+        Assert.assertFalse(rangePatternNotMatchingFile8.toFile().exists());
+
+        // **/grault/garply
+        Path doubleStarAtStartPatternDirInRoot = balaExportPath.resolve("grault/garply/temp.txt");
+        Assert.assertTrue(doubleStarAtStartPatternDirInRoot.toFile().exists());
+        Path doubleStarAtStartPatternDirNotInRoot = balaExportPath.resolve("include-resources/grault/garply/temp.txt");
+        Assert.assertTrue(doubleStarAtStartPatternDirNotInRoot.toFile().exists());
+
+        // waldo/xyzzy/**
+        Path doubleStarAtEndPatternDirInRoot = balaExportPath.resolve("waldo/xyzzy/temp.txt");
+        Assert.assertTrue(doubleStarAtEndPatternDirInRoot.toFile().exists());
+        Path doubleStarAtEndPatternDirNotInRoot = balaExportPath.resolve("include-resources/waldo/xyzzy/temp.txt");
+        Assert.assertTrue(doubleStarAtEndPatternDirNotInRoot.toFile().exists());
+
+        // babble/**/bar
+        Path doubleStarInMiddlePatternFile = balaExportPath.resolve("include-resources/babble/fuu/bar");
+        Assert.assertTrue(doubleStarInMiddlePatternFile.toFile().exists());
+
+        // *.rs - include all files with extension .rs
+        // !corge.rs - exclude only corge.rs
+        Path includeRsExtPatternIncludedFile1 = balaExportPath.resolve("include-resources/wombat.rs");
+        Assert.assertTrue(includeRsExtPatternIncludedFile1.toFile().exists());
+        Path includeRsExtPatternIncludedFile2 = balaExportPath.resolve("include-resources/garply.rs");
+        Assert.assertTrue(includeRsExtPatternIncludedFile2.toFile().exists());
+        Path includeRsExtPatternExcludedFile = balaExportPath.resolve("include-resources/corge.rs");
+        Assert.assertFalse(includeRsExtPatternExcludedFile.toFile().exists());
+
+        // exact file paths
+        // include-resources/thud
+        // include-resources/x.js
+        Path exactPathPatternDir = balaExportPath.resolve("include-resources/thud/temp.txt");
+        Assert.assertTrue(exactPathPatternDir.toFile().exists());
+        Path exactPathPatternFile = balaExportPath.resolve("include-resources/x.js");
+        Assert.assertTrue(exactPathPatternFile.toFile().exists());
+
+        // patterns that include the same file twice
+        // test the handling of ZipException thrown from putZipEntry when the same file is included twice
+        // hoge/, hoge/y
+        Path patternOverlapFile = balaExportPath.resolve("include-resources/hoge/y");
+        Assert.assertTrue(patternOverlapFile.toFile().exists());
     }
 
     @AfterMethod(alwaysRun = true)

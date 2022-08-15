@@ -19,9 +19,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionContextTypeResolver;
@@ -29,14 +27,12 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
@@ -57,8 +53,15 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE4026", "BCE2070");
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
+
+    @Override
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Optional<OperatorKind> operatorKind = positionDetails.diagnosticProperty(CodeActionUtil
                 .getDiagPropertyFilterFunction(DiagBasedPositionDetails.DIAG_PROP_OPERATOR_INDEX));
         Optional<TypeSymbol> lhsOperand = positionDetails.diagnosticProperty(CodeActionUtil
@@ -93,30 +96,18 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
             typeName = NameUtil.getModifiedTypeName(context, rhsOperand.get());
             castExprNode = binaryExpressionNode.lhsExpr();
         }
-        String exprSourceCode = castExprNode.toSourceCode().strip(); 
+        String exprSourceCode = castExprNode.toSourceCode().strip();
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<TextEdit> edits = new ArrayList<>(getTextEdits(castExprNode, typeName));
         String commandTitle = String.format(CommandConstants.ADD_TYPE_CAST_TO_NUMERIC_OPERAND_TITLE, exprSourceCode);
-        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
     }
 
     public String getName() {
         return NAME;
-    }
-
-    @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
-                            CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return false;
-        }
-        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(),
-                context.cursorPosition()), syntaxTree);
-        return CodeActionNodeValidator.validate(matchedNode);
     }
 }

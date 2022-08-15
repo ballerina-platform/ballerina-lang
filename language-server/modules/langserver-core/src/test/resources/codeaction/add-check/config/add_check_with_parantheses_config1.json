@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 39,
+  "position": {
+    "line": 1,
+    "character": 39
+  },
+  "source": "add_check_with_parantheses_source1.bal",
   "expected": [
     {
       "title": "Add 'check' error",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

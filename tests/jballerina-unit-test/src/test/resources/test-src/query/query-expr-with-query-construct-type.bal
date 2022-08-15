@@ -1133,7 +1133,7 @@ function testConstructingListOfTablesUsingQueryWithReadonly() {
 
     (table<User> key(id))[] uList = [users1];
 
-    (table<User> key(id))[] & readonly result = from var user in uList
+    (table<User & readonly> key(id))[] & readonly result = from var user in uList
                                     select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [[{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":25}]]");
     assertEqual(result, [table key(id) [{"id":1,"firstName":"John","lastName":"Doe","age":25}]]);
@@ -1144,7 +1144,7 @@ function testConstructingListOfRecordsUsingQueryWithReadonly() {
     Employee emp2 = {firstName: "A2", lastName: "B2", dept: "C2"};
     Employee emp3 = {firstName: "A3", lastName: "B3", dept: "C3"};
 
-    Employee[] & readonly result = from var user in [emp1, emp2, emp3]
+    (Employee & readonly)[] & readonly result = from var user in [emp1, emp2, emp3]
                                 select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [{\"firstName\":\"A1\",\"lastName\":\"B1\",\"dept\":\"C1\"},{\"firstName\":\"A2\",\"lastName\":\"B2\",\"dept\":\"C2\"},{\"firstName\":\"A3\",\"lastName\":\"B3\",\"dept\":\"C3\"}]");
     assertEqual(result, [{"firstName":"A1","lastName":"B1","dept":"C1"},{"firstName":"A2","lastName":"B2","dept":"C2"},{"firstName":"A3","lastName":"B3","dept":"C3"}]);
@@ -1153,7 +1153,7 @@ function testConstructingListOfRecordsUsingQueryWithReadonly() {
 function testConstructingListOfXMLsUsingQueryWithReadonly() {
     xml a = xml `<id> 1 </id> <name> John </name>`;
 
-    xml[] & readonly result = from var user in a
+    (xml & readonly)[] & readonly result = from var user in a
                                 select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [`<id> 1 </id>`,` `,`<name> John </name>`]");
     assertEqual(result, [xml`<id> 1 </id>`,xml` `,xml`<name> John </name>`]);
@@ -1176,13 +1176,12 @@ function testConstructingListOfMapsUsingQueryWithReadonly() {
     assertEqual(result, [{"item":[1,2]},{"item":"a"},{"item":"b"},{"item":[-1,9223372036854775807]}]);
 }
 
-type T readonly & record {
+type T record {
     string[] params;
 };
 
 function testConstructingListInRecordsUsingQueryWithReadonly() {
     T rec1 = { params: from var s in ["a", "b", "c", "abc"] select s };
-    assertEqual((typeof(rec1)).toString(), "typedesc {\"params\":[\"a\",\"b\",\"c\",\"abc\"]}");
     assertEqual(rec1, {"params":["a","b","c","abc"]});
 }
 

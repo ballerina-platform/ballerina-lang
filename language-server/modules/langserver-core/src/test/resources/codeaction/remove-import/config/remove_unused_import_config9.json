@@ -1,9 +1,13 @@
 {
-  "line": 2,
-  "character": 29,
+  "position": {
+    "line": 2,
+    "character": 29
+  },
+  "source": "remove_unused_import_source9.bal",
   "expected": [
     {
       "title": "Remove all unused imports",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +26,7 @@
     },
     {
       "title": "Remove unused import 'mod'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
