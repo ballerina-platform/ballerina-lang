@@ -335,6 +335,7 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 validateUnionValue(tomlValue, variableName, (BUnionType) type);
                 break;
             default:
@@ -691,6 +692,7 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
             default:
@@ -794,6 +796,7 @@ public class TomlProvider implements ConfigProvider {
                     break;
                 case TypeTags.ANYDATA_TAG:
                 case TypeTags.UNION_TAG:
+                case TypeTags.JSON_TAG:
                     validateUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
                     break;
                 default:
