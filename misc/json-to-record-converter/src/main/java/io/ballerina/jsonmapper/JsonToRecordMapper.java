@@ -307,9 +307,10 @@ public class JsonToRecordMapper {
     private static Node getRecordField(Map.Entry<String, JsonElement> entry, boolean isRecordTypeDesc,
                                        boolean optionalField, Map<String, NonTerminalNode> recordToTypeDescNodes) {
         Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
-        TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
-        IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
+        TypeDescriptorNode fieldTypeName = NodeFactory.createOptionalTypeDescriptorNode(typeName, questionMarkToken);
+//        TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+        IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
         Token optionalFieldToken = optionalField ? questionMarkToken : null;
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 

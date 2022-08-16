@@ -1,5 +1,5 @@
 type SportsItem record {
-    string sport?;
+    string? sport;
     string position?;
     boolean reserve?;
     string game?;
