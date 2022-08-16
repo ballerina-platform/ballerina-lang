@@ -18,53 +18,74 @@ boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 
 public function startSuite() {
-    executeBeforeSuiteFunctions();
-    executeTests();
-    executeAfterSuiteFunctions();
-    consoleReport(reportData);
+    error? err = orderTests();
+    if err is error { //TODO: break the execution and display the error in a better way
+        println(err.message());
+    } else {
+        executeBeforeSuiteFunctions();
+        executeTests();
+        executeAfterSuiteFunctions();
+        reportGenerators.forEach(reportGen => reportGen(reportData));
+    }
+
 }
 
 function executeTests() {
     foreach TestFunction testFunction in testRegistry.getFunctions() {
-        if testFunction.diagnostics != () {
-            reportData.onFailed(testFunction.name, (<error>testFunction.diagnostics).message());
-            continue;
-        }
-        
-        executeBeforeGroupFunctions(testFunction);
-        executeBeforeEachFunctions();
-        executeBeforeFunction(testFunction);
+        executeTest(testFunction);
+    }
+}
 
-        if !testFunction.skip && !shouldSkip {
-            DataProviderReturnType? params = testFunction.params;
-            if params is map<AnyOrError[]> {
-                foreach [string, AnyOrError[]] entry in params.entries() {
-                    if executeDataDrivenTest(testFunction, testFunction.name + "#" + entry[0], entry[1]) {
-                        break;
-                    }
-                }
-            } else if params is AnyOrError[][] {
-                int i = 0;
-                foreach AnyOrError[] entry in params {
-                    if executeDataDrivenTest(testFunction, testFunction.name + "#" + i.toString(), entry) {
-                        break;
-                    }
-                    i += 1;
-                }
-            } else {
-                ExecutionError? err = executeTestFunction(testFunction, testFunction.name);
-                if err is ExecutionError {
-                    reportData.onFailed(testFunction.name, err.message());
+function executeTest(TestFunction testFunction) {
+    if !testFunction.enabled {
+        return;
+    }
+    error? diagnoseError = testFunction.diagnostics;
+    if diagnoseError is error {
+        reportData.onFailed(testFunction.name, diagnoseError.message());
+        return;
+    }
+    if testFunction.dependsOnCount > 0 {
+        testFunction.dependsOnCount -= 1;
+        return;        
+    }
+
+    executeBeforeGroupFunctions(testFunction);
+    executeBeforeEachFunctions();
+    executeBeforeFunction(testFunction);
+
+    if !testFunction.skip && !shouldSkip {
+        DataProviderReturnType? params = testFunction.params;
+        if params is map<AnyOrError[]> {
+            foreach [string, AnyOrError[]] entry in params.entries() {
+                if executeDataDrivenTest(testFunction, testFunction.name + "#" + entry[0], entry[1]) {
+                    break;
                 }
             }
+        } else if params is AnyOrError[][] {
+            int i = 0;
+            foreach AnyOrError[] entry in params {
+                if executeDataDrivenTest(testFunction, testFunction.name + "#" + i.toString(), entry) {
+                    break;
+                }
+                i += 1;
+            }
         } else {
-            reportData.onSkipped(testFunction.name);
+            ExecutionError? err = executeTestFunction(testFunction, testFunction.name);
+            if err is ExecutionError {
+                reportData.onFailed(testFunction.name, err.message());
+            }
         }
-
-        executeAfterFunction(testFunction);
-        executeAfterEachFunctions();
-        executeAfterGroupFunctions(testFunction);
+    } else {
+        reportData.onSkipped(testFunction.name);
     }
+
+    testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
+    executeAfterFunction(testFunction);
+    executeAfterEachFunctions();
+    executeAfterGroupFunctions(testFunction);
+
+    testFunction.dependents.forEach(dependent => executeTest(dependent));
 }
 
 function executeBeforeSuiteFunctions() {
@@ -148,7 +169,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
 function executeDataDrivenTest(TestFunction testFunction, string name, AnyOrError[] params) returns boolean {
     ExecutionError? err = executeTestFunction(testFunction, name, params);
     if err is ExecutionError {
-        reportData.onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name 
+        reportData.onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name
             + "]\n" + getErrorMessage(err));
         return true;
     }
@@ -173,7 +194,6 @@ function executeTestFunction(TestFunction testFunction, string name, AnyOrError[
         reportData.onFailed(name, getErrorMessage(output));
     } else if output is any {
         reportData.onPassed(name);
-        testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
     } else {
         return error(getErrorMessage(output), functionName = testFunction.name);
     }
@@ -189,4 +209,39 @@ function executeFunction(TestFunction|function testFunction) returns ExecutionEr
 function getErrorMessage(error err) returns string {
     string|error message = err.detail()["message"].ensureType();
     return message is error ? err.message() : message;
+}
+
+function orderTests() returns error? {
+    string[] descendants = [];
+
+    foreach TestFunction testFunction in testRegistry.getDependentFunctions() {
+        if !testFunction.visited && testFunction.enabled {
+            check restructureTest(testFunction, descendants);
+        }
+    }
+}
+
+function restructureTest(TestFunction testFunction, string[] descendants) returns error? {
+    descendants.push(testFunction.name);
+
+    // TODO: Change the type to function after https://github.com/ballerina-platform/ballerina-lang/issues/37379 fixed
+    foreach string dependsOnFunction in testFunction.dependsOnString {
+        TestFunction dependsOnTestFunction = check testRegistry.getTestFunction(dependsOnFunction);
+        dependsOnTestFunction.dependents.push(testFunction);
+
+        // Contains cyclic dependencies 
+        int? startIndex = descendants.indexOf(dependsOnTestFunction.name);
+        if startIndex is int {
+            string[] newCycle = descendants.slice(startIndex);
+            newCycle.push(dependsOnTestFunction.name);
+            return error("Cyclic test dependencies detected: " + string:'join(" -> ", ...newCycle));
+        } else if !dependsOnTestFunction.visited {
+            check restructureTest(dependsOnTestFunction, descendants);
+        }
+
+    }
+
+    testFunction.enabled = true;
+    testFunction.visited = true;
+    _ = descendants.pop();
 }
