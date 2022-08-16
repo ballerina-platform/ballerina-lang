@@ -23,7 +23,7 @@ import org.ballerinalang.diagramutil.connector.models.connector.Type;
  */
 public class ResolvedTypeForSymbol {
     private Type type;
-    private LinePosition requestedPosition;
+    private final LinePosition requestedPosition;
 
     public ResolvedTypeForSymbol(LinePosition requestedPosition) {
         this.requestedPosition = requestedPosition;
@@ -41,7 +41,4 @@ public class ResolvedTypeForSymbol {
         return requestedPosition;
     }
 
-    public void setRequestedPosition(LinePosition requestedPosition) {
-        this.requestedPosition = requestedPosition;
-    }
 }

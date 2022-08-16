@@ -22,7 +22,7 @@ import org.ballerinalang.diagramutil.connector.models.connector.Type;
  */
 public class ResolvedTypeForExpression {
     private Type type;
-    private ExpressionRange requestedRange;
+    private final ExpressionRange requestedRange;
 
     public ResolvedTypeForExpression(ExpressionRange requestedRange) {
         this.requestedRange = requestedRange;
@@ -40,7 +40,4 @@ public class ResolvedTypeForExpression {
         return requestedRange;
     }
 
-    public void setRequestedRange(ExpressionRange requestedRange) {
-        this.requestedRange = requestedRange;
-    }
 }
