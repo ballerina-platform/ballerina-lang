@@ -199,9 +199,6 @@ public class MethodGen {
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
 
-        // set channel details to strand.
-        setChannelDetailsToStrand(func, localVarOffset, mv);
-
         // panic if this strand is cancelled
         checkStrandCancelled(mv, localVarOffset);
 
@@ -218,6 +215,9 @@ public class MethodGen {
         LabelGenerator labelGen = new LabelGenerator();
         Label resumeLabel = labelGen.getLabel(funcName + "resume");
         mv.visitJumpInsn(IFGT, resumeLabel);
+
+        // set channel details to strand.
+        setChannelDetailsToStrand(func, localVarOffset, mv);
 
         Label varinitLabel = labelGen.getLabel(funcName + "varinit");
         mv.visitLabel(varinitLabel);
@@ -236,8 +236,8 @@ public class MethodGen {
                                                         jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
 
         mv.visitVarInsn(ILOAD, stateVarIndex);
-        Label yieldLable = labelGen.getLabel(funcName + "yield");
-        mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
+        Label yieldLabel = labelGen.getLabel(funcName + "yield");
+        mv.visitLookupSwitchInsn(yieldLabel, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
                 yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, module, attachedType, moduleClassName);
@@ -251,7 +251,7 @@ public class MethodGen {
         mv.visitVarInsn(ISTORE, stateVarIndex);
         mv.visitJumpInsn(GOTO, varinitLabel);
 
-        mv.visitLabel(yieldLable);
+        mv.visitLabel(yieldLabel);
         mv.visitTypeInsn(NEW, frameName);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, "()V", false);

@@ -67,6 +67,7 @@ public class Strand {
 
     public Stack<FunctionFrame> frames;
     public int resumeIndex;
+    public int functionInvocation;
     public Object returnValue;
     public BError panic;
     public Scheduler scheduler;
@@ -103,6 +104,7 @@ public class Strand {
         this.metadata = metadata;
         this.trxContexts = new Stack<>();
         this.parent = parent;
+        this.functionInvocation = 0;
 
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
