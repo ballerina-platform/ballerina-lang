@@ -12386,13 +12386,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseGroupingKeyVariableDeclaration(boolean isRhsExpr) {
-        startContext(ParserRuleContext.GROUPING_KEY_LIST_VAR_DECLARATION);
         STNode groupingKeyElementTypeDesc =
                 parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY);
+        startContext(ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
         STNode groupingKeyVarName = STNodeFactory.createCaptureBindingPatternNode(parseVariableName());
+        endContext();
         STNode equalsToken = parseAssignOp();
         STNode groupingKeyExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
-        endContext();
         return STNodeFactory.createGroupingKeyVarDeclarationNode(groupingKeyElementTypeDesc, groupingKeyVarName,
                 equalsToken, groupingKeyExpression);
     }
