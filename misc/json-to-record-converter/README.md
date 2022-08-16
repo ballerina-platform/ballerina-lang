@@ -60,7 +60,7 @@ type NewRecord record {
 ![alt text](./docs/images/converterDemo.gif?raw=true "Converter Demo")
 
 ## Use Case
-JSON to Record converted API is primarily used by the [Ballerina vscode plugin](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) to convert JSON value to Ballerina record interactively.
+JSON to Record converter API is primarily used by the [Ballerina vscode plugin](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) to convert JSON value to Ballerina record interactively.
 
 ## JSON Value to Ballerina Record Mapping
 ### Introduction
@@ -96,7 +96,7 @@ The below table shows how the JSON Types are mapped to Java Classes and how that
                     </ul>
                 </td>
                 <td>Null</td>
-                <td>?/nil</td>
+                <td>()/nil</td>
             </tr>
             <tr>
                 <td>
@@ -174,11 +174,11 @@ The below table shows how the JSON Types are mapped to Java Classes and how that
     <p>&nbsp;</p>
 </div>
 
-### Mapping of Null Type
+### Mapping of Null and Optional Types
 This section explains how different ways an optional Ballerina field can be generated.
 
 #### Scenario 01: JSON null
-When the value of a JSON field is null, it can be mapped as an optional field of [anydata](https://ballerina.io/spec/lang/master/#anydata) data type in ballerina.
+When the value of a JSON field is null, it can be mapped as a field of [anydata](https://ballerina.io/spec/lang/master/#anydata) data type in ballerina.
 
 JSON
 ```json
