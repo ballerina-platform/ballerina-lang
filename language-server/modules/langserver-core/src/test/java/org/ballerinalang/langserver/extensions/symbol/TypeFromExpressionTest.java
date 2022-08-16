@@ -16,11 +16,11 @@
 package org.ballerinalang.langserver.extensions.symbol;
 
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ArrayType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.PrimitiveType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.RecordType;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.ExpressionRange;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.ResolvedTypeForExpression;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromExpressionResponse;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -54,7 +54,7 @@ public class TypeFromExpressionTest {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        ExpressionRange[] ranges = {getExpressionRange(39, 15, 39, 68)};
+        LineRange[] ranges = {getExpressionRange(39, 15, 39, 68)};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
                 inputFile.toString(), ranges, this.serviceEndpoint);
@@ -80,7 +80,7 @@ public class TypeFromExpressionTest {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        ExpressionRange[] ranges = {getExpressionRange(40, 39, 40, 53)};
+        LineRange[] ranges = {getExpressionRange(40, 39, 40, 53)};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
                 inputFile.toString(), ranges, this.serviceEndpoint);
@@ -109,7 +109,7 @@ public class TypeFromExpressionTest {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        ExpressionRange[] ranges = {getExpressionRange(42, 24, 42, 57)};
+        LineRange[] ranges = {getExpressionRange(42, 24, 42, 57)};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
                 inputFile.toString(), ranges, this.serviceEndpoint);
@@ -126,7 +126,7 @@ public class TypeFromExpressionTest {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        ExpressionRange[] ranges = {getExpressionRange(43, 40, 43, 50)};
+        LineRange[] ranges = {getExpressionRange(43, 40, 43, 50)};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
                 inputFile.toString(), ranges, this.serviceEndpoint);
@@ -157,12 +157,12 @@ public class TypeFromExpressionTest {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        ExpressionRange range1 = getExpressionRange(39, 15, 39, 68);
-        ExpressionRange range2 = getExpressionRange(40, 39, 40, 53);
-        ExpressionRange range3 = getExpressionRange(42, 24, 42, 57);
-        ExpressionRange range4 = getExpressionRange(43, 40, 43, 50);
-        ExpressionRange range5 = getExpressionRange(47, 32, 47, 44);
-        ExpressionRange[] ranges = {range1, range2, range3, range4, range5};
+        LineRange range1 = getExpressionRange(39, 15, 39, 68);
+        LineRange range2 = getExpressionRange(40, 39, 40, 53);
+        LineRange range3 = getExpressionRange(42, 24, 42, 57);
+        LineRange range4 = getExpressionRange(43, 40, 43, 50);
+        LineRange range5 = getExpressionRange(47, 32, 47, 44);
+        LineRange[] ranges = {range1, range2, range3, range4, range5};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
                 inputFile.toString(), ranges, this.serviceEndpoint);
@@ -192,17 +192,16 @@ public class TypeFromExpressionTest {
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
 
-    public static ExpressionRange getExpressionRange(int startLine, int startColumn, int endLine, int endColumn) {
-        ExpressionRange range = new ExpressionRange();
-        range.setStartPosition(LinePosition.from(startLine, startColumn));
-        range.setEndPosition(LinePosition.from(endLine, endColumn));
-        return range;
+    public static LineRange getExpressionRange(int startLine, int startColumn, int endLine, int endColumn) {
+        LinePosition start = LinePosition.from(startLine, startColumn);
+        LinePosition end = LinePosition.from(endLine, endColumn);
+        return LineRange.from(null, start, end);
     }
 
-    public static boolean isRangesEquals(ExpressionRange expectedRange, ExpressionRange actualRange) {
-        return expectedRange.getStartPosition().line() == actualRange.getStartPosition().line()
-                && expectedRange.getStartPosition().offset() == actualRange.getStartPosition().offset()
-                && expectedRange.getEndPosition().line() == actualRange.getEndPosition().line()
-                && expectedRange.getEndPosition().line() == actualRange.getEndPosition().line();
+    public static boolean isRangesEquals(LineRange expectedRange, LineRange actualRange) {
+        return expectedRange.startLine().line() == actualRange.startLine().line()
+                && expectedRange.startLine().offset() == actualRange.startLine().offset()
+                && expectedRange.endLine().line() == actualRange.endLine().line()
+                && expectedRange.endLine().line() == actualRange.endLine().line();
     }
 }

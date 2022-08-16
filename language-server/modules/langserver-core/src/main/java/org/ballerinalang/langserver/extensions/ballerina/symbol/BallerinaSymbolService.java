@@ -153,16 +153,16 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 return typesResponse;
             }
             List<ResolvedTypeForExpression> types = new ArrayList<>();
-            for (ExpressionRange range: request.getExpressionRanges()) {
+            for (LineRange range: request.getExpressionRanges()) {
                 ResolvedTypeForExpression resolvedType = new ResolvedTypeForExpression(range);
                 try {
                     Optional<SemanticModel> semanticModel =
-                            this.workspaceManagerProxy.get().semanticModel(filePath.get());
+                            this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
                     if (semanticModel.isEmpty()) {
                         return typesResponse;
                     }
-                    LinePosition start = range.getStartPosition();
-                    LinePosition end = range.getEndPosition();
+                    LinePosition start = range.startLine();
+                    LinePosition end = range.endLine();
                     LineRange lineRange = LineRange.from(fileName, start, end);
                     Optional<TypeSymbol> typeSymbol;
                     if (semanticModel.get().typeOf(lineRange).isPresent()) {
@@ -198,11 +198,11 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(position);
                 try {
                     Optional<SemanticModel> semanticModel =
-                            this.workspaceManagerProxy.get().semanticModel(filePath.get());
+                            this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
                     if (semanticModel.isEmpty()) {
                         return typeFromSymbolResponse;
                     }
-                    Optional<Document> document = workspaceManagerProxy.get().document(filePath.get());
+                    Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
                     if (document.isEmpty()) {
                         return typeFromSymbolResponse;
                     }
