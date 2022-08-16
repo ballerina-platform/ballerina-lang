@@ -615,7 +615,7 @@
     {
       "label": "customerMap",
       "kind": "Variable",
-      "detail": "map\u003cstring\u003e",
+      "detail": "map<string>",
       "sortText": "AD",
       "insertText": "customerMap",
       "insertTextFormat": "Snippet"
@@ -670,7 +670,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "B",
+      "sortText": "CC",
       "filterText": "testInClauseSuggestion",
       "insertText": "testInClauseSuggestion()",
       "insertTextFormat": "Snippet"
