@@ -321,16 +321,6 @@ public class BTestRunner {
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
 
-        Class<?>[] argTypes = new Class[] {Strand.class, BString.class, boolean.class, BString.class,
-                boolean.class, BString.class, boolean.class};
-        Object[] argValues = new Object[] {null, args.getGroups(), true, args.getDisableGroups(), true,
-                args.getTests(), true};
-        response = testExecute.invoke(argTypes, argValues);
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException("Dependant module start for test suite failed due to error : " +
-                    formatErrorMessage((Throwable) response), (Throwable) response);
-        }
-
         // Once the start function finish we will re start the scheduler with immortal true
         initScheduler.setImmortal(true);
         Thread immortalThread = new Thread(initScheduler::start, "module-start");
