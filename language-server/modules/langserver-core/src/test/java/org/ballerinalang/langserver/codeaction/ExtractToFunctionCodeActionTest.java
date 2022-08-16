@@ -89,6 +89,12 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 {"extract_to_function_stmts_do_stmt_without_onfail_stmt.json"},
                 {"extract_to_function_stmts_do_stmt_with_onfail_stmt.json"},
+
+                {"extract_to_function_stmts_within_isolated_function.json"},
+                {"extract_to_function_stmts_within_isolated_resource_function.json"},
+                {"extract_to_function_stmts_within_class_method.json"},
+                {"extract_to_function_stmts_within_isolated_class_method.json"},
+                {"extract_to_method_stmts_within_remote_method.json"}
         };
     }
 
@@ -154,6 +160,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_stmts_retry_stmt.json"},
                 {"negative_extract_to_function_stmts_xmlns_decl_stmt.json"},
                 {"negative_extract_to_function_stmts_fail_stmt.json"},
+
+                {"negative_extract_to_function_stmts_within_class_object_fields.json"},
         };
     }
 
