@@ -50,7 +50,8 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
         if (!QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, nodeAtCursor);
             // Workers can be added either with no qualifiers or after transactional qualifier
-            if (qualifiers.isEmpty() || qualifiers.get(qualifiers.size() - 1).kind() == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+            if (qualifiers.isEmpty() || 
+                    qualifiers.get(qualifiers.size() - 1).kind() == SyntaxKind.TRANSACTIONAL_KEYWORD) {
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
             }
         }
