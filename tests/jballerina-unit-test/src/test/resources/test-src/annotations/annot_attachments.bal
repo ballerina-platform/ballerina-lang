@@ -294,3 +294,8 @@ public enum Color2 {
     RED,
     BLUE
 }
+
+annotation v29 on field;
+
+type Tp [@v29 int, string];
+

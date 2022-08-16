@@ -18,6 +18,13 @@
 
 package org.ballerinalang.test.bala.types;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BAnnotatableType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -83,6 +90,19 @@ public class TupleTypeBalaTest {
         validateError(negativeResult, i++, "incompatible types: expected '[int,boolean...]', found '[int," +
                 "(string|boolean)...]'", 27, 27);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+    @Test
+    public void testTupleAnnotations() {
+        Object returns = BRunUtil.invoke(result, "testTupleAnnot", new Object[]{});
+
+        Type t = TypeUtils.getType(returns);
+
+        Object annot = ((BAnnotatableType) t).getAnnotation(StringUtils.fromString("$field$.1"));
+
+        BMap<BString, Object> expected = ValueCreator.createMapValue();
+        expected.put(StringUtils.fromString("member"), true);
+
+        Assert.assertEquals(annot, expected);
     }
 
     @AfterClass
