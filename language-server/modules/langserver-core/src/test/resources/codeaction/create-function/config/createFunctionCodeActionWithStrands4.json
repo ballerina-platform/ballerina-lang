@@ -1,0 +1,8 @@
+{
+  "position": {
+    "line": 10,
+    "character": 4
+  },
+  "source": "createFunctionCodeActionWithStrands.bal",
+  "expected": []
+}

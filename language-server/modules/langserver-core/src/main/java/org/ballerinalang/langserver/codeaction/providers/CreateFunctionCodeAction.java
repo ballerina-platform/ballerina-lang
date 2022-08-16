@@ -106,16 +106,14 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         String uri = context.fileUri();
         CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, range);
-        CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
 
-        List<Object> args = Arrays.asList(posArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
 
         boolean isWithinFile = callExpr.get().functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
         if (isWithinFile) {
             String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
-            CodeActionData codeActionData = new CodeActionData(getName(), uri, range, args);
+            CodeActionData codeActionData = new CodeActionData(getName(), uri, range, posArg);
             ResolvableCodeAction action = ResolvableCodeAction.from(CodeActionUtil.createCodeAction(commandTitle,
                     CodeActionKind.QuickFix, codeActionData));
             action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
@@ -283,10 +281,10 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
-        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
-        typeFinder.findTypeOf(fnCallExprNode.get());
+        FunctionCallExpressionTypeFinder typeFinder =
+                new FunctionCallExpressionTypeFinder(semanticModel, fnCallExprNode.get());
+        fnCallExprNode.get().accept(typeFinder);
         Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
-        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
 
         //Check if the function call is invoked from an isolated context.
         IsolatedBlockResolver isolatedBlockResolver = new IsolatedBlockResolver();
@@ -298,9 +296,6 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         if (returnTypeSymbol.isPresent()) {
             function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
                     args, returnTypeSymbol.get(), isIsolated);
-        } else if (returnTypeDescKind.isPresent()) {
-            function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
-                    args, returnTypeDescKind.get(), isIsolated);
         } else {
             return null;
         }

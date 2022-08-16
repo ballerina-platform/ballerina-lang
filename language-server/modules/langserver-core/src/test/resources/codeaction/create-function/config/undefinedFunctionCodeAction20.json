@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 1,
+    "character": 14
+  },
+  "source": "createUndefinedFunction10.bal",
+  "expected": [
+    {
+      "title": "Create function 'getValue(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getValue() returns () {\n    return ();\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction10.bal",
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 14
+          },
+          "end": {
+            "line": 1,
+            "character": 24
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 1.0,
+              "character": 14.0
+            },
+            "end": {
+              "line": 1.0,
+              "character": 24.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}
