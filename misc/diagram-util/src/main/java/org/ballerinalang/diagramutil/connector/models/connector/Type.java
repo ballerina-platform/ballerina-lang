@@ -319,4 +319,8 @@ public class Type {
         return type;
     }
 
+    public static void clearParentSymbols() {
+        parentSymbols.clear();
+    }
+
 }
