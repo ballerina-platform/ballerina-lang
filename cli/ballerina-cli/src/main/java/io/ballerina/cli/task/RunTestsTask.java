@@ -559,8 +559,10 @@ public class RunTestsTask implements Task {
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
         cmdArgs.add(this.groupList != null ? this.groupList : "");
-        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
+        cmdArgs.add(this.disableGroupList != null ?
+                this.disableGroupList : "");
         cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
+        cmdArgs.add(Boolean.toString(isRerunTestExecution));
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();

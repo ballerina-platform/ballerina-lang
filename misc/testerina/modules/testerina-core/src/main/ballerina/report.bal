@@ -14,29 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const string RERUN_TEST_JSON = "rerun_test.json";
+
 type ReportGenerate function (ReportData data);
 
 ReportData reportData = new ();
 
-ReportGenerate[] reportGenerators = [consoleReport];
-
-function consoleReport(ReportData data) {
-    data.passedCases().forEach(entry => println("\t\t[pass] " + entry));
-    data.failedCases().entries().forEach(function([string, string] entry) {
-        println("\t\t[fail] " + entry[0] + ":");
-        println("\n\t\t    " + formatFailedError(entry[1]));
-    });
-
-    println("\t\t" + data.passedCount().toString() + " passing");
-    println("\t\t" + data.failedCount().toString() + " failing");
-    println("\t\t" + data.skippedCount().toString() + " skipped");
-}
-
-function formatFailedError(string message) returns string {
-    string[] lines = split(message, "\n");
-    lines.push("");
-    return string:'join("\n\t\t\t", ...lines);
-}
+ReportGenerate[] reportGenerators = [consoleReport, failedTestsReport];
 
 class ReportData {
     private string[] passed = [];
@@ -58,3 +42,27 @@ class ReportData {
     function skippedCount() returns int => self.skipped.length();
 }
 
+function consoleReport(ReportData data) {
+    data.passedCases().forEach(entry => println("\t\t[pass] " + entry));
+    data.failedCases().entries().forEach(function([string, string] entry) {
+        println("\t\t[fail] " + entry[0] + ":");
+        println("\n\t\t    " + formatFailedError(entry[1]));
+    });
+
+    println("\t\t" + data.passedCount().toString() + " passing");
+    println("\t\t" + data.failedCount().toString() + " failing");
+    println("\t\t" + data.skippedCount().toString() + " skipped");
+}
+
+function formatFailedError(string message) returns string {
+    string[] lines = split(message, "\n");
+    lines.push("");
+    return string:'join("\n\t\t\t", ...lines);
+}
+
+function failedTestsReport(ReportData data) {
+    error? err = writeContentToJson(data.failedCases().keys(), projectTargetPath + "/" + RERUN_TEST_JSON);
+    if err is error {
+        println(err.message());
+    }
+}
