@@ -267,7 +267,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     }
 
     protected Optional<MethodSymbol> findRemoteMethodInClass(ClassSymbol classDef, String methodName) {
-        return findObjectMethodInClass(classDef, methodName, List.of(Qualifier.REMOTE, Qualifier.ISOLATED));
+        return findObjectMethodInClass(classDef, methodName, List.of(Qualifier.REMOTE));
     }
 
     private GeneratedInstanceMethod getObjectMethodByName(BVariable objectVar, String methodName)
