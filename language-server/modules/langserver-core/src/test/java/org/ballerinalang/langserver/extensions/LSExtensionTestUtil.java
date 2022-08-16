@@ -43,6 +43,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -207,7 +208,7 @@ public class LSExtensionTestUtil {
      * @param serviceEndpoint   Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static TypesFromSymbolResponse getTypeFromSymbol(String filePath, LinePosition[] positions,
+    public static TypesFromSymbolResponse getTypeFromSymbol(URI filePath, LinePosition[] positions,
                                                             Endpoint serviceEndpoint
                                                             ) throws ExecutionException, InterruptedException {
         TypeFromSymbolRequest typeFromSymbolRequest = new TypeFromSymbolRequest();
@@ -225,7 +226,7 @@ public class LSExtensionTestUtil {
      * @param serviceEndpoint   Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static TypesFromExpressionResponse getTypeFromExpression(String filePath, LineRange[] ranges,
+    public static TypesFromExpressionResponse getTypeFromExpression(URI filePath, LineRange[] ranges,
                                                                     Endpoint serviceEndpoint
                                                                     ) throws ExecutionException, InterruptedException {
         TypeFromExpressionRequest typeFromExpressionRequest = new TypeFromExpressionRequest();
