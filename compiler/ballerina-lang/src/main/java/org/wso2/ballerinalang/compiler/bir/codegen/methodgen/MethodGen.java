@@ -75,6 +75,7 @@ import static org.objectweb.asm.Opcodes.DCONST_0;
 import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DSTORE;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.DUP_X1;
 import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.FSTORE;
@@ -145,6 +146,7 @@ public class MethodGen {
 
     private static final String STATE = "state";
     private static final String RESUME_INDEX = "resumeIndex";
+    private static final String INVOCATION = "functionInvocation";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
     private final Types types;
@@ -205,9 +207,10 @@ public class MethodGen {
         genLocalVars(indexMap, mv, func.localVars);
 
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
-        int stateVarIndex = getStateVarIndex(indexMap, mv);
+        int stateVarIndex = getIntVarIndex(STATE, indexMap, mv);
         int yieldLocationVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_LOCATION);
         int yieldStatusVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_STATUS);
+        int invocationVarIndex = getIntVarIndex(INVOCATION, indexMap, mv);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -215,6 +218,9 @@ public class MethodGen {
         LabelGenerator labelGen = new LabelGenerator();
         Label resumeLabel = labelGen.getLabel(funcName + "resume");
         mv.visitJumpInsn(IFGT, resumeLabel);
+
+        boolean isWorker = (func.flags & Flags.WORKER) == Flags.WORKER;
+        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, isWorker);
 
         // set channel details to strand.
         setChannelDetailsToStrand(func, localVarOffset, mv);
@@ -275,6 +281,20 @@ public class MethodGen {
 
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private void setFunctionInvocationVar(int localVarOffset, MethodVisitor mv, int invocationVarIndex,
+                                          boolean isWorker) {
+        if (!isWorker) {
+            mv.visitVarInsn(ALOAD, localVarOffset);
+            mv.visitInsn(DUP);
+            mv.visitFieldInsn(GETFIELD, STRAND_CLASS, INVOCATION, "I");
+            mv.visitInsn(DUP_X1);
+            mv.visitInsn(ICONST_1);
+            mv.visitInsn(IADD);
+            mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, INVOCATION, "I");
+            mv.visitVarInsn(ISTORE, invocationVarIndex);
+        }
     }
 
     private void generateFrameStringFieldSet(MethodVisitor mv, String frameName, int rhsVarIndex, String fieldName) {
@@ -434,11 +454,11 @@ public class MethodGen {
         }
     }
 
-    private int getStateVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
-        int stateVarIndex = indexMap.addIfNotExists(STATE, symbolTable.stringType);
+    private int getIntVarIndex(String intVarName, BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
+        int varIndex = indexMap.addIfNotExists(intVarName, symbolTable.stringType);
         mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ISTORE, stateVarIndex);
-        return stateVarIndex;
+        mv.visitVarInsn(ISTORE, varIndex);
+        return varIndex;
     }
 
     private int getFrameStringVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv, String frameStringFieldName) {
