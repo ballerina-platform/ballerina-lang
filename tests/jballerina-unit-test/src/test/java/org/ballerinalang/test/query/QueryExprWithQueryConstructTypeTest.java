@@ -204,6 +204,10 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '(Department & readonly)', found 'Department'", 283, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
                 "found '([string,int]|[string,int]|[string,int]|[string,int])'", 286, 48);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,float[]]', found '[string:Char,int[]]'", 289, 63);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int[] & readonly)]', found '[string:Char,int[]]'", 291, 72);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -318,6 +322,11 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testReadonlyMap2() {
         BRunUtil.invoke(result, "testReadonlyMap2");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithStringSubtypes() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithStringSubtypes");
     }
 
     @AfterClass

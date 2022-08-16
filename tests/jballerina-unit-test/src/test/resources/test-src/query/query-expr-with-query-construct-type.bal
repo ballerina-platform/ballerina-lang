@@ -1227,6 +1227,17 @@ function testReadonlyMap1() {
     any _ = <readonly> (checkpanic mp4);
     assertEqual((typeof(mp4)).toString(), "typedesc {\"2\":2,\"3\":3,\"4\":4}");
     assertEqual(mp4, {"2":2,"3":3,"4":4});
+
+    [string:Char, int[]][] & readonly list = [["a", [1, 2]], ["b", [3, 4]], ["c", [4]], ["c", [3]]];
+    map<int[]>|error mp5 = map from var item in list select item;
+    assertEqual(mp5, {"a":[1,2],"b":[3,4],"c":[3]});
+
+    map<int[]> & readonly|error mp6 = map from var item in list select item;
+    assertEqual(mp6, {"a":[1,2],"b":[3,4],"c":[3]});
+    any _ = <readonly> (checkpanic mp6);
+
+    map<int[]> & readonly|error mp7 = map from var item in list select item on conflict error("Error");
+    assertEqual(mp7, error("Error"));
 }
 
 function testReadonlyMap2() {
@@ -1249,6 +1260,52 @@ function testReadonlyMap2() {
                                         where item[1] > 1
                                         select item on conflict conflictMsg;
     assertEqual(mp4, {"2":2,"3":3,"1":4});
+}
+
+type FooBar1 ("foo"|"bar"|string)[2];
+type FooBar2 ("foo"|"bar")[2];
+type FooBar3 "foo"|"bar";
+type FooBar4 "foo"|"bar"|string:Char;
+type FooBar5 "foo"|"bar"|string;
+
+function testMapConstructingQueryExprWithStringSubtypes() {
+    FooBar1[] list1 = [["key1", "foo"], ["key2", "foo"], ["key3", "foo"]];
+    map<string>|error mp1 = map from var item in list1 select item;
+    assertEqual(mp1, {"key1":"foo","key2":"foo","key3":"foo"});
+
+    FooBar2[] list2 = [["foo", "foo"], ["bar", "foo"], ["foo", "foo"]];
+    map<string>|error mp2 = map from var item in list2 select item;
+    assertEqual(mp2, {"foo":"foo","bar":"foo"});
+
+    FooBar3[][2] list3 = [["foo", "bar"], ["bar", "foo"], ["foo", "bar"]];
+    map<string>|error mp3 = map from var item in list3 select item;
+    assertEqual(mp3, {"foo":"bar","bar":"foo"});
+
+    FooBar4[][2] list4 = [["foo", "4"], ["bar", "2"], ["foo", "3"]];
+    map<string>|error mp4 = map from var item in list4 select item;
+    assertEqual(mp4, {"foo":"3","bar":"2"});
+    map<string>|error mp5 = map from var item in list4 select item on conflict error("Error");
+    assertEqual(mp5, error("Error"));
+
+    FooBar5[][2] list5 = [["key1", "1.4"], ["key2", "2"], ["key3", "3"]];
+    map<string>|error mp6 = map from var item in list5 select item;
+    assertEqual(mp6, {"key1":"1.4","key2":"2","key3":"3"});
+
+    [FooBar3, int|float][] list6 = [["foo", 1.4], ["bar", 2], ["foo", 3]];
+    map<int|float>|error mp7 = map from var item in list6 select item;
+    assertEqual(mp7, {"foo":3,"bar":2});
+    map<int|float>|error mp8 = map from var item in list6 select item on conflict error("Error");
+    assertEqual(mp8, error("Error"));
+
+    [FooBar4, int|float][] list7 = [["foo", 1.4], ["bar", 2], ["foo", 3]];
+    map<int|float>|error mp9 = map from var item in list7 select item;
+    assertEqual(mp9, {"foo":3,"bar":2});
+    map<int|float>|error mp10 = map from var item in list7 select item on conflict error("Error");
+    assertEqual(mp10, error("Error"));
+
+    [FooBar5, int|float][] list8 = [["key1", 1.4], ["key2", 2], ["key3", 3]];
+    map<int|float>|error mp11 = map from var item in list8 select item;
+    assertEqual(mp11, {"key1":1.4,"key2":2,"key3":3});
 }
 
 function assertEqual(anydata|error actual, anydata|error expected) {
