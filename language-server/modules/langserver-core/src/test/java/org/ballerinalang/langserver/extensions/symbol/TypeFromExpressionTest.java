@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
@@ -52,12 +53,13 @@ public class TypeFromExpressionTest {
     @Test(description = "type info retrieved for a conditional expression node")
     public void testTypeForConditionalExprNode() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LineRange[] ranges = {getExpressionRange(39, 15, 39, 68)};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
-                inputFile.toString(), ranges, this.serviceEndpoint);
+                uri, ranges, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromExpression.getTypes());
 
@@ -78,12 +80,13 @@ public class TypeFromExpressionTest {
     @Test(description = "type info retrieved for a function call expression node")
     public void testTypeForFunctionCallExprNode() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LineRange[] ranges = {getExpressionRange(40, 39, 40, 53)};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
-                inputFile.toString(), ranges, this.serviceEndpoint);
+                uri, ranges, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromExpression.getTypes());
 
@@ -107,12 +110,13 @@ public class TypeFromExpressionTest {
     @Test(description = "primitive type info retrieved for a function call node")
     public void testPrimitiveTypeForFunctionCallNode() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LineRange[] ranges = {getExpressionRange(42, 24, 42, 57)};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
-                inputFile.toString(), ranges, this.serviceEndpoint);
+                uri, ranges, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromExpression.getTypes());
 
@@ -124,12 +128,13 @@ public class TypeFromExpressionTest {
     @Test(description = "type info retrieved for a field access expression node")
     public void testTypeForFieldAccessExprNode() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LineRange[] ranges = {getExpressionRange(43, 40, 43, 50)};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
-                inputFile.toString(), ranges, this.serviceEndpoint);
+                uri, ranges, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromExpression.getTypes());
 
@@ -155,6 +160,7 @@ public class TypeFromExpressionTest {
     @Test(description = "types info retrieved for multiple expression nodes")
     public void testTypeForMultipleExprNodes() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LineRange range1 = getExpressionRange(39, 15, 39, 68);
@@ -165,7 +171,7 @@ public class TypeFromExpressionTest {
         LineRange[] ranges = {range1, range2, range3, range4, range5};
 
         TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
-                inputFile.toString(), ranges, this.serviceEndpoint);
+                uri, ranges, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromExpression.getTypes());
 
@@ -188,6 +194,30 @@ public class TypeFromExpressionTest {
         ResolvedTypeForExpression type5 = typesFromExpression.getTypes().get(4);
         Assert.assertTrue(isRangesEquals(range5, type5.getRequestedRange()));
         Assert.assertTrue(type5.getType() instanceof PrimitiveType);
+
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
+    @Test(description = "test invalid file path")
+    public void testInvalidFilePath() throws ExecutionException, InterruptedException {
+        LineRange[] ranges = {getExpressionRange(67, 19, 67, 45)};
+
+        TypesFromExpressionResponse typesFromExpression = LSExtensionTestUtil.getTypeFromExpression(
+                URI.create("file://+"), ranges, this.serviceEndpoint);
+
+        Assert.assertEquals(typesFromExpression.getTypes().size(), 0);
+    }
+
+    @Test(description = "test empty ranges")
+    public void testEmptyRanges() throws IOException, ExecutionException, InterruptedException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(typeFromExpressionBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        TypesFromExpressionResponse typeFromExpression = LSExtensionTestUtil.getTypeFromExpression(
+                uri, null, this.serviceEndpoint);
+
+        Assert.assertEquals(typeFromExpression.getTypes().size(), 0);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }

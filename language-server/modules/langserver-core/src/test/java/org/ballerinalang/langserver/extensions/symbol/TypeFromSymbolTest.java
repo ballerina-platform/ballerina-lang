@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
@@ -51,12 +52,13 @@ public class TypeFromSymbolTest {
     @Test(description = "type info retrieved for the return type symbol node")
     public void testTypeForReturnTypeNode() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LinePosition position = LinePosition.from(67, 55);
         LinePosition[] positions = {position};
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypeFromSymbol(
-                inputFile.toString(), positions, this.serviceEndpoint);
+                uri, positions, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
 
@@ -74,12 +76,13 @@ public class TypeFromSymbolTest {
     @Test(description = "type info retrieved for the type name symbol of a required param node")
     public void testTypeForRequiredParamTypeNameNode() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LinePosition position = LinePosition.from(67, 19);
         LinePosition[] positions = {position};
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypeFromSymbol(
-                inputFile.toString(), positions, this.serviceEndpoint);
+                uri, positions, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
 
@@ -103,6 +106,7 @@ public class TypeFromSymbolTest {
     @Test(description = "type info retrieved for multiple symbols")
     public void testTypesForMultipleSymbols() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LinePosition position1 = LinePosition.from(67, 19);
@@ -112,7 +116,7 @@ public class TypeFromSymbolTest {
         LinePosition position5 = LinePosition.from(77, 8);
         LinePosition[] positions = {position1, position2, position3, position4, position5};
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypeFromSymbol(
-                inputFile.toString(), positions, this.serviceEndpoint);
+                uri, positions, this.serviceEndpoint);
 
         Assert.assertNotEquals(typesFromSymbolResponse.getTypes(), null);
         Assert.assertEquals(typesFromSymbolResponse.getTypes().size(), positions.length);
@@ -138,6 +142,31 @@ public class TypeFromSymbolTest {
         ResolvedTypeForSymbol type5 = typesFromSymbolResponse.getTypes().get(4);
         Assert.assertTrue(isPositionsEquals(position5, type5.getRequestedPosition()));
         Assert.assertTrue(type5.getType() instanceof PrimitiveType);
+
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
+    @Test(description = "test invalid file path")
+    public void testInvalidFilePath() throws ExecutionException, InterruptedException {
+        LinePosition position = LinePosition.from(67, 19);
+        LinePosition[] positions = {position};
+
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypeFromSymbol(
+                URI.create("file://+"), positions, this.serviceEndpoint);
+
+        Assert.assertEquals(typesFromSymbolResponse.getTypes().size(), 0);
+    }
+
+    @Test(description = "test empty positions")
+    public void testEmptyPositions() throws IOException, ExecutionException, InterruptedException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypeFromSymbol(
+                uri, null, this.serviceEndpoint);
+
+        Assert.assertEquals(typesFromSymbolResponse.getTypes().size(), 0);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
