@@ -2110,7 +2110,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv env = this.env;
         while (env != null) {
             BLangNode node = env.node;
-            if (node != null && node.getKind() == NodeKind.FUNCTION &&
+            if (node != null && (node.getKind() == NodeKind.FUNCTION || node.getKind() == NodeKind.RESOURCE_FUNC) &&
                     !isWorkerLambda((BLangFunction) node)) {
                 return env.enclInvokable;
             }
