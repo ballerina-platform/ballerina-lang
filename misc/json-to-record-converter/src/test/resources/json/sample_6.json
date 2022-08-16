@@ -28,7 +28,7 @@
       "author": {
         "name": "J D Salinger",
         "country": "USA",
-        "period": "Early 20th Century"
+        "period": false
       },
       "publishedYear": 2018
     },
@@ -37,7 +37,7 @@
       "author": {
         "name": "Oscar Wilde",
         "country": "England",
-        "period": false
+        "period": 123
       }
     },
     {
@@ -53,7 +53,7 @@
       "author": {
         "name": "Chinua Achebe",
         "country": "Nigeria",
-        "period": 123
+        "period": null
       },
       "price": 123.99
     }
