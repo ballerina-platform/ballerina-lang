@@ -14,4 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int[] _ = foo:x;
+public function main() {
+    int[] _ = foo:x;
+}

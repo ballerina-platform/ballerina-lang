@@ -14,4 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int[] _ = foo:x;
+public function main() {
+    client "http://www.example.com/apis/one.yaml" as foo;
+
+    xml x = xml `<foo:doc/>`;
+    xml _ = x.<foo:doc>;
+    string _ = check x.foo:m;
+}

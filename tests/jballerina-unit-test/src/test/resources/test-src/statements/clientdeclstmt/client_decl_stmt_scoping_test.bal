@@ -14,4 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int[] _ = foo:x;
+client "http://www.example.com/apis/one.yaml" as foo;
+
+function f1() {
+    client "http://www.example.com/apis/two.yaml" as foo; // OK, shadows the module-level prefix
+}
+
+function f2(boolean b) {
+    if b {
+        client "http://www.example.com/apis/one.yaml" as bar; // OK, different scope
+    } else {
+        client "http://www.example.com/apis/one.yaml" as bar; // OK, different scope
+    }
+
+    if !b {
+        client "http://www.example.com/apis/one.yaml" as bar; // OK, different scope
+        return;
+    }
+    client "http://www.example.com/apis/one.yaml" as bar; // OK, different scope
+}

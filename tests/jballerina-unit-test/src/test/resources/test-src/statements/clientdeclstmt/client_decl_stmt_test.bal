@@ -14,4 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int[] _ = foo:x;
+function fn() {
+    client "http://www.example.com/apis/one.yaml" as foo;
+
+    client "http://www.example.com/apis/two.yaml" as bar;
+
+    client "http://www.example.com/apis/two.yaml" as baz;
+}
