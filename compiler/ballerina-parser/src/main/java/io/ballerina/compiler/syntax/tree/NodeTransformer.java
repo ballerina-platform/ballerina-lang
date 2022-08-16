@@ -800,6 +800,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(orderKeyNode);
     }
 
+    public T transform(GroupByClauseNode groupByClauseNode) {
+        return transformSyntaxNode(groupByClauseNode);
+    }
+
+    public T transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        return transformSyntaxNode(groupingKeyVarDeclarationNode);
+    }
+
     public T transform(OnFailClauseNode onFailClauseNode) {
         return transformSyntaxNode(onFailClauseNode);
     }

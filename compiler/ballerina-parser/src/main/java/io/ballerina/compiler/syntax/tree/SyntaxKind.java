@@ -106,6 +106,7 @@ public enum SyntaxKind {
     DESCENDING_KEYWORD(251, "descending"),
     UNDERSCORE_KEYWORD(252, "_"),
     NOT_IS_KEYWORD(253, "!is"),
+    GROUP_KEYWORD(254, "group"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
@@ -471,6 +472,9 @@ public enum SyntaxKind {
     SPREAD_MEMBER(3087),
     COMPUTED_RESOURCE_ACCESS_SEGMENT(3088),
     RESOURCE_ACCESS_REST_SEGMENT(3089),
+    GROUPING_KEY_VAR_DECLARATION(3090),
+    GROUPING_KEY_VAR_NAME(3091),
+    GROUP_BY_CLAUSE(3092),
 
     // XML
     XML_ELEMENT(4000),

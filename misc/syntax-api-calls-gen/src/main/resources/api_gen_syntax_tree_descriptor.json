@@ -4181,6 +4181,49 @@
       ]
     },
     {
+      "name": "GroupByClauseNode",
+      "base": "IntermediateClauseNode",
+      "kind": "GROUP_BY_CLAUSE",
+      "attributes": [
+        {
+          "name": "groupKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "byKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "groupingKey",
+          "type": "Node",
+          "occurrences": "MULTIPLE_SEPARATED"
+        }
+      ]
+    },
+    {
+      "name": "GroupingKeyVarDeclarationNode",
+      "base": "Node",
+      "kind": "GROUPING_KEY_VAR_DECLARATION",
+      "attributes": [
+        {
+          "name": "typeDescriptor",
+          "type": "TypeDescriptorNode"
+        },
+        {
+          "name": "variableName",
+          "type": "CaptureBindingPatternNode"
+        },
+        {
+          "name": "equalsToken",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        }
+      ]
+    },
+    {
       "name": "OnFailClauseNode",
       "base": "ClauseNode",
       "kind": "ON_FAIL_CLAUSE",

@@ -2464,6 +2464,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STGroupByClauseNode transform(
+            STGroupByClauseNode groupByClauseNode) {
+        STNode groupKeyword = modifyNode(groupByClauseNode.groupKeyword);
+        STNode byKeyword = modifyNode(groupByClauseNode.byKeyword);
+        STNode groupingKey = modifyNode(groupByClauseNode.groupingKey);
+        return groupByClauseNode.modify(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    @Override
+    public STGroupingKeyVarDeclarationNode transform(
+            STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        STNode typeDescriptor = modifyNode(groupingKeyVarDeclarationNode.typeDescriptor);
+        STNode variableName = modifyNode(groupingKeyVarDeclarationNode.variableName);
+        STNode equalsToken = modifyNode(groupingKeyVarDeclarationNode.equalsToken);
+        STNode expression = modifyNode(groupingKeyVarDeclarationNode.expression);
+        return groupingKeyVarDeclarationNode.modify(
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                expression);
+    }
+
+    @Override
     public STOnFailClauseNode transform(
             STOnFailClauseNode onFailClauseNode) {
         STNode onKeyword = modifyNode(onFailClauseNode.onKeyword);

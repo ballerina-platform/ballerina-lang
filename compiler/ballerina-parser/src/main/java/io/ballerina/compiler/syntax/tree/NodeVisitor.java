@@ -799,6 +799,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(orderKeyNode);
     }
 
+    public void visit(GroupByClauseNode groupByClauseNode) {
+        visitSyntaxNode(groupByClauseNode);
+    }
+
+    public void visit(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        visitSyntaxNode(groupingKeyVarDeclarationNode);
+    }
+
     public void visit(OnFailClauseNode onFailClauseNode) {
         visitSyntaxNode(onFailClauseNode);
     }

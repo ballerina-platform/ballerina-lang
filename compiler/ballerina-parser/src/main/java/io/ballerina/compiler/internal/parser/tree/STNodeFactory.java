@@ -2294,6 +2294,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 orderDirection);
     }
 
+    public static STNode createGroupByClauseNode(
+            STNode groupKeyword,
+            STNode byKeyword,
+            STNode groupingKey) {
+
+        return new STGroupByClauseNode(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    public static STNode createGroupingKeyVarDeclarationNode(
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode expression) {
+
+        return new STGroupingKeyVarDeclarationNode(
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                expression);
+    }
+
     public static STNode createOnFailClauseNode(
             STNode onKeyword,
             STNode failKeyword,

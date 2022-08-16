@@ -2496,6 +2496,7 @@ public class BallerinaParser extends AbstractParser {
         switch (ctx) {
             case TYPE_DESC_IN_ANNOTATION_DECL:
             case TYPE_DESC_BEFORE_IDENTIFIER:
+            case TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY:
             case TYPE_DESC_IN_RECORD_FIELD:
             case TYPE_DESC_IN_PARAM:
             case TYPE_DESC_IN_TYPE_BINDING_PATTERN:
@@ -2589,7 +2590,8 @@ public class BallerinaParser extends AbstractParser {
         // var is parsed as a built-in simple type. However, since var is not allowed everywhere,
         // validate it here. This is done to give better error messages.
         if (typeDesc.kind == SyntaxKind.VAR_TYPE_DESC &&
-                context != ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN) {
+                context != ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN &&
+                context != ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY) {
             STToken missingToken = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             missingToken = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(missingToken, typeDesc,
                     DiagnosticErrorCode.ERROR_INVALID_USAGE_OF_VAR);
@@ -6070,6 +6072,7 @@ public class BallerinaParser extends AbstractParser {
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
             case ORDER_KEYWORD:
+            case GROUP_KEYWORD:
             case BY_KEYWORD:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
@@ -9189,6 +9192,7 @@ public class BallerinaParser extends AbstractParser {
             case LET_KEYWORD:
             case WHERE_KEYWORD:
             case ORDER_KEYWORD:
+            case GROUP_KEYWORD:
             case LIMIT_KEYWORD:
             case SELECT_KEYWORD:
                 return parseAsyncSendAction(expression, rightArrow, name);
@@ -11935,6 +11939,7 @@ public class BallerinaParser extends AbstractParser {
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
             case ORDER_KEYWORD:
+            case GROUP_KEYWORD:
             case BY_KEYWORD:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
@@ -11968,10 +11973,11 @@ public class BallerinaParser extends AbstractParser {
             case OUTER_KEYWORD:
                 return parseJoinClause(isRhsExpr);
             case ORDER_KEYWORD:
-            case BY_KEYWORD:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
                 return parseOrderByClause(isRhsExpr);
+            case GROUP_KEYWORD:
+                return parseGroupByClause(isRhsExpr);
             case LIMIT_KEYWORD:
                 return parseLimitClause(isRhsExpr);
             case DO_KEYWORD:
@@ -12139,6 +12145,38 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse group by clause.
+     * <code>group-by-clause := group by grouping-key-list</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseGroupByClause(boolean isRhsExpr) {
+        startContext(ParserRuleContext.GROUP_BY_CLAUSE);
+        STNode groupKeyword = parseGroupKeyword();
+        STNode byKeyword = parseByKeyword();
+        STNode groupingKeys = parseGroupingKeyList(isRhsExpr);
+        byKeyword = cloneWithDiagnosticIfListEmpty(groupingKeys, byKeyword,
+                    DiagnosticErrorCode.ERROR_MISSING_GROUPING_KEY);
+        endContext();
+        return STNodeFactory.createGroupByClauseNode(groupKeyword, byKeyword, groupingKeys);
+    }
+
+    /**
+     * Parse group-keyword.
+     *
+     * @return Group-keyword node
+     */
+    private STNode parseGroupKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.GROUP_KEYWORD) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.GROUP_KEYWORD);
+            return parseGroupKeyword();
+        }
+    }
+
+    /**
      * Parse order-keyword.
      *
      * @return Order-keyword node
@@ -12185,6 +12223,42 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse grouping key.
+     * <code>grouping-key-list := grouping-key ["," grouping-key]*</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseGroupingKeyList(boolean isRhsExpr) {
+        List<STNode> groupingKeys = new ArrayList<>();
+        STToken nextToken = peek();
+
+        if (isEndOfGroupByKeyListElement(nextToken.kind)) {
+            return STNodeFactory.createEmptyNodeList();
+        }
+
+        // Parse first grouping key, that has no leading comma
+        STNode groupingKey = parseGroupingKey(isRhsExpr);
+        groupingKeys.add(groupingKey);
+
+        // Parse the remaining grouping keys
+        nextToken = peek();
+        STNode groupingKeyListMemberEnd;
+        while (!isEndOfGroupByKeyListElement(nextToken.kind)) {
+            groupingKeyListMemberEnd = parseGroupingKeyListMemberEnd();
+            if (groupingKeyListMemberEnd == null) {
+                break;
+            }
+
+            groupingKeys.add(groupingKeyListMemberEnd);
+            groupingKey = parseGroupingKey(isRhsExpr);
+            groupingKeys.add(groupingKey);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(groupingKeys);
+    }
+
+    /**
      * Parse order key.
      * <p>
      * <code>order-key-list := order-key [, order-key]*</code>
@@ -12223,6 +12297,27 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(orderKeys);
     }
 
+    private boolean isEndOfGroupByListOrListElement(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case COMMA_TOKEN:
+            case EOF_TOKEN:
+                return true;
+            default:
+                return isQueryClauseStartToken(tokenKind);
+        }
+    }
+
+    private boolean isEndOfGroupByKeyListElement(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case COMMA_TOKEN:
+                return false;
+            case EOF_TOKEN:
+                return true;
+            default:
+                return isQueryClauseStartToken(tokenKind);
+        }
+    }
+
     private boolean isEndOfOrderKeys(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case COMMA_TOKEN:
@@ -12245,12 +12340,30 @@ public class BallerinaParser extends AbstractParser {
             case OUTER_KEYWORD:
             case JOIN_KEYWORD:
             case ORDER_KEYWORD:
+            case GROUP_KEYWORD:
             case DO_KEYWORD:
             case FROM_KEYWORD:
             case LIMIT_KEYWORD:
                 return true;
             default:
                 return false;
+        }
+    }
+
+    private STNode parseGroupingKeyListMemberEnd() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case EOF_TOKEN:
+                return null;
+            default:
+                if (isQueryClauseStartToken(nextToken.kind)) {
+                    // null marks the end of grouping keys
+                    return null;
+                }
+                recover(peek(), ParserRuleContext.GROUPING_KEY_LIST_ELEMENT_END);
+                return parseGroupingKeyListMemberEnd();
         }
     }
 
@@ -12270,6 +12383,37 @@ public class BallerinaParser extends AbstractParser {
                 recover(peek(), ParserRuleContext.ORDER_KEY_LIST_END);
                 return parseOrderKeyListMemberEnd();
         }
+    }
+
+    private STNode parseGroupingKeyVariableDeclaration(boolean isRhsExpr) {
+        STNode groupingKeyElementTypeDesc =
+                parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY);
+        startContext(ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
+        STNode groupingKeyVarName = STNodeFactory.createCaptureBindingPatternNode(parseVariableName());
+        endContext();
+        STNode equalsToken = parseAssignOp();
+        STNode groupingKeyExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        return STNodeFactory.createGroupingKeyVarDeclarationNode(groupingKeyElementTypeDesc, groupingKeyVarName,
+                equalsToken, groupingKeyExpression);
+    }
+
+    /**
+     * Parse grouping key.
+     * <code>grouping-key := variable-name | inferable-type-descriptor variable-name "=" expression</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseGroupingKey(boolean isRhsExpr) {
+        STToken nextToken = peek();
+        SyntaxKind nextTokenKind = nextToken.kind;
+        if (nextTokenKind == SyntaxKind.IDENTIFIER_TOKEN && isEndOfGroupByListOrListElement(getNextNextToken().kind)) {
+            return STNodeFactory.createSimpleNameReferenceNode(parseVariableName());
+        } else if (isTypeStartingToken(nextTokenKind, nextToken)) {
+            return parseGroupingKeyVariableDeclaration(isRhsExpr);
+        }
+
+        recover(nextToken, ParserRuleContext.GROUPING_KEY_LIST_ELEMENT);
+        return parseGroupingKey(isRhsExpr);
     }
 
     /**

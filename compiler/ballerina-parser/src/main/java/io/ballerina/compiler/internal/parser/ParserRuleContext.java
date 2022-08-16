@@ -331,6 +331,10 @@ public enum ParserRuleContext {
     ORDER_BY_CLAUSE("order-by-clause"),
     ORDER_KEY_LIST("order-key-list"),
     ORDER_KEY_LIST_END("order-key-list-end"),
+    GROUP_BY_CLAUSE("group-by-clause"),
+    GROUPING_KEY_LIST_ELEMENT("grouping-key-list-element"),
+    GROUPING_KEY_LIST_ELEMENT_END("grouping-key-list-element-end"),
+    GROUP_BY_CLAUSE_END("group-by-clause-end"),
     ON_CONFLICT_CLAUSE("on-conflict-clause"),
     LIMIT_CLAUSE("limit-clause"),
     JOIN_CLAUSE("join-clause"),
@@ -481,6 +485,7 @@ public enum ParserRuleContext {
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
     NOT_IS_KEYWORD("!is"),
+    GROUP_KEYWORD("group"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -657,6 +662,7 @@ public enum ParserRuleContext {
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
     TYPE_DESC_IN_SERVICE("type-desc-in-service"),
     TYPE_DESC_IN_PATH_PARAM("type-desc-in-path-param"),
+    TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY("type-desc-before-identifier-in-grouping-key"),
 
     // XML
     XML_CONTENT("xml-content"),
