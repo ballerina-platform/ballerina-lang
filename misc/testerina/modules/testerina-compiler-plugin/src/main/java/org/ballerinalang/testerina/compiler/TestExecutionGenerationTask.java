@@ -69,9 +69,14 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
     private static final String TEST_EXEC_FUNCTION = "__execute__";
     private static final String TEST_EXEC_FILENAME = "test_execute";
 
+    private static final String TARGET_PATH_PARAMETER = "targetPath";
+    private static final String JACOCO_PATH_PARAMETER = "jacocoPath";
+    private static final String REPORT_PATH_PARAMETER = "report";
+    private static final String COVERAGE_PATH_PARAMETER = "coverage";
     private static final String GROUPS_PARAMETER = "groups";
     private static final String DISABLE_GROUPS_PARAMETER = "disableGroups";
     private static final String TESTS_PARAMETER = "tests";
+    private static final String RERUN_FAILED_PARAMETER = "rerunFailed";
 
     @Override
     public void generate(SourceGeneratorContext generatorContext) {
@@ -89,9 +94,14 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
         // Add the statement, 'test:setTestOptions(<args[]>);'
         statements.add(getFunctionCallStatement(getTestFunctionCall(SET_OPTIONS_FUNCTION, getFunctionParamList(
+                getPositionalArg(TARGET_PATH_PARAMETER),
+                getPositionalArg(JACOCO_PATH_PARAMETER),
+                getPositionalArg(REPORT_PATH_PARAMETER),
+                getPositionalArg(COVERAGE_PATH_PARAMETER),
                 getPositionalArg(GROUPS_PARAMETER),
                 getPositionalArg(DISABLE_GROUPS_PARAMETER),
-                getPositionalArg(TESTS_PARAMETER)))));
+                getPositionalArg(TESTS_PARAMETER),
+                getPositionalArg(RERUN_FAILED_PARAMETER)))));
 
         // Register all the test cases of the module
         for (DocumentId documentId : module.testDocumentIds()) {
@@ -269,9 +279,14 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                         NodeFactory.createEmptyNodeList(), optionalErrorTypeDescriptorNode);
 
         return NodeFactory.createFunctionSignatureNode(NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
-                NodeFactory.createSeparatedNodeList(getStringParameter(GROUPS_PARAMETER),
+                NodeFactory.createSeparatedNodeList(getStringParameter(TARGET_PATH_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(JACOCO_PATH_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(REPORT_PATH_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(COVERAGE_PATH_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(GROUPS_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(DISABLE_GROUPS_PARAMETER),
-                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(TESTS_PARAMETER)),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(TESTS_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(RERUN_FAILED_PARAMETER)),
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
     }
 

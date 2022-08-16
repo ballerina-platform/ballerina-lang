@@ -18,32 +18,39 @@ package org.ballerinalang.test.runtime.entity;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 public class TestArguments {
 
-    private final String groups;
-    private final String disableGroups;
-    private final String tests;
+    private final Class<?>[] argTypes;
+    private final Object[] argValues;
 
-    public TestArguments(String groups, String disableGroups, String tests) {
+    public TestArguments(String[] args) {
 
-        this.groups = groups;
-        this.disableGroups = disableGroups;
-        this.tests = tests;
+        int size = args.length;
+        argTypes = new Class[2 * size + 1];
+        argValues = new Object[2 * size + 1];
+
+        argTypes[0] = Strand.class;
+        argValues[0] = null;
+
+        for (int i = 0; i < size; i++) {
+            int index = 2 * i + 1;
+            argTypes[index] = BString.class;
+            argValues[index] = StringUtils.fromString(args[i]);
+
+            argTypes[index + 1] = boolean.class;
+            argValues[index + 1] = true;
+        }
     }
 
-    public BString getGroups() {
+    public Class<?>[] getArgTypes() {
 
-        return StringUtils.fromString(groups);
+        return argTypes;
     }
 
-    public BString getDisableGroups() {
+    public Object[] getArgValues() {
 
-        return StringUtils.fromString(disableGroups);
-    }
-
-    public BString getTests() {
-
-        return StringUtils.fromString(tests);
+        return argValues;
     }
 }
