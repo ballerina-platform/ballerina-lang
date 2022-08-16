@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
+import io.ballerina.tools.text.LineRange;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 /**
@@ -23,7 +24,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 public class TypeFromExpressionRequest {
     private TextDocumentIdentifier documentIdentifier;
 
-    private ExpressionRange[] expressionRanges;
+    private LineRange[] expressionRanges;
 
     public TextDocumentIdentifier getDocumentIdentifier() {
         return documentIdentifier;
@@ -33,11 +34,11 @@ public class TypeFromExpressionRequest {
         this.documentIdentifier = documentIdentifier;
     }
 
-    protected ExpressionRange[] getExpressionRanges() {
+    protected LineRange[] getExpressionRanges() {
         return expressionRanges;
     }
 
-    public void setExpressionRanges(ExpressionRange[] expressionRanges) {
+    public void setExpressionRanges(LineRange[] expressionRanges) {
         this.expressionRanges = expressionRanges == null ? null : expressionRanges.clone();
     }
 }

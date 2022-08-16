@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
 /**
@@ -22,9 +23,9 @@ import org.ballerinalang.diagramutil.connector.models.connector.Type;
  */
 public class ResolvedTypeForExpression {
     private Type type;
-    private final ExpressionRange requestedRange;
+    private final LineRange requestedRange;
 
-    public ResolvedTypeForExpression(ExpressionRange requestedRange) {
+    public ResolvedTypeForExpression(LineRange requestedRange) {
         this.requestedRange = requestedRange;
     }
 
@@ -36,7 +37,7 @@ public class ResolvedTypeForExpression {
         this.type = type;
     }
 
-    public ExpressionRange getRequestedRange() {
+    public LineRange getRequestedRange() {
         return requestedRange;
     }
 
