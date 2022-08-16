@@ -5896,18 +5896,39 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType getQueryMapConstraintType(BType type, Location pos) {
         if (type.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) type;
-            if (arrayType.state != BArrayState.OPEN && arrayType.size == 2 &&
-                    TypeTags.isStringTypeTag(arrayType.eType.tag)) {
+            if (arrayType.state != BArrayState.OPEN && arrayType.size == 2 && isString(arrayType.eType)) {
                 return arrayType.eType;
             }
         } else if (type.tag == TypeTags.TUPLE) {
             List<BType> tupleTypeList = ((BTupleType) type).tupleTypes;
-            if (tupleTypeList.size() == 2 && TypeTags.isStringTypeTag(tupleTypeList.get(0).tag)) {
+            if (tupleTypeList.size() == 2 && isString(tupleTypeList.get(0))) {
                 return tupleTypeList.get(1);
             }
         }
         dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_IN_SELECT_CLAUSE, type);
         return symTable.semanticError;
+    }
+
+    private boolean isString(BType type) {
+        BType refType = Types.getReferredType(type);
+        switch (refType.getKind()) {
+            case UNION:
+                for (BType memberType: ((BUnionType) refType).getMemberTypes()) {
+                    if (!isString(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case FINITE:
+                for (BLangExpression value: ((BFiniteType) refType).getValueSpace()) {
+                    if (!isString(value.getBType())) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return TypeTags.isStringTypeTag(refType.tag);
+        }
     }
 
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
