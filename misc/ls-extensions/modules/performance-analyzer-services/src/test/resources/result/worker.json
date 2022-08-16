@@ -1,17 +1,17 @@
 {
   "endpoints": {
     "0": {
-      "pkgID": "ballerina/http",
+      "pkgID": "ballerina/project.http",
       "name": "Client",
       "baseUrl": "https://postman-echo.com/post",
       "pos": {
         "filePath": "main.bal",
         "startLine": {
-          "line": 5,
+          "line": 6,
           "offset": 20
         },
         "endLine": {
-          "line": 5,
+          "line": 6,
           "offset": 28
         }
       }
@@ -24,7 +24,7 @@
           "endPointRef": "${json-unit.ignore}",
           "name": "forward",
           "path": "/",
-          "pos": "main.bal/(6:36,6:63)",
+          "pos": "main.bal/(7:36,7:63)",
           "nextNode": null
         }
       },
@@ -33,7 +33,7 @@
           "endPointRef": "${json-unit.ignore}",
           "name": "forward",
           "path": "/",
-          "pos": "main.bal/(12:45,12:72)",
+          "pos": "main.bal/(13:45,13:72)",
           "nextNode": null
         }
       },

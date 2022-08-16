@@ -25,8 +25,6 @@ import net.javacrumbs.jsonunit.core.Option;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -55,7 +53,6 @@ public class PerformanceAnalyzerTest {
     private static final String RESULT = "result";
     private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getResourcesWithEndpoints";
     private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
-    private static final Logger log = LoggerFactory.getLogger(PerformanceAnalyzerTest.class);
 
     @Test(description = "Test performance analyzer")
     public void testFunction() throws IOException, ExecutionException, InterruptedException {
@@ -121,14 +118,11 @@ public class PerformanceAnalyzerTest {
 
         Assert.assertEquals(endpoint.getType(), expected.get(TYPE).getAsString());
         Assert.assertEquals(endpoint.getMessage(), expected.get(MESSAGE).getAsString());
-        log.info(endpoint.getType());
 
         if (endpoint.getType().equals(SUCCESS)) {
             JsonObject actionInvocations = endpoint.getActionInvocations();
             JsonObject expectedActionInvocations = expected.getAsJsonObject(ACTION_INVOCATION_KEY);
 
-            log.info(String.valueOf(endpoint.getActionInvocations()));
-            log.info(String.valueOf(endpoint.getEndpoints()));
             assertThatJson(actionInvocations.toString()).isEqualTo(expectedActionInvocations.toString());
             validateEndpoints(endpoint.getEndpoints(), expected);
         }
