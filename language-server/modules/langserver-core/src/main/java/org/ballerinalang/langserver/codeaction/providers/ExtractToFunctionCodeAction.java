@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.ExtractToFunctionAnalyzer;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -88,8 +89,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                                          RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
         Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(matchedCodeActionNode);
-        if (context.currentSemanticModel().isEmpty() || enclosingNode.isEmpty()
-                || enclosingNode.get().kind() != SyntaxKind.FUNCTION_DEFINITION) {
+        Optional<NonTerminalNode> enclosingFuncDefNode = findEnclosingFunctionDefinitionNode(matchedCodeActionNode);
+        if (context.currentSemanticModel().isEmpty() || enclosingNode.isEmpty() || enclosingFuncDefNode.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -258,12 +259,12 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         boolean newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
         extractFunctionInsertRange = PositionUtil.toRange(enclosingNode.get().lineRange().endLine());
 
-        //Check if the function call is invoked from an isolated context.
-//        IsolatedBlockResolver isolatedBlockResolver = new IsolatedBlockResolver();
-//        Boolean isIsolated = isolatedBlockResolver.findIsolatedBlock(matchedCodeActionNode);
+        // Check if the function call is invoked from an isolated context.
+        IsolatedBlockResolver isolatedBlockResolver = new IsolatedBlockResolver();
+        Boolean isIsolated = isolatedBlockResolver.findIsolatedBlock(matchedCodeActionNode);
 
         String extractFunction = generateFunction(functionName, argsForExtractFunction, returnTypeDescriptor,
-                returnStatement, newLineAtEnd, false, funcBody);
+                returnStatement, newLineAtEnd, isIsolated, funcBody);
         String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, true);
 
         if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
@@ -452,6 +453,19 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return Optional.empty();
     }
 
+    private Optional<NonTerminalNode> findEnclosingFunctionDefinitionNode(NonTerminalNode node) {
+        NonTerminalNode reference = node;
+        while (reference != null && reference.parent() != null) {
+            SyntaxKind parentKind = reference.parent().kind();
+            if (parentKind == SyntaxKind.FUNCTION_DEFINITION || parentKind == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION
+                    || parentKind == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                return Optional.of(reference);
+            }
+            reference = reference.parent();
+        }
+        return Optional.empty();
+    }
+
     private boolean addNewLineAtEnd(Node enclosingNode) {
         for (Node node : enclosingNode.parent().children()) {
             if (node.lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
@@ -547,10 +561,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 //                SyntaxKind.XML_STEP_EXPRESSION,
 //                SyntaxKind.XML_NAME_PATTERN_CHAIN,
 //                SyntaxKind.XML_ATOMIC_NAME_PATTERN,
-//                SyntaxKind.STRING_LITERAL,
-//                SyntaxKind.NUMERIC_LITERAL,
-//                SyntaxKind.BOOLEAN_LITERAL,
-//                SyntaxKind.NIL_LITERAL,
+                SyntaxKind.STRING_LITERAL,
+                SyntaxKind.NUMERIC_LITERAL,
+                SyntaxKind.BOOLEAN_LITERAL,
+                SyntaxKind.NIL_LITERAL
 //                SyntaxKind.NULL_LITERAL,
 //                SyntaxKind.BYTE_ARRAY_LITERAL,
 //                SyntaxKind.ASTERISK_LITERAL,

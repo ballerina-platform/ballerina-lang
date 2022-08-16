@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 15,
+      "character": 8
+    },
+    "end": {
+      "line": 15,
+      "character": 37
+    }
+  },
+  "source": "extract_to_method_stmts_within_remote_method.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 1
+            },
+            "end": {
+              "line": 17,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns error {\n    return error(\"Invalid name\");\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 8
+            },
+            "end": {
+              "line": 15,
+              "character": 37
+            }
+          },
+          "newText": "return extracted();"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for statements when inside a remote method"
+}
