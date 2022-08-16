@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListRequest;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
@@ -29,7 +30,6 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSynta
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.ExpressionRange;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromExpressionRequest;
@@ -225,7 +225,7 @@ public class LSExtensionTestUtil {
      * @param serviceEndpoint   Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static TypesFromExpressionResponse getTypeFromExpression(String filePath, ExpressionRange[] ranges,
+    public static TypesFromExpressionResponse getTypeFromExpression(String filePath, LineRange[] ranges,
                                                                     Endpoint serviceEndpoint
                                                                     ) throws ExecutionException, InterruptedException {
         TypeFromExpressionRequest typeFromExpressionRequest = new TypeFromExpressionRequest();
