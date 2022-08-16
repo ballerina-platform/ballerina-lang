@@ -48,6 +48,7 @@ public class SyntaxTreeByNameTest {
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNotNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, sameFile);
     }
 
@@ -60,6 +61,7 @@ public class SyntaxTreeByNameTest {
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNotNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, projectFile);
     }
 
@@ -72,6 +74,7 @@ public class SyntaxTreeByNameTest {
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNotNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, projectFile);
     }
 
