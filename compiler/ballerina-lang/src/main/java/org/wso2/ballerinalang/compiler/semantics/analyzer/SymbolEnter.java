@@ -3883,6 +3883,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case CLASS_DEFN:
                 pkgNode.classDefinitions.add((BLangClassDefinition) node);
+                break;
+            case CLIENT_DECL:
+                pkgNode.clientDeclarations.add((BLangClientDeclaration) node);
         }
     }
 
