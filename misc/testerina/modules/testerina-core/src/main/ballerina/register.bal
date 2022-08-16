@@ -24,15 +24,14 @@ final GroupRegistry beforeGroupsRegistry = new ();
 final GroupRegistry afterGroupsRegistry = new ();
 final GroupStatusRegistry groupStatusRegistry = new ();
 
-public function registerTest(string name, function f) {
-    if filterTests.length() == 0 || filterTests.indexOf(name) is int {
-        processAnnotation(name, f);
-    }
+public function registerTest(string name, function f, string[] dependsOn = []) {
+    processAnnotation(name, f, dependsOn);
 }
 
 type TestFunction record {|
     string name;
     function executableFunction;
+    boolean enabled = false;
     DataProviderReturnType? params = ();
     function? before = ();
     function? after = ();
@@ -40,22 +39,62 @@ type TestFunction record {|
     string[] groups = [];
     boolean skip = false;
     error? diagnostics = ();
+    function[] dependsOn = [];
+    int dependsOnCount = 0;
+    string[] dependsOnString = [];
+    TestFunction[] dependents = [];
+    boolean visited = false;
 |};
 
 class TestRegistry {
-    private final TestFunction[] registry = [];
+    private final TestFunction[] rootRegistry = [];
+    private final TestFunction[] dependentRegistry = [];
 
     function addFunction(*TestFunction functionDetails) {
-        self.registry.push(functionDetails);
+        if functionDetails.dependsOn == [] {
+            self.rootRegistry.push(functionDetails);
+        } else {
+            self.dependentRegistry.push(functionDetails);
+        }
     }
 
-    function getFunctions() returns TestFunction[] => self.registry.sort(key = testFunctionsSort);
+    function getTestFunction(string dependsOnFunction) returns TestFunction|error {
+        TestFunction[] filter;
+        filter = self.rootRegistry.filter(testFunction => dependsOnFunction == testFunction.name);
+        if filter.length() == 0 {
+            filter = self.dependentRegistry.filter(testFunction => dependsOnFunction == testFunction.name);
+            if filter.length() == 0 {
+                //TODO: need to obtain the function name form the variable
+                return error(string `The dependent test function is either disabled or not included.`);
+            }
+        }
+        return filter.pop();
+    }
+
+    // TODO: Enable this function after https://github.com/ballerina-platform/ballerina-lang/issues/37379 fixed
+    // function getTestFunction(function f) returns TestFunction|error {
+    //     TestFunction[] filter;
+    //     filter = self.rootRegistry.filter(testFunction => f === testFunction.executableFunction);
+    //     if filter.length() == 0 {
+    //         filter = self.dependentRegistry.filter(testFunction => f === testFunction.executableFunction);
+    //         if filter.length() == 0 {
+    //             //TODO: need to obtain the function name form the variable
+    //             return error(string `The dependent test function is either disabled or not included.`);
+    //         }
+    //     }
+    //     return filter.pop();
+    // }
+
+    function getFunctions() returns TestFunction[] => self.rootRegistry.sort(key = testFunctionsSort);
+
+    function getDependentFunctions() returns TestFunction[] => self.dependentRegistry;
+
 }
 
 class GroupRegistry {
     private final map<TestFunction[]> registry = {};
 
-    function addFunction(string group, TestFunction testFunction) {
+    function addFunction(string group, *TestFunction testFunction) {
         if self.registry.hasKey(group) {
             self.registry.get(group).push(testFunction);
         } else {
