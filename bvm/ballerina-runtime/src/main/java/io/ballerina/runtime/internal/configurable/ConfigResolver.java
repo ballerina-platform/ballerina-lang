@@ -133,8 +133,6 @@ public class ConfigResolver {
                 return configProvider -> configProvider.getAsUnionAndMark(module, key);
             case TypeTags.TUPLE_TAG:
                 return configProvider -> configProvider.getAsTupleAndMark(module, key);
-//            case TypeTags.JSON_TAG:
-//                return configProvider -> configProvider.getAsJsonAndMark(module, key);
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 return getValueFunction(module, key, effectiveType);
