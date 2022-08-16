@@ -1262,7 +1262,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (foundSym != symTable.notFoundSymbol) {
-            dlog.error(clientDeclaration.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, clientDeclarationSymbol.name);
+            dlog.error(prefix.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, clientDeclarationSymbol.name);
             return;
         }
 
