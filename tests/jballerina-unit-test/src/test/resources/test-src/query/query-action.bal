@@ -675,6 +675,48 @@ function testQueryActionWithDoClauseContainsCheck() {
     assertTrue(res is string && res == "str2");
 }
 
+function foo8() returns string{
+    string[] stringArray = ["Hello", " ", "World"];
+    error? unionResult = from var item in stringArray
+                            where item is string
+                            do {
+                                if item == "Hello" {
+                                    return item;
+                                }
+                            };
+    return "no match";
+}
+
+function foo9() returns string{
+    (string?)[] stringArray = ["Hello", " ", "World", ()];
+    error? unionResult = from var item in stringArray
+                            where item is string
+                            do {
+                                if item == "Hello" {
+                                    return item;
+                                }
+                            };
+    return "no match";
+}
+
+function foo10() returns string{
+    (string|int)[] stringArray = ["Hello", 2, "World", 4];
+    error? unionResult = from var item in stringArray
+                            where item is string
+                            do {
+                                if item == "Hello" {
+                                    return item;
+                                }
+                            };
+    return "no match";
+}
+
+function testIfStmtInsideDoClause() {
+    assertEquality(foo8(), "Hello");
+    assertEquality(foo9(), "Hello");
+    assertEquality(foo10(), "Hello");
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
