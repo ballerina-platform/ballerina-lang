@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  * Code Action for extracting an expression to a local variable.
  *
- * @since 2201.2.0
+ * @since 2201.2.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider {
@@ -71,6 +71,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
+        // Avoid providing the code action for a mapping constructor used in a table constructor and 
+        // a function call used in a local variable declaration, since it produces syntax errors.
         return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent()
                 && CodeActionNodeValidator.validate(context.nodeAtRange()) && 
                 !(node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && node.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)
