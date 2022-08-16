@@ -93,6 +93,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 /**
  * BTestRunner entity class.
  */
+@Deprecated
 public class BTestRunner {
 
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
@@ -392,7 +393,7 @@ public class BTestRunner {
                         shouldSkipTest, failedOrSkippedTests, failedAfterFuncTests);
             } else {
                 // Normal test
-                executeTestFunction(test, suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipTest,
+executeTestFunction(test, suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipTest,
                         failedOrSkippedTests, failedAfterFuncTests);
             }
             // run the after each tests
