@@ -95,7 +95,7 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, Path targetPath, TestSuite testSuite,
+    public static void executeTests(Path sourceRootPath, TestSuite testSuite,
                                     ClassLoader classLoader, TestArguments args) throws RuntimeException {
         try {
             execute(testSuite, classLoader, args);
@@ -181,11 +181,7 @@ public class TesterinaUtils {
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
 
-        Class<?>[] argTypes = new Class[]{Strand.class, BString.class, boolean.class, BString.class, boolean.class,
-                BString.class, boolean.class, BString.class, boolean.class};
-        Object[] argValues = new Object[]{null, args.getTargetPath(), true, args.getGroups(), true,
-                args.getDisableGroups(), true, args.getTests(), true};
-        response = testExecute.invoke(argTypes, argValues);
+        response = testExecute.invoke(args.getArgTypes(), args.getArgValues());
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Dependant module start for test suite failed due to error : " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
