@@ -533,6 +533,24 @@ public class TypeBuildersTest {
         };
     }
 
+    @Test(dataProvider = "unionTypeBuilderProvider")
+    public void testUnionTypeBuilder(List<TypeSymbol> memberTypes, String signature) {
+        TypeBuilder builder = types.builder();
+        UnionTypeSymbol unionTypeSymbol =
+                builder.UNION_TYPE.withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();
+
+        assertEquals(unionTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "unionTypeBuilderProvider")
+    private Object[][] getUnionTypes() {
+        return new Object[][] {
+                {List.of(types.INT, types.STRING), "int|string"},
+                {List.of(types.FLOAT, getSymbolTypeDef(138, 7), types.BOOLEAN), "float|MyCls|boolean"},
+                {List.of(getSymbolTypeDef(131, 6), getSymbolTypeDef(133, 5)), "\"389\"|Cus"},
+        };
+    }
+
     // utils
 
     private TypeSymbol getSymbolTypeDef(int line, int column) {
@@ -540,13 +558,18 @@ public class TypeBuildersTest {
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
 
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        assertTrue(symbol.isPresent());
-        if (symbol.get().kind() == SymbolKind.VARIABLE) {
-            return ((VariableSymbol) symbol.get()).typeDescriptor();
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, LinePosition.from(line, column));
+        assertTrue(optionalSymbol.isPresent());
+        Symbol symbol = optionalSymbol.get();
+        if (symbol.kind() == SymbolKind.VARIABLE) {
+            return ((VariableSymbol) symbol).typeDescriptor();
         }
 
-        assertEquals(symbol.get().kind(), SymbolKind.TYPE_DEFINITION);
-        return ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
+        if (symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.CONSTANT) {
+            return (TypeSymbol) symbol;
+        }
+
+        assertEquals(symbol.kind(), SymbolKind.TYPE_DEFINITION);
+        return ((TypeDefinitionSymbol) symbol).typeDescriptor();
     }
 }
