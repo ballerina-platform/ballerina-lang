@@ -1,3 +1,19 @@
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.` `
+
 import ballerina/jballerina.java;
 
 isolated function print(handle printStream, any|error obj) = @java:Method {
@@ -34,6 +50,16 @@ isolated function getBallerinaStringArray(handle h) returns string[] = @java:Met
     'class:"io.ballerina.runtime.api.utils.StringUtils",
     name:"fromStringArray",
     paramTypes:["[Ljava.lang.String;"]
+} external;
+
+isolated function writeContentToJson(string[] content, string filePath) returns error? = @java:Method {
+    'class:"org.ballerinalang.testerina.natives.io.JsonUtils",
+    name:"writeArrayToFile"
+} external;
+
+isolated function readContentFromJson(string filePath) returns string[]|error = @java:Method {
+    'class:"org.ballerinalang.testerina.natives.io.JsonUtils",
+    name:"readArrayFromFile"
 } external;
 
 isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
