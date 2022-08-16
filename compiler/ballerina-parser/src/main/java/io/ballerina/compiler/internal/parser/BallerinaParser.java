@@ -12546,6 +12546,7 @@ public class BallerinaParser extends AbstractParser {
         } else if (isTypeStartingToken(nextTokenKind, nextToken)) {
             return parseGroupingKeyVariableDeclaration(isRhsExpr);
         }
+
         recover(nextToken, ParserRuleContext.GROUPING_KEY_LIST_ELEMENT);
         return parseGroupingKey(isRhsExpr);
     }
