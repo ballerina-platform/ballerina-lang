@@ -77,13 +77,13 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "missing binary operator", 16, 23);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 17, 24);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 18, 24);
-        BAssertUtil.validateError(result, index++, "size mismatch in closed array. expected '3', but found '2'",
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[3]', found 'byte[2]'",
                 23, 17);
-        BAssertUtil.validateError(result, index++, "size mismatch in closed array. expected '3', but found '2'",
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[3]', found 'byte[2]'",
                 24, 16);
-        BAssertUtil.validateError(result, index++, "size mismatch in closed array. expected '2', but found '3'",
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[2]', found 'byte[3]'",
                 28, 17);
-        BAssertUtil.validateError(result, index++, "size mismatch in closed array. expected '2', but found '3'",
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[2]', found 'byte[3]'",
                 30, 16);
         Assert.assertEquals(result.getErrorCount(), index);
     }

@@ -190,11 +190,19 @@ function testDowncastOfByteArrayCastToIntArray() {
 }
 
 function testByteArrayLiteralCastToReadOnlyType() {
-    byte[] & readonly arr1 = <byte[] & readonly>base16`aa bb`;
+    byte[] & readonly arr1 = <byte[] & readonly>base16 `aa bb`;
     assertTrue(arr1.isReadOnly());
 
-    int[2] & readonly arr2 = <int[2] & readonly>base16`aa bb`;
-    assertTrue(arr1.isReadOnly());
+    int[2] & readonly arr2 = <int[2] & readonly>base16 `aa bb`;
+    assertTrue(arr2.isReadOnly());
+
+    byte[2] & readonly arr3 = <readonly>base16 `aa bb`;
+    assertTrue(arr3.isReadOnly());
+
+    anydata[] & readonly arr4 = <anydata[] & readonly>base16 `aa bb`;
+    assertTrue(arr4.isReadOnly());
+
+    any[] arr5 = <any[] & readonly>base16 `aa bb`;
 }
 
 function testInherentTypeViolationOfByteArrayCastToIntArray() {
