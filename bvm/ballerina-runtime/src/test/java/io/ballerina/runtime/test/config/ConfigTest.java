@@ -63,11 +63,11 @@ public class ConfigTest {
     private static final Module module = new Module("myOrg", "test_module", "1");
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1");
-    private static final Type[] COLOR_ENUM_MEMBERS = new Type[]{
-            new BFiniteType("Colors", Set.of(StringUtils.fromString("RED")), 0),
-            new BFiniteType("Colors", Set.of(StringUtils.fromString("GREEN")), 0)};
-    public static final Type COLOR_ENUM_UNION = new BUnionType(COLOR_ENUM_MEMBERS, COLOR_ENUM_MEMBERS, 0, false,
-            SymbolFlags.ENUM);
+    private static final List<Type> COLOR_ENUM_MEMBERS = List.of(
+            new BFiniteType("COLOR_RED", Set.of(StringUtils.fromString("RED")), 0),
+            new BFiniteType("COLOR_GREEN", Set.of(StringUtils.fromString("GREEN")), 0));
+    public static final Type COLOR_ENUM_UNION = new BUnionType(COLOR_ENUM_MEMBERS, "Colors", ROOT_MODULE,
+            0, false, SymbolFlags.ENUM);
     public static final Type COLOR_ENUM = new BIntersectionType(module, new Type[]{}, COLOR_ENUM_UNION, 0, true);
     private final Set<Module> moduleSet = Set.of(module);
 
