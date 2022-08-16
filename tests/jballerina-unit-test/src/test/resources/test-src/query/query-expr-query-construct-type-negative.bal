@@ -284,4 +284,9 @@ function testConstructingInvalidReadonlyMap() {
 
     map<string> & readonly|error mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
                                         select item on conflict error("Error");
+
+    [string:Char, int[]][] list = [];
+    map<float[]>|error mp5 = map from var item in list select item;
+
+    map<int[]> & readonly|error mp7 = map from var item in list select item;
 }
