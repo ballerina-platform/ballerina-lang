@@ -886,31 +886,32 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         byte[] byteArray = Types.convertToByteArray((String) literalExpr.value);
         if (literalExpr.expectedType.tag == TypeTags.ARRAY) {
             return checkByteArrayCompatibility(
-                    literalExpr, (BArrayType) literalExpr.expectedType, (BArrayType) literalType, byteArray, data);
+                    literalExpr, (BArrayType) literalExpr.expectedType, (BArrayType) literalType, byteArray);
         }
         return types.checkType(literalExpr, literalType, data.expType);
     }
 
     private BType checkByteArrayCompatibility(BLangLiteral literalExpr, BArrayType arrayType, BArrayType literalType,
-                                              byte[] byteArray, AnalyzerData data) {
+                                              byte[] byteArray) {
         if (arrayType.state == BArrayState.INFERRED) {
             arrayType.size = byteArray.length;
             arrayType.state = BArrayState.CLOSED;
         }
 
-        if (arrayType.state != BArrayState.OPEN && byteArray.length != arrayType.size) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
-                    byteArray.length);
-            return symTable.semanticError;
-        }
-
         if (Symbols.isFlagOn(arrayType.flags, Flags.READONLY)) {
+            if (arrayType.state != BArrayState.OPEN && byteArray.length != arrayType.size) {
+                dlog.error(literalExpr.pos, DiagnosticErrorCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
+                        byteArray.length);
+                return symTable.semanticError;
+            }
+            arrayType.eType = arrayType.eType.tag != TypeTags.INTERSECTION ?
+                    arrayType.eType : ((BIntersectionType) arrayType.eType).effectiveType;
             boolean isValidType =
                         types.checkType(literalExpr.pos, symTable.byteType, arrayType.eType,
                                 DiagnosticErrorCode.INCOMPATIBLE_TYPES) != symTable.semanticError;
             return isValidType ? arrayType : symTable.semanticError;
         }
-        return data.resultType = types.checkType(literalExpr, literalType, data.expType);
+        return types.checkType(literalExpr, literalType, arrayType);
     }
 
     private BType getTypeMatchingFloatOrDecimal(BType finiteType, Set<BType> memberTypes, BLangLiteral literalExpr,
