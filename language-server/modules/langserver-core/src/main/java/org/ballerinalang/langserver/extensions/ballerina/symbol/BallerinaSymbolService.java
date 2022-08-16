@@ -153,34 +153,35 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 return typesResponse;
             }
             List<ResolvedTypeForExpression> types = new ArrayList<>();
-            for (LineRange range: request.getExpressionRanges()) {
-                ResolvedTypeForExpression resolvedType = new ResolvedTypeForExpression(range);
-                try {
-                    Optional<SemanticModel> semanticModel =
-                            this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
-                    if (semanticModel.isEmpty()) {
-                        return typesResponse;
-                    }
-                    LinePosition start = range.startLine();
-                    LinePosition end = range.endLine();
-                    LineRange lineRange = LineRange.from(fileName, start, end);
-                    Optional<TypeSymbol> typeSymbol;
-                    if (semanticModel.get().typeOf(lineRange).isPresent()) {
-                        typeSymbol = semanticModel.get().typeOf(lineRange);
-                        clearParentSymbols();
-                        Type type = typeSymbol.map(Type::fromSemanticSymbol).orElse(null);
-                        resolvedType.setType(type);
-                        types.add(resolvedType);
-                    }
-                } catch (Throwable e) {
-                    String msg = "Operation 'ballerinaSymbol/getTypeFromExpression' failed!";
-                    this.clientLogger.logError(SymbolContext.SC_GET_TYPE_FROM_EXPRESSION_API, msg, e,
-                            request.getDocumentIdentifier(), (Position) null);
-                    return typesResponse;
+            try {
+                for (LineRange range: request.getExpressionRanges()) {
+                    ResolvedTypeForExpression resolvedType = new ResolvedTypeForExpression(range);
+
+                        Optional<SemanticModel> semanticModel =
+                                this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
+                        if (semanticModel.isEmpty()) {
+                            return typesResponse;
+                        }
+                        LinePosition start = range.startLine();
+                        LinePosition end = range.endLine();
+                        LineRange lineRange = LineRange.from(fileName, start, end);
+                        Optional<TypeSymbol> typeSymbol;
+                        if (semanticModel.get().typeOf(lineRange).isPresent()) {
+                            typeSymbol = semanticModel.get().typeOf(lineRange);
+                            clearParentSymbols();
+                            Type type = typeSymbol.map(Type::fromSemanticSymbol).orElse(null);
+                            resolvedType.setType(type);
+                            types.add(resolvedType);
+                        }
                 }
+                typesResponse.setTypes(types);
+                return typesResponse;
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaSymbol/getTypeFromExpression' failed!";
+                this.clientLogger.logError(SymbolContext.SC_GET_TYPE_FROM_EXPRESSION_API, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+                return typesResponse;
             }
-            typesResponse.setTypes(types);
-            return typesResponse;
         });
     }
 
@@ -194,33 +195,30 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 return typeFromSymbolResponse;
             }
             List<ResolvedTypeForSymbol> types = new ArrayList<>();
-            for (LinePosition position: request.getPositions()) {
-                ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(position);
-                try {
-                    Optional<SemanticModel> semanticModel =
-                            this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
-                    if (semanticModel.isEmpty()) {
-                        return typeFromSymbolResponse;
-                    }
-                    Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
-                    if (document.isEmpty()) {
-                        return typeFromSymbolResponse;
-                    }
-                    LinePosition linePosition = LinePosition.from(position.line(), position.offset());
-                    Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), linePosition);
-                    clearParentSymbols();
-                    Type type = symbol.map(Type::fromSemanticSymbol).orElse(null);
-                    resolvedType.setType(type);
-                    types.add(resolvedType);
-                } catch (Throwable e) {
-                    String msg = "Operation 'ballerinaSymbol/getTypeFromSymbol' failed!";
-                    this.clientLogger.logError(SymbolContext.SC_GET_TYPE_FROM_SYMBOL_API, msg, e,
-                            request.getDocumentIdentifier(), (Position) null);
-                    return typeFromSymbolResponse;
+            try {
+                for (LinePosition position: request.getPositions()) {
+                    ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(position);
+                        Optional<SemanticModel> semanticModel =
+                                this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
+                        Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
+                        if (semanticModel.isEmpty() || document.isEmpty()) {
+                            return typeFromSymbolResponse;
+                        }
+                        LinePosition linePosition = LinePosition.from(position.line(), position.offset());
+                        Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), linePosition);
+                        clearParentSymbols();
+                        Type type = symbol.map(Type::fromSemanticSymbol).orElse(null);
+                        resolvedType.setType(type);
+                        types.add(resolvedType);
                 }
+                typeFromSymbolResponse.setTypes(types);
+                return typeFromSymbolResponse;
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaSymbol/getTypeFromSymbol' failed!";
+                this.clientLogger.logError(SymbolContext.SC_GET_TYPE_FROM_SYMBOL_API, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+                return typeFromSymbolResponse;
             }
-            typeFromSymbolResponse.setTypes(types);
-            return typeFromSymbolResponse;
         });
     }
 
