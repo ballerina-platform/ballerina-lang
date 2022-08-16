@@ -193,7 +193,7 @@ type NewRecord record {
 };
 ```
 
-#### Scenario 02: Differencing Fields in the same JSON Object
+#### Scenario 02: Optional fields within the same JSON object
 When there are two or more JSON Objects with the same name, and if there are any differencing fields those fields will also be considered as optional fields.
 
 JSON
@@ -332,7 +332,7 @@ type NewRecord record {
 ```
 There can be many JSON child objects with the same field name, those JSON objects will be mapped into a single Ballerina record where its intersecting fields are required Ballerina fields and the differencing fields are optional Ballerina fields. (This is explained in scenario 2)
 
-#### Scenario 07: JSON Object with different field values
+#### Scenario 07: JSON object with different field values
 This is the scenario when there are two JSON child objects with the same field names, and the child objects have fields with the same name but different types of values.
 
 JSON
@@ -356,7 +356,7 @@ type NewRecord record {
 
 ### Mapping of Array Types
 
-#### Scenario 08: JSON array without Items
+#### Scenario 08: JSON array without items
 Json Arrays are mapped into Ballerina arrays
 
 JSON
@@ -445,7 +445,7 @@ type NewRecord record {
 };
 ```
 
-#### Scenario 13: JSON Array completely different JSON objects
+#### Scenario 13: JSON array completely different JSON objects
 This is where all the fields are different in the objects in an array. (Even though the fields are different all these objects will be treated as same when converting to Ballerina record)
 
 JSON
@@ -468,7 +468,7 @@ type NewRecord record {
 };
 ```
 
-#### Scenario 14: JSON Array with different types
+#### Scenario 14: JSON array with different types
 JSON
 ```json
 {
@@ -488,7 +488,7 @@ type NewRecordList record {
 ```
 In this case, if there are more than two types of values in an array. This will be handles as union of data types in Ballerina record creation.
 
-#### Scenario 15: JSON Array of arrays
+#### Scenario 15: JSON array of arrays
 This is where Nested JSON arrays are being handled.
 
 JSON
@@ -505,7 +505,7 @@ type NewRecordList record {
 ```
 Here, the nested array can be any type, if the types are different, it would be handled differently. See _Scenario 17_
 
-#### Scenario 16: JSON Array with different types and arrays
+#### Scenario 16: JSON array with different types and arrays
 JSON
 ```json
 {
