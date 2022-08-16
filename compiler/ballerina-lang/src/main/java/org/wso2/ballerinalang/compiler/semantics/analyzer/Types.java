@@ -3082,9 +3082,6 @@ public class Types {
         public Boolean visit(BType target, BType source) {
             int sourceTag = source.tag;
             int targetTag = target.tag;
-            if (targetTag == TypeTags.INTERSECTION) {
-                targetTag = getEffectiveTypeForIntersection(target).tag;
-            }
             if (isSimpleBasicType(sourceTag) && isSimpleBasicType(targetTag)) {
                 // If type T is ordered, then type T? Is also ordered.
                 return (source == target) || sourceTag == TypeTags.NIL || targetTag == TypeTags.NIL ||
