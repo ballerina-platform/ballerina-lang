@@ -253,8 +253,11 @@ public class MethodGen {
         genGetFrameOnResumeIndex(localVarOffset, mv, frameName);
 
         generateFrameClassFieldLoad(func.localVars, mv, indexMap, frameName);
+        mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, frameName, STATE, "I");
         mv.visitVarInsn(ISTORE, stateVarIndex);
+        mv.visitFieldInsn(GETFIELD, frameName, INVOCATION, "I");
+        mv.visitVarInsn(ISTORE, invocationVarIndex);
         mv.visitJumpInsn(GOTO, varinitLabel);
 
         mv.visitLabel(yieldLabel);
@@ -267,6 +270,9 @@ public class MethodGen {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ILOAD, stateVarIndex);
         mv.visitFieldInsn(PUTFIELD, frameName, STATE, "I");
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ILOAD, invocationVarIndex);
+        mv.visitFieldInsn(PUTFIELD, frameName, INVOCATION, "I");
         generateFrameStringFieldSet(mv, frameName, yieldLocationVarIndex, YIELD_LOCATION);
         generateFrameStringFieldSet(mv, frameName, yieldStatusVarIndex, YIELD_STATUS);
 

@@ -102,6 +102,8 @@ public class FrameClassGen {
 
         FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC, "state", "I", null, null);
         fv.visitEnd();
+        fv = cw.visitField(Opcodes.ACC_PUBLIC, "functionInvocation", "I", null, null);
+        fv.visitEnd();
         fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_LOCATION, GET_STRING, null, null);
         fv.visitEnd();
         fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_STATUS, GET_STRING, null, null);
