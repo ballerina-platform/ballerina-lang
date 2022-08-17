@@ -17,14 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 
 /**
  * {@code BLangRetry} represents a retry statement within a transaction in Ballerina.

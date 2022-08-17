@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 

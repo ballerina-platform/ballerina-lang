@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.clauses.OnFailClauseNode;
-
 /**
  * {@code TransactionNode} represents the transaction statement in Ballerina.
  *
