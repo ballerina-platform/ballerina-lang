@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.internal.NullLocation;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CodeGenerator;
@@ -29,11 +30,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -381,26 +378,6 @@ class CodeGeneratorManager {
 
         Collection<GeneratedTestResourceFile> generatedTestResourceFiles() {
             return testResourceFiles;
-        }
-    }
-
-    /**
-     * Represents the null location. This can used to create diagnostics
-     * which cannot be related to a location in the document.
-     *
-     * @since 2.0.0
-     */
-    private static class NullLocation implements Location {
-
-        @Override
-        public LineRange lineRange() {
-            LinePosition from = LinePosition.from(0, 0);
-            return LineRange.from("", from, from);
-        }
-
-        @Override
-        public TextRange textRange() {
-            return TextRange.from(0, 0);
         }
     }
 

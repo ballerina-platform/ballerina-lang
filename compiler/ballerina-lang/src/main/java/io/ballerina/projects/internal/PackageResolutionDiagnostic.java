@@ -22,7 +22,6 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 
 /**
  * Represents a diagnostic in the package resolution.
@@ -56,24 +55,4 @@ public class PackageResolutionDiagnostic extends PackageDiagnostic {
         return diagnosticInfo().severity().toString() + " ["
                 + filePath + ":" + oneBasedLineRange + "] " + message();
     }
-
-    private static class NullLocation implements Location {
-        private final String filepath;
-
-        NullLocation(String filePath) {
-            this.filepath = filePath;
-        }
-
-        @Override
-        public LineRange lineRange() {
-            LinePosition from = LinePosition.from(0, 0);
-            return LineRange.from(filepath, from, from);
-        }
-
-        @Override
-        public TextRange textRange() {
-            return TextRange.from(0, 0);
-        }
-    }
-
 }
