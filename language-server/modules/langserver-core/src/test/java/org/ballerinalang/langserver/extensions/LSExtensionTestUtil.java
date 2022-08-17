@@ -160,6 +160,7 @@ public class LSExtensionTestUtil {
         CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_BY_NAME, request);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
+
     private static JsonObject getResult(CompletableFuture result) {
         return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result");
     }
