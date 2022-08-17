@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.extensions.document;
 
+import io.ballerina.projects.ProjectException;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -109,6 +110,9 @@ public class SyntaxTreeByNameTest {
         BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByName(
                 sameFile.toString(), range, this.serviceEndpoint);
         Assert.assertFalse(syntaxTreeByNameResponse.isParseSuccess());
+        Assert.assertNull(syntaxTreeByNameResponse.getSyntaxTree());
+        Assert.assertNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, sameFile);
     }
 
@@ -119,6 +123,9 @@ public class SyntaxTreeByNameTest {
         BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByName(
                 incorrectFile.toString(), range, this.serviceEndpoint);
         Assert.assertFalse(syntaxTreeByNameResponse.isParseSuccess());
+        Assert.assertNull(syntaxTreeByNameResponse.getSyntaxTree());
+        Assert.assertNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, sameFile);
     }
 
