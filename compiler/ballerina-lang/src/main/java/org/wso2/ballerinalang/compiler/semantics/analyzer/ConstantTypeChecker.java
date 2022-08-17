@@ -195,8 +195,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private BSymbol getSymbolOfVarRef(Location pos, SymbolEnv env, Name pkgAlias, Name varName, AnalyzerData data) {
-        if (pkgAlias == Names.EMPTY && data.modTable.containsKey(varName)) {
-            BLangNode node = data.modTable.get(varName);
+        if (pkgAlias == Names.EMPTY && data.modTable.containsKey(varName.value)) {
+            BLangNode node = data.modTable.get(varName.value);
             if (node.getKind() == NodeKind.CONSTANT) {
                 if (!typeResolver.resolvedConstants.contains((BLangConstant) node)) {
                     typeResolver.resolveConstant(data.env, data.modTable, (BLangConstant) node);

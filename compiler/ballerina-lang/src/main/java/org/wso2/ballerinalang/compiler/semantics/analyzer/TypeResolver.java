@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.util.*;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -1461,7 +1462,9 @@ public class TypeResolver {
 
     public void resolveConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
         if (!resolvingConstants.add(constant)) { // To identify cycles
-            dlog.error(constant.pos, DiagnosticErrorCode.CONSTANT_CYCLIC_REFERENCE, this.resolvingConstants);
+            dlog.error(constant.pos, DiagnosticErrorCode.CONSTANT_CYCLIC_REFERENCE,
+                    (this.resolvingConstants).stream().map(constNode -> constNode.symbol)
+                            .collect(Collectors.toList()));
             return;
         }
         defineConstant(symEnv, modTable, constant);
