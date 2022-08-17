@@ -115,13 +115,8 @@ public class VisibleSymbolsInCompoundStatementsTest extends BaseVisibleSymbolsTe
                                 from("str", VARIABLE)
                 )},
                 {65, 7, expCommonSymbols},
-                {66, 22, concat(expCommonSymbols, from("e2", VARIABLE))},
-                {67, 46, concat(expCommonSymbols,
-                                from("e2", VARIABLE),
-                                from("str", VARIABLE)
-                )},
-                {71, 18, concat(expCommonSymbols, from("y", VARIABLE))},
-                {75, 22, concat(expCommonSymbols, from("s", VARIABLE))},
+                {69, 18, concat(expCommonSymbols, from("y", VARIABLE))},
+                {73, 22, concat(expCommonSymbols, from("s", VARIABLE))},
         };
     }
 }

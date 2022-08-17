@@ -53,34 +53,6 @@ function testLockOnFail(){
     }
 }
 
-function testRetryOnFail() returns error? {
-    string str = "string";
-    int count = 0;
-    error err = error error:Retriable("Error");
-    retry {
-        count = count + 1;
-        if (count < 5) {
-            str += "retry";
-        }
-        str = "value";
-        fail er;
-    } on fail error e {
-        error ref = e;
-    }
-}
-
-function testTransactionOnFail() {
-    transaction {
-        func(2);
-        if true {
-            func(2);
-        }
-        check commit;
-    } on fail error e {
-        string s = e.message() + x.toString();
-    }
-}
-
 function testDoOnFail() {
     int x = 10;
     do {

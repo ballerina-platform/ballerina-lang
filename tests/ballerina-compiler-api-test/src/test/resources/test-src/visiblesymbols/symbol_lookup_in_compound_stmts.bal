@@ -64,8 +64,6 @@ function testRegularCompoundStmts() {
 
     transaction {
         var res = commit;
-    } on fail var e2 {
-        string str = "test str in trx on fail";
     }
 
     retry {

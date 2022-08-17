@@ -21,8 +21,6 @@ function testTransactionalStmt() {
             func(2);
         }
         check commit;
-    } on fail error e {
-        func(1);
     }
 }
 

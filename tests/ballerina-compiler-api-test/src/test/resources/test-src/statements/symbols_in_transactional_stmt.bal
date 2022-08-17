@@ -23,13 +23,6 @@ function test() returns error? {
     }
 
     transaction {
-        call1(20);
-        check commit;
-    } on fail error e {
-        call3(e);
-    }
-
-    transaction {
         rollback call2();
     }
 }

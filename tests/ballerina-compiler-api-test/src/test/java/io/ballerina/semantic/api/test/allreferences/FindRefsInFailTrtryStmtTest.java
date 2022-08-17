@@ -39,36 +39,26 @@ public class FindRefsInFailTrtryStmtTest extends FindAllReferencesTest {
                                 location(23, 12, 15),
                                 location(26, 8, 11))
                 },
-                {24, 12, location(49, 9, 13),
+                {24, 12, location(41, 9, 13),
                         List.of(location(24, 12, 16),
                                 location(35, 8, 12),
-                                location(49, 9, 13))
+                                location(41, 9, 13))
                 },
-                {33, 10, location(56, 6, 14),
-                        List.of(location(56, 6, 14),
-                                location(33, 10, 18))
+                {33, 10, location(48, 6, 14),
+                     List.of(location(48, 6, 14),
+                             location(33, 10, 18))
                 },
-                {36, 13, location(52, 9, 14),
-                        List.of(location(36, 13, 18),
-                                location(45, 13, 18),
-                                location(52, 9, 14))
+                {62, 21, location(62, 20, 22),
+                        List.of(location(62, 20, 22),
+                                location(63, 20, 22))
                 },
-                {70, 21, location(70, 20, 22),
-                        List.of(location(70, 20, 22),
-                                location(71, 20, 22))
+                {71, 21, location(71, 20, 22),
+                        List.of(location(71, 20, 22),
+                                location(72, 20, 22))
                 },
                 {79, 21, location(79, 20, 22),
                         List.of(location(79, 20, 22),
                                 location(80, 20, 22))
-                },
-                {87, 21, location(87, 20, 22),
-                        List.of(location(87, 20, 22),
-                                location(88, 20, 22))
-                },
-                {104, 20, location(103, 20, 21),
-                        List.of(location(103, 20, 21),
-                                location(104, 20, 21)
-                        )
                 }
         };
     }

@@ -34,11 +34,10 @@ public class FindRefsInTransactionalStmtTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {18, 8, location(28, 9, 13),
+                { 18, 8, location(26, 9, 13),
                         List.of(location(18, 8, 12),
                                 location(20, 12, 16),
-                                location(24, 8, 12),
-                                location(28, 9, 13))
+                                location(26, 9, 13))
                 },
         };
     }

@@ -51,8 +51,6 @@ public class SymbolsInTransactionStatements {
     public void testTransactionStatement() {
         assertBasicsAndGetSymbol(model, srcFile, 18, 12, "value", SymbolKind.VARIABLE);
         assertBasicsAndGetSymbol(model, srcFile, 19, 8, "call1", SymbolKind.FUNCTION);
-        assertBasicsAndGetSymbol(model, srcFile, 27, 20, "e", SymbolKind.VARIABLE);
-        assertBasicsAndGetSymbol(model, srcFile, 28, 8, "call3", SymbolKind.FUNCTION);
-        assertBasicsAndGetSymbol(model, srcFile, 32, 17, "call2", SymbolKind.FUNCTION);
+        assertBasicsAndGetSymbol(model, srcFile, 25, 17, "call2", SymbolKind.FUNCTION);
     }
 }

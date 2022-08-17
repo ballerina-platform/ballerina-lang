@@ -38,14 +38,6 @@ function testRetry2() returns error? {
     }
 }
 
-function testRetry3() returns error? {
-    retry transaction {
-        int value = 2000;
-        check commit;
-    } on fail error e {
-        fail func2();
-    }
-}
 
 function func() {
 }
@@ -87,21 +79,5 @@ function testLockOnFail(){
         fail getError();
     } on fail error ee {
         error ref = ee;
-    }
-}
-
-function testOnFail() returns error? {
-    string str = "string";
-    int count = 0;
-    error er = error error:Retriable("Error");
-    retry {
-        count = count + 1;
-        if (count < 5) {
-            str += "retry";
-        }
-        str = "value";
-        fail er;
-    } on fail error e {
-        error ref = e;
     }
 }

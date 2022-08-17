@@ -381,15 +381,13 @@ public class SymbolLookupTest {
     @DataProvider(name = "OnFailSymbolPosProvider")
     public Object[][] getOnFailSymbolPositions() {
         List<String> expSymbolNames = List.of("testMatchOnFail", "testWhileOnFail", "testForEachOnFail",
-                "testLockOnFail", "testRetryOnFail", "testTransactionOnFail", "testDoOnFail");
+                "testLockOnFail", "testDoOnFail");
         return new Object[][]{
-                {25, 23, 10, concatSymbols(expSymbolNames, "err", "val", "errRef")},
-                {34, 20, 10, concatSymbols(expSymbolNames, "iter", "err", "ref")},
-                {43, 20, 10, concatSymbols(expSymbolNames, "arr", "err", "ref")},
-                {51, 20, 9, concatSymbols(expSymbolNames, "ref", "err")},
-                {67, 20, 12, concatSymbols(expSymbolNames, "str", "count", "err", "e", "ref")},
-                {79, 33, 9, concatSymbols(expSymbolNames, "e", "s")},
-                {88, 33, 10, concatSymbols(expSymbolNames, "x", "e", "s")}
+                {25, 23, 8, concatSymbols(expSymbolNames, "err", "val", "errRef")},
+                {34, 20, 8, concatSymbols(expSymbolNames, "iter", "err", "ref")},
+                {43, 20, 8, concatSymbols(expSymbolNames, "arr", "err", "ref")},
+                {51, 20, 7, concatSymbols(expSymbolNames, "ref", "err")},
+                {60, 33, 8, concatSymbols(expSymbolNames, "x", "e", "s")}
         };
     }
 

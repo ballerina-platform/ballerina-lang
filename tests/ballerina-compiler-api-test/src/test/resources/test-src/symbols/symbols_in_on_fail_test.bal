@@ -40,22 +40,6 @@ function testLockOnFail(){
     }
 }
 
-function testRetryOnFail() returns error? {
-    string str = "string";
-    int count = 0;
-    error er = error error:Retriable("Error");
-    retry {
-        count = count + 1;
-        if (count < 5) {
-            str += "retry";
-        }
-        str = "value";
-        fail er;
-    } on fail error e {
-        error ref = e;
-    }
-}
-
 function testMatchOnFail(any val) {
     match val {
         var x => {
@@ -66,18 +50,6 @@ function testMatchOnFail(any val) {
         }
     } on fail error err {
         error errRef = err;
-    }
-}
-
-function testTransactionOnFail() {
-    transaction {
-        func(2);
-        if true {
-            func(2);
-        }
-        check commit;
-    } on fail error e {
-        string s = e.message() + x.toString();
     }
 }
 

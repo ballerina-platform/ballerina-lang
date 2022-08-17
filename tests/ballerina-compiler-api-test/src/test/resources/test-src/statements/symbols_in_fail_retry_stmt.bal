@@ -42,8 +42,6 @@ function testRetry3() returns error? {
     retry transaction {
         int value = 2000;
         check commit;
-    } on fail error e {
-        fail func2();
     }
 }
 
