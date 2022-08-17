@@ -10,6 +10,7 @@ type Author record {
     string name;
     string country;
     (boolean|int|string)? period;
+    anydata language?;
 };
 
 type BooksItem record {
