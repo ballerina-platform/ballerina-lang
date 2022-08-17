@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const string DATA_PROVIDER_SEPARATOR = "#";
+
 # Possible return types of the data provider function.
 public type DataProviderReturnType error|map<AnyOrError[]>|AnyOrError[][];
 
