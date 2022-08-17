@@ -22,20 +22,42 @@ ReportData reportData = new ();
 
 ReportGenerate[] reportGenerators = [consoleReport, failedTestsReport];
 
-class ReportData {
-    private string[] passed = [];
-    private map<string> failed = {};
-    private string[] skipped = [];
+type ResultData record {|
+    string name;
+    string suffix = "";
+    string message = "";
+|};
 
-    function onPassed(string name) => self.passed.push(name);
-    function onFailed(string name, string errorMessage) {
-        self.failed[name] = errorMessage;
+class Result {
+    private ResultData data;
+
+    function init(ResultData data) {
+        self.data = data;
     }
-    function onSkipped(string name) => self.skipped.push(name);
 
-    function passedCases() returns string[] => self.passed;
-    function failedCases() returns map<string> => self.failed;
-    function skippedCases() returns string[] => self.skipped;
+    function fullName() returns string => self.data.name + DATA_PROVIDER_SEPARATOR + self.data.suffix;
+
+    function isDataProvider() returns boolean => self.data.suffix != "";
+
+    function testPrefix() returns string => self.data.name;
+
+    function testSuffix() returns string => self.data.suffix;
+
+    function message() returns string => self.data.message;
+}
+
+class ReportData {
+    private Result[] passed = [];
+    private Result[] failed = [];
+    private Result[] skipped = [];
+
+    function onPassed(*ResultData result) => self.passed.push(new Result(result));
+    function onFailed(*ResultData result) => self.failed.push(new Result(result));
+    function onSkipped(*ResultData result) => self.skipped.push(new Result(result));
+
+    function passedCases() returns Result[] => self.passed;
+    function failedCases() returns Result[] => self.failed;
+    function skippedCases() returns Result[] => self.skipped;
 
     function passedCount() returns int => self.passed.length();
     function failedCount() returns int => self.failed.length();
@@ -43,10 +65,10 @@ class ReportData {
 }
 
 function consoleReport(ReportData data) {
-    data.passedCases().forEach(entry => println("\t\t[pass] " + entry));
-    data.failedCases().entries().forEach(function([string, string] entry) {
-        println("\t\t[fail] " + entry[0] + ":");
-        println("\n\t\t    " + formatFailedError(entry[1]));
+    data.passedCases().forEach(entry => println("\t\t[pass] " + entry.fullName()));
+    data.failedCases().forEach(function(Result entry) {
+        println("\t\t[fail] " + entry.fullName() + ":");
+        println("\n\t\t    " + formatFailedError(entry.message()));
     });
 
     println("\t\t" + data.passedCount().toString() + " passing");
@@ -61,7 +83,19 @@ function formatFailedError(string message) returns string {
 }
 
 function failedTestsReport(ReportData data) {
-    error? err = writeContentToJson(data.failedCases().keys(), projectTargetPath + "/" + RERUN_TEST_JSON);
+    string[] subTestNames = [];
+    string[] testNames = [];
+    foreach Result result in data.failedCases() {
+        string testPrefix = result.testPrefix();
+        if result.isDataProvider() {
+            testNames.push(testPrefix);
+            subTestNames.push(result.fullName());
+        } else {
+            testNames.push(testPrefix);
+        }
+    }
+
+    error? err = writeToRerunJson(testNames, subTestNames, projectTargetPath + "/" + RERUN_TEST_JSON);
     if err is error {
         println(err.message());
     }

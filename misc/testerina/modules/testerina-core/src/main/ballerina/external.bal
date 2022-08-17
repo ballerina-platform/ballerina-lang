@@ -52,14 +52,15 @@ isolated function getBallerinaStringArray(handle h) returns string[] = @java:Met
     paramTypes:["[Ljava.lang.String;"]
 } external;
 
-isolated function writeContentToJson(string[] content, string filePath) returns error? = @java:Method {
-    'class:"org.ballerinalang.testerina.natives.io.JsonUtils",
-    name:"writeArrayToFile"
+isolated function writeToRerunJson(string[] testNames, string[] subTestNames, string filePath) 
+    returns error? = @java:Method {
+    'class:"org.ballerinalang.testerina.natives.io.RerunJson",
+    name:"writeContent"
 } external;
 
-isolated function readContentFromJson(string filePath) returns string[]|error = @java:Method {
-    'class:"org.ballerinalang.testerina.natives.io.JsonUtils",
-    name:"readArrayFromFile"
+isolated function readFromRerunJson(string filePath) returns json[]|error = @java:Method {
+    'class:"org.ballerinalang.testerina.natives.io.RerunJson",
+    name:"readContent"
 } external;
 
 isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {

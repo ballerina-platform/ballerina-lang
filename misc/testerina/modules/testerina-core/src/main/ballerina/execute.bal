@@ -42,12 +42,12 @@ function executeTest(TestFunction testFunction) {
     }
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
-        reportData.onFailed(testFunction.name, diagnoseError.message());
+        reportData.onFailed(name = testFunction.name, message = diagnoseError.message());
         return;
     }
-    if testFunction.dependsOnCount > 0 {
+    if testFunction.dependsOnCount > 1 {
         testFunction.dependsOnCount -= 1;
-        return;        
+        return;
     }
 
     executeBeforeGroupFunctions(testFunction);
@@ -58,14 +58,14 @@ function executeTest(TestFunction testFunction) {
         DataProviderReturnType? params = testFunction.params;
         if params is map<AnyOrError[]> {
             foreach [string, AnyOrError[]] entry in params.entries() {
-                if executeDataDrivenTest(testFunction, testFunction.name + "#" + entry[0], entry[1]) {
+                if executeDataDrivenTest(testFunction, entry[0], entry[1]) {
                     break;
                 }
             }
         } else if params is AnyOrError[][] {
             int i = 0;
             foreach AnyOrError[] entry in params {
-                if executeDataDrivenTest(testFunction, testFunction.name + "#" + i.toString(), entry) {
+                if executeDataDrivenTest(testFunction, i.toString(), entry) {
                     break;
                 }
                 i += 1;
@@ -73,11 +73,11 @@ function executeTest(TestFunction testFunction) {
         } else {
             ExecutionError? err = executeTestFunction(testFunction, testFunction.name);
             if err is ExecutionError {
-                reportData.onFailed(testFunction.name, err.message());
+                reportData.onFailed(name = testFunction.name, message = err.message());
             }
         }
     } else {
-        reportData.onSkipped(testFunction.name);
+        reportData.onSkipped(name = testFunction.name);
     }
 
     testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
@@ -166,10 +166,18 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
     }
 }
 
-function executeDataDrivenTest(TestFunction testFunction, string name, AnyOrError[] params) returns boolean {
-    ExecutionError? err = executeTestFunction(testFunction, name, params);
+function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrError[] params) returns boolean {
+    if hasFilteredTests {
+        int? testIndex = filterSubTasks.indexOf(testFunction.name + DATA_PROVIDER_SEPARATOR + suffix);
+        if testIndex is int {
+            _ = filterSubTasks.remove(testIndex);
+        } else {
+            return false;
+        }
+    }
+    ExecutionError? err = executeTestFunction(testFunction, suffix, params);
     if err is ExecutionError {
-        reportData.onFailed(testFunction.name, "[fail data provider for the function " + testFunction.name
+        reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
             + "]\n" + getErrorMessage(err));
         return true;
     }
@@ -187,13 +195,13 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function executeTestFunction(TestFunction testFunction, string name, AnyOrError[]? params = ()) returns ExecutionError? {
+function executeTestFunction(TestFunction testFunction, string suffix, AnyOrError[]? params = ()) returns ExecutionError? {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is TestError {
-        reportData.onFailed(name, getErrorMessage(output));
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output));
     } else if output is any {
-        reportData.onPassed(name);
+        reportData.onPassed(name = testFunction.name, suffix = suffix);
     } else {
         return error(getErrorMessage(output), functionName = testFunction.name);
     }

@@ -17,6 +17,7 @@
 string[] filterGroups = [];
 string[] filterDisableGroups = [];
 string[] filterTests = [];
+string[] filterSubTasks = [];
 boolean hasFilteredTests = false;
 string projectTargetPath = "";
 
@@ -33,12 +34,13 @@ public function setTestOptions(string targetPath, string jacocoAgentJarPath, str
     }
 
     if rerunFailedBoolean {
-        string[]|error output = readContentFromJson(projectTargetPath + RERUN_TEST_JSON);
+        json[]|error output = readFromRerunJson(projectTargetPath + RERUN_TEST_JSON);
         if output is error {
             println("Unable to read the 'rerun_test.json'");
             return;
         } else {
-            filterTests = output;
+            filterTests = <string[]>output[0];
+            filterSubTasks = <string[]>output[1];
         }
     } else {
         filterTests = parseStringArrayInput(tests);
