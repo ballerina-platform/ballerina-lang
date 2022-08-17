@@ -110,7 +110,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 String sortText;
                 if (SortingUtil.isTypeCompletionItem(lsItem)) {
                     sortText = genSortText(1);
-                } else if (SortingUtil.isModuleCompletionItem(lsItem)) {
+                } else if (SortingUtil.isModuleCompletionItem(lsItem)
+                        && !SortingUtil.isLangLibModuleCompletionItem(lsItem)) {
                     sortText = genSortText(2) + genSortTextForModule(context, lsItem);
                 } else {
                     sortText = genSortText(3);
