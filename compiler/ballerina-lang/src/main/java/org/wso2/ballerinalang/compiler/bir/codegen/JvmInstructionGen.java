@@ -51,7 +51,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
@@ -248,6 +250,8 @@ public class JvmInstructionGen {
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
     private final JvmTypeTestGen typeTestGen;
+    private final Map<String, String> functions;
+
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
@@ -262,6 +266,7 @@ public class JvmInstructionGen {
         this.jvmCastGen = jvmCastGen;
         this.jvmConstantsGen = jvmConstantsGen;
         typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen);
+        this.functions = new HashMap<>();
     }
 
     static void addJUnboxInsn(MethodVisitor mv, JType jType) {
@@ -1715,8 +1720,12 @@ public class JvmInstructionGen {
         this.mv.visitInsn(DUP);
 
         String name = inst.funcName.value;
-        String lambdaName = Utils.encodeFunctionIdentifier(name) + "$lambda" +
-                asyncDataCollector.getLambdaIndex() + "$";
+
+        String funcKey = inst.pkgId.toString() + ":" + name;
+        String lambdaName = functions.containsKey(funcKey) ? functions.get(funcKey) :
+                Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" + asyncDataCollector.getLambdaIndex() +
+                        "$";
+
         asyncDataCollector.incrementLambdaIndex();
 
         BType type = JvmCodeGenUtil.getReferredType(inst.type);
@@ -1763,6 +1772,7 @@ public class JvmInstructionGen {
 
         this.storeToVar(inst.lhsOp.variableDcl);
         asyncDataCollector.add(lambdaName, inst);
+        functions.put(funcKey, lambdaName);
     }
 
     void generateNewXMLElementIns(BIRNonTerminator.NewXMLElement newXMLElement) {
