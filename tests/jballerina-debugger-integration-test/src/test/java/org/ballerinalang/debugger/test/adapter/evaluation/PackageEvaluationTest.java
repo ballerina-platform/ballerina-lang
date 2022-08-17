@@ -111,14 +111,14 @@ public class PackageEvaluationTest extends ExpressionEvaluationTest {
 
         // Todo - move to common evaluation test suite after fixing the value string
         debugTestRunner.assertExpression(context, GLOBAL_VAR_03,
-                "(debug_test_resources/evaluation_tests:0:$anonType$_10 & readonly)",
+                "(debug_test_resources/evaluation_tests:0:$anonType$nameMap$_0 & readonly)",
                 "record");
 
         // with qualified variable references (i.e. imported modules)
         debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "other:publicModuleVariable", "\"public\"", "string");
         debugTestRunner.assertExpression(context, "other:constMap",
-                "(debug_test_resources/evaluation_tests.other:0:$anonType$_3 & readonly)",
+                "(debug_test_resources/evaluation_tests.other:0:$anonType$constMap$_0 & readonly)",
                 "record");
     }
 }

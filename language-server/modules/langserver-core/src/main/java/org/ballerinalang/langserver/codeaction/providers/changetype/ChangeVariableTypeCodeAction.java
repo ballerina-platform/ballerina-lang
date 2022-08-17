@@ -65,17 +65,17 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
 
         Optional<TypeSymbol> foundType;
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
@@ -115,7 +115,8 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(PositionUtil.toRange(typeNode.get().lineRange()), type));
             String commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
-            actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
+            actions.add(CodeActionUtil
+                    .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;
     }

@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
     private  WorkspaceManager workspaceManager;
@@ -84,16 +84,22 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
-        Position pos = testConfig.position;
-        diags = diags.stream().
-                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
+        Range range = testConfig.range;
+        if (range == null) {
+            Position pos = testConfig.position;
+            range = new Range(pos, pos);
+        }
+
+        Range finalRange = range;
+        diags = diags.stream()
+                .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
-        Range range = new Range(pos, pos);
-        String res = getResponse(sourcePath, range, codeActionContext);
+        String res = getResponse(sourcePath, finalRange, codeActionContext);
 
         List<CodeActionObj> mismatchedCodeActions = new ArrayList<>();
+        int matchedCodeActionsCount = 0;
         for (CodeActionObj expected : testConfig.expected) {
             // Create an object to keep track of the actual code action received
             CodeActionObj actual = new CodeActionObj();
@@ -111,7 +117,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 if (!expected.title.equals(actualTitle)) {
                     continue;
                 }
-
+                matchedCodeActionsCount++;
                 // We have to make sure the title is a match since we are checking against all the
                 // code actions received.
                 actual.title = actualTitle;
@@ -188,12 +194,21 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         }
         TestUtil.closeDocument(getServiceEndpoint(), sourcePath);
 
-        String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
+        String cursorStartStr = range.getStart().getLine() + ":" + range.getStart().getCharacter();
+        String cursorEndStr = range.getEnd().getLine() + ":" + range.getEnd().getCharacter();
         if (!mismatchedCodeActions.isEmpty()) {
 //            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
-            Assert.fail(String.format("Cannot find expected code action(s) for: '%s', cursor at [%s] in '%s': %s",
+            Assert.fail(
+                    String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
                     Arrays.toString(mismatchedCodeActions.toArray()),
-                    cursorStr, sourcePath, testConfig.description));
+                    cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
+        }
+
+        if (matchedCodeActionsCount != testConfig.expected.size()) {
+            Assert.fail(
+                    String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
+                    Arrays.toString(mismatchedCodeActions.toArray()),
+                    cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
         }
     }
 
@@ -217,14 +232,18 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
-        Position pos = testConfig.position;
-        diags = diags.stream().
-                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
+        Range range = testConfig.range;
+        if (range == null) {
+            Position position = testConfig.position;
+            range = new Range(position, position);
+        }
+        Range finalRange = range;
+        diags = diags.stream()
+                .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
-        Range range = new Range(pos, pos);
-        String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), range, codeActionContext);
+        String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), finalRange, codeActionContext);
         for (CodeActionObj expected : testConfig.expected) {
             JsonObject responseJson = this.getResponseJson(res);
             for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
@@ -253,7 +272,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         responseJson.remove("id");
         return responseJson;
     }
-    
+
     @BeforeClass
     public void setup() {
         workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
@@ -286,7 +305,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     public abstract Object[][] dataProvider();
 
     public abstract String getResourceDir();
-    
+
     @AfterClass
     public void cleanUp() {
         this.serverContext = null;
@@ -297,6 +316,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
      * Represents a code action test config.
      */
     static class TestConfig {
+        Range range;
         Position position;
         String source;
         List<CodeActionObj> expected;
