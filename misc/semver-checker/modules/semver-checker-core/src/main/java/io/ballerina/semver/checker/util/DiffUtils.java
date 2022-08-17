@@ -22,12 +22,14 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.semver.checker.diff.ClassDiff;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
+import io.ballerina.semver.checker.diff.EnumDiff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.ModuleConstantDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
 import io.ballerina.semver.checker.diff.ModuleVarDiff;
 import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeListDiff;
+import io.ballerina.semver.checker.diff.ObjectFieldDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
 import io.ballerina.semver.checker.diff.SemverImpact;
 import io.ballerina.semver.checker.diff.ServiceDiff;
@@ -159,6 +161,23 @@ public class DiffUtils {
     }
 
     /**
+     * Returns whether the provided diff instance belongs to a Ballerina module-level entity.
+     *
+     * @param diff diff instance
+     * @return true if the provided diff instance belongs to a Ballerina module-level entity
+     */
+    public static boolean isModuleLevelDiff(Diff diff) {
+        return diff instanceof FunctionDiff
+                || diff instanceof ServiceDiff
+                || diff instanceof ModuleVarDiff
+                || diff instanceof ModuleConstantDiff
+                || diff instanceof ClassDiff
+                || diff instanceof ObjectFieldDiff
+                || diff instanceof TypeDefinitionDiff
+                || diff instanceof EnumDiff;
+    }
+
+    /**
      * Retrieves package name of the given {@link PackageDiff} instance.
      *
      * @param packageDiff PackageDiff instance
@@ -256,6 +275,8 @@ public class DiffUtils {
             return getModuleClassName((ClassDiff) diff);
         } else if (diff instanceof TypeDefinitionDiff) {
             return getModuleTypeDefName((TypeDefinitionDiff) diff);
+        } else if (diff instanceof EnumDiff) {
+            return getModuleEnumName((EnumDiff) diff);
         } else {
             return UNKNOWN;
         }
@@ -277,6 +298,8 @@ public class DiffUtils {
             return "class";
         } else if (diff instanceof TypeDefinitionDiff) {
             return "type definition";
+        } else if (diff instanceof EnumDiff) {
+            return "enum declaration";
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
             if (functionDiff.isResource()) {
@@ -305,6 +328,8 @@ public class DiffUtils {
         } else if (diff instanceof ClassDiff) {
             return " ".repeat(4);
         } else if (diff instanceof TypeDefinitionDiff) {
+            return " ".repeat(4);
+        } else if (diff instanceof EnumDiff) {
             return " ".repeat(4);
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
@@ -405,6 +430,21 @@ public class DiffUtils {
             return SyntaxTreeUtils.getTypeDefIdentifier(typeDefinitionDiff.getNewNode().get());
         } else if (typeDefinitionDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getTypeDefIdentifier(typeDefinitionDiff.getOldNode().get());
+        } else {
+            return UNKNOWN;
+        }
+    }
+
+    /**
+     * Retrieves name of the given {@link EnumDiff} instance.
+     *
+     * @param enumDiff enum declaration diff instance
+     */
+    private static String getModuleEnumName(EnumDiff enumDiff) {
+        if (enumDiff.getNewNode().isPresent()) {
+            return SyntaxTreeUtils.getEnumIdentifier(enumDiff.getNewNode().get());
+        } else if (enumDiff.getOldNode().isPresent()) {
+            return SyntaxTreeUtils.getEnumIdentifier(enumDiff.getOldNode().get());
         } else {
             return UNKNOWN;
         }

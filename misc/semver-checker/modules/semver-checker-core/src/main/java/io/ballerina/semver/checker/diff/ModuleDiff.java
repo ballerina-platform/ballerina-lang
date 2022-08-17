@@ -77,12 +77,6 @@ public class ModuleDiff extends DiffImpl {
         return super.getType();
     }
 
-    public List<FunctionDiff> getFunctionDiffs() {
-        return childDiffs.stream().filter(iDiff -> iDiff instanceof FunctionDiff)
-                .map(iDiff -> (FunctionDiff) iDiff)
-                .collect(Collectors.toUnmodifiableList());
-    }
-
     /**
      * Module diff builder implementation.
      */
