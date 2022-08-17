@@ -8675,7 +8675,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fieldAccessExpr.originalType = actualType;
             if (actualType == symTable.semanticError) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
-                        fieldName, varRefType.tsymbol.type.getKind().typeName(), varRefType);
+                        fieldName,
+                        varRefType.getKind() == TypeKind.UNION ? "union" : varRefType.getKind().typeName(), varRefType);
             }
         } else if (types.isLax(varRefType)) {
             if (fieldAccessExpr.isLValue) {
@@ -9153,8 +9154,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
             }
 
-            BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
-            LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
+            LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tuple, new LinkedHashSet<>());
             return tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
         }
 
@@ -9230,6 +9230,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         memberTypes.add(memberType);
                     }
                 });
+        BType tupleRestType = tupleType.restType;
+        if (tupleRestType != null) {
+            memberTypes.add(tupleRestType);
+        }
         return memberTypes;
     }
 
