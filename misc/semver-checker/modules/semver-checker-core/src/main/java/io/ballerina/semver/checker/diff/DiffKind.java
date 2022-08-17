@@ -50,7 +50,11 @@ public enum DiffKind {
     OBJECT_FIELD_EXPR("object field expression"),
 
     TYPE_DEFINITION("type definition"),
-    TYPE_DESCRIPTOR("type descriptor");
+    TYPE_DESCRIPTOR("type descriptor"),
+
+    ENUM("enum declaration"),
+    ENUM_MEMBER_ANNOTATION("enum member annotation"),
+    ENUM_MEMBER_EXPR("enum member expression");
 
     public final String name;
 
