@@ -204,6 +204,26 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '(Department & readonly)', found 'Department'", 283, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
                 "found '([string,int]|[string,int]|[string,int]|[string,int])'", 286, 48);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,float[]]', found '[string:Char,int[]]'", 289, 63);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int[] & readonly)]', found '[string:Char,int[]]'", 291, 72);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar1]', found 'FooBar1'", 302, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar2]', found 'FooBar2'", 305, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar3]', found 'FooBar3[2]'", 308, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar4]', found 'FooBar4[2]'", 311, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar5]', found 'FooBar5[2]'", 314, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int|float)]', found '[FooBar3,(int|float)]'", 317, 66);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int|float)]', found '[FooBar4,(int|float)]'", 320, 66);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int|float)]', found '[FooBar5,(int|float)]'", 323, 66);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -318,6 +338,11 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testReadonlyMap2() {
         BRunUtil.invoke(result, "testReadonlyMap2");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithStringSubtypes() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithStringSubtypes");
     }
 
     @AfterClass
