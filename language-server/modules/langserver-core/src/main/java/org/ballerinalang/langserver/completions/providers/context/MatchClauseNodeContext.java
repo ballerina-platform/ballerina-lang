@@ -53,6 +53,14 @@ public class MatchClauseNodeContext extends MatchStatementContext<MatchClauseNod
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else if (onSuggestIfClause(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IF.get()));
+        } else if (onSuggestionsAfterDoubleArrow(context, node)) {
+            /*
+            Handles the following
+            eg: match v {
+                    1 => <cursor>
+                }
+             */
+            return completionItems;
         } else {
             completionItems.addAll(this.getPatternClauseCompletions(context));
         }
@@ -60,11 +68,16 @@ public class MatchClauseNodeContext extends MatchStatementContext<MatchClauseNod
 
         return completionItems;
     }
-    
+
+    private boolean onSuggestionsAfterDoubleArrow(BallerinaCompletionContext context, MatchClauseNode node) {
+        return context.getCursorPositionInTree() >= node.rightDoubleArrow().textRange().endOffset();
+    }
+
     private boolean onSuggestIfClause(BallerinaCompletionContext context, MatchClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         SeparatedNodeList<Node> matchPatterns = node.matchPatterns();
         
-        return !matchPatterns.isEmpty() && cursor > matchPatterns.get(matchPatterns.size() - 1).textRange().endOffset();
+        return !matchPatterns.isEmpty() && cursor > matchPatterns.get(matchPatterns.size() - 1).textRange().endOffset()
+                && cursor <= node.rightDoubleArrow().textRange().startOffset();
     }
 }
