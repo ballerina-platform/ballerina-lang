@@ -84,7 +84,7 @@ public final class FunctionCompletionItemBuilder {
         setMeta(item, functionSymbol, context);
         if (functionSymbol != null && functionSymbol.getName().isPresent()) {
             if (functionSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
-                return ResourcePathCompletionUtil.build((ResourceMethodSymbol) functionSymbol, context);
+                return ResourcePathCompletionItemBuilder.build((ResourceMethodSymbol) functionSymbol, context);
             }
             String funcName = functionSymbol.getName().get();
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
@@ -325,9 +325,17 @@ public final class FunctionCompletionItemBuilder {
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
-    
+
+    /**
+     * Given a path parameter symbol generates the corresponding 
+     * resource access action's syntax part.
+     * 
+     * @param param path parameter symbol
+     * @param ctx completion context
+     * @return {@link Optional<String>} signature part
+     */
     public static Optional<String> getFunctionParameterSyntax(PathParameterSymbol param,
-                                                               BallerinaCompletionContext ctx) {
+                                                              BallerinaCompletionContext ctx) {
 
         if (param.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
             ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();

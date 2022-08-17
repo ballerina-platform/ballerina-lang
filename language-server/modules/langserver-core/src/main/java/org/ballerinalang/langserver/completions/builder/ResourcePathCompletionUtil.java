@@ -25,17 +25,12 @@ import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
-import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.TextEdit;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,59 +39,12 @@ import java.util.stream.Collectors;
 /**
  * Builder for ClientResourceAccessAction completion items.
  *
- * @since 2201.2.1
+ * @since 2201.2.0
  */
 public class ResourcePathCompletionUtil {
 
     /**
-     * Creates and returns a completion item.
-     *
-     * @param functionSymbol resourceMethodSymbol
-     * @param context        LS context
-     * @return {@link CompletionItem}
-     */
-    public static CompletionItem build(ResourceMethodSymbol functionSymbol, BallerinaCompletionContext context) {
-        Pair<String, String> functionSignature = ResourcePathCompletionUtil
-                .getResourceAccessSignature(functionSymbol, context);
-        CompletionItem item = build(functionSymbol, functionSignature, context);
-        item.setFilterText(getFilterTextForResourceMethod(functionSymbol));
-        return item;
-    }
-
-    /**
-     * Creates and returns a completion item.
-     *
-     * @param resourceMethodSymbol resource method symbol.
-     * @param segments             path segments.
-     * @param context              LS context
-     * @return {@link CompletionItem}
-     */
-    public static CompletionItem build(ResourceMethodSymbol resourceMethodSymbol,
-                                       List<PathSegment> segments,
-                                       BallerinaCompletionContext context) {
-        Pair<String, String> functionSignature = ResourcePathCompletionUtil
-                .getResourceAccessSignature(resourceMethodSymbol, context, segments);
-        CompletionItem item = build(resourceMethodSymbol, functionSignature, context);
-        item.setFilterText(getFilterTextForResourceMethod(resourceMethodSymbol, segments));
-        return item;
-    }
-
-    private static CompletionItem build(ResourceMethodSymbol resourceMethodSymbol,
-                                        Pair<String, String> functionSignature,
-                                        BallerinaCompletionContext context) {
-
-        CompletionItem item = new CompletionItem();
-        FunctionCompletionItemBuilder.setMeta(item, resourceMethodSymbol, context);
-        item.setLabel(functionSignature.getRight());
-        item.setInsertText(functionSignature.getLeft());
-
-        //Add additional text edits
-        checkAndSetAdditionalTextEdits(item, context);
-        return item;
-    }
-
-    /**
-     * Check if the cursor is positioned with in the method call context of client resource access action node.
+     * Check if the cursor is positioned within the method call context of client resource access action node.
      *
      * @param node    client resource access action node.
      * @param context completion context
@@ -108,50 +56,13 @@ public class ResourcePathCompletionUtil {
                 && node.dotToken().get().textRange().endOffset() <= context.getCursorPositionInTree();
     }
 
-    private static void checkAndSetAdditionalTextEdits(CompletionItem item,
-                                                       BallerinaCompletionContext context) {
-        //Check and replace preceding slash token and dot
-        Token token = null;
-        Optional<ClientResourceAccessActionNode> node = findClientResourceAccessActionNode(context);
-        if (node.isPresent()) {
-            if (isInMethodCallContext(node.get(), context)) {
-                if (node.get().resourceAccessPath().isEmpty()
-                        && !node.get().slashToken().isMissing()
-                        && node.get().dotToken().isPresent()) {
-                    //Covers /.<cursor>
-                    item.setAdditionalTextEdits(
-                            List.of(new TextEdit(PositionUtil.toRange(node.get().slashToken().lineRange()), ""),
-                                    new TextEdit(PositionUtil.toRange(node.get().dotToken().get().lineRange()), "")));
-                    return;
-                }
-                //dot token's presence is ensured at this point.
-                token = node.get().dotToken().get();
-            } else {
-                //else replace the last slash token
-                SeparatedNodeList<Node> nodes = node.get().resourceAccessPath();
-                if (nodes.separatorSize() > 0
-                        && nodes.getSeparator(nodes.separatorSize() - 1).textRange().endOffset()
-                        <= context.getCursorPositionInTree()) {
-                    token = nodes.getSeparator(nodes.separatorSize() - 1);
-                } else if (nodes.separatorSize() == 0 && !node.get().slashToken().isMissing()) {
-                    token = node.get().slashToken();
-                }
-            }
-        }
-        //Avoid replacing if there are any path parameters specified by the
-        // user after the token.
-        Token finalToken = token;
-        if (finalToken != null && node.get().resourceAccessPath().stream()
-                .noneMatch(child -> child.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT
-                        && finalToken.textRange().startOffset() <= child.textRange().startOffset())) {
-            TextEdit edit = new TextEdit();
-            edit.setNewText("");
-            edit.setRange(PositionUtil.toRange(token.lineRange()));
-            item.setAdditionalTextEdits(List.of(edit));
-        }
-    }
-
-    private static Optional<ClientResourceAccessActionNode> findClientResourceAccessActionNode(
+    /**
+     * Finds the client resource access action node based on cursor position.
+     *
+     * @param context completion context.
+     * @return client resource access action node
+     */
+    public static Optional<ClientResourceAccessActionNode> findClientResourceAccessActionNode(
             BallerinaCompletionContext context) {
         Node evalNode = context.getNodeAtCursor();
         while (evalNode != null) {
@@ -164,38 +75,14 @@ public class ResourcePathCompletionUtil {
     }
 
     /**
-     * Creates and returns a completion item corresponding to the
-     * method call expression of the resource function.
-     *
-     * @param resourceMethodSymbol resource method symbol.
-     * @param context              LS context
-     * @return {@link CompletionItem}
-     */
-    public static CompletionItem buildMethodCallExpression(ResourceMethodSymbol resourceMethodSymbol,
-                                                           BallerinaCompletionContext context) {
-        CompletionItem item = new CompletionItem();
-        FunctionCompletionItemBuilder.setMeta(item, resourceMethodSymbol, context);
-        String functionName = resourceMethodSymbol.getName().orElse("");
-        String escapedFunctionName = CommonUtil.escapeEscapeCharsInIdentifier(functionName);
-        StringBuilder signature = new StringBuilder();
-        StringBuilder insertText = new StringBuilder();
-        addResourceMethodCallSignature(resourceMethodSymbol, context, escapedFunctionName, signature, insertText, 1);
-        item.setLabel(signature.toString());
-        item.setInsertText(insertText.toString());
-        item.setFilterText(resourceMethodSymbol.getName().orElse(""));
-        checkAndSetAdditionalTextEdits(item, context);
-        return item;
-    }
-
-    /**
      * Get the resource access action signature.
      *
      * @param resourceMethodSymbol ballerina resource method symbol instance
      * @param ctx                  Language Server Operation context
      * @return {@link Pair} of insert text(left-side) and signature label(right-side)
      */
-    private static Pair<String, String> getResourceAccessSignature(ResourceMethodSymbol resourceMethodSymbol,
-                                                                   BallerinaCompletionContext ctx) {
+    public static Pair<String, String> getResourceAccessSignature(ResourceMethodSymbol resourceMethodSymbol,
+                                                                  BallerinaCompletionContext ctx) {
         String functionName = resourceMethodSymbol.getName().orElse("");
         String escapedFunctionName = CommonUtil.escapeEscapeCharsInIdentifier(functionName);
         if (functionName.isEmpty()) {
@@ -220,9 +107,9 @@ public class ResourcePathCompletionUtil {
      * @param segments             path segments.
      * @return {@link Pair} of insert text(left-side) and signature label(right-side)
      */
-    private static Pair<String, String> getResourceAccessSignature(ResourceMethodSymbol resourceMethodSymbol,
-                                                                   BallerinaCompletionContext ctx,
-                                                                   List<PathSegment> segments) {
+    public static Pair<String, String> getResourceAccessSignature(ResourceMethodSymbol resourceMethodSymbol,
+                                                                  BallerinaCompletionContext ctx,
+                                                                  List<PathSegment> segments) {
         String functionName = resourceMethodSymbol.getName().orElse("");
         String escapedFunctionName = CommonUtil.escapeEscapeCharsInIdentifier(functionName);
         if (functionName.isEmpty()) {
@@ -239,10 +126,24 @@ public class ResourcePathCompletionUtil {
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
 
-    private static void addResourceMethodCallSignature(ResourceMethodSymbol resourceMethodSymbol,
-                                                       BallerinaCompletionContext ctx,
-                                                       String escapedFunctionName, StringBuilder signature,
-                                                       StringBuilder insertText, int placeHolderIndex) {
+    /**
+     * Add the call expression part to a given client resource access action.
+     *
+     * @param resourceMethodSymbol resource method symbol
+     * @param ctx                  completion context
+     * @param escapedFunctionName  escaped function name
+     * @param signature            signature of the completion item
+     * @param insertText           insert text of the completion item
+     * @param placeHolderIndex     next place holder index
+     */
+    public static void addResourceMethodCallSignature(ResourceMethodSymbol resourceMethodSymbol,
+                                                      BallerinaCompletionContext ctx,
+                                                      String escapedFunctionName, StringBuilder signature,
+                                                      StringBuilder insertText, int placeHolderIndex) {
+        /*
+            Covers 
+            cl-> /path1.<post()> part of the client resource access action.
+         */
         if (resourceMethodSymbol.resourcePath().kind() == ResourcePath.Kind.DOT_RESOURCE_PATH) {
             signature.append("/");
             insertText.append("/");
@@ -255,8 +156,28 @@ public class ResourcePathCompletionUtil {
         List<String> funcArguments = CommonUtil.getFuncArguments(resourceMethodSymbol, ctx);
         if (!funcArguments.isEmpty()) {
             signature.append("(").append(String.join(", ", funcArguments)).append(")");
-            insertText.append("(${" + placeHolderIndex + "})");
+            insertText.append("(${").append(placeHolderIndex).append("})");
         }
+    }
+
+    /**
+     * Generate filter text for client resource access action completion item.
+     *
+     * @param resourceMethodSymbol resource method symbol
+     * @param segments             path segments of the client resource access action
+     * @return {@link String}
+     */
+    public static String getFilterTextForClientResourceAccessAction(ResourceMethodSymbol resourceMethodSymbol,
+                                                                    List<PathSegment> segments) {
+        ResourcePath resourcePath = resourceMethodSymbol.resourcePath();
+        if (resourcePath.kind() == ResourcePath.Kind.DOT_RESOURCE_PATH
+                || resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
+            return resourceMethodSymbol.getName().orElse("");
+        }
+        return segments.stream()
+                .filter(pathSegment -> pathSegment.pathSegmentKind() == PathSegment.Kind.NAMED_SEGMENT)
+                .map(pathSegment -> ((NamedPathSegment) pathSegment).name()).collect(Collectors.joining("|"))
+                + "|" + resourceMethodSymbol.getName().orElse("");
     }
 
     private static int addPathSegmentsToSignature(BallerinaCompletionContext ctx,
@@ -334,7 +255,7 @@ public class ResourcePathCompletionUtil {
         return Pair.of("", "");
     }
 
-    private static String getFilterTextForResourceMethod(ResourceMethodSymbol resourceMethodSymbol) {
+    static String getFilterTextForClientResourceAccessAction(ResourceMethodSymbol resourceMethodSymbol) {
         ResourcePath resourcePath = resourceMethodSymbol.resourcePath();
         if (resourcePath.kind() == ResourcePath.Kind.DOT_RESOURCE_PATH
                 || resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
@@ -347,16 +268,4 @@ public class ResourcePathCompletionUtil {
                 + "|" + resourceMethodSymbol.getName().orElse("");
     }
 
-    private static String getFilterTextForResourceMethod(ResourceMethodSymbol resourceMethodSymbol,
-                                                         List<PathSegment> segments) {
-        ResourcePath resourcePath = resourceMethodSymbol.resourcePath();
-        if (resourcePath.kind() == ResourcePath.Kind.DOT_RESOURCE_PATH
-                || resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
-            return resourceMethodSymbol.getName().orElse("");
-        }
-        return segments.stream()
-                .filter(pathSegment -> pathSegment.pathSegmentKind() == PathSegment.Kind.NAMED_SEGMENT)
-                .map(pathSegment -> ((NamedPathSegment) pathSegment).name()).collect(Collectors.joining("|"))
-                + "|" + resourceMethodSymbol.getName().orElse("");
-    }
 }
