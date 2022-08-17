@@ -376,6 +376,23 @@ public class TypeBuildersTest {
         };
     }
 
+    @Test(dataProvider = "negativeSingletonTypeBuilderProvider", expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "Type of value provided doesn't match with the provided type symbol")
+    public void testSingletonTypeBuilderNegative(Object value, TypeSymbol valueTypeSymbol) {
+        TypeBuilder builder = types.builder();
+        builder.SINGLETON_TYPE.withValueSpace(value, valueTypeSymbol).build();
+    }
+
+    @DataProvider(name = "negativeSingletonTypeBuilderProvider")
+    private Object[][] getNegativeSingletonTypeBuilders() {
+        return new Object[][] {
+                {5, types.STRING},
+                {"abc", types.INT},
+                {1.5, types.BYTE},
+                {true, types.DECIMAL},
+        };
+    }
+
     @Test(dataProvider = "keySpecifiedTableTypeBuilderProvider")
     public void testKeySpecifiedTableTypeBuilder(String rowTypeDef, List<String> keys, String signature) {
         TypeBuilder builder = types.builder();
