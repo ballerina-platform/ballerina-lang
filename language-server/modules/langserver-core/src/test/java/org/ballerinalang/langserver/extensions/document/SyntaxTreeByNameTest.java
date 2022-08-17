@@ -52,6 +52,12 @@ public class SyntaxTreeByNameTest {
             .resolve("modify")
             .resolve("mainFunction.bal");
 
+    private final Path incorrectFile = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("non-exist.bal");
+
     @BeforeClass
     public void startLanguageServer() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -105,6 +111,17 @@ public class SyntaxTreeByNameTest {
         Assert.assertFalse(syntaxTreeByNameResponse.isParseSuccess());
         TestUtil.closeDocument(this.serviceEndpoint, sameFile);
     }
+
+    @Test(description = "Exception for incorrect file path")
+    public void testExceptionForIncorrectFilePath() throws Exception {
+        TestUtil.openDocument(serviceEndpoint, sameFile);
+        Range range = new Range(new Position(6, 13), new Position(6, 26));
+        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByName(
+                incorrectFile.toString(), range, this.serviceEndpoint);
+        Assert.assertFalse(syntaxTreeByNameResponse.isParseSuccess());
+        TestUtil.closeDocument(this.serviceEndpoint, sameFile);
+    }
+
     @AfterClass
     public void stopLangServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
