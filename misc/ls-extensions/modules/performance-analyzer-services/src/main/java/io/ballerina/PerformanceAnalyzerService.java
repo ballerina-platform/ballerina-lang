@@ -41,6 +41,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static io.ballerina.Constants.ENDPOINT_RESOLVE_ERROR;
 import static io.ballerina.Constants.ERROR;
+import static io.ballerina.Constants.MAIN_WORKER;
 import static io.ballerina.Constants.MESSAGE;
 import static io.ballerina.Constants.NEXT_NODE;
 import static io.ballerina.Constants.NO_DATA;
@@ -153,7 +154,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                 }
 
                 if (workerSupported ? data.getAsJsonObject(ACTION_INVOCATION_KEY).
-                        getAsJsonObject(WORKERS).getAsJsonObject("mainWorker").get(NEXT_NODE).isJsonNull()
+                        getAsJsonObject(WORKERS).getAsJsonObject(MAIN_WORKER).get(NEXT_NODE).isJsonNull()
                         : data.getAsJsonObject(ACTION_INVOCATION_KEY).get(NEXT_NODE).isJsonNull()) {
                     response.setType(ERROR);
                     response.setMessage(NO_DATA);
