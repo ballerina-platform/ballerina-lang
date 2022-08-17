@@ -48,6 +48,7 @@ public class SyntaxTreeByNameTest {
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNotNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, sameFile);
     }
 
@@ -60,6 +61,7 @@ public class SyntaxTreeByNameTest {
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNotNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, projectFile);
     }
 
@@ -72,9 +74,19 @@ public class SyntaxTreeByNameTest {
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNotNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, projectFile);
     }
 
+    @Test(description = "Not Find ST by range in a file")
+    public void testNotFindFunctionInSameFile() throws Exception {
+        TestUtil.openDocument(serviceEndpoint, sameFile);
+        Range range = new Range(new Position(6, 13), new Position(6, 26));
+        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByName(
+                sameFile.toString(), range, this.serviceEndpoint);
+        Assert.assertFalse(syntaxTreeByNameResponse.isParseSuccess());
+        TestUtil.closeDocument(this.serviceEndpoint, sameFile);
+    }
     @AfterClass
     public void stopLangServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
