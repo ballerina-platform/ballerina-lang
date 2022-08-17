@@ -42,7 +42,7 @@ function testfloatSubtract(){
 	float answer2 = floatSubtract(float2, float1);
 
     test:assertEquals(answer1, -10.050, msg = "floatSubstract function failed for minus value");
-	test:assertEquals(answer2, 10.050, msg = "floatSubstract function failed");
+    test:assertEquals(answer2, 10.050, msg = "floatSubstract function failed");
 }
 
 @test:Config {}
