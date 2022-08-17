@@ -262,7 +262,6 @@ public class JsonToRecordMapper {
                     .equals(entry.getValue().getValue1().typeName().toSourceCode()) && !isRecordTypeDesc) {
                 TypeDescriptorNode node1 = (TypeDescriptorNode) entry.getValue().getValue0().typeName();
                 TypeDescriptorNode node2 = (TypeDescriptorNode) entry.getValue().getValue1().typeName();
-                Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
 
                 TypeDescriptorNode nonAnyDataNode = null;
                 boolean alreadyOptionalTypeDesc = false;
@@ -276,6 +275,7 @@ public class JsonToRecordMapper {
                     node2 = (TypeDescriptorNode) optionalTypeDescNode.typeDescriptor();
                     alreadyOptionalTypeDesc = true;
                 } else {
+                    Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
                     if (node1.kind().equals(SyntaxKind.ANYDATA_KEYWORD)) {
                         nonAnyDataNode =
                                 NodeParser.parseTypeDescriptor(node2.toSourceCode() + questionMarkToken.text());
@@ -342,7 +342,7 @@ public class JsonToRecordMapper {
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-                fieldTypeName, fieldName, null, semicolonToken);
+                fieldTypeName, fieldName, optionalFieldToken, semicolonToken);
 
         if (entry.getValue().isJsonPrimitive()) {
             typeName = getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive());
