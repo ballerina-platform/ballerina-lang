@@ -344,7 +344,7 @@ public function testQueryWithStream() returns boolean {
     NumberGenerator numGen = new;
     var numberStream = new stream<int, error?>(numGen);
 
-    int[]|error? oddNumberList = from int num in numberStream
+    int[]|error oddNumberList = from int num in numberStream
                                  where (num % 2 == 1)
                                  select num;
     if (oddNumberList is error) {
@@ -359,7 +359,7 @@ public function testQueryStreamWithError() {
     NumberGeneratorWithError numGen = new;
     var numberStream = new stream<int, error?>(numGen);
 
-    int[]|error? oddNumberList = from int num in numberStream
+    int[]|error oddNumberList = from int num in numberStream
                                 where (num % 2 == 1)
                                 select num;
     if (oddNumberList is error) {
