@@ -67,6 +67,8 @@ import org.eclipse.lsp4j.Range;
 import java.util.HashMap;
 import java.util.Optional;
 
+import static io.ballerina.Constants.MAIN_WORKER;
+
 /**
  * Visitor to discover the program structure.
  *
@@ -585,7 +587,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
         this.workers.values().forEach(ParserUtil::getReducedTree);
         ParserUtil.getReducedTree(this.startNode);
-        this.workers.put("mainWorker", this.startNode);
+        this.workers.put(MAIN_WORKER, this.startNode);
 
         HashMap<String, Object> invocationInfo = new HashMap<>();
         invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);
