@@ -297,7 +297,7 @@ type FooBar3 "foo"|"bar"|1;
 type FooBar4 "foo"|"bar"|float;
 type FooBar5 "foo"|"bar"|1;
 
-function testInvalidTypeInSelectWithQueryConstructingMap5() {
+function testQueryConstructingMapsWithoutStringSubtypeKeys() {
     FooBar1[] list1 = [];
     map<FooBar1>|error mp1 = map from var item in list1 select item;
 
