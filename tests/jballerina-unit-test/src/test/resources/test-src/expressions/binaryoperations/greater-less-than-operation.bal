@@ -1451,13 +1451,40 @@ function testUnorderedTypeComparison30() {
     test:assertFalse(x7);
 }
 
-type Type17 Int1[2]; // ordered type -> [int, int]
+type Type17 Int1[2] & readonly; // ordered type -> [int, int] & readonly
 type Type18 [int?, byte] & readonly; // ordered type -> [int?, byte] & readonly
-// for Type17 and Type18, ordered type can be taken as [int?, int]
+// for Type17 and Type18, ordered type can be taken as [int?, int] & readonly
 
 function testTypeComparison12() {
     Type17 a = [1, 1];
     Type18 b = [1, 1];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertTrue(x2);
+    test:assertTrue(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertTrue(x6);
+    test:assertTrue(x7);
+}
+
+type Type19 [int?[2], byte[2]] & readonly; // ordered type -> [int?, int?] & readonly
+
+function testTypeComparison13() {
+    Type19 a = [[1, 1], [1, 1]];
+    Type19 b = [[1, 1], [1, 1]];
 
     boolean x0 = a > b;
     boolean x1 = b > a;
