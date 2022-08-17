@@ -53,6 +53,11 @@ public class BTupleType extends BType implements TupleType {
         this.tupleTypes = tupleTypes;
     }
 
+    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, long flags) {
+        super(TypeTags.TUPLE, tsymbol, flags);
+        this.tupleTypes = tupleTypes;
+    }
+
     public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol);
         this.tupleTypes = tupleTypes;

@@ -414,7 +414,8 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
             return 0;
         }
         List<Integer> tupleTypesHashes = getOrderedTypesHashes(type.getTupleTypes());
-        Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.flags, type.tsymbol);
+        String h = type.tsymbol != null ? type.tsymbol.name.value : "";
+        Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.flags, h);
         return addToVisited(type, hash);
     }
 

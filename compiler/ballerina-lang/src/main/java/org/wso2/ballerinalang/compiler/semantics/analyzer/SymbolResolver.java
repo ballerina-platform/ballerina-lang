@@ -1443,13 +1443,15 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             memberTypes.add(type);
         }
 
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+        EnumSet<Flag> flags = tupleTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS)
+                : EnumSet.of(Flag.PUBLIC);
+
+        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(flags),
                 Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
 
-        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
+        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes, tupleTypeSymbol.flags);
         tupleTypeSymbol.type = tupleType;
-
         if (tupleTypeNode.restParamType != null) {
             BType tupleRestType = resolveTypeNode(tupleTypeNode.restParamType, data, data.env);
             if (tupleRestType == symTable.noType) {

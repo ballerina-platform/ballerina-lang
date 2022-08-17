@@ -1830,6 +1830,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.memberTypeNodes = cloneList(source.memberTypeNodes);
         clone.restParamType = clone(source.restParamType);
+        clone.isAnonymous = source.isAnonymous;
         cloneBLangType(source, clone);
     }
 

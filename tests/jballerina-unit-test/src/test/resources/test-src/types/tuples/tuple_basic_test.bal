@@ -487,6 +487,9 @@ function testTupleToJSONAssignment() {
      assertEquality(false, K is json);
 }
 
+type TC [int, string...];
+TC tc = [1, "2"];
+
 type T [int, string...];
 
 function testTupleName() returns T {
