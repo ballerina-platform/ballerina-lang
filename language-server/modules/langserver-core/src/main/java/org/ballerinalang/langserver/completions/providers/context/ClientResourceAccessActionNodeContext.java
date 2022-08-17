@@ -44,6 +44,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionUtil;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
@@ -153,14 +154,14 @@ public class ClientResourceAccessActionNodeContext
                     completableSegmentList(resourceMethod, segments,
                             resourcePathSegments, context, node);
             if (completablePathSegments.getRight() && !completablePathSegments.getLeft().isEmpty()) {
-                CompletionItem completionItem = ResourcePathCompletionUtil.build(resourceMethod,
+                CompletionItem completionItem = ResourcePathCompletionItemBuilder.build(resourceMethod,
                         completablePathSegments.getLeft(), context);
                 completionItems.add(new SymbolCompletionItem(context, resourceMethod, completionItem));
             } else if (completablePathSegments.getRight() && ResourcePathCompletionUtil
                     .isInMethodCallContext(node, context)) {
                 //suggest method call expressions
                 CompletionItem completionItem =
-                        ResourcePathCompletionUtil.buildMethodCallExpression(resourceMethod, context);
+                        ResourcePathCompletionItemBuilder.buildMethodCallExpression(resourceMethod, context);
                 completionItems.add(new SymbolCompletionItem(context, resourceMethod, completionItem));
             }
         }
