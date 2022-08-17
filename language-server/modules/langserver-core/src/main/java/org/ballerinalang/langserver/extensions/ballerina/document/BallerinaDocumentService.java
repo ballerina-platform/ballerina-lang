@@ -299,9 +299,6 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeByName(BallerinaSyntaxTreeByNameRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            AtomicReference<String> sourceCode = new AtomicReference<>();
-            AtomicReference<JsonElement> jsonSyntaxTree = new AtomicReference<>();
-            AtomicReference<String> defFilePath = new AtomicReference<>();
             BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
             Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
@@ -325,6 +322,9 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 // Get the symbol of function
                 Optional<Symbol> functionSymbol = semanticModel.get().symbol(srcFile.get(),
                         LinePosition.from(lineValue, charValue));
+                if (functionSymbol.isEmpty()) {
+                    return reply;
+                }
 
                 // Get the file path of the function symbol
                 String functionPath = functionSymbol.get().getLocation().get().lineRange().filePath();
@@ -363,19 +363,17 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
 
                                     // Get the file path of the found node definition
                                     Path defFilePathLocation = PathUtil.getPathFromLocation(module, node.location());
+
                                     // Set the node syntax tree JSON with type info and source code.
-                                    jsonSyntaxTree.set(DiagramUtil.getSyntaxTreeJSON(node, semanticModelNew));
-                                    sourceCode.set(node.toSourceCode());
-                                    defFilePath.set(defFilePathLocation.toUri().toString());
+                                    reply.setSource(node.toSourceCode());
+                                    reply.setSyntaxTree(DiagramUtil.getSyntaxTreeJSON(node, semanticModelNew));
+                                    reply.setParseSuccess(reply.getSyntaxTree() != null);
+                                    reply.setDefFilePath(defFilePathLocation.toUri().toString());
                                 }
                             });
                         }
                     });
                 });
-                reply.setSource(sourceCode.get());
-                reply.setSyntaxTree(jsonSyntaxTree.get());
-                reply.setParseSuccess(reply.getSyntaxTree() != null);
-                reply.setDefFilePath(defFilePath.get());
                 return reply;
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
