@@ -200,9 +200,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     @Override
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
-        if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-            return completionItems;
-        }
         List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
         if (qualifiers.isEmpty()) {
             return completionItems;
