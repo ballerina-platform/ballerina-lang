@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.extensions.document;
 
+import io.ballerina.projects.ProjectException;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -103,6 +104,22 @@ public class SyntaxTreeByNameTest {
         BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByName(
                 sameFile.toString(), range, this.serviceEndpoint);
         Assert.assertFalse(syntaxTreeByNameResponse.isParseSuccess());
+        Assert.assertNull(syntaxTreeByNameResponse.getSyntaxTree());
+        Assert.assertNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNull(syntaxTreeByNameResponse.getDefFilePath());
+        TestUtil.closeDocument(this.serviceEndpoint, sameFile);
+    }
+
+    @Test(description = "Exception for incorrect file path")
+    public void testExceptionForIncorrectFilePath() throws Exception {
+        TestUtil.openDocument(serviceEndpoint, sameFile);
+        Range range = new Range(new Position(6, 13), new Position(6, 26));
+        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByName(
+                incorrectFile.toString(), range, this.serviceEndpoint);
+        Assert.assertFalse(syntaxTreeByNameResponse.isParseSuccess());
+        Assert.assertNull(syntaxTreeByNameResponse.getSyntaxTree());
+        Assert.assertNull(syntaxTreeByNameResponse.getSource());
+        Assert.assertNull(syntaxTreeByNameResponse.getDefFilePath());
         TestUtil.closeDocument(this.serviceEndpoint, sameFile);
     }
 
