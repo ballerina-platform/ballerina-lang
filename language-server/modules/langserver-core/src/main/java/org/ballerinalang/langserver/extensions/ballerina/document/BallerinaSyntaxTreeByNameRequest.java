@@ -33,11 +33,6 @@ public class BallerinaSyntaxTreeByNameRequest {
     public BallerinaSyntaxTreeByNameRequest() {
     }
 
-    public BallerinaSyntaxTreeByNameRequest(TextDocumentIdentifier documentIdentifier, Range lineRange) {
-        this.documentIdentifier = documentIdentifier;
-        this.lineRange = lineRange;
-    }
-
     public TextDocumentIdentifier getDocumentIdentifier() {
         return documentIdentifier;
     }
