@@ -881,18 +881,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return literalType;
     }
 
-
     private BType checkByteArrayType(BLangLiteral literalExpr, BType literalType, AnalyzerData data) {
         byte[] byteArray = Types.convertToByteArray((String) literalExpr.value);
         if (literalExpr.expectedType.tag == TypeTags.ARRAY) {
             return checkByteArrayCompatibility(
-                    literalExpr, (BArrayType) literalExpr.expectedType, (BArrayType) literalType, byteArray);
+                    literalExpr, (BArrayType) literalType, byteArray, data);
         }
         return types.checkType(literalExpr, literalType, data.expType);
     }
 
-    private BType checkByteArrayCompatibility(BLangLiteral literalExpr, BArrayType arrayType, BArrayType literalType,
-                                              byte[] byteArray) {
+    private BType checkByteArrayCompatibility(BLangLiteral literalExpr, BArrayType literalType,
+                                              byte[] byteArray, AnalyzerData data) {
+        BArrayType arrayType = (BArrayType) data.expType;
         if (arrayType.state == BArrayState.INFERRED) {
             arrayType.size = byteArray.length;
             arrayType.state = BArrayState.CLOSED;
@@ -909,7 +909,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             boolean isValidType =
                         types.checkType(literalExpr.pos, symTable.byteType, arrayType.eType,
                                 DiagnosticErrorCode.INCOMPATIBLE_TYPES) != symTable.semanticError;
-            return isValidType ? arrayType : symTable.semanticError;
+            return isValidType ? (BArrayType) ImmutableTypeCloner.getEffectiveImmutableType(literalExpr.pos, types,
+                    literalType, data.env, symTable, anonymousModelHelper, names) : symTable.semanticError;
         }
         return types.checkType(literalExpr, literalType, arrayType);
     }
