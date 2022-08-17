@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -67,5 +68,13 @@ public class ComputedResourceAccessSegmentNodeContext extends
         }
         this.sort(context, node, completionItems);
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ComputedResourceAccessSegmentNode node) {
+        Token openBrace = node.openBracketToken();
+        Token closeBrace = node.closeBracketToken();
+        int cursor = context.getCursorPositionInTree();
+        return openBrace.textRange().startOffset() <= cursor && cursor < closeBrace.textRange().endOffset();
     }
 }
