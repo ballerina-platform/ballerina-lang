@@ -37,7 +37,8 @@
       "author": {
         "name": "Oscar Wilde",
         "country": "England",
-        "period": 123
+        "period": 123,
+        "language": null
       }
     },
     {
