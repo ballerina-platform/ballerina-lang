@@ -39,6 +39,7 @@ import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_MESSAGE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_VERSION_IMPACT;
 import static io.ballerina.semver.checker.util.DiffUtils.getDiffTypeName;
+import static io.ballerina.semver.checker.util.DiffUtils.isModuleLevelDiff;
 import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
@@ -174,9 +175,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
             sb.append(stringifyDiff(this));
         } else {
             // Todo: Add the rest of module-level definition types
-            if (this instanceof FunctionDiff || this instanceof ServiceDiff || this instanceof ModuleVarDiff
-                    || this instanceof ModuleConstantDiff || this instanceof ClassDiff
-                    || this instanceof ObjectFieldDiff || this instanceof TypeDefinitionDiff) {
+            if (isModuleLevelDiff(this)) {
                 sb.append(stringifyDiff(this));
             }
             childDiffs.forEach(diff -> sb.append(diff.getAsString()));
