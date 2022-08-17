@@ -6071,10 +6071,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             if (completionType != null && completionType.tag != TypeTags.NIL) {
-                if (completionType.tag == TypeTags.UNION) {
-                    ((BUnionType) completionType).getMemberTypes().remove(symTable.nilType);
-                }
-                return BUnionType.create(null, actualType, completionType);
+                return BUnionType.create(null, actualType, types.getSafeType(completionType, true, false));
             } else {
                 return actualType;
             }
