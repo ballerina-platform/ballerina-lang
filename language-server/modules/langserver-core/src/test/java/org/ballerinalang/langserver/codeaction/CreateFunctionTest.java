@@ -98,7 +98,7 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionCodeActionInLet2.json"},
                 {"undefinedFunctionCodeActionInLet3.json"},
                 {"undefinedFunctionCodeActionInLet4.json"},
-                // {"undefinedFunctionCodeActionInLet5.json"},
+                {"undefinedFunctionCodeActionInLet5.json"},
 
                 // Module Alias
                 {"projectCreateUndefinedFunctionWithModAlias.json"},
@@ -110,7 +110,7 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"createFunctionCodeActionWithStrands.json"},
                 {"createFunctionCodeActionWithStrands2.json"},
                 {"createFunctionCodeActionWithStrands3.json"},
-                // {"createFunctionCodeActionWithStrands4.json"},
+                {"createFunctionCodeActionWithStrands4.json"},
 
                 // Create function in condition expressions like in if, while
                 {"create_function_in_if_statement1.json"},
