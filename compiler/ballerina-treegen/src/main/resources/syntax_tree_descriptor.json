@@ -4455,6 +4455,105 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "ReDisjunctionNode",
+            "base": "Node",
+            "kind": "RE_DISJUNCTION",
+            "attributes": [
+                {
+                    "name": "reSequence",
+                    "type": "ReSequenceNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "ReSequenceNode",
+            "base": "Node",
+            "kind": "RE_SEQUENCE",
+            "attributes": [
+                {
+                    "name": "reTerm",
+                    "type": "ReTermNode"
+                }
+            ]
+        },
+        {
+            "name": "ReTermNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ReAtomQuantifierNode",
+            "base": "ReTermNode",
+            "kind": "RE_ATOM_QUANTIFIER",
+            "attributes": [
+                {
+                    "name": "reAtom",
+                    "type": "ReAtomNode"
+                },
+                {
+                    "name": "reQuantifier",
+                    "type": "ReQuantifierNode",
+                    "isOptional": "true"
+                }
+            ]
+        },
+        {
+            "name": "ReAtomNode",
+            "base": "Node",
+            "kind": "RE_ATOM",
+            "attributes": [
+                {
+                    "name": "reAtom",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReCharSetNode",
+            "base": "Node",
+            "kind": "RE_CHAR_SET",
+            "attributes": [
+                {
+                    "name": "reCharSet",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReFlagsOnOffNode",
+            "base": "Node",
+            "kind": "RE_FLAGS_ON_OFF",
+            "attributes": [
+                {
+                    "name": "reFlagsOnOff",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReAssertionNode",
+            "base": "ReTermNode",
+            "kind": "RE_ASSERTION",
+            "attributes": [
+                {
+                    "name": "reAssertion",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReQuantifierNode",
+            "base": "Node",
+            "kind": "RE_QUANTIFIER",
+            "attributes": [
+                {
+                    "name": "reBaseQuantifier",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

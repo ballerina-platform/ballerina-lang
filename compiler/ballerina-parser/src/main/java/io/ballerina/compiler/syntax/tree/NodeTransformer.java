@@ -844,6 +844,38 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(resourceAccessRestSegmentNode);
     }
 
+    public T transform(ReDisjunctionNode reDisjunctionNode) {
+        return transformSyntaxNode(reDisjunctionNode);
+    }
+
+    public T transform(ReSequenceNode reSequenceNode) {
+        return transformSyntaxNode(reSequenceNode);
+    }
+
+    public T transform(ReAtomQuantifierNode reAtomQuantifierNode) {
+        return transformSyntaxNode(reAtomQuantifierNode);
+    }
+
+    public T transform(ReAtomNode reAtomNode) {
+        return transformSyntaxNode(reAtomNode);
+    }
+
+    public T transform(ReCharSetNode reCharSetNode) {
+        return transformSyntaxNode(reCharSetNode);
+    }
+
+    public T transform(ReFlagsOnOffNode reFlagsOnOffNode) {
+        return transformSyntaxNode(reFlagsOnOffNode);
+    }
+
+    public T transform(ReAssertionNode reAssertionNode) {
+        return transformSyntaxNode(reAssertionNode);
+    }
+
+    public T transform(ReQuantifierNode reQuantifierNode) {
+        return transformSyntaxNode(reQuantifierNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

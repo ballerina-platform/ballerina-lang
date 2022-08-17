@@ -52,7 +52,6 @@ public class RegExpLexer extends AbstractLexer {
                 token = readTokenInReDisjunction();
                 break;
             case RE_ATOM_CHAR_SET:
-            case RE_CHAR_SET_RANGE:
                 token = readTokenInReCharSet();
                 break;
             case RE_FLAGS:
@@ -106,7 +105,7 @@ public class RegExpLexer extends AbstractLexer {
                 if (this.reader.isEOF()) {
                     reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
                 }
-                return getRegExpText();
+                return getRegExpSyntaxToken(SyntaxKind.PIPE_TOKEN);
             default:
                 break;
         }
@@ -136,24 +135,29 @@ public class RegExpLexer extends AbstractLexer {
         switch (nextChar) {
             case LexerTerminals.BITWISE_XOR:
             case LexerTerminals.DOLLAR:
-                startMode(ParserMode.RE_ASSERTION);
                 this.reader.advance();
-                break;
+                return getRegExpText(SyntaxKind.REGEXP_ASSERTION);
             case LexerTerminals.DOT:
-                startMode(ParserMode.RE_ATOM);
                 this.reader.advance();
-                break;
+                startMode(ParserMode.RE_QUANTIFIER);
+                return getRegExpText(SyntaxKind.REGEXP_ATOM);
             case LexerTerminals.BACKSLASH:
-                processReEscape(false);
-                break;
+                processReEscape();
+                startMode(ParserMode.RE_QUANTIFIER);
+                return getRegExpText(SyntaxKind.REGEXP_ATOM);
             // Handle "[" ["^"] [ReCharSet] "]".
             case LexerTerminals.OPEN_BRACKET:
                 this.reader.advance();
                 startMode(ParserMode.RE_ATOM_CHAR_SET);
                 if (peek() == LexerTerminals.BITWISE_XOR) {
                     this.reader.advance();
+                    return getRegExpSyntaxToken(SyntaxKind.NEGATED_CHAR_CLASS_START_TOKEN);
                 }
-                return getRegExpText();
+                return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+            case LexerTerminals.CLOSE_BRACKET:
+                this.reader.advance();
+                startMode(ParserMode.RE_QUANTIFIER);
+                return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
             // Handle "(" ["?" ReFlagsOnOff ":"] ReDisjunction ")".
             case LexerTerminals.OPEN_PARANTHESIS:
                 if (this.reader.peek(1) == LexerTerminals.QUESTION_MARK) {
@@ -162,36 +166,26 @@ public class RegExpLexer extends AbstractLexer {
                     startMode(ParserMode.RE_ATOM_RE_DISJUNCTION);
                 }
                 this.reader.advance();
-                return getRegExpText();
+                return getRegExpText(SyntaxKind.REGEXP_TEXT);
             case LexerTerminals.CLOSE_PARANTHESIS:
                 this.reader.advance();
                 if (this.mode == ParserMode.RE_ATOM_RE_DISJUNCTION) {
                     endMode();
                     processReBaseQuantifier();
-                    return getRegExpText();
+                    return getRegExpText(SyntaxKind.REGEXP_TEXT);
                 }
                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
-                return getRegExpText();
+                return getRegExpText(SyntaxKind.REGEXP_TEXT);
             default:
                 // Handle ReLiteralChar.
                 if (!isReSyntaxChar(nextChar)) {
-                    startMode(ParserMode.RE_ATOM);
                     this.reader.advance();
-                    break;
+                    startMode(ParserMode.RE_QUANTIFIER);
+                } else {
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
                 }
-                this.reader.advance();
-                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
-                return getRegExpText();
+                return getRegExpText(SyntaxKind.REGEXP_TEXT);
         }
-
-        if (this.mode == ParserMode.RE_ASSERTION) {
-            endMode();
-        }
-
-        if (this.mode == ParserMode.RE_ATOM) {
-            switchMode(ParserMode.RE_QUANTIFIER);
-        }
-        return getRegExpText();
     }
 
     /**
@@ -205,43 +199,90 @@ public class RegExpLexer extends AbstractLexer {
      * @return Next token
      */
     private STToken readTokenInReCharSet() {
-        reader.mark();
-        if (reader.isEOF()) {
+        this.reader.mark();
+        if (this.reader.isEOF()) {
             return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
-        while (!this.reader.isEOF()) {
-            switch (peek()) {
-                case LexerTerminals.CLOSE_BRACKET:
-                    this.reader.advance();
-                    break;
-                case LexerTerminals.BACKSLASH:
-                    if (this.reader.peek(1) == LexerTerminals.MINUS) {
-                        this.reader.advance(2);
-                        continue;
-                    }
-                    processReEscape(true);
-                    continue;
-                case LexerTerminals.MINUS:
-                    this.reader.advance();
-                    switchMode(ParserMode.RE_CHAR_SET_RANGE);
-                    continue;
-                default:
-                    if (isReCharSetLiteralChar(peek())) {
-                        this.reader.advance();
-                        continue;
-                    }
+        processReCharSet();
+        endMode();
+
+        return getRegExpText(SyntaxKind.REGEXP_TEXT);
+    }
+
+    private void processReCharSet() {
+        processReCharSetAtom();
+        int nextToken = peek();
+        if (nextToken == LexerTerminals.CLOSE_BRACKET) {
+            return;
+        }
+        if (nextToken == LexerTerminals.MINUS) {
+            this.reader.advance();
+            processReCharSetAtom();
+            if (peek() == LexerTerminals.CLOSE_BRACKET) {
+                return;
             }
-
-            break;
+            processReCharSet();
+            checkEndOfCharacterClass();
+            return;
         }
+        processReCharSetNoDash();
+        checkEndOfCharacterClass();
+    }
 
-        if (this.mode == ParserMode.RE_ATOM_CHAR_SET || this.mode == ParserMode.RE_CHAR_SET_RANGE) {
-            endMode();
+    private void processReCharSetAtom() {
+        int nextToken = peek();
+        if (nextToken == LexerTerminals.MINUS) {
+            this.reader.advance();
+            return;
         }
+        processReCharSetAtomNoDash(nextToken);
+    }
 
-        startMode(ParserMode.RE_QUANTIFIER);
-        return getRegExpText();
+    private void processReCharSetAtomNoDash(int nextToken) {
+        if (isReCharSetLiteralChar(peek())) {
+            this.reader.advance();
+            return;
+        }
+        if (nextToken == LexerTerminals.BACKSLASH) {
+            if (this.reader.peek(1) == LexerTerminals.MINUS) {
+                this.reader.advance(2);
+                return;
+            }
+            processReEscape();
+        }
+    }
+
+    private void processReCharSetNoDash() {
+        int nextToken = peek();
+        if (nextToken == LexerTerminals.MINUS) {
+            this.reader.advance();
+            checkEndOfCharacterClass();
+            return;
+        }
+        processReCharSetAtomNoDash(nextToken);
+        nextToken = peek();
+        if (nextToken == LexerTerminals.CLOSE_BRACKET) {
+            return;
+        }
+        if (nextToken == LexerTerminals.MINUS) {
+            this.reader.advance();
+            processReCharSetAtom();
+            if (peek() == LexerTerminals.CLOSE_BRACKET) {
+                return;
+            }
+            processReCharSet();
+            checkEndOfCharacterClass();
+            return;
+        }
+        processReCharSetNoDash();
+        checkEndOfCharacterClass();
+    }
+
+    private void checkEndOfCharacterClass() {
+        if (peek() != LexerTerminals.CLOSE_BRACKET) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_CHARACTER_SET_IN_REG_EXP);
+        }
     }
 
     /**
@@ -290,7 +331,7 @@ public class RegExpLexer extends AbstractLexer {
         endMode();
 
         if (hasQuantifier) {
-            return getRegExpText();
+            return getRegExpText(SyntaxKind.REGEXP_QUANTIFIER);
         }
         return nextToken();
     }
@@ -362,7 +403,7 @@ public class RegExpLexer extends AbstractLexer {
      * </code>
      */
     private void processReUnicodeProperty() {
-        this.reader.advance(3);
+        this.reader.advance(2);
 
         if (peek() == 's') {
             this.reader.advance();
@@ -439,12 +480,11 @@ public class RegExpLexer extends AbstractLexer {
      *    | ReSimpleCharClassEscape
      * </code>
      */
-    private void processReEscape(boolean inCharSet) {
+    private void processReEscape() {
         switch (this.reader.peek(1)) {
             // Handle NumericEscape.
             case 'u':
                 if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                    startReAtomMode(inCharSet);
                     processNumericEscape();
                 } else {
                     // Invalid numeric escape.
@@ -456,14 +496,12 @@ public class RegExpLexer extends AbstractLexer {
             case 'n':
             case 't':
             case 'r':
-                startReAtomMode(inCharSet);
                 this.reader.advance(2);
                 break;
             // Handle ReUnicodePropertyEscape.
             case 'p':
             case 'P':
                 if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                    startReAtomMode(inCharSet);
                     processReUnicodeProperty();
                 } else {
                     // Invalid ReUnicodePropertyEscape.
@@ -474,7 +512,6 @@ public class RegExpLexer extends AbstractLexer {
             default:
                 // Handle ReQuoteEscape and ReSimpleCharClassEscape.
                 if (isReSyntaxChar(this.reader.peek(1)) || isReSimpleCharClassCode(this.reader.peek(1))) {
-                    startReAtomMode(inCharSet);
                     this.reader.advance(2);
                 } else {
                     // Invalid ReEscape.
@@ -490,8 +527,8 @@ public class RegExpLexer extends AbstractLexer {
      * <code>NumericEscape := \ u { CodePoint }</code>
      */
     private void processNumericEscape() {
-        // Process '\ u {'
-        this.reader.advance(3);
+        // Process 'u {'
+        this.reader.advance(2);
 
         // Process code-point.
         if (!isHexDigit(peek())) {
@@ -579,23 +616,24 @@ public class RegExpLexer extends AbstractLexer {
         reader.advance();
     }
 
-    private void startReAtomMode(boolean inCharSet) {
-        if (!inCharSet) {
-            startMode(ParserMode.RE_ATOM);
-        }
-    }
-
     private STToken getRegExpText() {
         STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingRegExpTrivia();
-        return STNodeFactory.createLiteralValueToken(SyntaxKind.TEMPLATE_STRING, lexeme, leadingTrivia, trailingTrivia);
+        return STNodeFactory.createLiteralValueToken(SyntaxKind.REGEXP_TEXT, lexeme, leadingTrivia, trailingTrivia);
     }
 
     private STToken getRegExpSyntaxToken(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = processTrailingRegExpTrivia();
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getRegExpText(SyntaxKind kind) {
+        STNode leadingTrivia = getLeadingTrivia();
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingRegExpTrivia();
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
     /**
@@ -712,5 +750,110 @@ public class RegExpLexer extends AbstractLexer {
      */
     private String getLexeme() {
         return reader.getMarkedChars();
+    }
+
+    /**
+     * Check whether a given char is ReSyntaxChar.
+     * <p>
+     * <code>
+     * ReSyntaxChar :=
+     *   "^" | "$" | "\" | "." | "*" | "+" | "?"
+     *   | "(" | ")" | "[" | "]" | "{" | "}" | "|"
+     * </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is ReSyntaxChar. <code>false</code> otherwise.
+     */
+    protected static boolean isReSyntaxChar(int c) {
+        switch (c) {
+            case '^':
+            case '$':
+            case '\\':
+            case '.':
+            case '*':
+            case '+':
+            case '?':
+            case '(':
+            case ')':
+            case '[':
+            case ']':
+            case '{':
+            case '}':
+            case '|':
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check whether a given char is ReSimpleCharClassCode.
+     * <p>
+     * <code>
+     * ReSimpleCharClassCode := "d" | "D" | "s" | "S" | "w" | "W"
+     * </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is ReSimpleCharClassCode. <code>false</code> otherwise.
+     */
+    protected static boolean isReSimpleCharClassCode(int c) {
+        switch (c) {
+            case 'd':
+            case 'D':
+            case 's':
+            case 'S':
+            case 'w':
+            case 'W':
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check whether a given char is ReCharSetLiteralChar.
+     * <p>
+     * <code>
+     * ReCharSetLiteralChar := ^ ("\" | "]" | "-")
+     * </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is ReCharSetLiteralChar. <code>false</code> otherwise.
+     */
+    protected static boolean isReCharSetLiteralChar(int c) {
+        switch (c) {
+            case '\\':
+            case ']':
+            case '-':
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Check whether a given char is ReFlag.
+     * <p>
+     * <code>
+     * ReFlag :=
+     *   ReMultilineFlag
+     *   | ReDotAllFlag
+     *   | ReIgnoreCaseFlag
+     *   | ReCommentFlag
+     * </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is ReFlag. <code>false</code> otherwise.
+     */
+    protected static boolean isReFlag(int c) {
+        switch (c) {
+            case 'm':
+            case 's':
+            case 'i':
+            case 'x':
+                return true;
+            default:
+                return false;
+        }
     }
 }
