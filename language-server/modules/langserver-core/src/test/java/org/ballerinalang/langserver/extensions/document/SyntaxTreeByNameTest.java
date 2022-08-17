@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langserver.extensions.document;
 
-import io.ballerina.projects.ProjectException;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.util.FileUtils;
