@@ -1962,13 +1962,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createTransactionStatementNode(
             STNode transactionKeyword,
-            STNode blockStatement,
-            STNode onFailClause) {
+            STNode blockStatement) {
 
         return new STTransactionStatementNode(
                 transactionKeyword,
-                blockStatement,
-                onFailClause);
+                blockStatement);
     }
 
     public static STNode createRollbackStatementNode(
@@ -1986,15 +1984,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode retryKeyword,
             STNode typeParameter,
             STNode arguments,
-            STNode retryBody,
-            STNode onFailClause) {
+            STNode retryBody) {
 
         return new STRetryStatementNode(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody,
-                onFailClause);
+                retryBody);
     }
 
     public static STNode createCommitActionNode(

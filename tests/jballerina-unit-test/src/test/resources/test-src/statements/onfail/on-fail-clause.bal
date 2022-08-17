@@ -22,7 +22,6 @@ function testOnFailEdgeTestcases() {
     testMultiLevelOnFailWithoutVariableVariationOne();
     testMultiLevelOnFailWithoutVariableVariationTwo();
     testMultiLevelOnFailWithoutVariableVariationThree();
-    testRetryOnFailWithinWhile();
     testOnFailWithinAnonFunc();
     testRetryOnFailWithinObjectFunc();
     testFailExprWithinOnFail();
@@ -148,29 +147,6 @@ public class MyRetryManager {
             return false;
         }
     }
-}
-
-function testRetryOnFailWithinWhile() {
-    int i = 0;
-    while (i < 2) {
-        string str = "start";
-        int count = 0;
-        retry<MyRetryManager> (2) {
-            count = count+1;
-            if (count < 2) {
-                str += (" attempt " + count.toString() + ":error,");
-                fail trxError();
-            }
-            str += (" attempt "+ count.toString() + ":result returned end.");
-        } on fail error e {
-            str += "-> error handled";
-        }
-
-        i = i+1;
-        assertEquality("start attempt 1:error, attempt 2:result returned end.", str);
-    }
-
-    assertEquality(2, i);
 }
 
 public function testOnFailWithinAnonFunc() {

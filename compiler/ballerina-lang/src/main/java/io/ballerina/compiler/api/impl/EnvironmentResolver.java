@@ -368,7 +368,6 @@ public class EnvironmentResolver extends BaseVisitor {
                 && isNarrowerEnclosure(transactionNode.getPosition())) {
             SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, this.symbolEnv);
             this.acceptNode(transactionNode.transactionBody, transactionEnv);
-            this.acceptNode(transactionNode.onFailClause, symbolEnv);
         }
     }
 
@@ -580,7 +579,6 @@ public class EnvironmentResolver extends BaseVisitor {
         if (PositionUtil.withinBlock(this.linePosition, retryNode.getPosition())
                 && isNarrowerEnclosure(retryNode.getPosition())) {
             this.acceptNode(retryNode.retryBody, symbolEnv);
-            this.acceptNode(retryNode.onFailClause, symbolEnv);
         }
     }
 

@@ -41,10 +41,6 @@ public class TransactionStatementNode extends StatementNode {
         return childInBucket(1);
     }
 
-    public Optional<OnFailClauseNode> onFailClause() {
-        return optionalChildInBucket(2);
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -59,25 +55,21 @@ public class TransactionStatementNode extends StatementNode {
     protected String[] childNames() {
         return new String[]{
                 "transactionKeyword",
-                "blockStatement",
-                "onFailClause"};
+                "blockStatement"};
     }
 
     public TransactionStatementNode modify(
             Token transactionKeyword,
-            BlockStatementNode blockStatement,
-            OnFailClauseNode onFailClause) {
+            BlockStatementNode blockStatement) {
         if (checkForReferenceEquality(
                 transactionKeyword,
-                blockStatement,
-                onFailClause)) {
+                blockStatement)) {
             return this;
         }
 
         return NodeFactory.createTransactionStatementNode(
                 transactionKeyword,
-                blockStatement,
-                onFailClause);
+                blockStatement);
     }
 
     public TransactionStatementNodeModifier modify() {
@@ -93,13 +85,11 @@ public class TransactionStatementNode extends StatementNode {
         private final TransactionStatementNode oldNode;
         private Token transactionKeyword;
         private BlockStatementNode blockStatement;
-        private OnFailClauseNode onFailClause;
 
         public TransactionStatementNodeModifier(TransactionStatementNode oldNode) {
             this.oldNode = oldNode;
             this.transactionKeyword = oldNode.transactionKeyword();
             this.blockStatement = oldNode.blockStatement();
-            this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
         public TransactionStatementNodeModifier withTransactionKeyword(
@@ -116,17 +106,10 @@ public class TransactionStatementNode extends StatementNode {
             return this;
         }
 
-        public TransactionStatementNodeModifier withOnFailClause(
-                OnFailClauseNode onFailClause) {
-            this.onFailClause = onFailClause;
-            return this;
-        }
-
         public TransactionStatementNode apply() {
             return oldNode.modify(
                     transactionKeyword,
-                    blockStatement,
-                    onFailClause);
+                    blockStatement);
         }
     }
 }

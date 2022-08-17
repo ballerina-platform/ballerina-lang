@@ -35,8 +35,4 @@ public interface RetryNode extends StatementNode {
     BLangBlockStmt getRetryBody();
 
     void setRetryBody(BLangBlockStmt retryBody);
-
-    OnFailClauseNode getOnFailClause();
-
-    void setOnFailClause(OnFailClauseNode onFailClause);
 }

@@ -887,9 +887,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         analyzeNode(transactionNode.transactionBody, env);
-        if (transactionNode.onFailClause != null) {
-            analyzeNode(transactionNode.onFailClause, env);
-        }
 
         // marks the injected import as used
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
@@ -1857,9 +1854,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         analyzeNode(retryNode.retryBody, env);
-        if (retryNode.onFailClause != null) {
-            analyzeNode(retryNode.onFailClause, env);
-        }
     }
 
     @Override

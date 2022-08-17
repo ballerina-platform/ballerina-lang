@@ -2590,15 +2590,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TransactionStatementNode createTransactionStatementNode(
             Token transactionKeyword,
-            BlockStatementNode blockStatement,
-            OnFailClauseNode onFailClause) {
+            BlockStatementNode blockStatement) {
         Objects.requireNonNull(transactionKeyword, "transactionKeyword must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
 
         STNode stTransactionStatementNode = STNodeFactory.createTransactionStatementNode(
                 transactionKeyword.internalNode(),
-                blockStatement.internalNode(),
-                getOptionalSTNode(onFailClause));
+                blockStatement.internalNode());
         return stTransactionStatementNode.createUnlinkedFacade();
     }
 
@@ -2620,8 +2618,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token retryKeyword,
             TypeParameterNode typeParameter,
             ParenthesizedArgList arguments,
-            StatementNode retryBody,
-            OnFailClauseNode onFailClause) {
+            StatementNode retryBody) {
         Objects.requireNonNull(retryKeyword, "retryKeyword must not be null");
         Objects.requireNonNull(retryBody, "retryBody must not be null");
 
@@ -2629,8 +2626,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 retryKeyword.internalNode(),
                 getOptionalSTNode(typeParameter),
                 getOptionalSTNode(arguments),
-                retryBody.internalNode(),
-                getOptionalSTNode(onFailClause));
+                retryBody.internalNode());
         return stRetryStatementNode.createUnlinkedFacade();
     }
 

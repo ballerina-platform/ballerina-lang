@@ -2664,12 +2664,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(transactionStatementNode.transactionKeyword());
         BlockStatementNode blockStatement =
                 modifyNode(transactionStatementNode.blockStatement());
-        OnFailClauseNode onFailClause =
-                modifyNode(transactionStatementNode.onFailClause().orElse(null));
         return transactionStatementNode.modify(
                 transactionKeyword,
-                blockStatement,
-                onFailClause);
+                blockStatement);
     }
 
     @Override
@@ -2698,14 +2695,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(retryStatementNode.arguments().orElse(null));
         StatementNode retryBody =
                 modifyNode(retryStatementNode.retryBody());
-        OnFailClauseNode onFailClause =
-                modifyNode(retryStatementNode.onFailClause().orElse(null));
         return retryStatementNode.modify(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody,
-                onFailClause);
+                retryBody);
     }
 
     @Override

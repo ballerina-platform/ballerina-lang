@@ -13633,8 +13633,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.TRANSACTION_STMT);
         STNode blockStmt = parseBlockNode();
         endContext();
-        STNode onFailClause = parseOptionalOnFailClause();
-        return STNodeFactory.createTransactionStatementNode(transactionKeyword, blockStmt, onFailClause);
+        return STNodeFactory.createTransactionStatementNode(transactionKeyword, blockStmt);
     }
 
     /**
@@ -13717,8 +13716,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode blockStmt = parseRetryBody();
         endContext(); // end retry-stmt
-        STNode onFailClause = parseOptionalOnFailClause();
-        return STNodeFactory.createRetryStatementNode(retryKeyword, typeParam, args, blockStmt, onFailClause);
+        return STNodeFactory.createRetryStatementNode(retryKeyword, typeParam, args, blockStmt);
     }
 
     private STNode parseRetryBody() {

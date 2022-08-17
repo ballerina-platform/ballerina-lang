@@ -497,13 +497,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     @Override
     public void visit(BLangTransaction transactionNode, AnalyzerData data) {
         checkStatementExecutionValidity(transactionNode, data);
-        boolean failureHandled = data.failureHandled;
-        if (!data.failureHandled) {
-            data.failureHandled = transactionNode.onFailClause != null;
-        }
         analyzeReachability(transactionNode.transactionBody, data);
-        data.failureHandled = failureHandled;
-        analyzeOnFailClause(transactionNode.onFailClause, data);
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, AnalyzerData data) {
@@ -521,16 +515,10 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     @Override
     public void visit(BLangRetry retryNode, AnalyzerData data) {
-        boolean failureHandled = data.failureHandled;
         checkStatementExecutionValidity(retryNode, data);
-        if (!data.failureHandled) {
-            data.failureHandled = retryNode.onFailClause != null;
-        }
         analyzeReachability(retryNode.retryBody, data);
-        data.failureHandled = failureHandled;
         resetLastStatement(data);
         resetErrorThrown(data);
-        analyzeOnFailClause(retryNode.onFailClause, data);
     }
 
     @Override

@@ -406,7 +406,6 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangRetry retryNode) {
         find(retryNode.retrySpec);
         find(retryNode.retryBody);
-        find(retryNode.onFailClause);
     }
 
     @Override
@@ -685,7 +684,6 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         find(transactionNode.transactionBody);
-        find(transactionNode.onFailClause);
     }
 
     @Override

@@ -29,8 +29,4 @@ public interface TransactionNode extends StatementNode {
     BlockStatementNode getTransactionBody();
 
     void setTransactionBody(BlockStatementNode body);
-
-    OnFailClauseNode getOnFailClause();
-
-    void setOnFailClause(OnFailClauseNode onFailClause);
 }

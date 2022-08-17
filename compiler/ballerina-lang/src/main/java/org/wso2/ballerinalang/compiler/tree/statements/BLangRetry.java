@@ -36,7 +36,6 @@ public class BLangRetry extends BLangStatement implements RetryNode {
     // BLangNodes
     public BLangRetrySpec retrySpec;
     public BLangBlockStmt retryBody;
-    public BLangOnFailClause onFailClause;
 
     // Semantic Data
     public BLangStatement commonStmtForRetries;
@@ -55,16 +54,6 @@ public class BLangRetry extends BLangStatement implements RetryNode {
 
     public void setRetryBody(BLangBlockStmt retryBody) {
         this.retryBody = retryBody;
-    }
-
-    @Override
-    public OnFailClauseNode getOnFailClause() {
-        return this.onFailClause;
-    }
-
-    @Override
-    public void setOnFailClause(OnFailClauseNode onFailClause) {
-        this.onFailClause = (BLangOnFailClause) onFailClause;
     }
 
     @Override

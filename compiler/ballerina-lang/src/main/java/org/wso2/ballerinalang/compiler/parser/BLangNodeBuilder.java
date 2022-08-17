@@ -3066,11 +3066,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         transaction.setTransactionBody(transactionBlock);
         transaction.pos = getPosition(transactionStatementNode);
 
-        transactionStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            transaction.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
-
         return transaction;
     }
 
@@ -4101,11 +4096,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         retryNode.setRetrySpec(retrySpec);
         BLangBlockStmt retryBlock = (BLangBlockStmt) retryBody.apply(this);
         retryNode.setRetryBody(retryBlock);
-
-        retryStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            retryNode.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
 
         return retryNode;
     }

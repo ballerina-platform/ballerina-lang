@@ -3973,10 +3973,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangTransaction transactionNode, AnalyzerData data) {
         data.env = SymbolEnv.createTransactionEnv(transactionNode, data.env);
-
-        if (transactionNode.onFailClause != null) {
-            this.analyzeNode(transactionNode.onFailClause, data);
-        }
         analyzeStmt(transactionNode.transactionBody, data);
     }
 
@@ -4005,10 +4001,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
         data.env = SymbolEnv.createRetryEnv(retryNode, data.env);
         analyzeStmt(retryNode.retryBody, data);
-
-        if (retryNode.onFailClause != null) {
-            this.analyzeNode(retryNode.onFailClause, data);
-        }
     }
 
     @Override

@@ -3065,19 +3065,11 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public TransactionStatementNode transform(TransactionStatementNode transactionStatementNode) {
         Token transactionKeyword = formatToken(transactionStatementNode.transactionKeyword(), 1, 0);
-        BlockStatementNode blockStatement;
-        if (transactionStatementNode.onFailClause().isPresent()) {
-            blockStatement = formatNode(transactionStatementNode.blockStatement(), 1, 0);
-        } else {
-            blockStatement = formatNode(transactionStatementNode.blockStatement(), env.trailingWS, env.trailingNL);
-        }
-
-        OnFailClauseNode onFailClause = formatNode(transactionStatementNode.onFailClause().orElse(null),
+        BlockStatementNode blockStatement = formatNode(transactionStatementNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
         return transactionStatementNode.modify()
                 .withTransactionKeyword(transactionKeyword)
                 .withBlockStatement(blockStatement)
-                .withOnFailClause(onFailClause)
                 .apply();
     }
 
@@ -3111,21 +3103,13 @@ public class FormattingTreeModifier extends TreeModifier {
 
         TypeParameterNode typeParameter = formatNode(retryStatementNode.typeParameter().orElse(null), 1, 0);
         ParenthesizedArgList arguments = formatNode(retryStatementNode.arguments().orElse(null), 1, 0);
-        StatementNode retryBody;
-        if (retryStatementNode.onFailClause().isPresent()) {
-            retryBody = formatNode(retryStatementNode.retryBody(), 1, 0);
-        } else {
-            retryBody = formatNode(retryStatementNode.retryBody(), env.trailingWS, env.trailingNL);
-        }
+        StatementNode retryBody = formatNode(retryStatementNode.retryBody(), env.trailingWS, env.trailingNL);
 
-        OnFailClauseNode onFailClause = formatNode(retryStatementNode.onFailClause().orElse(null),
-                env.trailingWS, env.trailingNL);
         return retryStatementNode.modify()
                 .withRetryKeyword(retryKeyword)
                 .withTypeParameter(typeParameter)
                 .withArguments(arguments)
                 .withRetryBody(retryBody)
-                .withOnFailClause(onFailClause)
                 .apply();
     }
 

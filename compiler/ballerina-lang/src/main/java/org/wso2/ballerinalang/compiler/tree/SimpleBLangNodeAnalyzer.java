@@ -1281,7 +1281,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         analyzeNode(node, data);
         visitNode(node.retrySpec, data);
         visitNode(node.retryBody, data);
-        visitNode(node.onFailClause, data);
     }
 
     public void visit(BLangRetryTransaction node, T data) {
@@ -1308,7 +1307,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangTransaction node, T data) {
         analyzeNode(node, data);
         visitNode(node.transactionBody, data);
-        visitNode(node.onFailClause, data);
     }
 
     public void visit(BLangTupleDestructure node, T data) {

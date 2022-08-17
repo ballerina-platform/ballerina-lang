@@ -49,21 +49,6 @@ public class TransactionStatementTest extends AbstractStatementTest {
     }
 
     @Test
-    public void testTransactionStatementWithOnFailClause() {
-        testFile("transaction-stmt/transaction_stmt_source_03.bal", "transaction-stmt/transaction_stmt_assert_03.json");
-    }
-
-    @Test
-    public void testRetryStatementWithOnFailClause() {
-        testFile("transaction-stmt/retry_stmt_source_05.bal", "transaction-stmt/retry_stmt_assert_05.json");
-    }
-
-    @Test
-    public void testRetryStatementWithOnFailClauseWithoutVariable() {
-        testFile("transaction-stmt/retry_stmt_source_07.bal", "transaction-stmt/retry_stmt_assert_07.json");
-    }
-
-    @Test
     public void testTransactionalWorker() {
         testFile("transaction-stmt/transactional_worker_source_01.bal",
                 "transaction-stmt/transactional_worker_assert_01.json");
@@ -89,15 +74,5 @@ public class TransactionStatementTest extends AbstractStatementTest {
     @Test
     public void testRetryTransactionStatementRecovery() {
         testFile("transaction-stmt/retry_stmt_source_04.bal", "transaction-stmt/retry_stmt_assert_04.json");
-    }
-
-    @Test
-    public void testTransactionOnFailClauseRecovery() {
-        testFile("transaction-stmt/transaction_stmt_source_04.bal", "transaction-stmt/transaction_stmt_assert_04.json");
-    }
-
-    @Test
-    public void testRetryOnFailClauseRecovery() {
-        testFile("transaction-stmt/retry_stmt_source_06.bal", "transaction-stmt/retry_stmt_assert_06.json");
     }
 }

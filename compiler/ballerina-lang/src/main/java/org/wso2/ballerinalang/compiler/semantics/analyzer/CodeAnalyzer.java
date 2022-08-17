@@ -575,12 +575,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.loopWithinTransactionCheckStack.push(false);
         data.returnWithinTransactionCheckStack.push(false);
         data.transactionCount++;
-        boolean failureHandled = data.failureHandled;
-        if (!failureHandled) {
-            data.failureHandled = transactionNode.onFailClause != null;
-        }
         analyzeNode(transactionNode.transactionBody, data);
-        data.failureHandled = failureHandled;
         if (data.commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticErrorCode.INVALID_COMMIT_COUNT);
         }
@@ -592,7 +587,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.commitRollbackAllowed = prevCommitRollbackAllowed;
         data.returnWithinTransactionCheckStack.pop();
         data.loopWithinTransactionCheckStack.pop();
-        analyzeOnFailClause(transactionNode.onFailClause, data);
         data.errorTypes.pop();
     }
 
@@ -650,16 +644,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangRetry retryNode, AnalyzerData data) {
         data.errorTypes.push(new LinkedHashSet<>());
-        boolean failureHandled = data.failureHandled;
-        if (!failureHandled) {
-            data.failureHandled = retryNode.onFailClause != null;
-        }
         visitNode(retryNode.retrySpec, data);
         visitNode(retryNode.retryBody, data);
-        data.failureHandled = failureHandled;
-        retryNode.retryBody.failureBreakMode = retryNode.onFailClause != null ?
-                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
-        analyzeOnFailClause(retryNode.onFailClause, data);
         data.errorTypes.pop();
     }
 

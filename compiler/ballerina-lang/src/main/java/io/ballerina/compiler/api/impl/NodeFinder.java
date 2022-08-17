@@ -400,7 +400,6 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangRetry retryNode) {
         lookupNode(retryNode.retryBody);
         lookupNode(retryNode.retrySpec);
-        lookupNode(retryNode.onFailClause);
     }
 
     @Override
@@ -539,7 +538,6 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         lookupNode(transactionNode.transactionBody);
-        lookupNode(transactionNode.onFailClause);
     }
 
     @Override

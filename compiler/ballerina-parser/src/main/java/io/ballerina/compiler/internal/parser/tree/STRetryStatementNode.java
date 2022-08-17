@@ -35,20 +35,17 @@ public class STRetryStatementNode extends STStatementNode {
     public final STNode typeParameter;
     public final STNode arguments;
     public final STNode retryBody;
-    public final STNode onFailClause;
 
     STRetryStatementNode(
             STNode retryKeyword,
             STNode typeParameter,
             STNode arguments,
-            STNode retryBody,
-            STNode onFailClause) {
+            STNode retryBody) {
         this(
                 retryKeyword,
                 typeParameter,
                 arguments,
                 retryBody,
-                onFailClause,
                 Collections.emptyList());
     }
 
@@ -57,21 +54,18 @@ public class STRetryStatementNode extends STStatementNode {
             STNode typeParameter,
             STNode arguments,
             STNode retryBody,
-            STNode onFailClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ROLLBACK_STATEMENT, diagnostics);
         this.retryKeyword = retryKeyword;
         this.typeParameter = typeParameter;
         this.arguments = arguments;
         this.retryBody = retryBody;
-        this.onFailClause = onFailClause;
 
         addChildren(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody,
-                onFailClause);
+                retryBody);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -80,7 +74,6 @@ public class STRetryStatementNode extends STStatementNode {
                 this.typeParameter,
                 this.arguments,
                 this.retryBody,
-                this.onFailClause,
                 diagnostics);
     }
 
@@ -88,14 +81,12 @@ public class STRetryStatementNode extends STStatementNode {
             STNode retryKeyword,
             STNode typeParameter,
             STNode arguments,
-            STNode retryBody,
-            STNode onFailClause) {
+            STNode retryBody) {
         if (checkForReferenceEquality(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody,
-                onFailClause)) {
+                retryBody)) {
             return this;
         }
 
@@ -104,7 +95,6 @@ public class STRetryStatementNode extends STStatementNode {
                 typeParameter,
                 arguments,
                 retryBody,
-                onFailClause,
                 diagnostics);
     }
 

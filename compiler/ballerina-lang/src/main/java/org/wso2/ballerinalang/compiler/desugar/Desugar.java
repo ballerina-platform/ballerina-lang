@@ -2989,128 +2989,119 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        if (retryNode.onFailClause != null) {
-            // wrap user defined on fail within a do statement
-            BLangOnFailClause onFailClause = retryNode.onFailClause;
-            retryNode.onFailClause = null;
-            retryNode.retryBody.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
-            BLangDo doStmt = wrapStatementWithinDo(retryNode.pos, retryNode, onFailClause);
-            result = rewrite(doStmt, env);
-        } else {
-            Location pos = retryNode.retryBody.pos;
-            BLangSimpleVarRef prevShouldRetryRef = this.shouldRetryRef;
-            BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
-            retryBlockStmt.parent = env.enclInvokable;
-            retryBlockStmt.scope = new Scope(env.scope.owner);
+        Location pos = retryNode.retryBody.pos;
+        BLangSimpleVarRef prevShouldRetryRef = this.shouldRetryRef;
+        BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
+        retryBlockStmt.parent = env.enclInvokable;
+        retryBlockStmt.scope = new Scope(env.scope.owner);
 
-            if (retryNode.commonStmtForRetries != null) {
-                BLangSimpleVariableDef prevAttemptDef = (BLangSimpleVariableDef) retryNode.commonStmtForRetries;
-                retryBlockStmt.scope.define(prevAttemptDef.var.symbol.name, prevAttemptDef.var.symbol);
-                retryBlockStmt.stmts.add(retryNode.commonStmtForRetries);
-            }
-
-            // <RetryManagerType> $retryManager$ = new();
-            BLangSimpleVariableDef retryManagerVarDef = createRetryManagerDef(retryNode.retrySpec, retryNode.pos);
-            retryBlockStmt.stmts.add(retryManagerVarDef);
-            BLangSimpleVarRef retryManagerVarRef = ASTBuilderUtil.createVariableRef(pos, retryManagerVarDef.var.symbol);
-            BVarSymbol retryMangerRefVarSymbol = new BVarSymbol(0, names.fromString("$retryManagerRef$"),
-                    env.scope.owner.pkgID, retryManagerVarDef.var.symbol.type, this.env.scope.owner, pos,
-                    VIRTUAL);
-            retryMangerRefVarSymbol.closure = true;
-            BLangSimpleVariable retryMangerRefVar = ASTBuilderUtil.createVariable(pos, "$retryManagerRef$",
-                    retryManagerVarDef.var.symbol.type, retryManagerVarRef, retryMangerRefVarSymbol);
-            retryBlockStmt.scope.define(retryMangerRefVarSymbol.name, retryMangerRefVarSymbol);
-            BLangSimpleVariableDef retryMangerRefDef = ASTBuilderUtil.createVariableDef(pos, retryMangerRefVar);
-            BLangSimpleVarRef retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
-            retryBlockStmt.stmts.add(retryMangerRefDef);
-
-            // error? $retryResult$ = ();
-            BLangLiteral nillLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.nilType, null);
-            BVarSymbol retryResultVarSymbol = new BVarSymbol(0, names.fromString("$retryResult$"),
-                    env.scope.owner.pkgID, symTable.errorOrNilType, this.env.scope.owner, pos, VIRTUAL);
-            retryResultVarSymbol.closure = true;
-            BLangSimpleVariable retryResultVariable = ASTBuilderUtil.createVariable(pos, "$retryResult$",
-                    symTable.errorOrNilType, nillLiteral, retryResultVarSymbol);
-            retryBlockStmt.scope.define(retryResultVarSymbol.name, retryResultVarSymbol);
-            BLangSimpleVariableDef retryResultDef = ASTBuilderUtil.createVariableDef(pos, retryResultVariable);
-            BLangSimpleVarRef retryResultRef = ASTBuilderUtil.createVariableRef(pos, retryResultVarSymbol);
-            retryBlockStmt.stmts.add(retryResultDef);
-
-            // boolean $shouldRetry$ = false;
-            BLangLiteral falseLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
-            BVarSymbol shouldRetryVarSymbol = new BVarSymbol(0, names.fromString("$shouldRetry$"),
-                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
-            shouldRetryVarSymbol.closure = true;
-            BLangSimpleVariable shouldRetryVariable = ASTBuilderUtil.createVariable(pos, "$shouldRetry$",
-                    symTable.booleanType, falseLiteral, shouldRetryVarSymbol);
-            retryBlockStmt.scope.define(shouldRetryVarSymbol.name, shouldRetryVarSymbol);
-            BLangSimpleVariableDef shouldRetryDef = ASTBuilderUtil.createVariableDef(pos, shouldRetryVariable);
-            this.shouldRetryRef = ASTBuilderUtil.createVariableRef(pos, shouldRetryVarSymbol);
-            retryBlockStmt.stmts.add(shouldRetryDef);
-
-            //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {
-            // }
-            BLangWhile whileLoop = createRetryWhileLoop(pos, retryNode.retryBody, retryManagerRef,
-                    retryResultRef, shouldRetryRef);
-            retryBlockStmt.stmts.add(whileLoop);
-
-            if (!enclosingShouldContinue.isEmpty() && enclosingShouldContinue.size() > 1) {
-                BLangSimpleVarRef nestedLoopShouldContinue =
-                        enclosingShouldContinue.get(enclosingShouldContinue.size() - 2);
-                BLangBlockStmt shouldContinueBlock = createBlockStmt(pos);
-                BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
-                loopContinueStmt.pos = pos;
-                shouldContinueBlock.stmts.add(loopContinueStmt);
-
-                BLangIf shouldContinue = ASTBuilderUtil.createIfElseStmt(pos, nestedLoopShouldContinue,
-                        shouldContinueBlock, null);
-                retryBlockStmt.stmts.add(shouldContinue);
-            }
-
-            //at this point:
-            // RetryManagerType> $retryManager$ = new();
-            // error? $retryResult$ = ();
-            // boolean $shouldRetry$ = false;
-            // while($retryResult$ == () || ($retryResult$ is error && $shouldRetry$)) {
-            //      boolean $returnErrorResult$ = false;
-            //      boolean $continueLoop$ = false;
-            //      $shouldRetry$ = false;
-            //
-            //      do {
-            //          <"Content in retry block goes here">
-            //      } on fail var $caughtError$ {
-            //           $retryResult$ = $caughtError$;
-            //           $shouldRetry$ = $retryManager$.shouldRetry();
-            //           if (!$shouldRetry$) {
-            //                  fail $retryResult$;
-            //           }
-            //           $continueLoop$ = true;
-            //           continue;
-            //      }
-            //      ### when no enclosing on fail clause to jump to ###
-            //      } on fail var $caughtError$ {
-            //           $retryResult$ = $caughtError$;
-            //           $shouldRetry$ = $retryManager$.shouldRetry();
-            //           if (!$shouldRetry$) {
-            //                 $returnErrorResult$ = true;
-            //           }
-            //           $continueLoop$ = true;
-            //      }
-            //
-            //      if($returnErrorResult$) {
-            //           return $retryResult$;
-            //      }
-            //
-            //      if($continueLoop$) {
-            //          continue;
-            //      } else {
-            //          break;
-            //      }
-            // }
-            result = rewrite(retryBlockStmt, env);
-            enclosingShouldContinue.remove(enclosingShouldContinue.size() - 1);
-            this.shouldRetryRef = prevShouldRetryRef;
+        if (retryNode.commonStmtForRetries != null) {
+            BLangSimpleVariableDef prevAttemptDef = (BLangSimpleVariableDef) retryNode.commonStmtForRetries;
+            retryBlockStmt.scope.define(prevAttemptDef.var.symbol.name, prevAttemptDef.var.symbol);
+            retryBlockStmt.stmts.add(retryNode.commonStmtForRetries);
         }
+
+        // <RetryManagerType> $retryManager$ = new();
+        BLangSimpleVariableDef retryManagerVarDef = createRetryManagerDef(retryNode.retrySpec, retryNode.pos);
+        retryBlockStmt.stmts.add(retryManagerVarDef);
+        BLangSimpleVarRef retryManagerVarRef = ASTBuilderUtil.createVariableRef(pos, retryManagerVarDef.var.symbol);
+        BVarSymbol retryMangerRefVarSymbol = new BVarSymbol(0, names.fromString("$retryManagerRef$"),
+                env.scope.owner.pkgID, retryManagerVarDef.var.symbol.type, this.env.scope.owner, pos,
+                VIRTUAL);
+        retryMangerRefVarSymbol.closure = true;
+        BLangSimpleVariable retryMangerRefVar = ASTBuilderUtil.createVariable(pos, "$retryManagerRef$",
+                retryManagerVarDef.var.symbol.type, retryManagerVarRef, retryMangerRefVarSymbol);
+        retryBlockStmt.scope.define(retryMangerRefVarSymbol.name, retryMangerRefVarSymbol);
+        BLangSimpleVariableDef retryMangerRefDef = ASTBuilderUtil.createVariableDef(pos, retryMangerRefVar);
+        BLangSimpleVarRef retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
+        retryBlockStmt.stmts.add(retryMangerRefDef);
+
+        // error? $retryResult$ = ();
+        BLangLiteral nillLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.nilType, null);
+        BVarSymbol retryResultVarSymbol = new BVarSymbol(0, names.fromString("$retryResult$"),
+                env.scope.owner.pkgID, symTable.errorOrNilType, this.env.scope.owner, pos, VIRTUAL);
+        retryResultVarSymbol.closure = true;
+        BLangSimpleVariable retryResultVariable = ASTBuilderUtil.createVariable(pos, "$retryResult$",
+                symTable.errorOrNilType, nillLiteral, retryResultVarSymbol);
+        retryBlockStmt.scope.define(retryResultVarSymbol.name, retryResultVarSymbol);
+        BLangSimpleVariableDef retryResultDef = ASTBuilderUtil.createVariableDef(pos, retryResultVariable);
+        BLangSimpleVarRef retryResultRef = ASTBuilderUtil.createVariableRef(pos, retryResultVarSymbol);
+        retryBlockStmt.stmts.add(retryResultDef);
+
+        // boolean $shouldRetry$ = false;
+        BLangLiteral falseLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
+        BVarSymbol shouldRetryVarSymbol = new BVarSymbol(0, names.fromString("$shouldRetry$"),
+                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+        shouldRetryVarSymbol.closure = true;
+        BLangSimpleVariable shouldRetryVariable = ASTBuilderUtil.createVariable(pos, "$shouldRetry$",
+                symTable.booleanType, falseLiteral, shouldRetryVarSymbol);
+        retryBlockStmt.scope.define(shouldRetryVarSymbol.name, shouldRetryVarSymbol);
+        BLangSimpleVariableDef shouldRetryDef = ASTBuilderUtil.createVariableDef(pos, shouldRetryVariable);
+        this.shouldRetryRef = ASTBuilderUtil.createVariableRef(pos, shouldRetryVarSymbol);
+        retryBlockStmt.stmts.add(shouldRetryDef);
+
+        //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {
+        // }
+        BLangWhile whileLoop = createRetryWhileLoop(pos, retryNode.retryBody, retryManagerRef,
+                retryResultRef, shouldRetryRef);
+        retryBlockStmt.stmts.add(whileLoop);
+
+        if (!enclosingShouldContinue.isEmpty() && enclosingShouldContinue.size() > 1) {
+            BLangSimpleVarRef nestedLoopShouldContinue =
+                    enclosingShouldContinue.get(enclosingShouldContinue.size() - 2);
+            BLangBlockStmt shouldContinueBlock = createBlockStmt(pos);
+            BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
+            loopContinueStmt.pos = pos;
+            shouldContinueBlock.stmts.add(loopContinueStmt);
+
+            BLangIf shouldContinue = ASTBuilderUtil.createIfElseStmt(pos, nestedLoopShouldContinue,
+                    shouldContinueBlock, null);
+            retryBlockStmt.stmts.add(shouldContinue);
+        }
+
+        //at this point:
+        // RetryManagerType> $retryManager$ = new();
+        // error? $retryResult$ = ();
+        // boolean $shouldRetry$ = false;
+        // while($retryResult$ == () || ($retryResult$ is error && $shouldRetry$)) {
+        //      boolean $returnErrorResult$ = false;
+        //      boolean $continueLoop$ = false;
+        //      $shouldRetry$ = false;
+        //
+        //      do {
+        //          <"Content in retry block goes here">
+        //      } on fail var $caughtError$ {
+        //           $retryResult$ = $caughtError$;
+        //           $shouldRetry$ = $retryManager$.shouldRetry();
+        //           if (!$shouldRetry$) {
+        //                  fail $retryResult$;
+        //           }
+        //           $continueLoop$ = true;
+        //           continue;
+        //      }
+        //      ### when no enclosing on fail clause to jump to ###
+        //      } on fail var $caughtError$ {
+        //           $retryResult$ = $caughtError$;
+        //           $shouldRetry$ = $retryManager$.shouldRetry();
+        //           if (!$shouldRetry$) {
+        //                 $returnErrorResult$ = true;
+        //           }
+        //           $continueLoop$ = true;
+        //      }
+        //
+        //      if($returnErrorResult$) {
+        //           return $retryResult$;
+        //      }
+        //
+        //      if($continueLoop$) {
+        //          continue;
+        //      } else {
+        //          break;
+        //      }
+        // }
+        result = rewrite(retryBlockStmt, env);
+        enclosingShouldContinue.remove(enclosingShouldContinue.size() - 1);
+        this.shouldRetryRef = prevShouldRetryRef;
     }
 
     protected BLangWhile createRetryWhileLoop(Location pos,
@@ -5443,107 +5434,90 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        if (transactionNode.onFailClause != null) {
-            //rewrite user defined on fail within a do statement
-            BLangOnFailClause onFailClause = transactionNode.onFailClause;
-            transactionNode.onFailClause = null;
-            transactionNode.transactionBody.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
-            BLangDo doStmt = wrapStatementWithinDo(transactionNode.pos, transactionNode, onFailClause);
-            // at this point;
-            // do {
-            //      transction {
-            //        <Transaction Body>
-            //      }
-            // } on fail var e {
-            //     (User Defined On Fail Clause)
-            // }
-            result = rewrite(doStmt, env);
-        } else {
-            BLangLiteral currentTrxBlockId = this.trxBlockId;
-            String uniqueId = String.valueOf(++transactionBlockCount);
-            this.trxBlockId = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.stringType, uniqueId);
-            boolean currShouldReturnErrors = this.shouldReturnErrors;
-            this.shouldReturnErrors = true;
+        BLangLiteral currentTrxBlockId = this.trxBlockId;
+        String uniqueId = String.valueOf(++transactionBlockCount);
+        this.trxBlockId = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.stringType, uniqueId);
+        boolean currShouldReturnErrors = this.shouldReturnErrors;
+        this.shouldReturnErrors = true;
 
-            BLangOnFailClause currOnFailClause = this.onFailClause;
+        BLangOnFailClause currOnFailClause = this.onFailClause;
 
-            // boolean $shouldPanic$ = false;
-            BLangLiteral falseLiteral = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.booleanType, false);
-            BVarSymbol shouldPanicVarSymbol = new BVarSymbol(0, names.fromString("$shouldPanic$"),
-                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, transactionNode.pos, VIRTUAL);
-            shouldPanicVarSymbol.closure = true;
-            BLangSimpleVariable shouldPanicVariable = ASTBuilderUtil.createVariable(transactionNode.pos,
-                    "$shouldPanic$", symTable.booleanType, falseLiteral, shouldPanicVarSymbol);
+        // boolean $shouldPanic$ = false;
+        BLangLiteral falseLiteral = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.booleanType, false);
+        BVarSymbol shouldPanicVarSymbol = new BVarSymbol(0, names.fromString("$shouldPanic$"),
+                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, transactionNode.pos, VIRTUAL);
+        shouldPanicVarSymbol.closure = true;
+        BLangSimpleVariable shouldPanicVariable = ASTBuilderUtil.createVariable(transactionNode.pos,
+                "$shouldPanic$", symTable.booleanType, falseLiteral, shouldPanicVarSymbol);
 
-            BLangSimpleVariableDef shouldPanicDef = ASTBuilderUtil.createVariableDef(transactionNode.pos,
-                    shouldPanicVariable);
-            BLangSimpleVarRef shouldPanicRef = ASTBuilderUtil.createVariableRef(transactionNode.pos,
-                    shouldPanicVarSymbol);
+        BLangSimpleVariableDef shouldPanicDef = ASTBuilderUtil.createVariableDef(transactionNode.pos,
+                shouldPanicVariable);
+        BLangSimpleVarRef shouldPanicRef = ASTBuilderUtil.createVariableRef(transactionNode.pos,
+                shouldPanicVarSymbol);
 
-            // on fail error $trxError$ {
-            //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
-            //          $shouldCleanUp$ = true;
-            //          check panic rollback $trxError$;
-            //      }
-            // }
-            // if(!$shouldPanic$) {
-            //      fail $trxError$;
-            // } else {
-            //      panic $trxError$;
-            // }
-            BLangOnFailClause trxInternalOnFail = createTrxInternalOnFail(transactionNode.pos, shouldPanicRef,
-                    this.shouldRetryRef);
-            enclosingShouldPanic.put(trxInternalOnFail, shouldPanicRef);
+        // on fail error $trxError$ {
+        //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+        //          $shouldCleanUp$ = true;
+        //          check panic rollback $trxError$;
+        //      }
+        // }
+        // if(!$shouldPanic$) {
+        //      fail $trxError$;
+        // } else {
+        //      panic $trxError$;
+        // }
+        BLangOnFailClause trxInternalOnFail = createTrxInternalOnFail(transactionNode.pos, shouldPanicRef,
+                this.shouldRetryRef);
+        enclosingShouldPanic.put(trxInternalOnFail, shouldPanicRef);
 
-            boolean userDefinedOnFailAvbl = this.onFailClause != null;
-            analyzeOnFailClause(trxInternalOnFail, transactionNode.transactionBody);
+        boolean userDefinedOnFailAvbl = this.onFailClause != null;
+        analyzeOnFailClause(trxInternalOnFail, transactionNode.transactionBody);
 
-            BLangBlockStmt transactionStmtBlock =
-                    transactionDesugar.rewrite(transactionNode, trxBlockId, env, uniqueId);
+        BLangBlockStmt transactionStmtBlock =
+                transactionDesugar.rewrite(transactionNode, trxBlockId, env, uniqueId);
 
-            transactionStmtBlock.stmts.add(0, shouldPanicDef);
-            transactionStmtBlock.scope.define(shouldPanicVarSymbol.name, shouldPanicVarSymbol);
-            transactionStmtBlock.failureBreakMode = userDefinedOnFailAvbl ?
-                    BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE :
-                    BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
+        transactionStmtBlock.stmts.add(0, shouldPanicDef);
+        transactionStmtBlock.scope.define(shouldPanicVarSymbol.name, shouldPanicVarSymbol);
+        transactionStmtBlock.failureBreakMode = userDefinedOnFailAvbl ?
+                BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE :
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
 
-            // at this point;
-            //
-            // boolean $shouldPanic$ = false;
-            // do {
-            //      boolean $shouldCleanUp$ = false;
-            //      transactions:Info? prevAttempt = ();
-            //      string transactionId = "";
-            //      error? $trapResult = trap {
-            //                                  transactionId = startTransaction(1, prevAttempt)
-            //                                  prevAttempt = info();
-            //
-            //                                  <Transaction Body>
-            //                                 }
-            //      if($trapResult$ is error) {
-            //          $shouldPanic$ = true;
-            //          error $trxError$ = <error> $trapResult$;
-            //      }
-            //      if ($shouldCleanUp$) {
-            //          cleanupTransactionContext(1);
-            //      }
-            // } on fail error $trxError$ {
-            //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
-            //          $shouldCleanUp$ = true;
-            //          check panic rollback $trxError$;
-            //      }
-            // }
-            // if(!$shouldPanic$) {
-            //      fail $trxError$;
-            // } else {
-            //      panic $trxError$;
-            // }
-            result = rewrite(transactionStmtBlock, this.env);
+        // at this point;
+        //
+        // boolean $shouldPanic$ = false;
+        // do {
+        //      boolean $shouldCleanUp$ = false;
+        //      transactions:Info? prevAttempt = ();
+        //      string transactionId = "";
+        //      error? $trapResult = trap {
+        //                                  transactionId = startTransaction(1, prevAttempt)
+        //                                  prevAttempt = info();
+        //
+        //                                  <Transaction Body>
+        //                                 }
+        //      if($trapResult$ is error) {
+        //          $shouldPanic$ = true;
+        //          error $trxError$ = <error> $trapResult$;
+        //      }
+        //      if ($shouldCleanUp$) {
+        //          cleanupTransactionContext(1);
+        //      }
+        // } on fail error $trxError$ {
+        //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+        //          $shouldCleanUp$ = true;
+        //          check panic rollback $trxError$;
+        //      }
+        // }
+        // if(!$shouldPanic$) {
+        //      fail $trxError$;
+        // } else {
+        //      panic $trxError$;
+        // }
+        result = rewrite(transactionStmtBlock, this.env);
 
-            this.shouldReturnErrors = currShouldReturnErrors;
-            this.trxBlockId = currentTrxBlockId;
-            swapAndResetEnclosingOnFail(currOnFailClause);
-        }
+        this.shouldReturnErrors = currShouldReturnErrors;
+        this.trxBlockId = currentTrxBlockId;
+        swapAndResetEnclosingOnFail(currOnFailClause);
     }
 
     @Override

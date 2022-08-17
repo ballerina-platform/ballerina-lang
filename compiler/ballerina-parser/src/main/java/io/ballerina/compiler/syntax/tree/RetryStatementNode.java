@@ -49,10 +49,6 @@ public class RetryStatementNode extends StatementNode {
         return childInBucket(3);
     }
 
-    public Optional<OnFailClauseNode> onFailClause() {
-        return optionalChildInBucket(4);
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -69,22 +65,19 @@ public class RetryStatementNode extends StatementNode {
                 "retryKeyword",
                 "typeParameter",
                 "arguments",
-                "retryBody",
-                "onFailClause"};
+                "retryBody"};
     }
 
     public RetryStatementNode modify(
             Token retryKeyword,
             TypeParameterNode typeParameter,
             ParenthesizedArgList arguments,
-            StatementNode retryBody,
-            OnFailClauseNode onFailClause) {
+            StatementNode retryBody) {
         if (checkForReferenceEquality(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody,
-                onFailClause)) {
+                retryBody)) {
             return this;
         }
 
@@ -92,8 +85,7 @@ public class RetryStatementNode extends StatementNode {
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody,
-                onFailClause);
+                retryBody);
     }
 
     public RetryStatementNodeModifier modify() {
@@ -111,7 +103,6 @@ public class RetryStatementNode extends StatementNode {
         private TypeParameterNode typeParameter;
         private ParenthesizedArgList arguments;
         private StatementNode retryBody;
-        private OnFailClauseNode onFailClause;
 
         public RetryStatementNodeModifier(RetryStatementNode oldNode) {
             this.oldNode = oldNode;
@@ -119,7 +110,6 @@ public class RetryStatementNode extends StatementNode {
             this.typeParameter = oldNode.typeParameter().orElse(null);
             this.arguments = oldNode.arguments().orElse(null);
             this.retryBody = oldNode.retryBody();
-            this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
         public RetryStatementNodeModifier withRetryKeyword(
@@ -148,19 +138,12 @@ public class RetryStatementNode extends StatementNode {
             return this;
         }
 
-        public RetryStatementNodeModifier withOnFailClause(
-                OnFailClauseNode onFailClause) {
-            this.onFailClause = onFailClause;
-            return this;
-        }
-
         public RetryStatementNode apply() {
             return oldNode.modify(
                     retryKeyword,
                     typeParameter,
                     arguments,
-                    retryBody,
-                    onFailClause);
+                    retryBody);
         }
     }
 }
