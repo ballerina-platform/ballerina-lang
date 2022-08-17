@@ -843,6 +843,38 @@ public abstract class NodeVisitor {
         visitSyntaxNode(resourceAccessRestSegmentNode);
     }
 
+    public void visit(ReDisjunctionNode reDisjunctionNode) {
+        visitSyntaxNode(reDisjunctionNode);
+    }
+
+    public void visit(ReSequenceNode reSequenceNode) {
+        visitSyntaxNode(reSequenceNode);
+    }
+
+    public void visit(ReAtomQuantifierNode reAtomQuantifierNode) {
+        visitSyntaxNode(reAtomQuantifierNode);
+    }
+
+    public void visit(ReAtomNode reAtomNode) {
+        visitSyntaxNode(reAtomNode);
+    }
+
+    public void visit(ReCharSetNode reCharSetNode) {
+        visitSyntaxNode(reCharSetNode);
+    }
+
+    public void visit(ReFlagsOnOffNode reFlagsOnOffNode) {
+        visitSyntaxNode(reFlagsOnOffNode);
+    }
+
+    public void visit(ReAssertionNode reAssertionNode) {
+        visitSyntaxNode(reAssertionNode);
+    }
+
+    public void visit(ReQuantifierNode reQuantifierNode) {
+        visitSyntaxNode(reQuantifierNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

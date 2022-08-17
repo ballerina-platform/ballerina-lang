@@ -2444,5 +2444,63 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression,
                 closeBracketToken);
     }
+
+    public static STNode createReDisjunctionNode(
+            STNode reSequence) {
+
+        return new STReDisjunctionNode(
+                reSequence);
+    }
+
+    public static STNode createReSequenceNode(
+            STNode reTerm) {
+
+        return new STReSequenceNode(
+                reTerm);
+    }
+
+    public static STNode createReAtomQuantifierNode(
+            STNode reAtom,
+            STNode reQuantifier) {
+
+        return new STReAtomQuantifierNode(
+                reAtom,
+                reQuantifier);
+    }
+
+    public static STNode createReAtomNode(
+            STNode reAtom) {
+
+        return new STReAtomNode(
+                reAtom);
+    }
+
+    public static STNode createReCharSetNode(
+            STNode reCharSet) {
+
+        return new STReCharSetNode(
+                reCharSet);
+    }
+
+    public static STNode createReFlagsOnOffNode(
+            STNode reFlagsOnOff) {
+
+        return new STReFlagsOnOffNode(
+                reFlagsOnOff);
+    }
+
+    public static STNode createReAssertionNode(
+            STNode reAssertion) {
+
+        return new STReAssertionNode(
+                reAssertion);
+    }
+
+    public static STNode createReQuantifierNode(
+            STNode reBaseQuantifier) {
+
+        return new STReQuantifierNode(
+                reBaseQuantifier);
+    }
 }
 

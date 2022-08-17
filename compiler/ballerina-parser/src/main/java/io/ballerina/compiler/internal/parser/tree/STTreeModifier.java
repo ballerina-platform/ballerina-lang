@@ -2623,6 +2623,72 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 closeBracketToken);
     }
 
+    @Override
+    public STReDisjunctionNode transform(
+            STReDisjunctionNode reDisjunctionNode) {
+        STNode reSequence = modifyNode(reDisjunctionNode.reSequence);
+        return reDisjunctionNode.modify(
+                reSequence);
+    }
+
+    @Override
+    public STReSequenceNode transform(
+            STReSequenceNode reSequenceNode) {
+        STNode reTerm = modifyNode(reSequenceNode.reTerm);
+        return reSequenceNode.modify(
+                reTerm);
+    }
+
+    @Override
+    public STReAtomQuantifierNode transform(
+            STReAtomQuantifierNode reAtomQuantifierNode) {
+        STNode reAtom = modifyNode(reAtomQuantifierNode.reAtom);
+        STNode reQuantifier = modifyNode(reAtomQuantifierNode.reQuantifier);
+        return reAtomQuantifierNode.modify(
+                reAtom,
+                reQuantifier);
+    }
+
+    @Override
+    public STReAtomNode transform(
+            STReAtomNode reAtomNode) {
+        STNode reAtom = modifyNode(reAtomNode.reAtom);
+        return reAtomNode.modify(
+                reAtom);
+    }
+
+    @Override
+    public STReCharSetNode transform(
+            STReCharSetNode reCharSetNode) {
+        STNode reCharSet = modifyNode(reCharSetNode.reCharSet);
+        return reCharSetNode.modify(
+                reCharSet);
+    }
+
+    @Override
+    public STReFlagsOnOffNode transform(
+            STReFlagsOnOffNode reFlagsOnOffNode) {
+        STNode reFlagsOnOff = modifyNode(reFlagsOnOffNode.reFlagsOnOff);
+        return reFlagsOnOffNode.modify(
+                reFlagsOnOff);
+    }
+
+    @Override
+    public STReAssertionNode transform(
+            STReAssertionNode reAssertionNode) {
+        STNode reAssertion = modifyNode(reAssertionNode.reAssertion);
+        return reAssertionNode.modify(
+                reAssertion);
+    }
+
+    @Override
+    public STReQuantifierNode transform(
+            STReQuantifierNode reQuantifierNode) {
+        STNode reBaseQuantifier = modifyNode(reQuantifierNode.reBaseQuantifier);
+        return reQuantifierNode.modify(
+                reBaseQuantifier);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

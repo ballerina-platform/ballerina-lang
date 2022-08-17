@@ -3225,5 +3225,79 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBracketToken.internalNode());
         return stResourceAccessRestSegmentNode.createUnlinkedFacade();
     }
+
+    public static ReDisjunctionNode createReDisjunctionNode(
+            SeparatedNodeList<ReSequenceNode> reSequence) {
+        Objects.requireNonNull(reSequence, "reSequence must not be null");
+
+        STNode stReDisjunctionNode = STNodeFactory.createReDisjunctionNode(
+                reSequence.underlyingListNode().internalNode());
+        return stReDisjunctionNode.createUnlinkedFacade();
+    }
+
+    public static ReSequenceNode createReSequenceNode(
+            ReTermNode reTerm) {
+        Objects.requireNonNull(reTerm, "reTerm must not be null");
+
+        STNode stReSequenceNode = STNodeFactory.createReSequenceNode(
+                reTerm.internalNode());
+        return stReSequenceNode.createUnlinkedFacade();
+    }
+
+    public static ReAtomQuantifierNode createReAtomQuantifierNode(
+            ReAtomNode reAtom,
+            ReQuantifierNode reQuantifier) {
+        Objects.requireNonNull(reAtom, "reAtom must not be null");
+
+        STNode stReAtomQuantifierNode = STNodeFactory.createReAtomQuantifierNode(
+                reAtom.internalNode(),
+                getOptionalSTNode(reQuantifier));
+        return stReAtomQuantifierNode.createUnlinkedFacade();
+    }
+
+    public static ReAtomNode createReAtomNode(
+            Node reAtom) {
+        Objects.requireNonNull(reAtom, "reAtom must not be null");
+
+        STNode stReAtomNode = STNodeFactory.createReAtomNode(
+                reAtom.internalNode());
+        return stReAtomNode.createUnlinkedFacade();
+    }
+
+    public static ReCharSetNode createReCharSetNode(
+            Node reCharSet) {
+        Objects.requireNonNull(reCharSet, "reCharSet must not be null");
+
+        STNode stReCharSetNode = STNodeFactory.createReCharSetNode(
+                reCharSet.internalNode());
+        return stReCharSetNode.createUnlinkedFacade();
+    }
+
+    public static ReFlagsOnOffNode createReFlagsOnOffNode(
+            Node reFlagsOnOff) {
+        Objects.requireNonNull(reFlagsOnOff, "reFlagsOnOff must not be null");
+
+        STNode stReFlagsOnOffNode = STNodeFactory.createReFlagsOnOffNode(
+                reFlagsOnOff.internalNode());
+        return stReFlagsOnOffNode.createUnlinkedFacade();
+    }
+
+    public static ReAssertionNode createReAssertionNode(
+            Node reAssertion) {
+        Objects.requireNonNull(reAssertion, "reAssertion must not be null");
+
+        STNode stReAssertionNode = STNodeFactory.createReAssertionNode(
+                reAssertion.internalNode());
+        return stReAssertionNode.createUnlinkedFacade();
+    }
+
+    public static ReQuantifierNode createReQuantifierNode(
+            Node reBaseQuantifier) {
+        Objects.requireNonNull(reBaseQuantifier, "reBaseQuantifier must not be null");
+
+        STNode stReQuantifierNode = STNodeFactory.createReQuantifierNode(
+                reBaseQuantifier.internalNode());
+        return stReQuantifierNode.createUnlinkedFacade();
+    }
 }
 

@@ -3315,6 +3315,81 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeBracketToken);
     }
 
+    @Override
+    public ReDisjunctionNode transform(
+            ReDisjunctionNode reDisjunctionNode) {
+        SeparatedNodeList<ReSequenceNode> reSequence =
+                modifySeparatedNodeList(reDisjunctionNode.reSequence());
+        return reDisjunctionNode.modify(
+                reSequence);
+    }
+
+    @Override
+    public ReSequenceNode transform(
+            ReSequenceNode reSequenceNode) {
+        ReTermNode reTerm =
+                modifyNode(reSequenceNode.reTerm());
+        return reSequenceNode.modify(
+                reTerm);
+    }
+
+    @Override
+    public ReAtomQuantifierNode transform(
+            ReAtomQuantifierNode reAtomQuantifierNode) {
+        ReAtomNode reAtom =
+                modifyNode(reAtomQuantifierNode.reAtom());
+        ReQuantifierNode reQuantifier =
+                modifyNode(reAtomQuantifierNode.reQuantifier().orElse(null));
+        return reAtomQuantifierNode.modify(
+                reAtom,
+                reQuantifier);
+    }
+
+    @Override
+    public ReAtomNode transform(
+            ReAtomNode reAtomNode) {
+        Node reAtom =
+                modifyNode(reAtomNode.reAtom());
+        return reAtomNode.modify(
+                reAtom);
+    }
+
+    @Override
+    public ReCharSetNode transform(
+            ReCharSetNode reCharSetNode) {
+        Node reCharSet =
+                modifyNode(reCharSetNode.reCharSet());
+        return reCharSetNode.modify(
+                reCharSet);
+    }
+
+    @Override
+    public ReFlagsOnOffNode transform(
+            ReFlagsOnOffNode reFlagsOnOffNode) {
+        Node reFlagsOnOff =
+                modifyNode(reFlagsOnOffNode.reFlagsOnOff());
+        return reFlagsOnOffNode.modify(
+                reFlagsOnOff);
+    }
+
+    @Override
+    public ReAssertionNode transform(
+            ReAssertionNode reAssertionNode) {
+        Node reAssertion =
+                modifyNode(reAssertionNode.reAssertion());
+        return reAssertionNode.modify(
+                reAssertion);
+    }
+
+    @Override
+    public ReQuantifierNode transform(
+            ReQuantifierNode reQuantifierNode) {
+        Node reBaseQuantifier =
+                modifyNode(reQuantifierNode.reBaseQuantifier());
+        return reQuantifierNode.modify(
+                reBaseQuantifier);
+    }
+
     // Tokens
 
     @Override
