@@ -419,6 +419,11 @@ public class Package {
             return this;
         }
 
+        Modifier withCompilationOptions(CompilationOptions compilationOptions) {
+            this.compilationOptions = this.compilationOptions.acceptTheirs(compilationOptions);
+            return this;
+        }
+
         /**
          * Adds a new module in a new package that is copied from the existing.
          *

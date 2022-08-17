@@ -34,13 +34,15 @@ public class CompilationOptions {
     Boolean dumpRawGraphs;
     Boolean withCodeGenerators;
     Boolean withCodeModifiers;
+    Boolean withIDLGenerators;
     Boolean configSchemaGen;
     Boolean exportOpenAPI;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
-                       Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI) {
+                       Boolean withCodeModifiers, Boolean withIDLGenerators, Boolean configSchemaGen,
+                       Boolean exportOpenAPI) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -52,6 +54,7 @@ public class CompilationOptions {
         this.dumpRawGraphs = dumpRawGraphs;
         this.withCodeGenerators = withCodeGenerators;
         this.withCodeModifiers = withCodeModifiers;
+        this.withIDLGenerators = withIDLGenerators;
         this.configSchemaGen = configSchemaGen;
         this.exportOpenAPI = exportOpenAPI;
     }
@@ -98,6 +101,10 @@ public class CompilationOptions {
 
     public boolean withCodeModifiers() {
         return toBooleanDefaultIfNull(this.withCodeModifiers);
+    }
+
+    public boolean withIDLGenerators() {
+        return toBooleanTrueIfNull(this.withIDLGenerators);
     }
 
     public Boolean configSchemaGen() {
@@ -171,6 +178,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.withCodeModifiers(this.withCodeModifiers);
         }
+        if (theirOptions.withIDLGenerators != null) {
+            compilationOptionsBuilder.withIDLGenerators(theirOptions.withIDLGenerators);
+        } else {
+            compilationOptionsBuilder.withIDLGenerators(this.withIDLGenerators);
+        }
         if (theirOptions.configSchemaGen != null) {
             compilationOptionsBuilder.setConfigSchemaGen(theirOptions.configSchemaGen);
         } else {
@@ -226,6 +238,7 @@ public class CompilationOptions {
         private Boolean dumpRawGraph;
         private Boolean withCodeGenerators;
         private Boolean withCodeModifiers;
+        private Boolean withIDLGenerators;
         private Boolean configSchemaGen;
         private Boolean exportOpenAPI;
 
@@ -289,6 +302,11 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder withIDLGenerators(Boolean value) {
+            withIDLGenerators = value;
+            return this;
+        }
+
         CompilationOptionsBuilder setExportOpenAPI(Boolean value) {
             exportOpenAPI = value;
             return this;
@@ -297,7 +315,7 @@ public class CompilationOptions {
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
-                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI);
+                    withCodeGenerators, withCodeModifiers, withIDLGenerators, configSchemaGen, exportOpenAPI);
         }
     }
 }

@@ -19,6 +19,7 @@ package io.ballerina.projects.internal.plugins;
 
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.plugins.CompilerPlugin;
+import io.ballerina.projects.plugins.IDLGeneratorPlugin;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -53,6 +54,16 @@ public class CompilerPlugins {
 
     public static List<CompilerPlugin> getBuiltInPlugins() {
         return builtInPlugins;
+    }
+
+    public static List<IDLGeneratorPlugin> getBuiltInIDLPlugins() {
+        List<IDLGeneratorPlugin> builtInIDLPlugins = new ArrayList<>();
+        ServiceLoader<IDLGeneratorPlugin> idlPluginServiceLoader = ServiceLoader
+                .load(IDLGeneratorPlugin.class, CompilerPlugins.class.getClassLoader());
+        for (IDLGeneratorPlugin idlGeneratorPlugin : idlPluginServiceLoader) {
+            builtInIDLPlugins.add(idlGeneratorPlugin);
+        }
+        return builtInIDLPlugins;
     }
 
     public static CompilerPlugin loadCompilerPlugin(String pluginClassName, List<Path> jarDependencyPaths) {

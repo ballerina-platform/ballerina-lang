@@ -17,14 +17,19 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.TransactionImportValidator;
+import io.ballerina.projects.plugins.IDLClientGenerator;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
@@ -37,6 +42,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -113,16 +119,20 @@ class DocumentContext {
         return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope) {
+    Set<ModuleLoadRequest> moduleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope,
+                                              IDLPluginManager idlPluginManager, Package currentPkg) {
         if (this.moduleLoadRequests != null) {
             return this.moduleLoadRequests;
         }
 
-        this.moduleLoadRequests = getModuleLoadRequests(currentModuleName, scope);
+        this.moduleLoadRequests = getModuleLoadRequests(currentModuleName, scope, idlPluginManager, currentPkg);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope) {
+    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleName currentModuleName,
+                                                         PackageDependencyScope scope,
+                                                         IDLPluginManager idlPluginManager,
+                                                         Package currentPkg) {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
@@ -141,8 +151,26 @@ class DocumentContext {
                     moduleName, scope, DependencyResolutionType.PLATFORM_PROVIDED);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
-
+        if (idlPluginManager != null) {
+            generateIDLClients(syntaxTree, idlPluginManager, currentPkg);
+            // Add generated client modules to module load requests
+            for (Map.Entry<Location, PackageID> locationPackageIDEntry : idlPluginManager.idlClientMap().entrySet()) {
+                PackageID packageID = locationPackageIDEntry.getValue();
+                moduleLoadRequests.add(new ModuleLoadRequest(
+                        PackageOrg.from(packageID.orgName.getValue()),
+                        packageID.name.getValue(),
+                        PackageDependencyScope.DEFAULT,
+                        DependencyResolutionType.SOURCE));
+            }
+        }
         return moduleLoadRequests;
+    }
+
+    private void generateIDLClients(SyntaxTree syntaxTree, IDLPluginManager idlPluginManager, Package currentPkg) {
+        CompilerContext compilerContext = currentPkg.project().projectEnvironmentContext()
+                .getService(CompilerContext.class);
+        IDLClients idlClients = IDLClients.getInstance(compilerContext);
+        syntaxTree.rootNode().accept(new ClientNodeVisitor(idlPluginManager, currentPkg, idlClients.idlClientMap()));
     }
 
     private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl, PackageDependencyScope scope) {
@@ -181,5 +209,35 @@ class DocumentContext {
 
     DocumentContext duplicate() {
         return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode());
+    }
+
+    private static class ClientNodeVisitor extends NodeVisitor {
+
+        private final IDLPluginManager idlPluginManager;
+        private final Package currentPkg;
+        private final Map<Location, PackageID> idlClientMap;
+
+        public ClientNodeVisitor(IDLPluginManager idlPluginManager,
+                                 Package currentPkg, Map<Location, PackageID> idlClientMap) {
+            this.idlPluginManager = idlPluginManager;
+            this.currentPkg = currentPkg;
+            this.idlClientMap = idlClientMap;
+        }
+
+        @Override
+        public void visit(ClientDeclarationNode clientDeclarationNode) {
+            for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
+                for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
+                    if (idlClientGenerator.canHandle(clientDeclarationNode)) {
+                        IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
+                                new IDLPluginManager.IDLSourceGeneratorContextImpl(
+                                        clientDeclarationNode,
+                                        currentPkg, idlClientMap,
+                                        idlPluginManager.generatedModuleConfigs());
+                        idlClientGenerator.perform(idlSourceGeneratorContext);
+                    }
+                }
+            }
+        }
     }
 }

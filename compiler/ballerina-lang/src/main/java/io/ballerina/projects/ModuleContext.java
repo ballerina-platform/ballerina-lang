@@ -213,26 +213,28 @@ class ModuleContext {
         return moduleDescDependencies;
     }
 
-    Set<ModuleLoadRequest> populateModuleLoadRequests() {
+    Set<ModuleLoadRequest> populateModuleLoadRequests(IDLPluginManager idlPluginManager, Package currentPkg) {
         if (allModuleLoadRequests != null) {
             return allModuleLoadRequests;
         }
         allModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.DEFAULT));
+            allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(),
+                    PackageDependencyScope.DEFAULT, idlPluginManager, currentPkg));
         }
 
         return allModuleLoadRequests;
     }
 
-    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
+    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests(IDLPluginManager idlPluginManager, Package currentPkg) {
         if (allTestModuleLoadRequests != null) {
             return allTestModuleLoadRequests;
         }
         allTestModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : testDocContextMap.values()) {
             allTestModuleLoadRequests.addAll(
-                    docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY));
+                    docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY,
+                            idlPluginManager, currentPkg));
         }
 
         return allTestModuleLoadRequests;

@@ -78,14 +78,21 @@ public class PackageResolution {
     private DiagnosticResult diagnosticResult;
     private boolean autoUpdate;
     private String dependencyGraphDump;
+    private final IDLPluginManager idlPluginManager;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
+    private List<ModuleConfig> generatedModules;
 
     private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
+        if (compilationOptions.withIDLGenerators()) {
+            this.idlPluginManager = IDLPluginManager.initPlugins();
+        } else {
+            this.idlPluginManager = null;
+        }
 
         ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
@@ -169,6 +176,10 @@ public class PackageResolution {
         return autoUpdate;
     }
 
+    List<ModuleConfig> generatedModules() {
+        return generatedModules;
+    }
+
     private boolean getSticky(PackageContext rootPackageContext) {
         boolean sticky = rootPackageContext.project().buildOptions().sticky();
         if (sticky) {
@@ -232,12 +243,17 @@ public class PackageResolution {
         LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new ModuleContext.OverwritableLinkedHashSet();
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests());
+            allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests(
+                    idlPluginManager, rootPackageContext.project().currentPackage()));
         }
 
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests());
+            allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests(
+                    idlPluginManager, rootPackageContext.project().currentPackage()));
+        }
+        if (idlPluginManager != null) {
+            setGeneratedModules(idlPluginManager.generatedModuleConfigs());
         }
 
         // TODO: Move to compiler extension once new Compiler Extension model is introduced
@@ -478,6 +494,10 @@ public class PackageResolution {
                 .setDumpGraph(compilationOptions.dumpGraph())
                 .setDumpRawGraphs(compilationOptions.dumpRawGraphs())
                 .build();
+    }
+
+    private void setGeneratedModules(List<ModuleConfig> generatedModules) {
+        this.generatedModules = generatedModules;
     }
 
     /**
