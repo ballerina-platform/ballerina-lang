@@ -6483,6 +6483,11 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(invocation);
 
         rewriteExprs(invocation.requiredArgs);
+        if (invocation.langLibInvocation && !invocation.requiredArgs.isEmpty()) {
+            invocation.expr = invocation.requiredArgs.get(0);
+        } else {
+            invocation.expr = rewriteExpr(invocation.expr);
+        }
         fixStreamTypeCastsInInvocationParams(invocation);
         fixNonRestArgTypeCastInTypeParamInvocation(invocation);
 
@@ -6495,7 +6500,6 @@ public class Desugar extends BLangNodeVisitor {
             visitFunctionPointerInvocation(invocation);
             return;
         }
-        invocation.expr = rewriteExpr(invocation.expr);
         result = invRef;
 
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
