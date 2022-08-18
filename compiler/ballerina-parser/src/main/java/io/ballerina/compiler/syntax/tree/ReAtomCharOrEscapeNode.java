@@ -26,14 +26,14 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class ReDisjunctionNode extends NonTerminalNode {
+public class ReAtomCharOrEscapeNode extends ReAtomNode {
 
-    public ReDisjunctionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ReAtomCharOrEscapeNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public SeparatedNodeList<ReSequenceNode> reSequence() {
-        return new SeparatedNodeList<>(childInBucket(0));
+    public Node reAtomCharOrEscape() {
+        return childInBucket(0);
     }
 
     @Override
@@ -49,22 +49,22 @@ public class ReDisjunctionNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "reSequence"};
+                "reAtomCharOrEscape"};
     }
 
-    public ReDisjunctionNode modify(
-            SeparatedNodeList<ReSequenceNode> reSequence) {
+    public ReAtomCharOrEscapeNode modify(
+            Node reAtomCharOrEscape) {
         if (checkForReferenceEquality(
-                reSequence.underlyingListNode())) {
+                reAtomCharOrEscape)) {
             return this;
         }
 
-        return NodeFactory.createReDisjunctionNode(
-                reSequence);
+        return NodeFactory.createReAtomCharOrEscapeNode(
+                reAtomCharOrEscape);
     }
 
-    public ReDisjunctionNodeModifier modify() {
-        return new ReDisjunctionNodeModifier(this);
+    public ReAtomCharOrEscapeNodeModifier modify() {
+        return new ReAtomCharOrEscapeNodeModifier(this);
     }
 
     /**
@@ -72,25 +72,25 @@ public class ReDisjunctionNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class ReDisjunctionNodeModifier {
-        private final ReDisjunctionNode oldNode;
-        private SeparatedNodeList<ReSequenceNode> reSequence;
+    public static class ReAtomCharOrEscapeNodeModifier {
+        private final ReAtomCharOrEscapeNode oldNode;
+        private Node reAtomCharOrEscape;
 
-        public ReDisjunctionNodeModifier(ReDisjunctionNode oldNode) {
+        public ReAtomCharOrEscapeNodeModifier(ReAtomCharOrEscapeNode oldNode) {
             this.oldNode = oldNode;
-            this.reSequence = oldNode.reSequence();
+            this.reAtomCharOrEscape = oldNode.reAtomCharOrEscape();
         }
 
-        public ReDisjunctionNodeModifier withReSequence(
-                SeparatedNodeList<ReSequenceNode> reSequence) {
-            Objects.requireNonNull(reSequence, "reSequence must not be null");
-            this.reSequence = reSequence;
+        public ReAtomCharOrEscapeNodeModifier withReAtomCharOrEscape(
+                Node reAtomCharOrEscape) {
+            Objects.requireNonNull(reAtomCharOrEscape, "reAtomCharOrEscape must not be null");
+            this.reAtomCharOrEscape = reAtomCharOrEscape;
             return this;
         }
 
-        public ReDisjunctionNode apply() {
+        public ReAtomCharOrEscapeNode apply() {
             return oldNode.modify(
-                    reSequence);
+                    reAtomCharOrEscape);
         }
     }
 }

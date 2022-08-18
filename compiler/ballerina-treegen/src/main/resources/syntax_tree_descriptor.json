@@ -4457,25 +4457,14 @@
             ]
         },
         {
-            "name": "ReDisjunctionNode",
-            "base": "Node",
-            "kind": "RE_DISJUNCTION",
-            "attributes": [
-                {
-                    "name": "reSequence",
-                    "type": "ReSequenceNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
-                }
-            ]
-        },
-        {
             "name": "ReSequenceNode",
             "base": "Node",
             "kind": "RE_SEQUENCE",
             "attributes": [
                 {
                     "name": "reTerm",
-                    "type": "ReTermNode"
+                    "type": "ReTermNode",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -4491,7 +4480,7 @@
             "attributes": [
                 {
                     "name": "reAtom",
-                    "type": "ReAtomNode"
+                    "type": "Node"
                 },
                 {
                     "name": "reQuantifier",
@@ -4503,11 +4492,36 @@
         {
             "name": "ReAtomNode",
             "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ReAtomCharOrEscapeNode",
+            "base": "ReAtomNode",
             "kind": "RE_ATOM",
             "attributes": [
                 {
-                    "name": "reAtom",
+                    "name": "reAtomCharOrEscape",
                     "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReCharacterClassNode",
+            "base": "ReAtomNode",
+            "kind": "RE_CHARACTER_CLASS",
+            "attributes": [
+                {
+                    "name": "openBracketAndNegation",
+                    "type": "Token"
+                },
+                {
+                    "name": "reCharSet",
+                    "type": "ReCharSetNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
                 }
             ]
         },
@@ -4519,6 +4533,50 @@
                 {
                     "name": "reCharSet",
                     "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReCapturingGroupsNode",
+            "base": "ReAtomNode",
+            "kind": "RE_CAPTURING_GROUPS",
+            "attributes": [
+                {
+                    "name": "openParenthesis",
+                    "type": "Token"
+                },
+                {
+                    "name": "reFlagExpression",
+                    "type": "ReFlagExpressionNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "reSequences",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenthesis",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ReFlagExpressionNode",
+            "base": "Node",
+            "kind": "RE_FLAG_EXPR",
+            "attributes": [
+                {
+                    "name": "questionMark",
+                    "type": "Token"
+                },
+                {
+                    "name": "reFlagsOnOff",
+                    "type": "ReFlagsOnOffNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
                 }
             ]
         },
@@ -4550,7 +4608,7 @@
             "kind": "RE_QUANTIFIER",
             "attributes": [
                 {
-                    "name": "reBaseQuantifier",
+                    "name": "reQuantifier",
                     "type": "Node"
                 }
             ]

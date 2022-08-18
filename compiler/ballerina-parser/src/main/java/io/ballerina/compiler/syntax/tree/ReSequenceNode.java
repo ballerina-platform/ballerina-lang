@@ -32,8 +32,8 @@ public class ReSequenceNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public ReTermNode reTerm() {
-        return childInBucket(0);
+    public NodeList<ReTermNode> reTerm() {
+        return new NodeList<>(childInBucket(0));
     }
 
     @Override
@@ -53,9 +53,9 @@ public class ReSequenceNode extends NonTerminalNode {
     }
 
     public ReSequenceNode modify(
-            ReTermNode reTerm) {
+            NodeList<ReTermNode> reTerm) {
         if (checkForReferenceEquality(
-                reTerm)) {
+                reTerm.underlyingListNode())) {
             return this;
         }
 
@@ -74,7 +74,7 @@ public class ReSequenceNode extends NonTerminalNode {
      */
     public static class ReSequenceNodeModifier {
         private final ReSequenceNode oldNode;
-        private ReTermNode reTerm;
+        private NodeList<ReTermNode> reTerm;
 
         public ReSequenceNodeModifier(ReSequenceNode oldNode) {
             this.oldNode = oldNode;
@@ -82,7 +82,7 @@ public class ReSequenceNode extends NonTerminalNode {
         }
 
         public ReSequenceNodeModifier withReTerm(
-                ReTermNode reTerm) {
+                NodeList<ReTermNode> reTerm) {
             Objects.requireNonNull(reTerm, "reTerm must not be null");
             this.reTerm = reTerm;
             return this;

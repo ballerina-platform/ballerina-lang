@@ -17,15 +17,11 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
-import java.util.List;
-
 /**
  * string:RegExp regEx = re `^a${b}c$`.
  *
  * @since 22021.3.0
  */
 public interface RegExpTemplateLiteralNode extends ExpressionNode {
-    List<? extends ExpressionNode> getExpressions();
 
-    void addExpressions(ExpressionNode expression);
 }

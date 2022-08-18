@@ -33,7 +33,7 @@ public class ReAtomQuantifierNode extends ReTermNode {
         super(internalNode, position, parent);
     }
 
-    public ReAtomNode reAtom() {
+    public Node reAtom() {
         return childInBucket(0);
     }
 
@@ -59,7 +59,7 @@ public class ReAtomQuantifierNode extends ReTermNode {
     }
 
     public ReAtomQuantifierNode modify(
-            ReAtomNode reAtom,
+            Node reAtom,
             ReQuantifierNode reQuantifier) {
         if (checkForReferenceEquality(
                 reAtom,
@@ -83,7 +83,7 @@ public class ReAtomQuantifierNode extends ReTermNode {
      */
     public static class ReAtomQuantifierNodeModifier {
         private final ReAtomQuantifierNode oldNode;
-        private ReAtomNode reAtom;
+        private Node reAtom;
         private ReQuantifierNode reQuantifier;
 
         public ReAtomQuantifierNodeModifier(ReAtomQuantifierNode oldNode) {
@@ -93,7 +93,7 @@ public class ReAtomQuantifierNode extends ReTermNode {
         }
 
         public ReAtomQuantifierNodeModifier withReAtom(
-                ReAtomNode reAtom) {
+                Node reAtom) {
             Objects.requireNonNull(reAtom, "reAtom must not be null");
             this.reAtom = reAtom;
             return this;

@@ -17,68 +17,22 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReAtomNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STReAtomNode extends STNode {
-    public final STNode reAtom;
+public abstract class STReAtomNode extends STNode {
 
-    STReAtomNode(
-            STNode reAtom) {
-        this(
-                reAtom,
-                Collections.emptyList());
+    STReAtomNode(SyntaxKind kind) {
+        super(kind);
     }
 
-    STReAtomNode(
-            STNode reAtom,
-            Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_ATOM, diagnostics);
-        this.reAtom = reAtom;
-
-        addChildren(
-                reAtom);
-    }
-
-    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReAtomNode(
-                this.reAtom,
-                diagnostics);
-    }
-
-    public STReAtomNode modify(
-            STNode reAtom) {
-        if (checkForReferenceEquality(
-                reAtom)) {
-            return this;
-        }
-
-        return new STReAtomNode(
-                reAtom,
-                diagnostics);
-    }
-
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReAtomNode(this, position, parent);
-    }
-
-    @Override
-    public void accept(STNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(STNodeTransformer<T> transformer) {
-        return transformer.transform(this);
+    STReAtomNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
     }
 }

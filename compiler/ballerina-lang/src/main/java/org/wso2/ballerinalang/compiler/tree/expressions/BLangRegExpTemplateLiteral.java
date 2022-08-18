@@ -18,37 +18,17 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RegExpTemplateLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @since 2201.3.0
  */
 public class BLangRegExpTemplateLiteral extends BLangExpression implements RegExpTemplateLiteralNode {
-
-    public List<BLangExpression> patternFragments;
-
-    public BLangExpression pattern;
-
-    public BLangRegExpTemplateLiteral() {
-        patternFragments = new ArrayList<>();
-    }
-
-    @Override
-    public List<BLangExpression> getExpressions() {
-        return patternFragments;
-    }
-
-    @Override
-    public void addExpressions(ExpressionNode expression) {
-        this.patternFragments.add((BLangExpression) expression);
-    }
+    public BLangReDisjunction reDisjunction;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -72,6 +52,6 @@ public class BLangRegExpTemplateLiteral extends BLangExpression implements RegEx
 
     @Override
     public String toString() {
-        return "BLangRegExpTemplateLiteral: " + patternFragments;
+        return "BLangRegExpTemplateLiteral: " + reDisjunction;
     }
 }

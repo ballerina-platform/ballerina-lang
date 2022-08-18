@@ -32,7 +32,7 @@ public class ReQuantifierNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Node reBaseQuantifier() {
+    public Node reQuantifier() {
         return childInBucket(0);
     }
 
@@ -49,18 +49,18 @@ public class ReQuantifierNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "reBaseQuantifier"};
+                "reQuantifier"};
     }
 
     public ReQuantifierNode modify(
-            Node reBaseQuantifier) {
+            Node reQuantifier) {
         if (checkForReferenceEquality(
-                reBaseQuantifier)) {
+                reQuantifier)) {
             return this;
         }
 
         return NodeFactory.createReQuantifierNode(
-                reBaseQuantifier);
+                reQuantifier);
     }
 
     public ReQuantifierNodeModifier modify() {
@@ -74,23 +74,23 @@ public class ReQuantifierNode extends NonTerminalNode {
      */
     public static class ReQuantifierNodeModifier {
         private final ReQuantifierNode oldNode;
-        private Node reBaseQuantifier;
+        private Node reQuantifier;
 
         public ReQuantifierNodeModifier(ReQuantifierNode oldNode) {
             this.oldNode = oldNode;
-            this.reBaseQuantifier = oldNode.reBaseQuantifier();
+            this.reQuantifier = oldNode.reQuantifier();
         }
 
-        public ReQuantifierNodeModifier withReBaseQuantifier(
-                Node reBaseQuantifier) {
-            Objects.requireNonNull(reBaseQuantifier, "reBaseQuantifier must not be null");
-            this.reBaseQuantifier = reBaseQuantifier;
+        public ReQuantifierNodeModifier withReQuantifier(
+                Node reQuantifier) {
+            Objects.requireNonNull(reQuantifier, "reQuantifier must not be null");
+            this.reQuantifier = reQuantifier;
             return this;
         }
 
         public ReQuantifierNode apply() {
             return oldNode.modify(
-                    reBaseQuantifier);
+                    reQuantifier);
         }
     }
 }

@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReQuantifierNode;
+import io.ballerina.compiler.syntax.tree.ReFlagExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,46 +30,66 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STReQuantifierNode extends STNode {
-    public final STNode reQuantifier;
+public class STReFlagExpressionNode extends STNode {
+    public final STNode questionMark;
+    public final STNode reFlagsOnOff;
+    public final STNode colon;
 
-    STReQuantifierNode(
-            STNode reQuantifier) {
+    STReFlagExpressionNode(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon) {
         this(
-                reQuantifier,
+                questionMark,
+                reFlagsOnOff,
+                colon,
                 Collections.emptyList());
     }
 
-    STReQuantifierNode(
-            STNode reQuantifier,
+    STReFlagExpressionNode(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_QUANTIFIER, diagnostics);
-        this.reQuantifier = reQuantifier;
+        super(SyntaxKind.RE_FLAG_EXPR, diagnostics);
+        this.questionMark = questionMark;
+        this.reFlagsOnOff = reFlagsOnOff;
+        this.colon = colon;
 
         addChildren(
-                reQuantifier);
+                questionMark,
+                reFlagsOnOff,
+                colon);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReQuantifierNode(
-                this.reQuantifier,
+        return new STReFlagExpressionNode(
+                this.questionMark,
+                this.reFlagsOnOff,
+                this.colon,
                 diagnostics);
     }
 
-    public STReQuantifierNode modify(
-            STNode reQuantifier) {
+    public STReFlagExpressionNode modify(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon) {
         if (checkForReferenceEquality(
-                reQuantifier)) {
+                questionMark,
+                reFlagsOnOff,
+                colon)) {
             return this;
         }
 
-        return new STReQuantifierNode(
-                reQuantifier,
+        return new STReFlagExpressionNode(
+                questionMark,
+                reFlagsOnOff,
+                colon,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReQuantifierNode(this, position, parent);
+        return new ReFlagExpressionNode(this, position, parent);
     }
 
     @Override

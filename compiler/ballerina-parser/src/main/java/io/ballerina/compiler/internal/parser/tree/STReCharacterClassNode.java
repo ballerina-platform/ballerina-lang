@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReDisjunctionNode;
+import io.ballerina.compiler.syntax.tree.ReCharacterClassNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,46 +30,66 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STReDisjunctionNode extends STNode {
-    public final STNode reSequence;
+public class STReCharacterClassNode extends STReAtomNode {
+    public final STNode openBracketAndNegation;
+    public final STNode reCharSet;
+    public final STNode closeBracket;
 
-    STReDisjunctionNode(
-            STNode reSequence) {
+    STReCharacterClassNode(
+            STNode openBracketAndNegation,
+            STNode reCharSet,
+            STNode closeBracket) {
         this(
-                reSequence,
+                openBracketAndNegation,
+                reCharSet,
+                closeBracket,
                 Collections.emptyList());
     }
 
-    STReDisjunctionNode(
-            STNode reSequence,
+    STReCharacterClassNode(
+            STNode openBracketAndNegation,
+            STNode reCharSet,
+            STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_DISJUNCTION, diagnostics);
-        this.reSequence = reSequence;
+        super(SyntaxKind.RE_CHARACTER_CLASS, diagnostics);
+        this.openBracketAndNegation = openBracketAndNegation;
+        this.reCharSet = reCharSet;
+        this.closeBracket = closeBracket;
 
         addChildren(
-                reSequence);
+                openBracketAndNegation,
+                reCharSet,
+                closeBracket);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReDisjunctionNode(
-                this.reSequence,
+        return new STReCharacterClassNode(
+                this.openBracketAndNegation,
+                this.reCharSet,
+                this.closeBracket,
                 diagnostics);
     }
 
-    public STReDisjunctionNode modify(
-            STNode reSequence) {
+    public STReCharacterClassNode modify(
+            STNode openBracketAndNegation,
+            STNode reCharSet,
+            STNode closeBracket) {
         if (checkForReferenceEquality(
-                reSequence)) {
+                openBracketAndNegation,
+                reCharSet,
+                closeBracket)) {
             return this;
         }
 
-        return new STReDisjunctionNode(
-                reSequence,
+        return new STReCharacterClassNode(
+                openBracketAndNegation,
+                reCharSet,
+                closeBracket,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReDisjunctionNode(this, position, parent);
+        return new ReCharacterClassNode(this, position, parent);
     }
 
     @Override

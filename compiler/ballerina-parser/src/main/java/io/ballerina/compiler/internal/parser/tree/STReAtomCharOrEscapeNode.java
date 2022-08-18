@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReQuantifierNode;
+import io.ballerina.compiler.syntax.tree.ReAtomCharOrEscapeNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,46 +30,46 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STReQuantifierNode extends STNode {
-    public final STNode reQuantifier;
+public class STReAtomCharOrEscapeNode extends STReAtomNode {
+    public final STNode reAtomCharOrEscape;
 
-    STReQuantifierNode(
-            STNode reQuantifier) {
+    STReAtomCharOrEscapeNode(
+            STNode reAtomCharOrEscape) {
         this(
-                reQuantifier,
+                reAtomCharOrEscape,
                 Collections.emptyList());
     }
 
-    STReQuantifierNode(
-            STNode reQuantifier,
+    STReAtomCharOrEscapeNode(
+            STNode reAtomCharOrEscape,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_QUANTIFIER, diagnostics);
-        this.reQuantifier = reQuantifier;
+        super(SyntaxKind.RE_ATOM, diagnostics);
+        this.reAtomCharOrEscape = reAtomCharOrEscape;
 
         addChildren(
-                reQuantifier);
+                reAtomCharOrEscape);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReQuantifierNode(
-                this.reQuantifier,
+        return new STReAtomCharOrEscapeNode(
+                this.reAtomCharOrEscape,
                 diagnostics);
     }
 
-    public STReQuantifierNode modify(
-            STNode reQuantifier) {
+    public STReAtomCharOrEscapeNode modify(
+            STNode reAtomCharOrEscape) {
         if (checkForReferenceEquality(
-                reQuantifier)) {
+                reAtomCharOrEscape)) {
             return this;
         }
 
-        return new STReQuantifierNode(
-                reQuantifier,
+        return new STReAtomCharOrEscapeNode(
+                reAtomCharOrEscape,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReQuantifierNode(this, position, parent);
+        return new ReAtomCharOrEscapeNode(this, position, parent);
     }
 
     @Override
