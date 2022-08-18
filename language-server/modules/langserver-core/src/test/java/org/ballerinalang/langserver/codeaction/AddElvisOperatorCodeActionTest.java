@@ -29,14 +29,18 @@ public class AddElvisOperatorCodeActionTest extends AbstractCodeActionTest{
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {
-//                {"add_elvis_operator_in_mapping_constructor1.json"},
+                {"add_elvis_operator_in_mapping_constructor.json"},
                 {"add_elvis_operator_in_variable_declaration1.json"},
+                {"add_elvis_operator_in_variable_declaration2.json"},
+                {"add_elvis_operator_in_positional_argument.json"},
         };
     }
 
     @DataProvider(name = "negative-codeaction-data-provider")
     public Object[][] negativeDataProvider() {
-        return new Object[0][];
+        return new Object[][] {
+                {"add_elvis_operator_in_mapping_constructor_negative1.json"}
+        };
     }
     
 
