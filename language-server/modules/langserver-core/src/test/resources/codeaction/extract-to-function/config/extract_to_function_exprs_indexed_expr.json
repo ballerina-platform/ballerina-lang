@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 22
+    },
+    "end": {
+      "line": 2,
+      "character": 31
+    }
+  },
+  "source": "extract_to_function_exprs_indexed_expr.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 1
+            },
+            "end": {
+              "line": 3,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(int[] intArr) returns int {\n    return intArr[0];\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 22
+            },
+            "end": {
+              "line": 2,
+              "character": 31
+            }
+          },
+          "newText": "extracted(intArr)"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for expressions, indexed expression"
+}

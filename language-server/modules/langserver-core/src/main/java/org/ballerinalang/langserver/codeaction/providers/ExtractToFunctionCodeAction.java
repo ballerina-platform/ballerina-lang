@@ -22,11 +22,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
@@ -35,10 +31,7 @@ import org.ballerinalang.langserver.codeaction.ExtractToFunctionAnalyzer;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.NameUtil;
-import org.ballerinalang.langserver.common.utils.PositionUtil;
+import org.ballerinalang.langserver.common.utils.*;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
@@ -333,6 +326,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
+        if (matchedCodeActionNode.kind() == SyntaxKind.FIELD_ACCESS) {
+            if (((FieldAccessExpressionNode) matchedCodeActionNode).expression().toSourceCode().strip().equals(SymbolUtil.SELF_KW)
+                    || matchedCodeActionNode.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
+                    || matchedCodeActionNode.parent().kind() == SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT) {
+                return Collections.emptyList();
+            }
+        }
+
         SyntaxTree syntaxTree = context.currentSyntaxTree().get();
         LineRange rootLineRange = syntaxTree.rootNode().lineRange();
         int endLine = rootLineRange.endLine().line() + 1;
@@ -415,17 +416,32 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private String getFunction(NonTerminalNode matchedCodeActionNode, boolean newLineAtEnd, TypeDescKind typeDescKind,
                                String functionName, String funcBody, CodeActionContext context) {
         List<String> args = new ArrayList<>();
-        List<Symbol> varNamesWithinTheRange = getVarNamesWithinTheRange(context);
-        varNamesWithinTheRange.forEach(symbol -> {
+        List<Symbol> varAndParamSymbolsWithinRange = context.visibleSymbols(context.range().getEnd()).stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
+                .filter(symbol -> context.currentSemanticModel().get().references(symbol).stream()
+                        .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
+                                .getRangeFromLineRange(location.lineRange()), context.range())))
+                .collect(Collectors.toList());
+
+        varAndParamSymbolsWithinRange.forEach(symbol -> {
             if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol variableSymbol = (VariableSymbol) symbol;
                 TypeSymbol rawType = CommonUtil.getRawType(variableSymbol.typeDescriptor());
                 // todo try the usage of getParameterTypeAsString in FunctionGenerator.java
                 args.add(rawType.signature() + " " + symbol.getName().get());
+            } else if (symbol.kind() == SymbolKind.PARAMETER) {
+                Optional<String> possibleType = CodeActionUtil
+                        .getPossibleType(((ParameterSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
+                args.add(possibleType.get() + " " + symbol.getName().get());
             }
         });
         String returnsClause = String.format("returns %s", typeDescKind.getName());
-        String returnStatement = String.format("return %s;", matchedCodeActionNode.toString().strip());
+        String returnStatement = "";
+        if (matchedCodeActionNode.kind() == SyntaxKind.BRACED_EXPRESSION) {
+            returnStatement = String.format("return %s;", ((BracedExpressionNode) matchedCodeActionNode).expression().toString().strip());
+        } else {
+            returnStatement = String.format("return %s;", matchedCodeActionNode.toString().strip());
+        }
         return generateFunction(functionName, args, returnsClause, returnStatement, newLineAtEnd, false, funcBody);
     }
 
@@ -525,16 +541,16 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
     public static List<SyntaxKind> getSupportedExpressionSyntaxKindsList() {
         return List.of(
-//                SyntaxKind.BINARY_EXPRESSION,
-//                SyntaxKind.BRACED_EXPRESSION,
-//                SyntaxKind.FUNCTION_CALL,
-//                SyntaxKind.QUALIFIED_NAME_REFERENCE,
-//                SyntaxKind.INDEXED_EXPRESSION,
-//                SyntaxKind.FIELD_ACCESS,
-//                SyntaxKind.METHOD_CALL,
-//                SyntaxKind.CHECK_EXPRESSION,
-//                SyntaxKind.MAPPING_CONSTRUCTOR,
-//                SyntaxKind.TYPEOF_EXPRESSION,
+                SyntaxKind.BINARY_EXPRESSION,
+                SyntaxKind.BRACED_EXPRESSION,
+//                SyntaxKind.FUNCTION_CALL, // do not provide
+                SyntaxKind.QUALIFIED_NAME_REFERENCE,
+                SyntaxKind.INDEXED_EXPRESSION,
+                SyntaxKind.FIELD_ACCESS,
+                SyntaxKind.METHOD_CALL,
+//                SyntaxKind.CHECK_EXPRESSION, // cannot provide
+                SyntaxKind.MAPPING_CONSTRUCTOR, // what is the return type descriptor if providing
+                SyntaxKind.TYPEOF_EXPRESSION,
 //                SyntaxKind.UNARY_EXPRESSION,
 //                SyntaxKind.TYPE_TEST_EXPRESSION,
 //                SyntaxKind.SIMPLE_NAME_REFERENCE,
@@ -557,15 +573,15 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 //                SyntaxKind.CONDITIONAL_EXPRESSION,
 //                SyntaxKind.TRANSACTIONAL_EXPRESSION,
 //                SyntaxKind.OBJECT_CONSTRUCTOR,
-//                SyntaxKind.XML_FILTER_EXPRESSION,
-//                SyntaxKind.XML_STEP_EXPRESSION,
-//                SyntaxKind.XML_NAME_PATTERN_CHAIN,
-//                SyntaxKind.XML_ATOMIC_NAME_PATTERN,
+//                SyntaxKind.XML_FILTER_EXPRESSION, // do not provide
+//                SyntaxKind.XML_STEP_EXPRESSION, // do not provide
+//                SyntaxKind.XML_NAME_PATTERN_CHAIN, // do not provide
+//                SyntaxKind.XML_ATOMIC_NAME_PATTERN, // do not provide
                 SyntaxKind.STRING_LITERAL,
                 SyntaxKind.NUMERIC_LITERAL,
-                SyntaxKind.BOOLEAN_LITERAL,
-                SyntaxKind.NIL_LITERAL
-//                SyntaxKind.NULL_LITERAL,
+                SyntaxKind.BOOLEAN_LITERAL
+//                SyntaxKind.NIL_LITERAL, // do not provide
+//                SyntaxKind.NULL_LITERAL, // do not provide
 //                SyntaxKind.BYTE_ARRAY_LITERAL,
 //                SyntaxKind.ASTERISK_LITERAL,
 //                SyntaxKind.REQUIRED_EXPRESSION,
