@@ -2332,7 +2332,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
-        regExpTemplateLiteral.pattern.accept(this);
+        //regExpTemplateLiteral.pattern.accept(this);
         BIROperand regExpIndex = this.env.targetOperand;
 
         BIRNonTerminator.NewRegExp newRegExp = new BIRNonTerminator.NewRegExp(regExpTemplateLiteral.pos, toVarRef,

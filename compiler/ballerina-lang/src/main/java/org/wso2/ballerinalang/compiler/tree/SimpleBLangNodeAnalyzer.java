@@ -83,8 +83,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -1350,7 +1354,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangRegExpTemplateLiteral node, T data) {
         analyzeNode(node, data);
-        visitNode(node.patternFragments, data);
+        visitNode(node.reDisjunction, data);
     }
 
     public void visit(BLangReSequence node, T data) {
@@ -1389,6 +1393,35 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangReAssertion node, T data) {
         analyzeNode(node, data);
         visitNode(node.reAssertion, data);
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.openParen, data);
+        visitNode(node.flagExpr, data);
+        visitNode(node.reDisjunction, data);
+        visitNode(node.closeParen, data);
+    }
+
+    @Override
+    public void visit(BLangReDisjunction node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.reSequenceList, data);
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.flags, data);
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.questionMark, data);
+        visitNode(node.questionMark, data);
+        visitNode(node.questionMark, data);
     }
 
     // Types

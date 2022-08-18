@@ -1455,8 +1455,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        regExpTemplateLiteral.pattern = rewriteExpr(regExpTemplateLiteral.pattern);
-        result = regExpTemplateLiteral;
+
     }
 
     /**

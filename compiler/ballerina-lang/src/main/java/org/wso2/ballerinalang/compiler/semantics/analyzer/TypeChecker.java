@@ -5785,7 +5785,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
-        checkStringTemplateExprs(regExpTemplateLiteral.patternFragments, data);
+        //checkStringTemplateExprs(regExpTemplateLiteral.patternFragments, data);
         data.resultType = types.checkType(regExpTemplateLiteral, symTable.regExpType, data.expType);
     }
 
