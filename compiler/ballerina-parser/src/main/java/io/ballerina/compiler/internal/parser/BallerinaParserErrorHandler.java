@@ -4732,10 +4732,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case FOREACH_STMT:
                     case WHILE_BLOCK:
                     case DO_BLOCK:
-                    case RETRY_STMT:
                         endContext();
                         return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
                     case ON_FAIL_CLAUSE:
+                    case RETRY_STMT:
                         endContext();
                         return ParserRuleContext.STATEMENT;
                     case IF_BLOCK:
@@ -4750,7 +4750,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         if (parentCtx == ParserRuleContext.RETRY_STMT) {
                             endContext();
                         }
-                        return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
+                        return ParserRuleContext.STATEMENT;
                     case NAMED_WORKER_DECL:
                         endContext(); // end named-worker
                         parentCtx = getParentContext();

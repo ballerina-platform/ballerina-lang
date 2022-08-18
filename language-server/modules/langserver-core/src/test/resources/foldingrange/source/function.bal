@@ -47,10 +47,6 @@ function miscellaneous() {
     transaction {
         check print(12);
         var res = commit;
-    } on fail error er {
-        iox:println("Error caught during printing: ", er);
-        rollback;
-        fail invalidAccoundIdError;
     }
 
     match continent {

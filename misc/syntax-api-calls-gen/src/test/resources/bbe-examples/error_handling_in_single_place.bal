@@ -20,8 +20,6 @@ public function main() {
         int parsedStr = check parse("invalid");
 
         var res = commit;
-    } on fail error e {
-        io:println("Error caught during parsing: ", e.message());
     }
 }
 
