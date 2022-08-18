@@ -75,4 +75,20 @@ public class TransactionStatementTest extends AbstractStatementTest {
     public void testRetryTransactionStatementRecovery() {
         testFile("transaction-stmt/retry_stmt_source_04.bal", "transaction-stmt/retry_stmt_assert_04.json");
     }
+
+    @Test
+    public void testTransactionStatementWithOnFailClause() {
+        testFile("transaction-stmt/transaction_stmt_source_03.bal",
+                "transaction-stmt/transaction_stmt_assert_03.json");
+    }
+
+    @Test
+    public void testRetryStatementWithOnFailClause() {
+        testFile("transaction-stmt/retry_stmt_source_05.bal", "transaction-stmt/retry_stmt_assert_05.json");
+    }
+
+    @Test
+    public void testRetryStatementWithOnFailClauseWithoutVariable() {
+        testFile("transaction-stmt/retry_stmt_source_06.bal", "transaction-stmt/retry_stmt_assert_07.json");
+    }
 }
