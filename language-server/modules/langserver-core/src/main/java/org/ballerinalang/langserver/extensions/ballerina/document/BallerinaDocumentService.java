@@ -304,15 +304,8 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
             WorkspaceManager workspaceManager = this.workspaceManagerProxy.get(fileUri);
 
-            if (filePath.isEmpty()) {
-                return reply;
-            }
-
             try {
                 Optional<Document> srcFile = workspaceManager.document(filePath.get());
-                if (srcFile.isEmpty()) {
-                    return reply;
-                }
 
                 // Get the semantic model.
                 Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(filePath.get());
