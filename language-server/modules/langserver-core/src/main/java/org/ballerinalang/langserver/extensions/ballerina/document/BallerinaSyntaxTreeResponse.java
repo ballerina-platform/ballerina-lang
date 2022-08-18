@@ -29,6 +29,7 @@ public class BallerinaSyntaxTreeResponse {
     private String source;
 
     private String defFilePath;
+    
     private boolean parseSuccess;
 
     public JsonElement getSyntaxTree() {
