@@ -2624,14 +2624,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STReDisjunctionNode transform(
-            STReDisjunctionNode reDisjunctionNode) {
-        STNode reSequence = modifyNode(reDisjunctionNode.reSequence);
-        return reDisjunctionNode.modify(
-                reSequence);
-    }
-
-    @Override
     public STReSequenceNode transform(
             STReSequenceNode reSequenceNode) {
         STNode reTerm = modifyNode(reSequenceNode.reTerm);
@@ -2650,11 +2642,23 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STReAtomNode transform(
-            STReAtomNode reAtomNode) {
-        STNode reAtom = modifyNode(reAtomNode.reAtom);
-        return reAtomNode.modify(
-                reAtom);
+    public STReAtomCharOrEscapeNode transform(
+            STReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        STNode reAtomCharOrEscape = modifyNode(reAtomCharOrEscapeNode.reAtomCharOrEscape);
+        return reAtomCharOrEscapeNode.modify(
+                reAtomCharOrEscape);
+    }
+
+    @Override
+    public STReCharacterClassNode transform(
+            STReCharacterClassNode reCharacterClassNode) {
+        STNode openBracketAndNegation = modifyNode(reCharacterClassNode.openBracketAndNegation);
+        STNode reCharSet = modifyNode(reCharacterClassNode.reCharSet);
+        STNode closeBracket = modifyNode(reCharacterClassNode.closeBracket);
+        return reCharacterClassNode.modify(
+                openBracketAndNegation,
+                reCharSet,
+                closeBracket);
     }
 
     @Override
@@ -2663,6 +2667,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode reCharSet = modifyNode(reCharSetNode.reCharSet);
         return reCharSetNode.modify(
                 reCharSet);
+    }
+
+    @Override
+    public STReCapturingGroupsNode transform(
+            STReCapturingGroupsNode reCapturingGroupsNode) {
+        STNode openParenthesis = modifyNode(reCapturingGroupsNode.openParenthesis);
+        STNode reFlagExpression = modifyNode(reCapturingGroupsNode.reFlagExpression);
+        STNode reSequences = modifyNode(reCapturingGroupsNode.reSequences);
+        STNode closeParenthesis = modifyNode(reCapturingGroupsNode.closeParenthesis);
+        return reCapturingGroupsNode.modify(
+                openParenthesis,
+                reFlagExpression,
+                reSequences,
+                closeParenthesis);
+    }
+
+    @Override
+    public STReFlagExpressionNode transform(
+            STReFlagExpressionNode reFlagExpressionNode) {
+        STNode questionMark = modifyNode(reFlagExpressionNode.questionMark);
+        STNode reFlagsOnOff = modifyNode(reFlagExpressionNode.reFlagsOnOff);
+        STNode colon = modifyNode(reFlagExpressionNode.colon);
+        return reFlagExpressionNode.modify(
+                questionMark,
+                reFlagsOnOff,
+                colon);
     }
 
     @Override
@@ -2684,9 +2714,9 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STReQuantifierNode transform(
             STReQuantifierNode reQuantifierNode) {
-        STNode reBaseQuantifier = modifyNode(reQuantifierNode.reBaseQuantifier);
+        STNode reQuantifier = modifyNode(reQuantifierNode.reQuantifier);
         return reQuantifierNode.modify(
-                reBaseQuantifier);
+                reQuantifier);
     }
 
     // Tokens

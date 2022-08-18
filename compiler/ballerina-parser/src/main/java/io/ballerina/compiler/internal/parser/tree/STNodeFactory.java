@@ -2445,13 +2445,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBracketToken);
     }
 
-    public static STNode createReDisjunctionNode(
-            STNode reSequence) {
-
-        return new STReDisjunctionNode(
-                reSequence);
-    }
-
     public static STNode createReSequenceNode(
             STNode reTerm) {
 
@@ -2468,11 +2461,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 reQuantifier);
     }
 
-    public static STNode createReAtomNode(
-            STNode reAtom) {
+    public static STNode createReAtomCharOrEscapeNode(
+            STNode reAtomCharOrEscape) {
 
-        return new STReAtomNode(
-                reAtom);
+        return new STReAtomCharOrEscapeNode(
+                reAtomCharOrEscape);
+    }
+
+    public static STNode createReCharacterClassNode(
+            STNode openBracketAndNegation,
+            STNode reCharSet,
+            STNode closeBracket) {
+
+        return new STReCharacterClassNode(
+                openBracketAndNegation,
+                reCharSet,
+                closeBracket);
     }
 
     public static STNode createReCharSetNode(
@@ -2480,6 +2484,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STReCharSetNode(
                 reCharSet);
+    }
+
+    public static STNode createReCapturingGroupsNode(
+            STNode openParenthesis,
+            STNode reFlagExpression,
+            STNode reSequences,
+            STNode closeParenthesis) {
+
+        return new STReCapturingGroupsNode(
+                openParenthesis,
+                reFlagExpression,
+                reSequences,
+                closeParenthesis);
+    }
+
+    public static STNode createReFlagExpressionNode(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon) {
+
+        return new STReFlagExpressionNode(
+                questionMark,
+                reFlagsOnOff,
+                colon);
     }
 
     public static STNode createReFlagsOnOffNode(
@@ -2497,10 +2525,10 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createReQuantifierNode(
-            STNode reBaseQuantifier) {
+            STNode reQuantifier) {
 
         return new STReQuantifierNode(
-                reBaseQuantifier);
+                reQuantifier);
     }
 }
 
