@@ -62,6 +62,7 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
                 {"negative_changeVarType1.json"},
                 {"negative_changeVarType2.json"},
                 {"negative_changeVarType3.json"},
+                {"negative_changeVarTypeWithBase16.json"},
         };
     }
 }

@@ -468,12 +468,26 @@ class CodeModifierManager {
 
         Package modifyPackage(Package currentPackage, CodeModifyTaskResult codeModifyTaskResult) {
             Package newPackage = currentPackage;
+
+            // Collect all respective modules ids of code modify result document ids and test document ids
+            List<ModuleId> moduleIds = new ArrayList<>();
             for (DocumentId documentId : codeModifyTaskResult.documentIds()) {
-                newPackage = modifyModule(documentId.moduleId(), newPackage, codeModifyTaskResult);
+                if (!moduleIds.contains(documentId.moduleId())) {
+                    moduleIds.add(documentId.moduleId());
+                }
             }
+
             for (DocumentId testDocumentId : codeModifyTaskResult.testDocumentIds()) {
-                newPackage = modifyModule(testDocumentId.moduleId(), newPackage, codeModifyTaskResult);
+                if (!moduleIds.contains(testDocumentId.moduleId())) {
+                    moduleIds.add(testDocumentId.moduleId());
+                }
             }
+
+            // Modify all documents and test documents of same module at once
+            for (ModuleId moduleId : moduleIds) {
+                newPackage = modifyModule(moduleId, newPackage, codeModifyTaskResult);
+            }
+
             return newPackage;
         }
 
@@ -481,7 +495,7 @@ class CodeModifierManager {
             Module module = pkg.module(moduleId);
             Module.Modifier modifier = module.modify();
 
-            for (DocumentId documentId : pkg.module(moduleId).documentIds()) {
+            for (DocumentId documentId : module.documentIds()) {
                 ModifiedSourceFile modifiedSourceFile = codeModifyTaskResult.sourceFile(documentId);
                 if (modifiedSourceFile != null) {
                     Document document = module.document(documentId);
@@ -489,7 +503,7 @@ class CodeModifierManager {
                 }
             }
 
-            for (DocumentId testDocumentId : pkg.module(moduleId).testDocumentIds()) {
+            for (DocumentId testDocumentId : module.testDocumentIds()) {
                 ModifiedTestSourceFile modifiedTestSourceFile = codeModifyTaskResult.testSourceFile(testDocumentId);
                 if (modifiedTestSourceFile != null) {
                     Document document = module.document(testDocumentId);

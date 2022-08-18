@@ -449,9 +449,11 @@ public class CodeActionUtil {
                         }
                     } else {
                         // Parent function already has another return-type
-                        String typeName =
-                                CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
-                        returnText = "returns " + typeName + "|error";
+                        if (enclosedRetTypeDesc.typeKind() != TypeDescKind.ERROR) {
+                            String typeName =
+                                    CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
+                            returnText = "returns " + typeName + "|error";
+                        }
                         returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     }
                 } else {
