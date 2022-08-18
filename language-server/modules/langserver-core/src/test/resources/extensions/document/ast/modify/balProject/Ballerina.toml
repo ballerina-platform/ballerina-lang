@@ -1,5 +1,4 @@
 [package]
-distribution = "slbeta6"
-
-[build-options]
-observabilityIncluded = true
+org = "test"
+name = "balProject"
+version = "0.1.0"
