@@ -41,23 +41,23 @@ public class RegExpParser extends AbstractParser {
 
     @Override
     public STNode parse() {
-        return parseRegDisjunction();
+        return parseReDisjunction();
     }
 
-    private STNode parseRegDisjunction() {
-        List<STNode> reSequences = new ArrayList<>();
+    private STNode parseReDisjunction() {
+        List<STNode> reSequenceList = new ArrayList<>();
         STToken nextToken = peek();
         while (!isEndOfReDisjunction(nextToken.kind)) {
             STNode reSequence = parseReSequence();
-            reSequences.add(reSequence);
+            reSequenceList.add(reSequence);
             nextToken = peek();
             if (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
                 STNode pipe = consume();
-                reSequences.add(pipe);
+                reSequenceList.add(pipe);
                 nextToken = peek();
             }
         }
-        return STNodeFactory.createReDisjunctionNode(STNodeFactory.createNodeList(reSequences));
+        return STNodeFactory.createNodeList(reSequenceList);
     }
 
     private STNode parseReSequence() {
@@ -85,12 +85,15 @@ public class RegExpParser extends AbstractParser {
 
         STNode reAtom;
         switch (nextToken.kind) {
-            case REGEXP_ATOM:
-                reAtom = parseReAtom();
+            case REGEXP_ATOM_CHAR_ESCAPE:
+                reAtom = parseReAtomCharEscape();
                 break;
             case OPEN_BRACKET_TOKEN:
             case NEGATED_CHAR_CLASS_START_TOKEN:
                 reAtom = parseCharacterClass();
+                break;
+            case OPEN_PAREN_TOKEN:
+                reAtom = parseCapturingGroups();
                 break;
             case INTERPOLATION_START_TOKEN:
                 reAtom = parseInterpolation();
@@ -105,7 +108,7 @@ public class RegExpParser extends AbstractParser {
             return STNodeFactory.createReAtomQuantifierNode(reAtom, quantifier);
         }
 
-        return reAtom;
+        return STNodeFactory.createReAtomQuantifierNode(reAtom, null);
     }
 
     private STNode parseReAssertion() {
@@ -113,25 +116,17 @@ public class RegExpParser extends AbstractParser {
         return STNodeFactory.createReAssertionNode(assertion);
     }
 
-    private STNode parseReAtom() {
+    private STNode parseReAtomCharEscape() {
         STNode atoms = consume();
-        return STNodeFactory.createReAtomNode(atoms);
+        return STNodeFactory.createReAtomCharOrEscapeNode(atoms);
     }
 
     private STNode parseCharacterClass() {
-        List<STNode> items = new ArrayList<>();
-
         STNode characterClassStart = parseCharacterClassStart();
-        items.add(characterClassStart);
-
         STNode characterSet = parseReCharSet();
-        items.add(characterSet);
-
         STNode characterClassEnd = parseCharacterClassEnd();
-        items.add(characterClassEnd);
 
-        STNode characterClassReAtom = STNodeFactory.createNodeList(items);
-        return STNodeFactory.createReAtomNode(characterClassReAtom);
+        return STNodeFactory.createReCharacterClassNode(characterClassStart, characterSet, characterClassEnd);
     }
 
     private STNode parseCharacterClassStart() {
@@ -145,20 +140,9 @@ public class RegExpParser extends AbstractParser {
         }
     }
 
-    private boolean isEndOfCharacterClass(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return true;
-            default:
-                return false;
-        }
-    }
-
     private STNode parseReCharSet() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.REGEXP_TEXT) {
+        if (nextToken.kind == SyntaxKind.REGEXP_CHARSET) {
             STNode charSet = consume();
             return STNodeFactory.createReCharSetNode(charSet);
         }
@@ -178,6 +162,39 @@ public class RegExpParser extends AbstractParser {
     private STNode parseReQuantifier() {
         STNode quantifier = consume();
         return STNodeFactory.createReQuantifierNode(quantifier);
+    }
+
+    private STNode parseCapturingGroups() {
+        STNode openParenthesis = consume();
+        STNode flagExpression = parseFlagExpression();
+        STNode reDisjunction = parseReDisjunction();
+        STNode closeParenthesis = consume();
+
+        return STNodeFactory.createReCapturingGroupsNode(openParenthesis, flagExpression, reDisjunction,
+                closeParenthesis);
+    }
+
+    private STNode parseFlagExpression() {
+        STToken nextToken = peek();
+        STNode questionMark = null;
+        STNode reFlagsOnOff = null;
+        STNode colon = null;
+        if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+            questionMark = consume();
+        }
+
+        nextToken = peek();
+        if (nextToken.kind == SyntaxKind.RE_FLAGS_ON_OFF) {
+            reFlagsOnOff = consume();
+        }
+        STNode reFlags = STNodeFactory.createReFlagsOnOffNode(reFlagsOnOff);
+
+        nextToken = peek();
+        if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
+            colon = consume();
+        }
+
+        return STNodeFactory.createReFlagExpressionNode(questionMark, reFlags, colon);
     }
 
     /**
@@ -206,6 +223,7 @@ public class RegExpParser extends AbstractParser {
         switch (kind) {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
+            case CLOSE_PAREN_TOKEN:
                 return true;
             default:
                 return false;
@@ -217,10 +235,21 @@ public class RegExpParser extends AbstractParser {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
             case PIPE_TOKEN:
+            case CLOSE_PAREN_TOKEN:
                 return true;
             default:
                 return false;
         }
     }
 
+    private boolean isEndOfFlagExpr(SyntaxKind kind) {
+        switch (kind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+            case COLON_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
 }

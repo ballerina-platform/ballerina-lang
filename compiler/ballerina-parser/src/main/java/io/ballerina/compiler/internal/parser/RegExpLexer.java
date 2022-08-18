@@ -140,11 +140,11 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.DOT:
                 this.reader.advance();
                 startMode(ParserMode.RE_QUANTIFIER);
-                return getRegExpText(SyntaxKind.REGEXP_ATOM);
+                return getRegExpText(SyntaxKind.REGEXP_ATOM_CHAR_ESCAPE);
             case LexerTerminals.BACKSLASH:
                 processReEscape();
                 startMode(ParserMode.RE_QUANTIFIER);
-                return getRegExpText(SyntaxKind.REGEXP_ATOM);
+                return getRegExpText(SyntaxKind.REGEXP_ATOM_CHAR_ESCAPE);
             // Handle "[" ["^"] [ReCharSet] "]".
             case LexerTerminals.OPEN_BRACKET:
                 this.reader.advance();
@@ -166,16 +166,16 @@ public class RegExpLexer extends AbstractLexer {
                     startMode(ParserMode.RE_ATOM_RE_DISJUNCTION);
                 }
                 this.reader.advance();
-                return getRegExpText(SyntaxKind.REGEXP_TEXT);
+                return getRegExpSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
             case LexerTerminals.CLOSE_PARANTHESIS:
                 this.reader.advance();
                 if (this.mode == ParserMode.RE_ATOM_RE_DISJUNCTION) {
                     endMode();
-                    processReBaseQuantifier();
-                    return getRegExpText(SyntaxKind.REGEXP_TEXT);
+                    startMode(ParserMode.RE_QUANTIFIER);
+                    return getRegExpSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
                 }
                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
-                return getRegExpText(SyntaxKind.REGEXP_TEXT);
+                return getRegExpText(SyntaxKind.REGEXP_ATOM_CHAR_ESCAPE);
             default:
                 // Handle ReLiteralChar.
                 if (!isReSyntaxChar(nextChar)) {
@@ -184,7 +184,7 @@ public class RegExpLexer extends AbstractLexer {
                 } else {
                     reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
                 }
-                return getRegExpText(SyntaxKind.REGEXP_TEXT);
+                return getRegExpText(SyntaxKind.REGEXP_ATOM_CHAR_ESCAPE);
         }
     }
 
@@ -207,7 +207,7 @@ public class RegExpLexer extends AbstractLexer {
         processReCharSet();
         endMode();
 
-        return getRegExpText(SyntaxKind.REGEXP_TEXT);
+        return getRegExpText(SyntaxKind.REGEXP_CHARSET);
     }
 
     private void processReCharSet() {
@@ -344,7 +344,21 @@ public class RegExpLexer extends AbstractLexer {
      * </code>
      */
     private STToken readTokenInFlags() {
-        this.reader.advance();
+        this.reader.mark();
+
+        if (peek() == LexerTerminals.QUESTION_MARK) {
+            this.reader.advance();
+            return getRegExpSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
+        }
+
+        if (peek() == LexerTerminals.COLON) {
+            this.reader.advance();
+            // Colon marks the end of the flags.
+            endMode();
+            startMode(ParserMode.RE_ATOM_RE_DISJUNCTION);
+            return getRegExpSyntaxToken(SyntaxKind.COLON_TOKEN);
+        }
+
         // Handle ReFlags ["-" ReFlags].
         while (isReFlag(peek())) {
             this.reader.advance();
@@ -358,16 +372,12 @@ public class RegExpLexer extends AbstractLexer {
             }
         }
 
-        if (peek() == LexerTerminals.COLON) {
-            this.reader.advance();
-        } else {
+        if (peek() != LexerTerminals.COLON) {
             // Colon marks the end of the flags.
             reportLexerError(DiagnosticErrorCode.ERROR_INVALID_FLAG_IN_REG_EXP);
         }
 
-        endMode();
-        startMode(ParserMode.RE_ATOM_RE_DISJUNCTION);
-        return getRegExpText();
+        return getRegExpText(SyntaxKind.RE_FLAGS_ON_OFF);
     }
 
     /**
