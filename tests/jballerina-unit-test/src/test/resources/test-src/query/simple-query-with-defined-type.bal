@@ -91,6 +91,30 @@ class NumberGeneratorWithError {
     }
 }
 
+class NumberGeneratorWithError2 {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|error {
+        if (self.i == 3) {
+            return error("Custom error thrown explicitly.");
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+type ErrorR1 error<map<int>>;
+
+class NumberGeneratorWithCustomError {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|ErrorR1? {
+        if (self.i == 3) {
+            return error ErrorR1("Custom error", x = 1);
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
 type ResultValue record {|
     Person value;
 |};
@@ -366,6 +390,41 @@ public function testQueryStreamWithError() {
         return;
     }
     panic error("Expeted error, found: " + (typeof oddNumberList).toString());
+}
+
+public function testQueryStreamWithDifferentCompletionTypes() {
+    NumberGeneratorWithError numGen1 = new;
+    stream<int, error?> numberStream1 = new (numGen1);
+
+    NumberGeneratorWithError2 numGen2 = new;
+    stream<int, error> numberStream2 = new (numGen2);
+
+    NumberGeneratorWithCustomError numGen3 = new;
+    stream<int, ErrorR1?> numberStream3 = new (numGen3);
+
+    int[]|error oddNumberList1 = from int num in numberStream1
+        where (num % 2 == 1)
+        select num;
+
+    if !(oddNumberList1 is error) {
+        panic error("Expeted error, found: " + (typeof oddNumberList1).toString());
+    }
+
+    int[]|error oddNumberList2 = from int num in numberStream2
+        where (num % 2 == 1)
+        select num;
+
+    if !(oddNumberList2 is error) {
+        panic error("Expeted error, found: " + (typeof oddNumberList2).toString());
+    }
+
+    int[]|ErrorR1 oddNumberList3 = from int num in numberStream3
+        where (num % 2 == 1)
+        select num;
+
+    if !(oddNumberList3 is ErrorR1) {
+        panic error("Expeted error, found: " + (typeof oddNumberList3).toString());
+    }
 }
 
 function testOthersAssociatedWithRecordTypes() returns Teacher1[]{
