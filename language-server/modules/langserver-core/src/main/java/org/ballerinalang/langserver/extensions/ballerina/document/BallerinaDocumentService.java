@@ -40,6 +40,7 @@ import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManagerProxy;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -301,19 +302,20 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
             Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
+            WorkspaceManager workspaceManager = this.workspaceManagerProxy.get(fileUri);
 
             if (filePath.isEmpty()) {
                 return reply;
             }
 
             try {
-                Optional<Document> srcFile = this.workspaceManagerProxy.get().document(filePath.get());
+                Optional<Document> srcFile = workspaceManager.document(filePath.get());
                 if (srcFile.isEmpty()) {
                     return reply;
                 }
 
                 // Get the semantic model.
-                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+                Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(filePath.get());
 
                 // Get the start line range of function invoke.
                 int lineValue = request.getLineRange().getStart().getLine();
@@ -330,7 +332,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 String functionPath = functionSymbol.get().getLocation().get().lineRange().filePath();
 
                 // Get the project of current file
-                Optional<Project> project = this.workspaceManagerProxy.get().project(filePath.get());
+                Optional<Project> project = workspaceManager.project(filePath.get());
 
                 // Loop through project modules to find the document of the function declaration
                 project.get().currentPackage().modules().forEach(module -> {
