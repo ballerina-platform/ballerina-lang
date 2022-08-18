@@ -1,12 +1,12 @@
 {
   "range": {
     "start": {
-      "line": 2,
-      "character": 25
+      "line": 1,
+      "character": 23
     },
     "end": {
-      "line": 2,
-      "character": 35
+      "line": 1,
+      "character": 45
     }
   },
   "source": "extract_to_function_exprs_indexed_expr.bal",
@@ -26,23 +26,23 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(string[] testArr) returns string {\n    return testArr[0];\n}\n"
+          "newText": "\n\nfunction extracted() returns string[] {\n    return [\"apple\",\"ball\",\"car\"];\n}\n"
         },
         {
           "range": {
             "start": {
-              "line": 2,
-              "character": 25
+              "line": 1,
+              "character": 23
             },
             "end": {
-              "line": 2,
-              "character": 35
+              "line": 1,
+              "character": 45
             }
           },
-          "newText": "extracted(testArr)"
+          "newText": "extracted()"
         }
       ]
     }
   ],
-  "description": "Extract to function for expressions, indexed expression"
+  "description": "Extract to function for expressions, list constructor"
 }

@@ -18,28 +18,28 @@
         {
           "range": {
             "start": {
-              "line": 4,
+              "line": 3,
               "character": 1
             },
             "end": {
-              "line": 4,
+              "line": 3,
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    return mod:GLOBAL_VAR;\n}\n"
+          "newText": "\n\nfunction extracted(int localVar) returns typedesc\u003cint\u003e {\n    return typeof localVar;\n}\n"
         },
         {
           "range": {
             "start": {
-              "line": 3,
-              "character": 19
+              "line": 2,
+              "character": 35
             },
             "end": {
-              "line": 3,
-              "character": 33
+              "line": 2,
+              "character": 50
             }
           },
-          "newText": "extracted()"
+          "newText": "extracted(localVar)"
         }
       ]
     }
