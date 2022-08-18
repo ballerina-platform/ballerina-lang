@@ -144,9 +144,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.UPDATE_C
  */
 public class MethodGen {
 
-    private static final String STATE = "state";
+    protected static final String STATE = "state";
+    protected static final String FUNCTION_INVOCATION = "functionInvocation";
+    private static final String INVOCATION_COUNT = "%invocationCount";
     private static final String RESUME_INDEX = "resumeIndex";
-    private static final String INVOCATION = "functionInvocation";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
     private final Types types;
@@ -176,10 +177,11 @@ public class MethodGen {
                                    BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        indexMap.addIfNotExists(STRAND, symbolTable.stringType);
+        boolean isWorker = (func.flags & Flags.WORKER) == Flags.WORKER;
 
         // generate method desc
         int access = Opcodes.ACC_PUBLIC;
+        // localVarOffset is actually the local var index of the strand which is passed as an argument to the function
         int localVarOffset;
         if (attachedType != null) {
             localVarOffset = 1;
@@ -190,9 +192,18 @@ public class MethodGen {
             access += ACC_STATIC;
         }
 
+        indexMap.addIfNotExists(STRAND, symbolTable.stringType);
+
         String funcName = func.name.value;
         BType retType = getReturnType(func);
-        String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        String desc;
+        int invocationCountArgVarIndex = -1;
+        if (isWorker) {
+            invocationCountArgVarIndex = indexMap.addIfNotExists(INVOCATION_COUNT, symbolTable.stringType);
+            desc = JvmCodeGenUtil.getMethodDescForWorker(func.type.paramTypes, retType);
+        } else {
+            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        }
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
 
@@ -210,7 +221,7 @@ public class MethodGen {
         int stateVarIndex = getIntVarIndex(STATE, indexMap, mv);
         int yieldLocationVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_LOCATION);
         int yieldStatusVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_STATUS);
-        int invocationVarIndex = getIntVarIndex(INVOCATION, indexMap, mv);
+        int invocationVarIndex = getIntVarIndex(FUNCTION_INVOCATION, indexMap, mv);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -219,9 +230,8 @@ public class MethodGen {
         Label resumeLabel = labelGen.getLabel(funcName + "resume");
         mv.visitJumpInsn(IFGT, resumeLabel);
 
-        boolean isWorker = (func.flags & Flags.WORKER) == Flags.WORKER;
-        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, isWorker);
-
+        // set function invocation variable
+        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex);
         // set channel details to strand.
         setChannelDetailsToStrand(func, localVarOffset, mv);
 
@@ -256,7 +266,7 @@ public class MethodGen {
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, frameName, STATE, "I");
         mv.visitVarInsn(ISTORE, stateVarIndex);
-        mv.visitFieldInsn(GETFIELD, frameName, INVOCATION, "I");
+        mv.visitFieldInsn(GETFIELD, frameName, FUNCTION_INVOCATION, "I");
         mv.visitVarInsn(ISTORE, invocationVarIndex);
         mv.visitJumpInsn(GOTO, varinitLabel);
 
@@ -272,7 +282,7 @@ public class MethodGen {
         mv.visitFieldInsn(PUTFIELD, frameName, STATE, "I");
         mv.visitInsn(DUP);
         mv.visitVarInsn(ILOAD, invocationVarIndex);
-        mv.visitFieldInsn(PUTFIELD, frameName, INVOCATION, "I");
+        mv.visitFieldInsn(PUTFIELD, frameName, FUNCTION_INVOCATION, "I");
         generateFrameStringFieldSet(mv, frameName, yieldLocationVarIndex, YIELD_LOCATION);
         generateFrameStringFieldSet(mv, frameName, yieldStatusVarIndex, YIELD_STATUS);
 
@@ -290,17 +300,20 @@ public class MethodGen {
     }
 
     private void setFunctionInvocationVar(int localVarOffset, MethodVisitor mv, int invocationVarIndex,
-                                          boolean isWorker) {
-        if (!isWorker) {
+                                          int invocationCountArgVarIndex) {
+        if (invocationCountArgVarIndex == -1) {
             mv.visitVarInsn(ALOAD, localVarOffset);
             mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETFIELD, STRAND_CLASS, INVOCATION, "I");
+            mv.visitFieldInsn(GETFIELD, STRAND_CLASS, FUNCTION_INVOCATION, "I");
             mv.visitInsn(DUP_X1);
             mv.visitInsn(ICONST_1);
             mv.visitInsn(IADD);
-            mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, INVOCATION, "I");
-            mv.visitVarInsn(ISTORE, invocationVarIndex);
+            mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, FUNCTION_INVOCATION, "I");
+        } else {
+            // this means this is a function created for a worker
+            mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
         }
+        mv.visitVarInsn(ISTORE, invocationVarIndex);
     }
 
     private void generateFrameStringFieldSet(MethodVisitor mv, String frameName, int rhsVarIndex, String fieldName) {

@@ -357,6 +357,10 @@ public class JvmCodeGenUtil {
         return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }
 
+    public static String getMethodDescForWorker(List<BType> paramTypes, BType retType) {
+        return INITIAL_METHOD_DESC + "I" + populateMethodDesc(paramTypes) + generateReturnType(retType);
+    }
+
     public static String getMethodDesc(List<BType> paramTypes, BType retType) {
         return INITIAL_METHOD_DESC + populateMethodDesc(paramTypes) + generateReturnType(retType);
     }
