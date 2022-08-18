@@ -117,53 +117,47 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "only simple variables are allowed to be configurable", 34, 1);
         BAssertUtil.validateError(result, i++, "'final' qualifier not allowed: configurable variables are " +
                 "implicitly final", 37, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<Person> key" +
-                "(name)[] & readonly)'\n\t" +
-                "array element type 'table<Person> key(name) & readonly' is not supported", 71, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((table<Person> " +
-                        "key(name) & readonly)[] & readonly)'\n\t" +
-                "array element type 'table<Person> key(name) & readonly' is not supported", 72, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person1 & " +
                 "readonly)'\n\t" +
-                "record field type '(json & readonly)' of field 'person1.jsonField' is not supported", 75, 1);
+                "record field type '(json & readonly)' of field 'person1.jsonField' is not supported", 71, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person2 & " +
                 "readonly)'\n\t" +
-                "union member type '(json & readonly)' is not supported", 76, 1);
+                "union member type '(json & readonly)' is not supported", 72, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person3 & " +
                 "readonly)'\n\t" +
-                "array element type 'json & readonly' is not supported", 77, 1);
+                "array element type '(json & readonly)' is not supported", 73, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person4 & " +
                 "readonly)'\n\t" +
-                "record field type '(json & readonly)' of field 'person4.person.jsonField' is not supported", 78, 1);
+                "record field type '(json & readonly)' of field 'person4.person.jsonField' is not supported", 74, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person5 & " +
                 "readonly)'\n\t" +
                 "record field type '(json & readonly)' of field 'person5.field1' is not supported\n\t" +
-                "record field type '(json & readonly)' of field 'person5.field2' is not supported", 79, 1);
+                "record field type '(json & readonly)' of field 'person5.field2' is not supported", 75, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<map<json>> " +
                 "& readonly)'\n\t" +
-                "map constraint type '(json & readonly)' is not supported", 82, 1);
+                "map constraint type '(json & readonly)' is not supported", 78, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<Person1> & " +
                 "readonly)'\n\t" +
-                "record field type '(json & readonly)' of field 'tableVar2.jsonField' is not supported", 83, 1);
+                "record field type '(json & readonly)' of field 'tableVar2.jsonField' is not supported", 79, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<json> & " +
                 "readonly)'\n\t" +
-                "table constraint type '(json & readonly)' is not supported", 84, 1);
+                "table constraint type '(json & readonly)' is not supported", 80, 1);
         BAssertUtil.validateError(result, i++, "invalid constraint type. expected subtype of " +
-                "'map<any|error>' but found 'json'", 84, 20);
+                "'map<any|error>' but found 'json'", 80, 20);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json[] & " +
                 "readonly)'\n\t" +
-                "array element type 'json & readonly' is not supported", 87, 1);
+                "array element type '(json & readonly)' is not supported", 83, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(map<json> & " +
                 "readonly)'\n\t" +
-                "map constraint type '(json & readonly)' is not supported", 90, 1);
+                "map constraint type '(json & readonly)' is not supported", 86, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((string|json) & " +
                 "readonly)'\n\t" +
-                "union member type '(json & readonly)' is not supported", 93, 1);
+                "union member type '(json & readonly)' is not supported", 89, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json & readonly)" +
-                "'", 94, 1);
+                "'", 90, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string,json]" +
                 " & readonly)'\n\t" +
-                "tuple element type '(json & readonly)' is not supported", 97, 1);
+                "tuple element type '(json & readonly)' is not supported", 93, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

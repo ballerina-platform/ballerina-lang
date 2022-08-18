@@ -175,11 +175,12 @@ public class ConfigValueCreator {
                         TypeUtils.getReferredType(arrayType.getElementType()));
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return getMapValueArray(tomlValue, arrayType, elementType);
+            case TypeTags.TABLE_TAG:
+                return getStructuredValueArray(tomlValue, arrayType, elementType);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
                 if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
-                    return getMapValueArray(tomlValue, arrayType, elementType);
+                    return getStructuredValueArray(tomlValue, arrayType, elementType);
                 } else {
                     valueNode = ((TomlKeyValueNode) tomlValue).value();
                     return createArrayFromSimpleTomlValue((TomlArrayValueNode) valueNode, arrayType, elementType);
@@ -189,7 +190,7 @@ public class ConfigValueCreator {
         }
     }
 
-    private BArray getMapValueArray(TomlNode tomlValue, ArrayType arrayType, Type elementType) {
+    private BArray getStructuredValueArray(TomlNode tomlValue, ArrayType arrayType, Type elementType) {
         ListInitialValueEntry.ExpressionEntry[] entries = getListEntries(tomlValue, elementType);
         return new ArrayValueImpl(arrayType, entries.length, entries);
     }
