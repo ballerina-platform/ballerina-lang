@@ -8340,8 +8340,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        regExpTemplateLiteral.pattern =
-                rewriteExpr(constructStringTemplateConcatExpression(regExpTemplateLiteral.patternFragments));
         result = regExpTemplateLiteral;
     }
 

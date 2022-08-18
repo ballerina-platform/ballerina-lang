@@ -117,6 +117,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -2319,7 +2330,91 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangRegExpTemplateLiteral source) {
         BLangRegExpTemplateLiteral clone = new BLangRegExpTemplateLiteral();
         source.cloneRef = clone;
-        clone.patternFragments = cloneList(source.patternFragments);
-        clone.pattern = clone(source.pattern);
+        clone.reDisjunction = clone(source.reDisjunction);
+    }
+
+    @Override
+    public void visit(BLangReSequence source) {
+        BLangReSequence clone = new BLangReSequence();
+        source.cloneRef = clone;
+        clone.reTermList = cloneList(source.reTermList);
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier source) {
+        BLangReAtomQuantifier clone = new BLangReAtomQuantifier();
+        source.cloneRef = clone;
+        clone.reAtom = clone(source.reAtom);
+        clone.reQuantifier = clone(source.reQuantifier);
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape source) {
+        BLangReAtomCharOrEscape clone = new BLangReAtomCharOrEscape();
+        source.cloneRef = clone;
+        clone.charOrEscape = clone(source.charOrEscape);
+    }
+
+    @Override
+    public void visit(BLangReQuantifier source) {
+        BLangReQuantifier clone = new BLangReQuantifier();
+        source.cloneRef = clone;
+        clone.reQuantifier = clone(source.reQuantifier);
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass source) {
+        BLangReCharacterClass clone = new BLangReCharacterClass();
+        source.cloneRef = clone;
+        clone.characterClassStart = clone(source.characterClassStart);
+        clone.reCharSet = clone(source.reCharSet);
+        clone.characterClassEnd = clone(source.characterClassEnd);
+    }
+
+    @Override
+    public void visit(BLangReCharSet source) {
+        BLangReCharSet clone = new BLangReCharSet();
+        source.cloneRef = clone;
+        clone.reCharSet = clone(source.reCharSet);
+    }
+
+    @Override
+    public void visit(BLangReAssertion source) {
+        BLangReAssertion clone = new BLangReAssertion();
+        source.cloneRef = clone;
+        clone.reAssertion = clone(source.reAssertion);
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups source) {
+        BLangReCapturingGroups clone = new BLangReCapturingGroups();
+        source.cloneRef = clone;
+        clone.openParen = clone(source.openParen);
+        clone.flagExpr = clone(source.flagExpr);
+        clone.reDisjunction = clone(source.reDisjunction);
+        clone.closeParen = clone(source.closeParen);
+    }
+
+    @Override
+    public void visit(BLangReDisjunction source) {
+        BLangReDisjunction clone = new BLangReDisjunction();
+        source.cloneRef = clone;
+        clone.reSequenceList = cloneList(source.reSequenceList);
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff source) {
+        BLangReFlagsOnOff clone = new BLangReFlagsOnOff();
+        source.cloneRef = clone;
+        clone.flags = clone(source.flags);
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression source) {
+        BLangReFlagExpression clone = new BLangReFlagExpression();
+        source.cloneRef = clone;
+        clone.questionMark = clone(source.questionMark);
+        clone.flagsOnOff = clone(source.flagsOnOff);
+        clone.colon = clone(source.colon);
     }
 }

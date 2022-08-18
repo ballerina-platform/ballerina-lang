@@ -80,6 +80,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
@@ -1344,6 +1351,44 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangRegExpTemplateLiteral node, T data) {
         analyzeNode(node, data);
         visitNode(node.patternFragments, data);
+    }
+
+    public void visit(BLangReSequence node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.reTermList, data);
+    }
+
+    public void visit(BLangReAtomQuantifier node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.reAtom, data);
+        visitNode(node.reQuantifier, data);
+    }
+
+    public void visit(BLangReAtomCharOrEscape node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.charOrEscape, data);
+    }
+
+    public void visit(BLangReQuantifier node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.reQuantifier, data);
+    }
+
+    public void visit(BLangReCharacterClass node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.characterClassStart, data);
+        visitNode(node.reCharSet, data);
+        visitNode(node.characterClassEnd, data);
+    }
+
+    public void visit(BLangReCharSet node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.reCharSet, data);
+    }
+
+    public void visit(BLangReAssertion node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.reAssertion, data);
     }
 
     // Types

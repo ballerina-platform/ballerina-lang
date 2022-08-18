@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -87,6 +88,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
@@ -1096,8 +1108,82 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        rewrite(regExpTemplateLiteral.patternFragments);
+        rewrite(regExpTemplateLiteral.reDisjunction);
         result = regExpTemplateLiteral;
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+        rewrite(reSequence.reTermList);
+        result = reSequence;
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        rewrite(reAtomQuantifier.reAtom);
+        rewrite(reAtomQuantifier.reQuantifier);
+        result = reAtomQuantifier;
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+        rewrite(reAtomCharOrEscape.charOrEscape);
+        result = reAtomCharOrEscape;
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+        rewrite(reQuantifier.reQuantifier);
+        result = reQuantifier;
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        rewrite(reCharacterClass.characterClassStart);
+        rewrite(reCharacterClass.reCharSet);
+        rewrite(reCharacterClass.characterClassEnd);
+        result = reCharacterClass;
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+        rewrite(reCharSet.reCharSet);
+        result = reCharSet;
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+        rewrite(reAssertion.reAssertion);
+        result = reAssertion;
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        rewrite(reCapturingGroups.openParen);
+        rewrite(reCapturingGroups.flagExpr);
+        rewrite(reCapturingGroups.reDisjunction);
+        rewrite(reCapturingGroups.closeParen);
+        result = reCapturingGroups;
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+        rewrite(reDisjunction.reSequenceList);
+        result = reDisjunction;
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        rewrite(reFlagsOnOff.flags);
+        result = reFlagsOnOff;
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression reFlagExpression) {
+        rewrite(reFlagExpression.questionMark);
+        rewrite(reFlagExpression.flagsOnOff);
+        rewrite(reFlagExpression.colon);
+        result = reFlagExpression;
     }
 
     @SuppressWarnings("unchecked")

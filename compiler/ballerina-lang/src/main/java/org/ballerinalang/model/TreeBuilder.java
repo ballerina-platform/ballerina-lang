@@ -91,6 +91,17 @@ import org.ballerinalang.model.tree.expressions.MarkdownDocumentationTextAttribu
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.ballerinalang.model.tree.expressions.RawTemplateLiteralNode;
+import org.ballerinalang.model.tree.expressions.ReAssertionNode;
+import org.ballerinalang.model.tree.expressions.ReAtomCharOrEscapeNode;
+import org.ballerinalang.model.tree.expressions.ReAtomQuantifierNode;
+import org.ballerinalang.model.tree.expressions.ReCapturingGroupsNode;
+import org.ballerinalang.model.tree.expressions.ReCharSetNode;
+import org.ballerinalang.model.tree.expressions.ReCharacterClassNode;
+import org.ballerinalang.model.tree.expressions.ReDisjunctionNode;
+import org.ballerinalang.model.tree.expressions.ReFlagExpressionNode;
+import org.ballerinalang.model.tree.expressions.ReFlagsOnOffNode;
+import org.ballerinalang.model.tree.expressions.ReQuantifierNode;
+import org.ballerinalang.model.tree.expressions.ReSequenceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.RegExpTemplateLiteralNode;
@@ -255,6 +266,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
@@ -999,6 +1021,50 @@ public class TreeBuilder {
 
     public static RegExpTemplateLiteralNode createRegExpTemplateLiteralNode() {
         return new BLangRegExpTemplateLiteral();
+    }
+
+    public static ReDisjunctionNode createReDisjunctionNode() {
+        return new BLangReDisjunction();
+    }
+
+    public static ReSequenceNode createReSequenceNode() {
+        return new BLangReSequence();
+    }
+
+    public static ReAtomQuantifierNode createReAtomQuantifierNode() {
+        return new BLangReAtomQuantifier();
+    }
+
+    public static ReCharacterClassNode createReCharacterClassNode() {
+        return new BLangReCharacterClass();
+    }
+
+    public static ReCharSetNode createReCharSetNode() {
+        return new BLangReCharSet();
+    }
+
+    public static ReQuantifierNode createReQuantifierNode() {
+        return new BLangReQuantifier();
+    }
+
+    public static ReAtomCharOrEscapeNode createReAtomCharOrEscapeNode() {
+        return new BLangReAtomCharOrEscape();
+    }
+
+    public static ReAssertionNode createReAssertionNode() {
+        return new BLangReAssertion();
+    }
+
+    public static ReCapturingGroupsNode createReCapturingGroupsNode() {
+        return new BLangReCapturingGroups();
+    }
+
+    public static ReFlagExpressionNode createReFlagExpressionNode() {
+        return new BLangReFlagExpression();
+    }
+
+    public static ReFlagsOnOffNode createReFlagsOnOffNode() {
+        return new BLangReFlagsOnOff();
     }
 
     public static RawTemplateLiteralNode createRawTemplateLiteralNode() {
