@@ -4068,17 +4068,17 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         });
 
         BLangExpression expression = constant.expr;
-//        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
-//                && constant.typeNode == null) {
-//            constant.setBType(symTable.semanticError);
-//            dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
-//            return; // This has to return, because constant.symbol.type is required for further validations.
-//        }
+        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
+                && constant.typeNode == null) {
+            constant.setBType(symTable.semanticError);
+            dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
+            return; // This has to return, because constant.symbol.type is required for further validations.
+        }
 
         BType resultantType = typeChecker.checkExpr(expression, data.env, constant.symbol.type, data.prevEnvs, data.commonAnalyzerData);
-        if (constant.symbol.getType() == symTable.noType) {
-            constant.symbol.literalType = constant.symbol.type = resultantType;
-        }
+//        if (constant.symbol.getType() == symTable.noType) {
+//            constant.symbol.literalType = constant.symbol.type = resultantType;
+//        }
         // Check nested expressions.
         constantAnalyzer.visit(constant);
     }
