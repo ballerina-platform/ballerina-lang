@@ -1,0 +1,13 @@
+{
+  "position": {
+    "line": 9,
+    "character": 23
+  },
+  "source": "negative_add_elvis_operator_in_mapping_constructor.bal",
+  "description": "Test the code action when an value of optional type is assigned to a record field is not a subtype of the expected type",
+  "expected": [
+    {
+      "title": "Add Elvis operator"
+    }
+  ]
+}

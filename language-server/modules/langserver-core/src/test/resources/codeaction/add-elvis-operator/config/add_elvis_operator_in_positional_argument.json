@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 1,
+    "character": 21
+  },
+  "source": "add_elvis_operator_in_positional_argument.bal",
+  "description": "Test the code action in positional argument context",
+  "expected": [
+    {
+      "title": "Add Elvis operator",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 25
+            },
+            "end": {
+              "line": 1,
+              "character": 25
+            }
+          },
+          "newText": " ?: 0"
+        }
+      ]
+    }
+  ]
+}
