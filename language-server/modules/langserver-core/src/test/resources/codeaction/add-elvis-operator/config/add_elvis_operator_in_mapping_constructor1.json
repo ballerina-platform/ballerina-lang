@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 9,
+    "character": 23
+  },
+  "source": "add_elvis_operator_in_mapping_constructor1.bal",
+  "description": "Test the code action when an value of optional type is assigned to a record field",
+  "expected": [
+    {
+      "title": "Add Elvis operator",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 27
+            },
+            "end": {
+              "line": 9,
+              "character": 27
+            }
+          },
+          "newText": " ?: \"\""
+        }
+      ]
+    }
+  ]
+}
