@@ -635,6 +635,131 @@ function testIsolatedInferenceWithWorkersAndStartsCallingPublicIsolatedFunctions
     assertFalse(<any>f36 is isolated function);
 }
 
+final int[] & readonly intArr2 = [];
+
+function f37(int[] b) returns int {
+    return b[0];
+}
+
+listener Listener ep = new ();
+
+service on ep {
+    resource function get foo() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr2);
+
+        worker A {
+            future<int> _ = start f37(a);
+            int[] y = intArr2;
+        }
+
+        future<int> _ = start f37(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f37(intArr2);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f37(a);
+                int[] y = a;
+            }
+        }
+
+        return intArr2;
+    }
+
+    resource function get baz() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr);
+        return a;
+    }
+
+    resource function get boo() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr2);
+
+        worker A {
+            future<int> _ = start f37(intArr);
+            int[] y = a;
+        }
+
+        return intArr2;
+    }
+
+    remote function bar() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr2);
+
+        worker A {
+            future<int> _ = start f37(a);
+            int[] y = intArr2;
+        }
+
+        future<int> _ = start f37(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f37(intArr2);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f37(a);
+                int[] y = a;
+            }
+        }
+
+        return intArr2;
+    }
+
+    function bam() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr2);
+
+        worker A {
+            future<int> _ = start f37(a);
+            int[] y = intArr2;
+        }
+
+        future<int> _ = start f37(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f37(intArr2);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f37(a);
+                int[] y = a;
+            }
+        }
+
+        return a;
+    }
+}
+
+class Listener {
+    public function attach(service object {} s, string|string[]? name = ()) = @java:Method {
+                                       name: "testServiceDeclarationMethodIsolationInferenceWithWorkers",
+                                       'class: "org.ballerinalang.test.isolation.IsolatedWorkerTest"
+                                   } external;
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}
+
 function assertTrue(anydata actual) => assertEquality(true, actual);
 
 function assertFalse(anydata actual) => assertEquality(false, actual);
