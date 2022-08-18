@@ -52,6 +52,12 @@ public class SyntaxTreeByNameTest {
             .resolve("modify")
             .resolve("mainFunction.bal");
 
+    private final Path incorrectFile = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("non-exist.bal");
+
     @BeforeClass
     public void startLanguageServer() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
