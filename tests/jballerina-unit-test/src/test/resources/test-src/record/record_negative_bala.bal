@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,27 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+import testorg/foo.records;
 
-# Test function
-
-@test:Config {}
-function testMain() {
-    main();
-    test:assertTrue(false, msg = "Failed!");
+readonly service class PersonInterceptor {
 }
 
-@test:Config {
-    dependsOn: [testMain]
-}
-function testFunction() {
-    test:assertTrue(true, msg = "Failed!");
+readonly class Bar {
 }
 
-@test:Config {}
-function testFunc() {
-    ABC abc = new(5);
-    Record rec = {description: "desc", i: 5};
-    test:assertEquals(abc.getRec(), rec);
-    test:assertEquals(abc.getNum(), 5);
+function v() {
+    records:Config k = {interceptors: [new PersonInterceptor()], foo: [new Bar()]};
 }

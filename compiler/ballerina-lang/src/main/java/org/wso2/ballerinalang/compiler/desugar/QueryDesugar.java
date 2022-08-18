@@ -1644,6 +1644,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
+            if (symbol instanceof BVarSymbol) {
+                BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
+                if (originalSymbol != null) {
+                    symbol = originalSymbol;
+                }
+            }
             if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
