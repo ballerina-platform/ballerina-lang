@@ -22,7 +22,13 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +37,11 @@ import org.ballerinalang.langserver.codeaction.ExtractToFunctionAnalyzer;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.*;
+import org.ballerinalang.langserver.common.utils.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
@@ -41,7 +51,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -320,9 +329,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                                           RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
 
-        Path filePath = context.filePath();
-        if (context.currentSyntaxTree().isEmpty()
-                || context.workspace().semanticModel(filePath).isEmpty()) {
+        if (context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty() ||
+                (matchedCodeActionNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        && matchedCodeActionNode.parent() != null
+                        && matchedCodeActionNode.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
             return Collections.emptyList();
         }
 
@@ -351,15 +361,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             functionInsertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
-        TypeSymbol typeSymbol = posDetails.matchedTopLevelTypeSymbol();// todo typeof(matchedNode?)
-        if (typeSymbol == null || typeSymbol.kind() != SymbolKind.TYPE) {// null in func() {2}
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(matchedCodeActionNode);
+
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return Collections.emptyList();
         }
 
-        TypeDescKind typeDescKind = typeSymbol.typeKind();
-
         String functionName = getFunctionName(context);
-        String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeDescKind, functionName, "", context);
+        String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName, "", context);
 
         String replaceFunctionCall = getReplaceFunctionCall(context, functionName);
 
@@ -413,7 +422,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return fnBuilder.toString();
     }
 
-    private String getFunction(NonTerminalNode matchedCodeActionNode, boolean newLineAtEnd, TypeDescKind typeDescKind,
+    private String getFunction(NonTerminalNode matchedCodeActionNode, boolean newLineAtEnd, TypeSymbol typeSymbol,
                                String functionName, String funcBody, CodeActionContext context) {
         List<String> args = new ArrayList<>();
         List<Symbol> varAndParamSymbolsWithinRange = context.visibleSymbols(context.range().getEnd()).stream()
@@ -435,8 +444,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 args.add(possibleType.get() + " " + symbol.getName().get());
             }
         });
-        String returnsClause = String.format("returns %s", typeDescKind.getName());
+
+        String returnsClause = String.format("returns %s", typeSymbol.signature());
         String returnStatement = "";
+
         if (matchedCodeActionNode.kind() == SyntaxKind.BRACED_EXPRESSION) {
             returnStatement = String.format("return %s;", ((BracedExpressionNode) matchedCodeActionNode).expression().toString().strip());
         } else {
@@ -446,16 +457,12 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     private List<Symbol> getVarNamesWithinTheRange(CodeActionContext context) {
-        List<Symbol> collect = context.visibleSymbols(context.range().getEnd()).stream()
+        return context.visibleSymbols(context.range().getEnd()).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
                 .filter(symbol -> context.currentSemanticModel().get().references(symbol).stream()
                         .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                 .getRangeFromLineRange(location.lineRange()), context.range())))
-//                .filter(symbol -> PositionUtil.isWithinRange(PositionUtil.toPosition(symbol.getLocation().get().lineRange()), context.range()))
-                //        .filter(symbol -> PositionUtil.is)
-                //        .map(symbol -> symbol.getLocation().get().lineRange())
                 .collect(Collectors.toList());
-        return collect;
     }
 
     private Optional<NonTerminalNode> findEnclosingModulePartNode(NonTerminalNode node) {
@@ -551,14 +558,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 //                SyntaxKind.CHECK_EXPRESSION, // cannot provide
                 SyntaxKind.MAPPING_CONSTRUCTOR, // what is the return type descriptor if providing
                 SyntaxKind.TYPEOF_EXPRESSION,
-//                SyntaxKind.UNARY_EXPRESSION,
-//                SyntaxKind.TYPE_TEST_EXPRESSION,
-//                SyntaxKind.SIMPLE_NAME_REFERENCE,
-//                SyntaxKind.TRAP_EXPRESSION,
-//                SyntaxKind.LIST_CONSTRUCTOR,
-//                SyntaxKind.TYPE_CAST_EXPRESSION,
-//                SyntaxKind.TABLE_CONSTRUCTOR,
-//                SyntaxKind.LET_EXPRESSION,
+                SyntaxKind.UNARY_EXPRESSION,
+                SyntaxKind.TYPE_TEST_EXPRESSION,
+//                SyntaxKind.SIMPLE_NAME_REFERENCE, // cannot provide
+//                SyntaxKind.TRAP_EXPRESSION, // cannot provide
+                SyntaxKind.LIST_CONSTRUCTOR,
+                SyntaxKind.TYPE_CAST_EXPRESSION,
+                SyntaxKind.TABLE_CONSTRUCTOR,
+                SyntaxKind.LET_EXPRESSION,
 //                SyntaxKind.XML_TEMPLATE_EXPRESSION,
 //                SyntaxKind.RAW_TEMPLATE_EXPRESSION,
 //                SyntaxKind.STRING_TEMPLATE_EXPRESSION,
