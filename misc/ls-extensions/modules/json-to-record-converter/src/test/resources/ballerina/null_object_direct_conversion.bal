@@ -1,3 +1,3 @@
 type NewRecord record {
-    anydata id?;
+    anydata id;
 };
