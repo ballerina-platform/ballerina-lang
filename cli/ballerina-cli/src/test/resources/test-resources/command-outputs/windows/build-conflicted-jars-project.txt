@@ -2,7 +2,7 @@ Compiling source
 	pramjs/conflictedJarsProject:0.1.0
 
 Generating executable
-	warning: Picking the latest jar since detected conflicting jar files:
+	warning: Detected conflicting jar files:
 		'netty-handler-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
 		'netty-handler-proxy-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
 		'netty-codec-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'

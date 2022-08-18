@@ -2255,9 +2255,8 @@ public class TestBuildProject extends BaseTest {
         List<Diagnostic> resolutionDiagnostics = jBallerinaBackend.jarResolver().diagnostics();
         resolutionDiagnostics.forEach(OUT::println);
         Assert.assertEquals(resolutionDiagnostics.size(), 1);
-        Assert.assertEquals(resolutionDiagnostics.get(0).toString(), "WARNING Detected conflicting jar files: " +
-                "lib3.txt dependency of xballerina/platformLibPkg1 conflict with " +
-                "lib3.txt dependency of yballerina/platformLibPkg2");
+        Assert.assertEquals(resolutionDiagnostics.get(0).toString(), "WARNING detected versions 2.0.2, 2.0.1 " +
+                "for org.apache/lib3. Continuing with newer version (2.0.1)");
     }
 
 

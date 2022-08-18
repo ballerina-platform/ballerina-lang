@@ -76,6 +76,13 @@ public class PackageDiagnostic extends Diagnostic {
         this.location = new DiagnosticLocation(filePath, this.diagnostic.location());
     }
 
+    public PackageDiagnostic(Diagnostic diagnostic, Project project) {
+        this.diagnostic = diagnostic;
+        this.project = project;
+        this.moduleDescriptor = null;
+        this.location = null;
+    }
+
     @Override
     public Location location() {
         return this.location;
@@ -98,22 +105,25 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
-        // add package info if it is a dependency
-        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
-            filePath = moduleDescriptor.org() + "/" +
-                    moduleDescriptor.name().toString() + "/" +
-                    moduleDescriptor.version() + "::" + filePath;
+        if (this.location != null) {
+            String filePath = this.diagnostic.location().lineRange().filePath();
+            // add package info if it is a dependency
+            if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+                filePath = moduleDescriptor.org() + "/" +
+                        moduleDescriptor.name().toString() + "/" +
+                        moduleDescriptor.version() + "::" + filePath;
+            }
+
+            LineRange lineRange = diagnostic.location().lineRange();
+            LineRange oneBasedLineRange = LineRange.from(
+                    filePath,
+                    LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                    LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+
+            return diagnosticInfo().severity().toString() + " ["
+                    + filePath + ":" + oneBasedLineRange + "] " + message();
         }
-
-        LineRange lineRange = diagnostic.location().lineRange();
-        LineRange oneBasedLineRange = LineRange.from(
-                filePath,
-                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
-                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
-
-        return diagnosticInfo().severity().toString() + " ["
-                + filePath + ":" + oneBasedLineRange + "] " + message();
+        return diagnosticInfo().severity().toString() + " " + message();
     }
 
     /*

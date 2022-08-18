@@ -21,9 +21,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * An internal implementation of the {@code Diagnostic} class that is used by the {@code DiagnosticFactory}
@@ -44,14 +42,6 @@ class DefaultDiagnostic extends Diagnostic {
         this.diagnosticInfo = diagnosticInfo;
         this.location = location;
         this.properties = properties;
-        this.message = MessageFormat.format(diagnosticInfo.messageFormat(), args);
-    }
-
-    public DefaultDiagnostic(DiagnosticInfo diagnosticInfo,
-                             Object[] args) {
-        this.diagnosticInfo = diagnosticInfo;
-        this.location = null;
-        this.properties = Collections.emptyList();
         this.message = MessageFormat.format(diagnosticInfo.messageFormat(), args);
     }
 
@@ -77,35 +67,14 @@ class DefaultDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        if (this.location != null) {
-            LineRange lineRange = this.location.lineRange();
-            String filePath = lineRange.filePath();
-            LineRange oneBasedLineRange = LineRange.from(
-                    filePath,
-                    LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
-                    LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+        LineRange lineRange = this.location.lineRange();
+        String filePath = lineRange.filePath();
+        LineRange oneBasedLineRange = LineRange.from(
+                filePath,
+                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
 
-            return diagnosticInfo().severity().toString() + " ["
-                    + filePath + ":" + oneBasedLineRange + "] " + message();
-        }
-        return diagnosticInfo().severity().toString() + " " + message();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DefaultDiagnostic that = (DefaultDiagnostic) o;
-        return Objects.equals(location, that.location)
-                && Objects.equals(message, that.message);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(location, message);
+        return diagnosticInfo().severity().toString() + " ["
+                + filePath + ":" + oneBasedLineRange + "] " + message();
     }
 }

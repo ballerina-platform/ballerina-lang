@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -169,12 +170,24 @@ public class JarResolver {
                         // Issue warning for conflicting jars
                         JBallerinaBackend.JarConflict conflict = new JBallerinaBackend.JarConflict(existingEntry,
                                 newEntry, Collections.emptyList());
-                        String conflictWarning = "Detected conflicting jar files: "
-                                + conflict.getWarning(false, true);
-                        Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(
-                                new DiagnosticInfo(null, conflictWarning, DiagnosticSeverity.WARNING));
-                        if (!this.diagnostics.contains(diagnostic)) {
-                            this.diagnostics.add(diagnostic);
+                        if (conflict.firstJarLibrary.version().isPresent()
+                                && conflict.secondJarLibrary.version().isPresent()
+                                && conflict.firstJarLibrary.groupId().isPresent()
+                                && conflict.firstJarLibrary.artifactId().isPresent()
+                                && newEntry.version().isPresent()) {
+                            String conflictWarning = "detected versions "
+                                    + conflict.firstJarLibrary.version().get() + ", "
+                                    + conflict.secondJarLibrary.version().get()
+                                    + " for " + conflict.firstJarLibrary.groupId().get() + "/"
+                                    + conflict.firstJarLibrary.artifactId().get()
+                                    + ". Continuing with newer version (" + newEntry.version().get() + ")";
+                            Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(
+                                    new DiagnosticInfo(null, conflictWarning, DiagnosticSeverity.WARNING), null);
+                            PackageDiagnostic pkgDiagnostic =
+                                    new PackageDiagnostic(diagnostic, packageContext.project());
+                            if (!this.diagnostics.contains(pkgDiagnostic)) {
+                                this.diagnostics.add(pkgDiagnostic);
+                            }
                         }
                     }
                     continue;

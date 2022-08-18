@@ -106,7 +106,7 @@ public class CreateExecutableTask implements Task {
 
             // Print warnings for conflicted jars
             if (!jBallerinaBackend.conflictedJars().isEmpty()) {
-                out.println("\twarning: Picking the latest jar since detected conflicting jar files:");
+                out.println("\twarning: Detected conflicting jar files:");
                 for (JBallerinaBackend.JarConflict conflict : jBallerinaBackend.conflictedJars()) {
                     out.println(conflict.getWarning(project.buildOptions().listConflictedClasses(), false));
                 }
