@@ -140,7 +140,6 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel, callExpr);
         callExpr.accept(typeFinder);
         Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
-        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
         
         /*
         Check for the parent being `CALL_STATEMENT` to suggest the code action for the following
@@ -150,9 +149,8 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
             }
          */
         return callExpr.parent().kind() != SyntaxKind.CALL_STATEMENT
-                && ((returnTypeSymbol.isPresent()
-                && returnTypeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR)
-                || (returnTypeDescKind.isPresent() && (returnTypeDescKind.get() == TypeDescKind.COMPILATION_ERROR
-                || returnTypeDescKind.get() == TypeDescKind.NONE)));
+                && (returnTypeSymbol.isPresent()
+                && (returnTypeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR
+                || returnTypeSymbol.get().typeKind() == TypeDescKind.NONE));
     }
 }
