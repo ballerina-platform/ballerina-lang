@@ -151,7 +151,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Symbol> predicate =
-                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
+                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS ||
+                    symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> types = QNameRefCompletionUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             return this.getCompletionItemList(types, context);

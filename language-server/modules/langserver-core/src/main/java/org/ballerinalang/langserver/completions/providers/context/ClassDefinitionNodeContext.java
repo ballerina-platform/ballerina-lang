@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link ClassDefinitionNode} context.
@@ -159,7 +161,9 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
+            typesInModule.addAll(QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate));
             return this.getCompletionItemList(typesInModule, context);
         }
         if (onSuggestionsAfterQualifiers(context, context.getNodeAtCursor())) {

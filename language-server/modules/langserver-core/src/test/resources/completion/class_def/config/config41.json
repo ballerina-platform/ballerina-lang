@@ -1,0 +1,180 @@
+{
+  "position": {
+    "line": 1,
+    "character": 12
+  },
+  "source": "class_def/source/source37.bal",
+  "items": [
+    {
+      "label": "sum(decimal... xs)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the sum of zero or more decimal values.\n  \n**Params**  \n- `decimal[]` xs: decimal values to sum  \n  \n**Return** `decimal`   \n- sum of all the parameter `xs`; 0 if parameter `xs` is empty  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "sum",
+      "insertText": "sum(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "max(decimal x, decimal... xs)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the maximum of one or more decimal values.\n  \n**Params**  \n- `decimal` x: first decimal value  \n- `decimal[]` xs: other decimal values  \n  \n**Return** `decimal`   \n- maximum value of parameter `x` and all the parameter `xs`  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "max",
+      "insertText": "max(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "min(decimal x, decimal... xs)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the minimum of one or more decimal values.\n  \n**Params**  \n- `decimal` x: first decimal value  \n- `decimal[]` xs: other decimal values  \n  \n**Return** `decimal`   \n- minimum value of parameter `x` and all the parameter `xs`.  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "min",
+      "insertText": "min(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "abs(decimal x)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the IEEE absolute value of a decimal value.\n  \n**Params**  \n- `decimal` x: decimal value to operate on  \n  \n**Return** `decimal`   \n- absolute value of parameter `x`  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "abs",
+      "insertText": "abs(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "round(decimal x, int fractionDigits)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nRound a decimal to a specified number of digits.\nReturns the decimal value that has an exponent of `-fractionDigits`\nand is closest to `x`.\nIf there are two such values, returns the one whose final digit is even\n(this is the round-to-nearest rounding mode, which is the default for IEEE\nand for Ballerina).\nA value of `fractionDigits` greater than 0 thus corresponds to the number of digits after the decimal\npoint being `fractionDigits`; a value of 0 for `fractionDigits` rounds to an integer.\nNote that IEEE 754 roundToIntegralTiesToEven operation differs from `round` with `fractionDigits` as 0, in that\nroundToIntegralTiesToEven will return a value with a positive exponent when the operand has a positive exponent.\nNote that `<int>x` is the same as `<int>x.round(0)`.\n  \n**Params**  \n- `decimal` x: decimal value to operate on  \n- `int` fractionDigits: the number of digits after the decimal point(Defaultable)  \n  \n**Return** `decimal`   \n- closest decimal value to `x` that is an integral multiple of 10 raised to the power of `-fractionDigits`  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "round",
+      "insertText": "round(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "quantize(decimal x, decimal y)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nIEEE quantize operation.  \n**Params**  \n- `decimal` x: decimal value to operate on  \n- `decimal` y: decimal value from which to get the quantum  \n  \n**Return** `decimal`   \n- `x` with the quantum of `y`  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "quantize",
+      "insertText": "quantize(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "floor(decimal x)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nRounds a decimal down to the closest integral value.\n  \n**Params**  \n- `decimal` x: decimal value to operate on  \n  \n**Return** `decimal`   \n- largest (closest to +∞) decimal value not greater than parameter `x` that is a mathematical integer.  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "floor",
+      "insertText": "floor(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "ceiling(decimal x)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nRounds a decimal up to the closest integral value.\n  \n**Params**  \n- `decimal` x: decimal value to operate on  \n  \n**Return** `decimal`   \n- smallest (closest to -∞) decimal value not less than parameter `x` that is a mathematical integer  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "ceiling",
+      "insertText": "ceiling(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromString(string s)",
+      "kind": "Function",
+      "detail": "decimal|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the decimal value represented by a string.\n\n`s` must follow the syntax of DecimalFloatingPointNumber as defined by the Ballerina specification\nwith the following modifications\n- the DecimalFloatingPointLiteral may have a leading `+` or `-` sign\n- a FloatingPointTypeSuffix is not allowed\nThis is the inverse of function ``value:toString`` applied to an `decimal`.\n  \n**Params**  \n- `string` s: string representation of a decimal  \n  \n**Return** `decimal|error`   \n- decimal representation of the argument or error  \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "fromString",
+      "insertText": "fromString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

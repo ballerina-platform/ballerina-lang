@@ -1,0 +1,3 @@
+class testClass {
+    decimal:
+}
