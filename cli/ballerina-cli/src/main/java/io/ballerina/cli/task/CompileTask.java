@@ -118,9 +118,9 @@ public class CompileTask implements Task {
 
                     if (!project.kind().equals(ProjectKind.BALA_PROJECT) && !isPackCmdForATemplatePkg(project)) {
                         // SingleFileProject cannot hold additional sources or resources
-                        // and BalaProjects is a read-only project.
+                        // and BalaProjects is a read-only project.r
                         // Hence, we run the code generators only for BuildProject.
-                        if (this.isPackageModified && this.cachesEnabled) {
+                        if (this.isPackageModified || !this.cachesEnabled) {
                             // Run code gen and modify plugins, if project has updated only
                             DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
                                     .runCodeGenAndModifyPlugins();
