@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
@@ -192,7 +193,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             return ((BTypeReferenceType) type).referredType;
         }
 
-        if (type.tag == TypeTags.PARAMETERIZED_TYPE) {
+        if (type.tag == TypeTags.PARAMETERIZED_TYPE
+                && type.tsymbol != null && type.tsymbol.origin != SymbolOrigin.VIRTUAL) {
             return ((BParameterizedType) type).paramValueType;
         }
 
