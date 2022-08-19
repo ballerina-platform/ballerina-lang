@@ -64,6 +64,7 @@ public class JarResolver {
     private final PackageContext rootPackageContext;
     private final PrintStream err = System.err;
     private final List<Diagnostic> diagnostics;
+    private final Set<JarLibrary> jarFiles;
 
     private ClassLoader classLoaderWithAllJars;
 
@@ -72,6 +73,7 @@ public class JarResolver {
         this.pkgResolution = pkgResolution;
         this.rootPackageContext = pkgResolution.packageContext();
         this.diagnostics = new ArrayList<>();
+        this.jarFiles = new HashSet<>();
     }
 
     public List<Diagnostic> diagnostics() {
@@ -79,9 +81,12 @@ public class JarResolver {
     }
 
     // TODO These method names are too long. Refactor them soon
-    public Collection<JarLibrary> getJarFilePathsRequiredForExecution() { // Deprecate
+    public Collection<JarLibrary> getJarFilePathsRequiredForExecution() {
+        if (!jarFiles.isEmpty()) {
+            return jarFiles;
+        }
+
         // 1) Add this root package related jar files
-        Set<JarLibrary> jarFiles = new HashSet<>();
         addCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
 
