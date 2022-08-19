@@ -108,14 +108,15 @@ public class ForwardReferencingGlobalDefinitionTest {
         CompileResult cycle = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/viaRecordFieldDefault");
         int i = 0;
         BAssertUtil.validateError(cycle, i++,
-                "illegal cyclic reference '[gVarNested, nestedRec, $anonType$_2, $anonType$_1]'", 26, 1);
+                "illegal cyclic reference '[gVarNested, nestedRec, $anonType$$nestedRec$$_1, " +
+                        "$anonType$$nestedRec$$_0]'", 26, 1);
         BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[name, person, Person]'", 17, 1);
-        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[gVar, p, $anonType$_0]'", 19, 1);
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[gVar, p, $anonType$$p$$_0]'", 19, 1);
         BAssertUtil.validateError(cycle, i++,
-                "illegal cyclic reference '[nillableNestedRecordGVar, nillableNestedRec, $anonType$_4, $anonType$_3]'",
-                21, 1);
+                "illegal cyclic reference '[nillableNestedRecordGVar, nillableNestedRec, " +
+                        "$anonType$$nillableNestedRec$$_1, $anonType$$nillableNestedRec$$_0]'", 21, 1);
         BAssertUtil.validateError(cycle, i++,
-                "illegal cyclic reference '[nestedRecordFieldDefaultValue, A, $anonType$_5]'", 23, 1);
+                "illegal cyclic reference '[nestedRecordFieldDefaultValue, A, $anonType$_0]'", 23, 1);
         Assert.assertEquals(cycle.getDiagnostics().length, i);
     }
 
