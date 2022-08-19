@@ -1,13 +1,7 @@
 {
-  "range": {
-    "start": {
-      "line": 5,
-      "character": 16
-    },
-    "end": {
-      "line": 5,
-      "character": 55
-    }
+  "position": {
+    "line": 5,
+    "character": 42
   },
   "source": "extract_to_function_exprs_binary_expr.bal",
   "expected": [
@@ -26,23 +20,23 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int param, int moduleVar, int localVar) returns int {\n    return constant + moduleVar + param + localVar;\n}"
+          "newText": "\n\nfunction extracted(int param) returns int {\n    return param;\n}"
         },
         {
           "range": {
             "start": {
               "line": 5,
-              "character": 16
+              "character": 39
             },
             "end": {
               "line": 5,
-              "character": 55
+              "character": 44
             }
           },
-          "newText": "extracted(param, moduleVar, localVar)"
+          "newText": "extracted(param)"
         }
       ]
     }
   ],
-  "description": "Extract to function for expressions, binary expressions"
+  "description": "Extract to function for expressions, within binary expression and cursor on parameter"
 }
