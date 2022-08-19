@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.MatchClauseNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -70,14 +71,18 @@ public class MatchClauseNodeContext extends MatchStatementContext<MatchClauseNod
     }
 
     private boolean onSuggestionsAfterDoubleArrow(BallerinaCompletionContext context, MatchClauseNode node) {
-        return context.getCursorPositionInTree() >= node.rightDoubleArrow().textRange().endOffset();
+        Token rightDoubleArrow = node.rightDoubleArrow();
+        return !rightDoubleArrow.isMissing() 
+                && context.getCursorPositionInTree() >= rightDoubleArrow.textRange().endOffset();
     }
 
     private boolean onSuggestIfClause(BallerinaCompletionContext context, MatchClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         SeparatedNodeList<Node> matchPatterns = node.matchPatterns();
+        Token rightDoubleArrow = node.rightDoubleArrow();
         
         return !matchPatterns.isEmpty() && cursor > matchPatterns.get(matchPatterns.size() - 1).textRange().endOffset()
-                && cursor <= node.rightDoubleArrow().textRange().startOffset();
+                && (rightDoubleArrow.isMissing() || (!rightDoubleArrow.isMissing() 
+                && cursor <= rightDoubleArrow.textRange().startOffset()));
     }
 }
