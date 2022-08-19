@@ -446,7 +446,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         });
 
         String returnsClause = String.format("returns %s", typeSymbol.signature());
-        String returnStatement = "";
+        String returnStatement;
 
         if (matchedCodeActionNode.kind() == SyntaxKind.BRACED_EXPRESSION) {
             returnStatement = String.format("return %s;", ((BracedExpressionNode) matchedCodeActionNode).expression().toString().strip());
@@ -579,7 +579,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 //                SyntaxKind.OPTIONAL_FIELD_ACCESS,
 //                SyntaxKind.CONDITIONAL_EXPRESSION,
 //                SyntaxKind.TRANSACTIONAL_EXPRESSION,
-//                SyntaxKind.OBJECT_CONSTRUCTOR,
+                SyntaxKind.OBJECT_CONSTRUCTOR,
 //                SyntaxKind.XML_FILTER_EXPRESSION, // do not provide
 //                SyntaxKind.XML_STEP_EXPRESSION, // do not provide
 //                SyntaxKind.XML_NAME_PATTERN_CHAIN, // do not provide
