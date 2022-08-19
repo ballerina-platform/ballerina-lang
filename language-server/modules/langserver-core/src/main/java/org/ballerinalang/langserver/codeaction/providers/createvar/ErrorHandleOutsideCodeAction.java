@@ -101,7 +101,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         int renamePosition = modifiedTextEdits.renamePositions.get(0) - UNION_ERROR_CHAR_OFFSET;
         edits.addAll(importsAcceptor.getNewImportTextEdits());
         CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, codeAction, renamePosition);
+        addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition);
         return Collections.singletonList(codeAction);
     }
 

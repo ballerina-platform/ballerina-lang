@@ -90,7 +90,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, codeAction, createVarTextEdits.renamePositions.get(0));
+        addRenamePopup(context, edits, createVarTextEdits.edits.get(0), codeAction,
+                createVarTextEdits.renamePositions.get(0));
         return Collections.singletonList(codeAction);
     }
 

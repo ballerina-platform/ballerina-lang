@@ -95,7 +95,8 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             List<TextEdit> edits = new ArrayList<>();
-            edits.add(createVarTextEdits.edits.get(i));
+            TextEdit variableEdit = createVarTextEdits.edits.get(i);
+            edits.add(variableEdit);
             edits.addAll(createVarTextEdits.imports);
             String type = types.get(i);
             if (createVarTextEdits.types.size() > 1) {
@@ -106,7 +107,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
             }
 
             CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-            addRenamePopup(context, edits, codeAction, createVarTextEdits.renamePositions.get(i));
+            addRenamePopup(context, edits, variableEdit, codeAction, createVarTextEdits.renamePositions.get(i));
             actions.add(codeAction);
         }
         return actions;
@@ -189,7 +190,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         }
     }
 
-    public void addRenamePopup(CodeActionContext context, List<TextEdit> textEdits,
+    public void addRenamePopup(CodeActionContext context, List<TextEdit> textEdits, TextEdit variableEdit,
                                CodeAction codeAction, int renameOffset) {
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         if (syntaxTree.isEmpty()) {
@@ -208,9 +209,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
            variable. In the example the renameOffset will be the length of "int ".
         */
 
-        // Taking the start position of the first text edit assuming that the variable creation edit is the first edit
-        // in the list.
-        int startPos = CommonUtil.getTextEdit(syntaxTree.get(), textEdits.get(0)).range().startOffset();
+        int startPos = CommonUtil.getTextEdit(syntaxTree.get(), variableEdit).range().startOffset();
         int sum = 0;
         for (TextEdit textEdit : textEdits) {
             io.ballerina.tools.text.TextEdit edits = CommonUtil.getTextEdit(syntaxTree.get(), textEdit);
