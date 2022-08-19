@@ -118,6 +118,14 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_explicit_new_expr.json"},
                 {"extract_to_function_exprs_object_constructor.json"},
                 {"extract_to_function_exprs_error_constructor.json"},
+
+                {"extract_to_function_exprs_position_binary_expr_constant.json"},
+                {"extract_to_function_exprs_position_binary_expr_moduleVar.json"},
+                {"extract_to_function_exprs_position_binary_expr_parameter.json"},
+                {"extract_to_function_exprs_position_binary_expr_localVar.json"},
+                {"extract_to_function_exprs_position_binary_expr_before_plus_token.json"},
+                {"extract_to_function_exprs_position_binary_expr_after_plus_token.json"},
+                {"extract_to_function_exprs_range_binary_expr_selecting_plus_token.json"},
         };
     }
 

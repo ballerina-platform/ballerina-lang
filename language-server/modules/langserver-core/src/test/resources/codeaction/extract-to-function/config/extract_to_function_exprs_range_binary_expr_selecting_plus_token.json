@@ -2,11 +2,11 @@
   "range": {
     "start": {
       "line": 5,
-      "character": 16
+      "character": 25
     },
     "end": {
       "line": 5,
-      "character": 55
+      "character": 26
     }
   },
   "source": "extract_to_function_exprs_binary_expr.bal",
@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int param, int moduleVar, int localVar) returns int {\n    return constant + moduleVar + param + localVar;\n}"
+          "newText": "\n\nfunction extracted(int moduleVar) returns int {\n    return constant + moduleVar;\n}"
         },
         {
           "range": {
@@ -36,13 +36,13 @@
             },
             "end": {
               "line": 5,
-              "character": 55
+              "character": 36
             }
           },
-          "newText": "extracted(param, moduleVar, localVar)"
+          "newText": "extracted(moduleVar)"
         }
       ]
     }
   ],
-  "description": "Extract to function for expressions, binary expressions"
+  "description": "Extract to function for expressions, binary expressions selecting(highlighting) the plus token"
 }
