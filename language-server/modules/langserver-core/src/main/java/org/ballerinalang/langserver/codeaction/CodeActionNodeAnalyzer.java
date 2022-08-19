@@ -26,11 +26,14 @@ import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DoStatementNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
@@ -110,8 +113,10 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(startPositionOffset, endPositionOffset);
         NonTerminalNode node = CommonUtil.findNode(range, syntaxTree);
         if (node.kind() == SyntaxKind.LIST) {
-            analyzer.checkAndSetCodeActionNode(node);
-            analyzer.checkAndSetSyntaxKind(node.kind());
+            if (isStatementNodeInside(node)) {
+                analyzer.checkAndSetCodeActionNode(node);
+                analyzer.checkAndSetSyntaxKind(node.kind());
+            }
             node.parent().accept(analyzer);
         } else {
             node.accept(analyzer);
@@ -495,6 +500,27 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     @Override
+    public void visit(ImplicitNewExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ExplicitNewExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ErrorConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
     public void visit(VariableDeclarationNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
@@ -592,6 +618,17 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
             return;
         }
         node.accept(this);
+    }
+
+    private static boolean isStatementNodeInside(NonTerminalNode node) {
+        for (Node childNode : node.children()) {
+            if (childNode.kind().compareTo(SyntaxKind.BLOCK_STATEMENT) >= 0
+                    && childNode.kind().compareTo(SyntaxKind.BINARY_EXPRESSION) < 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void checkAndSetCodeActionNode(NonTerminalNode node) {

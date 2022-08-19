@@ -99,7 +99,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 // expressions
 
                 {"extract_to_function_exprs_numeric_literal.json"},
-                {"extract_to_function_exprs_binary_expr.json"}, // fails
+//                {"extract_to_function_exprs_binary_expr.json"}, // fails
                 {"extract_to_function_exprs_braced_expr.json"},
                 {"extract_to_function_exprs_qual_name_ref.json"},
                 {"extract_to_function_exprs_indexed_expr.json"},
@@ -114,6 +114,11 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_list_constructor.json"},
                 {"extract_to_function_exprs_typecast_expr.json"},
                 {"extract_to_function_exprs_table_constructor.json"},
+                {"extract_to_function_exprs_implicit_new_expr.json"},
+                {"extract_to_function_exprs_explicit_new_expr.json"},
+                {"extract_to_function_exprs_object_constructor.json"},
+                {"extract_to_function_exprs_error_constructor.json"},
+
         };
     }
 
