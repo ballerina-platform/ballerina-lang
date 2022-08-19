@@ -90,7 +90,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private List<CodeAction> getCodeActionsForStatements(CodeActionContext context,
                                                          RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
-        Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(matchedCodeActionNode);
+        Optional<Node> enclosingNode = findEnclosingModulePartNode(matchedCodeActionNode);
         Optional<NonTerminalNode> enclosingFuncDefNode = findEnclosingFunctionDefinitionNode(matchedCodeActionNode);
         if (context.currentSemanticModel().isEmpty() || enclosingNode.isEmpty() || enclosingFuncDefNode.isEmpty()) {
             return Collections.emptyList();
@@ -327,7 +327,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
     private List<CodeAction> getCodeActionsForExpressions(CodeActionContext context,
                                                           RangeBasedPositionDetails posDetails) {
-        NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
+        Node matchedCodeActionNode = context.nodeAtRange();
 
         if (context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty() ||
                 (matchedCodeActionNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
@@ -351,7 +351,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         // If the file ends with a new line
         boolean newLineAtEnd = rootLineRange.endLine().offset() == 0;
 
-        Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(matchedCodeActionNode);
+        Optional<Node> enclosingNode = findEnclosingModulePartNode(matchedCodeActionNode);
         Range functionInsertRange;
 
         if (enclosingNode.isPresent()) {
@@ -422,7 +422,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return fnBuilder.toString();
     }
 
-    private String getFunction(NonTerminalNode matchedCodeActionNode, boolean newLineAtEnd, TypeSymbol typeSymbol,
+    private String getFunction(Node matchedCodeActionNode, boolean newLineAtEnd, TypeSymbol typeSymbol,
                                String functionName, String funcBody, CodeActionContext context) {
         List<String> args = new ArrayList<>();
         List<Symbol> varAndParamSymbolsWithinRange = context.visibleSymbols(context.range().getEnd()).stream()
@@ -465,8 +465,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .collect(Collectors.toList());
     }
 
-    private Optional<NonTerminalNode> findEnclosingModulePartNode(NonTerminalNode node) {
-        NonTerminalNode reference = node;
+    private Optional<Node> findEnclosingModulePartNode(Node node) {
+        Node reference = node;
         while (reference != null && reference.parent() != null) {
             if (reference.parent().kind() == SyntaxKind.MODULE_PART) {
                 return Optional.of(reference);
@@ -569,9 +569,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 //                SyntaxKind.XML_TEMPLATE_EXPRESSION,
 //                SyntaxKind.RAW_TEMPLATE_EXPRESSION,
 //                SyntaxKind.STRING_TEMPLATE_EXPRESSION,
-//                SyntaxKind.IMPLICIT_NEW_EXPRESSION,
-//                SyntaxKind.EXPLICIT_NEW_EXPRESSION,
-//                SyntaxKind.PARENTHESIZED_ARG_LIST,
+                SyntaxKind.IMPLICIT_NEW_EXPRESSION,
+                SyntaxKind.EXPLICIT_NEW_EXPRESSION,
+//                SyntaxKind.PARENTHESIZED_ARG_LIST, // cannot provide
 //                SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION,
 //                SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION,
 //                SyntaxKind.QUERY_EXPRESSION,
@@ -586,13 +586,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 //                SyntaxKind.XML_ATOMIC_NAME_PATTERN, // do not provide
                 SyntaxKind.STRING_LITERAL,
                 SyntaxKind.NUMERIC_LITERAL,
-                SyntaxKind.BOOLEAN_LITERAL
+                SyntaxKind.BOOLEAN_LITERAL,
 //                SyntaxKind.NIL_LITERAL, // do not provide
 //                SyntaxKind.NULL_LITERAL, // do not provide
 //                SyntaxKind.BYTE_ARRAY_LITERAL,
 //                SyntaxKind.ASTERISK_LITERAL,
 //                SyntaxKind.REQUIRED_EXPRESSION,
-//                SyntaxKind.ERROR_CONSTRUCTOR
+                SyntaxKind.ERROR_CONSTRUCTOR
         );
     }
 
