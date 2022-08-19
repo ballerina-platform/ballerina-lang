@@ -340,8 +340,7 @@ public class SymbolFactory {
         }
 
         TypeSymbol typeDescriptor;
-        if (symbol.type.tag == TypeTags.INTERSECTION && symbol.type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL
-                || isReadonlyIntersectionArrayType(symbol.type)) {
+        if (isReadonlyIntersectionArrayType(symbol.type)) {
             typeDescriptor = typesFactory.getTypeDescriptor(symbol.type, symbol.type.tsymbol, true);
         } else {
             typeDescriptor = typesFactory.getTypeDescriptor(symbol.type);
