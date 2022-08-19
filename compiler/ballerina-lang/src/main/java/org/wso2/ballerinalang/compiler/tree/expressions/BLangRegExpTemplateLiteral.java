@@ -23,8 +23,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-
 /**
+ * Represents a regular expression.
+ *
  * @since 2201.3.0
  */
 public class BLangRegExpTemplateLiteral extends BLangExpression implements RegExpTemplateLiteralNode {
