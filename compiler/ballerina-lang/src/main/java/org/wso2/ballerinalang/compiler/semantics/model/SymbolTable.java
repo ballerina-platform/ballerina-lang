@@ -219,6 +219,7 @@ public class SymbolTable {
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
     public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();
+    public Map<Location, PackageID> clientDeclarations;
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -318,6 +319,9 @@ public class SymbolTable {
         this.invokableType.tsymbol = tSymbol;
 
         defineReadonlyCompoundType();
+
+        // TODO: 2022-08-12 Get from context.
+        this.clientDeclarations = new HashMap<>();
     }
 
     private void defineReadonlyCompoundType() {

@@ -5336,8 +5336,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangIdentifier[] nameReference = createBLangNameReference(actionOrExpression);
             BLangSimpleVarRef bLVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             bLVarRef.pos = getPosition(actionOrExpression);
-            bLVarRef.pkgAlias = this.createIdentifier(nameReference[0].getPosition(), nameReference[0].getValue());
-            bLVarRef.variableName = this.createIdentifier(nameReference[1].getPosition(), nameReference[1].getValue());
+
+            BLangIdentifier alias = nameReference[0];
+            bLVarRef.pkgAlias = this.createIdentifier(alias.getPosition(), alias.getValue());
+            bLVarRef.pkgAlias.setLiteral(alias.isLiteral);
+
+            BLangIdentifier name = nameReference[1];
+            bLVarRef.variableName = this.createIdentifier(name.getPosition(), name.getValue());
+            bLVarRef.variableName.setLiteral(name.isLiteral);
+
             return bLVarRef;
         } else if (actionOrExpression.kind() == SyntaxKind.BRACED_EXPRESSION) {
             BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
