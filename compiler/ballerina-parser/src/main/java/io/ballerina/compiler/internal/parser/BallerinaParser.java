@@ -9646,6 +9646,7 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case WORKER_KEYWORD:
+            case CLIENT_KEYWORD:
                 // fall through
 
             case SOURCE_KEYWORD:
@@ -9707,6 +9708,7 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case WORKER_KEYWORD:
+            case CLIENT_KEYWORD:
                 STNode firstIdent = consume();
                 STNode identList = STNodeFactory.createNodeList(firstIdent);
                 return STNodeFactory.createAnnotationAttachPointNode(sourceKeyword, identList);

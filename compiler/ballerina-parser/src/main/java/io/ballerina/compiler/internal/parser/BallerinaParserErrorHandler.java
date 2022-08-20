@@ -6185,6 +6185,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case WORKER_KEYWORD:
+            case CLIENT_KEYWORD:
             case TYPE_KEYWORD:
             case FUNCTION_KEYWORD:
             case PARAMETER_KEYWORD:
