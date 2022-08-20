@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
@@ -185,6 +186,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
         return Optional.of(clientResourceAccessActionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        return computedResourceAccessSegmentNode.expression().apply(this);
     }
 
     @Override
