@@ -71,12 +71,6 @@ public class ErrorValue extends BError implements RefValue {
     private final Object details;
 
     private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
-    private static final String GENERATE_PKG_INIT = "___init_";
-    private static final String GENERATE_PKG_START = "___start_";
-    private static final String GENERATE_PKG_STOP = "___stop_";
-    private static final String INIT_FUNCTION_SUFFIX = "..<init>";
-    private static final String START_FUNCTION_SUFFIX = ".<start>";
-    private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     public ErrorValue(BString message) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
@@ -282,9 +276,8 @@ public class ErrorValue extends BError implements RefValue {
     public StackTraceElement[] getStackTrace() {
         StackTraceElement[] stackTrace = super.getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();
-        int index = 0;
         for (StackTraceElement stackFrame : stackTrace) {
-            Optional<StackTraceElement> stackTraceElement = filterStackTraceElement(stackFrame, index++);
+            Optional<StackTraceElement> stackTraceElement = filterStackTraceElement(stackFrame);
             stackTraceElement.ifPresent(filteredStack::add);
         }
         StackTraceElement[] filteredStackArray = new StackTraceElement[filteredStack.size()];
@@ -343,9 +336,8 @@ public class ErrorValue extends BError implements RefValue {
     public List<StackTraceElement> getCallStack() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();
-        int index = 0;
         for (StackTraceElement stackFrame : stackTrace) {
-            Optional<StackTraceElement> stackTraceElement = filterStackTraceElement(stackFrame, index++);
+            Optional<StackTraceElement> stackTraceElement = filterStackTraceElement(stackFrame);
             stackTraceElement.ifPresent(filteredStack::add);
         }
         return filteredStack;
@@ -395,32 +387,16 @@ public class ErrorValue extends BError implements RefValue {
         return (details instanceof MapValue) && ((MapValue<?, ?>) details).isEmpty();
     }
 
-    private Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {
+    private Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame) {
         String fileName = stackFrame.getFileName();
         int lineNo = stackFrame.getLineNumber();
         if (lineNo < 0) {
             return Optional.empty();
         }
         // Handle init function
-        String className = stackFrame.getClassName();
-        String methodName = stackFrame.getMethodName();
-        if (className.equals(MODULE_INIT_CLASS_NAME)) {
-            if (currentIndex == 0) {
-                return Optional.empty();
-            }
-            switch (methodName) {
-                case GENERATE_PKG_INIT:
-                    methodName = INIT_FUNCTION_SUFFIX;
-                    break;
-                case GENERATE_PKG_START:
-                    methodName = START_FUNCTION_SUFFIX;
-                    break;
-                case GENERATE_PKG_STOP:
-                    methodName = STOP_FUNCTION_SUFFIX;
-                    break;
-                default:
-                    return Optional.empty();
-            }
+        String className = Utils.decodeIdentifier(stackFrame.getClassName());
+        String methodName = Utils.decodeIdentifier(stackFrame.getMethodName());
+        if (className.contains(MODULE_INIT_CLASS_NAME)) {
             return Optional.of(new StackTraceElement(cleanupClassName(className), methodName, fileName,
                                                      stackFrame.getLineNumber()));
 
