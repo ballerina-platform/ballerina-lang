@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 22,
+    "character": 22
+  },
+  "source": "extract_to_function_exprs_field_access_expr.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 26,
+              "character": 1
+            },
+            "end": {
+              "line": 26,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(record {|int age; anydata...;|} nimal) returns Person {\n    return nimal;\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 21
+            },
+            "end": {
+              "line": 22,
+              "character": 26
+            }
+          },
+          "newText": "extracted(nimal)"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for expressions, cursor inside the expression of the field access expression of Record"
+}
