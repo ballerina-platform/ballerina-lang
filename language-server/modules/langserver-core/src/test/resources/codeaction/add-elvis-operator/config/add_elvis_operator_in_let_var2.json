@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 1,
+    "character": 31
+  },
+  "source": "add_elvis_operator_in_let_var2.bal",
+  "description": "Test the code action in let variable context",
+  "expected": [
+    {
+      "title": "Add Elvis operator",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 32
+            },
+            "end": {
+              "line": 1,
+              "character": 32
+            }
+          },
+          "newText": " ?: 0.0"
+        }
+      ]
+    }
+  ]
+}
