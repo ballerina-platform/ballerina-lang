@@ -98,11 +98,14 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 // expressions
 
+                //  expressions by range
                 {"extract_to_function_exprs_numeric_literal.json"},
 //                {"extract_to_function_exprs_binary_expr.json"}, // fails
+                {"extract_to_function_exprs_range_binary_expr_selecting_plus_token.json"},
                 {"extract_to_function_exprs_braced_expr.json"},
                 {"extract_to_function_exprs_qual_name_ref.json"},
                 {"extract_to_function_exprs_indexed_expr.json"},
+                {"extract_to_function_exprs_range_indexed_expr_selecting_open_bracket.json"},
                 {"extract_to_function_exprs_field_access_expr_record.json"},
                 {"extract_to_function_exprs_field_access_expr_object.json"},
                 {"extract_to_function_exprs_method_call.json"},
@@ -119,13 +122,22 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_object_constructor.json"},
                 {"extract_to_function_exprs_error_constructor.json"},
 
+                // expressions by position
+                {"extract_to_function_exprs_position_numeric_literal_cur_after_literal.json"},
+                {"extract_to_function_exprs_position_numeric_literal_cur_inside_literal.json"},
                 {"extract_to_function_exprs_position_binary_expr_constant.json"},
                 {"extract_to_function_exprs_position_binary_expr_moduleVar.json"},
                 {"extract_to_function_exprs_position_binary_expr_parameter.json"},
                 {"extract_to_function_exprs_position_binary_expr_localVar.json"},
                 {"extract_to_function_exprs_position_binary_expr_before_plus_token.json"},
                 {"extract_to_function_exprs_position_binary_expr_after_plus_token.json"},
-                {"extract_to_function_exprs_range_binary_expr_selecting_plus_token.json"},
+                {"extract_to_function_exprs_position_braced_expr_end.json"},
+                {"extract_to_function_exprs_position_qual_name_ref_modPrefix.json"},
+                {"extract_to_function_exprs_position_qual_name_ref_identifier.json"},
+                {"extract_to_function_exprs_position_indexed_expr_container_expr.json"},
+                {"extract_to_function_exprs_pos_field_access_expr_record_in_expr.json"},
+                {"extract_to_function_exprs_pos_field_access_expr_object_in_expr.json"},
+                {"extract_to_function_exprs_pos_field_access_expr_record_in_fieldName.json"},
         };
     }
 
@@ -201,6 +213,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_exprs_field_access_expr_in_assignment_lhs.json"},
                 {"negative_extract_to_function_exprs_mapping_cons_inside_table.json"},
                 {"negative_extract_to_function_exprs_mapping_cons_annot_value.json"},
+
+                {"neg_extract_to_function_exprs_position_numeric_literal_before_literal.json"},
         };
     }
 
