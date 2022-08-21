@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 2,
+    "character": 13
+  },
+  "source": "add_elvis_operator_in_return_statement.bal",
+  "description": "Test the code action in return statement context",
+  "expected": [
+    {
+      "title": "Add Elvis operator",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 15
+            },
+            "end": {
+              "line": 2,
+              "character": 15
+            }
+          },
+          "newText": " ?: 0"
+        }
+      ]
+    }
+  ]
+}
