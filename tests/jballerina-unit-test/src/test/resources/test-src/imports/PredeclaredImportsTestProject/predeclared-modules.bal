@@ -53,7 +53,7 @@ function testTrxInfoRecordTypeUse() returns boolean {
     return true;
 }
 
-function testCallInFunction()returns any|error {
+function testCallInFunction() returns any|error {
     return function:call(testSumFunctionInDecimal, 10.5d, 20.5d);
 }
 
