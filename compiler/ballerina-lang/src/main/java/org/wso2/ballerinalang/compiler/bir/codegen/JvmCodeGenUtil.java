@@ -68,9 +68,11 @@ import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -507,7 +509,8 @@ public class JvmCodeGenUtil {
         }
     }
 
-    public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels) {
+    public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
+                                          int invocationVarIndex) {
         mv.visitIntInsn(BIPUSH, channels.size());
         mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
         int index = 0;
@@ -518,7 +521,12 @@ public class JvmCodeGenUtil {
 
             mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
             mv.visitInsn(DUP);
-            mv.visitLdcInsn(ch.name);
+            mv.visitVarInsn(ILOAD, invocationVarIndex);
+            mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(I)Ljava/lang/String;",
+                    new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants",
+                            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
+                                    "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
+                                    "Ljava/lang/invoke/CallSite;", false), new Object[]{ch.name + ":\u0001"});
 
             if (ch.channelInSameStrand) {
                 mv.visitInsn(ICONST_1);

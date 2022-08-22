@@ -277,7 +277,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
-        termGen.genReturnTerm(returnVarRefIndex, birFunc);
+        termGen.genReturnTerm(returnVarRefIndex, birFunc, -1);
         mv.visitMaxs(200, 400);
         mv.visitEnd();
     }
@@ -305,7 +305,7 @@ public class InteropMethodGen {
                 lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, basicBlock, funcName, labelGen,
                         lastScope, visitedScopesSet);
             }
-            errorGen.generateTryCatch(func, funcName, basicBlock, termGen, labelGen);
+            errorGen.generateTryCatch(func, funcName, basicBlock, termGen, labelGen, -1);
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {

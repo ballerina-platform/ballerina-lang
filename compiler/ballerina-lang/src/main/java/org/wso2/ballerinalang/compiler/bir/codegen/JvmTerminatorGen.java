@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -73,6 +74,7 @@ import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
@@ -344,7 +346,7 @@ public class JvmTerminatorGen {
                 this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
                 return;
             case RETURN:
-                this.genReturnTerm(returnVarRefIndex, func);
+                this.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
                 return;
             case PANIC:
                 this.errorGen.genPanic((BIRTerminator.Panic) terminator);
@@ -360,13 +362,13 @@ public class JvmTerminatorGen {
                                   funcName, localVarOffset, invocationVarIndex);
                 return;
             case WK_SEND:
-                this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, localVarOffset);
+                this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, localVarOffset, invocationVarIndex);
                 return;
             case WK_RECEIVE:
-                this.genWorkerReceiveIns((BIRTerminator.WorkerReceive) terminator, localVarOffset);
+                this.genWorkerReceiveIns((BIRTerminator.WorkerReceive) terminator, localVarOffset, invocationVarIndex);
                 return;
             case FLUSH:
-                this.genFlushIns((BIRTerminator.Flush) terminator, localVarOffset);
+                this.genFlushIns((BIRTerminator.Flush) terminator, localVarOffset, invocationVarIndex);
                 return;
             case PLATFORM:
                 if (terminator instanceof JavaMethodCall) {
@@ -426,7 +428,8 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    private void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType) {
+    private void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType,
+                                       int invocationVarIndex) {
 
         if (channels.size() == 0) {
             return;
@@ -444,20 +447,20 @@ public class JvmTerminatorGen {
         if (errorIncluded) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitVarInsn(ALOAD, 0);
-            JvmCodeGenUtil.loadChannelDetails(this.mv, channels);
+            JvmCodeGenUtil.loadChannelDetails(this.mv, channels, invocationVarIndex);
             this.mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, "handleWorkerError",
                                     HANDLE_WORKER_ERROR, false);
         }
     }
 
-    private void notifyChannels(List<BIRNode.ChannelDetails> channels, int retIndex) {
+    private void notifyChannels(List<BIRNode.ChannelDetails> channels, int retIndex, int invocationVarIndex) {
 
         if (channels.size() == 0) {
             return;
         }
 
         this.mv.visitVarInsn(ALOAD, 0);
-        JvmCodeGenUtil.loadChannelDetails(this.mv, channels);
+        JvmCodeGenUtil.loadChannelDetails(this.mv, channels, invocationVarIndex);
         this.mv.visitVarInsn(ALOAD, retIndex);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "handleChannelError", HANDLE_CHANNEL_ERROR, false);
     }
@@ -1190,14 +1193,19 @@ public class JvmTerminatorGen {
         this.mv.visitInsn(AASTORE);
     }
 
-    private void genWorkerSendIns(BIRTerminator.WorkerSend ins, int localVarOffset) {
+    private void genWorkerSendIns(BIRTerminator.WorkerSend ins, int localVarOffset, int invocationVarIndex) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         if (!ins.isSameStrand) {
             this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
         }
         this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
-        this.mv.visitLdcInsn(ins.channel.value);
+        this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+        this.mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(I)Ljava/lang/String;",
+                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants",
+                        "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
+                                "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
+                                "Ljava/lang/invoke/CallSite;", false), new Object[]{ins.channel.value + ":\u0001"});
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", GET_WORKER_DATA_CHANNEL, false);
         this.loadVar(ins.data.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, ins.data.variableDcl.type);
@@ -1215,14 +1223,19 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genWorkerReceiveIns(BIRTerminator.WorkerReceive ins, int localVarOffset) {
+    private void genWorkerReceiveIns(BIRTerminator.WorkerReceive ins, int localVarOffset, int invocationVarIndex) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         if (!ins.isSameStrand) {
             this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
         }
         this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
-        this.mv.visitLdcInsn(ins.workerName.value);
+        this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+        this.mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(I)Ljava/lang/String;",
+                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants",
+                        "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
+                                "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
+                                "Ljava/lang/invoke/CallSite;", false), new Object[]{ins.workerName.value + ":\u0001"});
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", GET_WORKER_DATA_CHANNEL, false);
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -1246,10 +1259,10 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(jumpAfterReceive);
     }
 
-    private void genFlushIns(BIRTerminator.Flush ins, int localVarOffset) {
+    private void genFlushIns(BIRTerminator.Flush ins, int localVarOffset, int invocationVarIndex) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        JvmCodeGenUtil.loadChannelDetails(this.mv, Arrays.asList(ins.channels));
+        JvmCodeGenUtil.loadChannelDetails(this.mv, Arrays.asList(ins.channels), invocationVarIndex);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "handleFlush",
                                 HANDLE_FLUSH, false);
         this.storeToVar(ins.lhsOp.variableDcl);
@@ -1322,12 +1335,13 @@ public class JvmTerminatorGen {
         jvmInstructionGen.generateVarStore(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
     }
 
-    public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func) {
+    public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func, int invocationVarIndex) {
         BType bType = unifier.build(func.type.retType);
-        generateReturnTermFromType(returnVarRefIndex, bType, func);
+        generateReturnTermFromType(returnVarRefIndex, bType, func, invocationVarIndex);
     }
 
-    private void generateReturnTermFromType(int returnVarRefIndex, BType bType, BIRNode.BIRFunction func) {
+    private void generateReturnTermFromType(int returnVarRefIndex, BType bType, BIRNode.BIRFunction func,
+                                            int invocationVarIndex) {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             this.mv.visitInsn(LRETURN);
@@ -1373,17 +1387,18 @@ public class JvmTerminatorGen {
                 break;
             case TypeTags.UNION:
                 this.handleErrorRetInUnion(returnVarRefIndex, Arrays.asList(func.workerChannels),
-                        (BUnionType) bType);
+                        (BUnionType) bType, invocationVarIndex);
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
                 break;
             case TypeTags.ERROR:
-                this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex);
+                this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex, invocationVarIndex);
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
                 break;
             case TypeTags.TYPEREFDESC:
-                generateReturnTermFromType(returnVarRefIndex, JvmCodeGenUtil.getReferredType(bType), func);
+                generateReturnTermFromType(returnVarRefIndex, JvmCodeGenUtil.getReferredType(bType), func,
+                        invocationVarIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +

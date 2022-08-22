@@ -233,7 +233,7 @@ public class MethodGen {
         // set function invocation variable
         setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex);
         // set channel details to strand.
-        setChannelDetailsToStrand(func, localVarOffset, mv);
+        setChannelDetailsToStrand(func, localVarOffset, mv, invocationVarIndex);
 
         Label varinitLabel = labelGen.getLabel(funcName + "varinit");
         mv.visitLabel(varinitLabel);
@@ -291,7 +291,7 @@ public class MethodGen {
 
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
-        termGen.genReturnTerm(returnVarRefIndex, func);
+        termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
 
         // Create Local Variable Table
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel);
@@ -340,14 +340,15 @@ public class MethodGen {
                           MODULE_START_ATTEMPTED, "Z");
     }
 
-    private void setChannelDetailsToStrand(BIRFunction func, int localVarOffset, MethodVisitor mv) {
+    private void setChannelDetailsToStrand(BIRFunction func, int localVarOffset, MethodVisitor mv,
+                                           int invocationVarIndex) {
         // these channel info is required to notify datachannels, when there is a panic
         // we cannot set this during strand creation, because function call do not have this info.
         if (func.workerChannels.length <= 0) {
             return;
         }
         mv.visitVarInsn(ALOAD, localVarOffset);
-        JvmCodeGenUtil.loadChannelDetails(mv, Arrays.asList(func.workerChannels));
+        JvmCodeGenUtil.loadChannelDetails(mv, Arrays.asList(func.workerChannels), invocationVarIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "updateChannelDetails",
                            UPDATE_CHANNEL_DETAILS, false);
     }
@@ -553,7 +554,7 @@ public class MethodGen {
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
-            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
+            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, invocationVarIndex);
 
             String yieldStatus = getYieldStatusByTerminator(terminator);
 
