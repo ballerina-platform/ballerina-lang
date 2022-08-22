@@ -192,10 +192,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
-        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
-        typeFinder.findTypeOf(fnCallExprNode.get());
+        FunctionCallExpressionTypeFinder typeFinder =
+                new FunctionCallExpressionTypeFinder(semanticModel, fnCallExprNode.get());
+        fnCallExprNode.get().accept(typeFinder);
         Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
-        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
 
         //Check if the function call is invoked from an isolated context.
         IsolatedBlockResolver isolatedBlockResolver = new IsolatedBlockResolver();
@@ -207,9 +207,6 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         if (returnTypeSymbol.isPresent()) {
             function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
                     args, returnTypeSymbol.get(), isIsolated);
-        } else if (returnTypeDescKind.isPresent()) {
-            function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
-                    args, returnTypeDescKind.get(), isIsolated);
         } else {
             return Collections.emptyList();
         }

@@ -558,10 +558,10 @@
     {
       "label": "cause = ...",
       "kind": "Snippet",
-      "detail": "cause = error (\"\")",
+      "detail": "cause = error(\"\")",
       "sortText": "AR",
       "filterText": "cause",
-      "insertText": "cause = ${1:error (\"\")}",
+      "insertText": "cause = ${1:error(\"\")}",
       "insertTextFormat": "Snippet"
     },
     {

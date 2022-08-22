@@ -2313,6 +2313,14 @@ function testCloneWithTypeWithAmbiguousUnion() {
     <string>checkpanic err.detail()["message"]);
 }
 
+public type Array ["array", 1];
+public type Mapping ["mapping", 2];
+function testCloneWithTypeWithTuples() returns error? {
+    Array|Mapping x = check (["mapping", 2]).cloneWithType();
+    assertTrue(x is Mapping);
+    assertFalse(x is Array);
+}
+
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
 type Student2 record {
@@ -2838,15 +2846,19 @@ function testEnsureTypeWithInferredArgument() {
     int|error age = p.age.ensureType();
     assertEquality(24, age);
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/29219
-    //any a = <string[]> ["hello", "world"];
-    //string[] strArray = checkpanic a.ensureType();
-    //assertEquality(a, strArray);
-    //string[]|error strArray2 = value:ensureType(a);
-    //assertEquality(a, strArray2);
+    any a = <string[]> ["hello", "world"];
+    string[] strArray = checkpanic a.ensureType();
+    assertEquality(a, strArray);
+    string[]|error strArray2 = value:ensureType(a);
+    assertEquality(a, strArray2);
 
-    //int[]|error intArr = a.ensureType();
-    //assertEquality(a, intArr);
+    int[]|error intArr = a.ensureType();
+    assertTrue(intArr is error);
+    if (intArr is error) {
+        assertEquality("{ballerina}TypeCastError", intArr.message());
+        assertEquality("incompatible types: 'string[]' cannot be cast to 'int[]'",
+        <string> checkpanic intArr.detail()["message"]);
+    }
 }
 
 function testEnsureTypeFloatToIntNegative() {
