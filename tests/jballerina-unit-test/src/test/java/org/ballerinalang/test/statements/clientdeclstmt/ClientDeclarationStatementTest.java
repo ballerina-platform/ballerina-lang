@@ -43,7 +43,7 @@ public class ClientDeclarationStatementTest {
     @Test
     public void testInvalidRedeclaredPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
-                "test-src/statements/clientdeclstmt/redeclared_prefix_negative_test.bal");
+                "test-src/statements/clientdeclstmt/client_decl_stmt_redeclared_prefix_negative_test.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("foo"), 22, 54);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("bar"), 24, 54);
@@ -60,7 +60,7 @@ public class ClientDeclarationStatementTest {
     @Test
     public void testClientDeclPrefixAsXmlnsPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
-                "test-src/statements/clientdeclstmt/client_prefix_as_xmlns_prefix_negative_test.bal");
+                "test-src/statements/clientdeclstmt/client_decl_stmt_client_prefix_as_xmlns_prefix_negative_test.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 20, 19);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 21, 16);
@@ -71,7 +71,7 @@ public class ClientDeclarationStatementTest {
     @Test
     public void testUndefinedPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
-                "test-src/statements/clientdeclstmt/undefined_prefix_negative_test.bal");
+                "test-src/statements/clientdeclstmt/client_decl_stmt_undefined_prefix_negative_test.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++, "undefined module 'foo'", 18, 15);
         Assert.assertEquals(result.getErrorCount(), index);
@@ -107,6 +107,20 @@ public class ClientDeclarationStatementTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/clientdeclstmt/client_decl_stmt_scoping_test.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testClientAnnotationsNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/clientdeclstmt/client_decl_stmt_annotations_negative_test.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "annotation 'A7' is not allowed on client", 22, 5);
+        BAssertUtil.validateError(result, index++, "annotation value expected for annotation of record type 'record " +
+                "{| int i; |}' with required fields", 23, 5);
+        BAssertUtil.validateError(result, index++, "cannot specify more than one annotation value for annotation " +
+                "'A5'", 23, 5);
+        BAssertUtil.validateError(result, index++, "missing non-defaultable required record field 'i'", 24, 9);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     private String getRedeclaredSymbolError(String prefix) {

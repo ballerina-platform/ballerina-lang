@@ -34,7 +34,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -50,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -327,6 +330,28 @@ public class AnnotationAttachmentTest {
         }
         Assert.assertEquals(strOneValue, "one");
         Assert.assertEquals(strTwoValue, "two");
+    }
+
+    @Test
+    public void testAnnotOnClientDeclaration() {
+        List<BLangAnnotationAttachment> attachments =
+                ((BLangClientDeclaration) compileResult.getAST().getClientDeclarations().stream()
+                        .filter(clientDecl -> ((BLangClientDeclaration) clientDecl).prefix.toString().equals("foo"))
+                        .findFirst()
+                        .get())
+                        .annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertAnnotationNameAndKeyValuePair(attachments.get(0), "v29", "i", 291L);
+    }
+
+    @Test
+    public void testAnnotOnClientDeclarationStatement() {
+        BLangClientDeclarationStatement clientDeclarationStatement = (BLangClientDeclarationStatement)
+                ((BLangBlockFunctionBody) getFunction("myFunction7").body).stmts.get(0);
+        List<BLangAnnotationAttachment> attachments = clientDeclarationStatement.clientDeclaration.annAttachments;
+        Assert.assertEquals(attachments.size(), 2);
+        assertAnnotationNameAndKeyValuePair(attachments.get(0), "v29", "i", 292L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(1), "v29", "i", 293L);
     }
 
     private void assertAnnotationNameAndKeyValuePair(BLangAnnotationAttachment attachment, String annotName,

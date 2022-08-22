@@ -5531,7 +5531,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String textValue;
         if (literal instanceof BasicLiteralNode) {
             Token token = ((BasicLiteralNode) literal).literalToken();
-
             if (type == SyntaxKind.STRING_LITERAL && token.isMissing()) {
                 textValue = "\"\"";
             } else {

@@ -320,7 +320,7 @@ public class SymbolTable {
 
         defineReadonlyCompoundType();
 
-        // TODO: 2022-08-12 Get from context.
+        // TODO: 2022-08-12 Get from context once project API changes are merged.
         this.clientDeclarations = new HashMap<>();
     }
 
