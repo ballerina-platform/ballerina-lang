@@ -10001,15 +10001,8 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
                 reportInvalidQualifiersOnClientDecl(publicQualifier, qualifiers);
-
-                STNode annotations;
-                if (metadata != null && metadata.kind == SyntaxKind.METADATA) {
-                    STMetadataNode metadataNode = (STMetadataNode) metadata;
-                    invalidateDocumentation(metadataNode);
-                    annotations = getAnnotations(metadataNode.annotations);
-                } else {
-                    annotations = getAnnotations(metadata);
-                }
+                STNode annotations = metadata != null && metadata.kind == SyntaxKind.METADATA ?
+                        invalidateDocumentationAndGetAnnotations((STMetadataNode) metadata) : getAnnotations(metadata);
                 return parseClientDeclaration(annotations, qualifiers.get(qualifiers.size() - 1), moduleDecl);
             case OBJECT_KEYWORD:
                 if (moduleDecl) {
@@ -10024,11 +10017,21 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private void invalidateDocumentation(STMetadataNode metadataNode) {
+    private STNode invalidateDocumentationAndGetAnnotations(STMetadataNode metadataNode) {
+        STNode annotations = metadataNode.annotations;
         STNode documentationString = metadataNode.documentationString;
-        if (documentationString != null) {
-            addInvalidNodeToNextToken(documentationString, DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
+
+        if (documentationString == null) {
+            return getAnnotations(annotations);
         }
+
+        if (isNodeListEmpty(annotations)) {
+            addInvalidNodeToNextToken(documentationString, DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
+            return getAnnotations(annotations);
+        }
+
+        return SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(getAnnotations(annotations), documentationString,
+                                                                DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
     }
 
     private void reportInvalidQualifiersOnClientDecl(STNode publicQualifier, List<STNode> qualifiers) {
