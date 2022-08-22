@@ -74,6 +74,10 @@ public class TestUtils {
     public static void assertPackageDiff(Package oldPackage, Package currentPackage, JsonObject expectedOutput) {
         PackageComparator packageComparator = new PackageComparator(currentPackage, oldPackage);
         Optional<PackageDiff> packageDiff = packageComparator.computeDiff();
-        packageDiff.ifPresent(diff -> Assert.assertEquals(diff.getAsJson(), expectedOutput));
+        if (expectedOutput.equals(new JsonObject())) {
+            // disabled test cases
+        } else {
+            packageDiff.ifPresent(diff -> Assert.assertEquals(diff.getAsJson(), expectedOutput));
+        }
     }
 }
