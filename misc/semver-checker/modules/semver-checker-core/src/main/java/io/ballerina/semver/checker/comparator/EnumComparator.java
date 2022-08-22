@@ -126,17 +126,17 @@ public class EnumComparator extends NodeComparator<EnumDeclarationNode> {
         DiffExtractor<EnumMemberNode> memberDiffExtractor = new DiffExtractor<>(newMembers, oldMembers);
 
         // Computes and populate diffs for newly added enum members.
-        memberDiffExtractor.getAdditions().forEach((enumName, enumNode) -> new NodeDiffImpl.Builder<>(enumNode, null)
+        memberDiffExtractor.getAdditions().forEach((name, node) -> new NodeDiffImpl.Builder<>(node, null)
                 .withKind(DiffKind.ENUM_MEMBER)
                 .withVersionImpact(SemverImpact.MINOR)
-                .withMessage("new enum member '" + enumName + "' is added")
+                .withMessage("new enum member '" + name + "' is added")
                 .build().ifPresent(memberDiffs::add));
 
         // Computes and populate diffs for removed enum members.
-        memberDiffExtractor.getRemovals().forEach((enumName, enumNode) -> new NodeDiffImpl.Builder<>(null, enumNode)
+        memberDiffExtractor.getRemovals().forEach((name, node) -> new NodeDiffImpl.Builder<>(null, node)
                 .withKind(DiffKind.ENUM_MEMBER)
                 .withVersionImpact(SemverImpact.MAJOR)
-                .withMessage("new enum member '" + enumName + "' is removed")
+                .withMessage("enum member '" + name + "' is removed")
                 .build().ifPresent(memberDiffs::add));
 
         // Computes and populate diffs for modified enum members.

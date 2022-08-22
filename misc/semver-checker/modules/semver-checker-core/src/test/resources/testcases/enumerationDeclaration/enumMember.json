@@ -22,7 +22,7 @@
                   "kind": "enum member",
                   "type": "removed",
                   "versionImpact": "major",
-                  "message": "new enum member 'Green' is removed"
+                  "message": "enum member 'Green' is removed"
                 }
               ]
             }
