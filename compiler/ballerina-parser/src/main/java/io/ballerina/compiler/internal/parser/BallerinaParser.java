@@ -10001,10 +10001,16 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
                 reportInvalidQualifiersOnClientDecl(publicQualifier, qualifiers);
-                return parseClientDeclaration(moduleDecl && metadata != null ?
-                                                      getAnnotations(((STMetadataNode) metadata).annotations) :
-                                                      getAnnotations(metadata),
-                                              qualifiers.get(qualifiers.size() - 1), moduleDecl);
+
+                STNode annotations;
+                if (metadata != null && metadata.kind == SyntaxKind.METADATA) {
+                    STMetadataNode metadataNode = (STMetadataNode) metadata;
+                    invalidateDocumentation(metadataNode);
+                    annotations = getAnnotations(metadataNode.annotations);
+                } else {
+                    annotations = getAnnotations(metadata);
+                }
+                return parseClientDeclaration(annotations, qualifiers.get(qualifiers.size() - 1), moduleDecl);
             case OBJECT_KEYWORD:
                 if (moduleDecl) {
                     return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
@@ -10015,6 +10021,13 @@ public class BallerinaParser extends AbstractParser {
             default:
                 recover(nextToken, ParserRuleContext.CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL);
                 return parseClientDeclOrVarDecl(metadata, publicQualifier, qualifiers, moduleDecl);
+        }
+    }
+
+    private void invalidateDocumentation(STMetadataNode metadataNode) {
+        STNode documentationString = metadataNode.documentationString;
+        if (documentationString != null) {
+            addInvalidNodeToNextToken(documentationString, DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
         }
     }
 
