@@ -66,9 +66,10 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
-        return CodeActionNodeValidator.validate(context.nodeAtRange()) && context.currentSyntaxTree().isPresent()
-                && context.currentSemanticModel().isPresent() && node.parent().kind() != SyntaxKind.CONST_DECLARATION
-                && node.parent().kind() != SyntaxKind.INVALID_EXPRESSION_STATEMENT;
+        return  context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
+                && node.parent().kind() != SyntaxKind.CONST_DECLARATION 
+                && node.parent().kind() != SyntaxKind.INVALID_EXPRESSION_STATEMENT 
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
@@ -79,8 +80,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                                                     RangeBasedPositionDetails posDetails) {
         
         Node node = posDetails.matchedCodeActionNode();
-        ExtractToConstantCodeAction.BasicLiteralNodeValidator nodeValidator 
-                = new ExtractToConstantCodeAction.BasicLiteralNodeValidator();
+        BasicLiteralNodeValidator nodeValidator = new BasicLiteralNodeValidator();
         node.accept(nodeValidator);
         if (nodeValidator.getInvalidNode()) {
             return Collections.emptyList();
@@ -107,6 +107,28 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     @Override
     public String getName() {
         return NAME;
+    }
+
+    private String getLocalVarName(CodeActionContext context) {
+        Position pos = context.range().getEnd();
+        Set<String> allNames = context.visibleSymbols(new Position(pos.getLine(), pos.getCharacter())).stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+
+        return NameUtil.generateTypeName(CONSTANT_NAME_PREFIX, allNames);
+    }
+
+    private Position getPosition(CodeActionContext context) {
+        ModulePartNode modulePartNode = context.currentSyntaxTree().get().rootNode();
+        NodeList<ImportDeclarationNode> importsList = modulePartNode.imports();
+        
+        if (importsList.isEmpty()) {
+            return PositionUtil.toPosition(modulePartNode.lineRange().startLine());
+        }
+        ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
+        return new Position(lastImport.lineRange().endLine().line() + 2, 0);
     }
 
     /**
@@ -136,27 +158,5 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         public Boolean getInvalidNode() {
             return invalidNode;
         }
-    }
-
-    private String getLocalVarName(CodeActionContext context) {
-        Position pos = context.range().getEnd();
-        Set<String> allNames = context.visibleSymbols(new Position(pos.getLine(), pos.getCharacter())).stream()
-                .map(Symbol::getName)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
-
-        return NameUtil.generateTypeName(CONSTANT_NAME_PREFIX, allNames);
-    }
-
-    private Position getPosition(CodeActionContext context) {
-        ModulePartNode modulePartNode = context.currentSyntaxTree().get().rootNode();
-        NodeList<ImportDeclarationNode> importsList = modulePartNode.imports();
-        
-        if (importsList.isEmpty()) {
-            return PositionUtil.toPosition(modulePartNode.lineRange().startLine());
-        }
-        ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
-        return new Position(lastImport.lineRange().endLine().line() + 2, 0);
     }
 }
