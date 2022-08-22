@@ -1440,7 +1440,6 @@ public class Types {
     }
 
     public static BType getEffectiveType(BType type) {
-        type = Types.getReferredType(type);
         if (type.tag == TypeTags.INTERSECTION) {
             return ((BIntersectionType) type).effectiveType;
         }
