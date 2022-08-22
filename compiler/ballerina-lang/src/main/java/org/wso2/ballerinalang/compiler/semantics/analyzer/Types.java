@@ -3371,10 +3371,10 @@ public class Types {
                         return false;
                     }
                 }
-            } else if (type.tag == TypeTags.UNION) {
-                if (!checkUnionHasSameType((BUnionType) type, baseType)) {
-                    return false;
-                }
+//            } else if (type.tag == TypeTags.UNION) {
+//                if (!checkUnionHasSameType((BUnionType) type, baseType)) {
+//                    return false;
+//                }
             } else if (type.tag == TypeTags.TUPLE || type.tag == TypeTags.ARRAY) {
                 if (!isSameOrderedType(type, baseType)) {
                     return false;
