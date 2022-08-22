@@ -3545,28 +3545,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ClientDeclarationNode clientDeclarationNode) {
-        BLangClientDeclaration clientDeclaration = (BLangClientDeclaration) TreeBuilder.createClientDeclarationNode();
-
-        clientDeclaration.uri = createSimpleLiteral(clientDeclarationNode.clientUri());
-        clientDeclaration.prefix = createIdentifier(clientDeclarationNode.clientPrefix());
-        clientDeclaration.pos = getPosition(clientDeclarationNode);
-        clientDeclaration.annAttachments = applyAll(clientDeclarationNode.annotations());
-
         BLangClientDeclarationStatement clientDeclarationStatement =
                 (BLangClientDeclarationStatement) TreeBuilder.createClientDeclarationStatementNode();
-        clientDeclarationStatement.clientDeclaration = clientDeclaration;
-        clientDeclarationStatement.pos = getPosition(clientDeclarationNode);
+        Location position = getPosition(clientDeclarationNode);
+        clientDeclarationStatement.clientDeclaration = createClientDeclaration(clientDeclarationNode.clientUri(),
+                                                                               clientDeclarationNode.clientPrefix(),
+                                                                               position,
+                                                                               clientDeclarationNode.annotations());
+        clientDeclarationStatement.pos = position;
         return clientDeclarationStatement;
     }
 
     @Override
     public BLangNode transform(ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        BLangClientDeclaration clientDeclaration = (BLangClientDeclaration) TreeBuilder.createClientDeclarationNode();
-        clientDeclaration.uri = createSimpleLiteral(moduleClientDeclarationNode.clientUri());
-        clientDeclaration.prefix = createIdentifier(moduleClientDeclarationNode.clientPrefix());
-        clientDeclaration.pos = getPosition(moduleClientDeclarationNode);
-        clientDeclaration.annAttachments = applyAll(moduleClientDeclarationNode.annotations());
-        return clientDeclaration;
+        return createClientDeclaration(moduleClientDeclarationNode.clientUri(),
+                                       moduleClientDeclarationNode.clientPrefix(),
+                                       getPosition(moduleClientDeclarationNode),
+                                       moduleClientDeclarationNode.annotations());
     }
 
     @Override
@@ -6487,5 +6482,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
+    }
+
+    private BLangClientDeclaration createClientDeclaration(BasicLiteralNode basicLiteralNode,
+                                                           IdentifierToken identifierToken, Location position,
+                                                           NodeList<AnnotationNode> annotations) {
+        BLangClientDeclaration clientDeclaration = (BLangClientDeclaration) TreeBuilder.createClientDeclarationNode();
+        clientDeclaration.uri = createSimpleLiteral(basicLiteralNode);
+        clientDeclaration.prefix = createIdentifier(identifierToken);
+        clientDeclaration.pos = position;
+        clientDeclaration.annAttachments = applyAll(annotations);
+        return clientDeclaration;
     }
 }
