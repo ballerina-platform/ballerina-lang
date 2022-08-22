@@ -819,8 +819,8 @@ public class CodeActionUtil {
      * @param data           code action data
      * @return {@link CodeAction}
      */
-    public static CodeAction createCodeAction(String commandTitle, String codeActionKind,
-                                              CodeActionData data) {
+    public static CodeAction createResolvableCodeAction(String commandTitle, String codeActionKind,
+                                                        CodeActionData data) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         ResolvableCodeAction action = new ResolvableCodeAction(commandTitle);
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));

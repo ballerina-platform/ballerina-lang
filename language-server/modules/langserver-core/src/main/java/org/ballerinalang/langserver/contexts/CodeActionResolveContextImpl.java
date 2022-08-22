@@ -27,7 +27,6 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  *
  * @since 2201.2.1
  */
-
 public class CodeActionResolveContextImpl extends AbstractDocumentServiceContext implements CodeActionResolveContext {
 
     CodeActionResolveContextImpl(LSOperation operation,

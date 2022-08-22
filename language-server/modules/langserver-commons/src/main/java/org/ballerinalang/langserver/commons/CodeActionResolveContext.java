@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.commons;
  *
  * @since 2201.2.1
  */
-
 public interface CodeActionResolveContext extends DocumentServiceContext {
 
 }

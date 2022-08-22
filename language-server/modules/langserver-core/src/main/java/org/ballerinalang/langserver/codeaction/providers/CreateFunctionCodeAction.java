@@ -114,8 +114,8 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         if (isWithinFile) {
             String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
             CodeActionData codeActionData = new CodeActionData(getName(), uri, range, posArg);
-            ResolvableCodeAction action = ResolvableCodeAction.from(CodeActionUtil.createCodeAction(commandTitle,
-                    CodeActionKind.QuickFix, codeActionData));
+            ResolvableCodeAction action = ResolvableCodeAction.from(CodeActionUtil.createResolvableCodeAction(
+                    commandTitle, CodeActionKind.QuickFix, codeActionData));
             action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
             return Collections.singletonList(action);
         }
@@ -189,13 +189,13 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         String uri = codeAction.getData().getFileUri();
         Optional<Path> filePath = PathUtil.getPathFromURI(uri);
         if (filePath.isEmpty()) {
-            throw new UserErrorException("Invalid parameters received for the create function command!");
+            throw new UserErrorException("Invalid file URI provided for the create function code action!");
         }
 
         SyntaxTree syntaxTree = resolveContext.workspace().syntaxTree(filePath.get()).orElseThrow();
         NonTerminalNode cursorNode = CommonUtil.findNode(codeAction.getData().getRange(), syntaxTree);
         if (cursorNode == null) {
-            return null;
+            throw new UserErrorException("Failed to resolve code action");
         }
 
         Optional<FunctionCallExpressionNode> fnCallExprNode =
@@ -263,12 +263,12 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         }
 
         if (fnCallExprNode.get().functionName().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            return null;
+            throw new UserErrorException("Failed to resolve code action");
         }
 
         String functionName = ((SimpleNameReferenceNode) fnCallExprNode.get().functionName()).name().text();
         if (functionName.isEmpty()) {
-            return null;
+            throw new UserErrorException("Failed to resolve code action");
         }
 
         List<TextEdit> edits = new ArrayList<>();
@@ -297,7 +297,7 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
             function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
                     args, returnTypeSymbol.get(), isIsolated);
         } else {
-            return null;
+            throw new UserErrorException("Failed to resolve code action");
         }
 
         edits.add(new TextEdit(insertRange, function));

@@ -23,7 +23,6 @@ import org.eclipse.lsp4j.CodeAction;
  *
  * @since 2201.2.1
  */
-
 public class ResolvableCodeAction extends CodeAction {
 
     private static final Gson GSON = new Gson();
