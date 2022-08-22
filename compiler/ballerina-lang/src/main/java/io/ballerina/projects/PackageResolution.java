@@ -358,7 +358,7 @@ public class PackageResolution {
                         resolutionReq.scope(),
                         resolutionReq.resolutionType());
                 if (isConstraintPackage(resolvedPkg) && !isValidConstraintPackage(resolvedPkg.packageInstance())) {
-                        addInvalidConstraintPackageResolution(resolvedPkg.packageInstance());
+                        addInvalidConstraintPackageDiagnostic(resolvedPkg.packageInstance());
                         continue;
                 }
                 resolvedPkgContainer.add(pkgDesc.org(), pkgDesc.name(), resolvedPkg);
@@ -402,16 +402,20 @@ public class PackageResolution {
         Iterator<Module> moduleIterator =  constraintPackage.modules().iterator();
         Module firstModule = moduleIterator.next();
         return firstModule.isDefaultModule() && !moduleIterator.hasNext()
-                && firstModule.documentIds().isEmpty() && constraintPackage.compilerPluginToml().isPresent();
+                && constraintPackage.compilerPluginDescriptor().isPresent();
     }
 
-    private void addInvalidConstraintPackageResolution(Package constraintPackage) {
+    private void addInvalidConstraintPackageDiagnostic(Package constraintPackage) {
+        PackageDescriptor packageDescriptor = constraintPackage.descriptor();
+        ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
+                ModuleName.from(packageDescriptor.name()), packageDescriptor);
+        String message = "Invalid constraint package: '" + constraintPackage.descriptor() + "'";
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                DiagnosticErrorCode.INVALID_MODULE_DECLARATION.diagnosticId(),
-                "invaild constraint package: '" + constraintPackage.descriptor() + "'",
+                DiagnosticErrorCode.INVALID_MODULE_DECLARATION.diagnosticId(), message,
                 DiagnosticErrorCode.INVALID_MODULE_DECLARATION.severity());
-        diagnosticList.add(new PackageDiagnostic(diagnosticInfo,
-                new NullLocation(constraintPackage.descriptor().name().toString())));
+        diagnosticList.add(PackageDiagnostic.from(
+                diagnosticInfo, moduleDescriptor, constraintPackage.project(),
+                new NullLocation(constraintPackage.descriptor().name().toString()), Collections.emptyList(), message));
     }
 
     private Optional<PackageDescriptor> getConstraintPackageDescFromPackageManifest() {
@@ -419,9 +423,11 @@ public class PackageResolution {
         PackageDescriptor packageDescriptor = null;
         if (constraintPackage != null && !constraintPackage.isEmpty()) {
             String[] constraintSplits = constraintPackage.split("/");
-            String orgName = constraintSplits[0].strip();
-            String packageName = constraintSplits[1].strip();
-            packageDescriptor = PackageDescriptor.from(PackageOrg.from(orgName), PackageName.from(packageName));
+            if (constraintSplits.length == 2) {
+                String orgName = constraintSplits[0].strip();
+                String packageName = constraintSplits[1].strip();
+                packageDescriptor = PackageDescriptor.from(PackageOrg.from(orgName), PackageName.from(packageName));
+            }
         }
         return Optional.ofNullable(packageDescriptor);
     }
