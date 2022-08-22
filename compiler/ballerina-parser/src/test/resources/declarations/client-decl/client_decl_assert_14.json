@@ -141,6 +141,49 @@
             },
             {
               "kind": "CLIENT_KEYWORD",
+              "hasDiagnostics": true,
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
+                    "children": [
+                      {
+                        "kind": "HASH_TOKEN",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_INVALID_DOCUMENTATION"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "DOCUMENTATION_DESCRIPTION",
+                        "value": "Docs for bar"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -150,54 +193,10 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "hasDiagnostics": true,
                   "value": "http://www.example.com/apis/one.yaml",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    },
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                        "hasDiagnostics": true,
-                        "children": [
-                          {
-                            "kind": "HASH_TOKEN",
-                            "hasDiagnostics": true,
-                            "diagnostics": [
-                              "ERROR_INVALID_DOCUMENTATION"
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    },
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                        "children": [
-                          {
-                            "kind": "DOCUMENTATION_DESCRIPTION",
-                            "value": "Docs for bar"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
