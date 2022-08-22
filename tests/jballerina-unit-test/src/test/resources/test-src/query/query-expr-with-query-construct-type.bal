@@ -621,8 +621,9 @@ type TokenTable table<Token> key(idx);
 
 function testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInLetClause() {
     TokenTable|error tbl1 = table key(idx) from int i in 1 ... 3
+        let int[] arr = from var j in 1 ... 3 select j
         select {
-            idx: i,
+            idx: arr[i - 1],
             value: "A" + i.toString()
         }
         on conflict error("Duplicate Key");
@@ -639,8 +640,9 @@ function testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInLetC
     }
 
     TokenTable|error tbl2 = table key(idx) from int i in [1, 2, 1]
+        let int[] arr = from var j in 1 ... 3 select j
         select {
-            idx: i,
+            idx: arr[i],
             value: "A" + i.toString()
         }
         on conflict error("Duplicate Key");
