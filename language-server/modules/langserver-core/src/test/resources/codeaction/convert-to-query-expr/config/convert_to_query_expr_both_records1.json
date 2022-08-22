@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 16,
+    "character": 22
+  },
+  "source": "convert_to_query_expr_both_records1.bal",
+  "expected": [
+    {
+      "title": "Convert to query expression",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 7
+            }
+          },
+          "newText": "boolean"
+        }
+      ]
+    }
+  ]
+}
