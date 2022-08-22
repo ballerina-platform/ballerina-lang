@@ -98,10 +98,13 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-
-        if (this.getReferredType(this.getBType()).tag == TypeTags.PARAMETERIZED_TYPE) {
+        BType referredType = this.getReferredType(this.getBType());
+        if (referredType.tag == TypeTags.PARAMETERIZED_TYPE) {
             this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
                                                                this.name());
+        } else if (referredType.tag == TypeTags.INTERSECTION) {
+            this.definition = symbolFactory.getBCompiledSymbol(referredType.tsymbol,
+                    referredType.tsymbol.getName().getValue());
         } else {
             Scope.ScopeEntry scopeEntry = tSymbol.owner.scope.lookup(Names.fromString(this.name()));
             this.definition = symbolFactory.getBCompiledSymbol(scopeEntry.symbol, this.name());
