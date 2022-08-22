@@ -402,3 +402,17 @@ function testQueryInXMLTemplateExpr() {
     // var x8 = xml `<doc>${xml `foo` + (from string s in ["a", "b"] select xml `${s}z`)}</doc>`; // issue #36541
     // test:assertEquals(x8.toString(), "<doc>fooazbz</doc>")
 }
+
+function testXMLLiteralWithConditionExpr() {
+    xml? s = xml `foo`;
+    string target = "foo";
+
+    xml x1 = (s ?: xml `<baz/>`);
+    test:assertEquals(x1.toString(), target);
+
+    xml x2 = (s is xml ? s : xml `<baz/>`) + xml ``;
+    test:assertEquals(x2.toString(), target);
+
+    xml x3 = (s ?: xml `<baz/>`) + xml ``;
+    test:assertEquals(x3.toString(), target);
+}
