@@ -1,11 +1,12 @@
-# JSON to Record Converter
+# JSON to record converter
 
-The tool is intended to map JSON values directly to Ballerina records without converting the JSON value to its schema. The tool individually analyzes the JSON value nodes and maps it to the Ballerina record either in-line or other. The JSON value is parsed as a parse tree using Google’s gson package. And the tree is traversed to generate the Ballerina record.
+The tool is intended to map JSON values directly to Ballerina records without converting the JSON value to its schema. The tool analyzes the JSON value nodes individually and maps them to Ballerina records. The JSON value is parsed as a parse tree using [Google’s `Gson` package](https://www.javadoc.io/static/com.google.code.gson/gson/2.6.2/com/google/gson/JsonParser.html#parse-java.lang.String-), and the tree is traversed to generate the Ballerina record.
 
 ## Features
-In the current implementation we support JSON value to Ballerina Record Conversion
+The current implementation supports converting JSON values to Ballerina records.
 
-##### _Example JSON Value_
+### Example
+**The JSON value**
 ```json
 {
   "id": "0001",
@@ -32,7 +33,7 @@ In the current implementation we support JSON value to Ballerina Record Conversi
 }
 ```
 
-##### _Converted Ballerina Record_
+**Converted Ballerina record**
 ```ballerina
 type ImagesItem record {
     string url;
@@ -56,25 +57,24 @@ type NewRecord record {
 };
 ```
 
-##### _Converter Demo_
+**Converter Demo**
+
+This video explains how to use the JSON to Ballerina record converter tool in VSCode, when [Ballerina VS Code plugin](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) is installed.
+
 ![alt text](./docs/images/converterDemo.gif?raw=true "Converter Demo")
 
-## Use Case
-JSON to Record converter API is primarily used by the [Ballerina vscode plugin](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) to convert JSON value to Ballerina record interactively.
+## Use case
+JSON to Record converter API is primarily used by the [Ballerina VS Code plugin](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) to convert JSON values to Ballerina records interactively.
 
-## JSON Value to Ballerina Record Mapping
+## JSON value to Ballerina record mapping
+
 ### Introduction
-This specification is for the JSON value to Ballerina Record mapping without interacting intermediate type conversion. Providing this util will increase the accuracy of the record.
-
-### Overview
-The tool is intended to map JSON values directly to Ballerina records without converting the JSON value to its schema. The tool individually analyzes the JSON value nodes and maps it to the Ballerina record either in-line or other. The JSON value is parsed as a parse tree using Google’s gson package. And the tree is traversed to generate the Ballerina record.
-
-[GSON Documentation](https://www.javadoc.io/static/com.google.code.gson/gson/2.6.2/com/google/gson/JsonParser.html#parse-java.lang.String-)
+This specification is for the JSON value to Ballerina record mapping without interacting intermediate type conversion. Providing this util will increase the accuracy of the record.
 
 ### Type mapping
-Parsing a JSON value returns a **_JsonElement_** as the root node. And **_JsonElement_** can be either of **_JsonObject_**, **_JsonPrimitive_**, **_JsonArray_** or **_JsonNull_**. And a **_JsonObject_** can be either of **_String_**, **_Number_** or **_Boolean_**.
+Parsing a JSON value returns a `JsonElement` as the root node and the `JsonElement` can be either a `JsonObject`, `JsonPrimitive`, `JsonArray`, or `JsonNull`. A `JsonObject` can be either a `String`, `Number`, or `Boolean`.
 
-The below table shows how the JSON Types are mapped to Java Classes and how that is mapped to Ballerina Types in generating Ballerina records from JSON values
+The table below shows how the JSON types are mapped to Java classes and how they are mapped to Ballerina types when generating Ballerina records from JSON values.
 
 <div>
     <table>
@@ -174,29 +174,27 @@ The below table shows how the JSON Types are mapped to Java Classes and how that
     <p>&nbsp;</p>
 </div>
 
-### Mapping of Null and Optional Types
-This section explains how different ways an optional Ballerina field can be generated.
+### Mapping of null and optional types
+This section explains the different ways by which an optional Ballerina field can be generated.
 
-#### Scenario 01: JSON null
+#### JSON null
 When the value of a JSON field is null, it can be mapped as a field of [anydata](https://ballerina.io/spec/lang/master/#anydata) data type in ballerina.
 
-JSON
 ```json
 {
    "nullProperty": null
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecord record {
    anydata nullProperty;
 };
 ```
 
-#### Scenario 02: Optional fields within the same JSON object
-When there are two or more JSON Objects with the same name, and if there are any differencing fields those fields will also be considered as optional fields.
+#### Optional fields within the same JSON object
+When there are two or more JSON objects with the same name, and if there are any different fields, those fields will also be considered optional fields.
 
-JSON
 ```json
 {
   "object": {
@@ -208,7 +206,7 @@ JSON
   }
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecord record {
    string fieldOne;
@@ -216,56 +214,47 @@ type NewRecord record {
 };
 ```
 
-In the above example, both JSON object fields are with the same name. And there is an intersecting field which is **_fieldOne_** and the differencing field **_fieldTwo_**. Thus, the intersecting field is made to be required and the differencing field is made to be optional.
+In the above example, both JSON object fields have the same name. Also, there is an intersecting field, which is `fieldOne` and the different field is `fieldTwo`. Therefore, the intersecting field is made to be required and the different field is made to be optional.
 
-### Mapping of Primitive Types
-This section explains how JSON primitives can be mapped to Ballerina records. The JSON primitive types are String, Boolean and Number. Any JSON primitive type will be parsed as a **_JsonPrimitive_** Java object. And each object can be checked for String, Boolean or Number by calling the relevant method on the object.
+### Mapping of primitive types
+This section explains how JSON primitives can be mapped to Ballerina records. The JSON primitive types are `String`, `Boolean`, and `Number`. Any JSON primitive type will be parsed as a `JsonPrimitive` Java object. Each object can be checked for `String`, `Boolean`, or `Number` by calling the relevant method on the object.
 
-#### Scenario  03: JSON string
-JSON string can be mapped to ballerina string type.
+#### JSON string
+JSON string can be mapped to Ballerina string type.
 
-JSON
 ```json
 {
   "stringProperty": "StringValue"
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecord record {
    string stringProperty;
 };
 ```
 
-#### Scenario  04: JSON boolean
-JSON boolean can be mapped to ballerina boolean
+#### JSON boolean
+JSON boolean can be mapped to a Ballerina boolean.
 
-JSON
 ```json
 {
   "booleanProperty": true
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecord record {
    boolean booleanProperty;
 };
 ```
 
-#### Scenario  05: JSON number
-JSON Numbers can be either of below,
-```json
-{
-  "positiveInteger": 210,
-  "negativeInteger": -210,
-  "floatingPointNumber": 21.05,
-  "exponentialNumber": 2.105E+1
-}
-```
-So, we have to map JSON numbers to either of Ballerina int, decimal or float based on the value. And, here we use all floating point numbers as decimals since, decimal is more appropriate to use since, decimals are more precise than floats and can store 128 bits
+#### JSON number
+
+JSON numbers should have to be mapped to either of the Ballerina int, decimal, or float types based on the value. Here, all floating point numbers are used as decimals since decimal is more appropriate to use and also because decimals are more precise than floats and can store 128 bits.
 https://ballerina.io/spec/lang/master/#DecimalFloatingPointNumber
 
+JSON numbers can be either of the below.
 <div>
     <table>
         <tbody>
@@ -289,7 +278,7 @@ https://ballerina.io/spec/lang/master/#DecimalFloatingPointNumber
     </table>
 </div>
 
-JSON
+
 ```json
 {
   "positiveInteger": 210,
@@ -298,7 +287,7 @@ JSON
   "exponentialNumber": 2.105E+1
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecord record {
    int positiveInteger;
@@ -307,19 +296,19 @@ type NewRecord record {
    decimal exponentialNumber;
 };
 ```
-Since both integers and decimals are classified as **_JsonPrimitive_** type, in the implementation level, Integers and decimals are classified based on the _point (.)_ character.
+Since both integers and decimals are classified as `JsonPrimitive` type, at the implementation level, `Integers` and `decimals` are classified based on the `point (.)` character.
 
-### Mapping of Object Types
-This section explains how JSON objects can be mapped to Ballerina records. Each JSON object in the JSON value will be a new record or an inline record. Any JSON object will be parsed as a **_JsonObject_** Java object and will return a map with the field name as key and the object as value. And each JSON Object can have its child nodes as either of **_JsonObject, JsonPrimitive, JsonArray or JsonNull._**
+### Mapping of object types
+This section explains how JSON objects can be mapped to Ballerina records. Each JSON object in the JSON value will be a new record or an inline record. Any JSON object will be parsed as a `JsonObject` Java object and will return a map with the field name as key and the object as the value. Each JSON Object can have its child nodes as either of `JsonObject`, `JsonPrimitive`, `JsonArray` or `JsonNull`.
 
-#### Scenario 06: JSON Object
-JSON
+#### JSON object
+
 ```json
 {
   "recordProperty": {"name": "tom", "age": 5}
 }
 ```
-Ballerina
+
 ```ballerina
 type RecordProperty record {
    string name;
@@ -330,19 +319,18 @@ type NewRecord record {
    RecordProperty recordProperty;
 };
 ```
-There can be many JSON child objects with the same field name, those JSON objects will be mapped into a single Ballerina record where its intersecting fields are required Ballerina fields and the differencing fields are optional Ballerina fields. (This is explained in scenario 2)
+There can be many JSON child objects with the same field name. Those JSON objects will be mapped into a single Ballerina record where its intersecting fields are required Ballerina fields and the different fields are optional Ballerina fields. (This is explained in the section [Optional fields within the same JSON object](#optional-fields-within-the-same-json-object))
 
-#### Scenario 07: JSON object with different field values
-This is the scenario when there are two JSON child objects with the same field names, and the child objects have fields with the same name but different types of values.
+#### JSON object with different field values
+This scenario has two JSON child objects with the same field names and the child objects have fields with the same name but different types of values.
 
-JSON
 ```json
 {
   "recordProperty": {"name": "tom", "age": 5},
   "recordProperty": {"name": "tom", "age": "tom"}
 }
 ```
-Ballerina
+
 ```ballerina
 type RecordProperty record {
    string name;
@@ -354,48 +342,47 @@ type NewRecord record {
 };
 ```
 
-### Mapping of Array Types
+### Mapping of array types
 
-#### Scenario 08: JSON array without items
-Json Arrays are mapped into Ballerina arrays
+#### JSON array without items
+JSON arrays are mapped into Ballerina arrays
 
-JSON
 ```json
 {
   "arrayProperty": []
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecord record {
    anydata[] arrayProperty;
 };
 ```
-If the JSON array is empty, it means the array can contain any value which can be serializable. Thus, the Ballerina record field would have the data type of anydata which is the union of any serializable data types.
+If the JSON array is empty, it means that the array can contain any value, which can be serializable. Thus, the Ballerina record field would have the data type of anydata, which is the union of any serializable data types.
 
-#### Scenario 09: JSON array of same type values
-JSON
+#### JSON array of same type values
+
 ```json
 {
   "arrayProperty": [10,20,40]
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecord record {
    int[] arrayProperty;
 };
 ```
-This scenario can be applied for any type. No matter the type, if all values in the array are of the same type, then the record would get created with the field’s type as an array of the same type.
+This scenario can be applied to any type. For any type, if all values in the array are of the same type, then, the record will get created with the field’s type as an array of the same type.
 
-#### Scenario 10: JSON array with mixed value types (oneOf)
-JSON
+#### JSON array with mixed value types (`oneOf`)
+
 ```json
 {
   "arrayProperty": [10, 20, 40, "AU", "UK"]
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecord record {
    (int|string)[] arrayProperty;
@@ -403,14 +390,14 @@ type NewRecord record {
 ```
 This is when there are more than one type of values present in the JSON array. The Ballerina record’s field type would be the union of the types of the values in the JSON array.
 
-#### Scenario 11: JSON array with same JSON objects
-JSON
+#### JSON array with same JSON objects
+
 ```json
 {
   "arrayProperty": [{"name": "tom", "age": 5}, {"name": "jerry", "age": 4}]
 }
 ```
-Ballerina
+
 ```ballerina
 type ArrayPropertyItem record {
    string name;
@@ -421,18 +408,17 @@ type NewRecord record {
    ArrayPropertyItem[] arrayProperty;
 };
 ```
-This scenario is when the JSON array only holds JSON objects and if all the objects schema is the same. If the Objects in the JSON array are different or if the array contains other types, then those are handled separately.
+In this scenario, the JSON array only holds JSON objects, and if the schema of all the objects is the same. If the objects in the JSON array are different or if the array contains other types, then, those are handled separately.
 
-#### Scenario 12: JSON array with different JSON objects
-In this case even if the objects in the array are completely different(the fields), still those objects will be treated the same with differencing fields having optional types (In such scenario all fields will become optional) See _Scenario 13_.
+#### JSON array with different JSON objects
+In this scenario, even if the objects in the array (the fields) are completely different, still those objects will be treated the same with different fields having optional types (in such scenarios, all fields will become optional) . For example, see [JSON array with completely different JSON objects](#json-array-with-completely-different-json-objects).
 
-JSON
 ```json
 {
   "arrayProperty": [{"name": "tom", "age": 5}, {"name": "jerry", "age": 4, "country": "SL"}]
 }
 ```
-Ballerina
+
 ```ballerina
 type ArrayPropertyItem record {
    string name;
@@ -445,16 +431,15 @@ type NewRecord record {
 };
 ```
 
-#### Scenario 13: JSON array completely different JSON objects
-This is where all the fields are different in the objects in an array. (Even though the fields are different all these objects will be treated as same when converting to Ballerina record)
+#### JSON array with completely different JSON objects
+This scenario has all different fields in the objects in an array (even though the fields are different, all these objects will be treated as the same when converting to Ballerina records).
 
-JSON
 ```json
 {
   "arrayProperty": [{"name": "tom", "age": 5}, {"city": "Kandy", "zip": 71500}]
 }
 ```
-Ballerina
+
 ```ballerina
 type ArrayProperty record {
    string name?;
@@ -468,14 +453,14 @@ type NewRecord record {
 };
 ```
 
-#### Scenario 14: JSON array with different types
-JSON
+#### JSON array with different types
+
 ```json
 {
   "arrayProperty": [{"name": "tom", "age": 5}, "String Value", 5, 5.67]
 }
 ```
-Ballerina
+
 ```ballerina
 type ArrayPropertyItem record {
    string name;
@@ -486,33 +471,32 @@ type NewRecordList record {
    (ArrayPropertyItem|decimal|int|string)[] arrayProperty;
 };
 ```
-In this case, if there are more than two types of values in an array. This will be handles as union of data types in Ballerina record creation.
+This scenario has more than two types of values in an array. This will be handled as the union of data types in the Ballerina record creation.
 
-#### Scenario 15: JSON array of arrays
-This is where Nested JSON arrays are being handled.
+#### JSON array of arrays
+This is where nested JSON arrays are being handled.
 
-JSON
 ```json
 {
   "arrayProperty": [[10, 20, 40], [10, 20, 18]]
 }
 ```
-Ballerina
+
 ```ballerina
 type NewRecordList record {
    int[][] arrayProperty;
 };
 ```
-Here, the nested array can be any type, if the types are different, it would be handled differently. See _Scenario 17_
+Here, the nested array can be any type. If the types are different, it would be handled differently. For example, see [JSON array with different types and arrays](#json-array-with-different-types-and-arrays).
 
-#### Scenario 16: JSON array with different types and arrays
-JSON
+#### JSON array with different types and arrays
+
 ```json
 {
   "arrayProperty": [{"name": "tom", "age": 5}, "String Value", 5, 5.67, [10, 20, 40], [["10", 20, 18]]]
 }
 ```
-Ballerina
+
 ```ballerina
 type ArrayPropertyItem record {
    string name;
@@ -523,7 +507,7 @@ type NewRecordList record {
    (ArrayPropertyItem|decimal|int|string|int[]|(int|string)[][])[] arrayProperty;
 };
 ```
-The implementation can handle such complex scenarios as well. Here there are many values with different data types are handled. There is a nested array of different types within the array. Nested array of the same type. JSON object and JSON primitives. And all these types are handled when creating a Ballerina record by having the union of all these types.
+The implementation can handle complex scenarios having many values with different data types as well. The above scenario has a nested array of different types within the array. The nested array is of the same type as the JSON object and JSON primitives. All these types are handled when creating a Ballerina record by having the union of all these types.
 
 ## Contact Us
 Managed By [WSO2 Inc.](https://wso2.com/)
