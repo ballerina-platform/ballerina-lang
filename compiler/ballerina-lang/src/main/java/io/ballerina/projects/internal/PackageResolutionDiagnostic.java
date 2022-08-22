@@ -40,13 +40,13 @@ public class PackageResolutionDiagnostic extends PackageDiagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
-        if (this.diagnostic.location().lineRange().startLine().line() == 0 &&
-                this.diagnostic.location().lineRange().startLine().offset() == 0) {
+        String filePath = this.location().lineRange().filePath();
+        if (this.location().lineRange().startLine().line() == 0 &&
+                this.location().lineRange().startLine().offset() == 0) {
             return diagnosticInfo().severity().toString() + " ["
                     + filePath + "] " + message();
         }
-        LineRange lineRange = diagnostic.location().lineRange();
+        LineRange lineRange = location().lineRange();
         LineRange oneBasedLineRange = LineRange.from(
                 filePath,
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),

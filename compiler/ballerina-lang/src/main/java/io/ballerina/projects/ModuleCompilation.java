@@ -114,7 +114,8 @@ public class ModuleCompilation {
             ModuleContext moduleContext = pkg.get().module(sortedModuleDescriptor.name()).moduleContext();
             moduleContext.compile(compilerContext);
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                diagnostics.add(
+                        PackageDiagnostic.from(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
 

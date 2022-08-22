@@ -166,7 +166,7 @@ public class JBallerinaBackend extends CompilerBackend {
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                 moduleDiagnostics.add(
-                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                        PackageDiagnostic.from(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
         // add compilation diagnostics

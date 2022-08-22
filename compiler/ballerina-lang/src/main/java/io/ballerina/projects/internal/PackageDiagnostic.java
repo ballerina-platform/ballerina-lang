@@ -23,7 +23,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
@@ -33,47 +32,74 @@ import io.ballerina.tools.text.TextRange;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 
 /**
- * Decorator for diagnostics exposed via the Project API.
+ * Diagnostics of a package exposed via the Project API.
  * All diagnostics in a package will be enriched with this before exposing via the project API classes.
  *
  * @since 2.0.0
  */
 public class PackageDiagnostic extends Diagnostic {
-    protected Diagnostic diagnostic;
+    protected DiagnosticInfo diagnosticInfo;
     protected Location location;
     protected Project project;
     protected ModuleDescriptor moduleDescriptor;
+    private List<DiagnosticProperty<?>> properties;
+    private String message;
 
-    public PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location) {
-        this.diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+    protected PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location) {
+        this.diagnosticInfo = diagnosticInfo;
         this.location = location;
+        this.properties = Collections.emptyList();
     }
 
-    public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
+    private PackageDiagnostic(
+            DiagnosticInfo diagnosticInfo,
+            Location location,
+            Project project,
+            ModuleDescriptor moduleDescriptor,
+            List<DiagnosticProperty<?>> properties,
+            String message) {
         String filePath;
         ModuleName moduleName = moduleDescriptor.name();
+        Path modulesRoot = Path.of(ProjectConstants.MODULES_ROOT);
         if (project.kind().equals(ProjectKind.BALA_PROJECT)) {
-            Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.toString());
+            Path modulePath = modulesRoot.resolve(moduleName.toString());
             filePath = project.sourceRoot().resolve(modulePath).resolve(
-                    diagnostic.location().lineRange().filePath()).toString();
+                    location.lineRange().filePath()).toString();
         } else {
             if (!moduleName.isDefaultModuleName()) {
-                Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
-                filePath = modulePath.resolve(diagnostic.location().lineRange().filePath()).toString();
+                Path modulePath = modulesRoot.resolve(moduleName.moduleNamePart());
+                filePath = modulePath.resolve(location.lineRange().filePath()).toString();
             } else {
-                filePath = diagnostic.location().lineRange().filePath();
+                filePath = location.lineRange().filePath();
             }
         }
-        this.diagnostic = diagnostic;
+        this.diagnosticInfo = diagnosticInfo;
+        this.location = new DiagnosticLocation(filePath, location);
         this.project = project;
         this.moduleDescriptor = moduleDescriptor;
-        this.location = new DiagnosticLocation(filePath, this.diagnostic.location());
+        this.properties = properties;
+        this.message = message;
+    }
+
+    public static PackageDiagnostic from(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
+        return new PackageDiagnostic(diagnostic.diagnosticInfo(), diagnostic.location(), project, moduleDescriptor,
+                diagnostic.properties(), diagnostic.message());
+    }
+
+    public static PackageDiagnostic from(
+            DiagnosticInfo diagnosticInfo,
+            ModuleDescriptor moduleDescriptor,
+            Project project,
+            Location location,
+            List<DiagnosticProperty<?>> properties,
+            String message) {
+        return new PackageDiagnostic(diagnosticInfo, location, project, moduleDescriptor, properties, message);
     }
 
     @Override
@@ -83,22 +109,22 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public DiagnosticInfo diagnosticInfo() {
-        return this.diagnostic.diagnosticInfo();
+        return this.diagnosticInfo;
     }
 
     @Override
     public String message() {
-        return this.diagnostic.message();
+        return this.message;
     }
 
     @Override
     public List<DiagnosticProperty<?>> properties() {
-        return this.diagnostic.properties();
+        return this.properties;
     }
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
+        String filePath = this.location().lineRange().filePath();
         // add package info if it is a dependency
         if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
             filePath = moduleDescriptor.org() + "/" +
@@ -106,7 +132,7 @@ public class PackageDiagnostic extends Diagnostic {
                     moduleDescriptor.version() + "::" + filePath;
         }
 
-        LineRange lineRange = diagnostic.location().lineRange();
+        LineRange lineRange = location.lineRange();
         LineRange oneBasedLineRange = LineRange.from(
                 filePath,
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
