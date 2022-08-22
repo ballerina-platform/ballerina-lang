@@ -181,14 +181,16 @@ public class CodeCoverageReportTest extends BaseTestCase {
     private HashMap<String, List<String>> getExpectedCoverageClasses() {
         HashMap<String, List<String>> coverageClassMap = new HashMap<>();
         coverageClassMap.put(multiModuleTestRoot,
-                Arrays.asList(new String[]{multiModuleTestRoot + "/main", multiModuleTestRoot + "/foo"}));
+                Arrays.asList(multiModuleTestRoot + "/main", multiModuleTestRoot + "/foo",
+                        multiModuleTestRoot + "/$value$Record", multiModuleTestRoot + "/$typedesc$Record",
+                        multiModuleTestRoot + "/$value$ABC"));
         coverageClassMap.put(multiModuleTestRoot + "/modules/bar",
-                Arrays.asList(new String[]{multiModuleTestRoot + "/modules/bar/main"}));
+                List.of(multiModuleTestRoot + "/modules/bar/main"));
         coverageClassMap.put(multiModuleTestRoot + "/modules/math",
-                Arrays.asList(new String[]{multiModuleTestRoot + "/modules/math/add", multiModuleTestRoot +
-                        "/modules/math/divide", multiModuleTestRoot + "/modules/math/foo$$$math"}));
+                Arrays.asList(multiModuleTestRoot + "/modules/math/add", multiModuleTestRoot +
+                        "/modules/math/divide", multiModuleTestRoot + "/modules/math/foo$$$math"));
         coverageClassMap.put(multiModuleTestRoot + "/modules/bar.tests",
-                Arrays.asList(new String[]{multiModuleTestRoot + "/modules/bar.tests/foo$$$bar$$$tests"}));
+                List.of(multiModuleTestRoot + "/modules/bar.tests/foo$$$bar$$$tests"));
         return coverageClassMap;
     }
 

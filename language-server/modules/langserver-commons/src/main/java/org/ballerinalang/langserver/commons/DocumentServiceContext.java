@@ -82,6 +82,7 @@ public interface DocumentServiceContext {
      * This API is deprecated. Instead, use {@link #currentDocImportsMap}
      *
      * @return {@link List} of import nodes
+     * @deprecated Use {@link #currentDocImportsMap()} instead
      */
     @Deprecated(forRemoval = true)
     List<ImportDeclarationNode> currentDocImports();

@@ -330,3 +330,9 @@ function testUndeclaredAndOptionalAndNilable() {
     anydata y = abcd.y;
     anydata z = abcd.z;
 }
+
+function testInvalidAccessWhenTypeIsAnUnion() {
+    string name;
+    AB|BC abbc = {};
+    abbc.id = "HR"; // error
+}

@@ -166,4 +166,16 @@ public class BFiniteType extends BType implements FiniteType {
         }
         return valueSpace.size() == 1 ? joiner.toString() : "(" + joiner + ")";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BFiniteType)) {
+            return false;
+        }
+        BFiniteType that = (BFiniteType) o;
+        return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
+    }
 }
