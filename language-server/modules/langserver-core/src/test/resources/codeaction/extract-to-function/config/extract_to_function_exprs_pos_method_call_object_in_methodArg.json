@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 22,
-    "character": 28
+    "line": 26,
+    "character": 18
   },
   "source": "extract_to_function_exprs_field_access_expr.bal",
   "expected": [
@@ -12,31 +12,31 @@
         {
           "range": {
             "start": {
-              "line": 26,
+              "line": 27,
               "character": 1
             },
             "end": {
-              "line": 26,
+              "line": 27,
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(record {|int age; anydata...;|} nimal) returns Person {\n    return nimal;\n}\n"
+          "newText": "\n\nfunction extracted() returns int {\n    return 12;\n}\n"
         },
         {
           "range": {
             "start": {
-              "line": 22,
-              "character": 21
+              "line": 26,
+              "character": 17
             },
             "end": {
-              "line": 22,
-              "character": 26
+              "line": 26,
+              "character": 19
             }
           },
-          "newText": "extracted(nimal)"
+          "newText": "extracted()"
         }
       ]
     }
   ],
-  "description": "Extract to function for expressions, cursor inside the field name of the field access expression of Record"
+  "description": "Extract to function for expressions, cursor inside the method arguments in method call expression method"
 }

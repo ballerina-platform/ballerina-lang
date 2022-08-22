@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
@@ -333,6 +334,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                         && nodeAtRange.parent() != null
                         && nodeAtRange.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
             return Collections.emptyList();
+        }
+
+        if (nodeAtRange.parent() != null) {
+            if (nodeAtRange.parent().kind() == SyntaxKind.FIELD_ACCESS && ((FieldAccessExpressionNode) nodeAtRange.parent()).fieldName().equals(nodeAtRange)) {
+                return Collections.emptyList();
+            } else if (nodeAtRange.parent().kind() == SyntaxKind.METHOD_CALL && ((MethodCallExpressionNode) nodeAtRange.parent()).methodName().equals(nodeAtRange)) {
+                return Collections.emptyList();
+            }
         }
 
         if (nodeAtRange.kind() == SyntaxKind.FIELD_ACCESS) {

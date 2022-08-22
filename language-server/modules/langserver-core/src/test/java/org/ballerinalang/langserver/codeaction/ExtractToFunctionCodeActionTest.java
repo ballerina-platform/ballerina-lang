@@ -113,6 +113,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_mapping_constructor_local.json"},
                 {"extract_to_function_exprs_typeof_expr.json"},
                 {"extract_to_function_exprs_unary_expr.json"},
+                {"extract_to_function_exprs_range_unary_expr_selecting_unaryOperator.json"},
                 {"extract_to_function_exprs_typeTest_expr.json"},
                 {"extract_to_function_exprs_list_constructor.json"},
                 {"extract_to_function_exprs_typecast_expr.json"},
@@ -137,7 +138,10 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_position_indexed_expr_container_expr.json"},
                 {"extract_to_function_exprs_pos_field_access_expr_record_in_expr.json"},
                 {"extract_to_function_exprs_pos_field_access_expr_object_in_expr.json"},
-                {"extract_to_function_exprs_pos_field_access_expr_record_in_fieldName.json"},
+                {"extract_to_function_exprs_pos_method_call_object_in_methodArg.json"},
+                {"extract_to_function_exprs_pos_typeof_expr_typeof_kw.json"},
+                {"extract_to_function_exprs_pos_typeof_expr_expression.json"},
+                {"extract_to_function_exprs_pos_unary_expr_expression.json"},
         };
     }
 
@@ -215,6 +219,10 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_exprs_mapping_cons_annot_value.json"},
 
                 {"neg_extract_to_function_exprs_position_numeric_literal_before_literal.json"},
+                {"neg_extract_to_function_exprs_pos_field_access_expr_record_in_fieldName.json"},
+                {"neg_extract_to_function_exprs_pos_method_call_object_in_methodName.json"},
+                {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
+                {"neg_extract_to_function_exprs_pos_object_cons_function_kw_inside.json"},
         };
     }
 
