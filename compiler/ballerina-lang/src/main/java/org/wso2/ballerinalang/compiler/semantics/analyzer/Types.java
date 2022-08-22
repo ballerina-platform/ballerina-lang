@@ -2545,7 +2545,11 @@ public class Types {
     }
 
     public boolean isAllErrorMembers(BUnionType actualType) {
-        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
+        return isAllErrorMembers(actualType.getMemberTypes());
+    }
+
+    public boolean isAllErrorMembers(Set<BType> types) {
+        return !types.isEmpty() && types.stream().allMatch(t -> isAssignable(t, symTable.errorType));
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType targetType) {
@@ -3546,7 +3550,7 @@ public class Types {
         if (target.tag == TypeTags.UNION) {
             targetIsAUnion = true;
             targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
-            allTargetTypesErrors = allTypesErrors(targetTypes);
+            allTargetTypesErrors = isAllErrorMembers(targetTypes);
             if (allTargetTypesErrors) {
                 targetUnionIsDistinctError = containsDistinctError(targetTypes);
             }
@@ -3638,7 +3642,7 @@ public class Types {
                     if (targetUnionIsDistinctError) {
                         sourceTypeIsNotAssignableToAnyTargetType = !isErrorTypeAssignable((BErrorType) sourceMember,
                                 (BErrorType) targetMember, unresolvedTypes);
-                    } else if (targetMember.tag == TypeTags.ERROR && allTargetTypesErrors) {
+                    } else if (allTargetTypesErrors && targetMember.tag == TypeTags.ERROR) {
                         sourceTypeIsNotAssignableToAnyTargetType =
                                 !isErrorTypeAssignableWithNoTypeIds((BErrorType) sourceMember,
                                         (BErrorType) targetMember, unresolvedTypes);
@@ -3674,16 +3678,7 @@ public class Types {
                 return false;
             }
         }
-        return true;
-    }
-
-    private boolean allTypesErrors(Set<BType> memberTypes) {
-        for (BType type : memberTypes) {
-            if (type.tag != TypeTags.ERROR) {
-                return false;
-            }
-        }
-        return !memberTypes.isEmpty();
+        return t1TypeIds.size() != 0;
     }
 
     public boolean isSelfReferencedStructuredType(BType source, BType s) {
