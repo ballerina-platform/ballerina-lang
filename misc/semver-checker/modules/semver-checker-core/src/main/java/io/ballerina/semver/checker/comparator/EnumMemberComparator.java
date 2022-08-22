@@ -26,8 +26,8 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
+import io.ballerina.semver.checker.diff.EnumMemberDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
-import io.ballerina.semver.checker.diff.NodeDiffImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class EnumMemberComparator extends NodeComparator<EnumMemberNode> {
 
     @Override
     public Optional<? extends Diff> computeDiff() {
-        NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode)
+        NodeDiffBuilder diffBuilder = new EnumMemberDiff.Builder(newNode, oldNode)
                 .withChildDiffs(compareMetadata(newNode, oldNode))
                 .withChildDiffs(compareExpression(newNode, oldNode));
 
@@ -67,7 +67,7 @@ public class EnumMemberComparator extends NodeComparator<EnumMemberNode> {
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
         // Replace with a smart comparator implementation
         DumbNodeListComparator<AnnotationNode> annotComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
-                DiffKind.ENUM_MEMBER_ANNOTATION.toString());
+                DiffKind.ENUM_MEMBER_ANNOTATION);
         annotComparator.computeDiff().ifPresent(metadataDiffs::add);
 
         return metadataDiffs;
@@ -76,7 +76,7 @@ public class EnumMemberComparator extends NodeComparator<EnumMemberNode> {
     private List<Diff> compareExpression(EnumMemberNode newNode, EnumMemberNode oldNode) {
         List<Diff> memberExpressionDiffs = new ArrayList<>();
         DumbNodeComparator<ExpressionNode> exprComparator = new DumbNodeComparator<>(newNode.constExprNode()
-                .orElse(null), oldNode.constExprNode().orElse(null), DiffKind.ENUM_MEMBER_EXPR);
+                .orElse(null), oldNode.constExprNode().orElse(null), DiffKind.ENUM_MEMBER_VALUE);
         exprComparator.computeDiff().ifPresent(memberExpressionDiffs::add);
 
         return memberExpressionDiffs;

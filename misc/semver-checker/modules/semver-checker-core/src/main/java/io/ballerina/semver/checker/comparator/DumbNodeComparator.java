@@ -37,9 +37,9 @@ import java.util.Optional;
  */
 public class DumbNodeComparator<T extends Node> implements Comparator {
 
-    protected final T newNode;
-    protected final T oldNode;
-    protected DiffKind nodeKindName;
+    private final T newNode;
+    private final T oldNode;
+    private final DiffKind nodeKindName;
 
     DumbNodeComparator(T newNode, T oldNode) {
         this(newNode, oldNode, null);

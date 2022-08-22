@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.DiffType;
 import io.ballerina.semver.checker.diff.NodeListDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
@@ -39,9 +40,9 @@ import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getNodeKindName;
  */
 public class DumbNodeListComparator<T extends Node> implements Comparator {
 
-    protected final List<T> newNodesList;
-    protected final List<T> oldNodesList;
-    protected String nodeKindName;
+    private final List<T> newNodesList;
+    private final List<T> oldNodesList;
+    private final DiffKind nodeKind;
 
     DumbNodeListComparator(List<T> newNodesList, List<T> oldNodesList) {
         this(newNodesList, oldNodesList, null);
@@ -51,16 +52,16 @@ public class DumbNodeListComparator<T extends Node> implements Comparator {
         this(newNodesList, oldNodesList, null);
     }
 
-    DumbNodeListComparator(List<T> newNodesList, List<T> oldNodesList, String nodeKindName) {
+    DumbNodeListComparator(List<T> newNodesList, List<T> oldNodesList, DiffKind nodeKind) {
         this.newNodesList = newNodesList;
         this.oldNodesList = oldNodesList;
-        this.nodeKindName = nodeKindName;
+        this.nodeKind = nodeKind;
     }
 
-    DumbNodeListComparator(NodeList<T> newNodesList, NodeList<T> oldNodesList, String nodeKindName) {
+    DumbNodeListComparator(NodeList<T> newNodesList, NodeList<T> oldNodesList, DiffKind nodeKind) {
         this.newNodesList = newNodesList != null ? newNodesList.stream().collect(Collectors.toList()) : null;
         this.oldNodesList = oldNodesList != null ? oldNodesList.stream().collect(Collectors.toList()) : null;
-        this.nodeKindName = nodeKindName;
+        this.nodeKind = nodeKind;
     }
 
     @Override
@@ -69,20 +70,26 @@ public class DumbNodeListComparator<T extends Node> implements Comparator {
         diffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS);
 
         if (newNodesList != null && !newNodesList.isEmpty() && oldNodesList == null) {
-            String kind = nodeKindName != null ? nodeKindName : getNodeKindName(newNodesList.get(0).kind());
-            diffBuilder.withType(DiffType.NEW).withMessage(String.format("a new %s list is added", kind));
+            String kind = nodeKind != null ? nodeKind.toString() : getNodeKindName(newNodesList.get(0).kind());
+            diffBuilder.withType(DiffType.NEW)
+                    .withKind(this.nodeKind)
+                    .withMessage(String.format("a new %s list is added", kind));
             return diffBuilder.build();
         } else if (newNodesList == null && oldNodesList != null && !oldNodesList.isEmpty()) {
-            String kind = nodeKindName != null ? nodeKindName : getNodeKindName(oldNodesList.get(0).kind());
-            diffBuilder.withType(DiffType.REMOVED).withMessage(String.format("an existing %s list is removed", kind));
+            String kind = nodeKind != null ? nodeKind.toString() : getNodeKindName(oldNodesList.get(0).kind());
+            diffBuilder.withType(DiffType.REMOVED)
+                    .withKind(this.nodeKind)
+                    .withMessage(String.format("an existing %s list is removed", kind));
             return diffBuilder.build();
         } else if ((newNodesList == null || newNodesList.isEmpty())
                 && (oldNodesList == null || oldNodesList.isEmpty())) {
             return Optional.empty();
         } else if (!newNodesList.stream().map(Node::toSourceCode).collect(Collectors.joining(","))
                 .equals(oldNodesList.stream().map(Node::toSourceCode).collect(Collectors.joining(",")))) {
-            String kind = nodeKindName != null ? nodeKindName : getNodeKindName(newNodesList.get(0).kind());
-            diffBuilder.withType(DiffType.MODIFIED).withMessage(String.format("%s list is modified", kind));
+            String kind = nodeKind != null ? nodeKind.toString() : getNodeKindName(newNodesList.get(0).kind());
+            diffBuilder.withType(DiffType.MODIFIED)
+                    .withKind(this.nodeKind)
+                    .withMessage(String.format("%s list is modified", kind));
             return diffBuilder.build();
         }
 
