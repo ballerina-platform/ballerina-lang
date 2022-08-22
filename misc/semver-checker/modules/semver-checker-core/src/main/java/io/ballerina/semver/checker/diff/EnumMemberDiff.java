@@ -18,66 +18,36 @@
 
 package io.ballerina.semver.checker.diff;
 
-import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 
 import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Represents the diff in between two versions of a Ballerina enum declarations.
+ * Represents the diff in between two versions of a Ballerina enum member declaration.
  *
  * @since 2201.2.0
  */
-public class EnumDiff extends NodeDiffImpl<EnumDeclarationNode> {
+public class EnumMemberDiff extends NodeDiffImpl<EnumMemberNode> {
 
-    private EnumDiff(EnumDeclarationNode newNode, EnumDeclarationNode oldNode) {
-        super(newNode, oldNode, DiffKind.ENUM);
-    }
-
-    @Override
-    public void computeVersionImpact() {
-        boolean isPublic = isPublic();
-        if (newNode != null && oldNode == null) {
-            // if the enum is newly added
-            versionImpact = isPublic ? SemverImpact.MINOR : SemverImpact.PATCH;
-        } else if (newNode == null && oldNode != null) {
-            // if the enum is removed
-            versionImpact = isPublic ? SemverImpact.MAJOR : SemverImpact.PATCH;
-        } else {
-            // if the enum is modified, checks if enum declaration is public and if its not, all the
-            // children-level changes can be considered as patch-compatible changes.
-            if (isPublic) {
-                super.computeVersionImpact();
-            } else {
-                versionImpact = SemverImpact.PATCH;
-            }
-        }
-    }
-
-    private boolean isPublic() {
-        boolean isNewPublic = newNode != null && newNode.qualifier().stream().anyMatch(qualifier ->
-                qualifier.kind() == SyntaxKind.PUBLIC_KEYWORD);
-        boolean isOldPublic = oldNode != null && oldNode.qualifier().stream().anyMatch(qualifier ->
-                qualifier.kind() == SyntaxKind.PUBLIC_KEYWORD);
-
-        return isNewPublic || isOldPublic;
+    private EnumMemberDiff(EnumMemberNode newNode, EnumMemberNode oldNode) {
+        super(newNode, oldNode, DiffKind.ENUM_MEMBER);
     }
 
     /**
-     * Enum declaration diff builder implementation.
+     * Enum member diff builder implementation.
      */
-    public static class Builder extends NodeDiffImpl.Builder<EnumDeclarationNode> {
+    public static class Builder extends NodeDiffImpl.Builder<EnumMemberNode> {
 
-        private final EnumDiff enumDiff;
+        private final EnumMemberDiff enumDiff;
 
-        public Builder(EnumDeclarationNode newNode, EnumDeclarationNode oldNode) {
+        public Builder(EnumMemberNode newNode, EnumMemberNode oldNode) {
             super(newNode, oldNode);
-            enumDiff = new EnumDiff(newNode, oldNode);
+            enumDiff = new EnumMemberDiff(newNode, oldNode);
         }
 
         @Override
-        public Optional<EnumDiff> build() {
+        public Optional<EnumMemberDiff> build() {
             if (!enumDiff.getChildDiffs().isEmpty()) {
                 enumDiff.computeVersionImpact();
                 enumDiff.setType(DiffType.MODIFIED);

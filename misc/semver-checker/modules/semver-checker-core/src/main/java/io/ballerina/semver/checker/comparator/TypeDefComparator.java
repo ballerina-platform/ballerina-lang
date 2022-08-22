@@ -74,7 +74,7 @@ public class TypeDefComparator extends NodeComparator<TypeDefinitionNode> {
         NodeList<AnnotationNode> newAnnots = newMeta.map(MetadataNode::annotations).orElse(null);
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
         DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
-                DiffKind.SERVICE_ANNOTATION.toString());
+                DiffKind.SERVICE_ANNOTATION);
         annotsComparator.computeDiff().ifPresent(metadataDiffs::add);
 
         return metadataDiffs;

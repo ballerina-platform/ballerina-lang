@@ -23,6 +23,7 @@ import io.ballerina.semver.checker.diff.ClassDiff;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.EnumDiff;
+import io.ballerina.semver.checker.diff.EnumMemberDiff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.ModuleConstantDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
@@ -144,7 +145,7 @@ public class DiffUtils {
             sb.append(((NodeListDiff<?>) diff).getMessage().get());
         } else {
             sb.append(diff.getKind() != null && diff.getKind() != DiffKind.UNKNOWN ? diff.getKind().toString() :
-                    getDiffTypeName(diff))
+                            getDiffTypeName(diff))
                     .append(" '")
                     .append(getDiffName(diff))
                     .append("' is ")
@@ -161,12 +162,12 @@ public class DiffUtils {
     }
 
     /**
-     * Returns whether the provided diff instance belongs to a Ballerina module-level entity.
+     * Returns whether the provided diff instance is a compound diff object, which is guaranteed to have child diffs.
      *
      * @param diff diff instance
-     * @return true if the provided diff instance belongs to a Ballerina module-level entity
+     * @return true if the provided diff instance is a compound diff object, which is guaranteed to have child diffs
      */
-    public static boolean isModuleLevelDiff(Diff diff) {
+    public static boolean isCompoundDiff(Diff diff) {
         return diff instanceof FunctionDiff
                 || diff instanceof ServiceDiff
                 || diff instanceof ModuleVarDiff
@@ -174,7 +175,8 @@ public class DiffUtils {
                 || diff instanceof ClassDiff
                 || diff instanceof ObjectFieldDiff
                 || diff instanceof TypeDefinitionDiff
-                || diff instanceof EnumDiff;
+                || diff instanceof EnumDiff
+                || diff instanceof EnumMemberDiff;
     }
 
     /**
@@ -331,6 +333,10 @@ public class DiffUtils {
             return " ".repeat(4);
         } else if (diff instanceof EnumDiff) {
             return " ".repeat(4);
+        } else if (diff instanceof EnumMemberDiff) {
+            return " ".repeat(6);
+        } else if (diff instanceof ObjectFieldDiff) {
+            return " ".repeat(6);
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
             if (functionDiff.isResource()) {

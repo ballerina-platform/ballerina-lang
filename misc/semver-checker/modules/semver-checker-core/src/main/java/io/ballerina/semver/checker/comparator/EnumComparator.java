@@ -78,7 +78,7 @@ public class EnumComparator extends NodeComparator<EnumDeclarationNode> {
         NodeList<AnnotationNode> newAnnots = newMeta.map(MetadataNode::annotations).orElse(null);
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
         DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
-                DiffKind.SERVICE_ANNOTATION.toString());
+                DiffKind.ENUM_ANNOTATION);
         annotsComparator.computeDiff().ifPresent(metadataDiffs::add);
 
         return metadataDiffs;
@@ -118,7 +118,7 @@ public class EnumComparator extends NodeComparator<EnumDeclarationNode> {
                 .map(node -> (EnumMemberNode) node)
                 .collect(Collectors.toMap(enumMemberNode -> enumMemberNode.identifier().text().trim(),
                         Function.identity()));
-        Map<String, EnumMemberNode> oldMembers = newNode.enumMemberList().stream()
+        Map<String, EnumMemberNode> oldMembers = oldNode.enumMemberList().stream()
                 .map(node -> (EnumMemberNode) node)
                 .collect(Collectors.toMap(enumMemberNode -> enumMemberNode.identifier().text().trim(),
                         Function.identity()));
@@ -127,13 +127,15 @@ public class EnumComparator extends NodeComparator<EnumDeclarationNode> {
 
         // Computes and populate diffs for newly added enum members.
         memberDiffExtractor.getAdditions().forEach((enumName, enumNode) -> new NodeDiffImpl.Builder<>(enumNode, null)
-                .withKind(DiffKind.ENUM)
+                .withKind(DiffKind.ENUM_MEMBER)
+                .withVersionImpact(SemverImpact.MINOR)
                 .withMessage("new enum member '" + enumName + "' is added")
                 .build().ifPresent(memberDiffs::add));
 
         // Computes and populate diffs for removed enum members.
-        memberDiffExtractor.getAdditions().forEach((enumName, enumNode) -> new NodeDiffImpl.Builder<>(null, enumNode)
-                .withKind(DiffKind.ENUM)
+        memberDiffExtractor.getRemovals().forEach((enumName, enumNode) -> new NodeDiffImpl.Builder<>(null, enumNode)
+                .withKind(DiffKind.ENUM_MEMBER)
+                .withVersionImpact(SemverImpact.MAJOR)
                 .withMessage("new enum member '" + enumName + "' is removed")
                 .build().ifPresent(memberDiffs::add));
 
