@@ -298,3 +298,13 @@ function testInferredArrays() {
     (int|string)[][*][] f;
     (Bar & readonly)[*][2][*] g;
 }
+
+type BarReadonly Bar & readonly;
+
+function testReadonlyIntersection() {
+    Bar & readonly a;
+    BarReadonly b;
+    readonly & Foo c;
+    FooReadOnly d;
+    readonly & record {| int a; |} e;
+}

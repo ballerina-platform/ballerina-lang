@@ -263,6 +263,25 @@ public class TypedescriptorTest {
         };
     }
 
+    @Test(dataProvider = "IntersectionReadonlyPosProvider")
+    public void testIntersectionReadonlyTypes(int line, int col, TypeDescKind expKind, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), expKind);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "IntersectionReadonlyPosProvider")
+    public Object[][] getIntersectionReadonlyPos() {
+        return new Object[][] {
+                {304, 19, INTERSECTION, "Bar & readonly"},
+                {305, 16, TYPE_REFERENCE, "BarReadonly"},
+                {306, 19, INTERSECTION, "Foo & readonly"},
+                {307, 16, TYPE_REFERENCE, "FooReadOnly"},
+                {308, 35, INTERSECTION, "record {|int a;|} & readonly"},
+        };
+    }
+
     @Test
     public void testMapType() {
         Symbol symbol = getSymbol(49, 16);
