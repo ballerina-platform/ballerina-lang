@@ -256,7 +256,8 @@ public class MethodGen {
         mv.visitLookupSwitchInsn(yieldLabel, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, module, attachedType, moduleClassName);
+                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, invocationVarIndex, module, attachedType,
+                moduleClassName);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module.packageID), funcName,
                                                             attachedType);
@@ -514,7 +515,7 @@ public class MethodGen {
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
                              JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex, int stateVarIndex,
                              int yieldLocationVarIndex, int yieldStatusVarIndex, int localVarOffset,
-                             BIRPackage module, BType attachedType, String moduleClassName) {
+                             int invocationVarIndex, BIRPackage module, BType attachedType, String moduleClassName) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -546,7 +547,8 @@ public class MethodGen {
 
             processTerminator(mv, func, module, funcName, terminator);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
-                    attachedType, yieldLocationVarIndex, yieldStatusVarIndex, fullyQualifiedFuncName);
+                    attachedType, yieldLocationVarIndex, yieldStatusVarIndex, invocationVarIndex,
+                    fullyQualifiedFuncName);
 
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);

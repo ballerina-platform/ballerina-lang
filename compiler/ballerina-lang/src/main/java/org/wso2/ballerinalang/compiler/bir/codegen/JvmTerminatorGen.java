@@ -319,7 +319,8 @@ public class JvmTerminatorGen {
 
     public void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
                               String funcName, int localVarOffset, int returnVarRefIndex, BType attachedType,
-                              int yieldLocationVarIndex, int yieldStatusVarIndex, String fullyQualifiedFuncName) {
+                              int yieldLocationVarIndex, int yieldStatusVarIndex, int invocationVarIndex,
+                              String fullyQualifiedFuncName) {
 
         switch (terminator.kind) {
             case LOCK:
@@ -356,7 +357,7 @@ public class JvmTerminatorGen {
                 return;
             case FP_CALL:
                 this.genFPCallIns((BIRTerminator.FPCall) terminator, moduleClassName, attachedType,
-                                  funcName, localVarOffset);
+                                  funcName, localVarOffset, invocationVarIndex);
                 return;
             case WK_SEND:
                 this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, localVarOffset);
@@ -1062,7 +1063,7 @@ public class JvmTerminatorGen {
     }
 
     private void genFPCallIns(BIRTerminator.FPCall fpCall, String moduleClassName, BType attachedType,
-                              String funcName, int localVarOffset) {
+                              String funcName, int localVarOffset, int invocationVarIndex) {
 
         if (fpCall.isAsync) {
             // Check if already locked before submitting to scheduler.
@@ -1082,21 +1083,33 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "getFunction", GET_FUNCTION, false);
         }
 
+        boolean workerDerivative = fpCall.workerDerivative;
+        int argCount = fpCall.args.size() * 2 + 1;
+        if (workerDerivative) {
+            argCount++;
+        }
+
         // create an object array of args
-        this.mv.visitIntInsn(BIPUSH, fpCall.args.size() * 2 + 1);
+        this.mv.visitIntInsn(BIPUSH, argCount);
         this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         // load strand
         this.mv.visitInsn(DUP);
-
         // 0th index
         this.mv.visitIntInsn(BIPUSH, 0);
-
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitInsn(AASTORE);
 
-        // load args
         int paramIndex = 1;
+        if (workerDerivative) {
+            this.mv.visitInsn(DUP);
+            this.mv.visitIntInsn(BIPUSH, paramIndex++);
+            this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+            this.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+            this.mv.visitInsn(AASTORE);
+        }
+
+        // load args
         for (BIRArgument arg : fpCall.args) {
             this.mv.visitInsn(DUP);
             this.mv.visitIntInsn(BIPUSH, paramIndex);
