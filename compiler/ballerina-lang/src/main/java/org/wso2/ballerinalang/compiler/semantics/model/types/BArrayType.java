@@ -109,6 +109,9 @@ public class BArrayType extends BType implements ArrayType {
                 sb.append("[]");
             }
         }
+        if (!Symbols.isFlagOn(flags, Flags.ANONYMOUS) && tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
+            sb = sb.insert(0, tsymbol.toString() + " : ");
+        }
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
     }
 

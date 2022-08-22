@@ -128,6 +128,9 @@ public class BTupleType extends BType implements TupleType {
                 + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
         this.resolvingToString = false;
+        if (!Symbols.isFlagOn(flags, Flags.ANONYMOUS) && tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
+            stringRep = tsymbol.toString() + " : " + stringRep;
+        }
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
