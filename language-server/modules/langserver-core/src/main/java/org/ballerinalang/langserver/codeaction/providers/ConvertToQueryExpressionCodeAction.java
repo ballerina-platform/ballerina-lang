@@ -22,12 +22,18 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -59,24 +65,19 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedNode = posDetails.matchedCodeActionNode();
-        if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL || context.currentSemanticModel().isEmpty()) {
+        if (context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
         }
 
-        VariableDeclarationNode node = (VariableDeclarationNode) matchedNode;
-        SemanticModel semanticModel = context.currentSemanticModel().get();
-        Optional<Symbol> rhsSymbol = semanticModel.symbol(node.initializer().get());
-        Optional<Symbol> lhsSymbol = semanticModel.symbol(node.typedBindingPattern());
-        if (rhsSymbol.isEmpty() || rhsSymbol.get().kind() != SymbolKind.VARIABLE) {
-            return Collections.emptyList();
-        }
-        // TODO lhs can be a record field symbol, etc as well
-        if (lhsSymbol.isEmpty() || lhsSymbol.get().kind() != SymbolKind.VARIABLE) {
+        Optional<LhsRhsSymbolInfo> symbolInfo = getLhsAndRhsSymbolInfo(matchedNode, context);
+        if (symbolInfo.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> rhsType = SymbolUtil.getTypeDescriptor(rhsSymbol.get());
-        Optional<TypeSymbol> lhsType = SymbolUtil.getTypeDescriptor(lhsSymbol.get());
+        Symbol lhsSymbol = symbolInfo.get().lhsSymbol;
+        Symbol rhsSymbol = symbolInfo.get().rhsSymbol;
+        Optional<TypeSymbol> rhsType = SymbolUtil.getTypeDescriptor(rhsSymbol);
+        Optional<TypeSymbol> lhsType = SymbolUtil.getTypeDescriptor(lhsSymbol);
 
         if (rhsType.isEmpty()
                 || lhsType.isEmpty()
@@ -87,28 +88,116 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
 
         // Now we know both lhs and rhs are arrays.
         // Next we have to check if the member types are assignable
-        TypeSymbol lhsMemberType = ((ArrayTypeSymbol) lhsType.get()).memberTypeDescriptor();
-        TypeSymbol rhsMemberType = ((ArrayTypeSymbol) rhsType.get()).memberTypeDescriptor();
+        TypeSymbol lhsMemberType = CommonUtil.getRawType(((ArrayTypeSymbol) lhsType.get()).memberTypeDescriptor());
+        TypeSymbol rhsMemberType = CommonUtil.getRawType(((ArrayTypeSymbol) rhsType.get()).memberTypeDescriptor());
 
         // If rhs member type is a subtype, then solution is straight forward
         if (rhsMemberType.subtypeOf(lhsMemberType)) {
             // lhs = from var item in lhs select item;
-            String query = String.format("from %s item in %s select item", rhsMemberType.signature(), rhsSymbol.get().getName().get());
+            String query = String.format("from var item in %s select item", rhsSymbol.getName().get());
             List<TextEdit> edits = new ArrayList<>();
-            Range range = PositionUtil.toRange(node.initializer().get().lineRange());
+            Range range = PositionUtil.toRange(symbolInfo.get().rhsNode.lineRange());
             edits.add(new TextEdit(range, query));
             CodeAction codeAction = CodeActionUtil.createCodeAction("Convert to query expression",
                     edits, context.fileUri(), CodeActionKind.QuickFix);
             return List.of(codeAction);
         }
 
-        return Collections.emptyList();
+        // LHS and RHS are different.
+        // If LHS is a record, we have to generate the default value for that
+        // Else, we have to just generate the query expression
+        if (lhsMemberType.typeKind() == TypeDescKind.RECORD) {
+            Optional<String> defaultVal = DefaultValueGenerationUtil.getDefaultValueForType(lhsMemberType);
+            if (defaultVal.isPresent()) {
+                String query = String.format("from var item in %s select %s", rhsSymbol.getName().get(), defaultVal.get());
+                List<TextEdit> edits = new ArrayList<>();
+                Range range = PositionUtil.toRange(symbolInfo.get().rhsNode.lineRange());
+                edits.add(new TextEdit(range, query));
+                CodeAction codeAction = CodeActionUtil.createCodeAction("Convert to query expression",
+                        edits, context.fileUri(), CodeActionKind.QuickFix);
+                return List.of(codeAction);
+            }
+        }
+
+        String selectExpr = "item";
+        String query = String.format("from var item in %s select %s", rhsSymbol.getName().get(), selectExpr);
+        List<TextEdit> edits = new ArrayList<>();
+        Range range = PositionUtil.toRange(symbolInfo.get().rhsNode.lineRange());
+        edits.add(new TextEdit(range, query));
+        CodeAction codeAction = CodeActionUtil.createCodeAction("Convert to query expression",
+                edits, context.fileUri(), CodeActionKind.QuickFix);
+        return List.of(codeAction);
     }
 
     @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(
-                SyntaxKind.LOCAL_VAR_DECL
+                SyntaxKind.LOCAL_VAR_DECL,
+                SyntaxKind.SPECIFIC_FIELD,
+                SyntaxKind.ASSIGNMENT_STATEMENT
         );
+    }
+
+    private Optional<LhsRhsSymbolInfo> getLhsAndRhsSymbolInfo(NonTerminalNode matchedNode, CodeActionContext context) {
+        Optional<Symbol> rhsSymbol = Optional.empty();
+        Optional<Symbol> lhsSymbol = Optional.empty();
+        Node lhsNode = null;
+        Node rhsNode = null;
+        SemanticModel semanticModel = context.currentSemanticModel().get();
+        if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            VariableDeclarationNode node = (VariableDeclarationNode) matchedNode;
+            rhsSymbol = semanticModel.symbol(node.initializer().get());
+            rhsNode = node.initializer().get();
+            lhsSymbol = semanticModel.symbol(node.typedBindingPattern())
+                    .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
+            lhsNode = node.typedBindingPattern();
+        } else if (matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+            // There can be 2 types here: Variable assignments and field access expressions.
+            // 1. list = otherList;
+            // 2. obj.list = otherList;
+            AssignmentStatementNode node = (AssignmentStatementNode) matchedNode;
+            if (node.varRef().kind() == SyntaxKind.FIELD_ACCESS) {
+                FieldAccessExpressionNode exprNode = (FieldAccessExpressionNode) node.varRef();
+                lhsNode = exprNode.fieldName();
+                lhsSymbol = semanticModel.symbol(lhsNode)
+                        .filter(symbol -> symbol.kind() == SymbolKind.CLASS_FIELD
+                                || symbol.kind() == SymbolKind.RECORD_FIELD);
+            } else {
+                lhsNode = node.varRef();
+                lhsSymbol = semanticModel.symbol(lhsNode).filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
+            }
+            rhsSymbol = semanticModel.symbol(node.expression());
+            rhsNode = node.expression();
+        } else if (matchedNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
+            SpecificFieldNode node = (SpecificFieldNode) matchedNode;
+            lhsSymbol = semanticModel.symbol(node.fieldName())
+                    .filter(symbol -> symbol.kind() == SymbolKind.RECORD_FIELD);
+            lhsNode = node.fieldName();
+            rhsSymbol = semanticModel.symbol(node.valueExpr().get());
+            rhsNode = node.valueExpr().get();
+        }
+
+        if (rhsSymbol.isEmpty() || lhsSymbol.isEmpty()
+                || lhsNode == null || rhsNode == null
+                || rhsSymbol.get().kind() != SymbolKind.VARIABLE && rhsSymbol.get().kind() != SymbolKind.PARAMETER) {
+            return Optional.empty();
+        }
+        LhsRhsSymbolInfo nodeInfo = new LhsRhsSymbolInfo(lhsSymbol.get(), rhsSymbol.get(), lhsNode, rhsNode);
+        return Optional.of(nodeInfo);
+    }
+
+    static class LhsRhsSymbolInfo {
+
+        private Symbol lhsSymbol;
+        private Symbol rhsSymbol;
+        private Node lhsNode;
+        private Node rhsNode;
+
+        public LhsRhsSymbolInfo(Symbol lhsSymbol, Symbol rhsSymbol, Node lhsNode, Node rhsNode) {
+            this.lhsSymbol = lhsSymbol;
+            this.rhsSymbol = rhsSymbol;
+            this.lhsNode = lhsNode;
+            this.rhsNode = rhsNode;
+        }
     }
 }

@@ -34,7 +34,13 @@ public class ConvertToQueryExpressionCodeActionTest extends AbstractCodeActionTe
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"convert__to_query_expr1.json"}
+                {"convert_to_query_expr_both_records1.json"},
+                {"convert_to_query_expr_lhs_record_type1.json"},
+                {"convert_to_query_expr_lhs_non_record1.json"},
+                {"convert_to_query_expr_lhs_record_field1.json"},
+                {"convert_to_query_expr_lhs_record_field2.json"},
+                {"convert_to_query_expr_lhs_class_field1.json"},
+                {"convert_to_query_expr_lhs_class_field2.json"},
         };
     }
 

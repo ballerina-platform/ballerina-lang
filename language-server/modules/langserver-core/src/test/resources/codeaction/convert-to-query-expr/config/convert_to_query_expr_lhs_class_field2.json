@@ -1,12 +1,12 @@
 {
   "position": {
-    "line": 16,
-    "character": 22
+    "line": 11,
+    "character": 24
   },
-  "source": "convert__to_query_expr1.bal",
+  "source": "convert_to_query_expr_lhs_class_field2.bal",
   "expected": [
     {
-      "title": "Change variable \u0027a\u0027 type to \u0027boolean\u0027",
+      "title": "Convert to query expression",
       "kind": "quickfix",
       "edits": [
         {
