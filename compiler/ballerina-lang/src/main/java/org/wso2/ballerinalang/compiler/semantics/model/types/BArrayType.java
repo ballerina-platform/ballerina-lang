@@ -94,23 +94,25 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(eType.toString());
-        String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);
-        if (eType.tag == TypeTags.ARRAY) {
-            if (state != BArrayState.OPEN) {
-                sb.insert(sb.indexOf("["), "[" + tempSize + "]");
-            } else {
-                sb.insert(sb.indexOf("["), "[]");
-            }
-        } else {
-            if (state != BArrayState.OPEN) {
-                sb.append("[").append(tempSize).append("]");
-            } else {
-                sb.append("[]");
-            }
-        }
+        StringBuilder sb;
         if (!Symbols.isFlagOn(flags, Flags.ANONYMOUS) && tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
-            sb = sb.insert(0, tsymbol.toString() + " : ");
+            sb = new StringBuilder(tsymbol.toString());
+        } else {
+            sb = new StringBuilder(eType.toString());
+            String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);
+            if (eType.tag == TypeTags.ARRAY) {
+                if (state != BArrayState.OPEN) {
+                    sb.insert(sb.indexOf("["), "[" + tempSize + "]");
+                } else {
+                    sb.insert(sb.indexOf("["), "[]");
+                }
+            } else {
+                if (state != BArrayState.OPEN) {
+                    sb.append("[").append(tempSize).append("]");
+                } else {
+                    sb.append("[]");
+                }
+            }
         }
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
     }

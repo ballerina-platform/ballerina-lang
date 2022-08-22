@@ -122,14 +122,15 @@ public class BTupleType extends BType implements TupleType {
             }
             return "...";
         }
-        this.resolvingToString = true;
 
-        String stringRep = "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
-                + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
-
-        this.resolvingToString = false;
+        String stringRep;
         if (!Symbols.isFlagOn(flags, Flags.ANONYMOUS) && tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
-            stringRep = tsymbol.toString() + " : " + stringRep;
+            stringRep = tsymbol.toString();
+        } else {
+            this.resolvingToString = true;
+            stringRep = "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
+                    + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
+            this.resolvingToString = false;
         }
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }

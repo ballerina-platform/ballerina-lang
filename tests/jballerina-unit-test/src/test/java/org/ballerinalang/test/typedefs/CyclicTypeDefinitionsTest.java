@@ -106,19 +106,19 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "operator '===' not defined for 'CyclicDecimal' and 'float'", 17
                 , 12);
         BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for " +
-                "'[int,tupleCyclic[]]' and '[int]'", 20, 12);
+                "'tupleCyclic' and '[int]'", 20, 12);
         BAssertUtil.validateError(negativeResult, i++, "operator '!=' not defined for " +
-                "'[int,tupleCyclic[]]' and '[int]'", 21, 12);
+                "'tupleCyclic' and '[int]'", 21, 12);
         BAssertUtil.validateError(negativeResult, i++, "operator '===' not defined for " +
-                "'[int,tupleCyclic[]]' and '[int]'", 22, 12);
+                "'tupleCyclic' and '[int]'", 22, 12);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "G, G"), 25, 1);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "H, H"), 26, 1);
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[Q, Q]'",
                 29, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'(int|[int,string,([int,string,...,map<F>]|int),map<F>])', found '[int,string,[int,string]]'", 32, 20);
+                "'(int|F)', found '[int,string,[int,string]]'", 32, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', " +
-                "found '[int,I[]]'", 34, 12);
+                "found 'I'", 34, 12);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'v'", 37, 19);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "P, XUnion1, P"),
                 39, 1);
@@ -130,10 +130,10 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'K'", 50, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'N'", 58, 6);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid usage of list constructor: type '[int,L[2],[\"nil\",\"text1\",1,L[1]][1]][2]'" +
+                "invalid usage of list constructor: type 'L[2]'" +
                         " does not have a filler value", 62, 11);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid usage of list constructor: type '[int,L[2],[\"nil\",\"text1\",1,L[1]][1]][1]'" +
+                "invalid usage of list constructor: type 'L[1]'" +
                         " does not have a filler value", 63, 11);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'ET', found 'int'", 75, 17);
         Assert.assertEquals(i, negativeResult.getErrorCount());
