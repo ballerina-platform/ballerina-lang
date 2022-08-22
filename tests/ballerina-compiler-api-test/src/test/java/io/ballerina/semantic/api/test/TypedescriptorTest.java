@@ -1057,17 +1057,17 @@ public class TypedescriptorTest {
     @DataProvider(name = "SingletonTypePos")
     private Object[][] getSingletonType() {
         return new Object[][] {
-                {308, 6, INT, "5"},
-                {309, 8, STRING, "\"6\""},
-                {310, 10, STRING, "\"abc\""},
-                {311, 8, FLOAT, "1.2"},
-                {312, 9, FLOAT, "3.4"},
-                {313, 8, BYTE, "10"},
-                {314, 11, INT, "46575"},
-                {315, 12, FLOAT, "0xA1.B5p0"},
-                {316, 14, FLOAT, "0xB2.8Fp1"},
-                {317, 8, STRING, "\"a\""},
-                {318, 8, STRING, "\"RED\""},
+                {318, 6, INT, "5"},
+                {319, 8, STRING, "\"6\""},
+                {320, 10, STRING, "\"abc\""},
+                {321, 8, FLOAT, "1.2"},
+                {322, 9, FLOAT, "3.4"},
+                {323, 8, BYTE, "10"},
+                {324, 11, INT, "46575"},
+                {325, 12, FLOAT, "0xA1.B5p0"},
+                {326, 14, FLOAT, "0xB2.8Fp1"},
+                {327, 8, STRING, "\"a\""},
+                {328, 8, STRING, "\"RED\""},
         };
     }
 
