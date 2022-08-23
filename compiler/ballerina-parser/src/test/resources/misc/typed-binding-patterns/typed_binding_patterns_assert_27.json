@@ -164,7 +164,7 @@
                                                     "kind": "IDENTIFIER_TOKEN",
                                                     "hasDiagnostics": true,
                                                     "diagnostics": [
-                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
                                                     "value": "jwt"
                                                   }
@@ -311,7 +311,7 @@
                                                     "kind": "IDENTIFIER_TOKEN",
                                                     "hasDiagnostics": true,
                                                     "diagnostics": [
-                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
                                                     "value": "jwt"
                                                   }
@@ -476,7 +476,7 @@
                                                     "kind": "IDENTIFIER_TOKEN",
                                                     "hasDiagnostics": true,
                                                     "diagnostics": [
-                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
                                                     "value": "jwt"
                                                   }
@@ -556,7 +556,7 @@
                                                     "kind": "IDENTIFIER_TOKEN",
                                                     "hasDiagnostics": true,
                                                     "diagnostics": [
-                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
                                                     "value": "jwt"
                                                   }
@@ -703,7 +703,7 @@
                                                     "kind": "IDENTIFIER_TOKEN",
                                                     "hasDiagnostics": true,
                                                     "diagnostics": [
-                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
                                                     "value": "jwt"
                                                   }
@@ -765,7 +765,7 @@
                                                     "kind": "IDENTIFIER_TOKEN",
                                                     "hasDiagnostics": true,
                                                     "diagnostics": [
-                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
                                                     "value": "jwt"
                                                   }
@@ -827,7 +827,7 @@
                                                     "kind": "IDENTIFIER_TOKEN",
                                                     "hasDiagnostics": true,
                                                     "diagnostics": [
-                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
                                                     "value": "jwt"
                                                   }
