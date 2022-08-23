@@ -403,6 +403,8 @@ function testQueryInXMLTemplateExpr() {
     // test:assertEquals(x8.toString(), "<doc>fooazbz</doc>")
 }
 
+type XMLType xml:Comment|xml:ProcessingInstruction;
+
 function testXMLLiteralWithConditionExpr() {
     xml? s = xml `foo`;
     string target = "foo";
@@ -415,4 +417,22 @@ function testXMLLiteralWithConditionExpr() {
 
     xml x3 = (s ?: xml `<baz/>`) + xml ``;
     test:assertEquals(x3.toString(), target);
+
+    s = ();
+
+    xml:Element e1 = xml `<baz/>`;
+    xml v1 = (s ?: e1) + xml `<element>A</element>`;
+    test:assertEquals(v1.toString(), "<baz></baz><element>A</element>");
+
+    xml<xml:Element> e2 = xml `<baz/>`;
+    xml v2 = (s ?: e2) + xml `<element>A</element>`;
+    test:assertEquals(v2.toString(), "<baz></baz><element>A</element>");
+
+    XMLType e3 = xml `<!--This is a comment-->`;
+    xml v3 = (s ?: e3) + xml `<element>A</element>`;
+    test:assertEquals(v3.toString(), "<!--This is a comment--><element>A</element>");
+
+    XMLType e4 = xml `<?target data?>`;
+    xml v4 = (s ?: e4) + xml `<element>A</element>`;
+    test:assertEquals(v4.toString(), "<?target data?><element>A</element>");
 }
