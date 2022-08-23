@@ -15946,10 +15946,10 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (argNameOrBindingPattern.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                    ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
-            identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, argNameOrBindingPattern);
-            return createCaptureOrWildcardBP(identifier);
+            STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, argNameOrBindingPattern,
+                    DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
+            return STNodeFactory.createCaptureBindingPatternNode(identifier);
         }
 
         return createCaptureOrWildcardBP(((STSimpleNameReferenceNode) argNameOrBindingPattern).name);
@@ -18902,10 +18902,7 @@ public class BallerinaParser extends AbstractParser {
                 return createCaptureOrWildcardBP(varName);
             case QUALIFIED_NAME_REFERENCE:
                 if (isListBP) {
-                    STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                            ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
-                    identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode);
-                    return createCaptureOrWildcardBP(identifier);
+                    break;
                 }
                 STQualifiedNameReferenceNode qualifiedName = (STQualifiedNameReferenceNode) ambiguousNode;
                 STNode fieldName = STNodeFactory.createSimpleNameReferenceNode(qualifiedName.modulePrefix);
@@ -18963,12 +18960,11 @@ public class BallerinaParser extends AbstractParser {
             case REST_ARG:
                 STRestArgumentNode restArg = (STRestArgumentNode) ambiguousNode;
                 return STNodeFactory.createRestBindingPatternNode(restArg.ellipsis, restArg.expression);
-            default:
-                STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-                identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode, 
-                        DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
-                return STNodeFactory.createCaptureBindingPatternNode(identifier);
         }
+        STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode,
+                DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
+        return STNodeFactory.createCaptureBindingPatternNode(identifier);
     }
 
     private List<STNode> getExpressionList(List<STNode> ambibuousList, boolean isMappingConstructor) {
