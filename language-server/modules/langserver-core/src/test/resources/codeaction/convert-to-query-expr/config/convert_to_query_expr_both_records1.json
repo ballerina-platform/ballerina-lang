@@ -12,15 +12,15 @@
         {
           "range": {
             "start": {
-              "line": 1,
-              "character": 4
+              "line": 16,
+              "character": 19
             },
             "end": {
-              "line": 1,
-              "character": 7
+              "line": 16,
+              "character": 27
             }
           },
-          "newText": "boolean"
+          "newText": "from var item in extusers select item"
         }
       ]
     }
