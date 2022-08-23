@@ -1,0 +1,5 @@
+[package]
+org = "foo"
+name = "constraint_pkg_user1"
+version = "0.1.0"
+constraint="samjs/package_comp_plugin_code_modify_add_function"

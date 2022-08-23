@@ -359,4 +359,29 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertFalse(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
                 "returns error? {\n}"));
     }
+
+    @Test(description = "Pack a ballerina project with a constraint package specified")
+    public void testPackBalProjectWithConstraintField() throws IOException {
+        Path compilerPluginPath = this.testResources.resolve("compiler-plugins")
+                .resolve("package_comp_plugin_code_modify_add_function");
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.toString());
+        String userPackageName = "constraint_pkg_user1";
+        Path projectPath = this.testResources.resolve("projectsForConstraintField").resolve(userPackageName);
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-constraint_pkg_user1-any-0.1.0.bala");
+        Assert.assertTrue(balaFilePath.toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String mainBalContent = Files.readString(balaDestPath.resolve("modules")
+                .resolve(userPackageName).resolve("main.bal"));
+        Assert.assertTrue(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
+                "returns error? {\n}"));
+    }
 }
