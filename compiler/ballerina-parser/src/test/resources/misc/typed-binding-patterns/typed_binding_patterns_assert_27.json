@@ -324,17 +324,19 @@
                                           "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
-                                          ],
                                           "leadingMinutiae": [
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "hasDiagnostics": true,
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
+                                                    "hasDiagnostics": true,
+                                                    "diagnostics": [
+                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                    ],
                                                     "value": "jwt"
                                                   }
                                                 ]
@@ -469,17 +471,19 @@
                                           "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
-                                          ],
                                           "leadingMinutiae": [
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "hasDiagnostics": true,
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
+                                                    "hasDiagnostics": true,
+                                                    "diagnostics": [
+                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                    ],
                                                     "value": "jwt"
                                                   }
                                                 ]
@@ -632,17 +636,19 @@
                                           "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
-                                          ],
                                           "leadingMinutiae": [
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "hasDiagnostics": true,
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
+                                                    "hasDiagnostics": true,
+                                                    "diagnostics": [
+                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                    ],
                                                     "value": "jwt"
                                                   }
                                                 ]
@@ -710,17 +716,19 @@
                                           "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
-                                          ],
                                           "leadingMinutiae": [
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "hasDiagnostics": true,
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
+                                                    "hasDiagnostics": true,
+                                                    "diagnostics": [
+                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                    ],
                                                     "value": "jwt"
                                                   }
                                                 ]
@@ -855,17 +863,19 @@
                                           "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
-                                          ],
                                           "leadingMinutiae": [
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "hasDiagnostics": true,
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
+                                                    "hasDiagnostics": true,
+                                                    "diagnostics": [
+                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                    ],
                                                     "value": "jwt"
                                                   }
                                                 ]
@@ -915,17 +925,19 @@
                                           "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
-                                          ],
                                           "leadingMinutiae": [
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "hasDiagnostics": true,
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
+                                                    "hasDiagnostics": true,
+                                                    "diagnostics": [
+                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                    ],
                                                     "value": "jwt"
                                                   }
                                                 ]
@@ -975,17 +987,19 @@
                                           "kind": "IDENTIFIER_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
-                                          ],
                                           "leadingMinutiae": [
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "hasDiagnostics": true,
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
+                                                    "hasDiagnostics": true,
+                                                    "diagnostics": [
+                                                      "ERROR_INVALID_BINDING_PATTERN"
+                                                    ],
                                                     "value": "jwt"
                                                   }
                                                 ]
