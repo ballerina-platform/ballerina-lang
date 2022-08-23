@@ -48,38 +48,38 @@ public class EnumerationComparatorTest {
     private static final String ENUMERATION_MEMBER_TESTCASE = ENUMERATION_TEST_DATA_ROOT + "enumMember.json";
     private static final String ADVANCE_ENUMERATION_TESTCASE = ENUMERATION_TEST_DATA_ROOT + "advanceEnumeration.json";
 
-    @Test(dataProvider = "EnumerationTestDataProvider")
+    @Test(dataProvider = "enumerationTestDataProvider")
     public void testEnumerationAnnotation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "EnumerationTestDataProvider")
+    @Test(dataProvider = "enumerationTestDataProvider")
     public void testEnumerationDocumentation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "EnumerationTestDataProvider")
+    @Test(dataProvider = "enumerationTestDataProvider")
     public void testEnumerationIdentifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "EnumerationTestDataProvider")
+    @Test(dataProvider = "enumerationTestDataProvider")
     public void testEnumerationMember(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "EnumerationTestDataProvider")
+    @Test(dataProvider = "enumerationTestDataProvider")
     public void testEnumerationQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "EnumerationTestDataProvider")
+    @Test(dataProvider = "enumerationTestDataProvider")
     public void testAdvanceEnumeration(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @DataProvider(name = "EnumerationTestDataProvider")
-    public Object[] EnumerationTestDataProvider(Method method) throws SemverTestException {
+    @DataProvider(name = "enumerationTestDataProvider")
+    public Object[] enumerationTestDataProvider(Method method) throws SemverTestException {
         String filePath;
         switch (method.getName()) {
             case "testEnumerationAnnotation":
