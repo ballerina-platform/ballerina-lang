@@ -770,8 +770,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                         builder.MAP_TYPE.withTypeParam(typeSymbol).build(),
                         builder.STREAM_TYPE.withValueType(typeSymbol).build()));
         if (CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD) {
-            unionTypeMembers
-                    .add(builder.TABLE_TYPE.withRowType(CommonUtil.getRawType(typeSymbol)).build());
+            try {
+                unionTypeMembers
+                        .add(builder.TABLE_TYPE.withRowType(CommonUtil.getRawType(typeSymbol)).build());
+            } catch (IllegalArgumentException ignored) {
+            }
         }
         if (typeSymbol instanceof StringTypeSymbol) {
             unionTypeMembers.add(types.STRING);
