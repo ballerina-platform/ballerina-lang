@@ -4546,14 +4546,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return;
         }
 
-        // Service typing does not consider resource methods when type checking.
-        if (Symbols.isResource(func.symbol)) {
-            return;
-        }
-
         // There must be an implementation at the outer level, if the function is an interface.
         if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
-            dlog.error(pos, code, func.funcName, func.symbol.receiverSymbol.type);
+            // Here we use the whole function in the error msg since resource function name will contain `$`s if 
+            // we use the func.funcName
+            dlog.error(pos, code, func, func.symbol.receiverSymbol.type);
         }
     }
 
