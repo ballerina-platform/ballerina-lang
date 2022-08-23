@@ -97,9 +97,6 @@ jobs:
           path: ~/.m2/
       - name: Clone Distribution
         run: git clone https://github.com/ballerina-platform/ballerina-distribution.git
-#      - name: Checkout to Patch Branch
-#        working-directory: ./ballerina-distribution
-#        run: git checkout 2201.0.x
       - name: Update Lang Version in Module
         working-directory: ./ballerina-distribution
         run: |
