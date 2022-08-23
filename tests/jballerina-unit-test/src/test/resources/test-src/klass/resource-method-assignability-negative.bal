@@ -35,9 +35,7 @@ service class Bar {
 }
 
 function testServiceObjectValue() {
-    // Below assignments is allowed as resource methods are not part of the type.
     Foo f = new Bar();
-    assertEquality(f.foo(), 32);
 
     Bar bar = service object {
         remote function hello() {
@@ -46,20 +44,4 @@ function testServiceObjectValue() {
 
         function foo() returns int => 52;
     };
-    assertEquality(bar.foo(), 52);
-}
-
-function assertEquality(any|error actual, any|error expected) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-
-    if expected === actual {
-        return;
-    }
-
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error("AssertionError",
-            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

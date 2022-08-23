@@ -177,8 +177,8 @@ public class ObjectConstructorTest {
         validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
                       117, 22);
         validateError(negativeResult, index++,
-                "no implementation found for the method 'onMessage' of object constructor " +
-                        "'object { function onMessage () returns (); }'", 127, 14);
+                "no implementation found for the method 'function onMessage () returns ()' of object " +
+                        "constructor 'object { function onMessage () returns (); }'", 127, 14);
         validateError(negativeResult, index++, "incompatible types: expected 'any & readonly', found 'stream<int>'",
                       140, 17);
         validateError(negativeResult, index++, "annotation not attached to a construct", 153, 14);
@@ -188,6 +188,10 @@ public class ObjectConstructorTest {
         validateError(negativeResult, index++, "missing object constructor expression", 154, 14);
         validateError(negativeResult, index++, "annotation not attached to a construct", 154, 18);
         validateError(negativeResult, index++, "missing semicolon token", 155, 1);
+        validateError(negativeResult, index++, "incompatible types: expected 'object { resource " +
+                "function get name() returns (); }', found 'isolated object { }'", 159, 7);
+        validateError(negativeResult, index++, "incompatible types: expected 'object { resource " +
+                "function get name() returns (); }', found 'isolated object { }'", 163, 7);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
