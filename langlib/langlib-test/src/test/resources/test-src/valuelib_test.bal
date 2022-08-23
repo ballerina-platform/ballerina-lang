@@ -2313,6 +2313,14 @@ function testCloneWithTypeWithAmbiguousUnion() {
     <string>checkpanic err.detail()["message"]);
 }
 
+public type Array ["array", 1];
+public type Mapping ["mapping", 2];
+function testCloneWithTypeWithTuples() returns error? {
+    Array|Mapping x = check (["mapping", 2]).cloneWithType();
+    assertTrue(x is Mapping);
+    assertFalse(x is Array);
+}
+
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
 type Student2 record {
