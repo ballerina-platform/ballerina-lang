@@ -85,7 +85,6 @@ import static org.testng.Assert.assertTrue;
  */
 public class TypeBuildersTest {
 
-    private SemanticModel model;
     private Types types;
     private final List<XMLTypeSymbol> xmlSubTypes = new ArrayList<>();
     private static final String ORG = "$anon";
@@ -95,7 +94,7 @@ public class TypeBuildersTest {
     @BeforeClass
     public void setup() {
         Project project = BCompileUtil.loadProject("test-src/typedefs_for_type_builders.bal");
-        model = getDefaultModulesSemanticModel(project);
+        SemanticModel model = getDefaultModulesSemanticModel(project);
         types = model.types();
 
         // Extracting the XML subtypes
