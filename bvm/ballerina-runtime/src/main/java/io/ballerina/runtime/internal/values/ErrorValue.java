@@ -70,6 +70,10 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final Object details;
 
+    private static final String INIT_FUNCTION = ".<init>";
+    private static final String START_FUNCTION = ".<start>";
+    private static final String STOP_FUNCTION = ".<stop>";
+
     private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
 
     public ErrorValue(BString message) {
@@ -346,11 +350,20 @@ public class ErrorValue extends BError implements RefValue {
     private void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
         String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
         String fileName = stackTraceElement.getFileName();
+        String methodName = Utils.decodeIdentifier(stackTraceElement.getMethodName());
 
         // clean file name from pkgName since we print the file name after the method name.
         fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
         fileName = fileName.replace("/", "-");
-        int index = pkgName.lastIndexOf("." + fileName);
+        int index;
+        boolean isInitOrStartOrStopFunction = methodName.equals(INIT_FUNCTION) || methodName.equals(START_FUNCTION) ||
+                methodName.equals(STOP_FUNCTION);
+        if (!isInitOrStartOrStopFunction) {
+            index = pkgName.lastIndexOf("." + fileName);
+        } else {
+            index = pkgName.lastIndexOf("." + MODULE_INIT_CLASS_NAME);
+        }
+
         if (index != -1) {
             pkgName = pkgName.substring(0, index);
         }
@@ -362,11 +375,14 @@ public class ErrorValue extends BError implements RefValue {
         }
 
         // Append the method name
-        sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
-        // Append the filename
-        sb.append("(").append(stackTraceElement.getFileName());
-        // Append the line number
-        sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
+        sb.append(methodName);
+
+        if (!isInitOrStartOrStopFunction) {
+            // Append the filename
+            sb.append("(").append(stackTraceElement.getFileName());
+            // Append the line number
+            sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
+        }
     }
 
     public String getPrintableError() {
