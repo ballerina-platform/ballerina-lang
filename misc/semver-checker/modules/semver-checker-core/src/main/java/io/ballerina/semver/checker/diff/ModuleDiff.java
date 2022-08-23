@@ -34,9 +34,7 @@ import io.ballerina.semver.checker.comparator.ModuleVariableComparator;
 import io.ballerina.semver.checker.comparator.ServiceComparator;
 import io.ballerina.semver.checker.comparator.TypeDefComparator;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents all the source code changes within a single Ballerina module.

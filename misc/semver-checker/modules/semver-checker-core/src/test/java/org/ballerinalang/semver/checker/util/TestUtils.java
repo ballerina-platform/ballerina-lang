@@ -18,11 +18,8 @@
 
 package org.ballerinalang.semver.checker.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.semver.checker.comparator.PackageComparator;
