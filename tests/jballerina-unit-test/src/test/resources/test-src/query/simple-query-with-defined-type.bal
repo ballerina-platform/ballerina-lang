@@ -83,7 +83,7 @@ class NumberGenerator {
 class NumberGeneratorWithError {
     int i = 0;
     public isolated function next() returns record {|int value;|}|error? {
-        if (self.i == 3) {
+        if (self.i == 2) {
             return error("Custom error thrown explicitly.");
         }
         self.i += 1;
@@ -94,7 +94,7 @@ class NumberGeneratorWithError {
 class NumberGeneratorWithError2 {
     int i = 0;
     public isolated function next() returns record {|int value;|}|error {
-        if (self.i == 3) {
+        if (self.i == 2) {
             return error("Custom error thrown explicitly.");
         }
         self.i += 1;
@@ -424,6 +424,31 @@ public function testQueryStreamWithDifferentCompletionTypes() {
 
     if !(oddNumberList3 is ErrorR1) {
         panic error("Expeted error, found: " + (typeof oddNumberList3).toString());
+    }
+
+    int[]|error oddNumberList4 = from int num1 in numberStream1
+        from int num2 in [1, 3, 5]
+        where num1 == num2
+        select num1;
+
+    if !(oddNumberList4 is error) {
+        panic error("Expeted error, found: " + (typeof oddNumberList4).toString());
+    }
+
+    stream<int, error?> numberStream5 = new (numGen1);
+
+    var oddNumberList5 = from int num in numberStream5
+        where (num % 2 == 1)
+        select num;
+
+    record {|int value;|}|error? next = oddNumberList5.next();
+    if next !is error {
+        assertEquality(1, next is null ? null : next.value);
+        next = oddNumberList5.next();
+    }
+
+    if !(next is error) {
+        panic error("Expeted error, found: " + (typeof oddNumberList5).toString());
     }
 }
 
