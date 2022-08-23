@@ -72,13 +72,20 @@ public class ServiceClassTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/klass/service_type_resource_method_decl_neg.bal");
         int index = 0;
-        validateError(result, index++, "no implementation found for the method 'function onMesage (anydata) returns ()' of class 'SClass'", 23, 1);
-        validateError(result, index++, "no implementation found for the method 'resource function get foo/[string]() returns ()' of class 'SClass'", 23, 1);
-        validateError(result, index++, "no implementation found for the method 'resource function get foo/bar() returns ()' of class 'SClass'", 23, 1);
-        validateError(result, index++, "no implementation found for the method 'resource function get foo() returns (string)' of class 'RTwo'", 34, 1);
-        validateError(result, index++, "no implementation found for the method 'resource function get foo() returns (string)' of class 'RTypeImpl'", 43, 1);
-        validateError(result, index++, "no implementation found for the method 'resource function do f() returns (int)' of class 'Do'", 56, 1);
-        validateError(result, index++, "no implementation found for the method 'resource function done f() returns (int)' of class 'Do'", 56, 1);
+        validateError(result, index++, "no implementation found for the method 'onMesage' of class 'SClass'",
+                23, 1);
+        validateError(result, index++, "no implementation found for the method 'resource function get " +
+                "foo/[string]() returns ()' of class 'SClass'", 23, 1);
+        validateError(result, index++, "no implementation found for the method 'resource function get " +
+                "foo/bar() returns ()' of class 'SClass'", 23, 1);
+        validateError(result, index++, "no implementation found for the method 'resource function get " +
+                "foo() returns (string)' of class 'RTwo'", 34, 1);
+        validateError(result, index++, "no implementation found for the method 'resource function get " +
+                "foo() returns (string)' of class 'RTypeImpl'", 43, 1);
+        validateError(result, index++, "no implementation found for the method 'resource function do " +
+                "f() returns (int)' of class 'Do'", 56, 1);
+        validateError(result, index++, "no implementation found for the method 'resource function done " +
+                "f() returns (int)' of class 'Do'", 56, 1);
         validateError(result, index++, "incompatible types: expected 'Foo', found 'Bar'", 80, 13);
         validateError(result, index++, "incompatible types: expected 'Foo', found 'Baz'", 88, 13);
         Assert.assertEquals(result.getErrorCount(), index);

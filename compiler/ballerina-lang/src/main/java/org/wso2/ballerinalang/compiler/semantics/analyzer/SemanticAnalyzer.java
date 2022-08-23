@@ -4546,11 +4546,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return;
         }
 
-        // There must be an implementation at the outer level, if the function is an interface.
         if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
-            // Here we use the whole function in the error msg since resource function name will contain `$`s if 
-            // we use the func.funcName
-            dlog.error(pos, code, func, func.symbol.receiverSymbol.type);
+            if (Symbols.isResource(func.symbol)) {
+                // Use the function signature in the error msg since resource function name will contain `$`s if
+                // we use the func.funcName
+                dlog.error(pos, code, func, func.symbol.receiverSymbol.type);
+            } else {
+                dlog.error(pos, code, func.funcName, func.symbol.receiverSymbol.type);
+            }
         }
     }
 
