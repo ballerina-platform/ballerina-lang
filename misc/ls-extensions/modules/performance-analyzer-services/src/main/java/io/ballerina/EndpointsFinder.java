@@ -35,9 +35,12 @@ import org.eclipse.lsp4j.Range;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
+import static io.ballerina.Constants.NEXT_NODE;
+import static io.ballerina.Constants.WORKERS;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
 
@@ -57,7 +60,7 @@ public class EndpointsFinder {
      * @return json of endpoints and invocations
      */
     public static JsonObject getEndpoints(String fileUri, WorkspaceManager workspaceManager,
-                                          Range range) {
+                                          Range range, boolean isWorkerSupported) {
 
         Path path = Path.of(fileUri);
         String file = StringUtils.substringAfterLast(fileUri, File.separator);
@@ -83,22 +86,38 @@ public class EndpointsFinder {
                 nodeVisitor.setDocument(document);
                 syntaxTree.rootNode().accept(nodeVisitor);
             }
-            if (!nodeVisitor.canGivePrediction()) {
-                return json;
-            }
 
             GsonBuilder builder = new GsonBuilder();
             builder.serializeNulls();
             Gson gson = builder.create();
 
-            HashMap<String, Object> endpointsAndActionInvocations = nodeVisitor.getActionInvocations();
-            Node actionInvocations = (Node) endpointsAndActionInvocations.get(ACTION_INVOCATION_KEY);
+            HashMap<String, Object> endpointsAndActionInvocations;
+            JsonObject actionInvocationsJson = new JsonObject();
+
+            if (isWorkerSupported) {
+                endpointsAndActionInvocations = nodeVisitor.getWorkers();
+                HashMap<?, ?> workers = (HashMap<?, ?>)
+                        endpointsAndActionInvocations.get(ACTION_INVOCATION_KEY);
+
+                JsonObject workersJson = new JsonObject();
+                for (Map.Entry<?, ?> worker : workers.entrySet()) {
+                    JsonObject workerJson = new JsonObject();
+                    workerJson.add(NEXT_NODE, gson.toJsonTree(((Node) worker.getValue()).getNextNode()));
+                    workersJson.add(worker.getKey().toString(), workerJson);
+                }
+                actionInvocationsJson.add(WORKERS, workersJson);
+            } else {
+                if (!nodeVisitor.canGivePrediction()) {
+                    return json;
+                }
+                endpointsAndActionInvocations = nodeVisitor.getActionInvocations();
+                Node actionInvocations = (Node) endpointsAndActionInvocations.get(ACTION_INVOCATION_KEY);
+
+                JsonElement nextNodesJson = gson.toJsonTree(actionInvocations.getNextNode());
+                actionInvocationsJson.add(NEXT_NODE, nextNodesJson);
+            }
 
             JsonElement endPointsJson = gson.toJsonTree(endpointsAndActionInvocations.get(ENDPOINTS_KEY));
-            JsonElement nextNodesJson = gson.toJsonTree(actionInvocations.getNextNode());
-            JsonObject actionInvocationsJson = new JsonObject();
-            actionInvocationsJson.add("nextNode", nextNodesJson);
-
             json.add(ENDPOINTS_KEY, endPointsJson);
             json.add(ACTION_INVOCATION_KEY, actionInvocationsJson);
 

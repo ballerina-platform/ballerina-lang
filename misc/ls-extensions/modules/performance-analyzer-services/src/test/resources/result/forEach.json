@@ -98,34 +98,38 @@
     }
   },
   "actionInvocations": {
-    "nextNode": {
-      "length": 2,
-      "forBody": {
-        "endPointRef": "${json-unit.ignore}",
-        "name": "get",
-        "path": null,
-        "pos": "forEach.bal/(29:41,29:93)",
-        "nextNode": null
-      },
-      "nextNode": {
-        "length": 3,
-        "forBody": {
-          "endPointRef": "${json-unit.ignore}",
-          "name": "post",
-          "path": "/",
-          "pos": "forEach.bal/(34:44,34:72)",
-          "nextNode": null
-        },
+    "workers": {
+      "mainWorker": {
         "nextNode": {
-          "length": 4,
+          "length": 2,
           "forBody": {
             "endPointRef": "${json-unit.ignore}",
-            "name": "post",
-            "path": "/",
-            "pos": "forEach.bal/(38:44,38:72)",
+            "name": "get",
+            "path": null,
+            "pos": "forEach.bal/(29:41,29:93)",
             "nextNode": null
           },
-          "nextNode": null
+          "nextNode": {
+            "length": 3,
+            "forBody": {
+              "endPointRef": "${json-unit.ignore}",
+              "name": "post",
+              "path": "/",
+              "pos": "forEach.bal/(34:44,34:72)",
+              "nextNode": null
+            },
+            "nextNode": {
+              "length": 4,
+              "forBody": {
+                "endPointRef": "${json-unit.ignore}",
+                "name": "post",
+                "path": "/",
+                "pos": "forEach.bal/(38:44,38:72)",
+                "nextNode": null
+              },
+              "nextNode": null
+            }
+          }
         }
       }
     }
