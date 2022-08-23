@@ -32,6 +32,7 @@ import io.ballerina.tools.text.TextRange;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,10 +52,11 @@ public class PackageDiagnostic extends Diagnostic {
     private List<DiagnosticProperty<?>> properties;
     private String message;
 
-    protected PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location) {
+    protected PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location, Object... args) {
         this.diagnosticInfo = diagnosticInfo;
         this.location = location;
         this.properties = Collections.emptyList();
+        this.message = MessageFormat.format(diagnosticInfo.messageFormat(), args);
     }
 
     private PackageDiagnostic(
