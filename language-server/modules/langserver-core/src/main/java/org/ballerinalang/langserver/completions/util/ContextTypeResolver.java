@@ -730,25 +730,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
                 return Optional.empty();
             }
-            Types types = context.currentSemanticModel().get().types();
-            TypeBuilder builder = types.builder();
-            List<TypeSymbol> unionTypeMembers = new ArrayList<>(
-                    List.of(builder.ARRAY_TYPE.withType(typeSymbol.get()).build(),
-                            builder.MAP_TYPE.withTypeParam(typeSymbol.get()).build(),
-                            builder.STREAM_TYPE.withValueType(typeSymbol.get()).build()));
-            if (CommonUtil.getRawType(typeSymbol.get()).typeKind() == TypeDescKind.RECORD) {
-                unionTypeMembers
-                        .add(builder.TABLE_TYPE.withRowType(CommonUtil.getRawType(typeSymbol.get())).build());
-            }
-            if (typeSymbol.get() instanceof StringTypeSymbol) {
-                unionTypeMembers.add(types.STRING);
-            }
-            if (typeSymbol.get().typeKind() == TypeDescKind.XML) {
-                unionTypeMembers.add(types.XML);
-            }
-            UnionTypeSymbol unionTypeSymbol = builder.UNION_TYPE
-                    .withMemberTypes(unionTypeMembers.toArray(TypeSymbol[]::new)).build();
-            return Optional.of(unionTypeSymbol);
+            
+            return Optional.of(buildUnionOfIterables(typeSymbol.get(), context.currentSemanticModel().get()));
         }
 
         // from <cursor> in iterable
@@ -760,29 +743,46 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             if (typeSymbol.isEmpty()) {
                 return typeSymbol;
             }
-            if (typeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
-                return Optional.of(((ArrayTypeSymbol) typeSymbol.get()).memberTypeDescriptor());
-            }
-            if (typeSymbol.get().typeKind() == TypeDescKind.STRING) {
-                return Optional.of(context.currentSemanticModel().get().types().STRING);
-            }
-            if (typeSymbol.get().typeKind() == TypeDescKind.TABLE) {
-                return Optional.of(((TableTypeSymbol) typeSymbol.get()).rowTypeParameter());
-            }
-            if (typeSymbol.get().typeKind() == TypeDescKind.STREAM) {
-                return Optional.of(((StreamTypeSymbol) typeSymbol.get()).typeParameter());
-            }
-            if (typeSymbol.get().typeKind() == TypeDescKind.XML) {
-                return Optional.of(context.currentSemanticModel().get().types().XML);
-            }
-            if (typeSymbol.get().typeKind() == TypeDescKind.MAP) {
-                return Optional.of(((MapTypeSymbol) typeSymbol.get()).typeParam());
+            switch (typeSymbol.get().typeKind()) {
+                case ARRAY:
+                    return Optional.of(((ArrayTypeSymbol) typeSymbol.get()).memberTypeDescriptor());
+                case STRING:
+                    return Optional.of(context.currentSemanticModel().get().types().STRING);
+                case TABLE:
+                    return Optional.of(((TableTypeSymbol) typeSymbol.get()).rowTypeParameter());
+                case STREAM:
+                    return Optional.of(((StreamTypeSymbol) typeSymbol.get()).typeParameter());
+                case XML:
+                    return Optional.of(context.currentSemanticModel().get().types().XML);
+                case MAP:
+                    return Optional.of(((MapTypeSymbol) typeSymbol.get()).typeParam());
             }
         }
-
+        
         return Optional.empty();
     }
 
+    private UnionTypeSymbol buildUnionOfIterables(TypeSymbol typeSymbol, SemanticModel semanticModel) {
+        Types types = semanticModel.types();
+        TypeBuilder builder = types.builder();
+        List<TypeSymbol> unionTypeMembers = new ArrayList<>(
+                List.of(builder.ARRAY_TYPE.withType(typeSymbol).build(),
+                        builder.MAP_TYPE.withTypeParam(typeSymbol).build(),
+                        builder.STREAM_TYPE.withValueType(typeSymbol).build()));
+        if (CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD) {
+            unionTypeMembers
+                    .add(builder.TABLE_TYPE.withRowType(CommonUtil.getRawType(typeSymbol)).build());
+        }
+        if (typeSymbol instanceof StringTypeSymbol) {
+            unionTypeMembers.add(types.STRING);
+        }
+        if (typeSymbol.typeKind() == TypeDescKind.XML) {
+            unionTypeMembers.add(types.XML);
+        }
+        return builder.UNION_TYPE
+                .withMemberTypes(unionTypeMembers.toArray(TypeSymbol[]::new)).build();
+    }
+    
     @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
         return this.visit(node.parent());
