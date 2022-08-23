@@ -18719,8 +18719,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-        identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode,
-                errorCode);
+        identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode, errorCode);
         return STNodeFactory.createCaptureBindingPatternNode(identifier);
     }
 
