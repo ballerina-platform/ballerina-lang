@@ -14,7 +14,7 @@ type C object {
 };
 
 type ServiceObject service object {
-     resource function get name() returns string;
+    resource function get name() returns string;
 };
 
 service class ServiceClass {

@@ -177,8 +177,8 @@ public class ObjectConstructorTest {
         validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
                       117, 22);
         validateError(negativeResult, index++,
-                "no implementation found for the method 'function onMessage () returns ()' of object " +
-                        "constructor 'object { function onMessage () returns (); }'", 127, 14);
+                "no implementation found for the method 'onMessage' of object constructor " +
+                        "'object { function onMessage () returns (); }'", 127, 14);
         validateError(negativeResult, index++, "incompatible types: expected 'any & readonly', found 'stream<int>'",
                       140, 17);
         validateError(negativeResult, index++, "annotation not attached to a construct", 153, 14);
