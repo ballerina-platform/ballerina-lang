@@ -82,6 +82,12 @@ public class ClassTest {
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, C, A, B]'", 6, 1);
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 12, 1);
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[C, A, B, C]'", 12, 1);
+        BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
+                "function get name() returns (string)' of class 'ServiceClass'", 20, 1);
+        BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
+                "function get name() returns (string)' of class 'ClientClass'", 28, 1);
+        BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
+                "function get name() returns (string)' of class 'ClientClass2'", 36, 1);
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
