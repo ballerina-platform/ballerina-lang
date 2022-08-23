@@ -9439,7 +9439,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = Types.getReferredType(accessExpr.originalType);
-            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType)) {
+            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType, false)) {
                 accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
             } else {
                 accessExpr.setBType(originalType);
@@ -9524,20 +9524,11 @@ public class Desugar extends BLangNodeVisitor {
         pushToMatchStatementStack(matchStmt, successClause, pos);
     }
 
-    private boolean isMapJson(BType originalType) {
-        if (originalType.tag != TypeTags.MAP) {
-            return false;
+    private boolean isMapJson(BType originalType, boolean fromMap) {
+        if (originalType.tag == TypeTags.MAP) {
+            return isMapJson(((BMapType) originalType).getConstraint(), true);
         }
-        BType constraintType = getConstraintType((BMapType) originalType);
-        return constraintType.tag == TypeTags.JSON;
-    }
-
-    private BType getConstraintType(BMapType mapType) {
-        BType constraintType = mapType.getConstraint();
-        if (constraintType.tag == TypeTags.MAP) {
-            return getConstraintType((BMapType) constraintType);
-        }
-        return constraintType;
+        return originalType.tag == TypeTags.JSON && fromMap;
     }
 
     private void pushToMatchStatementStack(BLangMatchStatement matchStmt, BLangMatchClause successClause,
