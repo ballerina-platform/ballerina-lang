@@ -47,3 +47,66 @@ function testVariableNameFieldAsKeyField() {
         {idNum: 2, name: "Amy"}
     ];
 }
+
+function testVariableNameFieldAsKeyField2() {
+    table<record {readonly int idNum = 1; string name;}> key (idNum) _ = table [
+        { name: "Jo" },
+        { name: "Chiran" },
+        { idNum: 2, name: "Amy" }
+    ];
+}
+
+type Foo2 record {
+    readonly int a = 1;
+    int b;
+};
+
+type GlobalTable3 table<Foo2> key(a);
+
+function testTableConstructExprWithDuplicateDefaultKeys() {
+    GlobalTable3 _ = table [
+        { a: 2, b: 5 },
+        { a: 2, b: 5 },
+        { b: 3 },
+        { b: 5 }
+    ];
+}
+
+type Foo3 record {
+    readonly int a = 1;
+    readonly string b = "A";
+};
+
+type GlobalTable4 table<Foo3> key(a,b);
+
+function testTableConstructExprWithDuplicateDefaultKeys2() {
+    GlobalTable4 _ = table [
+        { a: 2, b: "" },
+        { a: 2, b: "" },
+        { b: "" },
+        { b: "" }
+    ];
+}
+
+function testTableConstructExprWithDuplicateDefaultKeys3() {
+    GlobalTable4 _ = table [
+        {},
+        {}
+    ];
+}
+
+type Foo4 record {
+    readonly map<string> m = {"AAA":"DDDD"};
+    readonly int key = 23;
+};
+
+type GlobalTable5 table<Foo4> key(m, key);
+
+function testTableConstructExprWithDuplicateDefaultKeys4() {
+    GlobalTable5 _ = table [
+      { key: 31 },
+      { key: 31 },
+      {},
+      {}
+    ];
+}

@@ -67,6 +67,11 @@ public class TableWithRecordKeySpecifierTest {
         BRunUtil.invoke(result, "runTableTestcasesWithVarType");
     }
 
+    @Test(description = "Test table with default record fields as key fields")
+    public void testTableWithDefaultValueFieldAsKeyField() {
+        BRunUtil.invoke(result, "runTestCasesWithDefaultValueFieldAsKeyField");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
