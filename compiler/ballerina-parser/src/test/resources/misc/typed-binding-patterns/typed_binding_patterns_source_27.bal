@@ -1,6 +1,3 @@
-type Arr [int, int];
-type Arr2 [int, int, int];
-
 public function testListBindingPatternWithInvalidMember() {
     Arr [x, jwt:Payload] = [];
     Arr [jwt:Header, y] = [];
