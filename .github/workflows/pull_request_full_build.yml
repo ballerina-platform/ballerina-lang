@@ -67,28 +67,6 @@ jobs:
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
           do git clone https://github.com/ballerina-platform/${module_name}.git; \
           done
-#      - name: Checkout to Branch
-#        run: |
-#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-#          echo $module_name && \
-#          VERSION_KEY=$(jq -r ".standard_library | .[] | select(.name==\"$module_name\") | .version_key" extensions.json) && \
-#          VERSION=$((grep -w $VERSION_KEY | cut -d= -f2) < gradle.properties) && \
-#          version_split=($(echo $VERSION | tr "-" "\n")) && \
-#          length=${#version_split[@]} && \
-#          if [ $(($length)) -gt 1 ]; \
-#          then cd $module_name && git checkout -b full-build ${version_split[@]:(-1)} && cd .. || echo "Could not found commit ${version_split[@]:(-1)}"; \
-#          elif [ "$VERSION" != "" ]; \
-#          then cd $module_name && git checkout v$VERSION && cd .. || "Could not found branch v$VERSION"; \
-#          else echo "$module_name is not packed with distribution."; \
-#          fi && \
-#          if [ "$module_name" == "module-ballerinai-transaction" ]; \
-#          then cd $module_name && git checkout 1.0.x && cd .. || echo "Could not found branch 1.0.x"; \
-#          fi && \
-#          if [ "$module_name" == "module-ballerina-websubhub" ]; \
-#          then cd $module_name && git checkout 2201.0.x && cd .. || echo "Could not found branch 2201.0.x"; \
-#          fi && \
-#          echo "---------------------------------------------------"; \
-#          done
       - name: Update Lang Version in Module
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
