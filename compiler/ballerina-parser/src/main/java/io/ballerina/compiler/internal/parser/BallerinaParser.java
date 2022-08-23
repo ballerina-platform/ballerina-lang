@@ -10004,10 +10004,13 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
                 reportInvalidQualifiersOnClientDecl(publicQualifier, qualifiers);
-                return parseClientDeclaration(moduleDecl && metadata != null ?
-                                                      getAnnotations(((STMetadataNode) metadata).annotations) :
-                                                      getAnnotations(metadata),
-                                              qualifiers.get(qualifiers.size() - 1), moduleDecl);
+                STNode clientKeyword = qualifiers.get(qualifiers.size() - 1);
+
+                if (metadata != null && metadata.kind == SyntaxKind.METADATA) {
+                    return parseModuleClientDeclaration((STMetadataNode) metadata, clientKeyword);
+                }
+
+                return parseClientDeclaration(getAnnotations(metadata), clientKeyword, moduleDecl);
             case OBJECT_KEYWORD:
                 if (moduleDecl) {
                     return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
@@ -10019,6 +10022,26 @@ public class BallerinaParser extends AbstractParser {
                 recover(nextToken, ParserRuleContext.CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL);
                 return parseClientDeclOrVarDecl(metadata, publicQualifier, qualifiers, moduleDecl);
         }
+    }
+
+    private STNode parseModuleClientDeclaration(STMetadataNode metadata, STNode clientKeyword) {
+        STNode annotations = getAnnotations(metadata.annotations);
+        STNode documentationString = metadata.documentationString;
+
+        if (documentationString == null) {
+            return parseClientDeclaration(annotations, clientKeyword, true);
+        }
+
+        if (isNodeListEmpty(annotations)) {
+            clientKeyword =
+                    SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(clientKeyword, documentationString,
+                                                                     DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
+        } else {
+            annotations =
+                    SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(annotations, documentationString,
+                                                                     DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
+        }
+        return parseClientDeclaration(annotations, clientKeyword, true);
     }
 
     private void reportInvalidQualifiersOnClientDecl(STNode publicQualifier, List<STNode> qualifiers) {

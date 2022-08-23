@@ -176,7 +176,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "client_resource_access_action_source_05.bal", "client_resource_access_action_source_06.bal", 
                 "resiliency_source_05.bal", "client_decl_stmt_source_08.bal", "client_decl_stmt_source_13.bal",
                 "client_decl_source_08.bal", "client_decl_source_09.bal", "client_decl_source_13.bal",
-                "invalid_usage_of_client_keyword_as_identifier_source.bal");
+                "client_decl_source_14.bal", "invalid_usage_of_client_keyword_as_identifier_source.bal");
     }
 
     @DataProvider(name = "test-file-provider")
