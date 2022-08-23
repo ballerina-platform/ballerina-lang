@@ -15948,7 +15948,7 @@ public class BallerinaParser extends AbstractParser {
         if (argNameOrBindingPattern.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, argNameOrBindingPattern,
-                    DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
+                    DiagnosticErrorCode.ERROR_FIELD_BP_INSIDE_LIST_BP);
             return STNodeFactory.createCaptureBindingPatternNode(identifier);
         }
 
@@ -16895,15 +16895,9 @@ public class BallerinaParser extends AbstractParser {
                 STNode variableName = STNodeFactory.createCaptureBindingPatternNode(identifierToken);
                 return STNodeFactory.createTypedBindingPatternNode(arrayTypeDesc, variableName);
             }
-            
-            if (member.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                // Invalidate Field binding pattern inside list binding pattern
-                openBracket = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(openBracket, member,
-                        DiagnosticErrorCode.ERROR_FIELD_BP_INSIDE_LIST_BP);
-            } else {
-                STNode bindingPattern = getBindingPattern(member, false);
-                bindingPatterns = STNodeFactory.createNodeList(bindingPattern);
-            }
+
+            STNode bindingPattern = getBindingPattern(member, true);
+            bindingPatterns = STNodeFactory.createNodeList(bindingPattern);
         }
 
         STNode bindingPattern = STNodeFactory.createListBindingPatternNode(openBracket, bindingPatterns, closeBracket);
@@ -18882,6 +18876,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode getBindingPattern(STNode ambiguousNode, boolean isListBP) {
+        DiagnosticCode errorCode = DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN;
+
         if (isEmpty(ambiguousNode)) {
             return ambiguousNode;
         }
@@ -18902,6 +18898,7 @@ public class BallerinaParser extends AbstractParser {
                 return createCaptureOrWildcardBP(varName);
             case QUALIFIED_NAME_REFERENCE:
                 if (isListBP) {
+                    errorCode = DiagnosticErrorCode.ERROR_FIELD_BP_INSIDE_LIST_BP;
                     break;
                 }
                 STQualifiedNameReferenceNode qualifiedName = (STQualifiedNameReferenceNode) ambiguousNode;
@@ -18961,9 +18958,10 @@ public class BallerinaParser extends AbstractParser {
                 STRestArgumentNode restArg = (STRestArgumentNode) ambiguousNode;
                 return STNodeFactory.createRestBindingPatternNode(restArg.ellipsis, restArg.expression);
         }
+
         STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
         identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode,
-                DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
+                errorCode);
         return STNodeFactory.createCaptureBindingPatternNode(identifier);
     }
 
