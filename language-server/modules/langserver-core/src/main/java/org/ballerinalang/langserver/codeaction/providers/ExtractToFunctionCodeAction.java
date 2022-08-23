@@ -405,10 +405,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
     private String getReplaceFunctionCall(CodeActionContext context, String functionName) {
         List<Symbol> varNamesWithinTheRange = getVarSymbolsWithinRangeForExpressions(context);
-        List<String> args = varNamesWithinTheRange.stream()
+        List<String> args = context.nodeAtRange().kind() != SyntaxKind.LET_EXPRESSION ? varNamesWithinTheRange.stream()
                 .map(Symbol::getName)
                 .filter(Optional::isPresent)
-                .map(Optional::get).collect(Collectors.toList());
+                .map(Optional::get).collect(Collectors.toList()) : Collections.emptyList();
         StringBuilder fnBuilder = new StringBuilder();
         fnBuilder.append(functionName)
                 .append(CommonKeys.OPEN_PARENTHESES_KEY)
@@ -435,17 +435,19 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         List<String> args = new ArrayList<>();
         List<Symbol> varAndParamSymbolsWithinRange = getVarSymbolsWithinRangeForExpressions(context);
 
-        varAndParamSymbolsWithinRange.forEach(symbol -> {
-            if (symbol.kind() == SymbolKind.VARIABLE) {
-                VariableSymbol variableSymbol = (VariableSymbol) symbol;
-                TypeSymbol rawType = CommonUtil.getRawType(variableSymbol.typeDescriptor());
-                args.add(rawType.signature() + " " + symbol.getName().get());
-            } else if (symbol.kind() == SymbolKind.PARAMETER) {
-                Optional<String> possibleType = CodeActionUtil
-                        .getPossibleType(((ParameterSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
-                args.add(possibleType.get() + " " + symbol.getName().get());
-            }
-        });
+        if (nodeAtRange.kind() != SyntaxKind.LET_EXPRESSION) {
+            varAndParamSymbolsWithinRange.forEach(symbol -> {
+                if (symbol.kind() == SymbolKind.VARIABLE) {
+                    VariableSymbol variableSymbol = (VariableSymbol) symbol;
+                    TypeSymbol rawType = CommonUtil.getRawType(variableSymbol.typeDescriptor());
+                    args.add(rawType.signature() + " " + symbol.getName().get());
+                } else if (symbol.kind() == SymbolKind.PARAMETER) {
+                    Optional<String> possibleType = CodeActionUtil
+                            .getPossibleType(((ParameterSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
+                    args.add(possibleType.get() + " " + symbol.getName().get());
+                }
+            });
+        }
 
         String returnsClause = String.format("returns %s", typeSymbol.signature());
         String returnStatement;

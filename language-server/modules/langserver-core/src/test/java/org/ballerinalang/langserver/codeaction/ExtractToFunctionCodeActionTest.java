@@ -100,12 +100,12 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 //  expressions by range
                 {"extract_to_function_exprs_numeric_literal.json"},
-//                {"extract_to_function_exprs_binary_expr.json"}, // fails
-                {"extract_to_function_exprs_range_binary_expr_selecting_plus_token.json"},
+//                {"extract_to_function_exprs_binary_expr.json"},
+                {"extract_to_function_exprs_binary_expr_selecting_plus_token.json"},
                 {"extract_to_function_exprs_braced_expr.json"},
                 {"extract_to_function_exprs_qual_name_ref.json"},
                 {"extract_to_function_exprs_indexed_expr.json"},
-                {"extract_to_function_exprs_range_indexed_expr_selecting_open_bracket.json"},
+                {"extract_to_function_exprs_indexed_expr_selecting_open_bracket.json"},
                 {"extract_to_function_exprs_field_access_expr_record.json"},
                 {"extract_to_function_exprs_field_access_expr_object.json"},
                 {"extract_to_function_exprs_method_call.json"},
@@ -113,11 +113,14 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_mapping_constructor_local.json"},
                 {"extract_to_function_exprs_typeof_expr.json"},
                 {"extract_to_function_exprs_unary_expr.json"},
-                {"extract_to_function_exprs_range_unary_expr_selecting_unaryOperator.json"},
+                {"extract_to_function_exprs_unary_expr_selecting_unaryOperator.json"},
                 {"extract_to_function_exprs_typeTest_expr.json"},
                 {"extract_to_function_exprs_list_constructor.json"},
                 {"extract_to_function_exprs_typecast_expr.json"},
                 {"extract_to_function_exprs_table_constructor.json"},
+                {"extract_to_function_exprs_let_expr.json"},
+                {"extract_to_function_exprs_let_expr_selecting_expression.json"},
+                {"extract_to_function_exprs_let_expr_selecting_let_var_decl_expr.json"},
                 {"extract_to_function_exprs_implicit_new_expr.json"},
                 {"extract_to_function_exprs_explicit_new_expr.json"},
                 {"extract_to_function_exprs_object_constructor.json"},
@@ -142,6 +145,15 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_pos_typeof_expr_typeof_kw.json"},
                 {"extract_to_function_exprs_pos_typeof_expr_expression.json"},
                 {"extract_to_function_exprs_pos_unary_expr_expression.json"},
+                {"extract_to_function_exprs_pos_type_test_expr_is_kw.json"},
+                {"extract_to_function_exprs_pos_type_cast_expr_expression.json"},
+                {"extract_to_function_exprs_pos_table_cons_expression_table_kw.json"},
+                {"extract_to_function_exprs_pos_implicit_new_expr_new_kw.json"},
+                {"extract_to_function_exprs_pos_explicit_new_expr_new_kw.json"},
+                {"extract_to_function_exprs_pos_object_cons_object_kw.json"}, // check for isolate kw
+                {"extract_to_function_exprs_pos_error_cons_error_kw.json"},
+                {"extract_to_function_exprs_pos_let_expr_let_kw.json"},
+                {"extract_to_function_exprs_pos_let_expr_in_kw.json"},
         };
     }
 
