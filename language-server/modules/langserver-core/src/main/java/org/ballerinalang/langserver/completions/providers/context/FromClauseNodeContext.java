@@ -124,18 +124,16 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
                 TypeDescKind.STREAM, TypeDescKind.XML);
 
         Optional<TypeSymbol> expectedTypeSymbol = context.getContextType();
-        if (context.getCursorPositionInTree() > node.inKeyword().position()) {
+        if (context.getCursorPositionInTree() >= node.inKeyword().textRange().endOffset()) {
             completionItems.forEach(lsCItem -> {
-                String sortText = SortingUtil.genSortText(3) +
-                        SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
-                if (expectedTypeSymbol.isPresent()
-                        && SortingUtil.isCompletionItemAssignable(lsCItem, expectedTypeSymbol.get())) {
-                    sortText = SortingUtil.genSortText(1)
-                            + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
+                int rank = 3;
+                if (expectedTypeSymbol.isPresent()) {
+                    rank = 1;
                 } else if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
-                    sortText = SortingUtil.genSortText(1)
-                            + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem, 2));
+                    rank = 2;
                 }
+                String sortText = SortingUtil.genSortText(rank) +
+                        SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
                 lsCItem.getCompletionItem().setSortText(sortText);
             });
         } else if (onTypedBindingPatternContext(context, node)) {
