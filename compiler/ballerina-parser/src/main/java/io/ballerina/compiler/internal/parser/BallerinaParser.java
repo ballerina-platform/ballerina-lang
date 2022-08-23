@@ -9996,15 +9996,20 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseClientDeclOrVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers,
-                                            boolean isModuleVar) {
+                                            boolean moduleDecl) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
                 reportInvalidQualifiersOnClientDecl(publicQualifier, qualifiers);
-                return parseClientDeclaration(getAnnotations(metadata), qualifiers.get(qualifiers.size() - 1),
-                                              isModuleVar);
+                STNode clientKeyword = qualifiers.get(qualifiers.size() - 1);
+
+                if (metadata != null && metadata.kind == SyntaxKind.METADATA) {
+                    return parseModuleClientDeclaration((STMetadataNode) metadata, clientKeyword);
+                }
+
+                return parseClientDeclaration(getAnnotations(metadata), clientKeyword, moduleDecl);
             case OBJECT_KEYWORD:
-                if (isModuleVar) {
+                if (moduleDecl) {
                     return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
                 }
 
@@ -10012,8 +10017,28 @@ public class BallerinaParser extends AbstractParser {
                                          false);
             default:
                 recover(nextToken, ParserRuleContext.CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL);
-                return parseClientDeclOrVarDecl(metadata, publicQualifier, qualifiers, isModuleVar);
+                return parseClientDeclOrVarDecl(metadata, publicQualifier, qualifiers, moduleDecl);
         }
+    }
+
+    private STNode parseModuleClientDeclaration(STMetadataNode metadata, STNode clientKeyword) {
+        STNode annotations = getAnnotations(metadata.annotations);
+        STNode documentationString = metadata.documentationString;
+
+        if (documentationString == null) {
+            return parseClientDeclaration(annotations, clientKeyword, true);
+        }
+
+        if (isNodeListEmpty(annotations)) {
+            clientKeyword =
+                    SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(clientKeyword, documentationString,
+                                                                     DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
+        } else {
+            annotations =
+                    SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(annotations, documentationString,
+                                                                     DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
+        }
+        return parseClientDeclaration(annotations, clientKeyword, true);
     }
 
     private void reportInvalidQualifiersOnClientDecl(STNode publicQualifier, List<STNode> qualifiers) {
@@ -10037,7 +10062,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return client declaration node
      */
-    private STNode parseClientDeclaration(STNode annotations, STNode clientKeyword, boolean isModuleDecl) {
+    private STNode parseClientDeclaration(STNode annotations, STNode clientKeyword, boolean moduleDecl) {
         startContext(ParserRuleContext.CLIENT_DECLARATION);
         STNode clientDeclUri = parseStringLiteral();
         STNode asKeyword = parseAsKeyword();
@@ -10045,7 +10070,7 @@ public class BallerinaParser extends AbstractParser {
         STNode semicolon = parseSemicolon();
         endContext();
 
-        if (isModuleDecl) {
+        if (moduleDecl) {
             return STNodeFactory.createModuleClientDeclarationNode(annotations, clientKeyword, clientDeclUri, asKeyword,
                                                                    prefix, semicolon);
         }

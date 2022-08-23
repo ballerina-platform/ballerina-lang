@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttach
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -74,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -148,6 +150,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -408,6 +411,36 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode, AnalyzerData data) {
         analyzeNode(xmlnsStmtNode.xmlnsDecl, data);
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDeclaration, AnalyzerData data) {
+        SymbolEnv currentEnv = data.env;
+        symbolEnter.defineNode(clientDeclaration, currentEnv);
+
+        BClientDeclarationSymbol symbol = (BClientDeclarationSymbol) clientDeclaration.symbol;
+
+        List<BLangAnnotationAttachment> annAttachments = clientDeclaration.annAttachments;
+
+        for (BLangAnnotationAttachment annotationAttachment : annAttachments) {
+            // TODO: 2022-08-12 Update to proper point once finalized.
+            annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+            annotationAttachment.accept(this, data);
+
+            BAnnotationAttachmentSymbol annotationAttachmentSymbol = annotationAttachment.annotationAttachmentSymbol;
+            if (annotationAttachmentSymbol != null) {
+                symbol.addAnnotation(annotationAttachmentSymbol);
+            }
+        }
+        validateAnnotationAttachmentCount(annAttachments);
+
+        typeChecker.checkExpr(clientDeclaration.uri, currentEnv, symTable.stringType, data.prevEnvs,
+                              data.commonAnalyzerData);
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement, AnalyzerData data) {
+        analyzeNode(clientDeclarationStatement.clientDeclaration, data);
     }
 
     @Override
