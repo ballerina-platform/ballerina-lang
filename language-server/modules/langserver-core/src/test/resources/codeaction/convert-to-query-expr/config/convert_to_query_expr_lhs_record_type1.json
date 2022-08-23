@@ -12,15 +12,15 @@
         {
           "range": {
             "start": {
-              "line": 1,
-              "character": 4
+              "line": 9,
+              "character": 19
             },
             "end": {
-              "line": 1,
-              "character": 7
+              "line": 9,
+              "character": 22
             }
           },
-          "newText": "boolean"
+          "newText": "from var item in ids select {username: \"\", firstName: \"\", lastName: \"\", email: \"\"}"
         }
       ]
     }

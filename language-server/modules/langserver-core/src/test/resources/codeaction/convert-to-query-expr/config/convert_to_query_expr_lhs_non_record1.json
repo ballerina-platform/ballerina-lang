@@ -12,15 +12,15 @@
         {
           "range": {
             "start": {
-              "line": 1,
-              "character": 4
+              "line": 9,
+              "character": 25
             },
             "end": {
-              "line": 1,
-              "character": 7
+              "line": 9,
+              "character": 30
             }
           },
-          "newText": "boolean"
+          "newText": "from var item in users select item"
         }
       ]
     }
