@@ -135,13 +135,9 @@ function testTupleWithVar() {
     //assertEquality(<(int|string)[]> [1, "hello", "world"], i);
     //assertEquality(<(int|string)[]> [1, "hello", "world"], j);
 }
-public const annotation member on field;
 
-type T [int, @member int, string...];
-
-function testTupleAnnot() returns T {
-    T x =  [1, 2, "hello", "world"];
-    return x;
+function testTupleAnnot() returns any {
+    return tuples:returnTupleAnnot();
 }
 
 function assertTrue(any|error actual) {

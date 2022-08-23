@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+public const annotation member on field;
+
+public type T [int, @member int, string...];
+
+public function returnTupleAnnot() returns T {
+    T x =  [1, 2, "hello", "world"];
+    return x;
+}
+
 public function getTupleWithMemberAndRestDesc() returns [int, string...] {
     return [1, "hello", "world"];
 }

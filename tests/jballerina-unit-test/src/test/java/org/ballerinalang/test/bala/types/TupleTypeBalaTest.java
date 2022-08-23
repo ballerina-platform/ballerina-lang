@@ -91,6 +91,7 @@ public class TupleTypeBalaTest {
                 "(string|boolean)...]'", 27, 27);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
+
     @Test
     public void testTupleAnnotations() {
         Object returns = BRunUtil.invoke(result, "testTupleAnnot", new Object[]{});
@@ -100,7 +101,7 @@ public class TupleTypeBalaTest {
         Object annot = ((BAnnotatableType) t).getAnnotation(StringUtils.fromString("$field$.1"));
 
         BMap<BString, Object> expected = ValueCreator.createMapValue();
-        expected.put(StringUtils.fromString("member"), true);
+        expected.put(StringUtils.fromString("tuples/tuple_type_project:0:member"), true);
 
         Assert.assertEquals(annot, expected);
     }
