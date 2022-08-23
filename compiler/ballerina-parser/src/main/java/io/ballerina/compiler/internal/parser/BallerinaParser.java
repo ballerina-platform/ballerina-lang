@@ -10033,13 +10033,11 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (isNodeListEmpty(annotations)) {
-            clientKeyword =
-                    SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(clientKeyword, documentationString,
+            clientKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(clientKeyword, documentationString,
                                                                      DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
         } else {
-            annotations =
-                    SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(annotations, documentationString,
-                                                                     DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
+            annotations = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(annotations, documentationString,
+                                                                   DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
         }
         return parseClientDeclaration(annotations, clientKeyword, true);
     }
