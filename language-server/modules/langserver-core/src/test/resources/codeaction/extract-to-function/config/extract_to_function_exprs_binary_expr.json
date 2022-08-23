@@ -1,12 +1,12 @@
 {
   "range": {
     "start": {
-      "line": 5,
-      "character": 16
+      "line": 4,
+      "character": 19
     },
     "end": {
-      "line": 5,
-      "character": 55
+      "line": 4,
+      "character": 28
     }
   },
   "source": "extract_to_function_exprs_binary_expr.bal",
@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int param, int moduleVar, int localVar) returns int {\n    return constant + moduleVar + param + localVar;\n}"
+          "newText": "\n\nfunction extracted(int param) returns int {\n    return 1 + param;\n}"
         },
         {
           "range": {
@@ -39,7 +39,7 @@
               "character": 55
             }
           },
-          "newText": "extracted(param, moduleVar, localVar)"
+          "newText": "extracted(param)"
         }
       ]
     }
