@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,6 +22,11 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
+/**
+ * Tests the convert to query expression code action.
+ *
+ * @since 2201.2.1
+ */
 public class ConvertToQueryExpressionCodeActionTest extends AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
@@ -41,6 +46,7 @@ public class ConvertToQueryExpressionCodeActionTest extends AbstractCodeActionTe
                 {"convert_to_query_expr_lhs_record_field2.json"},
                 {"convert_to_query_expr_lhs_class_field1.json"},
                 {"convert_to_query_expr_lhs_class_field2.json"},
+                {"convert_to_query_expr_lhs_record_field_incompatible_types1.json"}
         };
     }
 

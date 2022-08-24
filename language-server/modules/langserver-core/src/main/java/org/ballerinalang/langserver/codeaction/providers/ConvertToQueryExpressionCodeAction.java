@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,7 +29,12 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -41,6 +46,7 @@ import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionP
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -49,6 +55,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Code action provider to convert RHS variable assignment to a query expression when both LHS and RHS types are
+ * arrays. If the LHS is an array of records, we provide the default value for the record in the select clause.
+ *
+ * @since 2201.2.1
+ */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionProvider {
 
@@ -69,13 +81,14 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
             return Collections.emptyList();
         }
 
-        Optional<LhsRhsSymbolInfo> symbolInfo = getLhsAndRhsSymbolInfo(matchedNode, context);
-        if (symbolInfo.isEmpty()) {
+        Optional<LhsRhsSymbolInfo> optSymbolInfo = getLhsAndRhsSymbolInfo(matchedNode, context);
+        if (optSymbolInfo.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Symbol lhsSymbol = symbolInfo.get().lhsSymbol;
-        Symbol rhsSymbol = symbolInfo.get().rhsSymbol;
+        LhsRhsSymbolInfo symbolInfo = optSymbolInfo.get();
+        Symbol lhsSymbol = symbolInfo.lhsSymbol;
+        Symbol rhsSymbol = symbolInfo.rhsSymbol;
         Optional<TypeSymbol> rhsType = SymbolUtil.getTypeDescriptor(rhsSymbol);
         Optional<TypeSymbol> lhsType = SymbolUtil.getTypeDescriptor(lhsSymbol);
 
@@ -91,39 +104,52 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
         TypeSymbol lhsMemberType = CommonUtil.getRawType(((ArrayTypeSymbol) lhsType.get()).memberTypeDescriptor());
         TypeSymbol rhsMemberType = CommonUtil.getRawType(((ArrayTypeSymbol) rhsType.get()).memberTypeDescriptor());
 
+        String queryExpr = null;
+        Range range = PositionUtil.toRange(symbolInfo.rhsNode.lineRange());
+
         // If rhs member type is a subtype, then solution is straight forward
         if (rhsMemberType.subtypeOf(lhsMemberType)) {
             // lhs = from var item in lhs select item;
-            String query = String.format("from var item in %s select item", rhsSymbol.getName().get());
-            List<TextEdit> edits = new ArrayList<>();
-            Range range = PositionUtil.toRange(symbolInfo.get().rhsNode.lineRange());
-            edits.add(new TextEdit(range, query));
-            CodeAction codeAction = CodeActionUtil.createCodeAction("Convert to query expression",
-                    edits, context.fileUri(), CodeActionKind.QuickFix);
-            return List.of(codeAction);
+            queryExpr = String.format("from var item in %s select item", rhsSymbol.getName().get());
         }
 
         // LHS and RHS are different.
         // If LHS is a record, we have to generate the default value for that
-        // Else, we have to just generate the query expression
-        if (lhsMemberType.typeKind() == TypeDescKind.RECORD) {
+        if (queryExpr == null && lhsMemberType.typeKind() == TypeDescKind.RECORD) {
             Optional<String> defaultVal = DefaultValueGenerationUtil.getDefaultValueForType(lhsMemberType);
             if (defaultVal.isPresent()) {
-                String query = String.format("from var item in %s select %s", rhsSymbol.getName().get(), defaultVal.get());
-                List<TextEdit> edits = new ArrayList<>();
-                Range range = PositionUtil.toRange(symbolInfo.get().rhsNode.lineRange());
-                edits.add(new TextEdit(range, query));
-                CodeAction codeAction = CodeActionUtil.createCodeAction("Convert to query expression",
-                        edits, context.fileUri(), CodeActionKind.QuickFix);
-                return List.of(codeAction);
+                queryExpr = String.format("from var item in %s select %s", rhsSymbol.getName().get(), defaultVal.get());
             }
         }
 
-        String selectExpr = "item";
-        String query = String.format("from var item in %s select %s", rhsSymbol.getName().get(), selectExpr);
+        // Else, we have to just generate the query expression
+        if (queryExpr == null) {
+            String selectExpr = "item";
+            queryExpr = String.format("from var item in %s select %s", rhsSymbol.getName().get(), selectExpr);
+        }
+        try {
+            // Format and trim whitespaces
+            queryExpr = Formatter.format(queryExpr).trim();
+        } catch (FormatterException e) {
+            // We log the error and move on
+            LSClientLogger.getInstance(context.languageServercontext()).logError(LSContextOperation.TXT_CODE_ACTION,
+                    "Failed to format query expression", e, null, (Position) null);
+        }
+
+        // The formatter will indend the 2nd line (with select clause) by a single tab since we formatted only the
+        // query expression. So, we have to explicitly add more padding. Then rejoin by the line separator to get
+        // the final output.
+        int offset = symbolInfo.lhsNode.lineRange().startLine().offset();
+        String[] lines = queryExpr.split(CommonUtil.LINE_SEPARATOR);
+        for (int i = 0; i < lines.length; i++) {
+            if (i > 0) {
+                lines[i] = StringUtils.repeat(' ', offset) + lines[i];
+            }
+        }
+        queryExpr = String.join(CommonUtil.LINE_SEPARATOR, lines);
+
         List<TextEdit> edits = new ArrayList<>();
-        Range range = PositionUtil.toRange(symbolInfo.get().rhsNode.lineRange());
-        edits.add(new TextEdit(range, query));
+        edits.add(new TextEdit(range, queryExpr));
         CodeAction codeAction = CodeActionUtil.createCodeAction("Convert to query expression",
                 edits, context.fileUri(), CodeActionKind.QuickFix);
         return List.of(codeAction);
@@ -141,16 +167,17 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
     private Optional<LhsRhsSymbolInfo> getLhsAndRhsSymbolInfo(NonTerminalNode matchedNode, CodeActionContext context) {
         Optional<Symbol> rhsSymbol = Optional.empty();
         Optional<Symbol> lhsSymbol = Optional.empty();
+        NonTerminalNode rhsNode = null;
         Node lhsNode = null;
-        Node rhsNode = null;
+
         SemanticModel semanticModel = context.currentSemanticModel().get();
         if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode node = (VariableDeclarationNode) matchedNode;
-            rhsSymbol = semanticModel.symbol(node.initializer().get());
             rhsNode = node.initializer().get();
-            lhsSymbol = semanticModel.symbol(node.typedBindingPattern())
-                    .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
+            rhsSymbol = semanticModel.symbol(rhsNode);
             lhsNode = node.typedBindingPattern();
+            lhsSymbol = semanticModel.symbol(lhsNode)
+                    .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
         } else if (matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             // There can be 2 types here: Variable assignments and field access expressions.
             // 1. list = otherList;
@@ -170,34 +197,34 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
             rhsNode = node.expression();
         } else if (matchedNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
             SpecificFieldNode node = (SpecificFieldNode) matchedNode;
-            lhsSymbol = semanticModel.symbol(node.fieldName())
-                    .filter(symbol -> symbol.kind() == SymbolKind.RECORD_FIELD);
             lhsNode = node.fieldName();
+            lhsSymbol = semanticModel.symbol(lhsNode)
+                    .filter(symbol -> symbol.kind() == SymbolKind.RECORD_FIELD);
             rhsSymbol = semanticModel.symbol(node.valueExpr().get());
             rhsNode = node.valueExpr().get();
         }
 
         if (rhsSymbol.isEmpty() || lhsSymbol.isEmpty()
-                || lhsNode == null || rhsNode == null
+                || rhsNode == null
                 || rhsSymbol.get().kind() != SymbolKind.VARIABLE && rhsSymbol.get().kind() != SymbolKind.PARAMETER) {
             return Optional.empty();
         }
-        LhsRhsSymbolInfo nodeInfo = new LhsRhsSymbolInfo(lhsSymbol.get(), rhsSymbol.get(), lhsNode, rhsNode);
+        LhsRhsSymbolInfo nodeInfo = new LhsRhsSymbolInfo(lhsSymbol.get(), rhsSymbol.get(), rhsNode, lhsNode);
         return Optional.of(nodeInfo);
     }
 
     static class LhsRhsSymbolInfo {
 
-        private Symbol lhsSymbol;
-        private Symbol rhsSymbol;
-        private Node lhsNode;
-        private Node rhsNode;
+        private final Symbol lhsSymbol;
+        private final Symbol rhsSymbol;
+        private final NonTerminalNode rhsNode;
+        private final Node lhsNode;
 
-        public LhsRhsSymbolInfo(Symbol lhsSymbol, Symbol rhsSymbol, Node lhsNode, Node rhsNode) {
+        public LhsRhsSymbolInfo(Symbol lhsSymbol, Symbol rhsSymbol, NonTerminalNode rhsNode, Node lhsNode) {
             this.lhsSymbol = lhsSymbol;
             this.rhsSymbol = rhsSymbol;
-            this.lhsNode = lhsNode;
             this.rhsNode = rhsNode;
+            this.lhsNode = lhsNode;
         }
     }
 }
