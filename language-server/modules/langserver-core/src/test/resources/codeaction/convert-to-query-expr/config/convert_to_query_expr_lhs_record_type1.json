@@ -20,7 +20,7 @@
               "character": 22
             }
           },
-          "newText": "from var item in ids select {username: \"\", firstName: \"\", lastName: \"\", email: \"\"}"
+          "newText": "from var item in ids\n        select {username: \"\", firstName: \"\", lastName: \"\", email: \"\"}"
         }
       ]
     }

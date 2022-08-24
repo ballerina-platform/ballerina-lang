@@ -20,7 +20,7 @@
               "character": 27
             }
           },
-          "newText": "from var item in extusers select item"
+          "newText": "from var item in extusers\n        select item"
         }
       ]
     }

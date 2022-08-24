@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 19,
-    "character": 18
+    "character": 17
   },
-  "source": "convert_to_query_expr_lhs_class_field1.bal",
+  "source": "convert_to_query_expr_lhs_record_field_incompatible_types1.bal",
   "expected": [
     {
       "title": "Convert to query expression",
@@ -13,14 +13,14 @@
           "range": {
             "start": {
               "line": 19,
-              "character": 16
+              "character": 15
             },
             "end": {
               "line": 19,
-              "character": 21
+              "character": 20
             }
           },
-          "newText": "from var item in users\n            select item"
+          "newText": "from var item in users\n            select {firstName: \"\", lastName: \"\"}"
         }
       ]
     }

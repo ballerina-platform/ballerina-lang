@@ -20,7 +20,7 @@
               "character": 19
             }
           },
-          "newText": "from var item in users select item"
+          "newText": "from var item in users\n            select item"
         }
       ]
     }
