@@ -56,7 +56,7 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'Student', found " +
                 "'(string|float)'", 222, 10);
         validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 241, 13);
-        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found '()'", 266, 13);
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 278, 24);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'string'", 292, 24);

@@ -315,7 +315,7 @@ function testQueryActionWithCheckingActionOrExpr() returns error? {
 
     sum = 0;
     error? b = from var i in check obj->foo()
-               let () val = check from var j in 1...5
+               let () val = from var j in 1...5
                             do {
                                 sum = sum + j;
                             }
@@ -354,7 +354,7 @@ function testQueryActionWithParenthesizedCheckingActionOrExpr() returns error? {
 
     sum = 0;
     error? b = from var i in (check obj->foo())
-               let () val = (check from var j in 1...5
+               let () val = (from var j in 1...5
                             do {
                                 sum = sum + j;
                             })

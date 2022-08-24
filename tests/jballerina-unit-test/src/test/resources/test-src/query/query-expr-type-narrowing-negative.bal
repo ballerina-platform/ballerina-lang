@@ -27,17 +27,17 @@ function test1(IntOrStr[] data) returns error? {
         where i !is int
         select i;
 
-    check from IntOrStr i in data
-        where i is int
-        do {
-            int _ = i;
-        };
+    from IntOrStr i in data
+    where i is int
+    do {
+        int _ = i;
+    };
 
-    check from IntOrStr i in data
-        where i !is int
-        do {
-            string _ = i;
-        };
+    from IntOrStr i in data
+    where i !is int
+    do {
+        string _ = i;
+    };
 }
 
 function test2(IntOrStr[] data1, IntOrStr[] data2) returns error? {
@@ -51,12 +51,12 @@ function test2(IntOrStr[] data1, IntOrStr[] data2) returns error? {
         where i !is int && j !is int
         select i + j;
 
-    check from IntOrStr i in data1
-        from IntOrStr j in data2
-        where i !is int && j !is int
-        do {
-            string _ = i + j;
-        };
+    from IntOrStr i in data1
+    from IntOrStr j in data2
+    where i !is int && j !is int
+    do {
+        string _ = i + j;
+    };
 }
 
 function test3(IntStrOrBoolean[] data) returns error? {
@@ -75,19 +75,19 @@ function test3(IntStrOrBoolean[] data) returns error? {
             where i !is string
             select i * ii;
 
-    check from var item in data
-        where item !is boolean && item !is int
-        do {
-            string _ = item;
-        };
+    from var item in data
+    where item !is boolean && item !is int
+    do {
+        string _ = item;
+    };
 
-    check from var i in data
-        where i !is boolean
-        do {
-            int[] _ = from int ii in 1 ... 3
-                where i is int
-                select i * ii;
-        };
+    from var i in data
+    where i !is boolean
+    do {
+        int[] _ = from int ii in 1 ... 3
+            where i is int
+            select i * ii;
+    };
 }
 
 type A record {|
@@ -117,11 +117,11 @@ function test4(AorB[] data1, AorC[] data2, BorC[] data3) returns error? {
         where item !is A
         select intFn(item); //error incompatible types: expected 'int', found 'B'
 
-    check from AorB item in data1
-        where !(item is A)
-        do {
-            intFn(item); //error incompatible types: expected 'int', found 'B'
-        };
+    from AorB item in data1
+    where !(item is A)
+    do {
+        intFn(item); //error incompatible types: expected 'int', found 'B'
+    };
 
     _ = from AorC item in data2
         where item is A
@@ -139,29 +139,29 @@ function test4(AorB[] data1, AorC[] data2, BorC[] data3) returns error? {
         where item !is B
         select cFn(item);
 
-    check from AorC item in data2
-        where item is A
-        do {
-            aFn(item);
-        };
+    from AorC item in data2
+    where item is A
+    do {
+        aFn(item);
+    };
 
-    check from AorC item in data2
-        where item !is A
-        do {
-            cFn(item);
-        };
+    from AorC item in data2
+    where item !is A
+    do {
+        cFn(item);
+    };
 
-    check from BorC item in data3
-        where item is B
-        do {
-            bFn(item);
-        };
+    from BorC item in data3
+    where item is B
+    do {
+        bFn(item);
+    };
 
-    check from BorC item in data3
-        where item !is B
-        do {
-            cFn(item);
-        };
+    from BorC item in data3
+    where item !is B
+    do {
+        cFn(item);
+    };
 }
 
 function aFn(A x) {
@@ -209,17 +209,17 @@ function test5(DorE[] x, DorF[] y, EorF[] z) returns error? {
         where item !is D
         select intFn(item); // error incompatible types: expected 'int', found 'E'
 
-    check from var item in x
-        where item is D
-        do {
-            dFn(item);
-        };
+    from var item in x
+    where item is D
+    do {
+        dFn(item);
+    };
 
-    check from var item in x
-        where item !is D
-        do {
-            intFn(item); // error incompatible types: expected 'int', found 'E'
-        };
+    from var item in x
+    where item !is D
+    do {
+        intFn(item); // error incompatible types: expected 'int', found 'E'
+    };
 
     _ = from var item in y
         where item is D
@@ -267,11 +267,11 @@ function test6(SorJ[] data) returns error? {
         where item !is S
         select jFn(item);
 
-    check from SorJ item in data
-        where item is S
-        do {
-            sFn(item);
-        };
+    from SorJ item in data
+    where item is S
+    do {
+        sFn(item);
+    };
 }
 
 type K record {|
@@ -299,11 +299,11 @@ function test7(M[] data) returns error? {
         where item !is K
         select lFn(item);
 
-    check from M item in data
-        where item !is K
-        do {
-            lFn(item);
-        };
+    from M item in data
+    where item !is K
+    do {
+        lFn(item);
+    };
 }
 
 type N record {|
@@ -369,11 +369,11 @@ function test9((V|W|Y|Z)[] data) returns error? {
         where item !is V|W
         select yzFn(item); // OK
 
-    check from var item in data
-        where item !is V|W
-        do {
-            intFn(item); // error incompatible types: expected 'int', found '(Y|Z)'
-        };
+    from var item in data
+    where item !is V|W
+    do {
+        intFn(item); // error incompatible types: expected 'int', found '(Y|Z)'
+    };
 
     _ = from var item in data
         where item is V|W|Y
@@ -411,11 +411,11 @@ function test10((Q|R)[] data1, (Q|R|T)[] data2) returns error? {
         where item !is Q
         select intFn(item); // error incompatible types: expected 'int', found 'R'
 
-    check from var item in data1
-        where item !is Q
-        do {
-            intFn(item); // error incompatible types: expected 'int', found 'R'
-        };
+    from var item in data1
+    where item !is Q
+    do {
+        intFn(item); // error incompatible types: expected 'int', found 'R'
+    };
 
     _ = from var item in data2
         where item is Q
@@ -439,11 +439,11 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
         where item == 1 || item == 2
         select item;
 
-    check from Integers item in numbers
-        where item == 1 || item == 2
-        do {
-            1 _ = item; // error incompatible types: expected '1', found '(1|2)'
-        };
+    from Integers item in numbers
+    where item == 1 || item == 2
+    do {
+        1 _ = item; // error incompatible types: expected '1', found '(1|2)'
+    };
 
     1[] _ = from int item in numbers
         where item is 1
@@ -453,11 +453,11 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
         where item == "C"
         select item;
 
-    check from Chars item in chars
-        where item == "C"
-        do {
-            "C" _ = item;
-        };
+    from Chars item in chars
+    where item == "C"
+    do {
+        "C" _ = item;
+    };
 
     int?[] a = [1, 2, 3];
     var _ = from var item in a
@@ -470,28 +470,28 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
         where one == 1
         select one;
 
-    check from var item in 1 ... 3
-        let int? one = 1
-        where one == 1
-        do {
-            2 two = one; // error incompatible types: expected '2', found '1'
-        };
+    from var item in 1 ... 3
+    let int? one = 1
+    where one == 1
+    do {
+        2 two = one; // error incompatible types: expected '2', found '1'
+    };
 
     (int|string)[] arr = [1, 2, 3];
-    check from int|string item in arr
-        where item is int
-        let int num = item
-        do {
-            int _ = num * 2;
-        };
+    from int|string item in arr
+    where item is int
+    let int num = item
+    do {
+        int _ = num * 2;
+    };
 
     IntStrOrBoolean[] intArr = [1, 2, 3, 4];
 
-    check from var item in intArr
-        where item is int && item == 2
-        do {
-            2 _ = item;
-        };
+    from var item in intArr
+    where item is int && item == 2
+    do {
+        2 _ = item;
+    };
 }
 
 function intFn(int x) {

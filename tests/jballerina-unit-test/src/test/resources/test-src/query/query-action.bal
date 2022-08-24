@@ -82,7 +82,7 @@ function testSimpleQueryAction3() returns error? {
 }
 
 function simpleQueryAction() returns string|error {
-    check from int _ in [1, 3, 5]
+    int _ in [1, 3, 5]
     do {
         check returnNil();
         return "string 1";
@@ -91,7 +91,7 @@ function simpleQueryAction() returns string|error {
 }
 
 function simpleQueryAction2() returns error? {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {
         check returnNil();
         return;
@@ -371,7 +371,7 @@ function testWildcardBindingPatternInQueryAction2() {
 
 function testQueryActionWithAsyncCalls() returns error? {
     int sum = 0;
-    check from var x in [1, 2, 3]
+    from var x in [1, 2, 3]
     do {
          runtime:sleep(0.1);
          sum = sum + x;
@@ -419,10 +419,10 @@ function testErrorHandlingWithinQueryAction() {
 
     error? res4 = ();
     do {
-        check from int i in 1 ... 2
-            do {
-                _ = check getErrorOrString();
-            };
+        from int i in 1 ... 2
+        do {
+            _ = check getErrorOrString();
+        };
     } on fail var e {
         res4 = e;
     }
@@ -432,10 +432,10 @@ function testErrorHandlingWithinQueryAction() {
 }
 
 function throwErrorFromQueryAction() returns error? {
-    check from int v in 1 ... 2
-        do {
-            _ = check getErrorOrString();
-        };
+    from int v in 1 ... 2
+    do {
+        _ = check getErrorOrString();
+    };
 }
 
 function failFromQueryAction() returns error? {
@@ -463,12 +463,12 @@ function returnString() returns string {
 }
 
 function returnStringOrError() returns string|error {
-    check from int i in 1 ... 3
-        do {
-            if (3 + 2) == 5 {
-                return "Dummy string";
-            }
-        };
+    from int i in 1 ... 3
+    do {
+        if (3 + 2) == 5 {
+            return "Dummy string";
+        }
+    };
     //checking return statement breaks the loop
     panic error("Return statement should brake the loop and return");
 }
@@ -525,26 +525,26 @@ Team[] team = [
 function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction() returns error? {
     float sum = 0.0;
 
-    check from var {email, problemId, score} in events
-        join var {user, teamId} in team
-        on email equals user
-        where teamId == 2
-        do {
-            sum += score;
-        };
+    from var {email, problemId, score} in events
+    join var {user, teamId} in team
+    on email equals user
+    where teamId == 2
+    do {
+        sum += score;
+    };
     assertEquality(167.0, sum);
 }
 
 function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction2() returns error? {
     float sum = 0.0;
 
-    check from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
-        join var {us, ti} in (from var {user: us, teamId: ti} in team select {us, ti})
-        on ev.email equals us
-        where ti == 2
-        do {
-            sum += ev.score;
-        };
+    from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
+    join var {us, ti} in (from var {user: us, teamId: ti} in team select {us, ti})
+    on ev.email equals us
+    where ti == 2
+    do {
+        sum += ev.score;
+    };
     assertEquality(95.0, sum);
 }
 
@@ -555,16 +555,16 @@ function assertTrue (any|error actual) {
 function testQueryExpWithinQueryAction() returns error? {
     int[][] data = [[1, 2], [2, 3, 4]];
     int sumOfEven = 0;
-    check from int[] arr in data
+    from int[] arr in data
+    do {
+        int[] evenNumbers = from int i in arr
+            where i % 2 == 0
+            select i;
+        from int i in evenNumbers
         do {
-            int[] evenNumbers = from int i in arr
-                where i % 2 == 0
-                select i;
-            check from int i in evenNumbers
-                do {
-                    sumOfEven += i;
-                };
+            sumOfEven += i;
         };
+    };
     assertEquality(8, sumOfEven);
 }
 
@@ -573,7 +573,7 @@ function returnErrorOrNil1() returns error? {
 }
 
 function foo1() returns string|error? {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {        
         check returnErrorOrNil1();
         return "str1";
@@ -586,7 +586,7 @@ function returnErrorOrNil2() returns error? {
 }
 
 function foo2() returns string|error? {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {        
         check returnErrorOrNil2();
         return "str1";
@@ -595,7 +595,7 @@ function foo2() returns string|error? {
 }
 
 function foo3() returns string|error? {
-    check from int _ in []
+    from int _ in []
     do {        
         check returnErrorOrNil1();
         return "str1";
@@ -604,7 +604,7 @@ function foo3() returns string|error? {
 }
 
 function foo4() returns string|error? {
-    check from int _ in []
+    from int _ in []
     do {        
         check returnErrorOrNil2();
         return "str1";

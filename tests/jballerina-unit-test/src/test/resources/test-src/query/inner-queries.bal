@@ -340,16 +340,16 @@ function testQueryExpWithinSelectClause2() {
 
 function testQueryExpWithinQueryAction() returns error? {
     int[][] data = [[2, 3, 4]];
-    check from int[] arr in data
-        do {
-            function () returns int[] func = function() returns int[] {
-                int[] evenNumbers = from int i in arr
-                    where i % 2 == 0
-                    select i;
-                return evenNumbers;
-            };
-            int[] expected = [2, 4];
-            assertEquality(expected, func());
+    from int[] arr in data
+    do {
+        function () returns int[] func = function() returns int[] {
+            int[] evenNumbers = from int i in arr
+                where i % 2 == 0
+                select i;
+            return evenNumbers;
+        };
+        int[] expected = [2, 4];
+        assertEquality(expected, func());
     };
 }
 
