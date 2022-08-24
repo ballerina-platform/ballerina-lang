@@ -289,11 +289,11 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean prevPreservedNewLine = env.hasPreservedNewline;
         MetadataNode metadata = formatNode(functionDefinitionNode.metadata().orElse(null), 0, 1);
         // If metadata is documentation string, set preserved new line to false, so to remove user defined new line
-        env.hasPreservedNewline = metadata == null ? prevPreservedNewLine
-                : metadata.documentationString().isEmpty() && prevPreservedNewLine;
+        preserveNewline(metadata == null ?
+                prevPreservedNewLine : metadata.documentationString().isEmpty() && prevPreservedNewLine);
         NodeList<Token> qualifierList = formatNodeList(functionDefinitionNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
-        env.hasPreservedNewline = prevPreservedNewLine;
+        preserveNewline(prevPreservedNewLine);
 
         IdentifierToken functionName;
         if (functionDefinitionNode.relativeResourcePath().isEmpty()) {
@@ -501,13 +501,16 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
+        boolean prevPreservedNewLine = env.hasPreservedNewline;
         Token ifKeyword = formatToken(ifElseStatementNode.ifKeyword(), 1, 0);
         ExpressionNode condition = formatNode(ifElseStatementNode.condition(), 1, 0);
         BlockStatementNode ifBody;
         Node elseBody = null;
         if (ifElseStatementNode.elseBody().isPresent()) {
             ifBody = formatNode(ifElseStatementNode.ifBody(), 1, 0);
+            preserveIndentation(!hasTrailingNL(ifElseStatementNode.ifBody().closeBraceToken()));
             elseBody = formatNode(ifElseStatementNode.elseBody().orElse(null), env.trailingWS, env.trailingNL);
+            preserveIndentation(prevPreservedNewLine);
         } else {
             ifBody = formatNode(ifElseStatementNode.ifBody(), env.trailingWS, env.trailingNL);
         }
@@ -4088,7 +4091,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
                     continue;
                 case WHITESPACE_MINUTIAE:
-                    if (!shouldAddWS(prevMinutiae) && !env.preserveIndentation) {
+                    if (!shouldAddWS(prevMinutiae) && (!env.preserveIndentation)) {
                         // Shouldn't update the prevMinutiae
                         continue;
                     }
@@ -4127,7 +4130,7 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines > 0 && !env.preserveIndentation) {
+        if (consecutiveNewlines > 0 && (!env.preserveIndentation)) {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
@@ -4319,6 +4322,15 @@ public class FormattingTreeModifier extends TreeModifier {
             }
         }
         return position;
+    }
+
+    /**
+     * Set the flag for setting preserve new line for currently formatting token.
+     *
+     * @param value boolean true for setting new line.
+     */
+    private void preserveNewline(boolean value) {
+        env.hasPreservedNewline = value;
     }
 
     /**
