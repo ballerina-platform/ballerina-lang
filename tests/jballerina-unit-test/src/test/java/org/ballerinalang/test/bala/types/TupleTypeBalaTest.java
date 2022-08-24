@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -93,17 +94,37 @@ public class TupleTypeBalaTest {
     }
 
     @Test
-    public void testTupleAnnotations() {
-        Object returns = BRunUtil.invoke(result, "testTupleAnnot", new Object[]{});
+    public void testTupleAnnotations1() {
+        Object returns = BRunUtil.invoke(result, "testTupleAnnot1", new Object[]{});
 
-        Type t = TypeUtils.getType(returns);
-
-        Object annot = ((BAnnotatableType) t).getAnnotation(StringUtils.fromString("$field$.1"));
+        Type t1 = TypeUtils.getType(returns);
+        Object annot = ((BAnnotatableType) t1).getAnnotation(StringUtils.fromString("$field$.1"));
 
         BMap<BString, Object> expected = ValueCreator.createMapValue();
         expected.put(StringUtils.fromString("tuples/tuple_type_project:0:member"), true);
 
         Assert.assertEquals(annot, expected);
+    }
+
+    @Test
+    public void testTupleAnnotations2() {
+        Object returns = BRunUtil.invoke(result, "testTupleAnnot2", new Object[]{});
+        TupleValueImpl returnTuple = (TupleValueImpl) returns;
+
+        Type t2 = TypeUtils.getType(returnTuple.get(0));
+        Type t3 = TypeUtils.getType(returnTuple.get(1));
+        Type t4 = TypeUtils.getType(returnTuple.get(2));
+
+        Object annot2 = ((BAnnotatableType) t2).getAnnotation(StringUtils.fromString("$field$.1"));
+        Object annot3 = ((BAnnotatableType) t3).getAnnotation(StringUtils.fromString("$field$.0"));
+        Object annot4 = ((BAnnotatableType) t4).getAnnotation(StringUtils.fromString("$field$.0"));
+
+        BMap<BString, Object> expected = ValueCreator.createMapValue();
+        expected.put(StringUtils.fromString("tuples/tuple_type_project:0:member"), true);
+
+        Assert.assertEquals(annot2, expected);
+        Assert.assertEquals(annot3, expected);
+        Assert.assertEquals(annot4, expected);
     }
 
     @AfterClass
