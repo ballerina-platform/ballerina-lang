@@ -552,9 +552,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), 0, fieldTrailingNL);
         indent(); // Set indentation for record fields
         NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
-                0, fieldTrailingNL);
+                recordTypeDesc.recordRestDescriptor().isEmpty() ? 0 : fieldTrailingWS, fieldTrailingNL);
         RecordRestDescriptorNode recordRestDescriptor =
-                formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), fieldTrailingWS, fieldTrailingNL);
+                formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), 0, fieldTrailingNL);
         unindent(); // Revert indentation for record fields
         Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), env.trailingWS, env.trailingNL);
 
@@ -1594,9 +1594,17 @@ public class FormattingTreeModifier extends TreeModifier {
         Token enumKeywordToken = formatToken(enumDeclarationNode.enumKeywordToken(), 1, 0);
         IdentifierToken identifier = formatNode(enumDeclarationNode.identifier(), 1, 0);
         Token openBraceToken = formatToken(enumDeclarationNode.openBraceToken(), 0, 1);
+        int separatorTrailingWS = 0;
+        int separatorTrailingNL = 0;
+        if (shouldExpand(enumDeclarationNode)) {
+            separatorTrailingNL++;
+        } else {
+            separatorTrailingWS++;
+        }
+
         indent();
         SeparatedNodeList<Node> enumMemberList = formatSeparatedNodeList(enumDeclarationNode.enumMemberList(),
-                0, 0, 0, 1, 0, 1);
+                0, 0, separatorTrailingWS, separatorTrailingNL, 0, 1);
         unindent();
         Token closeBraceToken = formatToken(enumDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
@@ -4343,6 +4351,25 @@ public class FormattingTreeModifier extends TreeModifier {
         for (Node field : recordTypeDesc.fields()) {
             if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())
                     || field.toSourceCode().contains(System.lineSeparator())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check whether an enum declaration needs to be expanded in to multiple lines.
+     *
+     * @param enumDeclarationNode Enum declaration
+     * @return <code>true</code> If the enum declaration needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(EnumDeclarationNode enumDeclarationNode) {
+        SeparatedNodeList<Node> enumMemberList = enumDeclarationNode.enumMemberList();
+        for (int index = 0; index < enumMemberList.size() - 1; index++) {
+            Token separator = enumMemberList.getSeparator(index);
+            if (hasNonWSMinutiae(separator.leadingMinutiae()) || hasNonWSMinutiae(separator.trailingMinutiae())
+                    || separator.toSourceCode().contains(System.lineSeparator())) {
                 return true;
             }
         }
