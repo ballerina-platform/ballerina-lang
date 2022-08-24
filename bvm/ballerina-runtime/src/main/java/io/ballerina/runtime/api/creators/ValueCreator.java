@@ -259,9 +259,22 @@ public class ValueCreator {
      * @param size          size of the tuple
      * @param initialValues initial values
      * @return              the new tuple
+     * @deprecated use {@link #createTupleValue(TupleType, BListInitialValueEntry[])} instead
      */
+    @Deprecated
     public static BArray createTupleValue(TupleType type, long size, BListInitialValueEntry[] initialValues) {
         return new TupleValueImpl(type, size, initialValues);
+    }
+
+    /**
+     * Creates a new tuple with given tuple type.
+     *
+     * @param type          the {@code TupleType} object representing the type
+     * @param initialValues initial values
+     * @return              the new tuple
+     */
+    public static BArray createTupleValue(TupleType type, BListInitialValueEntry[] initialValues) {
+        return new TupleValueImpl(type, initialValues);
     }
 
     /**

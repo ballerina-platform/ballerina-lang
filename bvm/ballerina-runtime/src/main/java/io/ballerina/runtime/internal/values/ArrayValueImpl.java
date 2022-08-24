@@ -257,6 +257,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this(type, size, initialValues, null);
     }
 
+    public ArrayValueImpl(ArrayType type, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
+        this(type, type.getSize(), initialValues, typedescValue);
+    }
+
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues,
                           TypedescValue typedescValue) {
         this.arrayType = type;
