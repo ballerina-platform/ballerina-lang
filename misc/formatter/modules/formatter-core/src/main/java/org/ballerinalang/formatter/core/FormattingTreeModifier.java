@@ -4049,7 +4049,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
                     continue;
                 case WHITESPACE_MINUTIAE:
-                    if (!shouldAddWS(prevMinutiae) && (!env.preserveIndentation)) {
+                    if (!shouldAddWS(prevMinutiae) && !env.preserveIndentation) {
                         // Shouldn't update the prevMinutiae
                         continue;
                     }
@@ -4088,7 +4088,7 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines > 0 && (!env.preserveIndentation)) {
+        if (consecutiveNewlines > 0 && !env.preserveIndentation) {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
