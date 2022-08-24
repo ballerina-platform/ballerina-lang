@@ -45,3 +45,197 @@ function testServiceObjectValue() {
         function foo() returns int => 52;
     };
 }
+
+type MyClientObjectType client object {
+    resource function get foo/[int]();
+};
+
+function testResourcePathParamAssignabilityNegative() {
+    client object {
+        resource function get .();
+    } _ = client object {
+        resource function post .() {
+        }
+    };
+
+    client object {
+        resource function get [int a]();
+    } _ = client object {
+        resource function get [string a]() {
+        }
+    };
+
+    client object {
+        resource function get foo/[int a]();
+    } _ = client object {
+        resource function get foo/[string a]() {
+        }
+    };
+
+    client object {
+        resource function get [int]();
+
+    } _ = client object {
+        resource function get [string]() {
+        }
+    };
+
+    client object {
+        resource function get foo/[int]();
+    } _ = client object {
+        resource function get foo/[string]() {
+        }
+    };
+    
+    client object {
+        resource function get [int]();
+
+    } _ = client object {
+        resource function get [byte]() {
+        }
+    };
+
+    client object {
+        resource function get [int a]();
+    } _ = client object {
+        resource function get [string a]() {
+        }
+        resource function post [int a]() {
+        }
+    };
+
+    client object {
+        resource function get [int a]();
+    } _ = client object {
+        resource function get [string]() {
+        }
+        resource function post [int]() {
+        }
+    };
+
+    client object {
+        resource function get bar/[int... a]();
+    } _ = client object {
+        resource function get bar/[string... a]() {
+        }
+    };
+
+    client object {
+        resource function get bar/[int... a]();
+    } _ = client object {
+        resource function get bar/[byte... a]() {
+        }
+    };
+
+    client object {
+        resource function get bar/[int... a]();
+    } _ = client object {
+        resource function get bar/[int a]() {
+        }
+    };
+
+    client object {
+        *MyClientObjectType;
+    } _ = client object {
+        resource function get foo2/[int]() {
+        }
+    };
+
+    client object {
+        *MyClientObjectType;
+    } _ = client object {
+        resource function get foo/[string]() {
+        }
+    };
+
+    client object {
+        resource function get .(int a);
+    } _ = client object {
+        resource function get .() {
+        }
+    };
+
+    client object {
+        resource function get .();
+    } _ = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    client object {
+        resource function get .(int... a);
+    } _ = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    client object {
+        resource function get foo();
+    } _ = client object {
+        resource function get foo(int a) {
+        }
+    };
+
+    client object {
+        resource function get [int a]();
+    } _ = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    client object {
+        resource function get [int b](int a);
+    } _ = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    client object {
+        resource function get .(int a);
+    } _ = client object {
+        resource function get [int a]() {
+        }
+    };
+
+    client object {
+        resource function get .(int a);
+    } _ = client object {
+        resource function get [int]() {
+        }
+    };
+
+    service object {
+        resource function get .();
+    } _ = service object {
+        resource function post .() {
+        }
+    };
+
+    service object {
+        resource function get [int a]();
+    } _ = service object {
+        resource function get [string a]() {
+        }
+    };
+
+    service object {
+        resource function get foo/[int a]();
+    } _ = service object {
+        resource function get foo/[string a]() {
+        }
+    };
+
+    service object {
+        resource function get [int]();
+    } _ = service object {
+        resource function get [string]() {
+        }
+    };
+
+    service object {
+        resource function get [int]();
+    } _ = client object {
+        resource function get [int]() {
+        }
+    };
+}

@@ -47,7 +47,87 @@ public class ServiceClassTest {
         int index = 0;
         validateError(result, index++, "incompatible types: expected 'Foo', found 'Bar'", 38, 13);
         validateError(result, index++, "incompatible types: expected 'Bar', found 'isolated object { " +
-                "public function hello () returns (); function foo () returns (int); }'", 40, 15);
+                "public function hello () returns (); function foo () returns (int); }'",
+                40, 15);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                ".() returns (); }', found 'isolated object { resource function post .() returns (); }'",
+                56, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); }'",
+                63, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() returns " +
+                        "(); }'", 70, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); }'",
+                78, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() " +
+                        "returns (); }'", 85, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [byte]() returns (); }'",
+                93, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); " +
+                "resource function post [int]() returns (); }'", 100, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); " +
+                "resource function post [int]() returns (); }'", 109, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "bar/[int...]() returns (); }', found 'isolated object { resource function get bar/[string...]() " +
+                "returns (); }'", 118, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "bar/[int...]() returns (); }', found 'isolated object { resource function get bar/[byte...]() " +
+                "returns (); }'", 125, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "bar/[int...]() returns (); }', found 'isolated object { resource function get bar/[int]() " +
+                "returns (); }'", 132, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "foo/[int]() returns (); }', found 'isolated object { resource function get foo2/[int]() returns " +
+                "(); }'", 139, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() returns " +
+                "(); }'", 146, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                ".(int) returns (); }', found 'isolated object { resource function get .() returns (); }'",
+                153, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                ".() returns (); }', found 'isolated object { resource function get .(int) returns (); }'",
+                160, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                ".(int...) returns (); }', found 'isolated object { resource function get .(int) returns (); }'",
+                167, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "foo() returns (); }', found 'isolated object { resource function get foo(int) returns (); }'",
+                174, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get .(int) returns (); }'",
+                181, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int](int) returns (); }', found 'isolated object { resource function get .(int) returns (); }'",
+                188, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                ".(int) returns (); }', found 'isolated object { resource function get [int]() returns (); }'",
+                195, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                ".(int) returns (); }', found 'isolated object { resource function get [int]() returns (); }'",
+                202, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                ".() returns (); }', found 'isolated object { resource function post .() returns (); }'",
+                209, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); }'",
+                216, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "foo/[int]() returns (); }', found 'isolated object { resource function get foo/[string]() returns " +
+                "(); }'", 223, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [string]() returns (); }'",
+                230, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                "[int]() returns (); }', found 'isolated object { resource function get [int]() returns (); }'",
+                237, 11);
+
         Assert.assertEquals(index, result.getErrorCount());
     }
 
