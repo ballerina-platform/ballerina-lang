@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 public class ConstraintFieldTests {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/projects_for_constraint_field_tests").toAbsolutePath();
+    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
 
     @DataProvider(name = "provideDataForConstraintFieldFormatValidation")
     private Object[][] provideDataForConstraintFieldFormatValidation() {
@@ -135,11 +136,13 @@ public class ConstraintFieldTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+
+        Path buildProjectPath = testBuildDirectory.resolve(
+                "repo/bala/foo/constraint2/0.1.0/any/modules/constraint2/constraint2");
         Assert.assertEquals(diagnosticResult.errorCount(), 1, "Invalid compilation diagnostics count");
         Assert.assertEquals(diagnosticResult.errors().iterator().next().toString(),
-                "ERROR [foo/constraint2/0.1.0::/Users/gayaldassanayake/Documents/repos/ballerina-lang/project-api/" +
-                        "project-api-test/build/repo/bala/foo/constraint2/0.1.0/any/modules/constraint2/" +
-                        "constraint2:(1:1,1:1)] Invalid constraint package: 'foo/constraint2:0.1.0'");
+                "ERROR [foo/constraint2/0.1.0::" + buildProjectPath
+                        + ":(1:1,1:1)] Invalid constraint package: 'foo/constraint2:0.1.0'");
     }
 
     @Test(description = "Constraint package which is not a compiler plugin. Should generate an error diagnostic")
@@ -153,10 +156,12 @@ public class ConstraintFieldTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+
+        Path buildProjectPath = testBuildDirectory.resolve(
+                "repo/bala/foo/constraint3/0.1.0/any/modules/constraint3/constraint3");
         Assert.assertEquals(diagnosticResult.errorCount(), 1, "Invalid compilation diagnostics count");
         Assert.assertEquals(diagnosticResult.errors().iterator().next().toString(),
-                "ERROR [foo/constraint2/0.1.0::/Users/gayaldassanayake/Documents/repos/ballerina-lang/project-api/" +
-                        "project-api-test/build/repo/bala/foo/constraint3/0.1.0/any/modules/constraint3/" +
-                        "constraint3:(1:1,1:1)] Invalid constraint package: 'foo/constraint3:0.1.0'");
+                "ERROR [foo/constraint3/0.1.0::" + buildProjectPath
+                        + ":(1:1,1:1)] Invalid constraint package: 'foo/constraint3:0.1.0'");
     }
 }
