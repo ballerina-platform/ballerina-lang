@@ -43,6 +43,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -361,9 +362,13 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(BasicLiteralNode node) {
-        checkAndSetCodeActionNode(node);
-        checkAndSetSyntaxKind(node.kind());
-        visitSyntaxNode(node);
+        if (node.parent().kind() == SyntaxKind.UNARY_EXPRESSION) {
+            node.parent().accept(this);
+        } else {
+            checkAndSetCodeActionNode(node);
+            checkAndSetSyntaxKind(node.kind());
+            visitSyntaxNode(node);
+        }
     }
 
     @Override
@@ -389,6 +394,13 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(AssignmentStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(UnaryExpressionNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);

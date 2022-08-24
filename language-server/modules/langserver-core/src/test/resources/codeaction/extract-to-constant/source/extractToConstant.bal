@@ -20,3 +20,5 @@ class Square {
 }
 
 const int CONST1 = 10 + 20;
+
+int negativeValue = -100;

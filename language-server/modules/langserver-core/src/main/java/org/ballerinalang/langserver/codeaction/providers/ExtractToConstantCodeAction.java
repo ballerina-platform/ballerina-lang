@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
@@ -60,7 +61,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL,
-                SyntaxKind.STRING_LITERAL, SyntaxKind.BINARY_EXPRESSION);
+                SyntaxKind.STRING_LITERAL, SyntaxKind.BINARY_EXPRESSION, SyntaxKind.UNARY_EXPRESSION);
     }
 
     @Override
@@ -148,6 +149,10 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
         @Override
         public void visit(BasicLiteralNode node) {
+        }
+
+        @Override
+        public void visit(UnaryExpressionNode node) {
         }
 
         @Override

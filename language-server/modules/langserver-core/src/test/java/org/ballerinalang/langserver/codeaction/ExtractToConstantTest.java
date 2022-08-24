@@ -54,7 +54,8 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
                 {"extractIntRangeToConstant.json"},
                 {"extractExpressionToConstant.json"},
                 {"extractConstDeclToConstant1.json"},
-                {"extractToConstantWithImports.json"}
+                {"extractToConstantWithImports.json"},
+                {"extractNegativeValueToConstant.json"}
         };
     }
 
