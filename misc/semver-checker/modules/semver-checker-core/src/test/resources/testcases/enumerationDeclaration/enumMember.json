@@ -1,6 +1,6 @@
 [
   {
-    "description": "Remove a member from a enumeration",
+    "description": "Remove a member from an enumeration",
     "oldCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
     "newCode": "public enum color{\n\tRed,\n\tBlue\n}",
     "expectedOutput": {
@@ -32,7 +32,7 @@
     }
   },
   {
-    "description": " Add a new member to a enumeration",
+    "description": "Add a new member to an enumeration",
     "oldCode": "public enum color{\n\tRed,\n\tBlue\n}",
     "newCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
     "expectedOutput": {
@@ -64,34 +64,112 @@
     }
   },
   {
+    "description": "Add constant value to an enum member",
+    "oldCode": "public enum color{\n\tEng = \"English\",\n\tSI \n}",
+    "newCode": "public enum color{\n\tEng = \"English\",\n\tSI = \"Sinhala\"\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "enum member value",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "new constant value is added to the enum member 'SI'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove the constant value from an enum member",
+    "oldCode": "public enum color{\n\tEng = \"English\",\n\tSI = \"Sinhala\"\n}",
+    "newCode": "public enum color{\n\tEng = \"English\",\n\tSI\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "enum member value",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "constant value is removed from the enum member 'SI'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
     "description": "Modify a constant value of an enum member",
     "oldCode": "public enum color{\n\tEng = \"English\",\n\tSI = \"Sinhala\"\n}",
     "newCode": "public enum color{\n\tEng = \"Foreign language\",\n\tSI = \"Sinhala\"\n}\n",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
-      "versionImpact": "ambiguous",
+      "versionImpact": "patch",
       "childDiffs": [
         {
           "kind": "module",
           "type": "modified",
-          "versionImpact": "ambiguous",
+          "versionImpact": "patch",
           "childDiffs": [
             {
               "kind": "enum declaration",
               "type": "modified",
-              "versionImpact": "ambiguous",
+              "versionImpact": "patch",
               "childDiffs": [
                 {
                   "kind": "enum member",
                   "type": "modified",
-                  "versionImpact": "ambiguous",
+                  "versionImpact": "patch",
                   "childDiffs": [
                     {
                       "kind": "enum member value",
                       "type": "modified",
-                      "versionImpact": "ambiguous",
-                      "message": "enum member value is modified"
+                      "versionImpact": "patch",
+                      "message": "constant value of the enum member 'Eng' is modified"
                     }
                   ]
                 }
@@ -181,7 +259,7 @@
     }
   },
   {
-    "description": " Add Documentation",
+    "description": "Add Documentation",
     "oldCode": "public enum color{\n\tRed\n}\n",
     "newCode": "public enum color{\n\t#Documentation\n\tRed\n}\n",
     "expectedOutput": {
