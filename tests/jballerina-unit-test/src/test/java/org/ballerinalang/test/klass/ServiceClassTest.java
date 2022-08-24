@@ -43,7 +43,7 @@ public class ServiceClassTest {
 
     @Test
     public void testResourceMethodsDoesNotAffectAssignability() {
-        CompileResult result = BCompileUtil.compile("test-src/klass/resource-method-assignability-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/klass/resource_method_assignability_negative_test.bal");
         int index = 0;
         validateError(result, index++, "incompatible types: expected 'Foo', found 'Bar'", 38, 13);
         validateError(result, index++, "incompatible types: expected 'Bar', found 'isolated object { " +

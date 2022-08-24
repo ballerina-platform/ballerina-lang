@@ -36,3 +36,7 @@ type ClientObject2 client object {
 client class ClientClass2 {
     *ClientObject2;
 }
+
+client class ClientClass3 {
+    *ClientClass2;
+}

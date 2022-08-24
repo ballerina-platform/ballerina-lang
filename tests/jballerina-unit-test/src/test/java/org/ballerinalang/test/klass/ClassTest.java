@@ -73,7 +73,7 @@ public class ClassTest {
 
     @Test(description = "Class definition negative")
     public void classDefNegative() {
-        CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-negative.bal");
+        CompileResult negative = BCompileUtil.compile("test-src/klass/class_def_negative_test.bal");
         int i = 0;
         String expectedErrorMsgPrefix = "invalid cyclic type reference in ";
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 1, 1);
@@ -88,6 +88,8 @@ public class ClassTest {
                 "function get name() returns (string)' of class 'ClientClass'", 28, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
                 "function get name() returns (string)' of class 'ClientClass2'", 36, 1);
+        BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
+                "function get name() returns (string)' of class 'ClientClass3'", 40, 1);
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
