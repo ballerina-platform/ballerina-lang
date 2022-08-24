@@ -46,9 +46,9 @@ import java.util.stream.Collectors;
  * Code action to add Elvis operator.
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddElvisOperatorCodeAction implements DiagnosticBasedCodeActionProvider {
+public class AddConditionalDefaultValueCodeAction implements DiagnosticBasedCodeActionProvider {
 
-    public static final String NAME = "Add elvis operator";
+    public static final String NAME = "Add conditional default value";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066");
 
     @Override
@@ -84,7 +84,7 @@ public class AddElvisOperatorCodeAction implements DiagnosticBasedCodeActionProv
         Position endPosition = PositionUtil.toPosition(matchedNode.lineRange().endLine());
         String editText = " ?: " + defaultValue.get();
         TextEdit textEdit = new TextEdit(new Range(endPosition, endPosition), editText);
-        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.ADD_ELVIS_OPERATOR,
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.ADD_CONDITIONAL_DEFAULT,
                 List.of(textEdit), context.fileUri(), CodeActionKind.QuickFix));
     }
 
