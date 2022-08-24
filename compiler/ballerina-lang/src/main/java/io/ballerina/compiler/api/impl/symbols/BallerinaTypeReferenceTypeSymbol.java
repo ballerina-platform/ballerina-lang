@@ -27,7 +27,6 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
@@ -98,8 +97,9 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        BType referredType = this.getReferredType(this.getBType());
-        if (referredType.tag == TypeTags.PARAMETERIZED_TYPE) {
+        BType bType = this.getBType();
+        BType referredType = this.getReferredType(bType);
+        if (referredType.tag == TypeTags.PARAMETERIZED_TYPE || bType.tag == TypeTags.PARAMETERIZED_TYPE) {
             this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
                                                                this.name());
         } else if (referredType.tag == TypeTags.INTERSECTION) {
@@ -196,8 +196,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             return ((BTypeReferenceType) type).referredType;
         }
 
-        if (type.tag == TypeTags.PARAMETERIZED_TYPE
-                && type.tsymbol != null && type.tsymbol.origin != SymbolOrigin.VIRTUAL) {
+        if (type.tag == TypeTags.PARAMETERIZED_TYPE) {
             return ((BParameterizedType) type).paramValueType;
         }
 
