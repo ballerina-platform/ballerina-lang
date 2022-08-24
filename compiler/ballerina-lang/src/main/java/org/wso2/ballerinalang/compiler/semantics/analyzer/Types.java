@@ -1639,10 +1639,16 @@ public class Types {
                 continue;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
+            Optional<BAttachedFunction> rhsFunction = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            if (rhsFunction.isEmpty()) {
                 return false;
             }
+
+            BAttachedFunction rhsFunc = rhsFunction.get();
+            if (!isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
+                return false;
+            }
+            
             if (Symbols.isRemote(lhsFunc.symbol) != Symbols.isRemote(rhsFunc.symbol)) {
                 return false;
             }
@@ -3607,32 +3613,36 @@ public class Types {
         }
     }
 
-    private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,
-                                                       Set<TypePair> unresolvedTypes) {
-        BAttachedFunction matchingFunction = rhsFuncList.stream()
+    private Optional<BAttachedFunction> getMatchingInvokableType(List<BAttachedFunction> rhsFuncList,
+                                                                 BAttachedFunction lhsFunc,
+                                                                 Set<TypePair> unresolvedTypes) {
+        Optional<BAttachedFunction> matchingFunction = rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> isFunctionTypeAssignable(rhsFunc.type, lhsFunc.type, unresolvedTypes))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
         
+        if (matchingFunction.isEmpty()) {
+            return matchingFunction;
+        }
+
+        BAttachedFunction matchingFunc = matchingFunction.get();
         // Todo: We could include this logic in `isFunctionTypeAssignable` if we have `resourcePathType` information in
-        // `BInvokableType`
-        if (matchingFunction == null || 
-                !Symbols.isResource(matchingFunction.symbol) || !Symbols.isResource(lhsFunc.symbol)) {
+        // `BInvokableType` issue #37502
+        if (!Symbols.isResource(matchingFunc.symbol) || !Symbols.isResource(lhsFunc.symbol)) {
             return matchingFunction;
         }
 
         List<BType> lhsFuncResourcePathTypes = ((BResourceFunction) lhsFunc).resourcePathType.tupleTypes;
-        List<BType> rhsFuncResourcePathTypes = ((BResourceFunction) matchingFunction).resourcePathType.tupleTypes;
+        List<BType> rhsFuncResourcePathTypes = ((BResourceFunction) matchingFunc).resourcePathType.tupleTypes;
 
         int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.size();
         if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.size()) {
-            return null;
+            return Optional.empty();
         }
         
         for (int i = 0; i < lhsFuncResourcePathTypesSize; i++) {
             if (!isAssignable(lhsFuncResourcePathTypes.get(i), rhsFuncResourcePathTypes.get(i))) {
-                return null;
+                return Optional.empty();
             }
         }
         
