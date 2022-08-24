@@ -54,7 +54,7 @@ public class FormattingEnv {
     /**
      * Flag indicating whether the token that is currently being formatted has preserved a user defined new line.
      */
-    boolean hasPreservedNewline = false;
+    boolean hasPreservedNewline = true;
 
     /**
      * Length of the currently formatting line.
