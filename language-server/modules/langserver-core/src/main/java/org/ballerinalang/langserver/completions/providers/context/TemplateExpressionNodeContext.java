@@ -83,8 +83,8 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, TemplateExpressionNode node) {
-        return node.textRange().startOffset() >= context.getCursorPositionInTree() 
-                && context.getCursorPositionInTree() >= node.textRange().endOffset();
+        return node.textRange().startOffset() <= context.getCursorPositionInTree() 
+                && context.getCursorPositionInTree() <= node.textRange().endOffset();
     }
 
     /**
