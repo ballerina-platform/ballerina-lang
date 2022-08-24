@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,47 +19,51 @@
 package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.DiffExtractor;
 import io.ballerina.semver.checker.diff.DiffKind;
+import io.ballerina.semver.checker.diff.EnumDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
-import io.ballerina.semver.checker.diff.TypeDefinitionDiff;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
- * Comparator implementation for Ballerina type definitions.
+ * Comparator implementation for Ballerina enum declarations.
  *
  * @since 2201.2.0
  */
-public class TypeDefComparator extends NodeComparator<TypeDefinitionNode> {
+public class EnumComparator extends NodeComparator<EnumDeclarationNode> {
 
-    public TypeDefComparator(TypeDefinitionNode newNode, TypeDefinitionNode oldNode) {
+    public EnumComparator(EnumDeclarationNode newNode, EnumDeclarationNode oldNode) {
         super(newNode, oldNode);
     }
 
     @Override
     public Optional<? extends Diff> computeDiff() {
-        TypeDefinitionDiff.Builder typeDiffBuilder = new TypeDefinitionDiff.Builder(newNode, oldNode);
-        return typeDiffBuilder
+        EnumDiff.Builder enumDiffBuilder = new EnumDiff.Builder(newNode, oldNode);
+        return enumDiffBuilder
                 .withChildDiffs(compareMetadata())
-                .withChildDiffs(compareTypeDefQualifiers())
-                .withChildDiffs(compareTypeDescriptor())
+                .withChildDiffs(compareQualifiers())
+                .withChildDiffs(compareEnumMembers())
                 .build();
     }
 
     /**
-     * Analyzes and returns the diff for changes on type definition metadata (documentation + annotations).
+     * Analyzes and returns the diff for changes on enum declaration metadata (documentation + annotations).
      */
     public List<Diff> compareMetadata() {
         List<Diff> metadataDiffs = new LinkedList<>();
@@ -74,7 +78,7 @@ public class TypeDefComparator extends NodeComparator<TypeDefinitionNode> {
         NodeList<AnnotationNode> newAnnots = newMeta.map(MetadataNode::annotations).orElse(null);
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
         DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
-                DiffKind.MODULE_VAR_ANNOTATION);
+                DiffKind.ENUM_ANNOTATION);
         annotsComparator.computeDiff().ifPresent(metadataDiffs::add);
 
         return metadataDiffs;
@@ -83,24 +87,24 @@ public class TypeDefComparator extends NodeComparator<TypeDefinitionNode> {
     /**
      * Analyzes and returns the diff for changes on `public` qualifier.
      */
-    private List<Diff> compareTypeDefQualifiers() {
+    private List<Diff> compareQualifiers() {
         List<Diff> qualifierDiffs = new ArrayList<>();
 
         // analyzes public qualifier changes
-        Optional<Token> newPublicQual = newNode.visibilityQualifier();
-        Optional<Token> oldPublicQual = oldNode.visibilityQualifier();
+        Optional<Token> newPublicQual = newNode.qualifier();
+        Optional<Token> oldPublicQual = oldNode.qualifier();
         if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newPublicQual.get(), null);
             qualifierDiffBuilder
                     .withVersionImpact(SemverImpact.MINOR)
-                    .withMessage("'public' qualifier is added to type '" + getTypeDefName() + "'")
+                    .withMessage("'public' qualifier is added to enum '" + getEnumIdentifier() + "'")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         } else if (newPublicQual.isEmpty() && oldPublicQual.isPresent()) {
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldPublicQual.get());
             qualifierDiffBuilder
                     .withVersionImpact(SemverImpact.MAJOR)
-                    .withMessage("'public' qualifier is removed from type '" + getTypeDefName() + "'")
+                    .withMessage("'public' qualifier is removed from enum '" + getEnumIdentifier() + "'")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         }
@@ -108,21 +112,44 @@ public class TypeDefComparator extends NodeComparator<TypeDefinitionNode> {
         return qualifierDiffs;
     }
 
-    private List<Diff> compareTypeDescriptor() {
-        Node newTypeDef = newNode.typeDescriptor();
-        Node oldTypeDef = oldNode.typeDescriptor();
-        // Todo: replace the dumb comparator with dedicated type descriptor comparators.
-        DumbNodeComparator<Node> typeDescriptorComparator = new DumbNodeComparator<>(newTypeDef, oldTypeDef,
-                DiffKind.TYPE_DESCRIPTOR);
-        Optional<? extends Diff> diff = typeDescriptorComparator.computeDiff();
-        if (diff.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return Collections.singletonList(diff.get());
+    private List<Diff> compareEnumMembers() {
+        List<Diff> memberDiffs = new LinkedList<>();
+        Map<String, EnumMemberNode> newMembers = newNode.enumMemberList().stream()
+                .map(node -> (EnumMemberNode) node)
+                .collect(Collectors.toMap(enumMemberNode -> enumMemberNode.identifier().text().trim(),
+                        Function.identity()));
+        Map<String, EnumMemberNode> oldMembers = oldNode.enumMemberList().stream()
+                .map(node -> (EnumMemberNode) node)
+                .collect(Collectors.toMap(enumMemberNode -> enumMemberNode.identifier().text().trim(),
+                        Function.identity()));
+
+        DiffExtractor<EnumMemberNode> memberDiffExtractor = new DiffExtractor<>(newMembers, oldMembers);
+
+        // Computes and populate diffs for newly added enum members.
+        memberDiffExtractor.getAdditions().forEach((name, node) -> new NodeDiffImpl.Builder<>(node, null)
+                .withKind(DiffKind.ENUM_MEMBER)
+                .withVersionImpact(SemverImpact.MINOR)
+                .withMessage("new enum member '" + name + "' is added")
+                .build().ifPresent(memberDiffs::add));
+
+        // Computes and populate diffs for removed enum members.
+        memberDiffExtractor.getRemovals().forEach((name, node) -> new NodeDiffImpl.Builder<>(null, node)
+                .withKind(DiffKind.ENUM_MEMBER)
+                .withVersionImpact(SemverImpact.MAJOR)
+                .withMessage("enum member '" + name + "' is removed")
+                .build().ifPresent(memberDiffs::add));
+
+        // Computes and populate diffs for modified enum members.
+        memberDiffExtractor.getCommons().forEach((name, members) -> {
+            EnumMemberComparator paramComparator = new EnumMemberComparator(members.getKey(), members.getValue());
+            paramComparator.computeDiff().ifPresent(memberDiffs::add);
+        });
+
+        return memberDiffs;
     }
 
-    private String getTypeDefName() {
-        return newNode != null ? newNode.typeName().text().trim() :
-                oldNode.typeName().text().trim();
+    private String getEnumIdentifier() {
+        return newNode != null ? newNode.identifier().text().trim() :
+                oldNode.identifier().text().trim();
     }
 }

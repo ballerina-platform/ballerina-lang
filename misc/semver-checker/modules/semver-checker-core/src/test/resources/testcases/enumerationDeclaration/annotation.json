@@ -1,8 +1,8 @@
 [
   {
-    "description": "Add annotation for constant declaration",
-    "oldCode": "public const int age=10;",
-    "newCode": "@display {\n\tlabel: \"\"\n}\npublic const int age=10;",
+    "description": "Add Annotation",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "@tainted\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -14,7 +14,7 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "enum declaration",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
@@ -22,8 +22,8 @@
                   {
                     "type": "new",
                     "versionImpact": "ambiguous",
-                    "kind": "module constant annotation",
-                    "message": "a new module constant annotation list is added"
+                    "kind": "enum annotation",
+                    "message": "a new enum annotation list is added"
                   }
                 ]
               ]
@@ -34,9 +34,9 @@
     }
   },
   {
-    "description": "Remove annotation for constant declaration",
-    "oldCode": "@display {\n\tlabel: \"\"\n}\npublic const int age=10;",
-    "newCode": "public const int age=10;",
+    "description": "Remove Annotation",
+    "oldCode": "@tainted\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -48,7 +48,7 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "enum declaration",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
@@ -56,8 +56,8 @@
                   {
                     "type": "removed",
                     "versionImpact": "ambiguous",
-                    "kind": "module constant annotation",
-                    "message": "an existing module constant annotation list is removed"
+                    "kind": "enum annotation",
+                    "message": "an existing enum annotation list is removed"
                   }
                 ]
               ]
@@ -68,9 +68,9 @@
     }
   },
   {
-    "description": "Modify annotation for constant declaration",
-    "oldCode": "@display {\n\tlabel: \"\"\n}\npublic const int age=10;",
-    "newCode": "@display {\n\tlabel: \"label\"\n}\npublic const int age=10;",
+    "description": "Modify Annotation",
+    "oldCode": "@deprecated\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "@tainted\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -82,7 +82,7 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "enum declaration",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
@@ -90,8 +90,8 @@
                   {
                     "type": "modified",
                     "versionImpact": "ambiguous",
-                    "kind": "module constant annotation",
-                    "message": "module constant annotation list is modified"
+                    "kind": "enum annotation",
+                    "message": "enum annotation list is modified"
                   }
                 ]
               ]
