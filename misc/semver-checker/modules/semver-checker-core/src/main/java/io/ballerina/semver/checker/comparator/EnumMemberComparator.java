@@ -28,6 +28,8 @@ import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.EnumMemberDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
+import io.ballerina.semver.checker.diff.NodeDiffImpl;
+import io.ballerina.semver.checker.diff.SemverImpact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +77,28 @@ public class EnumMemberComparator extends NodeComparator<EnumMemberNode> {
 
     private List<Diff> compareExpression(EnumMemberNode newNode, EnumMemberNode oldNode) {
         List<Diff> memberExpressionDiffs = new ArrayList<>();
-        DumbNodeComparator<ExpressionNode> exprComparator = new DumbNodeComparator<>(newNode.constExprNode()
-                .orElse(null), oldNode.constExprNode().orElse(null), DiffKind.ENUM_MEMBER_VALUE);
-        exprComparator.computeDiff().ifPresent(memberExpressionDiffs::add);
+        Optional<ExpressionNode> newValue = newNode.constExprNode();
+        Optional<ExpressionNode> oldValue = oldNode.constExprNode();
+
+        NodeDiffBuilder enumValueDiffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode);
+        enumValueDiffBuilder.withKind(DiffKind.ENUM_MEMBER_VALUE);
+        if (newValue.isPresent() && oldValue.isEmpty()) {
+            enumValueDiffBuilder.withVersionImpact(SemverImpact.PATCH)
+                    .withMessage(String.format("new constant value is added to the enum member '%s'",
+                            newNode.identifier().text()));
+            enumValueDiffBuilder.build().ifPresent(memberExpressionDiffs::add);
+        } else if (newValue.isEmpty() && oldValue.isPresent()) {
+            enumValueDiffBuilder.withVersionImpact(SemverImpact.PATCH)
+                    .withMessage(String.format("constant value is removed from the enum member '%s'",
+                            oldNode.identifier().text()));
+            enumValueDiffBuilder.build().ifPresent(memberExpressionDiffs::add);
+        } else if (newValue.isPresent()
+                && !newValue.get().toSourceCode().trim().equals(oldValue.get().toSourceCode().trim())) {
+            enumValueDiffBuilder.withVersionImpact(SemverImpact.PATCH)
+                    .withMessage(String.format("constant value of the enum member '%s' is modified",
+                            newNode.identifier().text()));
+            enumValueDiffBuilder.build().ifPresent(memberExpressionDiffs::add);
+        }
 
         return memberExpressionDiffs;
     }
