@@ -1,5 +1,6 @@
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.codeaction.providers.AddConditionalDefaultValueCodeAction;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -7,11 +8,11 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test cases for {@link org.ballerinalang.langserver.codeaction.providers.AddElvisOperatorCodeAction}.
+ * Test cases for {@link AddConditionalDefaultValueCodeAction}.
  *
  * @since 2201.2.1
  */
-public class AddElvisOperatorCodeActionTest extends AbstractCodeActionTest {
+public class AddConditionalDefaultValueCodeActionTest extends AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
     @Override
@@ -29,25 +30,25 @@ public class AddElvisOperatorCodeActionTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"add_elvis_operator_in_mapping_constructor.json"},
-                {"add_elvis_operator_in_variable_declaration1.json"},
-                {"add_elvis_operator_in_variable_declaration2.json"},
-                {"add_elvis_operator_in_positional_argument.json"},
-                {"add_elvis_operator_in_return_statement.json"},
-                {"add_elvis_operator_in_let_var1.json"},
-                {"add_elvis_operator_in_let_var2.json"}
+                {"add_conditional_default_in_mapping_constructor.json"},
+                {"add_conditional_default_in_variable_declaration1.json"},
+                {"add_conditional_default_in_variable_declaration2.json"},
+                {"add_conditional_default_in_positional_argument.json"},
+                {"add_conditional_default_in_return_statement.json"},
+                {"add_conditional_default_in_let_var1.json"},
+                {"add_conditional_default_in_let_var2.json"}
         };
     }
 
     @DataProvider(name = "negative-codeaction-data-provider")
     public Object[][] negativeDataProvider() {
         return new Object[][]{
-                {"negative_add_elvis_operator_in_mapping_constructor.json"}
+                {"negative_add_conditional_default_in_mapping_constructor.json"}
         };
     }
 
     @Override
     public String getResourceDir() {
-        return "add-elvis-operator";
+        return "add-conditional-default-value";
     }
 }

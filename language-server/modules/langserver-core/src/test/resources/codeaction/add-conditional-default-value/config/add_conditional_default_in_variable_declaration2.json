@@ -3,11 +3,11 @@
     "line": 1,
     "character": 32
   },
-  "source": "add_elvis_operator_in_variable_declaration2.bal",
+  "source": "add_conditional_default_in_variable_declaration2.bal",
   "description": "Test the code action when an value of optional type is assigned to a variable",
   "expected": [
     {
-      "title": "Add Elvis operator",
+      "title": "Add conditional default value",
       "kind": "quickfix",
       "edits": [
         {
