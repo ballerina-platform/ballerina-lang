@@ -62,7 +62,7 @@
     "source": "person",
     "result": {
       "shellValue": {
-        "value":"{\"first name\":\"Tom\",\"Ȧɢέ\":25}",
+        "value":"{\"first name\":\"Tom\", \"Ȧɢέ\":25}",
         "mimeType":"ballerina-notebook/json-view",
         "type":"Person_{name\u0026Ȧɢέ}"
       },

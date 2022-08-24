@@ -126,6 +126,110 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 231, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'int:Signed32', found 'int'", 234, 22);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 244, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                258, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'",
+                259, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'(int|string|boolean)'", 261, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 262, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                265, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'",
+                268, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'(int|string|boolean)'", 271, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 274, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                281, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                282, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'",
+                283, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                285, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found " +
+                "'(int|string|boolean)'", 286, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 287, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                290, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                293, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'",
+                296, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                299, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found " +
+                "'(int|string|boolean)'", 302, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 305, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                317, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'",
+                318, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                319, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                320, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'",
+                321, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                322, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                323, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                324, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                325, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'(int|string|boolean)'", 327, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 328, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                329, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found " +
+                "'(int|string|boolean)'", 330, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 331, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                332, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                333, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                334, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                335, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                338, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'",
+                341, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                344, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                347, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'",
+                350, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'(int|string|boolean)'", 353, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 356, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                359, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found " +
+                "'(int|string|boolean)'", 362, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 365, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                368, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                371, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                374, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                377, 17);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

@@ -19,10 +19,11 @@
 package org.ballerinalang.testerina.test;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -30,6 +31,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -51,6 +53,9 @@ public class MockTest extends BaseTestCase {
         projectPath = projectBasedTestsPath.toString();
         FileUtils.copyFolder(Paths.get("build/libs"),
                 Paths.get(projectPath, "object-mocking-tests", "libs"));
+        // Build and push config Lib project.
+        compilePackageAndPushToLocal(projectBasedTestsPath.resolve("mockLibProject").toString(),
+                "testOrg-mockLib-any-0.1.0");
     }
 
     @Test()
@@ -108,12 +113,23 @@ public class MockTest extends BaseTestCase {
         } catch (IOException e) {
             throw new BallerinaTestException("Failed to read test_results.json");
         }
-        for (JsonElement element : resultObj.get("moduleCoverage").getAsJsonArray()) {
-            JsonObject moduleObj = ((JsonObject) element);
-            Assert.assertEquals(moduleObj.get("coveredLines").toString(), "7");
-            Assert.assertEquals(moduleObj.get("missedLines").toString(), "2");
-            Assert.assertEquals(moduleObj.get("coveragePercentage").toString(), "77.78");
-        }
+        JsonArray moduleCoverage = resultObj.get("moduleCoverage").getAsJsonArray();
+        Assert.assertEquals(moduleCoverage.size(), 3);
+        JsonObject moduleObj = (JsonObject) moduleCoverage.get(0);
+        Assert.assertEquals(moduleObj.get("name").toString(), "\"mocking_coverage\"");
+        Assert.assertEquals(moduleObj.get("coveredLines").toString(), "5");
+        Assert.assertEquals(moduleObj.get("missedLines").toString(), "2");
+        Assert.assertEquals(moduleObj.get("coveragePercentage").toString(), "71.43");
+        moduleObj = (JsonObject) moduleCoverage.get(1);
+        Assert.assertEquals(moduleObj.get("name").toString(), "\"mocking_coverage.mod1\"");
+        Assert.assertEquals(moduleObj.get("coveredLines").toString(), "3");
+        Assert.assertEquals(moduleObj.get("missedLines").toString(), "3");
+        Assert.assertEquals(moduleObj.get("coveragePercentage").toString(), "50.0");
+        moduleObj = (JsonObject) moduleCoverage.get(2);
+        Assert.assertEquals(moduleObj.get("name").toString(), "\"mocking_coverage.mod2\"");
+        Assert.assertEquals(moduleObj.get("coveredLines").toString(), "4");
+        Assert.assertEquals(moduleObj.get("missedLines").toString(), "3");
+        Assert.assertEquals(moduleObj.get("coveragePercentage").toString(), "57.14");
     }
 
     @Test(dataProvider = "testNegativeCases")
@@ -146,5 +162,18 @@ public class MockTest extends BaseTestCase {
                 {"return value provided does not match the return type of function 'get_stream()'",
                         "object_mocking:testMockInvalidStream"}
         };
+    }
+
+    private void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
+        LogLeecher buildLeecher = new LogLeecher("target" + File.separator + "bala" + File.separator +
+                balaFileName + ".bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target" + File.separator + "bala" +
+                File.separator + balaFileName + ".bala to 'local' repository.");
+        balClient.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
+                packagPath);
+        buildLeecher.waitForText(5000);
+        balClient.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
+                packagPath);
+        pushLeecher.waitForText(5000);
     }
 }

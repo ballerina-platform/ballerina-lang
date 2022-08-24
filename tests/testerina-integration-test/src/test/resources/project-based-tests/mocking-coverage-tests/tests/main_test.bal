@@ -15,9 +15,19 @@
 // under the License.
 
 import ballerina/test;
+import mocking_coverage.mod1;
+import testOrg/mockLib.mod1 as mockLib;
 
 public function mockFloatAdd(float a, float b) returns float {
-    return 5;
+    return 5.0;
+}
+
+public function mockIntAdd(int a, int b) returns int {
+    return 123;
+}
+
+public function mockIntMultiply(int a, int b) returns int {
+    return 100;
 }
 
 @test:Mock {
@@ -25,6 +35,18 @@ public function mockFloatAdd(float a, float b) returns float {
     moduleName: "mocking_coverage"
 }
 test:MockFunction mock_floatAdd = new();
+
+@test:Mock {
+    functionName: "intAdd",
+    moduleName: "mocking_coverage.mod1"
+}
+test:MockFunction mock_intAdd = new();
+
+@test:Mock {
+    functionName: "intMultiply",
+    moduleName: "testOrg/mockLib.mod1"
+}
+test:MockFunction mock_intMultiply = new();
 
 @test:Config {}
 function testStringAdd() {
@@ -35,7 +57,9 @@ function testStringAdd() {
 @test:Config {}
 function testFloatAdd() {
     test:when(mock_floatAdd).call("mockFloatAdd");
+    test:when(mock_intAdd).call("mockIntAdd");
+    test:when(mock_intMultiply).call("mockIntMultiply");
     test:assertEquals(floatAdd(2, 5), 5.0);
-    test:assertEquals(intAdd(2, 5), 7);
-
+    test:assertEquals(mod1:intAdd(20, 5), 123);
+    test:assertEquals(mockLib:intMultiply(5, 5), 100);
 }

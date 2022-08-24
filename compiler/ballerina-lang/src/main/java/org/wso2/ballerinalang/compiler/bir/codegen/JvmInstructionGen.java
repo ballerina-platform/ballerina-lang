@@ -1431,27 +1431,30 @@ public class JvmInstructionGen {
     void generateObjectStoreIns(BIRNonTerminator.FieldAccess objectStoreIns) {
         // visit object_ref
         this.loadVar(objectStoreIns.lhsOp.variableDcl);
+        if (objectStoreIns.onInitialization) {
+            BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
+            String className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectType.tsymbol.pkgID),
+                    toNameString(objectType));
+            // add cast to typeValueClass
+            this.mv.visitTypeInsn(CHECKCAST, className);
+            visitKeyValueExpressions(objectStoreIns);
+            // invoke setOnInitialization() method
+            this.mv.visitMethodInsn(INVOKESPECIAL, className, "setOnInitialization",
+                    SET_ON_INIT, false);
+            return;
+        }
+        visitKeyValueExpressions(objectStoreIns);
+        // invoke set() method
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set", SET_ON_INIT, true);
+    }
 
+    private void visitKeyValueExpressions(BIRNonTerminator.FieldAccess objectStoreIns) {
         // visit key_expr
         this.loadVar(objectStoreIns.keyOp.variableDcl);
-
         // visit value_expr
         BType valueType = objectStoreIns.rhsOp.variableDcl.type;
         this.loadVar(objectStoreIns.rhsOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, valueType);
-
-        // invoke set() method
-        if (objectStoreIns.onInitialization) {
-            BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
-            this.mv.visitMethodInsn(INVOKESPECIAL,
-                                    getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectType.tsymbol.pkgID),
-                                                          toNameString(objectType)), "setOnInitialization",
-                                    SET_ON_INIT, false);
-            return;
-        }
-
-        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set",
-                                SET_ON_INIT, true);
     }
 
     void generateStringLoadIns(BIRNonTerminator.FieldAccess stringLoadIns) {

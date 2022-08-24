@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -116,8 +117,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -2312,6 +2315,23 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constantSymbol.type.tsymbol.flags |= constant.associatedTypeDefinition.symbol.flags;
             }
 
+        } else if (nodeKind == NodeKind.UNARY_EXPR && constant.typeNode == null &&
+                types.isLiteralInUnaryAllowed((BLangUnaryExpr) constant.expr)) {
+            // When unary type constants with `-` or `+` operators are defined without the type,
+            // then the type of the symbol will be handled similar to handling a literal type constant
+            // defined without the type.
+
+            BLangUnaryExpr unaryConstant = (BLangUnaryExpr) constant.expr;
+            // Replace unary expression in AssociatedTypeDefinition of constant with numeric literal
+            BLangNumericLiteral literal = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+            Types.setValueOfNumericLiteral(literal, unaryConstant);
+            literal.isConstant = true;
+            literal.setBType(unaryConstant.expr.getBType());
+            ((BLangFiniteTypeNode) constant.getAssociatedTypeDefinition().getTypeNode()).valueSpace.set(0, literal);
+
+            defineNode(constant.associatedTypeDefinition, env);
+            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+            constantSymbol.literalType = unaryConstant.expr.getBType();
         } else if (constant.typeNode != null) {
             constantSymbol.type = constantSymbol.literalType = staticType;
         }
@@ -3072,7 +3092,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             restConstraintType = BUnionType.create(null, constraintTypes);
         }
-        return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
+        return restVarSymbolMapType.tag == TypeTags.NONE ?
+                restConstraintType : this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
     BRecordType createRecordTypeForRestField(Location pos, SymbolEnv env, BRecordType recordType,
@@ -3087,7 +3108,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }};
 
-        setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
+        if (recordType.sealed && (restConstraint.tag == TypeTags.NONE)) {
+            setRestRecordFields(pos, env, unMappedFields, variableList, null, recordVarType);
+        } else {
+            setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
+        }
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordVarType,
                 env.enclPkg.packageID, symTable, pos);
@@ -3142,7 +3167,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         targetRestRecType.fields = fields;
-        targetRestRecType.restFieldType = restConstraint;
+        if (restConstraint == null) {
+            targetRestRecType.restFieldType = new BNoType(TypeTags.NONE);
+            targetRestRecType.sealed = true;
+        } else {
+            targetRestRecType.restFieldType = restConstraint;
+        }
     }
 
     private long setSymbolAsOptional(long existingFlags) {

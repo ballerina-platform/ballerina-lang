@@ -552,9 +552,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), 0, fieldTrailingNL);
         indent(); // Set indentation for record fields
         NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
-                0, fieldTrailingNL);
+                recordTypeDesc.recordRestDescriptor().isEmpty() ? 0 : fieldTrailingWS, fieldTrailingNL);
         RecordRestDescriptorNode recordRestDescriptor =
-                formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), fieldTrailingWS, fieldTrailingNL);
+                formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), 0, fieldTrailingNL);
         unindent(); // Revert indentation for record fields
         Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), env.trailingWS, env.trailingNL);
 
@@ -1594,9 +1594,17 @@ public class FormattingTreeModifier extends TreeModifier {
         Token enumKeywordToken = formatToken(enumDeclarationNode.enumKeywordToken(), 1, 0);
         IdentifierToken identifier = formatNode(enumDeclarationNode.identifier(), 1, 0);
         Token openBraceToken = formatToken(enumDeclarationNode.openBraceToken(), 0, 1);
+        int separatorTrailingWS = 0;
+        int separatorTrailingNL = 0;
+        if (shouldExpand(enumDeclarationNode)) {
+            separatorTrailingNL++;
+        } else {
+            separatorTrailingWS++;
+        }
+
         indent();
         SeparatedNodeList<Node> enumMemberList = formatSeparatedNodeList(enumDeclarationNode.enumMemberList(),
-                0, 0, 0, 1, 0, 1);
+                0, 0, separatorTrailingWS, separatorTrailingNL, 0, 1);
         unindent();
         Token closeBraceToken = formatToken(enumDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
@@ -3607,7 +3615,16 @@ public class FormattingTreeModifier extends TreeModifier {
             env.trailingNL = trailingNL;
             env.trailingWS = trailingWS;
 
+            // Cache the current node and parent before format.
+            // Because reference to the nodes will change after modifying.
+            T oldNode = node;
+            Node parent = node.parent();
+
             node = (T) node.apply(this);
+
+            if (options.getLineWrapping() && shouldWrapLine(oldNode, parent)) {
+                node = wrapLine(oldNode, parent);
+            }
 
             env.trailingNL = prevTrailingNL;
             env.trailingWS = prevTrailingWS;
@@ -3898,6 +3915,95 @@ public class FormattingTreeModifier extends TreeModifier {
         } else {
             env.lineLength = node.location().lineRange().endLine().offset();
         }
+    }
+
+    /**
+     * Check whether the current line should be wrapped.
+     *
+     * @param node Node that is being formatted
+     * @param parent
+     * @return Flag indicating whether to wrap the current line or not
+     */
+    private boolean shouldWrapLine(Node node, Node parent) {
+        boolean exceedsColumnLimit = env.lineLength > options.getColumnLimit();
+        boolean descendantNeedWrapping = env.nodeToWrap == node;
+        if (!exceedsColumnLimit && !descendantNeedWrapping) {
+            return false;
+        }
+
+        // Currently wrapping a line is supported at following levels:
+        SyntaxKind kind = node.kind();
+        switch (kind) {
+            case SIMPLE_NAME_REFERENCE:
+            case QUALIFIED_NAME_REFERENCE:
+                if (node.parent().kind() == SyntaxKind.ANNOTATION) {
+                    break;
+                }
+                return true;
+
+            // Parameters
+            case DEFAULTABLE_PARAM:
+            case REQUIRED_PARAM:
+            case REST_PARAM:
+
+                // Func-call arguments
+            case POSITIONAL_ARG:
+            case NAMED_ARG:
+            case REST_ARG:
+
+            case RETURN_TYPE_DESCRIPTOR:
+            case ANNOTATION_ATTACH_POINT:
+                return true;
+
+            // Template literals are multi line tokens, and newline are
+            // part of the content. Hence we cannot wrap those.
+            case XML_TEMPLATE_EXPRESSION:
+            case STRING_TEMPLATE_EXPRESSION:
+            case TEMPLATE_STRING:
+                break;
+            default:
+                // Expressions
+                if (SyntaxKind.BINARY_EXPRESSION.compareTo(kind) <= 0 &&
+                        SyntaxKind.OBJECT_CONSTRUCTOR.compareTo(kind) >= 0) {
+                    return true;
+                }
+
+                // Everything else is not supported
+                break;
+        }
+
+        // We reach here, if the current node exceeds the limit, but it is
+        // not a wrapping-point. Then we ask the parent to wrap itself.
+        env.nodeToWrap = parent;
+
+        return false;
+    }
+
+    /**
+     * Wrap the node. This is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
+     * will start from the current level of indentation.
+     *
+     * @param <T> Node type
+     * @param node Node to be wrapped
+     * @param parent
+     * @return Wrapped node
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends Node> T wrapLine(T node, Node parent) {
+        env.leadingNL += 1;
+        env.lineLength = 0;
+        env.hasNewline = true;
+        node = (T) node.apply(this);
+
+        // Sometimes wrapping the current node wouldn't be enough. Therefore, if the column
+        // length exceeds even after wrapping current node, then ask the parent node to warp.
+        if (env.lineLength > options.getColumnLimit()) {
+            env.nodeToWrap = parent;
+        } else {
+            env.nodeToWrap = null;
+        }
+
+        return node;
     }
 
     /**
@@ -4271,6 +4377,25 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return hasNonWSMinutiae(lastLetVarDeclarationNode.trailingMinutiae())
                 || lastLetVarDeclarationNode.toSourceCode().contains(System.lineSeparator());
+    }
+
+    /**
+     * Check whether an enum declaration needs to be expanded in to multiple lines.
+     *
+     * @param enumDeclarationNode Enum declaration
+     * @return <code>true</code> If the enum declaration needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(EnumDeclarationNode enumDeclarationNode) {
+        SeparatedNodeList<Node> enumMemberList = enumDeclarationNode.enumMemberList();
+        for (int index = 0; index < enumMemberList.size() - 1; index++) {
+            Token separator = enumMemberList.getSeparator(index);
+            if (hasNonWSMinutiae(separator.leadingMinutiae()) || hasNonWSMinutiae(separator.trailingMinutiae())
+                    || separator.toSourceCode().contains(System.lineSeparator())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

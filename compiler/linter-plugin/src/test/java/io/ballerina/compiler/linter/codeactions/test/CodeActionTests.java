@@ -63,7 +63,9 @@ public class CodeActionTests {
                 {"source/qname1.bal", LinePosition.from(2, 5), Constants.BCE_INTERVENING_WS},
                 {"source/qname2.bal", LinePosition.from(2, 5), Constants.BCE_INTERVENING_WS},
                 {"source/qname3.bal", LinePosition.from(2, 9), Constants.BCE_INTERVENING_WS},
-                {"source/qname4.bal", LinePosition.from(3, 4), Constants.BCE_INVALID_WS}
+                {"source/qname4.bal", LinePosition.from(3, 4), Constants.BCE_INVALID_WS},
+                {"source/qname5.bal", LinePosition.from(4, 7), Constants.BCE_INTERVENING_WS},
+                {"source/qname6.bal", LinePosition.from(4, 8), Constants.BCE_INTERVENING_WS}
         };
     }
 
@@ -74,7 +76,6 @@ public class CodeActionTests {
         final String expectedProvider = diagnosticCode + SLASH + Constants.CA_QUALIFIED_IDENTIFIER;
         testSingleDiagnosticCodeAction(file, cursorPos, expectedProvider);
     }
-
 
     @DataProvider
     public Object[] floatingNumberDP() {
