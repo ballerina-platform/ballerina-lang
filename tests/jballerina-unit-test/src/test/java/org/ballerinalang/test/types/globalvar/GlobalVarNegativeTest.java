@@ -158,6 +158,23 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string,json]" +
                 " & readonly)'\n\t" +
                 "tuple element type '(json & readonly)' is not supported", 93, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '()'", 101, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(()[] & readonly)'\n\t" +
+                "array element type '()' is not supported", 102, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(string? & readonly)'\n\t" +
+                "union member type '()' is not supported", 103, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(map<()> & readonly)'\n\t" +
+                "map constraint type '()' is not supported", 104, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for" +
+                " '(Person6 & readonly)'\n\t" +
+                "record field type '()' of field 'nilRecord1.field1' is not supported", 105, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(table<map<()>> & readonly)'\n\t" +
+                "map constraint type '()' is not supported", 106, 1);
+
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
