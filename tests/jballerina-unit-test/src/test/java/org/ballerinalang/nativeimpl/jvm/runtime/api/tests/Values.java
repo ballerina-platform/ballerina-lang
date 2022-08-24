@@ -56,6 +56,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BTupleType;
 import org.ballerinalang.langlib.value.FromJsonWithType;
 import org.jetbrains.annotations.Nullable;
 
@@ -422,6 +423,16 @@ public class Values {
             elements[i] = ValueCreator.createListInitialValueEntry(array.get(i));
         }
         return ValueCreator.createArrayValue(arrayType, elements);
+    }
+
+    public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
+        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        int size = array.size();
+        BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
+        for (int i = 0; i < size; i++) {
+            elements[i] = ValueCreator.createListInitialValueEntry(array.get(i));
+        }
+        return ValueCreator.createTupleValue(tupleType, elements);
     }
 
 }

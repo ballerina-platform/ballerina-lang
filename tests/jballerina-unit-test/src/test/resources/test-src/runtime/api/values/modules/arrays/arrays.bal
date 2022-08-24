@@ -21,6 +21,8 @@ type ClosedArr int[3];
 
 type OpenArr int[];
 
+type Tuple [int, string, float, boolean];
+
 public function validateAPI() {
 
     anydata[] arr1 = getIntArray(ClosedArr);
@@ -42,6 +44,11 @@ public function validateAPI() {
     test:assertEquals(arr4.length(), 2);
     test:assertEquals(arr4, [7, 8]);
     test:assertTrue(arr4 is OpenArr);
+
+    anydata[] arr5 = getTupleWithInitialValues(Tuple, [7, "hello", 2.3, true]);
+    test:assertEquals(arr5.length(), 4);
+    test:assertEquals(arr5, [7, "hello", 2.3, true]);
+    test:assertTrue(arr5 is Tuple);
 }
 
 function getIntArray(typedesc<any> t) returns anydata[] = @java:Method {
@@ -49,5 +56,9 @@ function getIntArray(typedesc<any> t) returns anydata[] = @java:Method {
 } external;
 
 function getIntArrayWithInitialValues(typedesc<any> t, anydata value) returns anydata[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getTupleWithInitialValues(typedesc<any> t, anydata value) returns anydata[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
