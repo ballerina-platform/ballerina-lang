@@ -63,8 +63,8 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, ListConstructorExpressionNode node) {
-        return node.textRange().startOffset() >= context.getCursorPositionInTree() 
-                && context.getCursorPositionInTree() >= node.textRange().endOffset();
+        return node.textRange().startOffset() <= context.getCursorPositionInTree() 
+                && context.getCursorPositionInTree() <= node.textRange().endOffset();
     }
 
     @Override
