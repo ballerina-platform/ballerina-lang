@@ -25,3 +25,35 @@ function foo() {
 
 }
 
+function testFunc() {
+    int x = 1;
+    if (add(1,) < )
+
+}
+
+public function main() {
+    map<int> map1 = {field1: 10, field2: 20};
+    map<int> map2 = {field3:10, };
+}
+
+class Cl1 {
+    function init(int arg1, string arg2) {
+
+    }
+}
+
+class Cl2 {
+    function init(string arg1, string arg2) {
+
+    }
+}
+
+public function implicitExpressionTest() {
+    Cl2  cl2 = new ();
+    Cl1|Cl2  cl = new ();
+}
+
+function testListConstructorExpression() {
+    int[] v = [1, 2, 3];
+    int x = v[];
+}
