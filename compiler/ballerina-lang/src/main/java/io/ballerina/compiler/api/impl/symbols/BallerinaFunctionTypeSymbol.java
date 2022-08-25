@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Annotatable;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
@@ -155,13 +156,16 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<AnnotationSymbol> annots = new ArrayList<>();
+        List<AnnotationAttachmentSymbol> annotationAttachments = new ArrayList<>();
 
         for (BAnnotationAttachmentSymbol annot : this.typeSymbol.returnTypeAnnots) {
             annots.add(symbolFactory.createAnnotationSymbol(annot));
+            annotationAttachments.add(symbolFactory.createAnnotAttachment(annot));
         }
 
         AnnotatableReturnType annotatableReturnType = new AnnotatableReturnType();
         annotatableReturnType.setAnnotations(Collections.unmodifiableList(annots));
+        annotatableReturnType.setAnnotAttachments(Collections.unmodifiableList(annotationAttachments));
         this.returnTypeAnnots = annotatableReturnType;
 
         return Optional.of(this.returnTypeAnnots);
@@ -204,14 +208,24 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     private static class AnnotatableReturnType implements Annotatable {
 
         private List<AnnotationSymbol> annots;
+        private List<AnnotationAttachmentSymbol> annotAttachments;
 
         @Override
         public List<AnnotationSymbol> annotations() {
             return this.annots;
         }
 
+        @Override
+        public List<AnnotationAttachmentSymbol> annotAttachments() {
+            return this.annotAttachments;
+        }
+
         void setAnnotations(List<AnnotationSymbol> annots) {
             this.annots = annots;
+        }
+
+        public void setAnnotAttachments(List<AnnotationAttachmentSymbol> annotAttachments) {
+            this.annotAttachments = annotAttachments;
         }
     }
 }

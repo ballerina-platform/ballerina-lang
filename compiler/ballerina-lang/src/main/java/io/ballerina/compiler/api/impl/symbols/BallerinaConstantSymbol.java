@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -50,10 +51,11 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
     private TypeSymbol broaderType;
 
     private BallerinaConstantSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
-                                    TypeSymbol typeDescriptor, TypeSymbol broaderType, BallerinaConstantValue constValue,
-                                    BSymbol bSymbol, CompilerContext context) {
+                                    List<AnnotationAttachmentSymbol> annotAttachments, TypeSymbol typeDescriptor,
+                                    TypeSymbol broaderType, BallerinaConstantValue constValue, BSymbol bSymbol,
+                                    CompilerContext context) {
         super(name, isFlagOn(bSymbol.flags, Flags.ENUM_MEMBER) ? ENUM_MEMBER : CONSTANT, qualifiers, annots,
-              typeDescriptor, bSymbol, context);
+              annotAttachments, typeDescriptor, bSymbol, context);
         this.constValue = constValue;
         this.broaderType = broaderType;
     }
@@ -208,8 +210,9 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         }
 
         public BallerinaConstantSymbol build() {
-            return new BallerinaConstantSymbol(this.name, this.qualifiers, this.annots, this.typeDescriptor,
-                                               this.broaderType, this.constantValue, this.bSymbol, this.context);
+            return new BallerinaConstantSymbol(this.name, this.qualifiers, this.annots, this.annotAttachments,
+                                               this.typeDescriptor, this.broaderType, this.constantValue, this.bSymbol,
+                                               this.context);
         }
 
         public ConstantSymbolBuilder withConstValue(BallerinaConstantValue constValue) {

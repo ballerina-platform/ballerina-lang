@@ -102,6 +102,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         return this.annots;
     }
 
+    @Override
     public List<AnnotationAttachmentSymbol> annotAttachments() {
         return this.annotAttachments;
     }

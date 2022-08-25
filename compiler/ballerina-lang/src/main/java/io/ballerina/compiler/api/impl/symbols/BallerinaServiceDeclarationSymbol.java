@@ -21,6 +21,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
@@ -61,6 +62,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implements ServiceDeclarationSymbol {
 
     private final List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
     private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
     private final ServiceAttachPoint attachPoint;
@@ -72,11 +74,13 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
 
     protected BallerinaServiceDeclarationSymbol(String name, TypeSymbol typeDescriptor, ServiceAttachPoint attachPoint,
                                                 List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
-                                                BSymbol bSymbol, CompilerContext context) {
+                                                List<AnnotationAttachmentSymbol> annotAttachments, BSymbol bSymbol,
+                                                CompilerContext context) {
         super(name, SERVICE_DECLARATION, bSymbol, context);
         this.typeDescriptor = typeDescriptor;
         this.attachPoint = attachPoint;
         this.annots = Collections.unmodifiableList(annots);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
     }
 
@@ -164,6 +168,11 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     }
 
     @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
+    }
+
+    @Override
     public Optional<Documentation> documentation() {
         if (this.docAttachment != null) {
             return Optional.of(this.docAttachment);
@@ -198,6 +207,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
         protected ServiceAttachPoint attachPoint;
 
@@ -220,6 +230,11 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
             return this;
         }
 
+        public ServiceDeclSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotAttachment) {
+            this.annotAttachments.add(annotAttachment);
+            return this;
+        }
+
         public ServiceDeclSymbolBuilder withAttachPoint(ServiceAttachPoint attachPoint) {
             this.attachPoint = attachPoint;
             return this;
@@ -228,7 +243,8 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
         @Override
         public BallerinaServiceDeclarationSymbol build() {
             return new BallerinaServiceDeclarationSymbol(this.name, this.typeDescriptor, this.attachPoint,
-                                                         this.qualifiers, this.annots, this.bSymbol, this.context);
+                                                         this.qualifiers, this.annots, this.annotAttachments,
+                                                         this.bSymbol, this.context);
         }
     }
 

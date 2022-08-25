@@ -97,6 +97,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -267,6 +269,8 @@ public class SymbolFactory {
 
         for (AnnotationAttachmentSymbol annAttachment : invokableSymbol.getAnnotations()) {
             builder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annAttachment));
+            builder.withAnnotationAttachment(createAnnotAttachment((BAnnotationAttachmentSymbol) annAttachment));
+
         }
 
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
@@ -341,6 +345,7 @@ public class SymbolFactory {
 
         for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            symbolBuilder.withAnnotationAttachment(createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
         }
 
         TypeSymbol typeDescriptor;
@@ -388,6 +393,7 @@ public class SymbolFactory {
 
         for (AnnotationAttachmentSymbol annot : symbol.getAssociatedFuncSymbol().getAnnotations()) {
             builder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            builder.withAnnotationAttachment(createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
         }
 
         return builder.withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint)).build();
@@ -412,11 +418,14 @@ public class SymbolFactory {
         }
 
         List<AnnotationSymbol> annotSymbols = new ArrayList<>();
+        List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
             annotSymbols.add(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            annotAttachments.add(createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
         }
 
-        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind, symbol, this.context);
+        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, annotAttachments,
+                                            kind, symbol, this.context);
     }
 
     public PathParameterSymbol createPathParamSymbol(BVarSymbol symbol, PathSegment.Kind kind) {
@@ -445,6 +454,8 @@ public class SymbolFactory {
         if (typeSymbol.kind == SymbolKind.TYPE_DEF) {
             for (AnnotationAttachmentSymbol annAttachment : ((BTypeDefinitionSymbol) typeSymbol).getAnnotations()) {
                 symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annAttachment));
+                symbolBuilder.withAnnotationAttachment(
+                        createAnnotAttachment((BAnnotationAttachmentSymbol) annAttachment));
             }
         }
 
@@ -467,6 +478,7 @@ public class SymbolFactory {
 
         for (AnnotationAttachmentSymbol annot : enumSymbol.getAnnotations()) {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            symbolBuilder.withAnnotationAttachment(createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
         }
 
         return symbolBuilder
@@ -497,6 +509,7 @@ public class SymbolFactory {
 
         for (AnnotationAttachmentSymbol annot : classSymbol.getAnnotations()) {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            symbolBuilder.withAnnotationAttachment(createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
         }
 
         return symbolBuilder.withTypeDescriptor((ObjectTypeSymbol) type).build();
@@ -513,6 +526,7 @@ public class SymbolFactory {
 
         for (AnnotationAttachmentSymbol annot : associatedClass.getAnnotations()) {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            symbolBuilder.withAnnotationAttachment(createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
         }
 
         if (serviceDeclSymbol.getAbsResourcePath().isPresent()) {
@@ -551,6 +565,7 @@ public class SymbolFactory {
 
         for (AnnotationAttachmentSymbol annot : constantSymbol.getAnnotations()) {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            symbolBuilder.withAnnotationAttachment(createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
         }
 
         return symbolBuilder.build();
@@ -602,6 +617,7 @@ public class SymbolFactory {
 
         for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            symbolBuilder.withAnnotationAttachment(createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
         }
 
         return symbolBuilder.build();
@@ -639,6 +655,29 @@ public class SymbolFactory {
      */
     public BallerinaModule createModuleSymbol(BPackageSymbol symbol, String name) {
         return new BallerinaModule.ModuleSymbolBuilder(this.context, name, symbol).build();
+    }
+
+    /**
+     * Create an annotation attachment symbol.
+     *
+     * @param annotAttachment annotation attachment
+     * @return {@link BallerinaAnnotationAttachmentSymbol} symbol generated
+     */
+    public BallerinaAnnotationAttachmentSymbol createAnnotAttachment(BAnnotationAttachmentSymbol annotAttachment) {
+        BallerinaAnnotationSymbol annotationSymbol = createAnnotationSymbol(findAnnotationSymbol(annotAttachment));
+
+        if (!annotAttachment.isConstAnnotation()) {
+            return new BallerinaAnnotationAttachmentSymbol(annotAttachment.getOriginalName().getValue(), annotAttachment,
+                    annotationSymbol, context);
+        }
+
+        // Constant annotation attachment
+        BConstantSymbol attachmentValue = ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol)
+                annotAttachment).attachmentValueSymbol;
+        return new BallerinaAnnotationAttachmentSymbol(annotAttachment.getOriginalName().getValue(),
+                (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment,
+                annotationSymbol, createConstantSymbol(attachmentValue, attachmentValue.name.getValue()),  context);
+
     }
 
     // Private methods
@@ -686,7 +725,7 @@ public class SymbolFactory {
                     symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol), annotTagRef);
         }
 
-        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
+        for (Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
             if (entry.getKey().pkgID.equals(annotPkgId)) {
                 return (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(entry.getValue(), annotTagRef);
             }
@@ -694,13 +733,5 @@ public class SymbolFactory {
 
         throw new AssertionError("Cannot lookup annotation symbol: symbol environment not available " +
                 "for '" + annotPkgId + "'");
-    }
-
-        if (attachmentValueSymbol != null) {
-            symbolBuilder.withAttachmentValueSymbol(createConstantSymbol(attachmentValueSymbol,
-                    attachmentValueSymbol.name.getValue()));
-        }
-
-        return symbolBuilder.build();
     }
 }
