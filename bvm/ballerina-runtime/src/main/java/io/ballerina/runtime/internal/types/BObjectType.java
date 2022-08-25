@@ -42,6 +42,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.runtime.api.TypeTags.CLIENT_TAG;
 import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 
 /**
@@ -128,8 +129,8 @@ public class BObjectType extends BStructureType implements ObjectType {
                 return method.isIsolated();
             }
         }
-        if (this.getTag() == SERVICE_TAG) {
-            for (ResourceMethodType method : ((BServiceType) this).getResourceMethods()) {
+        if (this.getTag() == SERVICE_TAG || this.getTag() == CLIENT_TAG) {
+            for (ResourceMethodType method : ((BNetworkObjectType) this).getResourceMethods()) {
                 if (method.getName().equals(methodName)) {
                     return method.isIsolated();
                 }
