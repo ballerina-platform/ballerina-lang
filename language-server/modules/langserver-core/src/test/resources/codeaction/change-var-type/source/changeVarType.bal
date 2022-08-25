@@ -11,6 +11,9 @@ public function main(string... args) {
     };
     
     car.year = "2020";
+    
+    future<float> fut = start foo(); 
+    float fVal = wait fut;
 }
 
 function foo() returns float {

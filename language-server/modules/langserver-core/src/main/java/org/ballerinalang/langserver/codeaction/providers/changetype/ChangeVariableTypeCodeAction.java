@@ -63,7 +63,7 @@ import java.util.Set;
 public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Change Variable Type";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE2652");
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
