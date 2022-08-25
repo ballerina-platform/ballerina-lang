@@ -263,6 +263,57 @@ public class TypedescriptorTest {
         };
     }
 
+    @Test(dataProvider = "IntersectionReadonlyPosProvider")
+    public void testIntersectionReadonlyTypes(int line, int col, TypeDescKind expKind, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), expKind);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "IntersectionReadonlyPosProvider")
+    public Object[][] getIntersectionReadonlyPos() {
+        return new Object[][] {
+                {304, 19, INTERSECTION, "Bar & readonly"},
+                {305, 16, TYPE_REFERENCE, "BarReadonly"},
+                {306, 19, INTERSECTION, "Foo & readonly"},
+                {307, 16, TYPE_REFERENCE, "FooReadOnly"},
+                {308, 35, INTERSECTION, "record {|int a;|} & readonly"},
+        };
+    }
+
+    @Test(dataProvider = "XmlSubTypePosProvider")
+    public void testXmlSubTypes(int line, int col, TypeDescKind expTypeKind, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), expTypeKind);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "XmlSubTypePosProvider")
+    private Object[][] getXmlSubTypePos() {
+        return new Object[][] {
+                {324, 11, TYPE_REFERENCE, "XmlEle"},
+                {325, 16, XML, "xml<XmlEle>"},
+                {326, 15, TYPE_REFERENCE, "New_XmlEle"},
+                {327, 20, XML, "xml<New_XmlEle>"},
+                {328, 10, TYPE_REFERENCE, "XmlPI"},
+                {329, 15, TYPE_REFERENCE, "XmlComment"},
+                {330, 19, TYPE_REFERENCE, "New_XmlComment"},
+                {331, 24, XML, "xml<New_XmlComment>"},
+                {332, 18, TYPE_REFERENCE, "XmlCommentRef"},
+                {333, 23, XML, "xml<XmlCommentRef>"},
+                {334, 11, TYPE_REFERENCE, "XmlTxt"},
+                {335, 21, XML, "xml<xml:Element>"},
+                {336, 22, XML, "xml<xml:Comment>"},
+                {337, 14, TYPE_REFERENCE, "XmlUnionA"},
+                {338, 19, XML, "xml<XmlUnionA>"},
+                {339, 14, TYPE_REFERENCE, "XmlUnionB"},
+                {340, 14, TYPE_REFERENCE, "XmlUnionC"},
+                {341, 19, XML, "xml<XmlUnionC>"},
+        };
+    }
+
     @Test
     public void testMapType() {
         Symbol symbol = getSymbol(49, 16);
