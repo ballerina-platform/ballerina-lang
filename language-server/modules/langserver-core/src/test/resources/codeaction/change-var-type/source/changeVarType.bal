@@ -14,6 +14,8 @@ public function main(string... args) {
     
     future<float> fut = start foo(); 
     float fVal = wait fut;
+ 
+    boolean inferredVal = bar();
 }
 
 function foo() returns float {
@@ -33,3 +35,6 @@ type Car record {
     string model;
     int year;
 };
+
+public type TargetType typedesc<int>;
+function bar(TargetType t = <>) returns t = external;
