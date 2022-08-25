@@ -39,7 +39,8 @@ import java.util.List;
 public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements SingletonTypeSymbol {
 
     private final String typeName;
-    private final TypeSymbol originalType;
+    private final BLangLiteral shape;
+    private TypeSymbol originalType;
 
     public BallerinaSingletonTypeSymbol(CompilerContext context, BLangLiteral shape, BType bType) {
         super(context, TypeDescKind.SINGLETON, bType);
@@ -56,9 +57,7 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
             this.typeName = shape.toString();
         }
 
-        // Getting the original type of the shape
-        TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-        originalType = typesFactory.getTypeDescriptor(shape.getBType());
+        this.shape = shape;
     }
 
     @Override
@@ -91,6 +90,13 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
 
     @Override
     public TypeSymbol originalType() {
-        return this.originalType;
+        if (originalType != null) {
+            return originalType;
+        }
+
+        TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+        originalType = typesFactory.getTypeDescriptor(shape.getBType());
+
+        return originalType;
     }
 }
