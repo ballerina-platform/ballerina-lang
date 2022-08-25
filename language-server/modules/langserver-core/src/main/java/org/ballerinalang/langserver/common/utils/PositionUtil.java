@@ -188,7 +188,7 @@ public class PositionUtil {
     }
 
     /**
-     * Returns the Range given the LineRange
+     * Returns the Range given the LineRange.
      *
      * @param lineRange line range
      * @return Range corresponds to LineRange
@@ -200,7 +200,7 @@ public class PositionUtil {
     }
 
     /**
-     * Returns the LinePosition given the Position
+     * Returns the LinePosition given the Position.
      *
      * @param position position
      * @return LinePosition corresponds to Position
