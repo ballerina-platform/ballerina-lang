@@ -64,6 +64,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionProvider {
 
+    private static final String TITLE = "Map with a query expression";
+
     @Override
     public String getName() {
         return "CONVERT_TO_QUERY";
@@ -150,8 +152,8 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
 
         List<TextEdit> edits = new ArrayList<>();
         edits.add(new TextEdit(range, queryExpr));
-        CodeAction codeAction = CodeActionUtil.createCodeAction("Convert to query expression",
-                edits, context.fileUri(), CodeActionKind.QuickFix);
+        CodeAction codeAction = CodeActionUtil.createCodeAction(TITLE, 
+                edits, context.fileUri(), CodeActionKind.RefactorRewrite);
         return List.of(codeAction);
     }
 
