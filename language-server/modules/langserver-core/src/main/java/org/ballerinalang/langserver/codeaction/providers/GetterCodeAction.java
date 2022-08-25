@@ -56,9 +56,9 @@ public class GetterCodeAction implements RangeBasedCodeActionProvider {
         }
 
         ObjectFieldNode objectFieldNode = CodeActionUtil.getObjectFieldNode(context, posDetails).get();
-        String commandTitle = String.format("Create a getter for '%s'", objectFieldNode.fieldName().toString());
-        String fieldName = String.valueOf(objectFieldNode.fieldName());
-        String typeName = String.valueOf(objectFieldNode.typeName());
+        String fieldName = String.valueOf(objectFieldNode.fieldName().text());
+        String commandTitle = String.format("Create a getter for '%s'", fieldName);
+        String typeName = String.valueOf(objectFieldNode.typeName()).trim();
         String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
                 fieldName.substring(1);
         if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {

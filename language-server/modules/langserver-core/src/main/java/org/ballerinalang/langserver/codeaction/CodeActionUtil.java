@@ -632,7 +632,7 @@ public class CodeActionUtil {
         StringBuilder newTextBuilder = new StringBuilder();
         String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
         newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
-                .append(String.format("public function get%s() returns %s{ ", functionName, typeName))
+                .append(String.format("public function get%s() returns %s { ", functionName, typeName))
                 .append(LINE_SEPARATOR).append(spaces).append(spaces)
                 .append(String.format("return self.%s;", varName))
                 .append(LINE_SEPARATOR).append(spaces).append("}");
@@ -711,7 +711,7 @@ public class CodeActionUtil {
     public static boolean isFunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
         for (Node node : ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
             if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
+                if (((FunctionDefinitionNode) node).functionName().text().equals(functionName)) {
                     return true;
                 }
             }
