@@ -309,6 +309,39 @@ function testReadonlyIntersection() {
     readonly & record {| int a; |} e;
 }
 
+type XmlEle xml:Element;
+type New_XmlEle 'xml:Element;
+type XmlEleRef XmlEle;
+type XmlPI xml:ProcessingInstruction;
+type XmlComment xml:Comment;
+type New_XmlComment 'xml:Comment;
+type XmlCommentRef New_XmlComment;
+type XmlTxt xml:Text;
+type XmlUnionA XmlEle|XmlPI|XmlTxt;
+type XmlUnionB XmlEle|xml:Comment|XmlTxt;
+type XmlUnionC XmlUnionA|'xml:Comment;
+
+public function testXmlSubTypes() {
+    XmlEle a;
+    xml<XmlEle> ax;
+    New_XmlEle b;
+    xml<New_XmlEle> bx;
+    XmlPI c;
+    XmlComment d;
+    New_XmlComment e;
+    xml<New_XmlComment> ex;
+    XmlCommentRef f;
+    xml<XmlCommentRef> fx;
+    XmlTxt g;
+    xml<xml:Element> h;
+    xml<'xml:Comment> i;
+    XmlUnionA j1;
+    xml<XmlUnionA> j2;
+    XmlUnionB j3;
+    XmlUnionC j4;
+    xml<XmlUnionC> j5;
+}
+
 enum enumsForSingletons {
     RED,
     GREEN,

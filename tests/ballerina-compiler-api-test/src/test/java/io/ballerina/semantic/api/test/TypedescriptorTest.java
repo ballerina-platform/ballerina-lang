@@ -283,6 +283,38 @@ public class TypedescriptorTest {
         };
     }
 
+    @Test(dataProvider = "XmlSubTypePosProvider")
+    public void testXmlSubTypes(int line, int col, TypeDescKind expTypeKind, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), expTypeKind);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "XmlSubTypePosProvider")
+    private Object[][] getXmlSubTypePos() {
+        return new Object[][] {
+                {324, 11, TYPE_REFERENCE, "XmlEle"},
+                {325, 16, XML, "xml<XmlEle>"},
+                {326, 15, TYPE_REFERENCE, "New_XmlEle"},
+                {327, 20, XML, "xml<New_XmlEle>"},
+                {328, 10, TYPE_REFERENCE, "XmlPI"},
+                {329, 15, TYPE_REFERENCE, "XmlComment"},
+                {330, 19, TYPE_REFERENCE, "New_XmlComment"},
+                {331, 24, XML, "xml<New_XmlComment>"},
+                {332, 18, TYPE_REFERENCE, "XmlCommentRef"},
+                {333, 23, XML, "xml<XmlCommentRef>"},
+                {334, 11, TYPE_REFERENCE, "XmlTxt"},
+                {335, 21, XML, "xml<xml:Element>"},
+                {336, 22, XML, "xml<xml:Comment>"},
+                {337, 14, TYPE_REFERENCE, "XmlUnionA"},
+                {338, 19, XML, "xml<XmlUnionA>"},
+                {339, 14, TYPE_REFERENCE, "XmlUnionB"},
+                {340, 14, TYPE_REFERENCE, "XmlUnionC"},
+                {341, 19, XML, "xml<XmlUnionC>"},
+        };
+    }
+
     @Test
     public void testMapType() {
         Symbol symbol = getSymbol(49, 16);
