@@ -70,8 +70,7 @@ public class ModuleExecutionFlowTests {
         String expectedConsoleString = "Initializing module a" + System.lineSeparator() +
                 "Initializing module b";
         String expectedErrorString = "error: panicked while initializing module B" + System.lineSeparator() +
-                "\tat unit_tests.proj4.b.0:init(main.bal:6)" +
-                "\n\t   unit_tests.proj4.b.0:.<init>";
+                "\tat unit_tests.proj4.b.0:init(main.bal:6)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -117,8 +116,7 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener gracefulStop called, service name - ModA";
 
         String expectedErrorString = "error: panicked while starting module B" + System.lineSeparator() +
-                "\tat unit_tests.proj5.a.0.ABC:start(main.bal:21)" +
-                "\n\t   unit_tests.proj5.b.0:.<start>";
+                "\tat unit_tests.proj5.a.0.ABC:start(main.bal:21)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
@@ -170,8 +168,7 @@ public class ModuleExecutionFlowTests {
                 "basic:TestListener listener gracefulStop called, service name - basic";
 
         String expectedErrorString = "error: panicked while starting module 'dependent'" + System.lineSeparator() +
-                "\tat testorg.start_stop_failing_project:start(basic.bal:35)" +
-                "\n\t   testorg.start_stop_failing_project.dependent.0:.<start>";
+                "\tat testorg.start_stop_failing_project:start(basic.bal:35)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
