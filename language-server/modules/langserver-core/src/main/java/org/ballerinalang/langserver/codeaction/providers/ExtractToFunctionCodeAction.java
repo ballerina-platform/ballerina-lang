@@ -24,7 +24,6 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
@@ -85,7 +84,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         if (getSupportedStatementSyntaxKindsList().contains(posDetails.matchedCodeActionNode().kind())) {
             return getCodeActionsForStatements(context, posDetails);
         }
-        return getCodeActionsForExpressions(context);
+        return getCodeActionsForExpressions(context, posDetails);
     }
 
     private List<CodeAction> getCodeActionsForStatements(CodeActionContext context,
@@ -326,30 +325,22 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         }
     }
 
-    private List<CodeAction> getCodeActionsForExpressions(CodeActionContext context) {
-        Node nodeAtRange = context.nodeAtRange();
+    private List<CodeAction> getCodeActionsForExpressions(CodeActionContext context,
+                                                          RangeBasedPositionDetails posDetails) {
+        Node matchedCodeActionNode = posDetails.matchedCodeActionNode();
 
         if (context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty() ||
-                (nodeAtRange.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
-                        && nodeAtRange.parent() != null
-                        && nodeAtRange.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
+                (matchedCodeActionNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        && matchedCodeActionNode.parent() != null
+                        && matchedCodeActionNode.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
             return Collections.emptyList();
         }
 
-        if (nodeAtRange.parent() != null) {
-            if (nodeAtRange.parent().kind() == SyntaxKind.FIELD_ACCESS
-                    && ((FieldAccessExpressionNode) nodeAtRange.parent()).fieldName().equals(nodeAtRange)) {
-                return Collections.emptyList();
-            } else if (nodeAtRange.parent().kind() == SyntaxKind.METHOD_CALL
-                    && ((MethodCallExpressionNode) nodeAtRange.parent()).methodName().equals(nodeAtRange)) {
-                return Collections.emptyList();
-            }
-        }
-
-        if (nodeAtRange.kind() == SyntaxKind.FIELD_ACCESS) {
-            if (((FieldAccessExpressionNode) nodeAtRange).expression().toSourceCode().strip().equals(SymbolUtil.SELF_KW)
-                    || nodeAtRange.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
-                    || nodeAtRange.parent().kind() == SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT) {
+        if (matchedCodeActionNode.kind() == SyntaxKind.FIELD_ACCESS) {
+            if (((FieldAccessExpressionNode) matchedCodeActionNode).expression().toSourceCode().strip()
+                    .equals(SymbolUtil.SELF_KW)
+                    || matchedCodeActionNode.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
+                    || matchedCodeActionNode.parent().kind() == SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT) {
                 return Collections.emptyList();
             }
         }
@@ -361,7 +352,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         // If the file ends with a new line
         boolean newLineAtEnd = rootLineRange.endLine().offset() == 0;
 
-        Optional<Node> enclosingNode = findEnclosingModulePartNode(nodeAtRange);
+        Optional<Node> enclosingNode = findEnclosingModulePartNode(matchedCodeActionNode);
         Range functionInsertRange;
 
         if (enclosingNode.isPresent()) {
@@ -371,19 +362,19 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             functionInsertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
 
-        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(nodeAtRange);
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(matchedCodeActionNode);
 
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return Collections.emptyList();
         }
 
         String functionName = getFunctionName(context);
-        String function = getFunction(nodeAtRange, newLineAtEnd, typeSymbol.get(), functionName, "", context);
+        String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName, "", context);
 
-        String replaceFunctionCall = getReplaceFunctionCall(context, functionName);
+        String replaceFunctionCall = getReplaceFunctionCall(matchedCodeActionNode, context, functionName);
 
         TextEdit extractFunctionEdit = new TextEdit(functionInsertRange, function);
-        TextEdit replaceEdit = new TextEdit(PositionUtil.toRange(nodeAtRange.lineRange()),
+        TextEdit replaceEdit = new TextEdit(PositionUtil.toRange(matchedCodeActionNode.lineRange()),
                 replaceFunctionCall);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
@@ -405,8 +396,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .visibleSymbols(context.currentDocument().get(), PositionUtil.getLinePosition(position));
     }
 
-    private String getReplaceFunctionCall(CodeActionContext context, String functionName) {
-        List<Symbol> varNamesWithinTheRange = getVarSymbolsWithinRangeForExpressions(context);
+    private String getReplaceFunctionCall(Node matchedNode, CodeActionContext context, String functionName) {
+        List<Symbol> varNamesWithinTheRange = getVarSymbolsWithinRangeForExpressions(matchedNode, context);
         List<String> args = context.nodeAtRange().kind() != SyntaxKind.LET_EXPRESSION ? varNamesWithinTheRange.stream()
                 .map(Symbol::getName)
                 .filter(Optional::isPresent)
@@ -432,12 +423,12 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return fnBuilder.toString();
     }
 
-    private String getFunction(Node nodeAtRange, boolean newLineAtEnd, TypeSymbol typeSymbol,
+    private String getFunction(Node matchednode, boolean newLineAtEnd, TypeSymbol typeSymbol,
                                String functionName, String funcBody, CodeActionContext context) {
         List<String> args = new ArrayList<>();
-        List<Symbol> varAndParamSymbolsWithinRange = getVarSymbolsWithinRangeForExpressions(context);
+        List<Symbol> varAndParamSymbolsWithinRange = getVarSymbolsWithinRangeForExpressions(matchednode, context);
 
-        if (nodeAtRange.kind() != SyntaxKind.LET_EXPRESSION) {
+        if (matchednode.kind() != SyntaxKind.LET_EXPRESSION) {
             varAndParamSymbolsWithinRange.forEach(symbol -> {
                 if (symbol.kind() == SymbolKind.VARIABLE) {
                     VariableSymbol variableSymbol = (VariableSymbol) symbol;
@@ -454,22 +445,22 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         String returnsClause = String.format("returns %s", typeSymbol.signature());
         String returnStatement;
 
-        if (nodeAtRange.kind() == SyntaxKind.BRACED_EXPRESSION) {
+        if (matchednode.kind() == SyntaxKind.BRACED_EXPRESSION) {
             returnStatement = String.format("return %s;",
-                    ((BracedExpressionNode) nodeAtRange).expression().toString().strip());
+                    ((BracedExpressionNode) matchednode).expression().toString().strip());
         } else {
-            returnStatement = String.format("return %s;", nodeAtRange.toString().strip());
+            returnStatement = String.format("return %s;", matchednode.toString().strip());
         }
         return generateFunction(functionName, args, returnsClause, returnStatement, newLineAtEnd, false, funcBody);
     }
 
-    private List<Symbol> getVarSymbolsWithinRangeForExpressions(CodeActionContext context) {
-        return getVisibleSymbols(context, PositionUtil.toPosition(context.nodeAtRange().lineRange().endLine())).stream()
+    private List<Symbol> getVarSymbolsWithinRangeForExpressions(Node matchedNode, CodeActionContext context) {
+        return getVisibleSymbols(context, PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
                 .filter(symbol -> context.currentSemanticModel().get().references(symbol).stream()
                         .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                         .getRangeFromLineRange(location.lineRange()),
-                                PositionUtil.toRange(context.nodeAtRange().lineRange()))))
+                                PositionUtil.toRange(matchedNode.lineRange()))))
                 .collect(Collectors.toList());
     }
 

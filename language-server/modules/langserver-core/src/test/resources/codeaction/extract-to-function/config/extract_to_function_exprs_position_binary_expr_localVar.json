@@ -20,20 +20,20 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int localVar) returns int {\n    return localVar;\n}"
+          "newText": "\n\nfunction extracted(int localVar, int moduleVar, int param) returns int {\n    return constant + moduleVar + param + localVar;\n}"
         },
         {
           "range": {
             "start": {
               "line": 5,
-              "character": 47
+              "character": 16
             },
             "end": {
               "line": 5,
               "character": 55
             }
           },
-          "newText": "extracted(localVar)"
+          "newText": "extracted(localVar, moduleVar, param)"
         }
       ]
     }

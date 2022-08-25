@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    return constant;\n}"
+          "newText": "\n\nfunction extracted(int moduleVar) returns int {\n    return constant + moduleVar;\n}"
         },
         {
           "range": {
@@ -30,10 +30,10 @@
             },
             "end": {
               "line": 5,
-              "character": 24
+              "character": 36
             }
           },
-          "newText": "extracted()"
+          "newText": "extracted(moduleVar)"
         }
       ]
     }

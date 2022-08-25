@@ -20,13 +20,13 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int moduleVar) returns int {\n    return moduleVar;\n}"
+          "newText": "\n\nfunction extracted(int moduleVar) returns int {\n    return constant + moduleVar;\n}"
         },
         {
           "range": {
             "start": {
               "line": 5,
-              "character": 27
+              "character": 16
             },
             "end": {
               "line": 5,
