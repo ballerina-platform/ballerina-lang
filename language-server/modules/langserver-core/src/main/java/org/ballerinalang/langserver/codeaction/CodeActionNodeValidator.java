@@ -42,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
@@ -262,8 +263,21 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
     }
 
     @Override
+    public Boolean transform(TypeTestExpressionNode node) {
+        return isVisited(node) || !node.isKeyword().isMissing()
+                && node.typeDescriptor().apply(this)
+                && node.expression().apply(this);
+    }
+
+    @Override
     public Boolean transform(QualifiedNameReferenceNode node) {
-        return isVisited(node) || !node.colon().isMissing() && !node.modulePrefix().isMissing();
+        /*
+            We need to suggest import module code action when,
+            ex: "io<cursor>:" hence we have special cased typed binding pattern.
+         */
+        return isVisited(node) || !node.colon().isMissing() && !node.modulePrefix().isMissing()
+                && node.parent() != null
+                && (node.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN || node.parent().apply(this));
     }
 
     /**

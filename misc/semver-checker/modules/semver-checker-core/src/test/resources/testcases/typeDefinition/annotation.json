@@ -1,0 +1,104 @@
+[
+  {
+    "description": "Add annotation to a type definition\n",
+    "oldCode": "public type Person record {\n\tint age;\n};\n",
+    "newCode": "@deprecated\npublic type Person record {\n\tint age;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "new",
+                    "versionImpact": "ambiguous",
+                    "kind": "module variable annotation",
+                    "message": "a new module variable annotation list is added"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove annotation from a type definition\n",
+    "oldCode": "@tainted\npublic type Person object{\n\tint age;\n\tString name;\n};\n",
+    "newCode": "public type Person object{\n\tint age;\n\tString name;\n};\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "removed",
+                    "versionImpact": "ambiguous",
+                    "kind": "module variable annotation",
+                    "message": "an existing module variable annotation list is removed"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify annotation",
+    "oldCode": "@tainted\npublic type Age ();\n",
+    "newCode": "@deprecated\npublic type Age ();\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "modified",
+                    "versionImpact": "ambiguous",
+                    "kind": "module variable annotation",
+                    "message": "module variable annotation list is modified"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

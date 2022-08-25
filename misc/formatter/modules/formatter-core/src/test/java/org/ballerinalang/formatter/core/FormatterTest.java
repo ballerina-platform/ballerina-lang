@@ -67,6 +67,21 @@ public abstract class FormatterTest {
         }
     }
 
+    public void testWithOptions(String source, String sourcePath) throws IOException {
+        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
+        String content = getSourceText(sourceFilePath);
+        TextDocument textDocument = TextDocuments.from(content);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        FormattingOptions formattingOptions = new FormattingOptions(true, 120);
+        try {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        } catch (FormatterException e) {
+            Assert.fail(e.getMessage(), e);
+        }
+    }
+
     /**
      * Test the formatting functionality for parser test cases.
      *

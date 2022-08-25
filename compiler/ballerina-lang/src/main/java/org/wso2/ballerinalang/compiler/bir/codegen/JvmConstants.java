@@ -176,13 +176,14 @@ public class JvmConstants {
     // other jvm-specific classes
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
-    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonUtils";
+    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
     public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
     public static final String BAL_FUTURE = "io/ballerina/runtime/api/Future";
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/internal/TypeConverter";
     public static final String STRAND_STATE = "io/ballerina/runtime/internal/scheduling/State";
+    public static final String FUNCTION_FRAME = "io/ballerina/runtime/internal/scheduling/FunctionFrame";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
     public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
     public static final String XML_SEQUENCE = "io/ballerina/runtime/internal/values/XmlSequence";
@@ -367,6 +368,8 @@ public class JvmConstants {
     public static final String STRAND_VALUE_ANY = "any";
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
+    public static final String YIELD_LOCATION = "yieldLocation";
+    public static final String YIELD_STATUS = "yieldStatus";
 
     // observability related constants
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";
@@ -409,8 +412,6 @@ public class JvmConstants {
     Max strings constant initializations per method = 64000/12 -> 5000
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
-
-    public static final int BALLERINA_MAX_YIELD_DEPTH = 256;
 
 
     private JvmConstants() {

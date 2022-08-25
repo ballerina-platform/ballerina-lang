@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 10,
+    "character": 12
+  },
+  "source": "fixReturnTypeInUnionContext2.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'boolean|json|int'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 31
+            },
+            "end": {
+              "line": 0,
+              "character": 34
+            }
+          },
+          "newText": "boolean|json|int"
+        }
+      ]
+    }
+  ]
+}

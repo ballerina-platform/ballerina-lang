@@ -253,7 +253,7 @@ function testSimpleQueryExprReturnTable() returns boolean {
 
     Customer[] customerList = [c1, c2, c3];
 
-    CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+    CustomerTable customerTable = table key(id, name) from var customer in customerList
         select {
             id: customer.id,
             name: customer.name,
@@ -276,14 +276,12 @@ function testSimpleQueryExprReturnTable() returns boolean {
 }
 
 function testTableWithDuplicateKeys() {
-    boolean testPassed = false;
-
     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
     Customer c2 = {id: 2, name: "James", noOfItems: 5};
 
     Customer[] customerList = [c1, c2, c1];
 
-    CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+    CustomerTable customerTable = table key(id, name) from var customer in customerList
         select {
             id: customer.id,
             name: customer.name,
@@ -451,7 +449,7 @@ function testKeyLessTableWithReturnTable() returns boolean {
 
     Customer[] customerList = [c1, c2, c3];
 
-    CustomerKeyLessTable|error customerTable = table key(id, name) from var customer in customerList
+    CustomerKeyLessTable customerTable = table key(id, name) from var customer in customerList
         select {
             id: customer.id,
             name: customer.name,
@@ -485,7 +483,7 @@ function testQueryConstructingTableUpdateKeyPanic1() returns error? {
         {id: 1, firstName: "John", lastName: "Doe", age: 25}
     ];
 
-    var result = check table key(id, name) from var user in users
+    var result = table key(id, name) from var user in users
                  where user.age > 21 && user.age < 60
                  select {id: user.id, name: user.firstName, user};
 
@@ -510,7 +508,7 @@ function testQueryConstructingTableUpdateKeyPanic2() returns error? {
     ];
 
     table<record {| readonly int id; readonly string name; User user; |}> key(id, name) result =
-                               check table key(id, name) from var user in users
+                               table key(id, name) from var user in users
                                where user.age > 21 && user.age < 60
                                select {id: user.id, name: user.firstName, user};
 
@@ -531,7 +529,6 @@ type CustomErrorDetail record {|
 type CustomError error<CustomErrorDetail>;
 
 function testTableOnConflict() {
-    boolean testPassed = true;
     error? onConflictError1 = error("Key Conflict", message = "cannot insert.");
     error|null onConflictError2 = ();
     error|null onConflictError3 = null;
@@ -626,7 +623,7 @@ function testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInLetC
     TokenTable|error tbl1 = table key(idx) from int i in 1 ... 3
         let int[] arr = from var j in 1 ... 3 select j
         select {
-            idx: i,
+            idx: arr[i - 1],
             value: "A" + i.toString()
         }
         on conflict error("Duplicate Key");
@@ -645,7 +642,7 @@ function testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInLetC
     TokenTable|error tbl2 = table key(idx) from int i in [1, 2, 1]
         let int[] arr = from var j in 1 ... 3 select j
         select {
-            idx: i,
+            idx: arr[i],
             value: "A" + i.toString()
         }
         on conflict error("Duplicate Key");
@@ -699,7 +696,7 @@ function testMapConstructingQueryExpr() {
 
     Customer[] list1 = [c1, c2, c3];
 
-    map<Customer>|error map1 = map from var customer in list1
+    map<Customer> map1 = map from var customer in list1
         select [customer.id.toString(), customer];
     assertEqual(map1, {"1": {id: 1, name: "Melina", noOfItems: 12}, "2": {id: 2, name: "James", noOfItems: 5}, "3": {id: 3, name: "Anne", noOfItems: 20}});
 
@@ -709,7 +706,7 @@ function testMapConstructingQueryExpr() {
 
     [string:Char, string|int|decimal][] list2 = [t1, t2, t3];
 
-    map<string|int|decimal>|error map2 = map from var item in list2
+    map<string|int|decimal> map2 = map from var item in list2
         select [item[0], item[1]];
     assertEqual(map2, {"a": 1.234d, "b": 123, "c": "a"});
 
@@ -720,7 +717,7 @@ function testMapConstructingQueryExpr() {
 
     [string, int][] list3 = [t4, t5, t6, t7];
 
-    map<string|int>|error map3 = map from var item in list3
+    map<string|int> map3 = map from var item in list3
         select [item[0], item[1]];
     assertEqual(map3, {"a": 123, "b": 123, "c": -123, "zero": 0});
 
@@ -731,26 +728,26 @@ function testMapConstructingQueryExpr() {
 
     [string, int|error][] list4 = [t8, t9, t10, t11];
 
-    map<string|int|error>|error map4 = map from var item in list4
+    map<string|int|error> map4 = map from var item in list4
         select [item[0], item[1]];
 
     map<string|int|error> expectedMap = {"a":123,"b":123,"c":error("Error"),"zero":0};
 
-    assertEqual(expectedMap.length(), (<map<string|int|error>> checkpanic map4).length());
+    assertEqual(expectedMap.length(), (<map<string|int|error>> map4).length());
     foreach var key in expectedMap.keys() {
-        assertEqual(expectedMap[key], (<map<string|int|error>> checkpanic map4)[key]);
+        assertEqual(expectedMap[key], (<map<string|int|error>> map4)[key]);
     }
 }
 
 function testMapConstructingQueryExpr2() {
-    map<int>|error map1 = map from var e in (checkpanic map from var e in [1, 2, 10, 3, 5, 20]
+    map<int> map1 = map from var e in map from var e in [1, 2, 10, 3, 5, 20]
                                 order by e descending
-                                select [e.toString(), e])
+                                select [e.toString(), e]
                                 order by e ascending
                                 select [e.toString(), e];
     assertEqual(map1, {"1":1,"2":2,"3":3,"5":5,"10":10,"20":20});
 
-    map<int>|error map2 = map from var e in (from var e in [1, 2, 5, 4]
+    map<int> map2 = map from var e in (from var e in [1, 2, 5, 4]
                                 let int f = e / 2
                                 order by f ascending
                                 select f)
@@ -776,7 +773,7 @@ function testMapConstructingQueryExprWithDuplicateKeys() {
 
     [string, string|int][] list2 = [t1, t2, t3, t1, t2, t3];
 
-    map<string|int>|error map2 = map from var item in list2
+    map<string|int> map2 = map from var item in list2
         select [item[0], item[1]];
     assertEqual(map2, {"a": "ABC", "b": 123, "c": "a"});
 
@@ -787,7 +784,7 @@ function testMapConstructingQueryExprWithDuplicateKeys() {
 
     [string, int][] list3 = [t4, t5, t4, t6, t6, t7, t7, t4];
 
-    map<string|int>|error map3 = map from var item in list3
+    map<string|int> map3 = map from var item in list3
         select [item[0], item[1]];
     assertEqual(map3, {"a": 123, "b": 123, "c": -123, "zero": 0});
 }
@@ -971,12 +968,12 @@ function testMapConstructingQueryExprWithLimitClause() {
 }
 
 function testMapConstructingQueryExprWithOrderByClause() {
-    map<int>|error sorted1 = map from var e in [1, 2, 10, 3, 5, 20]
+    map<int> sorted1 = map from var e in [1, 2, 10, 3, 5, 20]
                                 order by e ascending
                                 select [e.toString(), e];
     assertEqual(sorted1, {"1":1,"2":2,"3":3,"5":5,"10":10,"20":20});
 
-    map<int>|error sorted2 = map from var e in [1, 2, 10, 3, 5, 20]
+    map<int> sorted2 = map from var e in [1, 2, 10, 3, 5, 20]
                                 order by e descending
                                 select [e.toString(), e];
     assertEqual(sorted2, {"20":20,"10":10,"5":5,"3":3,"2":2,"1":1});
@@ -1003,7 +1000,7 @@ type MapOfIntOrError map<int>|Error;
 type ErrorOrMapOfZeroOrOne Error|map<ZeroOrOne>;
 
 function testMapConstructingQueryExprWithReferenceTypes() {
-    map<ZeroOrOne>|error sorted1 = map from var e in [1, 0, 1, 0, 1, 1]
+    map<ZeroOrOne> sorted1 = map from var e in [1, 0, 1, 0, 1, 1]
                                     order by e ascending
                                     select [e.toString(), <ZeroOrOne> e];
     assertEqual(sorted1, {"0":0,"1":1});
@@ -1013,14 +1010,14 @@ function testMapConstructingQueryExprWithReferenceTypes() {
                                     select [e.toString(), <ZeroOrOne> e];
     assertEqual(sorted2, {"0":0,"1":1});
 
-    map<Json>|error sorted3 = map from var e in ["1", "2", "10", "3", "5", "20"]
+    map<Json> sorted3 = map from var e in ["1", "2", "10", "3", "5", "20"]
                                         order by e ascending
                                         select [e, e] on conflict ();
     assertEqual(sorted3, {"1":"1","10":"10","2":"2","20":"20","3":"3","5":"5"});
 
     MapOfJsonOrError sorted4 = map from var e in ["1", "2", "10", "3", "5", "20"]
                                         order by e ascending
-                                        select [e, e] on conflict ();
+                                        select [e, e] on conflict error("Error");
     assertEqual(sorted4, {"1":"1","10":"10","2":"2","20":"20","3":"3","5":"5"});
 
     MapOfIntOrError sorted5 = map from var e in [1, 2, 5, 4]
@@ -1037,15 +1034,15 @@ function testReadonlyTable() {
 
     Customer[] customerList1 = [c1, c2, c3];
 
-    CustomerKeyLessTable & readonly|error customerTable1 = table key(id, name) from var customer in customerList1
+    CustomerKeyLessTable & readonly customerTable1 = table key(id, name) from var customer in customerList1
         select {
             id: customer.id,
             name: customer.name,
             noOfItems: customer.noOfItems
         };
-    any _ = <readonly> (checkpanic customerTable1);
-    assertEqual((typeof(checkpanic customerTable1)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
-    assertEqual((checkpanic customerTable1).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+    any _ = <readonly> customerTable1;
+    assertEqual((typeof(customerTable1)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
+    assertEqual(customerTable1.toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
 
     Customer[] & readonly customerList2 = [c1, c2, c3].cloneReadOnly();
 
@@ -1059,14 +1056,14 @@ function testReadonlyTable() {
     assertEqual((typeof(checkpanic customerTable2)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
     assertEqual((checkpanic customerTable2).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
 
-    CustomerKeyLessTable|error customerTable3 = table key(id, name) from var customer in customerList2
+    CustomerKeyLessTable customerTable3 = table key(id, name) from var customer in customerList2
         select {
             id: customer.id,
             name: customer.name,
             noOfItems: customer.noOfItems
         } on conflict ();
-    assertEqual((typeof(checkpanic customerTable3)).toString(), "typedesc table<Customer> key(id, name)");
-    assertEqual((checkpanic customerTable3).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+    assertEqual((typeof(customerTable3)).toString(), "typedesc table<Customer> key(id, name)");
+    assertEqual(customerTable3.toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
 }
 
 function testReadonlyTable2() {
@@ -1076,15 +1073,15 @@ function testReadonlyTable2() {
 
     Customer[] customerList1 = [c1, c2, c3];
 
-    CustomerTable & readonly|error customerTable1 = table key(id, name) from var customer in customerList1
+    CustomerTable & readonly customerTable1 = table key(id, name) from var customer in customerList1
         select {
             id: customer.id,
             name: customer.name,
             noOfItems: customer.noOfItems
         };
-    any _ = <readonly> (checkpanic customerTable1);
-    assertEqual((typeof(checkpanic customerTable1)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
-    assertEqual((checkpanic customerTable1).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+    any _ = <readonly> customerTable1;
+    assertEqual((typeof customerTable1).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
+    assertEqual(customerTable1.toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
 
     Customer[] customerList2 = [c1, c2, c3];
 
@@ -1094,14 +1091,14 @@ function testReadonlyTable2() {
     assertEqual((typeof(checkpanic customerTable2)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
     assertEqual((checkpanic customerTable2).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
 
-    CustomerTable|error customerTable3 = table key(id, name) from var customer in customerList2
+    CustomerTable customerTable3 = table key(id, name) from var customer in customerList2
         select {
             id: customer.id,
             name: customer.name,
             noOfItems: customer.noOfItems
         } on conflict ();
-    assertEqual((typeof(checkpanic customerTable3)).toString(), "typedesc table<Customer> key(id, name)");
-    assertEqual((checkpanic customerTable3).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+    assertEqual((typeof(customerTable3)).toString(), "typedesc table<Customer> key(id, name)");
+    assertEqual(customerTable3.toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
 }
 
 type IdRec record {|
@@ -1122,7 +1119,7 @@ function testReadonlyTable3() {
     assertEqual(member1, {"id":1});
   }
 
-  table<IdRec> & readonly|error tbl2 = table key() from var i in [1, 2, 3, 4, 2, 3]
+  table<IdRec> & readonly tbl2 = table key() from var i in [1, 2, 3, 4, 2, 3]
                                              select {
                                                   id: i
                                              };
@@ -1138,7 +1135,7 @@ function testConstructingListOfTablesUsingQueryWithReadonly() {
 
     (table<User> key(id))[] uList = [users1];
 
-    (table<User> key(id))[] & readonly result = from var user in uList
+    (table<User & readonly> key(id))[] & readonly result = from var user in uList
                                     select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [[{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":25}]]");
     assertEqual(result, [table key(id) [{"id":1,"firstName":"John","lastName":"Doe","age":25}]]);
@@ -1149,7 +1146,7 @@ function testConstructingListOfRecordsUsingQueryWithReadonly() {
     Employee emp2 = {firstName: "A2", lastName: "B2", dept: "C2"};
     Employee emp3 = {firstName: "A3", lastName: "B3", dept: "C3"};
 
-    Employee[] & readonly result = from var user in [emp1, emp2, emp3]
+    (Employee & readonly)[] & readonly result = from var user in [emp1, emp2, emp3]
                                 select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [{\"firstName\":\"A1\",\"lastName\":\"B1\",\"dept\":\"C1\"},{\"firstName\":\"A2\",\"lastName\":\"B2\",\"dept\":\"C2\"},{\"firstName\":\"A3\",\"lastName\":\"B3\",\"dept\":\"C3\"}]");
     assertEqual(result, [{"firstName":"A1","lastName":"B1","dept":"C1"},{"firstName":"A2","lastName":"B2","dept":"C2"},{"firstName":"A3","lastName":"B3","dept":"C3"}]);
@@ -1158,7 +1155,7 @@ function testConstructingListOfRecordsUsingQueryWithReadonly() {
 function testConstructingListOfXMLsUsingQueryWithReadonly() {
     xml a = xml `<id> 1 </id> <name> John </name>`;
 
-    xml[] & readonly result = from var user in a
+    (xml & readonly)[] & readonly result = from var user in a
                                 select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [`<id> 1 </id>`,` `,`<name> John </name>`]");
     assertEqual(result, [xml`<id> 1 </id>`,xml` `,xml`<name> John </name>`]);
@@ -1181,13 +1178,12 @@ function testConstructingListOfMapsUsingQueryWithReadonly() {
     assertEqual(result, [{"item":[1,2]},{"item":"a"},{"item":"b"},{"item":[-1,9223372036854775807]}]);
 }
 
-type T readonly & record {
+type T record {
     string[] params;
 };
 
 function testConstructingListInRecordsUsingQueryWithReadonly() {
     T rec1 = { params: from var s in ["a", "b", "c", "abc"] select s };
-    assertEqual((typeof(rec1)).toString(), "typedesc {\"params\":[\"a\",\"b\",\"c\",\"abc\"]}");
     assertEqual(rec1, {"params":["a","b","c","abc"]});
 }
 
@@ -1202,23 +1198,23 @@ type ImmutableMapOfInt map<int> & readonly;
 type ErrorOrImmutableMapOfInt ImmutableMapOfInt|error;
 
 function testReadonlyMap1() {
-    map<int> & readonly|error mp1 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+    map<int> & readonly mp1 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
                                         select item;
-    any _ = <readonly> (checkpanic mp1);
+    any _ = <readonly> mp1;
     assertEqual((typeof(mp1)).toString(), "typedesc {\"1\":1,\"2\":2,\"3\":3,\"4\":4}");
     assertEqual(mp1, {"1":1,"2":2,"3":3,"4":4});
 
-    ImmutableMapOfInt|error mp2 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+    ImmutableMapOfInt mp2 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
                                         select item;
-    any _ = <readonly> (checkpanic mp2);
+    any _ = <readonly> mp2;
     assertEqual((typeof(mp2)).toString(), "typedesc {\"1\":1,\"2\":2,\"3\":3,\"4\":4}");
     assertEqual(mp2, {"1":1,"2":2,"3":3,"4":4});
 
 
-    ImmutableMapOfDept|error mp3 = map from var item in ["ABC", "DEF", "XY"]
+    ImmutableMapOfDept mp3 = map from var item in ["ABC", "DEF", "XY"]
                                         let DepartmentDetails & readonly dept = {dept: item}
                                         select [item, dept];
-    any _ = <readonly> (checkpanic mp3);
+    any _ = <readonly> mp3;
     assertEqual((typeof(mp3)).toString(), "typedesc {\"ABC\":{\"dept\":\"ABC\"},\"DEF\":{\"dept\":\"DEF\"},\"XY\":{\"dept\":\"XY\"}}");
     assertEqual(mp3, {"ABC":{"dept":"ABC"},"DEF":{"dept":"DEF"},"XY":{"dept":"XY"}});
 
@@ -1231,7 +1227,7 @@ function testReadonlyMap1() {
 }
 
 function testReadonlyMap2() {
-    map<int> & readonly|error mp1 = map from var item in [["1", 1], ["2", 2], ["2", 3], ["4", 4]]
+    map<int> & readonly mp1 = map from var item in [["1", 1], ["2", 2], ["2", 3], ["4", 4]]
                                         select [item[0], item[1] * 2] on conflict ();
     assertEqual(mp1, {"1":2,"2":6,"4":8});
 
@@ -1250,6 +1246,92 @@ function testReadonlyMap2() {
                                         where item[1] > 1
                                         select item on conflict conflictMsg;
     assertEqual(mp4, {"2":2,"3":3,"1":4});
+}
+
+class EvenNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {| int value; |}|error {
+        return error("Greater than 20!");
+    }
+}
+
+type ResultValue record {|
+    int value;
+|};
+
+type NumberRecord record {|
+    readonly int id;
+    string value;
+|};
+
+function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError() {
+    EvenNumberGenerator evenGen = new();
+    stream<int, error> evenNumberStream = new(evenGen);
+
+    map<int>|error map1 = map from var item in evenNumberStream
+                        select [item.toBalString(), item];
+    assertEqual(map1, error("Greater than 20!"));
+
+    table<ResultValue>|error table1 = table key() from var item in evenNumberStream
+                                    select {value: item};
+    assertEqual(table1, error("Greater than 20!"));
+
+    table<NumberRecord> key(id)|error table2 = table key(id) from var item in evenNumberStream
+                                            select {id: item, value: item.toBalString()};
+    assertEqual(table2, error("Greater than 20!"));
+
+    // Enable following tests after fixing issue - lang/#36746
+    // map<int>|error map2 = map from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select [secondNo.toBalString(), secondNo];
+    // assertEqual(map2, error("Greater than 20!"));
+
+    // table<NumberRecord> key()|error table3 = table key() from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select {id: secondNo, value: secondNo.toBalString()};
+    // assertEqual(table3, error("Greater than 20!"));
+
+    // table<NumberRecord> key(id)|error table4 = table key(id) from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select {id: secondNo, value: secondNo.toBalString()};
+    // assertEqual(table4, error("Greater than 20!"));
+
+    map<int>|error map3 = map from var firstNo in [1, 4, 4, 10]
+                            select [firstNo.toBalString(), firstNo] on conflict error("Error");
+    assertEqual(map3, error("Error"));
+
+    table<NumberRecord> key(id)|error table6 = table key(id) from var firstNo in [1, 4, 4, 10]
+                            select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error");
+    assertEqual(table6, error("Error"));
+}
+
+function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2() {
+    EvenNumberGenerator evenGen = new();
+    stream<int, error> evenNumberStream = new(evenGen);
+
+    map<int>|error map1 = map from var item in (from var integer in evenNumberStream select integer)
+                            select [item.toBalString(), item];
+    assertEqual(map1, error("Greater than 20!"));
+
+    table<ResultValue>|error table1 = table key() from var item in (from var integer in evenNumberStream select integer)
+                                        select {value: item};
+    assertEqual(table1, error("Greater than 20!"));
+
+    table<NumberRecord> key(id)|error table2 = table key(id) from var item in (from var integer in evenNumberStream select integer)
+                                                select {id: item, value: item.toBalString()};
+    assertEqual(table2, error("Greater than 20!"));
+
+    map<int>|error map3 = map from var item in (from var integer in (from var integer in evenNumberStream select integer) select integer)
+                            select [item.toBalString(), item];
+    assertEqual(map3, error("Greater than 20!"));
+
+    table<ResultValue>|error table4 = table key() from var item in
+                                        (from var integer in (from var integer in evenNumberStream select integer) select integer)
+                                            select {value: item};
+    assertEqual(table4, error("Greater than 20!"));
 }
 
 function assertEqual(anydata|error actual, anydata|error expected) {

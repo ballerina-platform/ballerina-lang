@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -408,6 +409,8 @@ public class BIRPackageSymbolEnter {
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
+        boolean isResourceFunction = dataInStream.readBoolean();
+        
         if (this.currentStructure != null) {
             BType attachedType = Types.getReferredType(this.currentStructure.type);
 
@@ -417,18 +420,53 @@ public class BIRPackageSymbolEnter {
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
-                // todo: Define resource function from BIR
-                BAttachedFunction attachedFunc =
-                        new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
-                                              symTable.builtinPos);
-                BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
-                if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
-                        || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                    structureTypeSymbol.initializerFunc = attachedFunc;
-                } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
-                    ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
+                if (isResourceFunction) {
+                    int pathParamCount = dataInStream.readInt();
+                    List<BVarSymbol> pathParams = new ArrayList<>(pathParamCount);
+                    for (int i = 0; i < pathParamCount; i++) {
+                        Name pathParamName = names.fromString(getStringCPEntryValue(dataInStream));
+                        BType paramType = readBType(dataInStream);
+                        BVarSymbol varSymbol = new BVarSymbol(0, pathParamName, this.env.pkgSymbol.pkgID,
+                                paramType, null, symTable.builtinPos, COMPILED_SOURCE);
+                        pathParams.add(varSymbol);
+                    }
+
+                    boolean restPathParamExist = dataInStream.readBoolean();
+                    BVarSymbol restPathParam = null;
+                    if (restPathParamExist) {
+                        Name pathParamName = names.fromString(getStringCPEntryValue(dataInStream));
+                        BType paramType = readBType(dataInStream);
+                        restPathParam = new BVarSymbol(0, pathParamName, this.env.pkgSymbol.pkgID, paramType,
+                                null, symTable.builtinPos, COMPILED_SOURCE);
+                    }
+
+                    int resourcePathCount = dataInStream.readInt();
+                    List<Name> resourcePath = new ArrayList<>(resourcePathCount);
+                    for (int i = 0; i < resourcePathCount; i++) {
+                        resourcePath.add(names.fromString(getStringCPEntryValue(dataInStream)));
+                    }
+
+                    Name accessor = names.fromString(getStringCPEntryValue(dataInStream));
+                    BTupleType resourcePathType = (BTupleType) readBType(dataInStream);
+                    
+                    BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName), 
+                            invokableSymbol, funcType, resourcePath, accessor, pathParams, restPathParam,
+                            resourcePathType, symTable.builtinPos);
+                    
+                    ((BStructureTypeSymbol) attachedType.tsymbol).attachedFuncs.add(resourceFunction);
                 } else {
-                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                    BAttachedFunction attachedFunc =
+                            new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
+                                    symTable.builtinPos);
+                    BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                    if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
+                            || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                        structureTypeSymbol.initializerFunc = attachedFunc;
+                    } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
+                        ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
+                    } else {
+                        structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                    }
                 }
             }
         }
@@ -1581,9 +1619,10 @@ public class BIRPackageSymbolEnter {
                         ignoreAttachedFunc();
                     }
                     int funcCount = inputStream.readInt();
+                    boolean isImmutable = isImmutable(objectSymbol.flags);
                     for (int i = 0; i < funcCount; i++) {
                         //populate intersection type object functions
-                        if (isImmutable(objectSymbol.flags) && Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
+                        if (isImmutable) {
                             populateIntersectionTypeReferencedFunctions(inputStream, objectSymbol);
                         } else {
                             ignoreAttachedFunc();
@@ -1714,33 +1753,30 @@ public class BIRPackageSymbolEnter {
             String attachedFuncName = getStringCPEntryValue(inputStream);
             String attachedFuncOrigName = getStringCPEntryValue(inputStream);
             var attachedFuncFlags = inputStream.readLong();
-            if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
-                    Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
-                BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
-                Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                        objectSymbol.name.value, attachedFuncName));
-                Name funcOrigName = names.fromString(attachedFuncOrigName);
-                BInvokableSymbol attachedFuncSymbol =
-                        Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
-                                env.pkgSymbol.pkgID, attachedFuncType,
-                                env.pkgSymbol, false, symTable.builtinPos,
-                                COMPILED_SOURCE);
-                BAttachedFunction attachedFunction = new BAttachedFunction(names.fromString(attachedFuncName),
-                        attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
+            BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
+            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(
+                    objectSymbol.name.value, attachedFuncName));
+            Name funcOrigName = Names.fromString(attachedFuncOrigName);
+            BInvokableSymbol attachedFuncSymbol =
+                    Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
+                            env.pkgSymbol.pkgID, attachedFuncType,
+                            env.pkgSymbol, false, symTable.builtinPos,
+                            COMPILED_SOURCE);
+            BAttachedFunction attachedFunction = new BAttachedFunction(Names.fromString(attachedFuncName),
+                    attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
 
-                setInvokableTypeSymbol(attachedFuncType);
+            setInvokableTypeSymbol(attachedFuncType);
 
-                if (!Symbols.isFlagOn(attachedFuncType.flags, Flags.ANY_FUNCTION)) {
-                    BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) attachedFuncType.tsymbol;
-                    attachedFuncSymbol.params = tsymbol.params;
-                    attachedFuncSymbol.restParam = tsymbol.restParam;
-                    attachedFuncSymbol.retType = tsymbol.returnType;
-                }
-
-                objectSymbol.referencedFunctions.add(attachedFunction);
-                objectSymbol.attachedFuncs.add(attachedFunction);
-                objectSymbol.scope.define(funcName, attachedFuncSymbol);
+            if (!Symbols.isFlagOn(attachedFuncType.flags, Flags.ANY_FUNCTION)) {
+                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) attachedFuncType.tsymbol;
+                attachedFuncSymbol.params = tsymbol.params;
+                attachedFuncSymbol.restParam = tsymbol.restParam;
+                attachedFuncSymbol.retType = tsymbol.returnType;
             }
+
+            objectSymbol.referencedFunctions.add(attachedFunction);
+            objectSymbol.attachedFuncs.add(attachedFunction);
+            objectSymbol.scope.define(funcName, attachedFuncSymbol);
         }
     }
 

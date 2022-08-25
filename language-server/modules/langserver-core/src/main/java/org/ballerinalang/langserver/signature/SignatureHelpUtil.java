@@ -399,7 +399,7 @@ public class SignatureHelpUtil {
             functionSymbols.add(((ClassSymbol) rawType).initMethod().get());
         }
         if (rawType.typeKind() == TypeDescKind.UNION) {
-            ((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream()
+            ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
                     .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
                     .findFirst().ifPresent(objectMember ->
                     functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));

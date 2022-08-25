@@ -195,7 +195,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(globalVariables, "nameWithoutType", "\"Ballerina\"", "string");
         debugTestRunner.assertVariable(globalVariables, "nameWithType", "\"Ballerina\"", "string");
         debugTestRunner.assertVariable(globalVariables, "nameMap", "(debug_test_resources/variable_tests" +
-                ":0:$anonType$_10 & readonly)", "record");
+                ":0:$anonType$nameMap$_0 & readonly)", "record");
         debugTestRunner.assertVariable(globalVariables, "nilWithoutType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "nilWithType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "RED", "\"RED\"", "string");
@@ -328,7 +328,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "letVar", "\"Hello Ballerina!\"", "string");
     }
 
-    @Test(description = "Child variable visibility test for local variables at the last line of main() method")
+    @Test(enabled = false, description = "Child variable visibility test for local variables at the last line of main" +
+            "() method")
     public void localVariableChildrenVisibilityTest() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 326));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);

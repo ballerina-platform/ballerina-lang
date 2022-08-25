@@ -52,8 +52,6 @@ public class BSpan {
     private BMap<BString, Object> bSpanContext;
     private static final MapType IMMUTABLE_STRING_MAP_TYPE = TypeCreator.createMapType(
             PredefinedTypes.TYPE_STRING, true);
-    private static final BMap<BString, Object> EMPTY_BSPAN_CONTEXT = ValueCreator.createMapValue(
-            IMMUTABLE_STRING_MAP_TYPE);
 
     private static PropagatingParentContextGetter getter = new PropagatingParentContextGetter();
     private static PropagatingParentContextSetter setter = new PropagatingParentContextSetter();
@@ -178,19 +176,15 @@ public class BSpan {
 
         if (bSpanContext == null) {
             SpanContext spanContext = span.getSpanContext();
-            if (spanContext.isSampled()) {
-                BMapInitialValueEntry[] values = new BMapInitialValueEntry[]{
-                        new MappingInitialValueEntry.KeyValueEntry(
-                                TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID,
-                                StringUtils.fromString(spanContext.getTraceId())),
-                        new MappingInitialValueEntry.KeyValueEntry(
-                                TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID,
-                                StringUtils.fromString(spanContext.getSpanId()))
-                };
-                bSpanContext = ValueCreator.createMapValue(IMMUTABLE_STRING_MAP_TYPE, values);
-            } else {
-                bSpanContext = EMPTY_BSPAN_CONTEXT;
-            }
+            BMapInitialValueEntry[] values = new BMapInitialValueEntry[]{
+                    new MappingInitialValueEntry.KeyValueEntry(
+                            TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID,
+                            StringUtils.fromString(spanContext.getTraceId())),
+                    new MappingInitialValueEntry.KeyValueEntry(
+                            TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID,
+                            StringUtils.fromString(spanContext.getSpanId()))
+            };
+            bSpanContext = ValueCreator.createMapValue(IMMUTABLE_STRING_MAP_TYPE, values);
         }
         return bSpanContext;
     }

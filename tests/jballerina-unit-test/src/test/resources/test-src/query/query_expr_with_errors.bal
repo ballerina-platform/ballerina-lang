@@ -110,8 +110,9 @@ public function queryWithACheckFailEncl() {
 public function queryWithACheckFail() returns int[]|error {
     // If the evaluation of an expression within the query-expr completing abruptly with a check-fail,
     // an error will get propagated to the query result level.
-    int[]|error intArr = from var item in [1, 2, 3]
+    int[] intArr = from var item in [1, 2, 3]
                  select check verifyCheck(item);
+    assertEquality(true, false); // this shouldn't be reachable.
     return intArr;
 }
 
@@ -182,21 +183,23 @@ public type SemanticDiagnostic record {|
 |};
 
 function testDistinctErrorReturn() {
-    getIntArrayOrSemanticError();
+    SemanticError|int[] val1 = getIntArrayOrSemanticError();
+    assertTrue(val1 is SemanticError);
 
-    getIntArrayOrUnreachableError();
+    UnreachableError|int[] val2 = getIntArrayOrUnreachableError();
+    assertTrue(val2 is UnreachableError);
 }
 
-function getIntArrayOrSemanticError() {
-    int[]|SemanticError val = from var _ in [1, 2, 3]
+function getIntArrayOrSemanticError() returns int[]|SemanticError {
+    int[] val = from var _ in [1, 2, 3]
         select check throwSemanticError();
-    assertTrue(val is SemanticError);
+    return val;
 }
 
-function getIntArrayOrUnreachableError() {
-    int[]|UnreachableError val = from var _ in [1, 2, 3]
+function getIntArrayOrUnreachableError() returns int[]|UnreachableError {
+    int[] val = from var _ in [1, 2, 3]
         select check throwUnreachableError();
-    assertTrue(val is UnreachableError);
+    return val;
 }
 
 function throwSemanticError() returns int|SemanticError {
@@ -210,7 +213,7 @@ function throwUnreachableError() returns int|UnreachableError {
 function testCatchingErrorAtOnFail() {
     error? res1 = ();
     do {
-        _ = check from int v in 1 ... 3
+        _ = from int v in 1 ... 3
             select check verifyCheck(v);
     } on fail error err {
         res1 = err;
@@ -220,10 +223,10 @@ function testCatchingErrorAtOnFail() {
     error? res2 = ();
     do {
         do {
-            _ = check from int v in 1 ... 3
+            _ = from int v in 1 ... 3
                 select check verifyCheck(v);
         } on fail error err {
-            _ = check from int v in 1 ... 3
+          _ = from int v in 1 ... 3
                 select check verifyCheck(v);
         }
     } on fail error err {
@@ -233,7 +236,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res3 = ();
     do {
-        _ = check from int v in 1 ... 3
+        _ = from int v in 1 ... 3
             let int intVal = check verifyCheck(v)
             select 1;
     } on fail error err {
@@ -243,7 +246,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res4 = ();
     do {
-        _ = check from int a in (check from int v in [1, 2]
+        _ = from int a in (from int v in [1, 2]
                 let int m = check verifyCheck(v)
                 select m)
             select a;
@@ -254,7 +257,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res5 = ();
     do {
-        _ = check from int a in (check from int v in [1, 2]
+        _ = from int a in (from int v in [1, 2]
                 select check verifyCheck(v))
             select a;
     } on fail error err {
@@ -264,7 +267,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res6 = ();
     do {
-        _ = check from int a in (check from int v in check verifyCheckArr()
+        _ = from int a in (from int v in check verifyCheckArr()
                 select v)
             select a;
     } on fail error err {
@@ -274,9 +277,9 @@ function testCatchingErrorAtOnFail() {
 
     error? res7 = ();
     do {
-        _ = check from int a in (check from int v in (check from int i in 1 ... 3
+        _ = from int a in from int v in (from int i in 1 ... 3
                     select check verifyCheck(i))
-                select v)
+                select v
             select a;
     } on fail error err {
         res7 = err;
@@ -285,7 +288,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res8 = ();
     do {
-        _ = check from int v in 1 ... 3
+        _ = from int v in 1 ... 3
             where check verifyCheck(v) == 1
             select v;
     } on fail error err {
@@ -295,7 +298,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res9 = ();
     do {
-        _ = check from int v in (check from int i in 1 ... 3
+        _ = from int v in (from int i in 1 ... 3
                 where check verifyCheck(i) == 1
                 select i)
             select v;
@@ -306,8 +309,8 @@ function testCatchingErrorAtOnFail() {
 
     error? res10 = ();
     do {
-        _ = check from int i in 1 ... 3
-            join int j in (check from int jj in 1 ... 3
+        _ = from int i in 1 ... 3
+            join int j in (from int jj in 1 ... 3
                 select check verifyCheck(jj))
             on i equals j
             select i;
@@ -318,7 +321,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res11 = ();
     do {
-        _ = check from int i in 1 ... 3
+        _ = from int i in 1 ... 3
             join int j in 1 ... 3
             on check verifyCheck(i) equals j
             select i;
@@ -329,7 +332,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res12 = ();
     do {
-        _ = check from int i in 1 ... 3
+        _ = from int i in 1 ... 3
             join int j in 1 ... 3
             on i equals check verifyCheck(j)
             select i;
@@ -340,7 +343,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res13 = ();
     do {
-        _ = check from int i in 1 ... 3
+        _ = from int i in 1 ... 3
            order by check verifyCheck(i)
            select i;
     } on fail error err {
@@ -350,8 +353,8 @@ function testCatchingErrorAtOnFail() {
 
     error? res14 = ();
     do {
-        _ = check from int i in 1 ... 3
-            outer join int j in (check from int jj in 1 ... 3
+        _ = from int i in 1 ... 3
+            outer join int j in (from int jj in 1 ... 3
                 select check verifyCheck(jj))
             on i equals j
             select i;
@@ -366,7 +369,7 @@ function testErrorReturnedFromSelect() {
 }
 
 function checkErrorAtSelect() returns error? {
-    _ = check from int v in 1 ... 3
+    _ = from int v in 1 ... 3
         select check verifyCheck(v);
 }
 
@@ -376,13 +379,13 @@ function testErrorReturnedFromWhereClause() {
 }
 
 function checkErrorAtWhere1() returns error? {
-    _ = check from int v in 1 ... 3
+    _ = from int v in 1 ... 3
         where check verifyCheck(v) == 1
         select v;
 }
 
 function checkErrorAtWhere2() returns error? {
-    _ = check from int v in (check from int i in 1 ... 3
+    _ = from int v in (from int i in 1 ... 3
             where check verifyCheck(i) == 1
             select i)
         select v;
@@ -394,13 +397,13 @@ function testErrorReturnedFromLetClause() {
 }
 
 function checkErrorAtLet1() returns error? {
-    _ = check from int v in 1 ... 3
+    _ = from int v in 1 ... 3
         let int newVar = check verifyCheck(v)
         select v;
 }
 
 function checkErrorAtLet2() returns error? {
-    _ = check from int v in (check from int i in 1 ... 3
+    _ = from int v in (from int i in 1 ... 3
             let int newVar = check verifyCheck(i)
             select i)
         select v;
@@ -412,13 +415,13 @@ function testErrorReturnedFromLimitClause() {
 }
 
 function checkErrorAtLimitClause1() returns error? {
-    _ = check from int i in 1 ... 3
+    _ = from int i in 1 ... 3
         limit check verifyCheck(i)
         select i;
 }
 
 function checkErrorAtLimitClause2() returns error? {
-    _ = check from int v in (check from int i in 1 ... 3
+    _ = from int v in (from int i in 1 ... 3
             limit check verifyCheck(i)
             select i)
         select v;
@@ -434,44 +437,44 @@ function testErrorReturnedFromJoinClause() {
 }
 
 function checkErrorAtJoinClause() returns error? {
-    _ = check from int i in 1 ... 3
-        join int j in (check from int jj in 1 ... 3
+    _ = from int i in 1 ... 3
+        join int j in (from int jj in 1 ... 3
             select check verifyCheck(jj))
         on i equals j
         select i;
 }
 
 function checkErrorAtOnEqualLHS() returns error? {
-    _ = check from int i in 1 ... 3
+    _ = from int i in 1 ... 3
         join int j in 1 ... 3
         on check verifyCheck(i) equals j
         select i;
 }
 
 function checkErrorAtOnEqualRHS() returns error? {
-    _ = check from int i in 1 ... 3
+    _ = from int i in 1 ... 3
         join int j in 1 ... 3
         on i equals check verifyCheck(j)
         select i;
 }
 
 function checkErrorAtOuterJoin() returns error? {
-    _ = check from int i in 1 ... 3
-        outer join int j in (check from int jj in 1 ... 3
+    _ = from int i in 1 ... 3
+        outer join int j in (from int jj in 1 ... 3
             select check verifyCheck(jj))
         on i equals j
         select i;
 }
 
 function checkErrorAtOuterJoinOnEqualLHS() returns error? {
-    _ = check from int i in 1 ... 3
+    _ = from int i in 1 ... 3
         outer join int j in 1 ... 3
         on check verifyCheck(i) equals j
         select i;
 }
 
 function checkErrorAtOuterJoinOnEqualRHS() returns error? {
-    _ = check from int i in 1 ... 3
+    _ = from int i in 1 ... 3
         outer join int j in 1 ... 3
         on i equals check verifyCheck(j)
         select i;
@@ -482,198 +485,9 @@ function testErrorReturnedFromOrderByClause() {
 }
 
 function checkErrorAtOrderBy() returns error? {
-    _ = check from int i in 1...3
+    _ = from int i in 1...3
        order by check verifyCheck(i)
        select i;
-}
-
-type CustomError distinct error;
-
-class Iterable {
-    *object:Iterable;
-    public function iterator() returns object {
-
-        public isolated function next() returns record {|int value;|}?;
-    } {
-        return object {
-            public isolated function next() returns record {|int value;|}? {
-                return {
-                    value: 0
-                };
-            }
-        };
-    }
-}
-
-class IterableWithCustomError {
-    *object:Iterable;
-    public function iterator() returns object {
-
-        public isolated function next() returns record {|int value;|}|CustomError?;
-    } {
-        return object {
-            public isolated function next() returns record {|int value;|}|CustomError? {
-                    return error CustomError("custom");
-            }
-        };
-    }
-}
-
-class IterableWithErrorPanic {
-    *object:Iterable;
-    public function iterator() returns object {
-
-        public isolated function next() returns record {|int value;|}|error;
-    } {
-        return object {
-            public isolated function next() returns record {|int value;|}|error {
-                panic error("Custom error");
-            }
-        };
-    }
-}
-
-Iterable numGen = new Iterable();
-
-IterableWithCustomError numGenWithError = new IterableWithCustomError();
-
-IterableWithErrorPanic numGenWithPanic = new IterableWithErrorPanic();
-
-type ValueRecord record {|
-    int value;
-|};
-
-function testErrorReturnedFromStreamConstruction() {
-    stream<int> stream1 = stream from int i in numGen
-        select i;
-    int? val1 = stream1.next()?.value;
-    assertEquality(val1, 0);
-
-    stream<int, CustomError?> stream2 = stream from int i in numGenWithError
-        select i;
-    ValueRecord|CustomError? val2 = stream2.next();
-    assertTrue(val2 is CustomError);
-
-    stream<int, CustomError?> stream3 = stream from int i in 1...3
-        select check getIntOrCustomError();
-    ValueRecord|CustomError? val3 = stream3.next();
-    assertTrue(val3 is CustomError);
-
-    stream<int, CustomError?> stream4 = stream from int i in 1...2
-        let var res = (check from int j in 1...3 select check getIntOrCustomError())
-        select i;
-    ValueRecord|CustomError? val4 = stream4.next();
-    assertTrue(val4 is CustomError);
-
-    stream<int, CustomError?> stream5 = stream from int i in (stream from int j in 1...3
-                                                        select check getIntOrCustomError())
-                                        select i;
-    ValueRecord|CustomError? val5 = stream5.next();
-    assertTrue(val5 is CustomError);
-
-    stream<int, error?> stream6 = stream from int i in numGenWithPanic
-        select i;
-    ValueRecord|error? val6 = trap stream6.next();
-    assertTrue(val6 is error);
-
-    stream<int, error?> stream7 = stream from int i in (stream from int j in 1...3
-                                                        select verifyPanic(j))
-                                        select i;
-    ValueRecord|error? val7 = trap stream7.next();
-    assertTrue(val7 is error);
-
-    stream<int, CustomError?> stream8 = stream from int i in (check from int j in 1...3
-                                                        select check getIntOrCustomError())
-                                        select i;
-    ValueRecord|CustomError? val8 = stream8.next();
-    assertTrue(val8 is error);
-}
-
-type Customer record {
-    readonly int id;
-    readonly string name;
-    int noOfItems;
-};
-
-type CustomerTable table<Customer> key(id);
-
-function testErrorReturnedFromTableConstruction() {
-    CustomerTable|error customerTable1 = table key(id) from int i in 1 ... 3
-        select check getCustomerOrError();
-    assertTrue(customerTable1 is error);
-
-    CustomerTable|error customerTable2 = table key(id) from int i in 1 ... 3
-        let int id = check verifyCheck(i)
-        select {id: 1, name: "Melina", noOfItems: 12};
-    assertTrue(customerTable2 is error);
-
-    CustomerTable|error customerTable3 = table key(id) from int i in check verifyCheckArr()
-        select {id: 1, name: "Melina", noOfItems: 12};
-    assertTrue(customerTable3 is error);
-
-    CustomerTable|CustomError|error customerTable4 = table key(id) from int i in numGenWithError
-        select check getCustomerOrError();
-    assertTrue(customerTable4 is error);
-
-    CustomError onConflictError = error ("key conflict");
-    CustomerTable|CustomError customerTable5 = table key(id) from int i in [1, 2, 1]
-        select {id: i, name: "Jake", noOfItems: 2}
-        on conflict onConflictError;
-    assertTrue(customerTable5 is CustomError);
-}
-
-xml theXml = xml `<book>the book</book>`;
-xml bitOfText = xml `bit of text\u2702\u2705`;
-xml compositeXml = theXml + bitOfText;
-
-function testErrorReturnedFromXmlConstruction() {
-    xml|error xml1 = from var elem in compositeXml
-        select check getXmlOrError();
-    assertTrue(xml1 is error);
-
-    xml|error xml2 = from var elem in check getXmlArrOrError()
-        select theXml;
-    assertTrue(xml2 is error);
-
-    xml|CustomError xml3 = from var elem in compositeXml
-        let int i = check getIntOrCustomError()
-        select theXml;
-    assertTrue(xml3 is CustomError);
-
-    xml|error xml4 = from var elem in (check from var x in check getXmlArrOrError()
-            select x)
-        select theXml;
-    assertTrue(xml4 is error);
-}
-
-function testErrorReturnedFromArrayConstruction() {
-    int[]|CustomError arr1 = from int i in numGenWithError
-        select i;
-    assertTrue(arr1 is CustomError);
-    assertTrue(arr1 is error);
-
-    int[]|CustomError arr2 = from int i in 1 ... 3
-        select check getIntOrCustomError();
-    assertTrue(arr2 is CustomError);
-
-    int[]|CustomError arr3 = from int i in numGenWithError
-        select check getIntOrCustomError();
-    assertTrue(arr3 is CustomError);
-
-    CustomError|int[] arr4 = from int i in 1 ... 3
-        let int j = check getIntOrCustomError()
-        select j;
-    assertTrue(arr4 is CustomError);
-
-    int[]|error arr5 = from int i in 1 ... 3
-        where i == check getIntOrCustomError()
-        select i;
-    assertTrue(arr5 is error);
-
-    int[]|error arr6 = from int i in ((check from int j in [1, 2]
-                            select check getIntOrCustomError()))
-                        select i;
-    assertTrue(arr6 is error);
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------
@@ -688,22 +502,6 @@ public function verifyPanic(int i) returns int {
 
 public function verifyCheckArr() returns int[]|error {
     return error("Verify Check.");
-}
-
-function getIntOrCustomError() returns int|CustomError {
-    return error CustomError("Custom error");
-}
-
-function getCustomerOrError() returns Customer|error {
-    return error("Dummy Error");
-}
-
-function getXmlOrError() returns xml|error {
-    return error("Custom error");
-}
-
-function getXmlArrOrError() returns xml[]|error {
-    return error("Custom error");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

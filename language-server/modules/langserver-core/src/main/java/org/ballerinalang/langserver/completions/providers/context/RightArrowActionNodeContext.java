@@ -89,7 +89,8 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
         }
         TypeSymbol typeDescriptor = CommonUtil.getRawType(SymbolUtil.getTypeDescriptor(symbol).orElseThrow());
         return ((ObjectTypeSymbol) typeDescriptor).methods().values().stream()
-                .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
+                .filter(method -> method.qualifiers().contains(Qualifier.REMOTE) 
+                        || method.qualifiers().contains(Qualifier.RESOURCE))
                 .collect(Collectors.toList());
     }
 }

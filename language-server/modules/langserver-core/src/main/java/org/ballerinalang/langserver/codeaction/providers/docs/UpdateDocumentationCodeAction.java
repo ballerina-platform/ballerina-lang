@@ -22,13 +22,13 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.UpdateDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
@@ -47,7 +47,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
+public class UpdateDocumentationCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Update Documentation";
 
@@ -87,17 +87,17 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
 
         String code = diagnostic.diagnosticInfo().code();
         return DIAGNOSTIC_IDS.stream().anyMatch(id -> id.equals(code)) &&
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
 
         String docUri = context.fileUri();
         SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
-        Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(context.cursorPosition(), syntaxTree);
+        Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(context.range(), syntaxTree);
         if (topLevelNode.isEmpty()) {
             return Collections.emptyList();
         }
@@ -119,7 +119,7 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
 
         String commandTitle = CommandConstants.UPDATE_DOCUMENTATION_TITLE;
         Command command = new Command(commandTitle, UpdateDocumentationExecutor.COMMAND, args);
-        CodeAction action = createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
+        CodeAction action = CodeActionUtil.createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
         action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList(diagnostic)));
         return Collections.singletonList(action);
     }
