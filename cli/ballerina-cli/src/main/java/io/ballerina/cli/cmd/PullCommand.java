@@ -49,6 +49,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
@@ -251,9 +252,9 @@ public class PullCommand implements BLauncherCmd {
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
 
         // Delete package cache if available
-        File packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version).toFile();
-        if (packageCacheDir.exists()) {
-            packageCacheDir.delete();
+        Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
+        if (packageCacheDir.toFile().exists()) {
+            deleteDirectory(packageCacheDir);
         }
 
         // getResolution pulls all dependencies of the pulled package
