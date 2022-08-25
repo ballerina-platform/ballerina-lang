@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(Student kamal) returns Student {\n    return kamal;\n}\n"
+          "newText": "\n\nfunction extracted(Student kamal) returns boolean {\n    return kamal.isAsian;\n}\n"
         },
         {
           "range": {
@@ -30,7 +30,7 @@
             },
             "end": {
               "line": 24,
-              "character": 27
+              "character": 35
             }
           },
           "newText": "extracted(kamal)"

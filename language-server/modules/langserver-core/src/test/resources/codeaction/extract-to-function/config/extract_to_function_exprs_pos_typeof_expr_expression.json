@@ -20,13 +20,13 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int localVar) returns int {\n    return localVar;\n}\n"
+          "newText": "\n\nfunction extracted(int localVar) returns typedesc<int> {\n    return typeof localVar;\n}\n"
         },
         {
           "range": {
             "start": {
               "line": 2,
-              "character": 42
+              "character": 35
             },
             "end": {
               "line": 2,

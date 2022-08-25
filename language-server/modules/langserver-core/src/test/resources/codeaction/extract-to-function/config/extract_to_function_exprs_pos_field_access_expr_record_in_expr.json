@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(record {|int age; anydata...;|} nimal) returns Person {\n    return nimal;\n}\n"
+          "newText": "\n\nfunction extracted(record {|int age; anydata...;|} nimal) returns int {\n    return nimal.age;\n}\n"
         },
         {
           "range": {
@@ -30,7 +30,7 @@
             },
             "end": {
               "line": 22,
-              "character": 26
+              "character": 30
             }
           },
           "newText": "extracted(nimal)"

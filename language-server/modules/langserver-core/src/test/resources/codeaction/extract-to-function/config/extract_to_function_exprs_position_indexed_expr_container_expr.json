@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(string[] testArr) returns string[] {\n    return testArr;\n}\n"
+          "newText": "\n\nfunction extracted(string[] testArr) returns string {\n    return testArr[0];\n}\n"
         },
         {
           "range": {
@@ -30,7 +30,7 @@
             },
             "end": {
               "line": 2,
-              "character": 32
+              "character": 35
             }
           },
           "newText": "extracted(testArr)"

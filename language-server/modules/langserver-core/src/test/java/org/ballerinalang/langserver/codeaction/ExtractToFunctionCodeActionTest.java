@@ -131,8 +131,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_position_numeric_literal_cur_inside_literal.json"},
                 {"extract_to_function_exprs_position_binary_expr_constant.json"},
                 {"extract_to_function_exprs_position_binary_expr_moduleVar.json"},
-                {"extract_to_function_exprs_position_binary_expr_parameter.json"},
-                {"extract_to_function_exprs_position_binary_expr_localVar.json"},
+//                {"extract_to_function_exprs_position_binary_expr_parameter.json"},
+//                {"extract_to_function_exprs_position_binary_expr_localVar.json"},
                 {"extract_to_function_exprs_position_binary_expr_before_plus_token.json"},
                 {"extract_to_function_exprs_position_binary_expr_after_plus_token.json"},
                 {"extract_to_function_exprs_position_braced_expr_end.json"},
@@ -141,19 +141,26 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_position_indexed_expr_container_expr.json"},
                 {"extract_to_function_exprs_pos_field_access_expr_record_in_expr.json"},
                 {"extract_to_function_exprs_pos_field_access_expr_object_in_expr.json"},
+                {"extract_to_function_exprs_pos_field_access_expr_record_in_fieldName.json"},
                 {"extract_to_function_exprs_pos_method_call_object_in_methodArg.json"},
+                {"extract_to_function_exprs_pos_method_call_object_in_methodName.json"},
+                {"extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
                 {"extract_to_function_exprs_pos_typeof_expr_typeof_kw.json"},
                 {"extract_to_function_exprs_pos_typeof_expr_expression.json"},
                 {"extract_to_function_exprs_pos_unary_expr_expression.json"},
                 {"extract_to_function_exprs_pos_type_test_expr_is_kw.json"},
                 {"extract_to_function_exprs_pos_type_cast_expr_expression.json"},
+                {"extract_to_function_exprs_pos_type_cast_expr_typeCastParam.json"},
                 {"extract_to_function_exprs_pos_table_cons_expression_table_kw.json"},
+                {"extract_to_function_exprs_pos_table_cons_expr_key_spec_key_fieldName.json"},
+                {"extract_to_function_exprs_pos_table_cons_expr_key_specifier_key_kw.json"},
                 {"extract_to_function_exprs_pos_implicit_new_expr_new_kw.json"},
                 {"extract_to_function_exprs_pos_explicit_new_expr_new_kw.json"},
                 {"extract_to_function_exprs_pos_object_cons_object_kw.json"}, // check for isolate kw
                 {"extract_to_function_exprs_pos_error_cons_error_kw.json"},
                 {"extract_to_function_exprs_pos_let_expr_let_kw.json"},
                 {"extract_to_function_exprs_pos_let_expr_in_kw.json"},
+                {"extract_to_function_exprs_pos_function_call_in_let_expr.json"},
         };
     }
 
@@ -231,14 +238,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_exprs_mapping_cons_annot_value.json"},
 
                 {"neg_extract_to_function_exprs_position_numeric_literal_before_literal.json"},
-                {"neg_extract_to_function_exprs_pos_field_access_expr_record_in_fieldName.json"},
-                {"neg_extract_to_function_exprs_pos_method_call_object_in_methodName.json"},
-                {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
                 {"neg_extract_to_function_exprs_pos_object_cons_function_kw_inside.json"},
-                {"neg_extract_to_function_exprs_pos_table_cons_expr_key_spec_key_fieldName.json"},
-                {"neg_extract_to_function_exprs_pos_table_cons_expr_key_specifier_key_kw.json"},
-                {"neg_extract_to_function_exprs_pos_type_cast_expr_typeCastParam.json"},
-//                {"neg_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
         };
     }
 

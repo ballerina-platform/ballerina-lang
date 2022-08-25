@@ -20,13 +20,13 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(float testFloat) returns float {\n    return testFloat;\n}\n"
+          "newText": "\n\nfunction extracted(float testFloat) returns int {\n    return <int> testFloat;\n}\n"
         },
         {
           "range": {
             "start": {
               "line": 2,
-              "character": 24
+              "character": 18
             },
             "end": {
               "line": 2,

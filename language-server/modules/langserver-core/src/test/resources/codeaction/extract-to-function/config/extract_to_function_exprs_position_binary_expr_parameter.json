@@ -20,20 +20,20 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int param) returns int {\n    return param;\n}"
+          "newText": "\n\nfunction extracted(int moduleVar, int param) returns int {\n    return constant + moduleVar + param;\n}"
         },
         {
           "range": {
             "start": {
               "line": 5,
-              "character": 39
+              "character": 16
             },
             "end": {
               "line": 5,
               "character": 44
             }
           },
-          "newText": "extracted(param)"
+          "newText": "extracted(moduleVar, param)"
         }
       ]
     }
