@@ -4,7 +4,17 @@
   "children": [
     {
       "kind": "LIST",
-      "children": []
+      "children": [
+        {
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -17,7 +27,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "value": "main"
     },
     {
       "kind": "LIST",
@@ -69,53 +79,6 @@
               ],
               "children": [
                 {
-                  "kind": "TRAP_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "TRAP_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "INVALID_EXPRESSION_STATEMENT",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_EXPRESSION_STATEMENT"
-              ],
-              "children": [
-                {
                   "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
@@ -131,6 +94,14 @@
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "//cursor"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         }
                       ]
                     }
@@ -147,29 +118,81 @@
               ]
             },
             {
-              "kind": "ACTION_STATEMENT",
+              "kind": "MATCH_STATEMENT",
               "children": [
                 {
-                  "kind": "TRAP_ACTION",
+                  "kind": "MATCH_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "TRAP_KEYWORD",
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
                         }
                       ]
-                    },
+                    }
+                  ]
+                },
+                {
+                  "kind": "OPEN_BRACE_TOKEN",
+                  "trailingMinutiae": [
                     {
-                      "kind": "START_ACTION",
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "MATCH_CLAUSE",
                       "children": [
                         {
                           "kind": "LIST",
-                          "children": []
+                          "children": [
+                            {
+                              "kind": "STRING_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "STRING_LITERAL_TOKEN",
+                                  "value": "a",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
-                          "kind": "START_KEYWORD",
+                          "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -178,26 +201,35 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTION_CALL",
+                          "kind": "BLOCK_STATEMENT",
                           "children": [
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
+                              "kind": "OPEN_BRACE_TOKEN",
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a"
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
                                 }
                               ]
-                            },
-                            {
-                              "kind": "OPEN_PAREN_TOKEN"
                             },
                             {
                               "kind": "LIST",
                               "children": []
                             },
                             {
-                              "kind": "CLOSE_PAREN_TOKEN"
+                              "kind": "CLOSE_BRACE_TOKEN",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "        "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -206,7 +238,13 @@
                   ]
                 },
                 {
-                  "kind": "SEMICOLON_TOKEN",
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
