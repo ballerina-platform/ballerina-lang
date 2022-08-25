@@ -114,8 +114,8 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         if (isWithinFile) {
             String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
             CodeActionData codeActionData = new CodeActionData(getName(), uri, range, posArg);
-            ResolvableCodeAction action = ResolvableCodeAction.from(CodeActionUtil.createResolvableCodeAction(
-                    commandTitle, CodeActionKind.QuickFix, codeActionData));
+            ResolvableCodeAction action = CodeActionUtil.createResolvableCodeAction(
+                    commandTitle, CodeActionKind.QuickFix, codeActionData);
             action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
             return Collections.singletonList(action);
         }
@@ -201,7 +201,7 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         Optional<FunctionCallExpressionNode> fnCallExprNode =
                 CreateFunctionCodeAction.checkAndGetFunctionCallExpressionNode(cursorNode);
         if (fnCallExprNode.isEmpty()) {
-            throw new UserErrorException("Couldn't find a matching node");
+            throw new UserErrorException("Couldn't find a matching function call expression");
         }
 
         SemanticModel semanticModel = resolveContext.workspace().semanticModel(filePath.get()).orElseThrow();

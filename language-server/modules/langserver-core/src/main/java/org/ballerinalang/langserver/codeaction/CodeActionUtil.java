@@ -812,15 +812,15 @@ public class CodeActionUtil {
     }
 
     /**
-     * Returns a Code action.
+     * Returns a Resolvable code action.
      *
      * @param commandTitle   title of the code action
      * @param codeActionKind kind of the code action
      * @param data           code action data
-     * @return {@link CodeAction}
+     * @return {@link ResolvableCodeAction}
      */
-    public static CodeAction createResolvableCodeAction(String commandTitle, String codeActionKind,
-                                                        CodeActionData data) {
+    public static ResolvableCodeAction createResolvableCodeAction(String commandTitle, String codeActionKind,
+                                                                  CodeActionData data) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         ResolvableCodeAction action = new ResolvableCodeAction(commandTitle);
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
