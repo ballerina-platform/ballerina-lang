@@ -30,9 +30,11 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -163,6 +165,17 @@ public class PullModuleExecutor implements LSCommandExecutor {
                         CommandUtil.notifyClient(languageClient, MessageType.Info, "Module(s) pulled successfully!");
                         clientLogger
                                 .logTrace("Finished pulling modules for project: " + project.sourceRoot().toString());
+                        try {
+                            DocumentServiceContext documentServiceContext = 
+                                    ContextBuilder.buildDocumentServiceContext(filePath.toString(), 
+                                            context.workspace(), LSContextOperation.WS_EXEC_CMD,
+                                            context.languageServercontext());
+                            EventSyncPubSubHolder.getInstance(context.languageServercontext())
+                                    .getPublisher(EventKind.PULL_MODULE)
+                                    .publish(languageClient, context.languageServercontext(), documentServiceContext);
+                        } catch (Throwable e) {
+                            //ignore
+                        }
                     }
 
                     WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();

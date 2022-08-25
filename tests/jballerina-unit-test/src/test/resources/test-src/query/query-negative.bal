@@ -519,3 +519,24 @@ function testInvalidTypeInOnConflictClauseWithQueryConstructingTable() {
                     where user.age > 21 && user.age < 60
                     select {user} on conflict msg;
 }
+
+function testInvalidCheckExpressionInQueryAction() returns string|error {
+    check from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return "string 1";
+    };
+    return "string 2";
+}
+
+function testInvalidCheckExpressionInQueryAction2() returns error? {
+    check from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return;
+    };
+    return;
+}
+
+function returnNil() {
+}

@@ -2082,7 +2082,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void markFunctionDependentlyIsolatedOnStartAction(BInvokableSymbol enclInvokableSymbol,
                                                               Set<BLangExpression> argsList, BInvokableSymbol symbol) {
-        if (!isIsolated(symbol.type.flags) && Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
+        boolean isIsolatedFunction = isIsolated(symbol.type.flags);
+        if (!isIsolatedFunction && Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
             markDependsOnIsolationNonInferableConstructs();
             return;
         }
@@ -2091,7 +2092,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
+        if (!isIsolatedFunction) {
+            this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
+        }
+
         this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFuncCallArgExprs.addAll(argsList);
     }
 
@@ -2107,7 +2111,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv env = this.env;
         while (env != null) {
             BLangNode node = env.node;
-            if (node != null && node.getKind() == NodeKind.FUNCTION &&
+            if (node != null && (node.getKind() == NodeKind.FUNCTION || node.getKind() == NodeKind.RESOURCE_FUNC) &&
                     !isWorkerLambda((BLangFunction) node)) {
                 return env.enclInvokable;
             }
@@ -3210,7 +3214,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (parent == null || parent.getKind() == NodeKind.FUNCTION) {
+        if (parent == null || parent.getKind() == NodeKind.FUNCTION || parent.getKind() == NodeKind.RESOURCE_FUNC) {
             return false;
         }
 
@@ -3289,8 +3293,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             enclInvokableSymbol = this.arrowFunctionTempSymbolMap.get((BLangArrowFunction) env.enclEnv.node);
         } else {
             enclInvokableSymbol = enclInvokable.symbol;
+            NodeKind enclInvokableKind = enclInvokable.getKind();
 
-            if (enclInvokable.getKind() == NodeKind.FUNCTION && ((BLangFunction) enclInvokable).attachedFunction) {
+            if (enclInvokableKind == NodeKind.RESOURCE_FUNC || (enclInvokableKind == NodeKind.FUNCTION &&
+                    ((BLangFunction) enclInvokable).attachedFunction)) {
                 BSymbol owner = enclInvokableSymbol.owner;
 
                 if (this.isolationInferenceInfoMap.containsKey(owner)) {

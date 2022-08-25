@@ -1151,7 +1151,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangWorkerSend workerSend) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
-        this.env.enclBasicBlocks.add(thenBB);
+
         workerSend.expr.accept(this);
 
         String channelName = this.env.enclFunc.workerName.value + "->" + workerSend.workerIdentifier.value;
@@ -1161,6 +1161,7 @@ public class BIRGen extends BLangNodeVisitor {
                 workerSend.pos, names.fromString(channelName), this.env.targetOperand, isOnSameStrand, false, null,
                 thenBB, this.currentScope);
 
+        this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
     }
 
