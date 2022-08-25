@@ -128,6 +128,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 
 import static java.lang.String.format;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
@@ -155,6 +156,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final BLangMissingNodesHelper missingNodesHelper;
     private final Unifier unifier;
     private final SemanticAnalyzer semanticAnalyzer;
+    private final Stack<String> anonTypeNameSuffixes;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -177,6 +179,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
+        this.anonTypeNameSuffixes = new Stack<>();
     }
 
     @Override
@@ -1935,7 +1938,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 compatibleType2 = types.findCompatibleType(rhsType);
             }
 
-            if (compatibleType1 != compatibleType2 && types.isBasicNumericType(compatibleType1) && 
+            if (compatibleType1 != compatibleType2 && types.isBasicNumericType(compatibleType1) &&
                     !isIntFloatingPointMultiplication(opKind, compatibleType1, compatibleType2)) {
                 return symTable.notFoundSymbol;
             }
@@ -1949,8 +1952,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
         return symTable.notFoundSymbol;
     }
-    
-    private boolean isIntFloatingPointMultiplication(OperatorKind opKind, BType lhsCompatibleType, 
+
+    private boolean isIntFloatingPointMultiplication(OperatorKind opKind, BType lhsCompatibleType,
                                                      BType rhsCompatibleType) {
         switch (opKind) {
             case MUL:
@@ -1963,7 +1966,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 return false;
         }
     }
-    
+
     private boolean isFloatingPointType(BType type) {
         return type.tag == TypeTags.DECIMAL || type.tag == TypeTags.FLOAT;
     }
@@ -2479,6 +2482,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
                                                    ConstantValueResolver constantValueResolver) {
+        populateAnnotationAttachmentSymbol(annotationAttachment, env, constantValueResolver, new Stack<>());
+    }
+    public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
+                                                   ConstantValueResolver constantValueResolver,
+                                                   Stack<String> anonTypeNameSuffixes) {
         BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
 
         if (annotationSymbol == null) {
@@ -2523,8 +2531,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         mappingConstructor, constantSymbol, env);
             }
         } else {
-            constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr,
-                                                                                                  constantSymbol, env);
+            constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr, constantSymbol,
+                    env, anonTypeNameSuffixes);
         }
 
         constantSymbol.type = constAnnotationValue.type;

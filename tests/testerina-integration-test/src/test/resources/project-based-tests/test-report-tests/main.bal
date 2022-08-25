@@ -35,3 +35,38 @@ public function incrementValue(int a) {
     // Prints hello
     int b = a + 1;
 }
+
+// Record type definition
+type Record record {
+    int i;
+    string description = "abc";
+};
+
+type INT int;
+
+class ABC {
+    private final readonly & Record rec;
+    private final readonly & INT num;
+
+    function init(int x) {
+        self.rec = createRec(x);
+        self.num = getInt(x);
+    }
+
+    function getRec() returns Record {
+        return self.rec;
+    }
+
+    function getNum() returns int {
+        return self.num;
+    }
+}
+
+function createRec(int x) returns readonly & Record {
+    readonly & Record rec = {i: x, description: "desc"};
+    return rec;
+}
+
+function getInt(int x) returns readonly & int {
+    return x;
+}

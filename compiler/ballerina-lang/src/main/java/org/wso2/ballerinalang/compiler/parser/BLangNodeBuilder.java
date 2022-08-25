@@ -476,6 +476,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
+    private static final String DOLLAR = "$";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
 
@@ -489,6 +490,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
     private Stack<BLangStatement> additionalStatements = new Stack<>();
+    private final Stack<String> anonTypeNameSuffixes = new Stack<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
     /* To keep track if we are inside a finite context */
@@ -631,8 +633,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             markVariableWithFlag(variable, Flag.PUBLIC);
         }
 
+        this.anonTypeNameSuffixes.push(getVariableName(variable));
         initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                 modVarDeclrNode.qualifiers());
+        this.anonTypeNameSuffixes.pop();
 
         NodeList<AnnotationNode> annotations = getAnnotations(modVarDeclrNode.metadata());
         if (annotations != null) {
@@ -839,7 +843,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         // Create a new anonymous type definition.
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
+        this.anonTypeNameSuffixes.push(constantNode.name.value);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, anonTypeNameSuffixes);
+        this.anonTypeNameSuffixes.pop();
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
@@ -902,7 +908,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         typeDef.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(typeDefNode.metadata()));
 
+        this.anonTypeNameSuffixes.push(typeDef.name.value);
         typeDef.typeNode = createTypeNode(typeDefNode.typeDescriptor());
+        this.anonTypeNameSuffixes.pop();
 
         typeDefNode.visibilityQualifier().ifPresent(visibilityQual -> {
             if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
@@ -1010,7 +1018,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
         // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, this.anonTypeNameSuffixes);
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
         bLTypeDef.setName(anonTypeGenName);
         bLTypeDef.flagSet.add(Flag.PUBLIC);
@@ -1413,8 +1421,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(RecordFieldNode recordFieldNode) {
-        BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName(),
+        Token fieldName = recordFieldNode.fieldName();
+        this.anonTypeNameSuffixes.push(fieldName.text());
+        BLangSimpleVariable simpleVar = createSimpleVar(fieldName, recordFieldNode.typeName(),
                 getAnnotations(recordFieldNode.metadata()));
+        this.anonTypeNameSuffixes.pop();
         simpleVar.flagSet.add(Flag.PUBLIC);
         if (recordFieldNode.questionMarkToken().isPresent()) {
             simpleVar.flagSet.add(Flag.OPTIONAL);
@@ -1492,7 +1503,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         //Set method qualifiers
         setFunctionQualifiers(bLFunction, qualifierList);
         // Set function signature
+        this.anonTypeNameSuffixes.push(name.value);
         populateFuncSignature(bLFunction, functionSignature);
+        this.anonTypeNameSuffixes.pop();
 
         // Set the function body
         if (functionBody == null) {
@@ -2929,6 +2942,45 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
     }
 
+    private String getVariableName(BLangVariable variable) {
+        NodeKind kind = variable.getKind();
+        StringBuilder name = new StringBuilder(DOLLAR);
+        switch (kind) {
+            case VARIABLE:
+                name.append(((BLangSimpleVariable) variable).name.value).append(DOLLAR);
+                return name.toString();
+            case RECORD_VARIABLE:
+                for (BLangRecordVariableKeyValue keyValue : ((BLangRecordVariable) variable).getVariables()) {
+                    name.append(keyValue.key.value).append(DOLLAR);
+                }
+                return name.toString();
+            case TUPLE_VARIABLE:
+                for (BLangVariable var : ((BLangTupleVariable) variable).memberVariables) {
+                    name.append(getVariableName(var)).append(DOLLAR);
+                }
+                return name.toString();
+            case ERROR_VARIABLE:
+            default:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                BLangSimpleVariable message = errorVariable.message;
+                if (message != null) {
+                    name.append(message.name.value).append(DOLLAR);
+                }
+                BLangVariable cause = errorVariable.cause;
+                if (cause != null) {
+                    name.append(getVariableName(cause)).append(DOLLAR);
+                }
+                BLangSimpleVariable restDetail = errorVariable.restDetail;
+                if (restDetail != null) {
+                    name.append(restDetail.name.value).append(DOLLAR);
+                }
+                for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : errorVariable.detail) {
+                    name.append(detailEntry.key.value);
+                }
+                return name.toString();
+        }
+    }
+
     private BLangRecordVariableDef createRecordVariableDef(BLangVariable var, Location nodePos) {
 
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
@@ -3100,11 +3152,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(RequiredParameterNode requiredParameter) {
-        BLangSimpleVariable simpleVar = createSimpleVar(requiredParameter.paramName(),
+        Optional<Token> paramName = requiredParameter.paramName();
+        paramName.ifPresent(token -> this.anonTypeNameSuffixes.push(token.text()));
+        BLangSimpleVariable simpleVar = createSimpleVar(paramName,
                                                         requiredParameter.typeName(), requiredParameter.annotations());
         simpleVar.pos = getPosition(requiredParameter);
-        if (requiredParameter.paramName().isPresent()) {
-            simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
+        if (paramName.isPresent()) {
+            simpleVar.name.pos = getPosition(paramName.get());
+            this.anonTypeNameSuffixes.pop();
         } else if (simpleVar.name.pos == null) {
             // Param doesn't have a name and also is not a missing node
             // Therefore, assigning the built-in location
@@ -3674,7 +3729,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         bLangConstant.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(member.metadata()));
 
-        bLangConstant.setName((BLangIdentifier) transform(member.identifier()));
+        BLangIdentifier memberName = (BLangIdentifier) transform(member.identifier());
+        bLangConstant.setName(memberName);
+        this.anonTypeNameSuffixes.push(memberName.value);
 
         BLangExpression deepLiteral;
         if (member.constExprNode().isPresent()) {
@@ -3707,6 +3764,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             typeNodeAssociated.addValue(deepLiteral);
             bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated);
         }
+        this.anonTypeNameSuffixes.pop();
         return bLangConstant;
     }
 
@@ -5205,7 +5263,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
         if (retNode.isPresent()) {
             ReturnTypeDescriptorNode returnType = retNode.get();
+            this.anonTypeNameSuffixes.push("return");
             bLFunction.setReturnTypeNode(createTypeNode(returnType.type()));
+            this.anonTypeNameSuffixes.pop();
             bLFunction.returnTypeAnnAttachments = applyAll(returnType.annotations());
         } else {
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -6183,7 +6243,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         Location pos = getPosition(recordTypeDescriptorNode);
         // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID, this.anonTypeNameSuffixes);
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
