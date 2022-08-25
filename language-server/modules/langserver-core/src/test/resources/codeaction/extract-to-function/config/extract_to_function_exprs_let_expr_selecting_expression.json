@@ -6,7 +6,7 @@
     },
     "end": {
       "line": 1,
-      "character": 103
+      "character": 93
     }
   },
   "source": "extract_to_function_exprs_let_expr.bal",
@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int letVar1, int letVar2) returns int {\n    return letVar1 + doSomething(letVar2) + 1;\n}"
+          "newText": "\n\nfunction extracted(int letVar2) returns int {\n    return doSomething(letVar2) + 1;\n}"
         },
         {
           "range": {
@@ -36,10 +36,10 @@
             },
             "end": {
               "line": 1,
-              "character": 103
+              "character": 93
             }
           },
-          "newText": "extracted(letVar1, letVar2)"
+          "newText": "extracted(letVar2)"
         }
       ]
     }
