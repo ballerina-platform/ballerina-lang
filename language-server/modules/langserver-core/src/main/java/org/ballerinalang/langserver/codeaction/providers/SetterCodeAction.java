@@ -60,9 +60,9 @@ public class SetterCodeAction implements RangeBasedCodeActionProvider {
             return Collections.emptyList();
         }
 
-        String commandTitle = String.format("Create a setter for '%s'", objectFieldNode.fieldName().toString());
-        String fieldName = String.valueOf(objectFieldNode.fieldName());
-        String typeName = String.valueOf(objectFieldNode.typeName());
+        String fieldName = String.valueOf(objectFieldNode.fieldName().text());
+        String commandTitle = String.format("Create a setter for '%s'", fieldName);
+        String typeName = String.valueOf(objectFieldNode.typeName()).trim();
         String functionName = "set" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
         if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
