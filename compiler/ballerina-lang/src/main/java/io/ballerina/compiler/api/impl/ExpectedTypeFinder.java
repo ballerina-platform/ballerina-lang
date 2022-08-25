@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 
+import io.ballerina.compiler.api.impl.util.NodeUtil;
 import io.ballerina.compiler.api.impl.util.SymbolUtils;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -145,7 +146,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         //
 
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        Optional<BType> expectedType = SymbolUtils.getExpectedType(bLangNode);
+        Optional<BType> expectedType = NodeUtil.getExpectedType(bLangNode);
         if (expectedType.isPresent()) {
             return Optional.of(typesFactory.getTypeDescriptor(expectedType.get()));
         }
@@ -162,7 +163,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(ObjectFieldNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        Optional<BType> expectedType = SymbolUtils.getExpectedType(bLangNode);
+        Optional<BType> expectedType = NodeUtil.getExpectedType(bLangNode);
         if (expectedType.isPresent()) {
             return Optional.of(typesFactory.getTypeDescriptor(expectedType.get()));
         }
