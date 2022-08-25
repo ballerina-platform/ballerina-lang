@@ -19,6 +19,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.symbols.BallerinaAbsResourcePathAttachPoint;
+import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
@@ -613,32 +614,7 @@ public class SymbolFactory {
      * @return {@link BallerinaAnnotationSymbol}
      */
     public BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationAttachmentSymbol annotationAttachmentSymbol) {
-        PackageID annotPkgId = annotationAttachmentSymbol.annotPkgID;
-        Name annotTagRef = annotationAttachmentSymbol.annotTag;
-
-        if (symTable.rootPkgSymbol.pkgID.equals(annotPkgId)) {
-            return createAnnotationSymbol((BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(
-                    symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol), annotTagRef));
-        }
-
-        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
-            if (entry.getKey().pkgID.equals(annotPkgId)) {
-                BAnnotationSymbol annotSymbol =
-                        (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(entry.getValue(), annotTagRef);
-
-                // Constant annotation attachments
-                if (annotationAttachmentSymbol instanceof
-                        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) {
-                    return createConstAnnotation(annotSymbol,
-                            ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol)
-                                    annotationAttachmentSymbol).attachmentValueSymbol);
-                }
-
-                return createAnnotationSymbol(annotSymbol);
-            }
-        }
-        throw new AssertionError("Cannot lookup annotation symbol: symbol environment not available " +
-                                         "for '" + annotPkgId + "'");
+        return createAnnotationSymbol(findAnnotationSymbol(annotationAttachmentSymbol));
     }
 
     /**
@@ -701,23 +677,24 @@ public class SymbolFactory {
         return type.fields.get(fieldName);
     }
 
-    private BallerinaAnnotationSymbol createConstAnnotation(BAnnotationSymbol symbol,
-                                                            BConstantSymbol attachmentValueSymbol) {
-        BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
-                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.getOriginalName().getValue(), symbol,
-                        this.context);
-        if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+    private BAnnotationSymbol findAnnotationSymbol(BAnnotationAttachmentSymbol annotationAttachmentSymbol) {
+        PackageID annotPkgId = annotationAttachmentSymbol.annotPkgID;
+        Name annotTagRef = annotationAttachmentSymbol.annotTag;
+
+        if (symTable.rootPkgSymbol.pkgID.equals(annotPkgId)) {
+            return (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(
+                    symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol), annotTagRef);
         }
 
-        // Skipping the compiler-generated singleton type `true`.
-        if (symbol.attachedType != null && !types.isAssignable(symbol.attachedType, this.symTable.trueType)) {
-            symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType));
+        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
+            if (entry.getKey().pkgID.equals(annotPkgId)) {
+                return (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(entry.getValue(), annotTagRef);
+            }
         }
 
-        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
-        }
+        throw new AssertionError("Cannot lookup annotation symbol: symbol environment not available " +
+                "for '" + annotPkgId + "'");
+    }
 
         if (attachmentValueSymbol != null) {
             symbolBuilder.withAttachmentValueSymbol(createConstantSymbol(attachmentValueSymbol,
