@@ -20,7 +20,7 @@
               "character": 27
             }
           },
-          "newText": "\n\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }"
+          "newText": "\n\n    public function setCount(int count) { \n        self.count \u003d count;\n    }"
         }
       ]
     },
@@ -69,7 +69,7 @@
               "character": 27
             }
           },
-          "newText": "\n\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }"
+          "newText": "\n\n    public function setCount(int count) { \n        self.count \u003d count;\n    }"
         }
       ]
     }
