@@ -100,7 +100,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 //  expressions by range
                 {"extract_to_function_exprs_numeric_literal.json"},
-//                {"extract_to_function_exprs_binary_expr.json"},
+                {"extract_to_function_exprs_binary_expr.json"},
                 {"extract_to_function_exprs_binary_expr_selecting_plus_token.json"},
                 {"extract_to_function_exprs_braced_expr.json"},
                 {"extract_to_function_exprs_qual_name_ref.json"},
@@ -235,6 +235,10 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_exprs_pos_method_call_object_in_methodName.json"},
                 {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
                 {"neg_extract_to_function_exprs_pos_object_cons_function_kw_inside.json"},
+                {"neg_extract_to_function_exprs_pos_table_cons_expr_key_spec_key_fieldName.json"},
+                {"neg_extract_to_function_exprs_pos_table_cons_expr_key_specifier_key_kw.json"},
+                {"neg_extract_to_function_exprs_pos_type_cast_expr_typeCastParam.json"},
+//                {"neg_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
         };
     }
 

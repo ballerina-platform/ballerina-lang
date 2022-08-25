@@ -31,12 +31,12 @@
         {
           "range": {
             "start": {
-              "line": 5,
-              "character": 16
+              "line": 4,
+              "character": 19
             },
             "end": {
-              "line": 5,
-              "character": 55
+              "line": 4,
+              "character": 28
             }
           },
           "newText": "extracted(param)"
