@@ -255,6 +255,7 @@ public class TypesFactory {
                 return new BallerinaNoneTypeSymbol(this.context, (BNoType) bType);
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, (BIntersectionType) bType);
+            case PARAMETERIZED:
             case TYPEREFDESC:
                 return new BallerinaTypeReferenceTypeSymbol(this.context, bType, tSymbol, false);
             default:
