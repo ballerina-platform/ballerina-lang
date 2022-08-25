@@ -39,6 +39,11 @@ public class ExpressionTest {
     public Object[][] getLinePos() {
         return new Object[][]{
                 {23, 19, TypeDescKind.INT},
+                {29, 14, TypeDescKind.INT},
+                {35, 32, TypeDescKind.INT},
+                {51, 20, TypeDescKind.TYPE_REFERENCE},
+                {52, 23, TypeDescKind.UNION},
+                {57, 14, TypeDescKind.INT},
         };
     }
 }
