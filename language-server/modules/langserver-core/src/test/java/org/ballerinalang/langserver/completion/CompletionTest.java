@@ -72,7 +72,7 @@ public abstract class CompletionTest extends AbstractLSTest {
         boolean result = CompletionTestUtil.isSubList(testConfig.getItems(), responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
-            updateConfig(configJsonPath, testConfig, responseItemList);
+//            updateConfig(configJsonPath, testConfig, responseItemList);
             Assert.fail(String.format("Failed test: '%s' (%s)", testConfig.getDescription(), configPath));
         }
     }
