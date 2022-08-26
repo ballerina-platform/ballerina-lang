@@ -1,5 +1,5 @@
 name: Task Request
-description: File a task report
+description: File a task request
 title: "[Task]: "
 labels: ["Type/Task", "triage"]
 body:
