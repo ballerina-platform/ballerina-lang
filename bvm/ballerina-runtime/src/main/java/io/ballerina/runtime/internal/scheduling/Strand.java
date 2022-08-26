@@ -241,9 +241,11 @@ public class Strand {
         this.flushDetail.inProgress = false;
         this.flushDetail.flushedCount = 0;
         this.flushDetail.result = null;
+        this.flushDetail.flushLock.unlock();
         for (ChannelDetails channel : channels) {
             getWorkerDataChannel(channel).removeFlushWait();
         }
+        this.flushDetail.flushLock.lock();
     }
 
     public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue<BString, Object> target)
