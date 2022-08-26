@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const string RERUN_TEST_JSON = "rerun_test.json";
-
 type ReportGenerate function (ReportData data);
 
 ReportData reportData = new ();
@@ -95,7 +93,7 @@ function failedTestsReport(ReportData data) {
         }
     }
 
-    error? err = writeToRerunJson(testNames, subTestNames, projectTargetPath + "/" + RERUN_TEST_JSON);
+    error? err = writeToRerunJson(testNames, subTestNames, projectTargetPath, currentModuleName);
     if err is error {
         println(err.message());
     }

@@ -25,23 +25,23 @@ public class TestArguments {
     private final Class<?>[] argTypes;
     private final Object[] argValues;
 
-    public TestArguments(String[] args) {
+    public TestArguments(String targetPath, String moduleName, String report, String coverage,
+                         String groups, String disableGroups,  String tests, String rerunFailed ) {
 
-        int size = args.length;
-        argTypes = new Class[2 * size + 1];
-        argValues = new Object[2 * size + 1];
+        argTypes = new Class[17];
+        argValues = new Object[17];
 
         argTypes[0] = Strand.class;
         argValues[0] = null;
 
-        for (int i = 0; i < size; i++) {
-            int index = 2 * i + 1;
-            argTypes[index] = BString.class;
-            argValues[index] = StringUtils.fromString(args[i]);
-
-            argTypes[index + 1] = boolean.class;
-            argValues[index + 1] = true;
-        }
+        assignValues(0, targetPath);
+        assignValues(1, moduleName);
+        assignValues(2, report);
+        assignValues(3, coverage);
+        assignValues(4, groups);
+        assignValues(5, disableGroups);
+        assignValues(6, tests);
+        assignValues(7, rerunFailed);
     }
 
     public Class<?>[] getArgTypes() {
@@ -52,5 +52,15 @@ public class TestArguments {
     public Object[] getArgValues() {
 
         return argValues;
+    }
+
+    private void assignValues(int position, String argValue) {
+        int index = 2 * position + 1;
+
+        argTypes[index] = BString.class;
+        argValues[index] = StringUtils.fromString(argValue);
+
+        argTypes[index + 1] = boolean.class;
+        argValues[index + 1] = true;
     }
 }

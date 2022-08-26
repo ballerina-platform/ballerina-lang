@@ -206,13 +206,13 @@ public class RunTestsTask implements Task {
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
 
-            if (suite == null) {
-                continue;
-            } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
-                continue;
-            } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
-                continue;
-            }
+//            if (suite == null) {
+//                continue;
+//            } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
+//                continue;
+//            } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
+//                continue;
+//            }
             //Set 'hasTests' flag if there are any tests available in the package
             if (!hasTests) {
                 hasTests = true;
@@ -221,11 +221,14 @@ public class RunTestsTask implements Task {
 //            if (isRerunTestExecution) {
 //                singleExecTests = readFailedTestsFromFile(target.path());
 //            }
-            if (isSingleTestExecution || isRerunTestExecution) {
+            if (!isRerunTestExecution) {
+                clearFailedTestsJson(target.path());
+            }
+//            if (isSingleTestExecution || isRerunTestExecution) {
                 // Update data driven tests with key
 //                updatedSingleExecTests = filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
 //                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, updatedSingleExecTests));
-            }
+//            }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 suite.setSourceFileName(project.sourceRoot().getFileName().toString());
             }
@@ -590,14 +593,25 @@ public class RunTestsTask implements Task {
         return gson.fromJson(bufferedReader, ModuleStatus.class);
     }
 
-    private List<String> readFailedTestsFromFile(Path rerunTestJsonPath) {
-        Gson gson = new Gson();
-        rerunTestJsonPath = Paths.get(rerunTestJsonPath.toString(), RERUN_TEST_JSON_FILE);
+//    private List<String> readFailedTestsFromFile(Path rerunTestJsonPath) {
+//        Gson gson = new Gson();
+//        rerunTestJsonPath = Paths.get(rerunTestJsonPath.toString(), RERUN_TEST_JSON_FILE);
+//
+//        try (BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8)) {
+//            return gson.fromJson(bufferedReader, ArrayList.class);
+//        } catch (IOException e) {
+//            throw createLauncherException("error while running failed tests : ", e);
+//        }
+//    }
 
-        try (BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8)) {
-            return gson.fromJson(bufferedReader, ArrayList.class);
-        } catch (IOException e) {
-            throw createLauncherException("error while running failed tests : ", e);
+    private void clearFailedTestsJson(Path targetPath) {
+        Path rerunTestJsonPath = Paths.get(targetPath.toString(), RERUN_TEST_JSON_FILE);
+        if (Files.exists(rerunTestJsonPath)) {
+            try {
+                Files.delete(rerunTestJsonPath);
+            } catch (IOException e) {
+                throw createLauncherException("error while clearing failed tests : ", e);
+            }
         }
     }
 
