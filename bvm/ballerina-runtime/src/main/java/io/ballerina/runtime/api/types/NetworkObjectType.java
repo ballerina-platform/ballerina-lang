@@ -17,7 +17,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BServiceType} represents a network object in Ballerina.
+ * {@code NetworkObjectType} represents a network object in Ballerina.
  *
  * @since 2201.2.0
  */

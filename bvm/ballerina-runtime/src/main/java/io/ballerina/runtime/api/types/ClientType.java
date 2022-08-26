@@ -17,7 +17,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BServiceType} represents a client object in Ballerina.
+ * {@code ClientType} represents a client object in Ballerina.
  *
  * @since 2201.2.0
  */
