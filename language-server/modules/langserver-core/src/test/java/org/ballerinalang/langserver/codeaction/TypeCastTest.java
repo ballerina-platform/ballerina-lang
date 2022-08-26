@@ -51,36 +51,35 @@ public class TypeCastTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-//                {"typeCast1.json"},
-//                {"typeCast2.json"},
-//                {"typeCast3.json"},
-//                {"typeCast4.json"},
-//                {"typeCast5.json"},
-////                {"typeCast6.json", "typeCast.bal"}, Not supported by the subtype of API.
-//                {"typeCast7.json"},
-//                {"typeCast8.json"},
-//                {"typeCast9.json"},
-//                {"typeCast10.json"},
-//                {"typeCast11.json"},
-//                {"typeCast12.json"},
-//                {"typeCast13.json"},
-//                {"typeCast14.json"},
-//                {"nilTypeCast.json"},
-//                {"type_cast_function_param_config1.json"},
-//                {"typeCast11.json"},
-//                {"typeCastInMemberAccess1.json"},
-//
-//                {"type_cast_in_binary_operation1.json"},
-//                {"type_cast_in_binary_operation2.json"},
-//                {"type_cast_in_binary_operation3.json"},
-//                {"type_cast_in_binary_operation4.json"},
-//                {"type_cast_in_binary_operation5.json"},
-//                {"type_cast_in_binary_operation6.json"},
-//                {"type_cast_in_binary_operation7.json"},
-//                {"type_cast_in_binary_operation8.json"},
-//                {"type_cast_in_binary_operation9.json"},
-                {"type_cast_in_assignment1.json"}
+                {"typeCast1.json"},
+                {"typeCast2.json"},
+                {"typeCast3.json"},
+                {"typeCast4.json"},
+                {"typeCast5.json"},
+//                {"typeCast6.json", "typeCast.bal"}, Not supported by the subtype of API.
+                {"typeCast7.json"},
+                {"typeCast8.json"},
+                {"typeCast9.json"},
+                {"typeCast10.json"},
+                {"typeCast11.json"},
+                {"typeCast12.json"},
+                {"typeCast13.json"},
+                {"typeCast14.json"},
+                {"nilTypeCast.json"},
+                {"type_cast_function_param_config1.json"},
+                {"typeCast11.json"},
+                {"typeCastInMemberAccess1.json"},
 
+                {"type_cast_in_binary_operation1.json"},
+                {"type_cast_in_binary_operation2.json"},
+                {"type_cast_in_binary_operation3.json"},
+                {"type_cast_in_binary_operation4.json"},
+                {"type_cast_in_binary_operation5.json"},
+                {"type_cast_in_binary_operation6.json"},
+                {"type_cast_in_binary_operation7.json"},
+                {"type_cast_in_binary_operation8.json"},
+                {"type_cast_in_binary_operation9.json"},
+                {"type_cast_in_assignment1.json"}
         };
     }
 
