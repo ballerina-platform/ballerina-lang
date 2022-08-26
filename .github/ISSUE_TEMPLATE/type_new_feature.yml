@@ -1,6 +1,6 @@
-name: Improvement Request
-description: File a bug report
-title: "[Improvement]: "
+name: New Feature Request
+description: File a new feature report
+title: "[New Feature]: "
 labels: ["Type/NewFeature", "triage"]
 body:
   - type: markdown

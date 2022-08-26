@@ -1,6 +1,6 @@
-name: Improvement Request
-description: File a bug report
-title: "[Improvement]: "
+name: Task Request
+description: File a task report
+title: "[Task]: "
 labels: ["Type/Task", "triage"]
 body:
   - type: markdown
