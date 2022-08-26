@@ -125,13 +125,17 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
             expectedTypeSymbol = optionalExpectedTypeSymbol.get();
         }
 
-        //Numeric types can be cast between each other.
-        if (!expectedTypeSymbol.subtypeOf(actualTypeSymbol) && (!isNumeric(expectedTypeSymbol)
-                || !isNumeric(actualTypeSymbol))) {
-            return Collections.emptyList();
+        String typeName = "";
+        if (expectedTypeSymbol.subtypeOf(actualTypeSymbol)) {
+            typeName = NameUtil.getModifiedTypeName(context, expectedTypeSymbol);
+        } else if (isNumeric(actualTypeSymbol)) {
+            Optional<TypeSymbol> numericExpectedType = checkAndGetNumericExpectedType(expectedTypeSymbol);
+            //Numeric types can be cast between each other.
+            if (numericExpectedType.isPresent()) {
+                typeName = NameUtil.getModifiedTypeName(context, numericExpectedType.get());
+            }
         }
 
-        String typeName = NameUtil.getModifiedTypeName(context, expectedTypeSymbol);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
@@ -191,5 +195,12 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
         return (typeSymbol.typeKind().isIntegerType()
                 || typeSymbol.typeKind() == TypeDescKind.FLOAT
                 || typeSymbol.typeKind() == TypeDescKind.DECIMAL);
+    }
+
+    private Optional<TypeSymbol> checkAndGetNumericExpectedType(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() != TypeDescKind.UNION && isNumeric(typeSymbol)) {
+            return Optional.of(typeSymbol);
+        }
+        return ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream().filter(this::isNumeric).findFirst();
     }
 }
