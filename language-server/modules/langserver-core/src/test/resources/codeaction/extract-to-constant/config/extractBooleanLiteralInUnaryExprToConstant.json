@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 23,
-    "character": 22
+    "line": 24,
+    "character": 30
   },
   "source": "extractToConstant.bal",
   "expected": [
@@ -20,17 +20,17 @@
               "character": 0
             }
           },
-          "newText": "const int CONST \u003d -100;\n"
+          "newText": "const boolean CONST \u003d true;\n"
         },
         {
           "range": {
             "start": {
-              "line": 23,
-              "character": 20
+              "line": 24,
+              "character": 28
             },
             "end": {
-              "line": 23,
-              "character": 24
+              "line": 24,
+              "character": 32
             }
           },
           "newText": "CONST"

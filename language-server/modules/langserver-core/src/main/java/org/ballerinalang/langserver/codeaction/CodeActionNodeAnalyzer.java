@@ -362,13 +362,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(BasicLiteralNode node) {
-        if (node.parent().kind() == SyntaxKind.UNARY_EXPRESSION) {
-            node.parent().accept(this);
-        } else {
             checkAndSetCodeActionNode(node);
             checkAndSetSyntaxKind(node.kind());
             visitSyntaxNode(node);
-        }
     }
 
     @Override

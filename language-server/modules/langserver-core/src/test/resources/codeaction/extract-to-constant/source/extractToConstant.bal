@@ -21,4 +21,5 @@ class Square {
 
 const int CONST1 = 10 + 20;
 
-int negativeValue = -100;
+int unaryNumericExpr = -100;
+boolean unaryLogicalExpr = !true;
