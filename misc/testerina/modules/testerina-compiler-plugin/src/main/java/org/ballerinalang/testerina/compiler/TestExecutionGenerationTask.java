@@ -18,7 +18,6 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
@@ -41,8 +40,6 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -70,7 +67,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
     private static final String TEST_EXEC_FILENAME = "test_execute";
 
     private static final String TARGET_PATH_PARAMETER = "targetPath";
-    private static final String JACOCO_PATH_PARAMETER = "jacocoPath";
+    private static final String MODULE_NAME_PARAMETER = "moduleName";
     private static final String REPORT_PATH_PARAMETER = "report";
     private static final String COVERAGE_PATH_PARAMETER = "coverage";
     private static final String GROUPS_PARAMETER = "groups";
@@ -95,7 +92,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
         // Add the statement, 'test:setTestOptions(<args[]>);'
         statements.add(getFunctionCallStatement(getTestFunctionCall(SET_OPTIONS_FUNCTION, getFunctionParamList(
                 getPositionalArg(TARGET_PATH_PARAMETER),
-                getPositionalArg(JACOCO_PATH_PARAMETER),
+                getPositionalArg(MODULE_NAME_PARAMETER),
                 getPositionalArg(REPORT_PATH_PARAMETER),
                 getPositionalArg(COVERAGE_PATH_PARAMETER),
                 getPositionalArg(GROUPS_PARAMETER),
@@ -280,7 +277,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
         return NodeFactory.createFunctionSignatureNode(NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
                 NodeFactory.createSeparatedNodeList(getStringParameter(TARGET_PATH_PARAMETER),
-                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(JACOCO_PATH_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(MODULE_NAME_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(REPORT_PATH_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(COVERAGE_PATH_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(GROUPS_PARAMETER),

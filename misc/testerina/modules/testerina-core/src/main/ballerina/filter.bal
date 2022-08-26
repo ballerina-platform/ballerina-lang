@@ -18,12 +18,14 @@ string[] filterGroups = [];
 string[] filterDisableGroups = [];
 string[] filterTests = [];
 string[] filterSubTasks = [];
+string currentModuleName = "";
 boolean hasFilteredTests = false;
 string projectTargetPath = "";
 
-public function setTestOptions(string targetPath, string jacocoAgentJarPath, string report,
+public function setTestOptions(string targetPath, string moduleName, string report,
     string coverage, string groups, string disableGroups, string tests, string rerunFailed) {
     projectTargetPath = targetPath;
+    currentModuleName = moduleName;
 
     filterGroups = parseStringArrayInput(groups);
     filterDisableGroups = parseStringArrayInput(disableGroups);
@@ -34,7 +36,7 @@ public function setTestOptions(string targetPath, string jacocoAgentJarPath, str
     }
 
     if rerunFailedBoolean {
-        json[]|error output = readFromRerunJson(projectTargetPath + RERUN_TEST_JSON);
+        json[]|error output = readFromRerunJson(projectTargetPath, currentModuleName);
         if output is error {
             println("Unable to read the 'rerun_test.json'");
             return;

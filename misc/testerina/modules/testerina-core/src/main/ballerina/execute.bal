@@ -71,7 +71,7 @@ function executeTest(TestFunction testFunction) {
                 i += 1;
             }
         } else {
-            ExecutionError? err = executeTestFunction(testFunction, testFunction.name);
+            ExecutionError? err = executeTestFunction(testFunction, "");
             if err is ExecutionError {
                 reportData.onFailed(name = testFunction.name, message = err.message());
             }
