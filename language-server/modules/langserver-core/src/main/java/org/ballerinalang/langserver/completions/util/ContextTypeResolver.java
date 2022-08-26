@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
@@ -74,6 +75,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -695,6 +697,37 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
         
         return Optional.of(typeSymbol);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(SelectClauseNode node) {
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node.expression()))
+                .filter(tSymbol -> tSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR)
+                .or(() -> node.parent().apply(this))
+                .filter(tSymbol -> tSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR);
+        if (typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // select clause can be inside a query expression of 3 types:
+        //  table from...
+        //  stream from...
+        //  from...
+        // In such cases, we take the member type
+        switch (typeSymbol.get().typeKind()) {
+            case TABLE:
+                TableTypeSymbol tableType = (TableTypeSymbol) typeSymbol.get();
+                return Optional.of(tableType.rowTypeParameter());
+            case STREAM:
+                StreamTypeSymbol streamType = (StreamTypeSymbol) typeSymbol.get();
+                return Optional.of(streamType.typeParameter());
+            case ARRAY:
+                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) typeSymbol.get();
+                return Optional.of(arrayType.memberTypeDescriptor());
+            default:
+                return typeSymbol;
+        }
     }
 
     //    @Override
