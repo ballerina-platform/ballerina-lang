@@ -132,7 +132,7 @@ public class JvmObjectTypeGen {
     public void createObjectType(MethodVisitor mv, BObjectType objectType) {
         // Create the object type
         String objectClassName = Symbols.isService(objectType.tsymbol) ? SERVICE_TYPE_IMPL :
-                Symbols.isClient(objectType.tsymbol)? CLIENT_TYPE_IMPL : OBJECT_TYPE_IMPL;
+                Symbols.isClient(objectType.tsymbol) ? CLIENT_TYPE_IMPL : OBJECT_TYPE_IMPL;
 
         mv.visitTypeInsn(NEW, objectClassName);
         mv.visitInsn(DUP);

@@ -3629,7 +3629,7 @@ public class Types {
         // Todo: We could include this logic in `isFunctionTypeAssignable` if we have `resourcePathType` information in
         // `BInvokableType` issue #37502
         boolean lhsFuncIsResource = Symbols.isResource(lhsFunc.symbol);
-        boolean matchingFuncIsResource =Symbols.isResource(matchingFunc.symbol);
+        boolean matchingFuncIsResource = Symbols.isResource(matchingFunc.symbol);
 
         if (!lhsFuncIsResource && !matchingFuncIsResource) {
             return matchingFunction;
