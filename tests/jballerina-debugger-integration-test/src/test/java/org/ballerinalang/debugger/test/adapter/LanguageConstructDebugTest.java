@@ -99,7 +99,7 @@ public class LanguageConstructDebugTest extends BaseTestCase {
 
         Map<String, Variable> variables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
         // Variable visibility test for object
-        debugTestRunner.assertVariable(variables, "person", "Person", "object");
+        debugTestRunner.assertVariable(variables, "person", "Person", "client object");
         // Variable visibility test for object's method
         debugTestRunner.assertVariable(variables, "fullName", "\"John Doe\"", "string");
         // Variable visibility test for object's remote function
