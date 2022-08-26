@@ -145,6 +145,7 @@ public class JvmConstants {
     public static final String RECORD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BRecordType";
     public static final String OBJECT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BObjectType";
     public static final String SERVICE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BServiceType";
+    public static final String CLIENT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BClientType";
     public static final String ERROR_TYPE_IMPL = "io/ballerina/runtime/internal/types/BErrorType";
     public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTupleType";
     public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFunctionType";
