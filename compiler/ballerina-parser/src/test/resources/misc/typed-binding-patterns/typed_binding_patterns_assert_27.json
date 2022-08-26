@@ -166,7 +166,7 @@
                                                     "diagnostics": [
                                                       "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
-                                                    "value": "jwt"
+                                                    "value": "a"
                                                   }
                                                 ]
                                               }
@@ -189,7 +189,7 @@
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Payload"
+                                                    "value": "b"
                                                   }
                                                 ]
                                               }
@@ -313,7 +313,7 @@
                                                     "diagnostics": [
                                                       "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
-                                                    "value": "jwt"
+                                                    "value": "a"
                                                   }
                                                 ]
                                               }
@@ -336,7 +336,7 @@
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Header"
+                                                    "value": "b"
                                                   }
                                                 ]
                                               }
@@ -478,7 +478,7 @@
                                                     "diagnostics": [
                                                       "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
-                                                    "value": "jwt"
+                                                    "value": "a"
                                                   }
                                                 ]
                                               }
@@ -501,7 +501,7 @@
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Header"
+                                                    "value": "b"
                                                   }
                                                 ]
                                               }
@@ -558,7 +558,7 @@
                                                     "diagnostics": [
                                                       "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
-                                                    "value": "jwt"
+                                                    "value": "a"
                                                   }
                                                 ]
                                               }
@@ -581,7 +581,7 @@
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Payload"
+                                                    "value": "c"
                                                   }
                                                 ]
                                               }
@@ -705,7 +705,7 @@
                                                     "diagnostics": [
                                                       "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
-                                                    "value": "jwt"
+                                                    "value": "a"
                                                   }
                                                 ]
                                               }
@@ -728,69 +728,7 @@
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Header"
-                                                  }
-                                                ]
-                                              }
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "COMMA_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "  "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "INVALID_NODE_MINUTIAE",
-                                              "invalidNode": {
-                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                "hasDiagnostics": true,
-                                                "children": [
-                                                  {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "hasDiagnostics": true,
-                                                    "diagnostics": [
-                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
-                                                    ],
-                                                    "value": "jwt"
-                                                  }
-                                                ]
-                                              }
-                                            },
-                                            {
-                                              "kind": "INVALID_NODE_MINUTIAE",
-                                              "invalidNode": {
-                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                "children": [
-                                                  {
-                                                    "kind": "COLON_TOKEN"
-                                                  }
-                                                ]
-                                              }
-                                            },
-                                            {
-                                              "kind": "INVALID_NODE_MINUTIAE",
-                                              "invalidNode": {
-                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                "children": [
-                                                  {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Payload"
+                                                    "value": "b"
                                                   }
                                                 ]
                                               }
@@ -829,7 +767,7 @@
                                                     "diagnostics": [
                                                       "ERROR_FIELD_BP_INSIDE_LIST_BP"
                                                     ],
-                                                    "value": "jwt"
+                                                    "value": "a"
                                                   }
                                                 ]
                                               }
@@ -852,7 +790,69 @@
                                                 "children": [
                                                   {
                                                     "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "Msg"
+                                                    "value": "b"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "COMMA_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "hasDiagnostics": true,
+                                                "children": [
+                                                  {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "hasDiagnostics": true,
+                                                    "diagnostics": [
+                                                      "ERROR_FIELD_BP_INSIDE_LIST_BP"
+                                                    ],
+                                                    "value": "a"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "COLON_TOKEN"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "c"
                                                   }
                                                 ]
                                               }
