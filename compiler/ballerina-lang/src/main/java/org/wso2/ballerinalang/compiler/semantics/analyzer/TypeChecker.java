@@ -6300,25 +6300,25 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getNonContextualQueryType(BType staticType, BType basicType) {
-        BType resultType;
         switch (basicType.tag) {
             case TypeTags.TABLE:
-                resultType = symTable.tableType;
-                break;
+                return symTable.tableType;
             case TypeTags.STREAM:
-                resultType = symTable.streamType;
-                break;
+                return symTable.streamType;
             case TypeTags.XML:
-                resultType = new BXMLType(staticType, null);
+                switch (staticType.tag) {
+                    case TypeTags.XML:
+                    case TypeTags.XML_TEXT:
+                    case TypeTags.XML_ELEMENT:
+                    case TypeTags.XML_PI:
+                    case TypeTags.XML_COMMENT:
+                        return new BXMLType(staticType, null);
+                }
                 break;
             case TypeTags.STRING:
-                resultType = symTable.stringType;
-                break;
-            default:
-                resultType = new BArrayType(staticType);
-                break;
+                return symTable.stringType;
         }
-        return resultType;
+        return new BArrayType(staticType);
     }
 
     @Override

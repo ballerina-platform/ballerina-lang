@@ -116,6 +116,16 @@ function assignAnyToUnionWithErrorAndAny() {
     assertEquality(4, y);
 }
 
+function testAssignVarInQueryExpression() {
+    xml x1 = xml `<book>The Lost World</book>`;
+
+    var x2 = from xml element in x1 select element.toBalString();
+    assertTrue(x2 is string[]);
+
+    var x3 = from xml element in x1 select element;
+    assertTrue(x3 is xml[]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

@@ -270,6 +270,11 @@ public class AssignStmtTest {
         BRunUtil.invoke(result, "assignAnyToUnionWithErrorAndAny");
     }
 
+    @Test()
+    public void assignVarInQueryExpression() {
+        BRunUtil.invoke(result, "testAssignVarInQueryExpression");
+    }
+
     @Test
     public void testAssignmentStmtSemanticsNegative() {
         resultNegative = BCompileUtil.compile("test-src/statements/assign/assign-stmt-semantics-negative.bal");

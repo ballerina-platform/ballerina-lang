@@ -109,6 +109,10 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"createVariableForOptionalFieldAccess1.json"},
                 {"createVariableForOptionalFieldAccess2.json"},
                 {"createVariableWithTypeDesc.json"},
+                {"createVariableInQueryAction1.json"},
+                {"createVariableInQueryAction2.json"},
+                {"createVariableInQueryAction3.json"},
+                {"createVariableInQueryAction4.json"},
 
                 // Tuple related
                 {"createVariableWithTuple1.json"},
@@ -123,7 +127,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
 
                 // Async send action
                 {"createVarInSendAction1.json"},
-                
+
                 // Create variable with check
                 {"createVariableWithCheck1.json"},
                 {"createVariableWithCheck2.json"},

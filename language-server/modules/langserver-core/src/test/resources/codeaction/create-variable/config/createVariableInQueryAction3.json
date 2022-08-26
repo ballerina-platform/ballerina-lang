@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 2,
+    "character": 4
+  },
+  "source": "createVariableInQueryAction3.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)[] listResult = "
+        }
+      ]
+    }
+  ]
+}
