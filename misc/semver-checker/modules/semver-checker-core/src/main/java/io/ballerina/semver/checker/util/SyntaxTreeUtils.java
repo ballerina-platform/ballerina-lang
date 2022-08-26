@@ -19,6 +19,7 @@ package io.ballerina.semver.checker.util;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -125,6 +126,16 @@ public class SyntaxTreeUtils {
      */
     public static String getTypeDefIdentifier(TypeDefinitionNode typeDefNode) {
         return typeDefNode.typeName().text().trim();
+    }
+
+    /**
+     * Returns the identifier for a given enum declaration node.
+     *
+     * @param enumNode enum declaration syntax node
+     * @return the type definition identifier
+     */
+    public static String getEnumIdentifier(EnumDeclarationNode enumNode) {
+        return enumNode.identifier().text().trim();
     }
 
     /**
