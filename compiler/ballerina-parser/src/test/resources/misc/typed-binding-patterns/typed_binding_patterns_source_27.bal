@@ -1,6 +1,6 @@
 public function testListBindingPatternWithInvalidMember() {
-    Arr [x, jwt:Payload] = [];
-    Arr [jwt:Header, y] = [];
-    Arr2 [jwt:Header, z, jwt:Payload] = [];
-    Arr2 [jwt:Header,  jwt:Payload, jwt:Msg] = [];
+    Arr [x, a:b] = [];
+    Arr [a:b, y] = [];
+    Arr2 [a:b, z, a:c] = [];
+    Arr2 [a:b, a:b, a:c] = [];
 }
