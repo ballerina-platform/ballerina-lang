@@ -1,0 +1,345 @@
+[
+  {
+    "description": "Remove a member from a enumeration",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "new enum member 'Green' is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": " Add a new member to a enumeration",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "new enum member 'Green' is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify a constant value of an enum member",
+    "oldCode": "public enum color{\n\tEng = \"English\",\n\tSI = \"Sinhala\"\n}",
+    "newCode": "public enum color{\n\tEng = \"Foreign language\",\n\tSI = \"Sinhala\"\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "enum member value",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "enum member value is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": " Remove Documentation",
+    "oldCode": "public enum color{\n\t#Documentation\n\tRed\n}\n",
+    "newCode": "public enum color{\n\tRed\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "documentation",
+                      "type": "removed",
+                      "versionImpact": "patch",
+                      "message": "documentation is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify Documentation\n",
+    "oldCode": "public enum color{\n\t#Enum member\n\tRed\n}\n",
+    "newCode": "public enum color{\n\t#Documentation\n\tRed\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "documentation",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "documentation is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": " Add Documentation",
+    "oldCode": "public enum color{\n\tRed\n}\n",
+    "newCode": "public enum color{\n\t#Documentation\n\tRed\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "documentation",
+                      "type": "new",
+                      "versionImpact": "patch",
+                      "message": "documentation is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify Annotation\n",
+    "oldCode": "public enum color{\n\t@display{\n\tlabel:”label”\n}\n\n\tRed\n}\n",
+    "newCode": "public enum color{\n\t@display{\n\tlabel:””\n}\n\tRed\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    [
+                      {
+                        "type": "modified",
+                        "versionImpact": "ambiguous",
+                        "kind": "enum member annotation",
+                        "message": "enum member annotation list is modified"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add Annotation",
+    "oldCode": "public enum color{\n\tRed\n}\n",
+    "newCode": "public enum color{\n\t@display{\n\tlabel:\"\"\n}\n\tRed\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    [
+                      {
+                        "type": "new",
+                        "versionImpact": "ambiguous",
+                        "kind": "enum member annotation",
+                        "message": "a new enum member annotation list is added"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove Annotation",
+    "oldCode": "public enum color{\n\t@display{\n\tlabel:\"\"\n}\n\n\tRed\n}\n",
+    "newCode": "public enum color{\n\tRed\n}\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "enum member",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    [
+                      {
+                        "type": "removed",
+                        "versionImpact": "ambiguous",
+                        "kind": "enum member annotation",
+                        "message": "an existing enum member annotation list is removed"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

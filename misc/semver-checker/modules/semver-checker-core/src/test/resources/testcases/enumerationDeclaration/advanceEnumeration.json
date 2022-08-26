@@ -1,0 +1,52 @@
+[
+  {
+    "description": "Remove enum member , Remove public qualifier",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "enum color{\n\tRed,\n\tBlue\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from enum 'color'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add annotation , add a enum member",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue\n}",
+    "newCode": "@tainted\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove documentation , Add public qualifier",
+    "oldCode": "#Documentation\nenum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a enum member , Remove a enum member , Add annotation , Remove documentation",
+    "oldCode": "#Documentation\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "@tainted\npublic enum color{\n\tRed,\n\tBlue,\n\tYellow\n}",
+    "expectedOutput": {}
+  }
+]

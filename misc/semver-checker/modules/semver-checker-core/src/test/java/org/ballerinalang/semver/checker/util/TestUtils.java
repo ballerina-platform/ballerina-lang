@@ -18,8 +18,11 @@
 
 package org.ballerinalang.semver.checker.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.semver.checker.comparator.PackageComparator;
@@ -71,10 +74,6 @@ public class TestUtils {
     public static void assertPackageDiff(Package oldPackage, Package currentPackage, JsonObject expectedOutput) {
         PackageComparator packageComparator = new PackageComparator(currentPackage, oldPackage);
         Optional<PackageDiff> packageDiff = packageComparator.computeDiff();
-        if (expectedOutput.equals(new JsonObject())) {
-            // disabled test cases
-        } else {
-            packageDiff.ifPresent(diff -> Assert.assertEquals(diff.getAsJson(), expectedOutput));
-        }
+        packageDiff.ifPresent(diff -> Assert.assertEquals(diff.getAsJson(), expectedOutput));
     }
 }
