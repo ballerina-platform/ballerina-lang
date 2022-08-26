@@ -3628,8 +3628,15 @@ public class Types {
         BAttachedFunction matchingFunc = matchingFunction.get();
         // Todo: We could include this logic in `isFunctionTypeAssignable` if we have `resourcePathType` information in
         // `BInvokableType` issue #37502
-        if (!Symbols.isResource(matchingFunc.symbol) || !Symbols.isResource(lhsFunc.symbol)) {
+        boolean lhsFuncIsResource = Symbols.isResource(lhsFunc.symbol);
+        boolean matchingFuncIsResource =Symbols.isResource(matchingFunc.symbol);
+
+        if (!lhsFuncIsResource && !matchingFuncIsResource) {
             return matchingFunction;
+        }
+
+        if ((lhsFuncIsResource && !matchingFuncIsResource) || (matchingFuncIsResource && !lhsFuncIsResource)) {
+            return Optional.empty();
         }
 
         List<BType> lhsFuncResourcePathTypes = ((BResourceFunction) lhsFunc).resourcePathType.tupleTypes;
