@@ -234,67 +234,15 @@ class NodeFinder extends BaseVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : nodes) {
+            BLangNode bLangNode = (BLangNode) node;
             if (PositionUtil.isRangeWithinNode(this.range, node.getPosition())
                     && !isLambdaFunction(node) && !isClassForService(node)) {
-                ((BLangNode) node).accept(this);
+                bLangNode.accept(this);
                 return this.enclosingNode;
             }
-            // if (node has metadata) {
-                // visit metadata nodes
-            // }
         }
         return this.enclosingNode;
     }
-
-//    private BLangNode lookupTopLevelNodes(List<TopLevelNode> nodes, LineRange range) {
-//        this.range = range;
-//        this.enclosingNode = null;
-//
-//        for (TopLevelNode node : nodes) {
-//            if (!PositionUtil.isRangeWithinNode(this.range, node.getPosition()) || isLambdaFunction(node)
-//                    || isClassForService(node)) {
-//                continue;
-//            }
-//
-//            ((BLangNode) node).accept(this);
-//            break;
-//        }
-//
-//        return this.enclosingNode;
-//    }
-//
-//    private void lookupNodes(List<? extends BLangNode> nodes) {
-//        for (BLangNode node : nodes) {
-//            if (!PositionUtil.isRangeWithinNode(this.range, node.pos)) {
-//                continue;
-//            }
-//
-//            node.accept(this);
-//
-//            if (this.enclosingNode == null && !node.internal
-//                    && PositionUtil.withinRange(node.pos.lineRange(), this.range)) {
-//                this.enclosingNode = node;
-//                return;
-//            }
-//        }
-//    }
-
-//    private void lookupNode(BLangNode node) {
-//        if (node == null) {
-//            return;
-//        }
-//
-//        if (!PositionUtil.isRangeWithinNode(this.range, node.pos)) {
-//            return;
-//        }
-//
-//        node.accept(this);
-//
-//        if (this.enclosingNode == null && !node.internal
-//                && PositionUtil.withinRange(node.pos.lineRange(), this.range)) {
-//            this.enclosingNode = node;
-//        }
-//    }
 
     private boolean lookupNodesV2(List<? extends BLangNode> nodes) {
         for (BLangNode node : nodes) {
@@ -313,10 +261,6 @@ class NodeFinder extends BaseVisitor {
             node.accept(this);
             return this.enclosingNode != null;
         }
-        // if (node has metadata) {
-            // visit metadata nodes
-            // return this.enclosingNode != null;
-        // }
         return false;
     }
 
@@ -371,7 +315,6 @@ class NodeFinder extends BaseVisitor {
         if (lookupNodesV2(serviceNode.annAttachments)) {
             return;
         }
-        // TODO: Following order matters, check it.
         if (lookupNodesV2(serviceNode.attachedExprs)) {
             return;
         }
@@ -426,8 +369,6 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTableKeySpecifier tableKeySpecifierNode) {
-        // TODO: check this
-        // testTableConstructor 181, 43, 181, 45
     }
 
     @Override
@@ -859,7 +800,6 @@ class NodeFinder extends BaseVisitor {
         if (lookupNodeV2(binaryExpr.rhsExpr)) {
             return;
         }
-        // TODO: check this with dulaj
         if (PositionUtil.withinRange(binaryExpr.pos.lineRange(), this.range)) {
             this.enclosingNode = binaryExpr;
         }
@@ -1028,7 +968,6 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         lookupNodesV2(stringTemplateLiteral.exprs);
-        // TODO: check this
         setEnclosingNode(stringTemplateLiteral, stringTemplateLiteral.pos);
     }
 
@@ -1218,10 +1157,22 @@ class NodeFinder extends BaseVisitor {
         if (lookupNodesV2(classDefinition.functions)) {
             return;
         }
+        if (lookupAnnAttachmentsAttachedToFunctions(classDefinition.functions)) {
+            return;
+        }
         if (lookupNodesV2(classDefinition.typeRefs)) {
             return;
         }
         setEnclosingNode(classDefinition, classDefinition.name.pos);
+    }
+
+    private boolean lookupAnnAttachmentsAttachedToFunctions(List<BLangFunction> functions) {
+        for (BLangFunction func : functions) {
+            if (lookupNodesV2(func.annAttachments)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -1829,13 +1780,10 @@ class NodeFinder extends BaseVisitor {
             this.enclosingNode = node;
             return true;
         }
-        // TODO: Refactor this method
-        // This part is taken from old `lookUpNode`
         if (this.enclosingNode == null && PositionUtil.withinRange(node.pos.lineRange(), this.range)) {
             this.enclosingNode = node;
             return true;
         }
-
         return false;
     }
 
