@@ -61,8 +61,7 @@ public class TypeTags {
     public static final int ANY_TAG = INVOKABLE_TAG + 1;
     public static final int ENDPOINT_TAG = ANY_TAG + 1;
     public static final int SERVICE_TAG = ENDPOINT_TAG + 1;
-    public static final int CLIENT_TAG = SERVICE_TAG + 1;
-    public static final int ARRAY_TAG = CLIENT_TAG + 1;
+    public static final int ARRAY_TAG = SERVICE_TAG + 1;
     public static final int UNION_TAG = ARRAY_TAG + 1;
     public static final int INTERSECTION_TAG = UNION_TAG + 1;
     public static final int PACKAGE_TAG = INTERSECTION_TAG + 1;
@@ -86,6 +85,7 @@ public class TypeTags {
 
     public static final int PARAMETERIZED_TYPE_TAG = READONLY_TAG + 1;
     public static final int TYPE_REFERENCED_TYPE_TAG = PARAMETERIZED_TYPE_TAG + 1;
+    public static final int CLIENT_TAG = TYPE_REFERENCED_TYPE_TAG + 1;
 
     public static boolean isIntegerTypeTag(int tag) {
 
