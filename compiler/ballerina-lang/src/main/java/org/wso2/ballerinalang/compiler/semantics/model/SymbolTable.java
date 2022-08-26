@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRegexpType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -169,6 +170,7 @@ public class SymbolTable {
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
+    public final BRegexpType regexpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
     public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
@@ -279,6 +281,7 @@ public class SymbolTable {
         initializeTSymbol(xmlPIType, Names.XML_PI, PackageID.XML);
         initializeTSymbol(xmlCommentType, Names.XML_COMMENT, PackageID.XML);
         initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
+        initializeTSymbol(regexpType, Names.REGEXP, PackageID.REGEXP);
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.setBType(this.booleanType);
@@ -376,6 +379,8 @@ public class SymbolTable {
                 return unsigned8IntType;
             case TypeTags.CHAR_STRING:
                 return charStringType;
+            case TypeTags.REGEXP:
+                return regexpType;
             default:
                 return semanticError;
         }
@@ -406,6 +411,8 @@ public class SymbolTable {
                 return this.xmlCommentType;
             case Names.STRING_XML_TEXT:
                 return this.xmlTextType;
+            case Names.STRING_REGEXP:
+                return this.regexpType;
         }
         throw new IllegalStateException("LangLib Subtype not found: " + name);
     }

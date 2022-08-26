@@ -20,8 +20,8 @@ import ballerina/jballerina.java;
 
 // Given that we cannot introduce a new keyword, we need some magic
 // to define a type that refers to RegExp.  This is one possible way.
-//@builtinSubtype
-//type RegExp anydata;
+@builtinSubtype
+type RegExp anydata;
 
 type RegExp string;
 
