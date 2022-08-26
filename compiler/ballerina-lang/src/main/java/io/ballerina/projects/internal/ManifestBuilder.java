@@ -186,7 +186,6 @@ public class ManifestBuilder {
 
                 // we ignore file types except png here, since file type error will be shown
                 validateIconPathForPng(icon, pkgNode);
-                validateFilePathsForIncludes(includes, pkgNode);
             }
         }
 
@@ -322,20 +321,6 @@ public class ManifestBuilder {
                     // should not reach to this line
                     throw new ProjectException("failed to read icon: '" + icon + "'");
                 }
-            }
-        }
-    }
-
-    private void validateFilePathsForIncludes(List<String> includes, TomlTableNode pkgNode) {
-        for (String include : includes) {
-            Path includePath = Path.of(include);
-            if (!includePath.isAbsolute()) {
-                includePath = this.projectPath.resolve(include);
-            }
-            if (Files.notExists(includePath)) {
-                reportDiagnostic(pkgNode.entries().get(INCLUDE),
-                        "could not locate include path '" + include + "'",
-                        "error.invalid.path", DiagnosticSeverity.ERROR);
             }
         }
     }

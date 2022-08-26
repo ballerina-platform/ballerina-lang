@@ -22,15 +22,19 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.semver.checker.diff.ClassDiff;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
+import io.ballerina.semver.checker.diff.EnumDiff;
+import io.ballerina.semver.checker.diff.EnumMemberDiff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.ModuleConstantDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
 import io.ballerina.semver.checker.diff.ModuleVarDiff;
 import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeListDiff;
+import io.ballerina.semver.checker.diff.ObjectFieldDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
 import io.ballerina.semver.checker.diff.SemverImpact;
 import io.ballerina.semver.checker.diff.ServiceDiff;
+import io.ballerina.semver.checker.diff.TypeDefinitionDiff;
 
 import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVersion;
 
@@ -141,7 +145,7 @@ public class DiffUtils {
             sb.append(((NodeListDiff<?>) diff).getMessage().get());
         } else {
             sb.append(diff.getKind() != null && diff.getKind() != DiffKind.UNKNOWN ? diff.getKind().toString() :
-                    getDiffTypeName(diff))
+                            getDiffTypeName(diff))
                     .append(" '")
                     .append(getDiffName(diff))
                     .append("' is ")
@@ -155,6 +159,24 @@ public class DiffUtils {
                 .append(System.lineSeparator());
 
         return sb.toString();
+    }
+
+    /**
+     * Returns whether the provided diff instance is a compound diff object, which is guaranteed to have child diffs.
+     *
+     * @param diff diff instance
+     * @return true if the provided diff instance is a compound diff object, which is guaranteed to have child diffs
+     */
+    public static boolean isCompoundDiff(Diff diff) {
+        return diff instanceof FunctionDiff
+                || diff instanceof ServiceDiff
+                || diff instanceof ModuleVarDiff
+                || diff instanceof ModuleConstantDiff
+                || diff instanceof ClassDiff
+                || diff instanceof ObjectFieldDiff
+                || diff instanceof TypeDefinitionDiff
+                || diff instanceof EnumDiff
+                || diff instanceof EnumMemberDiff;
     }
 
     /**
@@ -253,6 +275,10 @@ public class DiffUtils {
             return getModuleConstantName((ModuleConstantDiff) diff);
         } else if (diff instanceof ClassDiff) {
             return getModuleClassName((ClassDiff) diff);
+        } else if (diff instanceof TypeDefinitionDiff) {
+            return getModuleTypeDefName((TypeDefinitionDiff) diff);
+        } else if (diff instanceof EnumDiff) {
+            return getModuleEnumName((EnumDiff) diff);
         } else {
             return UNKNOWN;
         }
@@ -272,6 +298,10 @@ public class DiffUtils {
             return "module constant";
         } else if (diff instanceof ClassDiff) {
             return "class";
+        } else if (diff instanceof TypeDefinitionDiff) {
+            return "type definition";
+        } else if (diff instanceof EnumDiff) {
+            return "enum declaration";
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
             if (functionDiff.isResource()) {
@@ -299,6 +329,14 @@ public class DiffUtils {
             return " ".repeat(4);
         } else if (diff instanceof ClassDiff) {
             return " ".repeat(4);
+        } else if (diff instanceof TypeDefinitionDiff) {
+            return " ".repeat(4);
+        } else if (diff instanceof EnumDiff) {
+            return " ".repeat(4);
+        } else if (diff instanceof EnumMemberDiff) {
+            return " ".repeat(6);
+        } else if (diff instanceof ObjectFieldDiff) {
+            return " ".repeat(6);
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
             if (functionDiff.isResource()) {
@@ -383,6 +421,36 @@ public class DiffUtils {
             return SyntaxTreeUtils.getClassIdentifier(classDiff.getNewNode().get());
         } else if (classDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getClassIdentifier(classDiff.getOldNode().get());
+        } else {
+            return UNKNOWN;
+        }
+    }
+
+    /**
+     * Retrieves name of the given {@link TypeDefinitionDiff} instance.
+     *
+     * @param typeDefinitionDiff type definition diff instance
+     */
+    private static String getModuleTypeDefName(TypeDefinitionDiff typeDefinitionDiff) {
+        if (typeDefinitionDiff.getNewNode().isPresent()) {
+            return SyntaxTreeUtils.getTypeDefIdentifier(typeDefinitionDiff.getNewNode().get());
+        } else if (typeDefinitionDiff.getOldNode().isPresent()) {
+            return SyntaxTreeUtils.getTypeDefIdentifier(typeDefinitionDiff.getOldNode().get());
+        } else {
+            return UNKNOWN;
+        }
+    }
+
+    /**
+     * Retrieves name of the given {@link EnumDiff} instance.
+     *
+     * @param enumDiff enum declaration diff instance
+     */
+    private static String getModuleEnumName(EnumDiff enumDiff) {
+        if (enumDiff.getNewNode().isPresent()) {
+            return SyntaxTreeUtils.getEnumIdentifier(enumDiff.getNewNode().get());
+        } else if (enumDiff.getOldNode().isPresent()) {
+            return SyntaxTreeUtils.getEnumIdentifier(enumDiff.getOldNode().get());
         } else {
             return UNKNOWN;
         }

@@ -62,6 +62,7 @@ import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -82,6 +83,8 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -99,6 +102,7 @@ import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -998,5 +1002,89 @@ public class ProjectUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * Given a list of patterns in include field, find the directories and files in the package that match the patterns.
+     *
+     * @param patterns list of string patterns to be matched
+     * @return the list of matching paths
+     */
+    public static List<Path> getPathsMatchingIncludePatterns(List<String> patterns, Path packageRoot) {
+        List<Path> allMatchingPaths = new ArrayList<>();
+        for (String pattern : patterns) {
+            if (pattern.startsWith("!")) {
+                removeNegatedIncludePaths(pattern.substring(1), allMatchingPaths);
+            } else {
+                addMatchingIncludePaths(pattern, allMatchingPaths, packageRoot);
+            }
+        }
+        return allMatchingPaths;
+    }
+
+    private static void removeNegatedIncludePaths(String pattern, List<Path> allMatchingPaths) {
+        String combinedPattern = getGlobFormatPattern(pattern);
+        Stream<Path> pathStream = allMatchingPaths.stream();
+        List<Path> patternPaths = filterPathStream(pathStream, combinedPattern);
+        allMatchingPaths.removeAll(patternPaths);
+    }
+
+    private static void addMatchingIncludePaths(String pattern, List<Path> allMatchingPaths, Path packageRoot) {
+        String combinedPattern = getGlobFormatPattern(pattern);
+        try (Stream<Path> pathStream = Files.walk(packageRoot)) {
+            List<Path> patternPaths = filterPathStream(pathStream, combinedPattern);
+            for (Path absolutePath : patternPaths) {
+                if (isCorrectPatternPathMatch(absolutePath, packageRoot, pattern)) {
+                    Path relativePath = packageRoot.relativize(absolutePath);
+                    allMatchingPaths.add(relativePath);
+                }
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read files matching the include pattern '" + pattern + "': " +
+                    e.getMessage(), e);
+        }
+    }
+
+    private static boolean isCorrectPatternPathMatch(Path absolutePath, Path packageRoot, String pattern) {
+        Path relativePath = packageRoot.relativize(absolutePath);
+        boolean correctMatch = true;
+        if (relativePath.startsWith(TARGET_DIR_NAME)) {
+            // ignore paths inside target directory
+            correctMatch = false;
+        } else if (pattern.startsWith("/") && !packageRoot.equals(absolutePath.getParent())) {
+            // ignore non-root level paths if the pattern is root directory only
+            correctMatch = false;
+        } else if (pattern.endsWith("/") && absolutePath.toFile().isFile()) {
+            // ignore files if the pattern is directory only
+            correctMatch = false;
+        }
+        return correctMatch;
+    }
+
+    private static List<Path> filterPathStream(Stream<Path> pathStream, String combinedPattern) {
+        return pathStream.filter(
+                        FileSystems.getDefault().getPathMatcher("glob:" + combinedPattern)::matches)
+                .collect(Collectors.toList());
+    }
+
+    private static String getGlobFormatPattern(String pattern) {
+        String patternPrefix = getPatternPrefix(pattern);
+        String globPattern = removeTrailingSlashes(pattern);
+        return patternPrefix + globPattern;
+    }
+
+    private static String getPatternPrefix(String pattern) {
+        // if the pattern already contains '/', only "**" should be added for the glob to work.
+        if (pattern.startsWith("/")) {
+            return "**";
+        }
+        return "**/";
+    }
+
+    private static String removeTrailingSlashes(String pattern) {
+        while (pattern.endsWith("/")) {
+            pattern = pattern.substring(0, pattern.length() - 1);
+        }
+        return pattern;
     }
 }

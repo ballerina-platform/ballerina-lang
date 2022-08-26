@@ -6,7 +6,7 @@
     "expectedOutput": {}
   },
   {
-    "description": "Remove object field to a class",
+    "description": "Remove object field from a class",
     "oldCode": "public class counter{\n\tpublic int n;\n}",
     "newCode": "public class counter{\n}",
     "expectedOutput": {
@@ -37,7 +37,7 @@
     }
   },
   {
-    "description": "Rename object field to a class",
+    "description": "Rename object field within a class",
     "oldCode": "public class counter{\n\tpublic int n;\n}",
     "newCode": "public class counter{\n\tpublic int a;\n}",
     "expectedOutput": {

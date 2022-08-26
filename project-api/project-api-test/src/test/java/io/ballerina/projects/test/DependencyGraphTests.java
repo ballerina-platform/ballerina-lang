@@ -51,8 +51,6 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -76,12 +74,9 @@ public class DependencyGraphTests extends BaseTest {
     private static final ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() {
         // dist => cache (0.1.0), io (1.4.2)
         // central => cache (0.1.0), io (1.5.0)
-        Path customUserHome = Paths.get("build", "userHome");
-        Path centralCache = customUserHome.resolve("repositories/central.ballerina.io");
-        Files.createDirectories(centralCache);
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_runtime");
         BCompileUtil.compileAndCacheBala(
@@ -91,12 +86,12 @@ public class DependencyGraphTests extends BaseTest {
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_cache");
         BCompileUtil.compileAndCacheBala(
-                "projects_for_resolution_tests/ultimate_package_resolution/package_cache", centralCache);
+                "projects_for_resolution_tests/ultimate_package_resolution/package_cache", CENTRAL_CACHE);
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_io_1_5_0",
-                centralCache);
+                CENTRAL_CACHE);
 
-        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(CUSTOM_USER_HOME).build();
         projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
     }
 
@@ -381,7 +376,7 @@ public class DependencyGraphTests extends BaseTest {
 
         project.currentPackage().getCompilation();
         // verify that the compiler package cache contains package_b but not package_c
-        Assert.assertNotNull(packageCache.getSymbol(packageBPkgID));
+        Assert.assertNull(packageCache.getSymbol(packageBPkgID));
         PackageID packageCPkgID2 = new PackageID(new Name("samjs"), new Name("package_c"), new Name("0.3.0"));
         Assert.assertNull(packageCache.getSymbol(packageCPkgID2));
 

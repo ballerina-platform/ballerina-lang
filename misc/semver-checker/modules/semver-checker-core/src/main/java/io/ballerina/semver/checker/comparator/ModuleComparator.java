@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -28,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.diff.DiffExtractor;
 import io.ballerina.semver.checker.diff.ModuleDiff;
@@ -38,9 +40,11 @@ import java.util.Optional;
 
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getClassIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getConstIdentifier;
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getEnumIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getFunctionIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getModuleVarIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getServiceIdentifier;
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getTypeDefIdentifier;
 
 /**
  * Comparator implementation for Ballerina modules.
@@ -61,6 +65,10 @@ public class ModuleComparator implements Comparator {
     private final Map<String, ConstantDeclarationNode> oldConstants = new HashMap<>();
     private final Map<String, ClassDefinitionNode> newClasses = new HashMap<>();
     private final Map<String, ClassDefinitionNode> oldClasses = new HashMap<>();
+    private final Map<String, TypeDefinitionNode> newTypes = new HashMap<>();
+    private final Map<String, TypeDefinitionNode> oldTypes = new HashMap<>();
+    private final Map<String, EnumDeclarationNode> newEnums = new HashMap<>();
+    private final Map<String, EnumDeclarationNode> oldEnums = new HashMap<>();
 
     public ModuleComparator(Module newModule, Module oldModule) {
         this.newModule = newModule;
@@ -69,15 +77,18 @@ public class ModuleComparator implements Comparator {
 
     @Override
     public Optional<ModuleDiff> computeDiff() {
-        ModuleDiff.Builder moduleDiffBuilder = new ModuleDiff.Builder(newModule, oldModule);
         extractModuleLevelDefinitions(newModule, true);
         extractModuleLevelDefinitions(oldModule, false);
 
+        ModuleDiff.Builder moduleDiffBuilder = new ModuleDiff.Builder(newModule, oldModule);
         extractFunctionDiffs(moduleDiffBuilder);
         extractServiceDiffs(moduleDiffBuilder);
         extractModuleVarDiffs(moduleDiffBuilder);
         extractConstantDiffs(moduleDiffBuilder);
         extractClassDiffs(moduleDiffBuilder);
+        extractTypeDefinitionDiffs(moduleDiffBuilder);
+        extractEnumDeclarationDiffs(moduleDiffBuilder);
+
         // Todo: implement analyzers for other module-level definitions
         return moduleDiffBuilder.build();
     }
@@ -120,6 +131,22 @@ public class ModuleComparator implements Comparator {
         constDiffExtractor.getRemovals().forEach((name, clazz) -> diffModifier.withClassRemoved(clazz));
         constDiffExtractor.getCommons().forEach((name, clazz) -> diffModifier.withClassModified(clazz.getKey(),
                 clazz.getValue()));
+    }
+
+    private void extractTypeDefinitionDiffs(ModuleDiff.Builder diffModifier) {
+        DiffExtractor<TypeDefinitionNode> constDiffExtractor = new DiffExtractor<>(newTypes, oldTypes);
+        constDiffExtractor.getAdditions().forEach((name, type) -> diffModifier.withTypeDefAdded(type));
+        constDiffExtractor.getRemovals().forEach((name, type) -> diffModifier.withTypeDefRemoved(type));
+        constDiffExtractor.getCommons().forEach((name, types) -> diffModifier.withTypeDefModified(types.getKey(),
+                types.getValue()));
+    }
+
+    private void extractEnumDeclarationDiffs(ModuleDiff.Builder diffModifier) {
+        DiffExtractor<EnumDeclarationNode> constDiffExtractor = new DiffExtractor<>(newEnums, oldEnums);
+        constDiffExtractor.getAdditions().forEach((name, type) -> diffModifier.withEnumAdded(type));
+        constDiffExtractor.getRemovals().forEach((name, type) -> diffModifier.withEnumRemoved(type));
+        constDiffExtractor.getCommons().forEach((name, types) -> diffModifier.withEnumModified(types.getKey(),
+                types.getValue()));
     }
 
     private void extractModuleLevelDefinitions(Module module, boolean isNewModule) {
@@ -180,7 +207,22 @@ public class ModuleComparator implements Comparator {
                         }
                         break;
                     case TYPE_DEFINITION:
+                        TypeDefinitionNode typeNode = (TypeDefinitionNode) member;
+                        if (isNewModule) {
+                            newTypes.put(getTypeDefIdentifier(typeNode), typeNode);
+                        } else {
+                            oldTypes.put(getTypeDefIdentifier(typeNode), typeNode);
+                        }
+                        break;
                     case ENUM_DECLARATION:
+                        EnumDeclarationNode enumNode = (EnumDeclarationNode) member;
+                        if (isNewModule) {
+                            newEnums.put(getEnumIdentifier(enumNode), enumNode);
+                        } else {
+                            oldEnums.put(getEnumIdentifier(enumNode), enumNode);
+                        }
+                        break;
+                    case LISTENER_DECLARATION:
                     default:
                         // Todo: implement
                 }
