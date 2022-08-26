@@ -1045,7 +1045,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
         SeparatedNodeList<Node> types = tupleTypeDescriptorNode.memberTypeDesc();
-        boolean isAnonymous = checkIfAnonymous(tupleTypeDescriptorNode);
         for (int i = 0; i < types.size(); i++) {
             Node node = types.get(i);
             if (node.kind() == SyntaxKind.REST_TYPE) {
