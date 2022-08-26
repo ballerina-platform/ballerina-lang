@@ -1,5 +1,5 @@
 name: New Feature Request
-description: File a new feature report
+description: File a new feature request
 title: "[New Feature]: "
 labels: ["Type/NewFeature", "triage"]
 body:
