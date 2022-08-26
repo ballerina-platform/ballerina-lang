@@ -2004,63 +2004,42 @@
                       ]
                     },
                     {
-                      "kind": "LOCAL_VAR_DECL",
+                      "kind": "INVALID_EXPRESSION_STATEMENT",
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_EXPRESSION_STATEMENT"
+                      ],
                       "children": [
                         {
-                          "kind": "LIST",
-                          "children": []
-                        },
-                        {
-                          "kind": "TYPED_BINDING_PATTERN",
+                          "kind": "QUALIFIED_NAME_REFERENCE",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "QUALIFIED_NAME_REFERENCE",
-                              "hasDiagnostics": true,
-                              "children": [
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "error",
+                              "leadingMinutiae": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "error",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "COLON_TOKEN",
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "g"
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
                                 }
                               ]
                             },
                             {
-                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "kind": "COLON_TOKEN",
                               "hasDiagnostics": true,
-                              "children": [
+                              "diagnostics": [
+                                "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                              ],
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
-                                  ]
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
                                 }
                               ]
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "g"
                             }
                           ]
                         },
@@ -2622,66 +2601,45 @@
                       ]
                     },
                     {
-                      "kind": "LOCAL_VAR_DECL",
+                      "kind": "INVALID_EXPRESSION_STATEMENT",
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_EXPRESSION_STATEMENT"
+                      ],
                       "children": [
                         {
-                          "kind": "LIST",
-                          "children": []
-                        },
-                        {
-                          "kind": "TYPED_BINDING_PATTERN",
+                          "kind": "QUALIFIED_NAME_REFERENCE",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "QUALIFIED_NAME_REFERENCE",
-                              "hasDiagnostics": true,
-                              "children": [
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "int",
+                              "leadingMinutiae": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "int",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "COLON_TOKEN",
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
-                                  ]
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
                                 }
                               ]
                             },
                             {
-                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "kind": "COLON_TOKEN",
                               "hasDiagnostics": true,
-                              "children": [
+                              "diagnostics": [
+                                "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                              ],
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
-                                  ]
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
                                 }
+                              ]
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
                               ]
                             }
                           ]
@@ -3235,78 +3193,57 @@
                       ]
                     },
                     {
-                      "kind": "LOCAL_VAR_DECL",
+                      "kind": "INVALID_EXPRESSION_STATEMENT",
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_EXPRESSION_STATEMENT"
+                      ],
                       "children": [
                         {
-                          "kind": "LIST",
-                          "children": []
-                        },
-                        {
-                          "kind": "TYPED_BINDING_PATTERN",
+                          "kind": "QUALIFIED_NAME_REFERENCE",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "QUALIFIED_NAME_REFERENCE",
-                              "hasDiagnostics": true,
-                              "children": [
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "transaction",
+                              "leadingMinutiae": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "transaction",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
-                                    },
-                                    {
-                                      "kind": "COMMENT_MINUTIAE",
-                                      "value": "// missing identifier and var decl rhs"
-                                    },
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    },
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
-                                    }
-                                  ]
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
                                 },
                                 {
-                                  "kind": "COLON_TOKEN",
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
+                                  "kind": "COMMENT_MINUTIAE",
+                                  "value": "// missing identifier and var decl rhs"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
-                                  ]
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
                                 }
                               ]
                             },
                             {
-                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "kind": "COLON_TOKEN",
                               "hasDiagnostics": true,
-                              "children": [
+                              "diagnostics": [
+                                "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                              ],
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
-                                  ]
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
                                 }
+                              ]
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
                               ]
                             }
                           ]

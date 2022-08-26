@@ -32,10 +32,10 @@ type MessageContent record {
     string Description;
     string IgnitionStatus;
     int Odometer;
-    anydata Zip?;
-    anydata City?;
-    anydata State?;
-    anydata Distance?;
+    anydata Zip;
+    anydata City;
+    anydata State;
+    anydata Distance;
     TripInformation TripInformation;
     HeaderInformation HeaderInformation;
 };
