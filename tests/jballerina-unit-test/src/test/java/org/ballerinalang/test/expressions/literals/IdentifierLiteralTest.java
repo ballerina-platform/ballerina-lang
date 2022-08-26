@@ -28,6 +28,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -41,21 +42,6 @@ public class IdentifierLiteralTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/literals/identifierliteral/identifier-literal-success.bal");
-    }
-
-    @Test(description = "Test defining final variables with Identifier Literal and refer within a function")
-    public void testILInFinalVariables() {
-        BRunUtil.invoke(result, "testFinalVariableIL");
-    }
-
-    @Test(description = "Test defining global variable with Identifier Literal and refer within a function")
-    public void testILInGlobalVariables() {
-        BRunUtil.invoke(result, "testGlobalVariableIL");
-    }
-
-    @Test(description = "Test defining local variable with Identifier Literal and refer within a function")
-    public void testILInLocalVariables() {
-        BRunUtil.invoke(result, "testLocalVariableIL");
     }
 
     @Test(description = "Test defining local variables with Identifier Literal and get them as return parameters")
@@ -91,42 +77,12 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(returns.toString(), "{\"name\":\"James\",\"age\":30}");
     }
 
-    @Test(description = "Test using identifier literals in arrays and array indexes")
-    public void testUsingIdentifierLiteralAsArrayIndex() {
-        BRunUtil.invoke(result, "useILAsArrayIndex");
-    }
-
-    @Test(description = "Test using identifier literals in function parameters")
-    public void testUsingIdentifierLiteralAsFunctionParams() {
-        BRunUtil.invoke(result, "passILValuesToFunction");
-    }
-
     @Test(description = "Test character range in identifier literal")
     public void testCharacterRangeInIdentifierLiteral() {
         Object returns = BRunUtil.invoke(result, "testCharInIL");
         Assert.assertTrue(returns instanceof BString);
         String actualString = returns.toString();
         Assert.assertEquals(actualString, "sample value");
-    }
-
-    @Test(description = "Test function name with identifier literal")
-    public void testFunctionNameWithInIdentifierLiteral() {
-        BRunUtil.invoke(result, "testFunctionNameWithIL");
-    }
-
-    @Test(description = "Test connector name with identifier literal")
-    public void testConnectorWithIdentifierLiteral() {
-        BRunUtil.invoke(result, "testConnectorNameWithIL");
-    }
-
-    @Test(description = "Test connector action with identifier literal")
-    public void testConnectorActionWithIdentifierLiteral() {
-        BRunUtil.invoke(result, "testConnectorActionWithIL");
-    }
-
-    @Test(description = "Test defining local variables with Identifier Literal")
-    public void testIdentifierLiteralInStructName() {
-        BRunUtil.invoke(result, "useILInStructName");
     }
 
     @Test(description = "Test unicode with identifier literal")
@@ -234,45 +190,18 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(returns.toString(), "I am an integer");
     }
 
-    @Test(description = "Test quoted identifier literals in workers")
-    public void testILInWorkers() {
-        BRunUtil.invoke(result, "useILAsWorkerName");
+    @Test(description = "Test IL with different types", dataProvider = "IL-function-provider")
+    public void testILWithFunctions(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test(description = "Test quoted identifier literals in workers")
-    public void testILInWorkerInteraction() {
-        BRunUtil.invoke(result, "testWorkerInteractionWithIL");
-    }
-
-    @Test(description = "Test struct type member access with literal string")
-    public void testMemberAccessWithIL() {
-        Object arr = BRunUtil.invoke(result, "testMemberAccessWithIL");
-        BArray returns = (BArray) arr;
-        Assert.assertEquals(returns.size(), 4);
-        Assert.assertEquals(returns.get(0).toString(), "Jack");
-        Assert.assertEquals(returns.get(1), 50L);
-        Assert.assertEquals(returns.get(2).toString(), "John");
-        Assert.assertEquals(returns.get(3).toString(), "25");
-    }
-
-    @Test(description = "Test struct type to string returning expected value for IL")
-    public void testStructTypeToStringMethod() {
-        BRunUtil.invoke(result, "testToStringWithIL");
-    }
-
-    @Test(description = "Test ToString method returning expected value for struct type field name with IL")
-    public void testStructFieldToStringMethod() {
-        BRunUtil.invoke(result, "testToStringStructFieldsWithIL");
-    }
-
-    @Test(description = "Test IL with immutable type")
-    public void testImmutableTypeIL() {
-        BRunUtil.invoke(result, "testImmutableTypeIL");
-    }
-
-    @Test(description = "Test IL with table type with quoted IL as key")
-    public void testILInTableType() {
-        BRunUtil.invoke(result, "testILInTableType");
+    @DataProvider(name = "IL-function-provider")
+    public Object[] functionProvider() {
+        return new String[]{
+                "testLocalVariableIL", "testGlobalVariableIL", "testFinalVariableIL", "passILValuesToFunction",
+                "useILAsArrayIndex", "useILInStructName", "testConnectorActionWithIL", "testConnectorNameWithIL",
+                "testFunctionNameWithIL", "testILInTableType", "testImmutableTypeIL", "testToStringStructFieldsWithIL",
+                "testToStringWithIL", "testWorkerInteractionWithIL", "useILAsWorkerName", "testMemberAccessWithIL"};
     }
 
     @AfterClass
