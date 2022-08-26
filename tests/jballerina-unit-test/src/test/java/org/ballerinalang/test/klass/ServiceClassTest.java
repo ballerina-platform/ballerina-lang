@@ -235,6 +235,13 @@ public class ServiceClassTest {
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
+    @Test
+    public void testResourceMethodAssignability() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/klass/resource_method_assignability_test.bal");
+        BRunUtil.invoke(compileResult, "testResourceMethodAssignability");
+    }
+
     @AfterClass
     public void reset() {
         ServiceValue.reset();
