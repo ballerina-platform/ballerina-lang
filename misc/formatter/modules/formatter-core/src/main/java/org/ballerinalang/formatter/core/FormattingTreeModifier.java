@@ -533,7 +533,10 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
+        boolean preserveIndent = env.preserveIndentation;
+        preserveIndentation(blockStatementNode.openBraceToken().isMissing() && preserveIndent);
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
+        preserveIndentation(preserveIndent);
         indent(); // start an indentation
         NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1);
         unindent(); // end the indentation
