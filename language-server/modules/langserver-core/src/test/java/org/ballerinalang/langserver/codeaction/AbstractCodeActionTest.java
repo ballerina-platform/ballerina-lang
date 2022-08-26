@@ -146,12 +146,10 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         editsElement = resolvedResponse.get("result").getAsJsonObject().get("edit").getAsJsonObject()
                                 .get("documentChanges").getAsJsonArray().get(0).getAsJsonObject().get("edits");
                         JsonElement actualData = right.get("data");
-                        if (expected.data == null) {
-                            if (!actualData.isJsonNull()) {
-                                this.alterFileUri(actual, actualData, sourceRoot);
-                            }
-
-                        } else {
+                        if (!actualData.isJsonNull()) {
+                            this.alterFileUri(actual, actualData, sourceRoot);
+                        }
+                        if (expected.data != null) {
                             this.alterExpectedUri(expected.data, sourceRoot);
                             JsonElement expectedData = gson.toJsonTree(expected.data);
                             if (!expectedData.equals(actualData)) {
