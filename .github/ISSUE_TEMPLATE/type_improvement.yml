@@ -1,5 +1,5 @@
 name: Improvement Request
-description: File a improvement report
+description: File a improvement request
 title: "[Improvement]: "
 labels: ["Type/Improvement", "triage"]
 body:
