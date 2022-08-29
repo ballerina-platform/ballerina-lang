@@ -286,9 +286,15 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
+        boolean prevPreservedNewLine = env.hasPreservedNewline;
         MetadataNode metadata = formatNode(functionDefinitionNode.metadata().orElse(null), 0, 1);
+        // If metadata is documentation string, set preserved new line to false, so to remove user defined new line
+        env.hasPreservedNewline = metadata == null ? prevPreservedNewLine
+                : metadata.documentationString().isEmpty() && prevPreservedNewLine;
         NodeList<Token> qualifierList = formatNodeList(functionDefinitionNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
+        env.hasPreservedNewline = prevPreservedNewLine;
+
         IdentifierToken functionName;
         if (functionDefinitionNode.relativeResourcePath().isEmpty()) {
             functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
@@ -552,9 +558,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), 0, fieldTrailingNL);
         indent(); // Set indentation for record fields
         NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
-                0, fieldTrailingNL);
+                recordTypeDesc.recordRestDescriptor().isEmpty() ? 0 : fieldTrailingWS, fieldTrailingNL);
         RecordRestDescriptorNode recordRestDescriptor =
-                formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), fieldTrailingWS, fieldTrailingNL);
+                formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), 0, fieldTrailingNL);
         unindent(); // Revert indentation for record fields
         Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), env.trailingWS, env.trailingNL);
 
@@ -1594,9 +1600,17 @@ public class FormattingTreeModifier extends TreeModifier {
         Token enumKeywordToken = formatToken(enumDeclarationNode.enumKeywordToken(), 1, 0);
         IdentifierToken identifier = formatNode(enumDeclarationNode.identifier(), 1, 0);
         Token openBraceToken = formatToken(enumDeclarationNode.openBraceToken(), 0, 1);
+        int separatorTrailingWS = 0;
+        int separatorTrailingNL = 0;
+        if (shouldExpand(enumDeclarationNode)) {
+            separatorTrailingNL++;
+        } else {
+            separatorTrailingWS++;
+        }
+
         indent();
         SeparatedNodeList<Node> enumMemberList = formatSeparatedNodeList(enumDeclarationNode.enumMemberList(),
-                0, 0, 0, 1, 0, 1);
+                0, 0, separatorTrailingWS, separatorTrailingNL, 0, 1);
         unindent();
         Token closeBraceToken = formatToken(enumDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
@@ -2574,10 +2588,17 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public LetExpressionNode transform(LetExpressionNode letExpressionNode) {
         Token letKeyword = formatToken(letExpressionNode.letKeyword(), 1, 0);
+        int listTrailingNL = 0;
+        int listTrailingWS = 0;
+        if (shouldExpand(letExpressionNode)) {
+            listTrailingNL++;
+        } else {
+            listTrailingWS++;
+        }
 
         indent();
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
-                formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 0, 0, 0, 1);
+                formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 0, 0, listTrailingWS, listTrailingNL);
         Token inKeyword = formatToken(letExpressionNode.inKeyword(), 1, 0);
         ExpressionNode expression = formatNode(letExpressionNode.expression(), env.trailingWS, env.trailingNL);
         unindent();
@@ -4017,7 +4038,7 @@ public class FormattingTreeModifier extends TreeModifier {
         for (Minutiae minutiae : token.leadingMinutiae()) {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
-                    if (consecutiveNewlines <= 1) {
+                    if (consecutiveNewlines <= 1 && env.hasPreservedNewline) {
                         consecutiveNewlines++;
                         leadingMinutiae.add(getNewline());
                         break;
@@ -4070,7 +4091,6 @@ public class FormattingTreeModifier extends TreeModifier {
 
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
         preserveIndentation(false);
-        env.hasPreservedNewline = false;
         return newLeadingMinutiaeList;
     }
 
@@ -4154,7 +4174,7 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines == 0 && env.trailingNL > 0 && !token.isMissing() && !env.hasPreservedNewline) {
+        if (consecutiveNewlines == 0 && env.trailingNL > 0 && !token.isMissing() && env.hasPreservedNewline) {
             trailingMinutiae.add(getNewline());
         }
         env.prevTokensTrailingNL = consecutiveNewlines;
@@ -4343,6 +4363,40 @@ public class FormattingTreeModifier extends TreeModifier {
         for (Node field : recordTypeDesc.fields()) {
             if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())
                     || field.toSourceCode().contains(System.lineSeparator())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check whether a let expression needs to be expanded in to multiple lines.
+     *
+     * @param letExpressionNode Let Expression
+     * @return <code>true</code> If the let expression needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(LetExpressionNode letExpressionNode) {
+        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations = letExpressionNode.letVarDeclarations();
+        LetVariableDeclarationNode lastLetVarDeclarationNode = letVarDeclarations.get(letVarDeclarations.size() - 1);
+
+        return hasNonWSMinutiae(lastLetVarDeclarationNode.trailingMinutiae())
+                || lastLetVarDeclarationNode.toSourceCode().contains(System.lineSeparator());
+    }
+
+    /**
+     * Check whether an enum declaration needs to be expanded in to multiple lines.
+     *
+     * @param enumDeclarationNode Enum declaration
+     * @return <code>true</code> If the enum declaration needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(EnumDeclarationNode enumDeclarationNode) {
+        SeparatedNodeList<Node> enumMemberList = enumDeclarationNode.enumMemberList();
+        for (int index = 0; index < enumMemberList.size() - 1; index++) {
+            Token separator = enumMemberList.getSeparator(index);
+            if (hasNonWSMinutiae(separator.leadingMinutiae()) || hasNonWSMinutiae(separator.trailingMinutiae())
+                    || separator.toSourceCode().contains(System.lineSeparator())) {
                 return true;
             }
         }
