@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
@@ -57,8 +58,7 @@ public class AnnotationUtils {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
 
-        if (type.getTag() != TypeTags.OBJECT_TYPE_TAG && type.getTag() != TypeTags.SERVICE_TAG && 
-                type.getTag() != TypeTags.CLIENT_TAG) {
+        if (type.getTag() != TypeTags.OBJECT_TYPE_TAG && type.getTag() != TypeTags.SERVICE_TAG) {
             return;
         }
         BObjectType objectType = (BObjectType) type;
@@ -66,7 +66,7 @@ public class AnnotationUtils {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             setMethodAnnotations(globalAnnotMap, annotationKey, (BMethodType) attachedFunction);
         }
-        if (type.getTag() == TypeTags.SERVICE_TAG || type.getTag() == TypeTags.CLIENT_TAG) {
+        if (type.getTag() == TypeTags.SERVICE_TAG || (objectType.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
             BNetworkObjectType serviceType = (BNetworkObjectType) type;
             for (ResourceMethodType resourceMethod : serviceType.getResourceMethods()) {
                 annotationKey = StringUtils.fromString(resourceMethod.getAnnotationKey());

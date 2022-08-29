@@ -692,9 +692,6 @@ public class TypeChecker {
             case TypeTags.SERVICE_TAG:
                 return checkIsServiceType(sourceType, targetType,
                         unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
-            case TypeTags.CLIENT_TAG:
-                return checkIsClientType(sourceType, targetType,
-                        unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
             case TypeTags.HANDLE_TAG:
                 return sourceTypeTag == TypeTags.HANDLE_TAG;
             case TypeTags.READONLY_TAG:
@@ -1670,8 +1667,7 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(Object sourceVal, Type sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG && sourceType.getTag() != TypeTags.SERVICE_TAG &&
-                sourceType.getTag() != TypeTags.CLIENT_TAG) {
+        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG && sourceType.getTag() != TypeTags.SERVICE_TAG) {
             return false;
         }
         // If we encounter two types that we are still resolving, then skip it.
@@ -1694,12 +1690,14 @@ public class TypeChecker {
         List<MethodType> targetFuncs = new ArrayList<>(Arrays.asList(targetType.getMethods()));
         List<MethodType> sourceFuncs = new ArrayList<>(Arrays.asList(sourceObjectType.getMethods()));
         
-        if (targetType.getTag() == TypeTags.SERVICE_TAG || targetType.getTag() == TypeTags.CLIENT_TAG) {
+        if (targetType.getTag() == TypeTags.SERVICE_TAG || 
+                (targetType.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
             BNetworkObjectType targetNetworkObj = (BNetworkObjectType) targetType;
             Collections.addAll(targetFuncs, targetNetworkObj.getResourceMethods());
         }
 
-        if (sourceType.getTag() == TypeTags.SERVICE_TAG || sourceType.getTag() == TypeTags.CLIENT_TAG) {
+        if (sourceType.getTag() == TypeTags.SERVICE_TAG || 
+                (sourceObjectType.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
             BNetworkObjectType sourceNetworkObj = (BNetworkObjectType) sourceObjectType;
             Collections.addAll(sourceFuncs, sourceNetworkObj.getResourceMethods());
         }
@@ -1946,15 +1944,6 @@ public class TypeChecker {
             return (flags & SymbolFlags.SERVICE) == SymbolFlags.SERVICE;
         }
 
-        return false;
-    }
-
-    private static boolean checkIsClientType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() == TypeTags.CLIENT_TAG) {
-            return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
-        }
-
-        // TODO: Check for client in the flags
         return false;
     }
     

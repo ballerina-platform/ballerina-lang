@@ -17,7 +17,6 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ClientType;
 
 /**
@@ -28,11 +27,6 @@ import io.ballerina.runtime.api.types.ClientType;
 public class BClientType extends BNetworkObjectType implements ClientType {
     public BClientType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.CLIENT_TAG;
     }
 
     @Override

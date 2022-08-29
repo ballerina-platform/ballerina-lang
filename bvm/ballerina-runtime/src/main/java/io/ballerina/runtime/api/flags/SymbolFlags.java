@@ -33,6 +33,7 @@ public class SymbolFlags {
     public static final long PRIVATE = 1024;
     public static final long OPTIONAL = 4096;
     public static final long REMOTE = 32768;
+    public static final long CLIENT = 65636;
     public static final long RESOURCE = 131072;
     public static final long SERVICE = 262144;
     public static final long TRANSACTIONAL = 33554432;
