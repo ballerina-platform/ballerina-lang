@@ -279,7 +279,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         String replaceFunctionCall = getReplaceFunctionCallForStatements(argsForReplaceFunctionCall, functionName);
 
         if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
-            //todo try to use this once. this is already used in "return <>" and "returns <>"
             String varName = updatingVar.get().getName().get();
             replaceFunctionCall =
                     String.format("%s %s = %s", possibleTypeOfUpdatingVar.get(), varName, replaceFunctionCall);
@@ -287,14 +286,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             replaceFunctionCall = String.format("return %s", replaceFunctionCall);
         }
 
-        //todo change with newLineAtEnd
         Position replaceFuncCallStartPos = PositionUtil.toPosition(selectedNodes.get(0).lineRange().startLine());
         Position replaceFuncCallEndPos = PositionUtil
                 .toPosition(selectedNodes.get(selectedNodes.size() - 1).lineRange().endLine());
-        Range replaceFunctCallInsertRange = new Range(replaceFuncCallStartPos, replaceFuncCallEndPos);
+        Range replaceFuncCallInsertRange = new Range(replaceFuncCallStartPos, replaceFuncCallEndPos);
 
-        TextEdit extractFunctionEdit = new TextEdit(extractFunctionInsertRange, extractFunction); // at the end
-        TextEdit replaceFunctionCallEdit = new TextEdit(replaceFunctCallInsertRange, replaceFunctionCall);
+        TextEdit extractFunctionEdit = new TextEdit(extractFunctionInsertRange, extractFunction);
+        TextEdit replaceFunctionCallEdit = new TextEdit(replaceFuncCallInsertRange, replaceFunctionCall);
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceFunctionCallEdit), context.fileUri(),
@@ -337,9 +335,17 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private List<CodeAction> getCodeActionsForExpressions(CodeActionContext context,
                                                           RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
+        Optional<Node> enclosingModulePartNode = findEnclosingModulePartNode(matchedCodeActionNode);
 
-        if (context.currentSyntaxTree().isEmpty() ||
-                (matchedCodeActionNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+        List<SyntaxKind> unSupportedModuleLevelSyntaxKinds = List.of(SyntaxKind.CONST_DECLARATION,
+                SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION);
+
+        if (enclosingModulePartNode.isEmpty()
+                || unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.get().kind())) {
+            return Collections.emptyList();
+        }
+
+        if (context.currentSyntaxTree().isEmpty() || (matchedCodeActionNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
                         && matchedCodeActionNode.parent() != null
                         && matchedCodeActionNode.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
             return Collections.emptyList();
