@@ -20,7 +20,10 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.tree.*;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
@@ -39,6 +42,7 @@ public class BLangGroupingKey extends BLangNode implements GroupingKeyNode {
     public void setGroupingKey(Node groupingKey) {
         if (groupingKey.getKind() == NodeKind.VARIABLE_DEF) {
             this.variableDef = (BLangSimpleVariableDef) groupingKey;
+            return;
         }
         this.variableRef = (BLangSimpleVarRef) groupingKey;
     }
