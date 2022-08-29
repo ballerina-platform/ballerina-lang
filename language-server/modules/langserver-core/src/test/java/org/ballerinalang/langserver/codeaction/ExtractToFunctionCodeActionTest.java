@@ -131,8 +131,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_position_numeric_literal_cur_inside_literal.json"},
                 {"extract_to_function_exprs_position_binary_expr_constant.json"},
                 {"extract_to_function_exprs_position_binary_expr_moduleVar.json"},
-//                {"extract_to_function_exprs_position_binary_expr_parameter.json"},
-//                {"extract_to_function_exprs_position_binary_expr_localVar.json"},
+                {"extract_to_function_exprs_position_binary_expr_parameter.json"},
+                {"extract_to_function_exprs_position_binary_expr_localVar.json"},
                 {"extract_to_function_exprs_position_binary_expr_before_plus_token.json"},
                 {"extract_to_function_exprs_position_binary_expr_after_plus_token.json"},
                 {"extract_to_function_exprs_position_braced_expr_end.json"},
@@ -156,7 +156,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_pos_table_cons_expr_key_specifier_key_kw.json"},
                 {"extract_to_function_exprs_pos_implicit_new_expr_new_kw.json"},
                 {"extract_to_function_exprs_pos_explicit_new_expr_new_kw.json"},
-                {"extract_to_function_exprs_pos_object_cons_object_kw.json"}, // check for isolate kw
+                {"extract_to_function_exprs_pos_object_cons_object_kw.json"}, // todo support later
                 {"extract_to_function_exprs_pos_error_cons_error_kw.json"},
                 {"extract_to_function_exprs_pos_let_expr_let_kw.json"},
                 {"extract_to_function_exprs_pos_let_expr_in_kw.json"},
