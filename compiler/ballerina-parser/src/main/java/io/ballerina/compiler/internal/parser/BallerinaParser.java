@@ -9691,7 +9691,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse attach point ident gievn.
      * <p>
      * <code>
-     * source-only-attach-point-ident := annotation | external | var | const | listener | worker
+     * source-only-attach-point-ident := annotation | external | var | const | listener | worker | client
      * <br/><br/>
      * dual-attach-point-ident := type | class | [object|service remote] function | parameter
      * | return | service | [object|record] field
