@@ -1,7 +1,8 @@
 import ballerina/io;
-import ballerina/http;
+import ballerina/http as http2;
+import project.http as http;
 
-service / on new http:Listener(9090) {
+service / on new http2:Listener(9090) {
     resource function get greeting(http:Request req) returns string|error? {
         http:Client clientEP = check new ("https://postman-echo.com/post");
         json clientResponse = check clientEP->forward("/", req);
