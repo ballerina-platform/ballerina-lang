@@ -17,7 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -219,7 +221,7 @@ public class SymbolTable {
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
     public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();
-    public Map<Location, PackageID> clientDeclarations;
+    public Map<LineRange, PackageID> clientDeclarations;
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -320,8 +322,7 @@ public class SymbolTable {
 
         defineReadonlyCompoundType();
 
-        // TODO: 2022-08-12 Get from context once project API changes are merged.
-        this.clientDeclarations = new HashMap<>();
+        this.clientDeclarations = IDLClients.getInstance(context).idlClientMap();
     }
 
     private void defineReadonlyCompoundType() {

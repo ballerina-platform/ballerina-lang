@@ -18,28 +18,28 @@
 
 package io.ballerina.projects;
 
+import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.IDLGeneratorPlugin;
 import io.ballerina.projects.plugins.IDLSourceGeneratorContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 class IDLPluginManager {
     private final List<IDLPluginContextImpl> idlPluginContexts;
-    private final Map<Location, PackageID> idlClientMap;
     private final List<ModuleConfig> moduleConfigs;
 
     private IDLPluginManager(List<IDLPluginContextImpl> compilerPluginContexts) {
         this.idlPluginContexts = compilerPluginContexts;
-        this.idlClientMap = new HashMap<>();
         this.moduleConfigs = new ArrayList<>();
     }
 
@@ -62,23 +62,19 @@ class IDLPluginManager {
         return idlPluginContexts;
     }
 
-    public Map<Location, PackageID> idlClientMap() {
-        return idlClientMap;
-    }
-
     public List<ModuleConfig> generatedModuleConfigs() {
         return moduleConfigs;
     }
 
     public static class IDLSourceGeneratorContextImpl implements IDLSourceGeneratorContext {
         private final Package currentPackage;
-        private final Map<Location, PackageID> idlClientMap;
+        private final Map<LineRange, PackageID> idlClientMap;
         private final Node clientNode;
         private final List<ModuleConfig> moduleConfigs;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
 
         public IDLSourceGeneratorContextImpl(Node clientNode, Package currentPackage,
-                                             Map<Location, PackageID> idlClientMap, List<ModuleConfig> moduleConfigs) {
+                                             Map<LineRange, PackageID> idlClientMap, List<ModuleConfig> moduleConfigs) {
             this.currentPackage = currentPackage;
             this.idlClientMap = idlClientMap;
             this.clientNode = clientNode;
@@ -107,8 +103,33 @@ class IDLPluginManager {
 
         @Override
         public void addClient(ModuleConfig moduleConfig) {
-            this.idlClientMap.put(clientNode.location(), moduleConfig.moduleDescriptor().moduleCompilationId());
-            this.moduleConfigs.add(moduleConfig);
+            ModuleConfig newModuleConfig = createModuleConfigWithRandomName(moduleConfig);
+            LineRange lineRange;
+            if (this.clientNode.kind().equals(SyntaxKind.MODULE_CLIENT_DECLARATION)) {
+                ModuleClientDeclarationNode moduleClientNode = (ModuleClientDeclarationNode) this.clientNode;
+                lineRange = moduleClientNode.clientPrefix().location().lineRange();
+            } else {
+                ClientDeclarationNode clientDeclarationNode = (ClientDeclarationNode) this.clientNode;
+                lineRange = clientDeclarationNode.clientPrefix().location().lineRange();
+            }
+            this.idlClientMap.put(lineRange, newModuleConfig.moduleDescriptor().moduleCompilationId());
+            this.moduleConfigs.add(newModuleConfig);
+        }
+
+        private ModuleConfig createModuleConfigWithRandomName(ModuleConfig moduleConfig) {
+            ModuleName randomModuleName;
+            if (moduleConfig.moduleDescriptor().name() == null) {
+                randomModuleName = ModuleName.from(moduleConfig.moduleDescriptor().packageName(),
+                        String.valueOf(System.currentTimeMillis()));
+            } else {
+                randomModuleName = ModuleName.from(moduleConfig.moduleDescriptor().packageName(),
+                        moduleConfig.moduleDescriptor().name() + String.valueOf(System.currentTimeMillis()));
+            }
+            ModuleDescriptor newModuleDescriptor = ModuleDescriptor.from(randomModuleName,
+                    this.currentPackage.descriptor());
+            return ModuleConfig.from(
+                    moduleConfig.moduleId(), newModuleDescriptor, moduleConfig.sourceDocs(),
+                    moduleConfig.testSourceDocs(), moduleConfig.moduleMd().orElse(null), moduleConfig.dependencies());
         }
     }
 }

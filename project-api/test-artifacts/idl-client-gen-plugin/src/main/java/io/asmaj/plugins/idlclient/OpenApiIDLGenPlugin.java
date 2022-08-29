@@ -53,9 +53,9 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
         public void perform(IDLSourceGeneratorContext idlSourceGeneratorContext) {
             ModuleId moduleId = ModuleId.create("client1",
                     idlSourceGeneratorContext.currentPackage().packageId());
-            DocumentId documentId = DocumentId.create("openapiClient", moduleId);
+            DocumentId documentId = DocumentId.create("openApiClient", moduleId);
             DocumentConfig documentConfig = DocumentConfig.from(
-                    documentId, "import ballerina/http as _;", "openapiClient");
+                    documentId, "type openApiClient record {};", "openApiClient");
             ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
                     ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), "client1"),
                     idlSourceGeneratorContext.currentPackage().descriptor());

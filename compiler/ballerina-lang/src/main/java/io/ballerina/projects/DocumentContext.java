@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -29,7 +30,7 @@ import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.TransactionImportValidator;
 import io.ballerina.projects.plugins.IDLClientGenerator;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
@@ -152,9 +153,9 @@ class DocumentContext {
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
         if (idlPluginManager != null) {
-            generateIDLClients(syntaxTree, idlPluginManager, currentPkg);
+            Map<LineRange, PackageID> idlClientsMap = generateIDLClients(syntaxTree, idlPluginManager, currentPkg);
             // Add generated client modules to module load requests
-            for (Map.Entry<Location, PackageID> locationPackageIDEntry : idlPluginManager.idlClientMap().entrySet()) {
+            for (Map.Entry<LineRange, PackageID> locationPackageIDEntry : idlClientsMap.entrySet()) {
                 PackageID packageID = locationPackageIDEntry.getValue();
                 moduleLoadRequests.add(new ModuleLoadRequest(
                         PackageOrg.from(packageID.orgName.getValue()),
@@ -166,11 +167,13 @@ class DocumentContext {
         return moduleLoadRequests;
     }
 
-    private void generateIDLClients(SyntaxTree syntaxTree, IDLPluginManager idlPluginManager, Package currentPkg) {
+    private Map<LineRange, PackageID> generateIDLClients(
+            SyntaxTree syntaxTree, IDLPluginManager idlPluginManager, Package currentPkg) {
         CompilerContext compilerContext = currentPkg.project().projectEnvironmentContext()
                 .getService(CompilerContext.class);
         IDLClients idlClients = IDLClients.getInstance(compilerContext);
         syntaxTree.rootNode().accept(new ClientNodeVisitor(idlPluginManager, currentPkg, idlClients.idlClientMap()));
+        return idlClients.idlClientMap();
     }
 
     private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl, PackageDependencyScope scope) {
@@ -215,13 +218,29 @@ class DocumentContext {
 
         private final IDLPluginManager idlPluginManager;
         private final Package currentPkg;
-        private final Map<Location, PackageID> idlClientMap;
+        private final Map<LineRange, PackageID> idlClientMap;
 
         public ClientNodeVisitor(IDLPluginManager idlPluginManager,
-                                 Package currentPkg, Map<Location, PackageID> idlClientMap) {
+                                 Package currentPkg, Map<LineRange, PackageID> idlClientMap) {
             this.idlPluginManager = idlPluginManager;
             this.currentPkg = currentPkg;
             this.idlClientMap = idlClientMap;
+        }
+
+        @Override
+        public void visit(ModuleClientDeclarationNode moduleClientDeclarationNode) {
+            for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
+                for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
+                    if (idlClientGenerator.canHandle(moduleClientDeclarationNode)) {
+                        IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
+                                new IDLPluginManager.IDLSourceGeneratorContextImpl(
+                                        moduleClientDeclarationNode,
+                                        currentPkg, idlClientMap,
+                                        idlPluginManager.generatedModuleConfigs());
+                        idlClientGenerator.perform(idlSourceGeneratorContext);
+                    }
+                }
+            }
         }
 
         @Override

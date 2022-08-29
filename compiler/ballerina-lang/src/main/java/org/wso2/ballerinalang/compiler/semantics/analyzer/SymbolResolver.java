@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -2633,14 +2634,14 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     private BSymbol resolveClientDeclPrefix(BSymbol symbol) {
-        Location location = symbol.pos;
-        Map<Location, PackageID> clientDeclarations = symTable.clientDeclarations;
+        LineRange lineRange = symbol.pos.lineRange();
+        Map<LineRange, PackageID> clientDeclarations = symTable.clientDeclarations;
 
-        if (!clientDeclarations.containsKey(location)) {
+        if (!clientDeclarations.containsKey(lineRange)) {
             return symTable.notFoundSymbol;
         }
 
-        PackageID packageID = clientDeclarations.get(location);
+        PackageID packageID = clientDeclarations.get(lineRange);
         for (BPackageSymbol moduleSymbol : symTable.pkgEnvMap.keySet()) {
             if (packageID.equals(moduleSymbol.pkgID)) {
                 return moduleSymbol;

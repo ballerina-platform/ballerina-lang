@@ -18,7 +18,7 @@
 
 package io.ballerina.projects.internal;
 
-import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class IDLClients {
     public static final CompilerContext.Key<IDLClients> IDL_CLIENT_MAP_KEY = new CompilerContext.Key<>();
-    private final Map<Location, PackageID> idlClientMap;
+    private final Map<LineRange, PackageID> idlClientMap;
 
     private IDLClients(CompilerContext context) {
         context.put(IDL_CLIENT_MAP_KEY, this);
@@ -48,7 +48,7 @@ public class IDLClients {
         return idlClients;
     }
 
-    public Map<Location, PackageID> idlClientMap() {
+    public Map<LineRange, PackageID> idlClientMap() {
         return idlClientMap;
     }
 }

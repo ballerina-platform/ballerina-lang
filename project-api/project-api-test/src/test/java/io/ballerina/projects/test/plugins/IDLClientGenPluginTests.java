@@ -43,9 +43,9 @@ public class IDLClientGenPluginTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
                 "Unexpected number of compilation diagnostics");
 
-        Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 3);
     }
 }
