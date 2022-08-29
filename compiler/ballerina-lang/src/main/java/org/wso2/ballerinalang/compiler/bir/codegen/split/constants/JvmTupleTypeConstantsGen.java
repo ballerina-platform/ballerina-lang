@@ -83,7 +83,10 @@ public class JvmTupleTypeConstantsGen {
     }
 
     public String add(BTupleType type, SymbolTable symbolTable) {
-        return tupleTypeVarMap.computeIfAbsent(type, str -> generateBTupleInits(type, symbolTable));
+        if (!tupleTypeVarMap.containsKey(type)) {
+            tupleTypeVarMap.put(type, generateBTupleInits(type, symbolTable));
+        }
+        return tupleTypeVarMap.get(type);
     }
 
     private void visitTupleTypeInitMethod() {

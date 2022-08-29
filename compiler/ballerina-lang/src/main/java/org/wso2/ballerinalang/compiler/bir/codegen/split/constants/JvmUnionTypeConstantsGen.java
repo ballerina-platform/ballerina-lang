@@ -86,7 +86,10 @@ public class JvmUnionTypeConstantsGen {
     }
 
     public String add(BUnionType type, SymbolTable symbolTable) {
-        return unionTypeVarMap.computeIfAbsent(type, str -> generateBUnionInits(type, symbolTable));
+        if (!unionTypeVarMap.containsKey(type)) {
+            unionTypeVarMap.put(type, generateBUnionInits(type, symbolTable));
+        }
+        return unionTypeVarMap.get(type);
     }
 
     private void visitUnionTypeInitMethod() {
