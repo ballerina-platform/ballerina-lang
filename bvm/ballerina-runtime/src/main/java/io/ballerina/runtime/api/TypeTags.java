@@ -85,7 +85,6 @@ public class TypeTags {
 
     public static final int PARAMETERIZED_TYPE_TAG = READONLY_TAG + 1;
     public static final int TYPE_REFERENCED_TYPE_TAG = PARAMETERIZED_TYPE_TAG + 1;
-    public static final int CLIENT_TAG = TYPE_REFERENCED_TYPE_TAG + 1;
 
     public static boolean isIntegerTypeTag(int tag) {
 
