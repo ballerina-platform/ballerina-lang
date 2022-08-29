@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,18 +14,38 @@
 // specific language governing permissions and limitations
 // under the License.
 
-annotation map<string> v0 on var;
-const annotation Foo v1 on annotation;
-annotation Bar v2 on const, type;
-const annotation map<anydata> v3 on return, external;
-const annotation map<anydata> v4 on listener;
-const annotation map<anydata> v5 on client;
+import ballerina/lang.value;
 
-type Foo record {
-    string val1;
-};
+annotation A1 on client;
 
-type Bar record {|
-    string val1;
-    int val2;
-|};
+annotation A2 on source client;
+
+const annotation A3 on client;
+
+const annotation map<value:Cloneable> A4 on source client;
+
+const annotation record {| int i; |} A5 on source client;
+
+const annotation A6 on source client;
+
+const annotation A7 on source var;
+
+@A5 {
+    i: 1
+}
+@A6
+function fn() {
+
+}
+
+
+@A5 {
+    i: 1
+}
+@A6
+int modVar = 1;
+
+@A7
+@A5
+@A5 {}
+client "http://www.example.com/apis/one.yaml" as foo;

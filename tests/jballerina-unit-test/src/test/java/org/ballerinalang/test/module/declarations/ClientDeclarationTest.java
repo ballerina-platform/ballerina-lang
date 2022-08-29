@@ -41,7 +41,7 @@ public class ClientDeclarationTest {
     @Test
     public void testInvalidRedeclaredPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
-                "test-src/module.declarations/client-decl/redeclared_prefix_negative_test.bal");
+                "test-src/module.declarations/client-decl/client_decl_redeclared_prefix_negative_test.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("foo"), 21, 50);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("bar"), 23, 50);
@@ -58,7 +58,7 @@ public class ClientDeclarationTest {
     @Test
     public void testClientDeclPrefixAsXmlnsPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
-                "test-src/module.declarations/client-decl/client_prefix_as_xmlns_prefix_negative_test.bal");
+                "test-src/module.declarations/client-decl/client_decl_client_prefix_as_xmlns_prefix_negative_test.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 20, 19);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 21, 16);
@@ -69,7 +69,7 @@ public class ClientDeclarationTest {
     @Test
     public void testUndefinedPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
-                "test-src/module.declarations/client-decl/undefined_prefix_negative_test.bal");
+                "test-src/module.declarations/client-decl/client_decl_undefined_prefix_negative_test.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++, "undefined module 'foo'", 17, 11);
         Assert.assertEquals(result.getErrorCount(), index);
@@ -96,6 +96,32 @@ public class ClientDeclarationTest {
             Assert.assertTrue(expectedPrefixes.contains(prefix));
             Assert.assertEquals(bLangClientDeclaration.uri.value, expectedDeclDetails.get(prefix));
         }
+    }
+
+    @Test
+    public void testClientAnnotationsNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/module.declarations/client-decl/client_decl_annotations_negative_test.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "annotation declaration with 'source' attach point(s) should be a " +
+                "'const' declaration", 19, 1);
+        BAssertUtil.validateError(result, index++, "missing source keyword", 19, 18);
+        BAssertUtil.validateError(result, index++, "annotation declaration with 'source' attach point(s) should be a " +
+                "'const' declaration", 21, 1);
+        BAssertUtil.validateError(result, index++, "missing source keyword", 23, 24);
+        BAssertUtil.validateError(result, index++, "invalid type 'map<ballerina/lang.value:0.0.0:Cloneable>' for " +
+                "annotation with 'client' attachment point: expected a subtype of 'anydata'", 25, 18);
+        BAssertUtil.validateError(result, index++, "annotation 'A5' is not allowed on function", 33, 1);
+        BAssertUtil.validateError(result, index++, "annotation 'A6' is not allowed on function", 36, 1);
+        BAssertUtil.validateError(result, index++, "annotation 'A5' is not allowed on var", 42, 1);
+        BAssertUtil.validateError(result, index++, "annotation 'A6' is not allowed on var", 45, 1);
+        BAssertUtil.validateError(result, index++, "annotation 'A7' is not allowed on client", 48, 1);
+        BAssertUtil.validateError(result, index++, "annotation value expected for annotation of record type 'record " +
+                "{| int i; |}' with required fields", 49, 1);
+        BAssertUtil.validateError(result, index++, "cannot specify more than one annotation value for annotation " +
+                "'A5'", 49, 1);
+        BAssertUtil.validateError(result, index++, "missing non-defaultable required record field 'i'", 50, 5);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     private String getRedeclaredSymbolError(String prefix) {

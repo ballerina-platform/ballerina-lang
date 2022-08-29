@@ -423,8 +423,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         List<BLangAnnotationAttachment> annAttachments = clientDeclaration.annAttachments;
 
         for (BLangAnnotationAttachment annotationAttachment : annAttachments) {
-            // TODO: 2022-08-12 Update to proper point once finalized.
-            annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+            annotationAttachment.attachPoints.add(AttachPoint.Point.CLIENT);
             annotationAttachment.accept(this, data);
 
             BAnnotationAttachmentSymbol annotationAttachmentSymbol = annotationAttachment.annotationAttachmentSymbol;
@@ -1059,6 +1058,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         });
         validateAnnotationAttachmentCount(annotationNode.annAttachments);
+
+        BType attachedType = symbol.attachedType;
+        if (attachedType != null &&
+                attachedType != symTable.semanticError &&
+                Symbols.isAttachPointPresent(symbol.maskedPoints, AttachPoints.CLIENT) &&
+                !types.isAnydata(attachedType)) {
+            dlog.error(annotationNode.typeNode.pos, DiagnosticErrorCode.INVALID_NON_ANYDATA_CLIENT_DECL_ANNOTATION,
+                       attachedType);
+        }
     }
 
     @Override

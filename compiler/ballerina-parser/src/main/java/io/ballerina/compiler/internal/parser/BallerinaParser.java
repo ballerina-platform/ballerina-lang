@@ -4182,10 +4182,11 @@ public class BallerinaParser extends AbstractParser {
                 STNode varOrFuncName = consume();
                 return createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
             case MAP_KEYWORD:
+            case CLIENT_KEYWORD:
                 colon = consume();
-                STToken mapKeyword = consume();
-                STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
-                        mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
+                STToken keyword = consume();
+                STNode refName = STNodeFactory.createIdentifierToken(keyword.text(), keyword.leadingMinutiae(),
+                        keyword.trailingMinutiae(), keyword.diagnostics());
                 return createQualifiedNameReferenceNode(identifier, colon, refName);
             case COLON_TOKEN:
                 // specially handle cases where there are more than one colon.
@@ -9645,6 +9646,7 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case WORKER_KEYWORD:
+            case CLIENT_KEYWORD:
                 // fall through
 
             case SOURCE_KEYWORD:
@@ -9689,7 +9691,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse attach point ident gievn.
      * <p>
      * <code>
-     * source-only-attach-point-ident := annotation | external | var | const | listener | worker
+     * source-only-attach-point-ident := annotation | external | var | const | listener | worker | client
      * <br/><br/>
      * dual-attach-point-ident := type | class | [object|service remote] function | parameter
      * | return | service | [object|record] field
@@ -9706,6 +9708,7 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case WORKER_KEYWORD:
+            case CLIENT_KEYWORD:
                 STNode firstIdent = consume();
                 STNode identList = STNodeFactory.createNodeList(firstIdent);
                 return STNodeFactory.createAnnotationAttachPointNode(sourceKeyword, identList);
@@ -10030,13 +10033,11 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (isNodeListEmpty(annotations)) {
-            clientKeyword =
-                    SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(clientKeyword, documentationString,
+            clientKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(clientKeyword, documentationString,
                                                                      DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
         } else {
-            annotations =
-                    SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(annotations, documentationString,
-                                                                     DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
+            annotations = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(annotations, documentationString,
+                                                                   DiagnosticErrorCode.ERROR_INVALID_DOCUMENTATION);
         }
         return parseClientDeclaration(annotations, clientKeyword, true);
     }

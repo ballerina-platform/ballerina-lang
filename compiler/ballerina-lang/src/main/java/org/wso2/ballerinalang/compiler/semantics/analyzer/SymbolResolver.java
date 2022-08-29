@@ -159,8 +159,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final SemanticAnalyzer semanticAnalyzer;
     private final Stack<String> anonTypeNameSuffixes;
 
-    private final Map<Location, PackageID> clientDeclarations;
-
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
         if (symbolResolver == null) {
@@ -183,8 +181,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
         this.anonTypeNameSuffixes = new Stack<>();
-        // TODO: 2022-08-12 Get from context.
-        this.clientDeclarations = new HashMap<>();
     }
 
     @Override
@@ -2638,11 +2634,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private BSymbol resolveClientDeclPrefix(BSymbol symbol) {
         Location location = symbol.pos;
-        if (!this.clientDeclarations.containsKey(location)) {
+        Map<Location, PackageID> clientDeclarations = symTable.clientDeclarations;
+
+        if (!clientDeclarations.containsKey(location)) {
             return symTable.notFoundSymbol;
         }
 
-        PackageID packageID = this.clientDeclarations.get(location);
+        PackageID packageID = clientDeclarations.get(location);
         for (BPackageSymbol moduleSymbol : symTable.pkgEnvMap.keySet()) {
             if (packageID.equals(moduleSymbol.pkgID)) {
                 return moduleSymbol;

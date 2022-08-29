@@ -441,6 +441,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.uri = clone(source.uri);
         clone.prefix = source.prefix;
+        clone.annAttachments = cloneList(source.annAttachments);
     }
 
     @Override
