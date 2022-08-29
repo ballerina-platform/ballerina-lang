@@ -40,8 +40,6 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
     public List<BLangType> memberTypeNodes = new ArrayList<>();
     public BLangType restParamType;
 
-    public boolean isAnonymous;
-
     @Override
     public List<BLangType> getMemberTypeNodes() {
         return memberTypeNodes;

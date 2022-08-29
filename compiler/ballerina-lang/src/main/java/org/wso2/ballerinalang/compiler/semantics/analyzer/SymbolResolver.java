@@ -1443,8 +1443,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             memberTypes.add(type);
         }
 
-        EnumSet<Flag> flags = tupleTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS)
-                : EnumSet.of(Flag.PUBLIC);
+        EnumSet<Flag> flags = tupleTypeNode.flagSet.contains(Flag.ANONYMOUS) ?
+                EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS) : EnumSet.of(Flag.PUBLIC);
 
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(flags),
                 Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,

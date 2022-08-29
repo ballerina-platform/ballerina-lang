@@ -1054,7 +1054,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 tupleTypeNode.memberTypeNodes.add(createTypeNode(node));
             }
         }
-        tupleTypeNode.isAnonymous = checkIfAnonymous(tupleTypeDescriptorNode);
+        if (checkIfAnonymous(tupleTypeDescriptorNode)) {
+            tupleTypeNode.flagSet.add(Flag.ANONYMOUS);
+        }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
 
         return tupleTypeNode;
