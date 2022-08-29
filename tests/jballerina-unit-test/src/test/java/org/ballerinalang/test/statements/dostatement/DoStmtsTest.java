@@ -69,7 +69,7 @@ public class DoStmtsTest {
         BAssertUtil.validateError(negativeFile2, 0, "type 'string' not allowed here; " +
                 "expected an 'error' or a subtype of 'error'.", 6, 11);
         BAssertUtil.validateError(negativeFile2, 1, "invalid error variable; expecting an " +
-                "error type but found 'string' in type definition", 7, 3);
+                "error type but found 'string' in type definition", 8, 4);
         BAssertUtil.validateError(negativeFile2, 2, "undefined symbol 'd'", 26, 12);
     }
 
