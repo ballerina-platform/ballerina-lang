@@ -212,9 +212,6 @@ public class MethodGen {
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
 
-        // panic if this strand is cancelled
-        checkStrandCancelled(mv, localVarOffset);
-
         genLocalVars(indexMap, mv, func.localVars);
 
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
@@ -235,8 +232,11 @@ public class MethodGen {
         // set channel details to strand.
         setChannelDetailsToStrand(func, localVarOffset, mv, invocationVarIndex);
 
-        Label varinitLabel = labelGen.getLabel(funcName + "varinit");
-        mv.visitLabel(varinitLabel);
+        Label varInitLabel = labelGen.getLabel(funcName + "varinit");
+        mv.visitLabel(varInitLabel);
+
+        // panic if this strand is cancelled
+        checkStrandCancelled(mv, localVarOffset);
 
         // process basic blocks
         List<Label> labels = new ArrayList<>();
@@ -269,7 +269,7 @@ public class MethodGen {
         mv.visitVarInsn(ISTORE, stateVarIndex);
         mv.visitFieldInsn(GETFIELD, frameName, FUNCTION_INVOCATION, "I");
         mv.visitVarInsn(ISTORE, invocationVarIndex);
-        mv.visitJumpInsn(GOTO, varinitLabel);
+        mv.visitJumpInsn(GOTO, varInitLabel);
 
         mv.visitLabel(yieldLabel);
         mv.visitTypeInsn(NEW, frameName);
