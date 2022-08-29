@@ -39,7 +39,7 @@ public class IDLClientGenPluginTests {
 
     @Test
     public void testInBuiltCompilerPluginBuildProject() {
-        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_inbuilt_plugin"));
+        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"));
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();

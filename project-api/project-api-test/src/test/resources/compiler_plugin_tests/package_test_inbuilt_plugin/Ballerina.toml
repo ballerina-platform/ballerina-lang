@@ -1,7 +1,2 @@
-[package]
-org = "user"
-name = "package_test_inbuilt_plugin"
-version = "0.1.0"
-
 [build-options]
 observabilityIncluded = false

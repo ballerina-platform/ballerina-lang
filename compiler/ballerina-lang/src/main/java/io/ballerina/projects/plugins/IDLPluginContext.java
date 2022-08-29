@@ -23,7 +23,7 @@ package io.ballerina.projects.plugins;
  * <p>
  * This class can be used to add various generator tasks during the {@code CodeGenerator} initialization.
  *
- * @since 2.0.0
+ * @since 2.3.0
  */
 public interface IDLPluginContext {
     /**
