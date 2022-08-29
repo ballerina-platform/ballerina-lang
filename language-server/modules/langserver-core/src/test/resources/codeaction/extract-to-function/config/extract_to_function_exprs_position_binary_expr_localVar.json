@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int localVar, int moduleVar, int param) returns int {\n    return constant + moduleVar + param + localVar;\n}"
+          "newText": "\n\nfunction extracted(int moduleVar, int param, int localVar) returns int {\n    return constant + moduleVar + param + localVar;\n}"
         },
         {
           "range": {
@@ -33,7 +33,7 @@
               "character": 55
             }
           },
-          "newText": "extracted(localVar, moduleVar, param)"
+          "newText": "extracted(moduleVar, param, localVar)"
         }
       ]
     }

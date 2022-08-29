@@ -33,6 +33,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.ExtractToFunctionAnalyzer;
 import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
@@ -54,6 +55,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -71,6 +73,11 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     public static final String NAME = "Extract to method";
 
     private static final String EXTRACTED_PREFIX = "extracted";
+
+    @Override
+    public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
 
     @Override
     public List<SyntaxKind> getSyntaxKinds() {
@@ -461,6 +468,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                         .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                         .getRangeFromLineRange(location.lineRange()),
                                 PositionUtil.toRange(matchedNode.lineRange()))))
+                .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
                 .collect(Collectors.toList());
     }
 
