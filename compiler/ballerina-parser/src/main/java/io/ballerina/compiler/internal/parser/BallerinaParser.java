@@ -3093,6 +3093,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode closeBrace = parseCloseBrace();
+        parseOptionalSemicolon();
         endContext();
         return STNodeFactory.createFunctionBodyBlockNode(openBrace, namedWorkersList, statements, closeBrace);
     }
@@ -3322,6 +3323,13 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(token, ParserRuleContext.SEMICOLON);
             return parseSemicolon();
+        }
+    }
+
+    private void parseOptionalSemicolon() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.SEMICOLON_TOKEN) {
+            consume();
         }
     }
 
@@ -3621,6 +3629,7 @@ public class BallerinaParser extends AbstractParser {
         STNode openBrace = parseOpenBrace();
         STNode classMembers = parseObjectMembers(ParserRuleContext.CLASS_MEMBER);
         STNode closeBrace = parseCloseBrace();
+        parseOptionalSemicolon();
         endContext();
         return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
                 className, openBrace, classMembers, closeBrace);
@@ -7856,6 +7865,7 @@ public class BallerinaParser extends AbstractParser {
         STNode openBrace = parseOpenBrace();
         STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
         STNode closeBrace = parseCloseBrace();
+        parseOptionalSemicolon();
 
         onKeyword =
                 cloneWithDiagnosticIfListEmpty(expressionList, onKeyword, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
@@ -13480,6 +13490,7 @@ public class BallerinaParser extends AbstractParser {
         STNode openBraceToken = parseOpenBrace();
         STNode enumMemberList = parseEnumMemberList();
         STNode closeBraceToken = parseCloseBrace();
+        parseOptionalSemicolon();
 
         endContext();
         openBraceToken = cloneWithDiagnosticIfListEmpty(enumMemberList, openBraceToken,
