@@ -112,12 +112,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HASH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -165,6 +167,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_W
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WORKER_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_DECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
@@ -1108,7 +1111,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(DUP);
             this.mv.visitIntInsn(BIPUSH, paramIndex++);
             this.mv.visitVarInsn(ILOAD, invocationVarIndex);
-            this.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+            this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD, INT_VALUE_OF_METHOD, false);
             this.mv.visitInsn(AASTORE);
         }
 
@@ -1201,8 +1204,8 @@ public class JvmTerminatorGen {
         }
         this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
         this.mv.visitVarInsn(ILOAD, invocationVarIndex);
-        this.mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(I)Ljava/lang/String;",
-                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants",
+        this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, "(I)Ljava/lang/String;",
+                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", MAKE_CONCAT_WITH_CONSTANTS,
                         "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
                                 "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
                                 "Ljava/lang/invoke/CallSite;", false), new Object[]{ins.channel.value + ":\u0001"});
@@ -1231,8 +1234,8 @@ public class JvmTerminatorGen {
         }
         this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
         this.mv.visitVarInsn(ILOAD, invocationVarIndex);
-        this.mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(I)Ljava/lang/String;",
-                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants",
+        this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, "(I)Ljava/lang/String;",
+                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", MAKE_CONCAT_WITH_CONSTANTS,
                         "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
                                 "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
                                 "Ljava/lang/invoke/CallSite;", false), new Object[]{ins.workerName.value + ":\u0001"});

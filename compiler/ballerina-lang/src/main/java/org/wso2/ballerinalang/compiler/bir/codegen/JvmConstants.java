@@ -348,6 +348,7 @@ public class JvmConstants {
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
     public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
+    public static final String MAKE_CONCAT_WITH_CONSTANTS = "makeConcatWithConstants";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

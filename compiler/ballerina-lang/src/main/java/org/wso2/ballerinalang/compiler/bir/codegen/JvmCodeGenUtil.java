@@ -92,6 +92,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
@@ -522,8 +523,8 @@ public class JvmCodeGenUtil {
             mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
             mv.visitInsn(DUP);
             mv.visitVarInsn(ILOAD, invocationVarIndex);
-            mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(I)Ljava/lang/String;",
-                    new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants",
+            mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, "(I)Ljava/lang/String;",
+                    new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", MAKE_CONCAT_WITH_CONSTANTS,
                             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
                                     "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
                                     "Ljava/lang/invoke/CallSite;", false), new Object[]{ch.name + ":\u0001"});

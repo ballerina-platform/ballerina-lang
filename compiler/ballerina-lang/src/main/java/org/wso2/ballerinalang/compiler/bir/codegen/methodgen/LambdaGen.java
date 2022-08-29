@@ -73,6 +73,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
@@ -301,8 +302,8 @@ public class LambdaGen {
             mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
             mv.visitInsn(ICONST_1);
             mv.visitInsn(AALOAD);
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
+            mv.visitTypeInsn(CHECKCAST, INT_VALUE);
+            mv.visitMethodInsn(INVOKEVIRTUAL, INT_VALUE, "intValue", "()I", false);
         }
 
         if (lambdaDetails.isExternFunction) {
