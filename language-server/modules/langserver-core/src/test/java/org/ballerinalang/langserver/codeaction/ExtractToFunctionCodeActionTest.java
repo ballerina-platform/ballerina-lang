@@ -240,6 +240,10 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 {"neg_extract_to_function_exprs_position_numeric_literal_before_literal.json"},
                 {"neg_extract_to_function_exprs_pos_object_cons_function_kw_inside.json"},
+                {"neg_extract_to_function_exprs_pos_in_const_declaration.json"},
+                {"neg_extract_to_function_exprs_pos_in_module_xmlns_declaration.json"},
+                {"neg_extract_to_function_exprs_pos_in_enum_declaration.json"},
+                {"neg_extract_to_function_exprs_pos_in_type_definition.json"}
         };
     }
 
