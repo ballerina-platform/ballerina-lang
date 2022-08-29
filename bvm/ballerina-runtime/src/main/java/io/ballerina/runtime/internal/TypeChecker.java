@@ -1687,20 +1687,8 @@ public class TypeChecker {
 
         Map<String, Field> targetFields = targetType.getFields();
         Map<String, Field> sourceFields = sourceObjectType.getFields();
-        List<MethodType> targetFuncs = new ArrayList<>(Arrays.asList(targetType.getMethods()));
-        List<MethodType> sourceFuncs = new ArrayList<>(Arrays.asList(sourceObjectType.getMethods()));
-        
-        if (targetType.getTag() == TypeTags.SERVICE_TAG || 
-                (targetType.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
-            BNetworkObjectType targetNetworkObj = (BNetworkObjectType) targetType;
-            Collections.addAll(targetFuncs, targetNetworkObj.getResourceMethods());
-        }
-
-        if (sourceType.getTag() == TypeTags.SERVICE_TAG || 
-                (sourceObjectType.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
-            BNetworkObjectType sourceNetworkObj = (BNetworkObjectType) sourceObjectType;
-            Collections.addAll(sourceFuncs, sourceNetworkObj.getResourceMethods());
-        }
+        List<MethodType> targetFuncs = getAllFunctionsList(targetType);
+        List<MethodType> sourceFuncs = getAllFunctionsList(sourceObjectType);
 
         if (targetType.getFields().values().stream().anyMatch(field -> SymbolFlags
                 .isFlagOn(field.getFlags(), SymbolFlags.PRIVATE))
@@ -1728,6 +1716,16 @@ public class TypeChecker {
 
         return checkObjectSubTypeForMethods(unresolvedTypes, targetFuncs, sourceFuncs, targetTypeModule,
                                             sourceTypeModule, sourceObjectType, targetType);
+    }
+    
+    private static List<MethodType> getAllFunctionsList(BObjectType objectType) {
+        List<MethodType> functionList = new ArrayList<>(Arrays.asList(objectType.getMethods()));
+        if (objectType.getTag() == TypeTags.SERVICE_TAG ||
+                (objectType.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
+            Collections.addAll(functionList, ((BNetworkObjectType) objectType).getResourceMethods());
+        }
+        
+        return functionList;
     }
 
     private static boolean checkObjectSubTypeForFields(Map<String, Field> targetFields,
