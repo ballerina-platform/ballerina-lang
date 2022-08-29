@@ -43,7 +43,7 @@ import java.util.Optional;
  *
  * @since 2201.2.1
  */
-public class ExtractToFunctionAnalyzer extends NodeVisitor {
+public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
     private final List<Symbol> assignmentStatementSymbols = new ArrayList<>();
     private final List<Symbol> varDeclarationSymbols = new ArrayList<>();
     private final List<Node> selectedNodes = new ArrayList<>();
@@ -51,7 +51,7 @@ public class ExtractToFunctionAnalyzer extends NodeVisitor {
     private final Range selectedRange;
     private final SemanticModel semanticModel;
 
-    public ExtractToFunctionAnalyzer(Range selectedRange, SemanticModel semanticModel) {
+    public ExtractToFuncStatementAnalyzer(Range selectedRange, SemanticModel semanticModel) {
         this.selectedRange = selectedRange;
         this.semanticModel = semanticModel;
     }
@@ -60,9 +60,9 @@ public class ExtractToFunctionAnalyzer extends NodeVisitor {
         if (node.kind() == SyntaxKind.LIST) {
             node.children().forEach(children -> {
                 /*
-                * When the matched code action is a LIST it contains all the child nodes which are not even
-                * selected(highlighted), this check is added to find and ignore such child nodes.
-                */
+                 * When the matched code action is a LIST it contains all the child nodes which are not even
+                 * selected(highlighted), this check is added to find and ignore such child nodes.
+                 */
                 if (PositionUtil.isRangeWithinRange(PositionUtil.toRange(children.lineRange()), selectedRange)) {
                     selectedNodes.add(children);
                     children.accept(this);
@@ -169,7 +169,7 @@ public class ExtractToFunctionAnalyzer extends NodeVisitor {
             case ROLLBACK_STATEMENT:
             case RETRY_STATEMENT:
             case XML_NAMESPACE_DECLARATION:
-            // actions
+                // actions
             case REMOTE_METHOD_CALL_ACTION:
             case BRACED_ACTION:
             case CHECK_ACTION:
