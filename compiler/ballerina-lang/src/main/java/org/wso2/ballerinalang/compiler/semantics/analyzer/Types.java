@@ -3624,7 +3624,8 @@ public class Types {
         if (matchingFunction.isEmpty()) {
             return matchingFunction;
         }
-
+        // For resource function match, we need to check whether lhs function resource path type belongs to 
+        // rhs function resource path type
         BAttachedFunction matchingFunc = matchingFunction.get();
         // Todo: We could include this logic in `isFunctionTypeAssignable` if we have `resourcePathType` information in
         // `BInvokableType` issue #37502

@@ -1840,7 +1840,8 @@ public class TypeChecker {
         if (matchingFunction.isEmpty()) {
             return matchingFunction;
         }
-        
+        // For resource function match, we need to check whether lhs function resource path type belongs to 
+        // rhs function resource path type
         MethodType matchingFunc = matchingFunction.get();
         boolean lhsFuncIsResource = SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE);
         boolean matchingFuncIsResource = SymbolFlags.isFlagOn(matchingFunc.getFlags(), SymbolFlags.RESOURCE);
