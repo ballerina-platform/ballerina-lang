@@ -3,6 +3,7 @@ name: CI Windows
 on:
   pull_request:
     branches:
+      - testerina-migration
       - master
       - next-release
       - release-stage
