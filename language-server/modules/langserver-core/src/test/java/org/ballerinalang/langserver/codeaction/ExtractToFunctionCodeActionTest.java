@@ -123,7 +123,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_let_expr_selecting_let_var_decl_expr.json"},
                 {"extract_to_function_exprs_implicit_new_expr.json"},
                 {"extract_to_function_exprs_explicit_new_expr.json"},
-                {"extract_to_function_exprs_object_constructor.json"},
+//                {"extract_to_function_exprs_object_constructor.json"}, // todo support later
                 {"extract_to_function_exprs_error_constructor.json"},
 
                 // expressions by position
@@ -156,7 +156,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_pos_table_cons_expr_key_specifier_key_kw.json"},
                 {"extract_to_function_exprs_pos_implicit_new_expr_new_kw.json"},
                 {"extract_to_function_exprs_pos_explicit_new_expr_new_kw.json"},
-                {"extract_to_function_exprs_pos_object_cons_object_kw.json"}, // todo support later
+//                {"extract_to_function_exprs_pos_object_cons_object_kw.json"}, // todo support later
                 {"extract_to_function_exprs_pos_error_cons_error_kw.json"},
                 {"extract_to_function_exprs_pos_let_expr_let_kw.json"},
                 {"extract_to_function_exprs_pos_let_expr_in_kw.json"},
@@ -206,8 +206,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_stmts_match_stmt_match_clause.json"},
                 {"negative_extract_to_function_stmts_match_stmt_without_varDecl.json"},
 
-//                {"negative_extract_to_function_stmts_block_stmt.json"},
-//                {"negative_extract_to_function_stmts_if_else_stmt_else_if.json"},
+//                {"negative_extract_to_function_stmts_block_stmt.json"}, // todo support later
+//                {"negative_extract_to_function_stmts_if_else_stmt_else_if.json"}, // todo support later
 
                 {"negative_extract_to_function_stmts_call_stmt.json"},
                 {"negative_extract_to_function_stmts_panic_stmt.json"},
