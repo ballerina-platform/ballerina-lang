@@ -82,7 +82,7 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation")
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
     public PackCommand() {

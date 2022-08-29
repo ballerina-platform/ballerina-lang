@@ -73,9 +73,6 @@ OPTIONS
        --test-report
            Generate an HTML report containing the test results.
 
-       --enable-cache
-           Enable caches for the compilation.
-
 
 EXAMPLES
        Run all the test functions in the current package.

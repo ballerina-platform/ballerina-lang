@@ -24,9 +24,6 @@ OPTIONS
        --target-dir
            Target directory path.
 
-       --enable-cache
-           Enable caches for the compilation.
-
 
 EXAMPLES
        Pack the current package into .bala file.

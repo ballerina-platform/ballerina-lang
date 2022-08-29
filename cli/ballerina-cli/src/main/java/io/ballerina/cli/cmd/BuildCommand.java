@@ -160,7 +160,7 @@ public class BuildCommand implements BLauncherCmd {
             " the services in the current package")
     private Boolean exportOpenAPI;
 
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation")
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
     public void execute() {

@@ -166,7 +166,7 @@ public class TestCommand implements BLauncherCmd {
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation")
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
     private static final String testCmd = "bal test [--offline]\n" +

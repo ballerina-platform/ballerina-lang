@@ -98,7 +98,7 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation")
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
     private static final String runCmd =
