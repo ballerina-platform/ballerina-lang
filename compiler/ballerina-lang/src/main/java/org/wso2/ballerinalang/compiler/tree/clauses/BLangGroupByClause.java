@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.clauses.GroupByClauseNode;
 import org.ballerinalang.model.clauses.GroupingKeyNode;
-import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -81,7 +80,7 @@ public class BLangGroupByClause extends BLangNode implements GroupByClauseNode {
     public String toString() {
         StringJoiner declarations = new StringJoiner(", ");
         for (GroupingKeyNode groupingKey : groupingKeyList) {
-            declarations.add(String.valueOf(groupingKey));
+            declarations.add(groupingKey.toString());
         }
         return "group by " + declarations.toString();
     }

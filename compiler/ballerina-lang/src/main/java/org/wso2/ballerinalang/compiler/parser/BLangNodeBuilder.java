@@ -27,7 +27,6 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
-import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -3661,18 +3660,29 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         groupByClause.pos = getPosition(groupByClauseNode);
 
         for (Node node : groupByClauseNode.groupingKey()) {
-            BLangNode keyNode = node.apply(this);
             BLangGroupingKey groupingKeyNode = (BLangGroupingKey) TreeBuilder.createGroupingKeyNode();
-            if (keyNode.getKind() == NodeKind.VARIABLE_DEF) {
-                groupingKeyNode.variableDef = (BLangSimpleVariableDef) keyNode;
-            } else if (keyNode.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                groupingKeyNode.variableRef = (BLangSimpleVarRef) keyNode;
+            groupingKeyNode.pos = getPosition(node);
+            if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                groupingKeyNode.variableRef =
+                        (BLangSimpleVarRef) getGroupingKeySimpleVarRef((SimpleNameReferenceNode) node);
             } else {
-                dlog.error(keyNode.pos, DiagnosticErrorCode.INVALID_GROUPING_KEY);
+                groupingKeyNode.variableDef = (BLangSimpleVariableDef) node.apply(this);
             }
             groupByClause.addGroupingKey(groupingKeyNode);
         }
         return groupByClause;
+    }
+
+    public BLangNode getGroupingKeySimpleVarRef(SimpleNameReferenceNode groupingKeySimpleVarRefNode) {
+        BLangIdentifier key = createIdentifier(groupingKeySimpleVarRefNode.name());
+        key.setLiteral(false);
+
+        BLangSimpleVarRef groupingVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        groupingVarRef.pos = getPosition(groupingKeySimpleVarRefNode);
+        groupingVarRef.variableName = key;
+        groupingVarRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        return groupingVarRef;
     }
 
     @Override
@@ -3689,6 +3699,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         if (!variable.isDeclaredWithVar) {
             variable.setTypeNode(createTypeNode(typeDesc));
         }
+
         return groupingVarDef;
     }
 
