@@ -811,6 +811,18 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<MethodSymbol> methodSymbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(newExpressionNode))
                 .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol)))
+                .map(typeSymbol -> {
+                    if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+                        Optional<TypeSymbol> classType =
+                                ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream()
+                                        .map(CommonUtil::getRawType)
+                                        .filter(member -> member instanceof ClassSymbol).findFirst();
+                        if (classType.isPresent()) {
+                            return classType.get();
+                        }
+                    }
+                    return typeSymbol;
+                })
                 .filter(typeSymbol -> typeSymbol instanceof ClassSymbol)
                 .flatMap(typeSymbol -> (((ClassSymbol) typeSymbol).initMethod()));
 

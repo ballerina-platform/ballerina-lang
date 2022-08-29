@@ -45,7 +45,8 @@ public class ImplementMethodCodeAction extends AbstractImplementMethodCodeAction
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return CodeActionNodeValidator.validate(context.nodeAtRange());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
@@ -55,7 +56,7 @@ public class ImplementMethodCodeAction extends AbstractImplementMethodCodeAction
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-        List<TextEdit> edits = new ArrayList<>(getDiagBasedTextEdits(diagnostic, positionDetails, context));
+        List<TextEdit> edits = new ArrayList<>(getDiagBasedTextEdits(positionDetails, context));
         if (!edits.isEmpty()) {
             if (positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX).isPresent()) {
                 String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE,
