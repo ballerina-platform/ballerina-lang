@@ -166,12 +166,20 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
      *  @since 2201.2.0
      */
     public static class BallerinaConstantValue {
-        public Object value;
-        public TypeSymbol typeDescriptor;
+        private final Object value;
+        private final TypeSymbol typeDescriptor;
 
         public BallerinaConstantValue(Object value, TypeSymbol typeDescriptor) {
             this.value = value;
             this.typeDescriptor = typeDescriptor;
+        }
+
+        public Object value() {
+            return value;
+        }
+
+        public TypeSymbol typeDescriptor() {
+            return typeDescriptor;
         }
 
         @Override
