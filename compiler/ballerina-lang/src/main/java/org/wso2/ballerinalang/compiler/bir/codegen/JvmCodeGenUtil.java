@@ -97,6 +97,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FP_INIT;
@@ -117,11 +118,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_DESCRIPTOR_FOR_STRING_CONCAT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_B_STRING_VALUE;
@@ -523,11 +526,9 @@ public class JvmCodeGenUtil {
             mv.visitTypeInsn(NEW, CHANNEL_DETAILS);
             mv.visitInsn(DUP);
             mv.visitVarInsn(ILOAD, invocationVarIndex);
-            mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, "(I)Ljava/lang/String;",
-                    new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", MAKE_CONCAT_WITH_CONSTANTS,
-                            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
-                                    "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
-                                    "Ljava/lang/invoke/CallSite;", false), new Object[]{ch.name + ":\u0001"});
+            mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                    new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                            HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false), new Object[]{ch.name + ":\u0001"});
 
             if (ch.channelInSameStrand) {
                 mv.visitInsn(ICONST_1);

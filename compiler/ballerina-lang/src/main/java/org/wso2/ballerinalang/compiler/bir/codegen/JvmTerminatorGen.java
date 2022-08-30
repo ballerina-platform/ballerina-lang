@@ -137,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_NA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_POLICY_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
@@ -161,12 +162,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_CHANNEL_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_DESCRIPTOR_FOR_STRING_CONCAT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_FLUSH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WAIT_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WAIT_MULTIPLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WORKER_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_DECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
@@ -1204,11 +1207,9 @@ public class JvmTerminatorGen {
         }
         this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
         this.mv.visitVarInsn(ILOAD, invocationVarIndex);
-        this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, "(I)Ljava/lang/String;",
-                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", MAKE_CONCAT_WITH_CONSTANTS,
-                        "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
-                                "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
-                                "Ljava/lang/invoke/CallSite;", false), new Object[]{ins.channel.value + ":\u0001"});
+        this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                        HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false), new Object[]{ins.channel.value + ":\u0001"});
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", GET_WORKER_DATA_CHANNEL, false);
         this.loadVar(ins.data.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, ins.data.variableDcl.type);
@@ -1234,11 +1235,9 @@ public class JvmTerminatorGen {
         }
         this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
         this.mv.visitVarInsn(ILOAD, invocationVarIndex);
-        this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, "(I)Ljava/lang/String;",
-                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", MAKE_CONCAT_WITH_CONSTANTS,
-                        "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
-                                "Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)" +
-                                "Ljava/lang/invoke/CallSite;", false), new Object[]{ins.workerName.value + ":\u0001"});
+        this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                        HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false), new Object[]{ins.workerName.value + ":\u0001"});
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", GET_WORKER_DATA_CHANNEL, false);
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);

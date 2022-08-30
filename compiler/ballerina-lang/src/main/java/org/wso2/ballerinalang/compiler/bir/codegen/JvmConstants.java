@@ -236,6 +236,7 @@ public class JvmConstants {
     public static final String PATHS = "java/nio/file/Paths";
     public static final String SYSTEM = "java/lang/System";
     public static final String BIG_DECIMAL = "java/math/BigDecimal";
+    public static final String STRING_CONCAT_FACTORY = "java/lang/invoke/StringConcatFactory";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
