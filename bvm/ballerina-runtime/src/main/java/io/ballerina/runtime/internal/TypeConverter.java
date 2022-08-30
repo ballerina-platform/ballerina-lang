@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -260,10 +261,17 @@ public class TypeConverter {
         }
     }
 
-    // TODO: return only the first matching type
     public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
                                                 List<TypeValuePair> unresolvedValues, List<String> errors,
                                                 boolean allowAmbiguity) {
+        return getConvertibleTypes(inputValue, targetType, varName, isFromJson, unresolvedValues, errors,
+                allowAmbiguity, true);
+    }
+
+    // TODO: return only the first matching type
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
+                                                List<TypeValuePair> unresolvedValues, List<String> errors,
+                                                boolean allowAmbiguity, boolean allowNumericConversion) {
         Set<Type> convertibleTypes = new LinkedHashSet<>();
 
         Type inputValueType;
@@ -329,7 +337,7 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.TABLE_TAG:
-                if (isConvertibleToTableType(((BTableType) targetType).getConstrainedType())) {
+                if (isConvertibleToTableType(inputValue, ((BTableType) targetType))) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -375,7 +383,7 @@ public class TypeConverter {
                 return getConvertibleTypes(inputValue, ((BTypedescType) targetType).getConstraint(), varName,
                         isFromJson, unresolvedValues, errors, allowAmbiguity);
             default:
-                if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
+                if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)) {
                     convertibleTypes.add(targetType);
                 }
         }
@@ -568,15 +576,23 @@ public class TypeConverter {
         }
     }
 
-    private static boolean isConvertibleToTableType(Type tableConstrainedType) {
+    private static boolean isConvertibleToTableType(Object sourceValue, BTableType tableType) {
+        if (!(sourceValue instanceof TableValueImpl)) {
+            return false;
+        }
+        return isValidTableConstraint(tableType.getConstrainedType());
+    }
+
+    private static boolean isValidTableConstraint(Type tableConstrainedType) {
         switch (tableConstrainedType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
                 return true;
             case TypeTags.INTERSECTION_TAG:
-                return isConvertibleToTableType(((BIntersectionType) tableConstrainedType).getEffectiveType());
+                return isValidTableConstraint(((BIntersectionType) tableConstrainedType).getEffectiveType());
+            default:
+                return false;
         }
-        return false;
     }
 
     private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
