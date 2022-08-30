@@ -98,7 +98,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -572,7 +571,11 @@ public class SymbolFactory {
     }
 
     private BallerinaConstantSymbol.BallerinaConstantValue createConstantValue(BLangConstantValue constantValue) {
-        if (constantValue!= null && constantValue.value instanceof BLangConstantValue) {
+        if (constantValue == null) {
+            return null;
+        }
+
+        if (constantValue.value instanceof BLangConstantValue) {
             return createConstantValue((BLangConstantValue) constantValue.value);
         }
 
@@ -667,8 +670,10 @@ public class SymbolFactory {
         BallerinaAnnotationSymbol annotationSymbol = createAnnotationSymbol(findAnnotationSymbol(annotAttachment));
 
         if (!annotAttachment.isConstAnnotation()) {
-            return new BallerinaAnnotationAttachmentSymbol(annotAttachment.getOriginalName().getValue(), annotAttachment,
-                    annotationSymbol, context);
+            return new BallerinaAnnotationAttachmentSymbol(annotAttachment.getOriginalName().getValue(),
+                                                           annotAttachment,
+                                                           annotationSymbol,
+                                                           context);
         }
 
         // Constant annotation attachment

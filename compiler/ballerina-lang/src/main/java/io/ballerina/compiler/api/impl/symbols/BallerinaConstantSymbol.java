@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -159,6 +160,11 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         return String.valueOf(obj);
     }
 
+    /**
+     *  Value of the constant symbol.
+     *
+     *  @since 2201.2.0
+     */
     public static class BallerinaConstantValue {
         public Object value;
         public TypeSymbol typeDescriptor;
@@ -194,6 +200,11 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
             }
 
             return this.value.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.value, this.typeDescriptor);
         }
     }
 
