@@ -129,7 +129,7 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
                 "regexp-constructor-expr/regexp_constructor_assert_17.json");
     }
 
-    // Recovery test
+    // Recovery tests
 
     @Test
     public void testRecoveryWithInvalidQuantifierWithReAssertion() {
@@ -167,15 +167,15 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
                 "regexp-constructor-expr/regexp_constructor_assert_23.json");
     }
 
-//    @Test
-//    public void testRecoveryWithInvalidEscapeSequence() {
-//        testFile("regexp-constructor-expr/regexp_constructor_source_24.bal",
-//                "regexp-constructor-expr/regexp_constructor_assert_24.json");
-//    }
-//
-//    @Test
-//    public void testRecoveryWithInvalidEscapeSequence2() {
-//        testFile("regexp-constructor-expr/regexp_constructor_source_25.bal",
-//                "regexp-constructor-expr/regexp_constructor_assert_25.json");
-//    }
+    @Test
+    public void testRecoveryWithInvalidCapturingGroup() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_24.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_24.json");
+    }
+
+    @Test
+    public void testRecoveryWithInvalidCharClass() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_25.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_25.json");
+    }
 }

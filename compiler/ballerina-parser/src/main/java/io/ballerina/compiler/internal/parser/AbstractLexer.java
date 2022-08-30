@@ -283,23 +283,23 @@ public abstract class AbstractLexer {
      * <p>
      * <code>NumericEscape := \ u { CodePoint }</code>
      */
-    protected void processNumericEscape(int token) {
+    protected void processNumericEscape() {
         // Process '\ u {'
         this.reader.advance(3);
 
         // Process code-point
-        if (!isHexDigit(token)) {
+        if (!isHexDigit(this.reader.peek())) {
             reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
             return;
         }
 
         reader.advance();
-        while (isHexDigit(token)) {
+        while (isHexDigit(this.reader.peek())) {
             reader.advance();
         }
 
         // Process close brace
-        if (token != LexerTerminals.CLOSE_BRACE) {
+        if (this.reader.peek() != LexerTerminals.CLOSE_BRACE) {
             reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
             return;
         }

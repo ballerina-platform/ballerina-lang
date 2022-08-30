@@ -1305,6 +1305,37 @@ public class ParserTestUtils {
             case "XML_CDATA_END_TOKEN":
                 return SyntaxKind.XML_CDATA_END_TOKEN;
             default:
+                return getRegExpTemplateKind(kind);
+        }
+    }
+
+    private static SyntaxKind getRegExpTemplateKind(String kind) {
+        switch (kind) {
+            case "RE_SEQUENCE":
+                return SyntaxKind.RE_SEQUENCE;
+            case "RE_ATOM_QUANTIFIER":
+                return SyntaxKind.RE_ATOM_QUANTIFIER;
+            case "RE_ASSERTION":
+                return SyntaxKind.RE_ASSERTION;
+            case "RE_QUANTIFIER":
+                return SyntaxKind.RE_QUANTIFIER;
+            case "RE_ATOM":
+                return SyntaxKind.RE_ATOM;
+            case "RE_CHARACTER_CLASS":
+                return SyntaxKind.RE_CHARACTER_CLASS;
+            case "NEGATED_CHAR_CLASS_START_TOKEN":
+                return SyntaxKind.NEGATED_CHAR_CLASS_START_TOKEN;
+            case "RE_CHAR_SET":
+                return SyntaxKind.RE_CHAR_SET;
+            case "RE_FLAG_EXPR":
+                return SyntaxKind.RE_FLAG_EXPR;
+            case "RE_FLAGS_ON_OFF":
+                return SyntaxKind.RE_FLAGS_ON_OFF;
+            case "RE_CAPTURING_GROUPS":
+                return SyntaxKind.RE_CAPTURING_GROUPS;
+            case "RE_CHAR_ESCAPE":
+                return SyntaxKind.RE_CHAR_ESCAPE;
+            default:
                 return getDocumentationKind(kind);
         }
     }
