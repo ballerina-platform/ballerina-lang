@@ -2313,6 +2313,18 @@ function testCloneWithTypeWithAmbiguousUnion() {
     <string>checkpanic err.detail()["message"]);
 }
 
+function testCloneWithTypeToUnion() {
+    int|float|[string, string] unionVar = 2;
+    float|decimal|[string, int]|error tupleValue = unionVar.cloneWithType(UnionTypedesc);
+    assertEquality(tupleValue, 2.0);
+    assertTrue(tupleValue is float);
+    assertFalse(tupleValue is decimal);
+    assertFalse(tupleValue is [string, int]);
+    assertFalse(tupleValue is error);
+}
+
+type UnionTypedesc typedesc<float|decimal|[string, int]>;
+
 public type Array ["array", 1];
 public type Mapping ["mapping", 2];
 function testCloneWithTypeWithTuples() returns error? {
