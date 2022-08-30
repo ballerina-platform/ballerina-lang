@@ -60,7 +60,7 @@
                   {
                     "type": "new",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
+                    "kind": "module constant annotation",
                     "message": "a new module constant annotation list is added"
                   }
                 ],
@@ -144,7 +144,7 @@
                   {
                     "type": "modified",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
+                    "kind": "module constant annotation",
                     "message": "module constant annotation list is modified"
                   }
                 ],
