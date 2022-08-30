@@ -138,6 +138,7 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_which_returns_error1.json"},
                 {"create_function_in_fail1.json"},
                 {"create_function_in_return1.json"},
+                {"create_function_in_return2.json"},
                 
                 // Named Args
                 {"create_function_with_named_args1.json"},
