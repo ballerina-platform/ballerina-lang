@@ -76,7 +76,6 @@ public enum InstructionKind {
     NEW_STREAM((byte) 53),
     TABLE_STORE((byte) 54),
     TABLE_LOAD((byte) 55),
-    NEW_REG_EXP((byte) 56),
 
     // Binary expression related instructions.
     ADD((byte) 61),
@@ -108,6 +107,20 @@ public enum InstructionKind {
     BITWISE_LEFT_SHIFT((byte) 86),
     BITWISE_RIGHT_SHIFT((byte) 87),
     BITWISE_UNSIGNED_RIGHT_SHIFT((byte) 88),
+
+    // Regular expression related instructions.
+    NEW_REG_EXP((byte) 89),
+    NEW_RE_DISJUNCTION((byte) 90),
+    NEW_RE_SEQUENCE((byte) 91),
+    NEW_RE_ASSERTION((byte) 92),
+    NEW_RE_ATOM_QUANTIFIER((byte) 93),
+    NEW_RE_LITERAL_CHAR_ESCAPE((byte) 94),
+    NEW_RE_CHAR_CLASS((byte) 95),
+    NEW_RE_CHAR_SET((byte) 96),
+    NEW_RE_CAPTURING_GROUP((byte) 97),
+    NEW_RE_FLAG_EXPR((byte) 98),
+    NEW_RE_FLAG_ON_OFF((byte) 99),
+    NEW_RE_QUANTIFIER((byte) 99),
 
     PLATFORM((byte) 128);
 

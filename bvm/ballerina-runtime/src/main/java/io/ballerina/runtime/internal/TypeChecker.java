@@ -3109,7 +3109,7 @@ public class TypeChecker {
      * @return True if the regular expression values are equal, else false.
      */
     private static boolean isEqual(RegExpValue lhsRegExp, RegExpValue rhsRegExp) {
-        return lhsRegExp.getRegExpValue().equals(rhsRegExp.getRegExpValue());
+        return lhsRegExp.stringValue(null).equals(rhsRegExp.stringValue(null));
     }
 
     /**

@@ -147,7 +147,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
@@ -177,6 +177,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BSTRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_IS_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.COMPARE_DECIMALS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.COMPARE_OBJECTS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_REGEXP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_ASSERTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_ATOM_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CAPTURING_GROUP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_DISJUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_FLAG_EXPR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_FLAG_ON_OFF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_LITERAL_CHAR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_SEQUENCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_XML_COMMENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_XML_ELEMENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_XML_PI;
@@ -202,7 +214,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TUPLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_B_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE;
@@ -1915,11 +1926,84 @@ public class JvmInstructionGen {
     }
 
     void generateNewRegExpIns(BIRNonTerminator.NewRegExp newRegExp) {
-        this.mv.visitTypeInsn(NEW, REG_EXP_VALUE);
-        this.mv.visitInsn(DUP);
-        this.loadVar(newRegExp.patternOp.variableDcl);
-        this.mv.visitMethodInsn(INVOKESPECIAL, REG_EXP_VALUE, JVM_INIT_METHOD, INIT_WITH_B_STRING, false);
+        this.loadVar(newRegExp.reDisjunction.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createRegExpValue", CREATE_REGEXP, false);
         this.storeToVar(newRegExp.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpDisjunctionIns(BIRNonTerminator.NewReDisjunction newReDisjunction) {
+        this.loadVar(newReDisjunction.sequences.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReDisjunction", CREATE_RE_DISJUNCTION, false);
+        this.storeToVar(newReDisjunction.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpSequenceIns(BIRNonTerminator.NewReSequence newReSequence) {
+        this.loadVar(newReSequence.terms.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReSequence", CREATE_RE_SEQUENCE, false);
+        this.storeToVar(newReSequence.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpAssertionIns(BIRNonTerminator.NewReAssertion newReAssertion) {
+        this.loadVar(newReAssertion.assertion.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReAssertion", CREATE_RE_ASSERTION, false);
+        this.storeToVar(newReAssertion.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpAtomQuantifierIns(BIRNonTerminator.NewReAtomQuantifier newReAtomQuantifier) {
+        this.loadVar(newReAtomQuantifier.atom.variableDcl);
+        this.loadVar(newReAtomQuantifier.quantifier.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReAtomQuantifier", CREATE_RE_ATOM_QUANTIFIER, false);
+        this.storeToVar(newReAtomQuantifier.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpLiteralCharOrEscapeIns(BIRNonTerminator.NewReLiteralCharOrEscape newReLiteralCharOrEscape) {
+        this.loadVar(newReLiteralCharOrEscape.charOrEscape.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReLiteralCharOrEscape", CREATE_RE_LITERAL_CHAR, false);
+        this.storeToVar(newReLiteralCharOrEscape.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCharacterClassIns(BIRNonTerminator.NewReCharacterClass newReCharacterClass) {
+        this.loadVar(newReCharacterClass.classStart.variableDcl);
+        this.loadVar(newReCharacterClass.charSet.variableDcl);
+        this.loadVar(newReCharacterClass.classEnd.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharacterClass", CREATE_RE_CHAR_CLASS, false);
+        this.storeToVar(newReCharacterClass.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCharSetIns(BIRNonTerminator.NewReCharSet newReCharSet) {
+        this.loadVar(newReCharSet.charSet.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharSet", CREATE_RE_CHAR_SET, false);
+        this.storeToVar(newReCharSet.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCapturingGroupIns(BIRNonTerminator.NewReCapturingGroup newReCapturingGroup) {
+        this.loadVar(newReCapturingGroup.openParen.variableDcl);
+        this.loadVar(newReCapturingGroup.flagExpr.variableDcl);
+        this.loadVar(newReCapturingGroup.reDisjunction.variableDcl);
+        this.loadVar(newReCapturingGroup.closeParen.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCapturingGroup",
+                CREATE_RE_CAPTURING_GROUP, false);
+        this.storeToVar(newReCapturingGroup.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpFlagExprIns(BIRNonTerminator.NewReFlagExpression newReFlagExpression) {
+        this.loadVar(newReFlagExpression.questionMark.variableDcl);
+        this.loadVar(newReFlagExpression.flagsOnOff.variableDcl);
+        this.loadVar(newReFlagExpression.colon.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReFlagExpression", CREATE_RE_FLAG_EXPR, false);
+        this.storeToVar(newReFlagExpression.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpFlagOnOffIns(BIRNonTerminator.NewReFlagOnOff newReFlagOnOff) {
+        this.loadVar(newReFlagOnOff.flags.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReFlagOnOff", CREATE_RE_FLAG_ON_OFF, false);
+        this.storeToVar(newReFlagOnOff.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpQuantifierIns(BIRNonTerminator.NewReQuantifier newReQuantifier) {
+        this.loadVar(newReQuantifier.quantifier.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReQuantifier", CREATE_RE_QUANTIFIER, false);
+        this.storeToVar(newReQuantifier.lhsOp.variableDcl);
     }
 
     void generateTypeofIns(BIRNonTerminator.UnaryOP unaryOp) {
@@ -2172,6 +2256,39 @@ public class JvmInstructionGen {
                     break;
                 case NEW_REG_EXP:
                     generateNewRegExpIns((BIRNonTerminator.NewRegExp) inst);
+                    break;
+                case NEW_RE_DISJUNCTION:
+                    generateNewRegExpDisjunctionIns((BIRNonTerminator.NewReDisjunction) inst);
+                    break;
+                case NEW_RE_SEQUENCE:
+                    generateNewRegExpSequenceIns((BIRNonTerminator.NewReSequence) inst);
+                    break;
+                case NEW_RE_ASSERTION:
+                    generateNewRegExpAssertionIns((BIRNonTerminator.NewReAssertion) inst);
+                    break;
+                case NEW_RE_ATOM_QUANTIFIER:
+                    generateNewRegExpAtomQuantifierIns((BIRNonTerminator.NewReAtomQuantifier) inst);
+                    break;
+                case NEW_RE_LITERAL_CHAR_ESCAPE:
+                    generateNewRegExpLiteralCharOrEscapeIns((BIRNonTerminator.NewReLiteralCharOrEscape) inst);
+                    break;
+                case NEW_RE_CHAR_CLASS:
+                    generateNewRegExpCharacterClassIns((BIRNonTerminator.NewReCharacterClass) inst);
+                    break;
+                case NEW_RE_CHAR_SET:
+                    generateNewRegExpCharSetIns((BIRNonTerminator.NewReCharSet) inst);
+                    break;
+                case NEW_RE_CAPTURING_GROUP:
+                    generateNewRegExpCapturingGroupIns((BIRNonTerminator.NewReCapturingGroup) inst);
+                    break;
+                case NEW_RE_FLAG_EXPR:
+                    generateNewRegExpFlagExprIns((BIRNonTerminator.NewReFlagExpression) inst);
+                    break;
+                case NEW_RE_FLAG_ON_OFF:
+                    generateNewRegExpFlagOnOffIns((BIRNonTerminator.NewReFlagOnOff) inst);
+                    break;
+                case NEW_RE_QUANTIFIER:
+                    generateNewRegExpQuantifierIns((BIRNonTerminator.NewReQuantifier) inst);
                     break;
                 case FP_LOAD:
                     generateFPLoadIns((BIRNonTerminator.FPLoad) inst);

@@ -76,6 +76,18 @@ public class JvmConstants {
     public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TableValueImpl";
     public static final String SIMPLE_VALUE = "io/ballerina/runtime/internal/values/SimpleValue";
     public static final String REG_EXP_VALUE = "io/ballerina/runtime/internal/values/RegExpValue";
+    public static final String REG_EXP_DISJUNCTION = "io/ballerina/runtime/internal/values/RegExpDisjunction";
+    public static final String REG_EXP_SEQUENCE = "io/ballerina/runtime/internal/values/RegExpSequence";
+    public static final String REG_EXP_ASSERTION = "io/ballerina/runtime/internal/values/RegExpAssertion";
+    public static final String REG_EXP_ATOM_QUANTIFIER = "io/ballerina/runtime/internal/values/RegExpAtomQuantifier";
+    public static final String REG_EXP_ATOM = "io/ballerina/runtime/internal/values/RegExpAtom";
+    public static final String REG_EXP_QUANTIFIER = "io/ballerina/runtime/internal/values/RegExpQuantifier";
+    public static final String REG_EXP_CHAR_ESCAPE = "io/ballerina/runtime/internal/values/RegExpLiteralCharOrEscape";
+    public static final String REG_EXP_CHAR_CLASS = "io/ballerina/runtime/internal/values/RegExpCharacterClass";
+    public static final String REG_EXP_CHAR_SET = "io/ballerina/runtime/internal/values/RegExpCharSet";
+    public static final String REG_EXP_CAPTURING_GROUP = "io/ballerina/runtime/internal/values/RegExpCapturingGroup";
+    public static final String REG_EXP_FLAG_EXPR = "io/ballerina/runtime/internal/values/RegExpFlagExpression";
+    public static final String REG_EXP_FLAG_ON_OFF = "io/ballerina/runtime/internal/values/RegExpFlagOnOff";
 
     public static final String B_HANDLE = "io/ballerina/runtime/api/values/BHandle";
 
@@ -213,6 +225,7 @@ public class JvmConstants {
     public static final String RUNTIME_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
+    public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/RegExpFactory";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";

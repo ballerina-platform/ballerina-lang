@@ -121,8 +121,6 @@ class InstructionEmitter {
                 return emitInsNewTypeDesc((BIRNonTerminator.NewTypeDesc) ins, tabs);
             case NEW_TABLE:
                 return emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
-            case NEW_REG_EXP:
-                return emitInsNewRegExp((BIRNonTerminator.NewRegExp) ins, tabs);
             default:
                 throw new IllegalStateException("Not an instruction");
 
@@ -176,21 +174,6 @@ class InstructionEmitter {
         nMapStr += emitVarRef(ins.dataOp);
         nMapStr += ");";
         return nMapStr;
-    }
-
-    private static String emitInsNewRegExp(BIRNonTerminator.NewRegExp ins, int tabs) {
-        String str = "";
-        str += emitTabs(tabs);
-        str += emitVarRef(ins.lhsOp);
-        str += emitSpaces(1);
-        str += "=";
-        str += emitSpaces(1);
-        str += "new string:RegExp";
-        str += "(";
-        str += emitVarRef(ins.patternOp);
-        str += ")";
-        str += ";";
-        return str;
     }
 
     private static String emitInsNewInstance(BIRNonTerminator.NewInstance ins, int tabs) {
