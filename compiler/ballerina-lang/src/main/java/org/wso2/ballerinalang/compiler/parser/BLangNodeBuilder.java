@@ -2375,7 +2375,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case REGEXP_ASSERTION:
             case REGEXP_CHARSET:
             case REGEXP_QUANTIFIER:
-            case REGEXP_ATOM_CHAR_ESCAPE:
+            case REGEXP_CHAR_ESCAPE:
             case OPEN_BRACKET_TOKEN:
             case CLOSE_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
@@ -5437,7 +5437,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 (BLangReDisjunction) TreeBuilder.createReDisjunctionNode();
         for (Node sequence : reSequences) {
             BLangExpression reSequence = (BLangExpression) sequence.apply(this);
-            reDisjunction.reSequenceList.add(reSequence);
+            reDisjunction.sequenceList.add(reSequence);
         }
         reDisjunction.pos = location;
         return reDisjunction;
@@ -5448,7 +5448,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangReSequence reSequence = (BLangReSequence) TreeBuilder.createReSequenceNode();
         for (Node reTermNode : reSequenceNode.reTerm()) {
             BLangReTerm reTerm = (BLangReTerm) reTermNode.apply(this);
-            reSequence.reTermList.add(reTerm);
+            reSequence.termList.add(reTerm);
         }
         Location pos = getPosition(reSequenceNode);
         reSequence.pos = pos;
@@ -5460,39 +5460,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangReAtomQuantifier reAtomQuantifier = (BLangReAtomQuantifier) TreeBuilder.createReAtomQuantifierNode();
         Node reAtomNode = reAtomQuantifierNode.reAtom();
         BLangExpression reAtom = (BLangExpression) reAtomNode.apply(this);
-        if (reAtomNode.kind() == SyntaxKind.INTERPOLATION) {
-            reAtom = (BLangExpression) createNonCapturingGroupForInterpolation(reAtom);
-        }
-        reAtomQuantifier.reAtom = reAtom;
+        reAtomQuantifier.atom = reAtom;
+        Location pos = getPosition(reAtomQuantifierNode);
         if (reAtomQuantifierNode.reQuantifier().isPresent()) {
             BLangReQuantifier reQuantifier = (BLangReQuantifier) reAtomQuantifierNode.reQuantifier().get().apply(this);
-            reAtomQuantifier.reQuantifier = reQuantifier;
+            reAtomQuantifier.quantifier = reQuantifier;
         }
-        Location pos = getPosition(reAtomQuantifierNode);
         reAtomQuantifier.pos = pos;
         return reAtomQuantifier;
-    }
-
-    private BLangNode createNonCapturingGroupForInterpolation(BLangExpression interpolatedExpr) {
-        BLangReCapturingGroups reCapturingGroups = (BLangReCapturingGroups) TreeBuilder.createReCapturingGroupsNode();
-        Location pos = interpolatedExpr.pos;
-        reCapturingGroups.openParen = createRegExpStringLiteral(pos, "(");
-
-        BLangReFlagExpression reFlagExpression = (BLangReFlagExpression) TreeBuilder.createReFlagExpressionNode();
-        reFlagExpression.pos = pos;
-        reFlagExpression.questionMark = createRegExpStringLiteral(pos, "?");
-
-        reFlagExpression.colon = createRegExpStringLiteral(pos, ":");
-        reCapturingGroups.flagExpr = reFlagExpression;
-
-        BLangReDisjunction reDisjunction = (BLangReDisjunction) TreeBuilder.createReDisjunctionNode();
-        reDisjunction.reSequenceList.add(interpolatedExpr);
-        reDisjunction.pos = pos;
-        reCapturingGroups.reDisjunction = reDisjunction;
-
-        reCapturingGroups.closeParen = createRegExpStringLiteral(pos, ")");
-        reCapturingGroups.pos = pos;
-        return reCapturingGroups;
     }
 
     @Override
@@ -5501,7 +5476,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangExpression quantifier = (BLangExpression) reQuantifierNode.reQuantifier().apply(this);
         Location pos = getPosition(reQuantifierNode);
         reQuantifier.pos = pos;
-        reQuantifier.reQuantifier = quantifier;
+        reQuantifier.quantifier = quantifier;
         return reQuantifier;
     }
 
@@ -5514,7 +5489,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         if (reCharacterClassNode.reCharSet().isPresent()) {
             BLangReCharSet reCharSet = (BLangReCharSet) reCharacterClassNode.reCharSet().get().apply(this);
-            reCharacterClass.reCharSet = reCharSet;
+            reCharacterClass.charSet = reCharSet;
         }
 
         BLangLiteral characterClassEnd = (BLangLiteral) reCharacterClassNode.closeBracket().apply(this);
@@ -5530,7 +5505,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReCharSetNode reCharSetNode) {
         BLangReCharSet reCharSet = (BLangReCharSet) TreeBuilder.createReCharSetNode();
         BLangExpression chars = (BLangExpression) reCharSetNode.reCharSet().apply(this);
-        reCharSet.reCharSet = chars;
+        reCharSet.charSetAtoms = chars;
         Location pos = getPosition(reCharSetNode);
         reCharSet.pos = pos;
         return reCharSet;
@@ -5551,7 +5526,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReAssertionNode reAssertionNode) {
         BLangReAssertion reAssertion = (BLangReAssertion) TreeBuilder.createReAssertionNode();
         BLangLiteral assertionLiteral = (BLangLiteral) reAssertionNode.reAssertion().apply(this);
-        reAssertion.reAssertion = assertionLiteral;
+        reAssertion.assertion = assertionLiteral;
         Location pos = getPosition(reAssertionNode);
         reAssertion.pos = pos;
         return reAssertion;
@@ -5573,7 +5548,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         BLangReDisjunction reDisjunction =
                 (BLangReDisjunction) createReDisjunctionNode(reCapturingGroupsNode.reSequences(), pos);
-        reCapturingGroups.reDisjunction = reDisjunction;
+        reCapturingGroups.disjunction = reDisjunction;
 
         BLangLiteral closeParen = (BLangLiteral) reCapturingGroupsNode.closeParenthesis().apply(this);
         reCapturingGroups.closeParen = closeParen;
@@ -5589,7 +5564,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangLiteral questionMark = (BLangLiteral) reFlagExpressionNode.questionMark().apply(this);
         reFlagExpression.questionMark = questionMark;
 
-        if (reFlagExpressionNode.reFlagsOnOff().reFlagsOnOff() != null) {
+        if (reFlagExpressionNode.reFlagsOnOff() != null) {
             BLangReFlagsOnOff flagsOnOff =
                     (BLangReFlagsOnOff) reFlagExpressionNode.reFlagsOnOff().apply(this);
             reFlagExpression.flagsOnOff = flagsOnOff;
