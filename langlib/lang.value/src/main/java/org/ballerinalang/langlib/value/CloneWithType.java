@@ -88,12 +88,6 @@ public class CloneWithType {
 
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
                                   BTypedesc t) {
-        return convert(value, targetType, unresolvedValues, false, t);
-    }
-
-
-    private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
-                                  boolean allowAmbiguity, BTypedesc t) {
         if (value == null) {
             if (getTargetFromTypeDesc(targetType).isNilable()) {
                 return null;
@@ -105,7 +99,7 @@ public class CloneWithType {
         List<String> errors = new ArrayList<>();
         Set<Type> convertibleTypes;
         convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, null, false,
-                new ArrayList<>(), errors, allowAmbiguity);
+                new ArrayList<>(), errors);
 
         Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {
@@ -190,7 +184,7 @@ public class CloneWithType {
                 Type constraintType = ((MapType) targetType).getConstrainedType();
                 int count = 0;
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
-                    Object newValue = convert(entry.getValue(), constraintType, unresolvedValues, true, t);
+                    Object newValue = convert(entry.getValue(), constraintType, unresolvedValues, t);
                     initialValues[count++] = ValueCreator
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                 }
@@ -250,7 +244,7 @@ public class CloneWithType {
                                              Type restFieldType, Map<String, Type> targetTypeField,
                                              Map.Entry<?, ?> entry) {
         Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
-        return convert(entry.getValue(), fieldType, unresolvedValues, true, t);
+        return convert(entry.getValue(), fieldType, unresolvedValues, t);
     }
 
     private static Object convertArray(BArray array, Type targetType, List<TypeValuePair> unresolvedValues,
