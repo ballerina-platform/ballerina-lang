@@ -5785,63 +5785,94 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
-        //checkStringTemplateExprs(regExpTemplateLiteral.patternFragments, data);
+        checkExpr(regExpTemplateLiteral.reDisjunction, symTable.anydataType, data);
         data.resultType = types.checkType(regExpTemplateLiteral, symTable.regExpType, data.expType);
     }
 
     @Override
-    public void visit(BLangReSequence reSequence, AnalyzerData data) {
+    public void visit(BLangReDisjunction reDisjunction, AnalyzerData data) {
+        for (BLangExpression seq : reDisjunction.sequenceList) {
+            checkExpr(seq, symTable.anydataType, data);
+        }
+        data.resultType = types.checkType(reDisjunction, symTable.anydataType, data.expType);
+    }
 
+    @Override
+    public void visit(BLangReSequence reSequence, AnalyzerData data) {
+        for (BLangExpression term : reSequence.termList) {
+            checkExpr(term, symTable.anydataType, data);
+        }
+        data.resultType = types.checkType(reSequence, symTable.anydataType, data.expType);
     }
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier, AnalyzerData data) {
-
-    }
-
-    @Override
-    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape, AnalyzerData data) {
-
+        checkExpr(reAtomQuantifier.atom, symTable.anydataType, data);
+        if (reAtomQuantifier.quantifier != null) {
+            checkExpr(reAtomQuantifier.quantifier, symTable.anydataType, data);
+        }
+        data.resultType = types.checkType(reAtomQuantifier, symTable.anydataType, data.expType);
     }
 
     @Override
     public void visit(BLangReQuantifier reQuantifier, AnalyzerData data) {
+        checkExpr(reQuantifier.quantifier, symTable.anydataType, data);
+        data.resultType = types.checkType(reQuantifier, symTable.anydataType, data.expType);
+    }
 
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape, AnalyzerData data) {
+        checkExpr(reAtomCharOrEscape.charOrEscape, symTable.anydataType, data);
+        data.resultType = types.checkType(reAtomCharOrEscape, symTable.anydataType, data.expType);
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass, AnalyzerData data) {
-
+        checkExpr(reCharacterClass.characterClassStart, symTable.anydataType, data);
+        if (reCharacterClass.charSet != null) {
+            checkExpr(reCharacterClass.charSet, symTable.anydataType, data);
+        }
+        checkExpr(reCharacterClass.characterClassEnd, symTable.anydataType, data);
+        data.resultType = types.checkType(reCharacterClass, symTable.anydataType, data.expType);
     }
 
     @Override
     public void visit(BLangReCharSet reCharSet, AnalyzerData data) {
-
+        checkExpr(reCharSet.charSetAtoms, symTable.anydataType, data);
+        data.resultType = types.checkType(reCharSet, symTable.anydataType, data.expType);
     }
 
     @Override
     public void visit(BLangReAssertion reAssertion, AnalyzerData data) {
-
+        checkExpr(reAssertion.assertion, symTable.anydataType, data);
+        data.resultType = types.checkType(reAssertion, symTable.anydataType, data.expType);
     }
 
     @Override
     public void visit(BLangReCapturingGroups reCapturingGroups, AnalyzerData data) {
-
+        checkExpr(reCapturingGroups.openParen, symTable.anydataType, data);
+        if (reCapturingGroups.flagExpr != null) {
+            checkExpr(reCapturingGroups.flagExpr, symTable.anydataType, data);
+        }
+        checkExpr(reCapturingGroups.disjunction, symTable.anydataType, data);
+        checkExpr(reCapturingGroups.closeParen, symTable.anydataType, data);
+        data.resultType = types.checkType(reCapturingGroups, symTable.anydataType, data.expType);
     }
 
     @Override
-    public void visit(BLangReDisjunction reDisjunction, AnalyzerData data) {
-
+    public void visit(BLangReFlagExpression reFlagExpr, AnalyzerData data) {
+        checkExpr(reFlagExpr.questionMark, symTable.anydataType, data);
+        if (reFlagExpr.flagsOnOff != null) {
+            checkExpr(reFlagExpr.flagsOnOff, symTable.anydataType, data);
+        }
+        checkExpr(reFlagExpr.colon, symTable.anydataType, data);
+        data.resultType = types.checkType(reFlagExpr, symTable.anydataType, data.expType);
     }
 
     @Override
-    public void visit(BLangReFlagsOnOff source, AnalyzerData data) {
-
-    }
-
-    @Override
-    public void visit(BLangReFlagExpression source, AnalyzerData data) {
-
+    public void visit(BLangReFlagsOnOff reFlagsOnOff, AnalyzerData data) {
+        checkExpr(reFlagsOnOff.flags, symTable.anydataType, data);
+        data.resultType = types.checkType(reFlagsOnOff, symTable.anydataType, data.expType);
     }
 
     @Override
