@@ -19,8 +19,6 @@
 package org.ballerinalang.model.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
  * The interface with the APIs to implement the variable definition in "group by" clause.
