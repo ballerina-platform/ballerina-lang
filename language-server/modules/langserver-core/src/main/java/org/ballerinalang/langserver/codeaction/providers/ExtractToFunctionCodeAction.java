@@ -32,16 +32,14 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.ExtractToFuncStatementAnalyzer;
 import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonKeys;
-import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.common.utils.NameUtil;
-import org.ballerinalang.langserver.common.utils.PositionUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.*;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
@@ -92,6 +90,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         if (getSupportedStatementSyntaxKindsList().contains(posDetails.matchedCodeActionNode().kind())) {
             return getCodeActionsForStatements(context, posDetails);
         }
+
         return getCodeActionsForExpressions(context, posDetails);
     }
 
@@ -204,6 +203,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         Optional<VariableSymbol> updatingVar = Optional.empty();
         Optional<String> possibleTypeOfUpdatingVar = Optional.empty();
+
         if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
             updatingVar = Optional.of(localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.iterator().next());
         }
@@ -245,8 +245,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
             returnStatement = String.format("return %s;", updatingVar.get().getName().get());
         }
-        String funcBody = getFunctionBodyForStatements(selectedNodes);
 
+        String funcBody = selectedNodes.stream().map(Node::toSourceCode).collect(Collectors.joining(""));
         Range extractFunctionInsertRange;
 
         boolean newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
@@ -258,6 +258,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         String extractFunction = FunctionGenerator.generateFunction(functionName, argsForExtractFunction,
                 returnTypeDescriptor, returnStatement, newLineAtEnd, isIsolated, funcBody);
+
+        try {
+            // adding a line separator which is removed by the Formatter
+            extractFunction = CommonUtil.LINE_SEPARATOR + Formatter.format(extractFunction).stripTrailing();
+        } catch (FormatterException e) {
+            return Collections.emptyList();
+        }
         String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, false);
 
         if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
@@ -281,37 +288,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 CodeActionKind.RefactorExtract);
 
         return List.of(codeAction);
-    }
-
-    private String getFunctionBodyForStatements(List<Node> selectedNodes) {
-        List<String> selectedNodeStrings = selectedNodes.stream().map(Node::toSourceCode).collect(Collectors.toList());
-        int paddingOffset = 4;
-        String firstLine = selectedNodeStrings.get(0); //assumes selectedNodes is not empty
-        int firstLineOffset = firstLine.length() - firstLine.stripLeading().length();
-        String firstLinePadding = " ".repeat(paddingOffset);
-        String firstLineWithOffset = firstLinePadding + firstLine.stripLeading();
-
-        if (selectedNodeStrings.size() == 1) {
-            return firstLineWithOffset;
-        }
-
-        boolean anyLinesWithLeftwardOffsets = selectedNodeStrings.stream()
-                .map(s -> s.length() - s.stripLeading().length())
-                .anyMatch(lineOffset -> lineOffset < firstLineOffset);
-
-        if (anyLinesWithLeftwardOffsets) {
-            return firstLineWithOffset + String.join("", selectedNodeStrings.subList(1, selectedNodes.size()));
-        }
-
-        if (firstLineOffset <= paddingOffset) {
-            return selectedNodeStrings.stream()
-                    .map(s -> " ".repeat(paddingOffset - firstLineOffset) + s)
-                    .collect(Collectors.joining(""));
-        } else {
-            return selectedNodeStrings.stream()
-                    .map(s -> s.substring(firstLineOffset - paddingOffset))
-                    .collect(Collectors.joining(""));
-        }
     }
 
     private List<CodeAction> getCodeActionsForExpressions(CodeActionContext context,
@@ -390,6 +366,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 replaceFunctionCall);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
+
         return List.of(codeAction);
     }
 
@@ -410,6 +387,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
      */
     @Deprecated(forRemoval = true)
     private List<Symbol> getVisibleSymbols(CodeActionContext context, Position position) {
+
         return context.currentSemanticModel().get()
                 .visibleSymbols(context.currentDocument().get(), PositionUtil.getLinePosition(position));
     }
@@ -417,6 +395,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private String getReplaceFunctionCall(List<String> varSymbolNames, String functionName, boolean isExpr) {
         String funcCall = functionName + CommonKeys.OPEN_PARENTHESES_KEY + String.join(", ", varSymbolNames)
                 + CommonKeys.CLOSE_PARENTHESES_KEY;
+
         return isExpr ? funcCall : funcCall + CommonKeys.SEMI_COLON_SYMBOL_KEY;
     }
 
@@ -489,17 +468,20 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
     private Optional<Node> findEnclosingModulePartNode(NonTerminalNode node) {
         Node reference = node;
+
         while (reference != null && reference.parent() != null) {
             if (reference.parent().kind() == SyntaxKind.MODULE_PART) {
                 return Optional.of(reference);
             }
             reference = reference.parent();
         }
+
         return Optional.empty();
     }
 
     private Optional<NonTerminalNode> findEnclosingFunctionDefinitionNode(NonTerminalNode node) {
         NonTerminalNode reference = node;
+
         while (reference != null && reference.parent() != null) {
             SyntaxKind parentKind = reference.parent().kind();
             if (parentKind == SyntaxKind.FUNCTION_DEFINITION || parentKind == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION
@@ -508,6 +490,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             }
             reference = reference.parent();
         }
+
         return Optional.empty();
     }
 
@@ -517,6 +500,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 return true;
             }
         }
+
         return false;
     }
 

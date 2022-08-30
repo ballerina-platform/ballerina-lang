@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int localVar1 \u003d 1;\n    int localVar2 \u003d 2;\n    return localVar1;\n}"
+          "newText": "\n\nfunction extracted() returns int {\n\n    int localVar1 = 1;\n    int localVar2 = 2;\n    return localVar1;\n}"
         },
         {
           "range": {
@@ -39,9 +39,10 @@
               "character": 22
             }
           },
-          "newText": "int localVar1 \u003d extracted();"
+          "newText": "int localVar1 = extracted();"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ]
 }

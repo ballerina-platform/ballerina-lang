@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nisolated function extracted() {\n    int localVar \u003d 10;\n    localVar +\u003d 1;\n}\n"
+          "newText": "\n\nisolated function extracted() {\n    int localVar = 10;\n    localVar += 1;\n}"
         },
         {
           "range": {
@@ -41,7 +41,8 @@
           },
           "newText": "extracted();"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for statements which are inside an isolated function"

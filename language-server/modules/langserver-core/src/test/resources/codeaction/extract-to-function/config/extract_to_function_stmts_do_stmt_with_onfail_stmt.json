@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int param) {\n    int localVar \u003d 0;\n    do {\n        if param \u003d\u003d 0 {\n            fail error(\"cannot divide by zero\");\n        }\n        localVar /\u003d param;\n    } on fail var e {\n    \tdoSomething(e.message());\n    }\n}"
+          "newText": "\n\nfunction extracted(int param) {\n    int localVar = 0;\n    do {\n        if param == 0 {\n            fail error(\"cannot divide by zero\");\n        }\n        localVar /= param;\n    } on fail var e {\n        doSomething(e.message());\n    }\n}"
         },
         {
           "range": {
@@ -41,7 +41,8 @@
           },
           "newText": "extracted(param);"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for do statement, checks when there is an on fail statement"

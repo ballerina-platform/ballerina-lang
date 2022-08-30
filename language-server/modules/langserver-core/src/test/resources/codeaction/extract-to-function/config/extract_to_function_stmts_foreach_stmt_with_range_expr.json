@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int localVar) {\n    foreach int iter in 0...localVar {\n        doSomething(iter);\n    }\n}"
+          "newText": "\n\nfunction extracted(int localVar) {\n    foreach int iter in 0 ... localVar {\n        doSomething(iter);\n    }\n}"
         },
         {
           "range": {
@@ -41,7 +41,8 @@
           },
           "newText": "extracted(localVar);"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for foreach statement, checks when action-or-expr is an range-expr"

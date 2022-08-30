@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() {\n    int testVar \u003d 10;\n    testVar +\u003d 1;\n}\n"
+          "newText": "\n\nfunction extracted() {\n    int testVar = 10;\n    testVar += 1;\n}"
         },
         {
           "range": {
@@ -41,7 +41,8 @@
           },
           "newText": "extracted();"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for statements when inside a class method"
