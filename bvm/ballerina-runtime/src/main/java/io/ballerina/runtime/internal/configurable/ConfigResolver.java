@@ -92,6 +92,8 @@ public class ConfigResolver {
     private Optional<?> getConfigValue(Module module, VariableKey key) {
         Type type = key.type;
         switch (type.getTag()) {
+            case TypeTags.NULL_TAG:
+                return Optional.empty();
             case TypeTags.INT_TAG:
                 return getConfigValue(key, configProvider -> configProvider
                         .getAsIntAndMark(module, key));

@@ -128,8 +128,8 @@ public class BObjectType extends BStructureType implements ObjectType {
                 return method.isIsolated();
             }
         }
-        if (this.getTag() == SERVICE_TAG) {
-            for (ResourceMethodType method : ((BServiceType) this).getResourceMethods()) {
+        if (this.getTag() == SERVICE_TAG || (this.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
+            for (ResourceMethodType method : ((BNetworkObjectType) this).getResourceMethods()) {
                 if (method.getName().equals(methodName)) {
                     return method.isIsolated();
                 }
