@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,33 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const constValue = 1000;
-
-# String
-public const string strConst = "Value";
-
-# Int
-@constDecl
-public const int intConst = 10;
-
-# Float
-@constDecl
-const float floatConst = 12.3;
-
-# Byte
-@constDecl
-const byte byteConst = 2;
-
-# Boolean
-@constDecl
-const boolean boolConst = true;
-
-const int A = constValue + intConst;
-const map<string> B = {foo: strConst, bar: "BAR"};
-const map<map<int>> C = {foo: {a: intConst, b: 100}};
-const D = ;
-
-// structural constant values with annotation attachment
 @personAnnot {
     id: 1,
     perm: {a: 1, b: 2}
@@ -52,7 +25,5 @@ type Person record {|
     int id;
     map<int> perm;
 |};
-
-annotation constDecl;
 
 const annotation Person personAnnot on type;
