@@ -844,10 +844,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(resourceAccessRestSegmentNode);
     }
 
-    public T transform(ReDisjunctionNode reDisjunctionNode) {
-        return transformSyntaxNode(reDisjunctionNode);
-    }
-
     public T transform(ReSequenceNode reSequenceNode) {
         return transformSyntaxNode(reSequenceNode);
     }
@@ -856,12 +852,24 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(reAtomQuantifierNode);
     }
 
-    public T transform(ReAtomNode reAtomNode) {
-        return transformSyntaxNode(reAtomNode);
+    public T transform(ReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        return transformSyntaxNode(reAtomCharOrEscapeNode);
+    }
+
+    public T transform(ReCharacterClassNode reCharacterClassNode) {
+        return transformSyntaxNode(reCharacterClassNode);
     }
 
     public T transform(ReCharSetNode reCharSetNode) {
         return transformSyntaxNode(reCharSetNode);
+    }
+
+    public T transform(ReCapturingGroupsNode reCapturingGroupsNode) {
+        return transformSyntaxNode(reCapturingGroupsNode);
+    }
+
+    public T transform(ReFlagExpressionNode reFlagExpressionNode) {
+        return transformSyntaxNode(reFlagExpressionNode);
     }
 
     public T transform(ReFlagsOnOffNode reFlagsOnOffNode) {

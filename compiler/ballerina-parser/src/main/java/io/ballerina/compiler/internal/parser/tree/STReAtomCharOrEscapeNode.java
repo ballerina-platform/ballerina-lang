@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReCharSetNode;
+import io.ballerina.compiler.syntax.tree.ReAtomCharOrEscapeNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,46 +30,46 @@ import java.util.Collections;
  *
  * @since 2201.3.0
  */
-public class STReCharSetNode extends STNode {
-    public final STNode reCharSet;
+public class STReAtomCharOrEscapeNode extends STReAtomNode {
+    public final STNode reAtomCharOrEscape;
 
-    STReCharSetNode(
-            STNode reCharSet) {
+    STReAtomCharOrEscapeNode(
+            STNode reAtomCharOrEscape) {
         this(
-                reCharSet,
+                reAtomCharOrEscape,
                 Collections.emptyList());
     }
 
-    STReCharSetNode(
-            STNode reCharSet,
+    STReAtomCharOrEscapeNode(
+            STNode reAtomCharOrEscape,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_CHAR_SET, diagnostics);
-        this.reCharSet = reCharSet;
+        super(SyntaxKind.RE_ATOM, diagnostics);
+        this.reAtomCharOrEscape = reAtomCharOrEscape;
 
         addChildren(
-                reCharSet);
+                reAtomCharOrEscape);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReCharSetNode(
-                this.reCharSet,
+        return new STReAtomCharOrEscapeNode(
+                this.reAtomCharOrEscape,
                 diagnostics);
     }
 
-    public STReCharSetNode modify(
-            STNode reCharSet) {
+    public STReAtomCharOrEscapeNode modify(
+            STNode reAtomCharOrEscape) {
         if (checkForReferenceEquality(
-                reCharSet)) {
+                reAtomCharOrEscape)) {
             return this;
         }
 
-        return new STReCharSetNode(
-                reCharSet,
+        return new STReAtomCharOrEscapeNode(
+                reAtomCharOrEscape,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReCharSetNode(this, position, parent);
+        return new ReAtomCharOrEscapeNode(this, position, parent);
     }
 
     @Override

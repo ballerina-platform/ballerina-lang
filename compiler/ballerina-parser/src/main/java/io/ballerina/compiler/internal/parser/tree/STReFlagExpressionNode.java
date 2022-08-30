@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReDisjunctionNode;
+import io.ballerina.compiler.syntax.tree.ReFlagExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -28,48 +28,68 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.3.0
  */
-public class STReDisjunctionNode extends STNode {
-    public final STNode reSequence;
+public class STReFlagExpressionNode extends STNode {
+    public final STNode questionMark;
+    public final STNode reFlagsOnOff;
+    public final STNode colon;
 
-    STReDisjunctionNode(
-            STNode reSequence) {
+    STReFlagExpressionNode(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon) {
         this(
-                reSequence,
+                questionMark,
+                reFlagsOnOff,
+                colon,
                 Collections.emptyList());
     }
 
-    STReDisjunctionNode(
-            STNode reSequence,
+    STReFlagExpressionNode(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_DISJUNCTION, diagnostics);
-        this.reSequence = reSequence;
+        super(SyntaxKind.RE_FLAG_EXPR, diagnostics);
+        this.questionMark = questionMark;
+        this.reFlagsOnOff = reFlagsOnOff;
+        this.colon = colon;
 
         addChildren(
-                reSequence);
+                questionMark,
+                reFlagsOnOff,
+                colon);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReDisjunctionNode(
-                this.reSequence,
+        return new STReFlagExpressionNode(
+                this.questionMark,
+                this.reFlagsOnOff,
+                this.colon,
                 diagnostics);
     }
 
-    public STReDisjunctionNode modify(
-            STNode reSequence) {
+    public STReFlagExpressionNode modify(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon) {
         if (checkForReferenceEquality(
-                reSequence)) {
+                questionMark,
+                reFlagsOnOff,
+                colon)) {
             return this;
         }
 
-        return new STReDisjunctionNode(
-                reSequence,
+        return new STReFlagExpressionNode(
+                questionMark,
+                reFlagsOnOff,
+                colon,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReDisjunctionNode(this, position, parent);
+        return new ReFlagExpressionNode(this, position, parent);
     }
 
     @Override

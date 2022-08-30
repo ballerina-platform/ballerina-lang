@@ -3316,19 +3316,10 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ReDisjunctionNode transform(
-            ReDisjunctionNode reDisjunctionNode) {
-        SeparatedNodeList<ReSequenceNode> reSequence =
-                modifySeparatedNodeList(reDisjunctionNode.reSequence());
-        return reDisjunctionNode.modify(
-                reSequence);
-    }
-
-    @Override
     public ReSequenceNode transform(
             ReSequenceNode reSequenceNode) {
-        ReTermNode reTerm =
-                modifyNode(reSequenceNode.reTerm());
+        NodeList<ReTermNode> reTerm =
+                modifyNodeList(reSequenceNode.reTerm());
         return reSequenceNode.modify(
                 reTerm);
     }
@@ -3336,7 +3327,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public ReAtomQuantifierNode transform(
             ReAtomQuantifierNode reAtomQuantifierNode) {
-        ReAtomNode reAtom =
+        Node reAtom =
                 modifyNode(reAtomQuantifierNode.reAtom());
         ReQuantifierNode reQuantifier =
                 modifyNode(reAtomQuantifierNode.reQuantifier().orElse(null));
@@ -3346,12 +3337,27 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ReAtomNode transform(
-            ReAtomNode reAtomNode) {
-        Node reAtom =
-                modifyNode(reAtomNode.reAtom());
-        return reAtomNode.modify(
-                reAtom);
+    public ReAtomCharOrEscapeNode transform(
+            ReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        Node reAtomCharOrEscape =
+                modifyNode(reAtomCharOrEscapeNode.reAtomCharOrEscape());
+        return reAtomCharOrEscapeNode.modify(
+                reAtomCharOrEscape);
+    }
+
+    @Override
+    public ReCharacterClassNode transform(
+            ReCharacterClassNode reCharacterClassNode) {
+        Token openBracketAndNegation =
+                modifyToken(reCharacterClassNode.openBracketAndNegation());
+        ReCharSetNode reCharSet =
+                modifyNode(reCharacterClassNode.reCharSet().orElse(null));
+        Token closeBracket =
+                modifyToken(reCharacterClassNode.closeBracket());
+        return reCharacterClassNode.modify(
+                openBracketAndNegation,
+                reCharSet,
+                closeBracket);
     }
 
     @Override
@@ -3361,6 +3367,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(reCharSetNode.reCharSet());
         return reCharSetNode.modify(
                 reCharSet);
+    }
+
+    @Override
+    public ReCapturingGroupsNode transform(
+            ReCapturingGroupsNode reCapturingGroupsNode) {
+        Token openParenthesis =
+                modifyToken(reCapturingGroupsNode.openParenthesis());
+        ReFlagExpressionNode reFlagExpression =
+                modifyNode(reCapturingGroupsNode.reFlagExpression().orElse(null));
+        NodeList<Node> reSequences =
+                modifyNodeList(reCapturingGroupsNode.reSequences());
+        Token closeParenthesis =
+                modifyToken(reCapturingGroupsNode.closeParenthesis());
+        return reCapturingGroupsNode.modify(
+                openParenthesis,
+                reFlagExpression,
+                reSequences,
+                closeParenthesis);
+    }
+
+    @Override
+    public ReFlagExpressionNode transform(
+            ReFlagExpressionNode reFlagExpressionNode) {
+        Token questionMark =
+                modifyToken(reFlagExpressionNode.questionMark());
+        ReFlagsOnOffNode reFlagsOnOff =
+                modifyNode(reFlagExpressionNode.reFlagsOnOff());
+        Token colon =
+                modifyToken(reFlagExpressionNode.colon());
+        return reFlagExpressionNode.modify(
+                questionMark,
+                reFlagsOnOff,
+                colon);
     }
 
     @Override
@@ -3384,10 +3423,10 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public ReQuantifierNode transform(
             ReQuantifierNode reQuantifierNode) {
-        Node reBaseQuantifier =
-                modifyNode(reQuantifierNode.reBaseQuantifier());
+        Node reQuantifier =
+                modifyNode(reQuantifierNode.reQuantifier());
         return reQuantifierNode.modify(
-                reBaseQuantifier);
+                reQuantifier);
     }
 
     // Tokens

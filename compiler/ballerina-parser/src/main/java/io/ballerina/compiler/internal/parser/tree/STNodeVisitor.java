@@ -833,10 +833,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(resourceAccessRestSegmentNode);
     }
 
-    public void visit(STReDisjunctionNode reDisjunctionNode) {
-        visitSyntaxNode(reDisjunctionNode);
-    }
-
     public void visit(STReSequenceNode reSequenceNode) {
         visitSyntaxNode(reSequenceNode);
     }
@@ -845,12 +841,24 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(reAtomQuantifierNode);
     }
 
-    public void visit(STReAtomNode reAtomNode) {
-        visitSyntaxNode(reAtomNode);
+    public void visit(STReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        visitSyntaxNode(reAtomCharOrEscapeNode);
+    }
+
+    public void visit(STReCharacterClassNode reCharacterClassNode) {
+        visitSyntaxNode(reCharacterClassNode);
     }
 
     public void visit(STReCharSetNode reCharSetNode) {
         visitSyntaxNode(reCharSetNode);
+    }
+
+    public void visit(STReCapturingGroupsNode reCapturingGroupsNode) {
+        visitSyntaxNode(reCapturingGroupsNode);
+    }
+
+    public void visit(STReFlagExpressionNode reFlagExpressionNode) {
+        visitSyntaxNode(reFlagExpressionNode);
     }
 
     public void visit(STReFlagsOnOffNode reFlagsOnOffNode) {

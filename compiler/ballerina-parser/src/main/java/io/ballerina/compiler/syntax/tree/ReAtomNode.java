@@ -19,78 +19,14 @@ package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
-import java.util.Objects;
-
 /**
  * This is a generated syntax tree node.
  *
  * @since 2.0.0
  */
-public class ReAtomNode extends NonTerminalNode {
+public abstract class ReAtomNode extends NonTerminalNode {
 
     public ReAtomNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
-    }
-
-    public Node reAtom() {
-        return childInBucket(0);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(NodeTransformer<T> visitor) {
-        return visitor.transform(this);
-    }
-
-    @Override
-    protected String[] childNames() {
-        return new String[]{
-                "reAtom"};
-    }
-
-    public ReAtomNode modify(
-            Node reAtom) {
-        if (checkForReferenceEquality(
-                reAtom)) {
-            return this;
-        }
-
-        return NodeFactory.createReAtomNode(
-                reAtom);
-    }
-
-    public ReAtomNodeModifier modify() {
-        return new ReAtomNodeModifier(this);
-    }
-
-    /**
-     * This is a generated tree node modifier utility.
-     *
-     * @since 2.0.0
-     */
-    public static class ReAtomNodeModifier {
-        private final ReAtomNode oldNode;
-        private Node reAtom;
-
-        public ReAtomNodeModifier(ReAtomNode oldNode) {
-            this.oldNode = oldNode;
-            this.reAtom = oldNode.reAtom();
-        }
-
-        public ReAtomNodeModifier withReAtom(
-                Node reAtom) {
-            Objects.requireNonNull(reAtom, "reAtom must not be null");
-            this.reAtom = reAtom;
-            return this;
-        }
-
-        public ReAtomNode apply() {
-            return oldNode.modify(
-                    reAtom);
-        }
     }
 }

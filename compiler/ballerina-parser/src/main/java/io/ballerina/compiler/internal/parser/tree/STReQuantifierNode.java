@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -28,43 +28,43 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.3.0
  */
 public class STReQuantifierNode extends STNode {
-    public final STNode reBaseQuantifier;
+    public final STNode reQuantifier;
 
     STReQuantifierNode(
-            STNode reBaseQuantifier) {
+            STNode reQuantifier) {
         this(
-                reBaseQuantifier,
+                reQuantifier,
                 Collections.emptyList());
     }
 
     STReQuantifierNode(
-            STNode reBaseQuantifier,
+            STNode reQuantifier,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RE_QUANTIFIER, diagnostics);
-        this.reBaseQuantifier = reBaseQuantifier;
+        this.reQuantifier = reQuantifier;
 
         addChildren(
-                reBaseQuantifier);
+                reQuantifier);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReQuantifierNode(
-                this.reBaseQuantifier,
+                this.reQuantifier,
                 diagnostics);
     }
 
     public STReQuantifierNode modify(
-            STNode reBaseQuantifier) {
+            STNode reQuantifier) {
         if (checkForReferenceEquality(
-                reBaseQuantifier)) {
+                reQuantifier)) {
             return this;
         }
 
         return new STReQuantifierNode(
-                reBaseQuantifier,
+                reQuantifier,
                 diagnostics);
     }
 
