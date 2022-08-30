@@ -91,13 +91,13 @@ public class RegExpParser extends AbstractParser {
         startContext(ParserRuleContext.REG_EXP_TERM);
         STToken nextToken = peek();
         SyntaxKind tokenKind = nextToken.kind;
-        if (tokenKind == SyntaxKind.REGEXP_ASSERTION) {
+        if (tokenKind == SyntaxKind.RE_ASSERTION) {
             return parseReAssertion();
         }
 
         STNode reAtom;
         switch (nextToken.kind) {
-            case REGEXP_CHAR_ESCAPE:
+            case RE_CHAR_ESCAPE:
                 reAtom = parseReAtomCharEscape();
                 break;
             case OPEN_BRACKET_TOKEN:
@@ -115,7 +115,7 @@ public class RegExpParser extends AbstractParser {
         }
 
         nextToken = peek();
-        if (nextToken.kind == SyntaxKind.REGEXP_QUANTIFIER) {
+        if (nextToken.kind == SyntaxKind.RE_QUANTIFIER) {
             STNode quantifier = parseReQuantifier();
             return STNodeFactory.createReAtomQuantifierNode(reAtom, quantifier);
         }
@@ -189,7 +189,7 @@ public class RegExpParser extends AbstractParser {
      * @return ReCharSet node
      */
     private STNode parseReCharSet(STToken nextToken) {
-        if (nextToken.kind == SyntaxKind.REGEXP_CHARSET) {
+        if (nextToken.kind == SyntaxKind.RE_CHAR_SET) {
             STNode charSet = consume();
             return STNodeFactory.createReCharSetNode(charSet);
         }

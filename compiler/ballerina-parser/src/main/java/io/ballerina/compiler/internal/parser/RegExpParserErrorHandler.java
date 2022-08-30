@@ -103,7 +103,7 @@ public class RegExpParserErrorHandler extends AbstractParserErrorHandler {
                             nextToken.kind == SyntaxKind.NEGATED_CHAR_CLASS_START_TOKEN;
                     break;
                 case REG_EXP_CHAR_SET:
-                    hasMatch = nextToken.kind == SyntaxKind.REGEXP_CHARSET;
+                    hasMatch = nextToken.kind == SyntaxKind.RE_CHAR_SET;
                     break;
                 case REG_EXP_CHAR_CLASS_END:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN;
@@ -124,10 +124,7 @@ public class RegExpParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.COLON_TOKEN;
                     break;
                 case REG_EXP_QUANTIFIER:
-                    hasMatch = nextToken.kind == SyntaxKind.REGEXP_QUANTIFIER;
-                    break;
-                case REG_EXP_TEXT:
-                    hasMatch = nextToken.kind == SyntaxKind.REGEXP_TEXT;
+                    hasMatch = nextToken.kind == SyntaxKind.RE_QUANTIFIER;
                     break;
                 default:
                     if (hasAlternativePaths(currentCtx)) {
@@ -267,14 +264,14 @@ public class RegExpParserErrorHandler extends AbstractParserErrorHandler {
             case REG_EXP_ASSERTION:
                 return SyntaxKind.RE_ASSERTION;
             case REG_EXP_CHAR_ESCAPE:
-                return SyntaxKind.REGEXP_CHAR_ESCAPE;
+                return SyntaxKind.RE_CHAR_ESCAPE;
             case REG_EXP_CHAR_CLASS:
             case REG_EXP_CHAR_CLASS_START:
                 return SyntaxKind.OPEN_BRACKET_TOKEN;
             case REG_EXP_CHAR_CLASS_END:
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
             case REG_EXP_CHAR_SET:
-                return SyntaxKind.REGEXP_CHARSET;
+                return SyntaxKind.RE_CHAR_SET;
             case REG_EXP_CAPTURING_GROUP:
             case REG_EXP_CAPTURING_GROUP_START:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
@@ -288,7 +285,7 @@ public class RegExpParserErrorHandler extends AbstractParserErrorHandler {
             case REG_EXP_FLAG_EXPR_END:
                 return SyntaxKind.COLON_TOKEN;
             case REG_EXP_QUANTIFIER:
-                return SyntaxKind.REGEXP_QUANTIFIER;
+                return SyntaxKind.RE_QUANTIFIER;
             case REG_EXP_TEXT:
                 return SyntaxKind.BACKTICK_TOKEN;
             case EOF:
