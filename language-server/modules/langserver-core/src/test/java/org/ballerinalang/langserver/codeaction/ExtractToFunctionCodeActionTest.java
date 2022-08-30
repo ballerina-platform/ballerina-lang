@@ -73,6 +73,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_if_else_stmt_with_if_only.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_if_and_else.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_nested_if.json"},
+                {"extract_to_function_stmts_if_else_stmt_inside_nested_while_stmts.json"},
 
                 {"extract_to_function_stmts_while_stmt.json"},
                 {"extract_to_function_stmts_while_stmt_with_local_var_referred.json"},
