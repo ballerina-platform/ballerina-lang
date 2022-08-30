@@ -1184,7 +1184,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
             data.resultType = symTable.semanticError;
         } else {
-            data.resultType = symTable.semanticError;
+            data.resultType = types.checkType(tableConstructorExpr.pos,
+                    getInferredTableType(nodeCloner.cloneNode(tableConstructorExpr), data), expType,
+                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
     }
 
