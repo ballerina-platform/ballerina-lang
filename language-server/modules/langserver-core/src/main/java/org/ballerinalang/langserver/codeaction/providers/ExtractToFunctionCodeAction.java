@@ -31,7 +31,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -39,7 +38,7 @@ import org.ballerinalang.langserver.codeaction.ExtractToFuncStatementAnalyzer;
 import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -257,8 +256,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         IsolatedBlockResolver isolatedBlockResolver = new IsolatedBlockResolver();
         Boolean isIsolated = isolatedBlockResolver.findIsolatedBlock(matchedCodeActionNode);
 
-        String extractFunction = generateFunction(functionName, argsForExtractFunction, returnTypeDescriptor,
-                returnStatement, newLineAtEnd, isIsolated, funcBody);
+        String extractFunction = FunctionGenerator.generateFunction(functionName, argsForExtractFunction,
+                returnTypeDescriptor, returnStatement, newLineAtEnd, isIsolated, funcBody);
         String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, false);
 
         if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
@@ -319,7 +318,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                                           RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
         Optional<Node> enclosingModulePartNode = findEnclosingModulePartNode(matchedCodeActionNode);
-
+// todo move this to validate()
         List<SyntaxKind> unSupportedModuleLevelSyntaxKinds = List.of(SyntaxKind.CONST_DECLARATION,
                 SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION);
 
@@ -437,11 +436,11 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         IsolatedBlockResolver isolatedBlockResolver = new IsolatedBlockResolver();
         Boolean isIsolated = isolatedBlockResolver.findIsolatedBlock(matchedNode);
 
-        return generateFunction(functionName, args, returnsClause, returnStatement, newLineAtEnd, isIsolated, "");
+        return FunctionGenerator.generateFunction(functionName, args, returnsClause, returnStatement, newLineAtEnd,
+                isIsolated, "");
     }
 
     // todo use formatter
-    // todo generateFunction merge with in the og class
     private List<Symbol> getVarSymbolsWithinRangeForExprs(NonTerminalNode matchedNode, CodeActionContext context) {
         return getVisibleSymbols(context, PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
@@ -519,49 +518,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             }
         }
         return false;
-    }
-
-    private static String generateFunction(String functionName, List<String> args, String returnsClause,
-                                           String returnStmt, boolean newLineAtEnd, boolean isolated, String funcBody) {
-        // padding
-        int padding = 4;
-        String paddingStr = StringUtils.repeat(" ", padding);
-
-        // return statement
-        String bodyReturnStmt = "";
-        if (!returnStmt.isEmpty()) {
-            bodyReturnStmt = paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
-        }
-
-        StringBuilder fnBuilder = new StringBuilder();
-        if (!functionName.isEmpty()) {
-            fnBuilder.append(CommonUtil.LINE_SEPARATOR).append(CommonUtil.LINE_SEPARATOR);
-        }
-
-        if (isolated) {
-            fnBuilder.append("isolated ");
-        }
-
-        fnBuilder.append("function").append(" ").append(functionName)
-                .append(CommonKeys.OPEN_PARENTHESES_KEY)
-                .append(String.join(", ", args))
-                .append(CommonKeys.CLOSE_PARENTHESES_KEY);
-
-        if (!returnsClause.isEmpty()) {
-            fnBuilder.append(" ").append(returnsClause);
-        }
-
-        fnBuilder.append(" ").append(CommonKeys.OPEN_BRACE_KEY)
-                .append(CommonUtil.LINE_SEPARATOR)
-                .append(funcBody)
-                .append(bodyReturnStmt)
-                .append(CommonKeys.CLOSE_BRACE_KEY);
-
-        if (!functionName.isEmpty() && newLineAtEnd) {
-            fnBuilder.append(CommonUtil.LINE_SEPARATOR);
-        }
-
-        return fnBuilder.toString();
     }
 
     public static List<SyntaxKind> getSupportedExpressionSyntaxKindsList() {
