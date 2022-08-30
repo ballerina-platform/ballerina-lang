@@ -210,31 +210,12 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
         BLangType typeNode = typeDefinition.getTypeNode();
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             List<BLangSimpleVariable> fields = ((BLangObjectTypeNode) typeNode).fields;
-            validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
-                    DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
-            validateReturnParameter(typeDefinition, null, false);
-            validateReferences(typeDefinition, data);
-            for (BLangSimpleVariable field : fields) {
-                validateReferences(field, data);
-                validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
-                        Symbols.isFlagOn(field.symbol.flags, Flags.DEPRECATED),
-                        field.getPosition());
-            }
+            validateObjectOrRecord(typeDefinition, fields, data);
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(t -> visitNode(t, data));
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             List<BLangSimpleVariable> fields = ((BLangRecordTypeNode) typeNode).fields;
-            validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
-                    DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
-            validateReturnParameter(typeDefinition, null, false);
-            validateReferences(typeDefinition, data);
-
-            for (SimpleVariableNode field : fields) {
-                validateReferences(field, data);
-                validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
-                        Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
-                        field.getPosition());
-            }
+            validateObjectOrRecord(typeDefinition, fields, data);
         }
         if (typeDefinition.symbol != null) {
             validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
@@ -318,6 +299,19 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
                             reference.referenceName);
                 }
             }
+        }
+    }
+
+    private void validateObjectOrRecord(BLangTypeDefinition typeDefinition, List<BLangSimpleVariable> fields, AnalyzerData data) {
+        validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
+                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
+        validateReturnParameter(typeDefinition, null, false);
+        validateReferences(typeDefinition, data);
+        for (BLangSimpleVariable field : fields) {
+            validateReferences(field, data);
+            validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
+                    Symbols.isFlagOn(field.symbol.flags, Flags.DEPRECATED),
+                    field.getPosition());
         }
     }
 
