@@ -307,6 +307,7 @@ public class SyntaxErrors {
             case TEMPLATE_START:
             case XML_CONTENT:
             case XML_TEXT:
+            case REG_EXP_TERM:
                 return DiagnosticErrorCode.ERROR_MISSING_BACKTICK_TOKEN;
             case XML_COMMENT_START:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_COMMENT_START_TOKEN;
@@ -327,6 +328,19 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
             case XML_CDATA_END:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_CDATA_END_TOKEN;
+            case REG_EXP_CAPTURING_GROUP_START:
+                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_CAPTURING_GROUP_START_TOKEN;
+            case REG_EXP_CAPTURING_GROUP_END:
+                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_CAPTURING_GROUP_END_TOKEN;
+            case REG_EXP_FLAG_EXPR_START:
+                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_FLAG_EXPR_START_TOKEN;
+            case REG_EXP_FLAG_EXPR_END:
+                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_FLAG_EXPR_END_TOKEN;
+            case REG_EXP_CHAR_CLASS:
+            case REG_EXP_CHAR_CLASS_START:
+                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_CHAR_CLASS_START_TOKEN;
+            case REG_EXP_CHAR_CLASS_END:
+                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_CHAR_CLASS_END_TOKEN;
             default:
                 return getKeywordErrorCode(ctx);
         }

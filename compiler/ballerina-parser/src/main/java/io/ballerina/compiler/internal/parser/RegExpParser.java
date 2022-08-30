@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
@@ -35,7 +36,7 @@ public class RegExpParser extends AbstractParser {
     private final Queue<STNode> interpolationExprs;
 
     protected RegExpParser(AbstractTokenReader tokenReader, Queue<STNode> interpolationExprs) {
-        super(tokenReader);
+        super(tokenReader, new RegExpParserErrorHandler(tokenReader));
         this.interpolationExprs = interpolationExprs;
     }
 
@@ -44,6 +45,11 @@ public class RegExpParser extends AbstractParser {
         return parseReDisjunction();
     }
 
+    /**
+     * Parse reDisjunction.
+     *
+     * @return ReDisjunction node
+     */
     private STNode parseReDisjunction() {
         List<STNode> reSequenceList = new ArrayList<>();
         STToken nextToken = peek();
@@ -60,11 +66,16 @@ public class RegExpParser extends AbstractParser {
         return STNodeFactory.createNodeList(reSequenceList);
     }
 
+    /**
+     * Parse reSequence.
+     *
+     * @return ReSequence node
+     */
     private STNode parseReSequence() {
         List<STNode> reTerms = new ArrayList<>();
         STToken nextToken = peek();
         while (!isEndOfReSequence(nextToken.kind)) {
-            STNode reTerm = parseRegExpTerm();
+            STNode reTerm = parseReTerm();
             reTerms.add(reTerm);
             nextToken = peek();
         }
@@ -72,11 +83,12 @@ public class RegExpParser extends AbstractParser {
     }
 
     /**
-     * Parse a single item in regular expression.
+     * Parse reTerm.
      *
-     * @return Regular expression content item node
+     * @return ReTerm node
      */
-    private STNode parseRegExpTerm() {
+    private STNode parseReTerm() {
+        startContext(ParserRuleContext.REG_EXP_TERM);
         STToken nextToken = peek();
         SyntaxKind tokenKind = nextToken.kind;
         if (tokenKind == SyntaxKind.REGEXP_ASSERTION) {
@@ -85,7 +97,7 @@ public class RegExpParser extends AbstractParser {
 
         STNode reAtom;
         switch (nextToken.kind) {
-            case REGEXP_ATOM_CHAR_ESCAPE:
+            case REGEXP_CHAR_ESCAPE:
                 reAtom = parseReAtomCharEscape();
                 break;
             case OPEN_BRACKET_TOKEN:
@@ -108,40 +120,75 @@ public class RegExpParser extends AbstractParser {
             return STNodeFactory.createReAtomQuantifierNode(reAtom, quantifier);
         }
 
+        endContext();
+
         return STNodeFactory.createReAtomQuantifierNode(reAtom, null);
     }
 
+    /**
+     * Parse ReAssertion.
+     *
+     * @return ReAssertion node
+     */
     private STNode parseReAssertion() {
         STNode assertion = consume();
         return STNodeFactory.createReAssertionNode(assertion);
     }
 
+    /**
+     * Parse ReLiteralChar, . or ReEscape.
+     *
+     * @return ReAtomCharOrEscape node
+     */
     private STNode parseReAtomCharEscape() {
-        STNode atoms = consume();
-        return STNodeFactory.createReAtomCharOrEscapeNode(atoms);
+        STNode charEscape = consume();
+        return STNodeFactory.createReAtomCharOrEscapeNode(charEscape);
     }
 
+    /**
+     * Parse character class.
+     *
+     * @return Character class node
+     */
     private STNode parseCharacterClass() {
+        startContext(ParserRuleContext.REG_EXP_CHAR_CLASS);
         STNode characterClassStart = parseCharacterClassStart();
-        STNode characterSet = parseReCharSet();
+        STToken nextToken = peek();
+        STNode characterSet = null;
+        if (!isEndOfCharacterClass(nextToken)) {
+            characterSet = parseReCharSet(nextToken);
+        }
         STNode characterClassEnd = parseCharacterClassEnd();
-
+        endContext();
         return STNodeFactory.createReCharacterClassNode(characterClassStart, characterSet, characterClassEnd);
     }
 
+    private boolean isEndOfCharacterClass(STToken nextToken) {
+        return nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN || nextToken.kind == SyntaxKind.EOF_TOKEN;
+    }
+
+    /**
+     * Parse open bracket token or open bracket token with ^ token in a character class.
+     *
+     * @return Open bracket token or open bracket token with ^ token node
+     */
     private STNode parseCharacterClassStart() {
         STToken token = peek();
         if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN ||
                 token.kind == SyntaxKind.NEGATED_CHAR_CLASS_START_TOKEN) {
             return consume();
         } else {
-            //recover(token, ParserRuleContext.XML_COMMENT_START);
+            recover(token, ParserRuleContext.REG_EXP_CHAR_CLASS_START);
             return parseCharacterClassStart();
         }
     }
 
-    private STNode parseReCharSet() {
-        STToken nextToken = peek();
+    /**
+     * Parse ReCharSet in a character class.
+     *
+     * @return ReCharSet node
+     */
+    private STNode parseReCharSet(STToken nextToken) {
         if (nextToken.kind == SyntaxKind.REGEXP_CHARSET) {
             STNode charSet = consume();
             return STNodeFactory.createReCharSetNode(charSet);
@@ -149,52 +196,142 @@ public class RegExpParser extends AbstractParser {
         throw new IllegalStateException();
     }
 
+    /**
+     * Parse close bracket token in a character class.
+     *
+     * @return Close bracket token
+     */
     private STNode parseCharacterClassEnd() {
         STToken token = peek();
         if (token.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
             return consume();
         } else {
-            //recover(token, ParserRuleContext.XML_COMMENT_START);
-            return parseCharacterClassStart();
+            recover(token, ParserRuleContext.REG_EXP_CHAR_CLASS_END);
+            return parseCharacterClassEnd();
         }
     }
 
+    /**
+     * Parse quantifier.
+     *
+     * @return Quantifier node
+     */
     private STNode parseReQuantifier() {
         STNode quantifier = consume();
         return STNodeFactory.createReQuantifierNode(quantifier);
     }
 
+    /**
+     * Parse capturing group.
+     *
+     * @return Capturing group node
+     */
     private STNode parseCapturingGroups() {
-        STNode openParenthesis = consume();
-        STNode flagExpression = parseFlagExpression();
+        startContext(ParserRuleContext.REG_EXP_CAPTURING_GROUP);
+        STNode openParenthesis = parseOpenParenthesis();
+        STToken nextToken = peek();
+        STNode flagExpression = null;
+        if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+            flagExpression = parseFlagExpression(nextToken);
+        }
         STNode reDisjunction = parseReDisjunction();
-        STNode closeParenthesis = consume();
-
+        STNode closeParenthesis = parseCloseParenthesis();
+        endContext();
         return STNodeFactory.createReCapturingGroupsNode(openParenthesis, flagExpression, reDisjunction,
                 closeParenthesis);
     }
 
-    private STNode parseFlagExpression() {
+    /**
+     * Parse open parenthesis token in capturing group.
+     *
+     * @return Open parenthesis token
+     */
+    private STNode parseOpenParenthesis() {
         STToken nextToken = peek();
-        STNode questionMark = null;
+        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+            return consume();
+        } else {
+            recover(nextToken, ParserRuleContext.REG_EXP_CAPTURING_GROUP_START);
+            return parseOpenParenthesis();
+        }
+    }
+
+    /**
+     * Parse flag expression in capturing group.
+     *
+     * @return Flag expression node
+     */
+    private STNode parseFlagExpression(STToken nextToken) {
+        startContext(ParserRuleContext.REG_EXP_FLAG_EXPR);
+        STNode questionMark = parseQuestionMark(nextToken);
+        nextToken = peek();
         STNode reFlagsOnOff = null;
-        STNode colon = null;
+        if (!isEndOfFlagExpression(nextToken)) {
+            reFlagsOnOff = STNodeFactory.createReFlagsOnOffNode(parseReFlagsOnOff(nextToken));
+            nextToken = peek();
+        }
+        STNode colon = parseColon(nextToken);
+        if (colon.isMissing()) {
+            colon = SyntaxErrors.addDiagnostic(colon, DiagnosticErrorCode.ERROR_MISSING_REG_EXP_FLAG_EXPR_END_TOKEN);
+        }
+        endContext();
+        return STNodeFactory.createReFlagExpressionNode(questionMark, reFlagsOnOff, colon);
+    }
+
+    private boolean isEndOfFlagExpression(STToken nextToken) {
+        return nextToken.kind == SyntaxKind.COLON_TOKEN || nextToken.kind == SyntaxKind.EOF_TOKEN;
+    }
+
+    /**
+     * Parse question mark token in a flag expression.
+     *
+     * @return Question mark token
+     */
+    private STNode parseQuestionMark(STToken nextToken) {
         if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
-            questionMark = consume();
+            return consume();
         }
+        throw new IllegalStateException();
+    }
 
-        nextToken = peek();
+    /**
+     * Parse ReFlagsOnOff in a flag expression..
+     *
+     * @return ReFlagsOnOff node
+     */
+    private STNode parseReFlagsOnOff(STToken nextToken) {
         if (nextToken.kind == SyntaxKind.RE_FLAGS_ON_OFF) {
-            reFlagsOnOff = consume();
+            return consume();
         }
-        STNode reFlags = STNodeFactory.createReFlagsOnOffNode(reFlagsOnOff);
+        throw new IllegalStateException();
+    }
 
-        nextToken = peek();
+    /**
+     * Parse colon token in a flag expression.
+     *
+     * @return Colon token
+     */
+    private STNode parseColon(STToken nextToken) {
         if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
-            colon = consume();
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.COLON_TOKEN);
         }
+    }
 
-        return STNodeFactory.createReFlagExpressionNode(questionMark, reFlags, colon);
+    /**
+     * Parse close parenthesis token of a capturing group.
+     *
+     * @return Close parenthesis token
+     */
+    private STNode parseCloseParenthesis() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+            return consume();
+        } else {
+            recover(nextToken, ParserRuleContext.REG_EXP_CAPTURING_GROUP_END);
+            return parseCloseParenthesis();
+        }
     }
 
     /**
@@ -207,18 +344,12 @@ public class RegExpParser extends AbstractParser {
      * @return Interpolation node
      */
     private STNode parseInterpolation() {
-        // consume the injected interpolation start and end. i.e: &{}
+        // Consume the injected interpolation start and end. i.e: &{}.
         consume();
         consume();
         return this.interpolationExprs.remove();
     }
 
-    /**
-     * Check whether the parser has reached the end of the back-tick literal.
-     *
-     * @param kind           Next token kind
-     * @return <code>true</code> if this is the end of the back-tick literal. <code>false</code> otherwise
-     */
     private boolean isEndOfReDisjunction(SyntaxKind kind) {
         switch (kind) {
             case EOF_TOKEN:
@@ -242,14 +373,7 @@ public class RegExpParser extends AbstractParser {
         }
     }
 
-    private boolean isEndOfFlagExpr(SyntaxKind kind) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case COLON_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+    private AbstractParserErrorHandler.Solution recover(STToken token, ParserRuleContext currentCtx) {
+        return this.recover(token, currentCtx, false);
     }
 }

@@ -11074,21 +11074,12 @@ public class BallerinaParser extends AbstractParser {
         STNode xmlKeyword = parseXMLKeyword();
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
 
-        STNode content;
-        STNode endingBackTick;
         if (startingBackTick.isMissing()) {
-            // Create new missing startingBackTick token which as no diagnostic.
-            startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
-            endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
-            content = STNodeFactory.createEmptyNodeList();
-            STNode templateExpr = STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION,
-                    xmlKeyword, startingBackTick, content, endingBackTick);
-            templateExpr = SyntaxErrors.addDiagnostic(templateExpr, DiagnosticErrorCode.ERROR_MISSING_BACKTICK_STRING);
-            return templateExpr;
+            return createMissingTemplateExpressionNode(xmlKeyword, SyntaxKind.XML_TEMPLATE_EXPRESSION);
         }
 
-        content = parseTemplateContentAsXML();
-        endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
+        STNode content = parseTemplateContentAsXML();
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION, xmlKeyword,
                 startingBackTick, content, endingBackTick);
     }
@@ -11165,24 +11156,25 @@ public class BallerinaParser extends AbstractParser {
         STNode reKeyword = parseReKeyword();
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
 
-        STNode content;
-        STNode endingBackTick;
         if (startingBackTick.isMissing()) {
-            // Create new missing startingBackTick token which as no diagnostic.
-            startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
-            endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
-            content = STNodeFactory.createEmptyNodeList();
-            STNode templateExpr =
-                    STNodeFactory.createTemplateExpressionNode(SyntaxKind.REGEX_TEMPLATE_EXPRESSION,
-                            reKeyword, startingBackTick, content, endingBackTick);
-            templateExpr = SyntaxErrors.addDiagnostic(templateExpr, DiagnosticErrorCode.ERROR_MISSING_BACKTICK_STRING);
-            return templateExpr;
+            return createMissingTemplateExpressionNode(reKeyword, SyntaxKind.REGEX_TEMPLATE_EXPRESSION);
         }
 
-        content = parseTemplateContentAsRegExp();
-        endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
+        STNode content = parseTemplateContentAsRegExp();
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.REGEX_TEMPLATE_EXPRESSION, reKeyword,
                 startingBackTick, content, endingBackTick);
+    }
+
+    private STNode createMissingTemplateExpressionNode(STNode reKeyword, SyntaxKind kind) {
+        // Create new missing startingBackTick token which has no diagnostic.
+        STNode startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+        STNode endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+        STNode content = STNodeFactory.createEmptyNodeList();
+        STNode templateExpr =
+                STNodeFactory.createTemplateExpressionNode(kind, reKeyword, startingBackTick, content, endingBackTick);
+        templateExpr = SyntaxErrors.addDiagnostic(templateExpr, DiagnosticErrorCode.ERROR_MISSING_BACKTICK_STRING);
+        return templateExpr;
     }
 
     /**
@@ -12821,7 +12813,6 @@ public class BallerinaParser extends AbstractParser {
                 return peek(nextTokenIndex).kind == SyntaxKind.OPEN_PAREN_TOKEN;
             case XML_KEYWORD:
             case STRING_KEYWORD:
-            case RE_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.BACKTICK_TOKEN;
 
             // 'start' and 'flush' are start of actions, but not expressions.
@@ -17442,8 +17433,6 @@ public class BallerinaParser extends AbstractParser {
                     return parseExpression(false);
                 }
                 return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-            case RE_KEYWORD:
-                return parseExpression(false);
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
@@ -17580,8 +17569,6 @@ public class BallerinaParser extends AbstractParser {
                     return parseExpression(false);
                 }
                 return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-            case RE_KEYWORD:
-                return parseExpression(false);
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
                 if (getNextNextToken().kind == SyntaxKind.LT_TOKEN) {

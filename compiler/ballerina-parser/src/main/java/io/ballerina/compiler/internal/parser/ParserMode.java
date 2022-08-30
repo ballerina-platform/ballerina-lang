@@ -58,10 +58,8 @@ public enum ParserMode {
 
     // RegExp Parser
     RE_DISJUNCTION,
-    RE_ASSERTION,
-    RE_ATOM,
-    RE_ATOM_CHAR_SET,
-    RE_ATOM_RE_DISJUNCTION,
+    RE_CHAR_CLASS_CHAR_SET,
+    RE_CAPTURING_GROUP_RE_DISJUNCTION,
     RE_QUANTIFIER,
     RE_FLAGS
 }
