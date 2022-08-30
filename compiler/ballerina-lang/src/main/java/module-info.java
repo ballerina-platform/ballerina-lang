@@ -1,5 +1,6 @@
 module io.ballerina.lang {
     uses io.ballerina.projects.plugins.CompilerPlugin;
+    uses io.ballerina.projects.plugins.IDLGeneratorPlugin;
     requires java.compiler;
     requires toml4j;
     requires com.google.gson;
