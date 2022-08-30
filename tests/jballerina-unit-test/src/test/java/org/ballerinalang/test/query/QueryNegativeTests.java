@@ -118,13 +118,13 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "cannot assign a value to final 'person'", 44, 17);
         validateWarning(compileResult, index++, "unused variable 'outputNameList'", 58, 5);
         validateError(compileResult, index++, "cannot assign a value to final 'twiceScore'", 62, 10);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 76, 13);
-        validateWarning(compileResult, index++, "unused variable 'a'", 79, 16);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 83, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'b'", 84, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 76, 9);
+        validateWarning(compileResult, index++, "unused variable 'a'", 79, 10);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 83, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'b'", 84, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 9);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }

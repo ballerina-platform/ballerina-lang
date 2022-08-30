@@ -174,19 +174,18 @@ function testMultipleJoinClausesWithInnerQueries3() returns boolean {
 
     DeptPerson[] deptPersonList = [];
 
-    error? x =
-        from var emp in (stream from var e in empList select e)
-        join Person psn in (table key() from var p in personList select p)
-            on emp.personId equals psn.id
-        join Department dept in (from var d in deptList
-                let string deptName = "Engineering"
-                where d.name == deptName
-                select d)
-            on emp.deptId equals dept.id
-        do {
-            DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
-            deptPersonList[deptPersonList.length()] = dp;
-        };
+    from var emp in (stream from var e in empList select e)
+    join Person psn in (table key() from var p in personList select p)
+        on emp.personId equals psn.id
+    join Department dept in (from var d in deptList
+            let string deptName = "Engineering"
+            where d.name == deptName
+            select d)
+        on emp.deptId equals dept.id
+    do {
+        DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
+        deptPersonList[deptPersonList.length()] = dp;
+    };
 
     boolean testPassed = true;
     DeptPerson dp;

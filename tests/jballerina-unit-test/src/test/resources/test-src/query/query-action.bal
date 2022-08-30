@@ -82,7 +82,7 @@ function testSimpleQueryAction3() returns error? {
 }
 
 function simpleQueryAction() returns string|error {
-    int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {
         check returnNil();
         return "string 1";
@@ -393,11 +393,16 @@ class IterableWithError {
     }
 }
 
-function testErrorHandlingWithinQueryAction() {
+function getErrorThrownFromDoClause() returns error? {
     error? res1 = from int v in 1 ... 2
         do {
             _ = check getErrorOrString();
         };
+    assertTrue(res1 !is error);
+}
+
+function testErrorHandlingWithinQueryAction() returns error? {
+    error? res1 = getErrorThrownFromDoClause();
     assertTrue(res1 is error);
 
     IterableWithError itr = new IterableWithError();

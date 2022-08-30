@@ -655,12 +655,15 @@ class _DoFunction {
         if (pFrame is _Frame) {
             any|error cFrame = f(pFrame);
             if (cFrame is error) {
-                return cFrame;
+                return prepareQueryBodyError(cFrame);
             }
             if cFrame !is () {
                 return {"$value$": cFrame};
             }
             return pFrame;
+        }
+        if (pFrame is error) {
+            return prepareCompleteEarlyError(pFrame);
         }
         return pFrame;
     }
@@ -870,3 +873,6 @@ class _OrderTreeNode {
         }
     }
 }
+
+public type Error distinct error;
+public type CompleteEarlyError distinct error;

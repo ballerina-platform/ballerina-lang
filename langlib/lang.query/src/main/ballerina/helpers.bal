@@ -16,6 +16,7 @@
 
 import ballerina/lang.'xml;
 import ballerina/jballerina.java;
+import ballerina/lang.'error;
 
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
@@ -240,3 +241,28 @@ function createImmutableValue(any mutableValue) = @java:Method {
     'class: "org.ballerinalang.langlib.query.CreateImmutableType",
     name: "createImmutableValue"
 } external;
+
+# Log and prepare `error` as a `Error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `Error` instance
+public isolated function prepareQueryBodyError(error err) returns Error {
+    Error queryError = error Error("", err);
+    return queryError;
+}
+
+# Log and prepare `error` as a `Error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `Error` instance
+public isolated function prepareCompleteEarlyError(error err) returns CompleteEarlyError {
+    CompleteEarlyError completeEarlyErr = error CompleteEarlyError("", err);
+    return completeEarlyErr;
+}
+
+public isolated function unwrapQueryError(error err) returns error {
+    error? cause = error:cause(err);
+    return cause is error ? cause : err;
+}
