@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "http://www.example.com/apis/one.yaml" as foo;
+client "http://example.com/apis/one.yaml" as foo;
 
 function testModuleClientDecl() {
     foo:ClientConfiguration config = {'limit: 5};
@@ -26,7 +26,7 @@ function testModuleClientDecl() {
 }
 
 function testClientDeclStmt() {
-    client "http://www.example.com/apis/one.yaml" as bar;
+    client "http://example.com/apis/one.yaml" as bar;
     bar:ClientConfiguration config = {'limit: 5};
     bar:client cl = new (config);
     int 'limit = cl->getLimit();
@@ -34,7 +34,7 @@ function testClientDeclStmt() {
     cl->setLimit(10);'limit = cl->getLimit();
     assertEquals(10, 'limit);
 
-    client "http://www.example.com/apis/two.yaml" as baz;
+    client "http://example.com/apis/two.yaml" as baz;
     baz:Config config2 = {url: "http://www.example.com"};
     baz:client cl2 = new (config2);
     string url = cl2->getUrl();

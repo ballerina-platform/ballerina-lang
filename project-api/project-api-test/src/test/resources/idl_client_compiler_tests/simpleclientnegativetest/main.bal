@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "http://www.example.com/apis/one.yaml" as foo;
+client "http://example.com/apis/one.yaml" as foo;
 
 foo:Config config = 1;
 foo:Client cl;
@@ -25,14 +25,14 @@ function testModuleClientDeclNegative() {
 }
 
 function testClientDeclStmtNegative1() {
-    client "http://www.example.com/apis/one.yaml" as bar;
+    client "http://example.com/apis/one.yaml" as bar;
     bar:ClientConfiguratin config;
     bar:clients cl;
 }
 
 function testClientDeclStmtNegative2() {
-    client "http://www.example.com/apis/one.yaml" as bar;
-    client "http://www.example.com/apis/two.yaml" as baz;
+    client "http://example.com/apis/one.yaml" as bar;
+    client "http://example.com/apis/two.yaml" as baz;
     baz:ClientConfiguration c1;
     bar:Config c2;
 }

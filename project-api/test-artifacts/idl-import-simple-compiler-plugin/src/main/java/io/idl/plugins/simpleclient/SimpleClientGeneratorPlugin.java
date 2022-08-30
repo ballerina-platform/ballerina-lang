@@ -37,7 +37,12 @@ import io.ballerina.projects.plugins.IDLSourceGeneratorContext;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SimpleClient extends IDLGeneratorPlugin {
+/**
+ * Simple client generator plugin for compiler tests with client declarations.
+ *
+ * @since 2201.3.0
+ */
+public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
     @Override
     public void init(IDLPluginContext pluginContext) {
         pluginContext.addCodeGenerator(new SimpleClientGenerator());
@@ -49,7 +54,7 @@ public class SimpleClient extends IDLGeneratorPlugin {
 
         @Override
         public boolean canHandle(Node clientNode) {
-            return true;
+            return getUri(clientNode).startsWith("http://example.com");
         }
 
         @Override
@@ -81,7 +86,7 @@ public class SimpleClient extends IDLGeneratorPlugin {
         }
 
         private DocumentConfig getClientCode(DocumentId documentId, String uri) {
-            if ("http://www.example.com/apis/one.yaml".equals(uri)) {
+            if ("http://example.com/apis/one.yaml".equals(uri)) {
                 return DocumentConfig.from(
                         documentId, "public const DEFAULT_URL = \"http://www.example.com\";\n" +
                                 "\n" +
