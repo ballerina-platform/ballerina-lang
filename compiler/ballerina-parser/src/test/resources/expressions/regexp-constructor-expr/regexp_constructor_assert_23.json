@@ -116,16 +116,50 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_ESCAPE_SEQUENCE"
-                          ],
-                          "value": "\\"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "q"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -200,16 +234,50 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_ESCAPE_SEQUENCE"
-                          ],
-                          "value": "\\"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "e"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -284,24 +352,78 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_ESCAPE_SEQUENCE"
-                          ],
-                          "value": "\\"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "y"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -376,12 +498,36 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE"
-                          ],
-                          "value": "\\u{"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -456,16 +602,50 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_ESCAPE_SEQUENCE"
-                          ],
-                          "value": "\\"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "!"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },

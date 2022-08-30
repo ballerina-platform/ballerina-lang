@@ -110,32 +110,116 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?m:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "A"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "A"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "D"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "*"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "kind": "RE_QUANTIFIER",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_QUANTIFIER",
+                                                              "value": "RE_QUANTIFIER"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -207,24 +291,91 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?i:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\-d-hM-N\\tQ-T]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHARACTER_CLASS",
+                                                          "children": [
+                                                            {
+                                                              "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
+                                                              "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "RE_CHAR_SET",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "RE_CHAR_SET",
+                                                                  "value": "RE_CHAR_SET"
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -296,24 +447,88 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?ms:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "{1,3}"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "kind": "RE_QUANTIFIER",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_QUANTIFIER",
+                                                              "value": "RE_QUANTIFIER"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -385,28 +600,102 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?msix:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "A"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "."
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "*?"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "kind": "RE_QUANTIFIER",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_QUANTIFIER",
+                                                              "value": "RE_QUANTIFIER"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -478,28 +767,100 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?ms-ix:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "ABC]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "{1245,3212}"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHARACTER_CLASS",
+                                                          "children": [
+                                                            {
+                                                              "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
+                                                              "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "RE_CHAR_SET",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "RE_CHAR_SET",
+                                                                  "value": "RE_CHAR_SET"
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "kind": "RE_QUANTIFIER",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_QUANTIFIER",
+                                                              "value": "RE_QUANTIFIER"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -571,24 +932,90 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?m-i:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\u{1234}]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHARACTER_CLASS",
+                                                          "children": [
+                                                            {
+                                                              "kind": "OPEN_BRACKET_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "RE_CHAR_SET",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "RE_CHAR_SET",
+                                                                  "value": "RE_CHAR_SET"
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -660,24 +1087,90 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?si-m:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\t]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHARACTER_CLASS",
+                                                          "children": [
+                                                            {
+                                                              "kind": "OPEN_BRACKET_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "RE_CHAR_SET",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "RE_CHAR_SET",
+                                                                  "value": "RE_CHAR_SET"
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -749,24 +1242,90 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?x-sm:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\-d-hM-N\\tQ-T]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHARACTER_CLASS",
+                                                          "children": [
+                                                            {
+                                                              "kind": "OPEN_BRACKET_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "RE_CHAR_SET",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "RE_CHAR_SET",
+                                                                  "value": "RE_CHAR_SET"
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -838,24 +1397,90 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?msix-msix:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\-]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHARACTER_CLASS",
+                                                          "children": [
+                                                            {
+                                                              "kind": "OPEN_BRACKET_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "RE_CHAR_SET",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "RE_CHAR_SET",
+                                                                  "value": "RE_CHAR_SET"
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -927,44 +1552,151 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "("
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "?ms-i:"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "x"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "*"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "|"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "y"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "|"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "z"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "+"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": ")"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CAPTURING_GROUPS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS_ON_OFF",
+                                                  "value": "RE_FLAGS_ON_OFF"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "kind": "RE_QUANTIFIER",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_QUANTIFIER",
+                                                              "value": "RE_QUANTIFIER"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "PIPE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "PIPE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_ATOM",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_ESCAPE",
+                                                              "value": "RE_CHAR_ESCAPE"
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "kind": "RE_QUANTIFIER",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_QUANTIFIER",
+                                                              "value": "RE_QUANTIFIER"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },

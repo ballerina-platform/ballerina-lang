@@ -120,8 +120,23 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "^"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -193,16 +208,51 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "A"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "B"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -274,8 +324,23 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "$"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -347,16 +412,51 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "A"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "B"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "$"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },

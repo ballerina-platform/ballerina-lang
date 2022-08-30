@@ -110,12 +110,40 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\r]"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
+                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET",
+                                              "value": "RE_CHAR_SET"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -187,12 +215,40 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\n]"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
+                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET",
+                                              "value": "RE_CHAR_SET"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -264,12 +320,40 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\t]"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
+                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET",
+                                              "value": "RE_CHAR_SET"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -341,12 +425,39 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\r]"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET",
+                                              "value": "RE_CHAR_SET"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -418,12 +529,39 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\n]"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET",
+                                              "value": "RE_CHAR_SET"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -495,12 +633,39 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "["
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "\\t]"
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET",
+                                              "value": "RE_CHAR_SET"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },

@@ -116,16 +116,45 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "$"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                          ],
-                          "value": "*"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -200,16 +229,45 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                          ],
-                          "value": "+"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -284,28 +342,87 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "c"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                          ],
-                          "value": "+"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -380,36 +497,115 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "c"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                          ],
-                          "value": "*"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -484,36 +680,115 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "c"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "$"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                          ],
-                          "value": "*"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
@@ -588,36 +863,113 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "a"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "c"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "[^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "g-i]"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "^"
-                        },
-                        {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "RE_SEQUENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                          ],
-                          "value": "*"
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
+                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET",
+                                              "value": "RE_CHAR_SET"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ASSERTION",
+                                  "children": [
+                                    {
+                                      "kind": "RE_ASSERTION",
+                                      "value": "RE_ASSERTION"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },
