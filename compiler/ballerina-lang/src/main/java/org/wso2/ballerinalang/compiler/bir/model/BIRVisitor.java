@@ -241,6 +241,50 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.NewReDisjunction reDisjunction) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReSequence reSequence) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReAssertion reAssertion) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReAtomQuantifier reAtomQuantifier) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReLiteralCharOrEscape reLiteralCharOrEscape) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReCharacterClass reCharacterClass) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReCharSet reCharSet) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReCapturingGroup reCapturingGroup) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReFlagExpression reFlagExpression) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReFlagOnOff reFlagOnOff) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewReQuantifier reQuantifier) {
+        throw new AssertionError();
+    }
+
     // Operands
     public void visit(BIROperand birVarRef) {
         throw new AssertionError();
