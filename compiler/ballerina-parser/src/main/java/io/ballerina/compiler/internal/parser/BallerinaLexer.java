@@ -1229,7 +1229,7 @@ public class BallerinaLexer extends AbstractLexer {
                             continue;
                         case 'u':
                             if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                                processNumericEscape(peek());
+                                processNumericEscape();
                             } else {
                                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
                                 this.reader.advance(2);
@@ -1506,7 +1506,7 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'u':
                     // NumericEscape
                     if (reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                        processNumericEscape(peek());
+                        processNumericEscape();
                     } else {
                         reader.advance(2);
                     }

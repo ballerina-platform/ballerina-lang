@@ -536,7 +536,7 @@ public class RegExpLexer extends AbstractLexer {
             // Handle NumericEscape.
             case 'u':
                 if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                    processNumericEscape(peek());
+                    processNumericEscape();
                 } else {
                     // Invalid numeric escape.
                     reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
