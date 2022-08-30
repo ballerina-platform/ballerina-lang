@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nisolated function extracted() {\n    int myInt \u003d 10;\n    myInt +\u003d 1;\n}\n"
+          "newText": "\n\nisolated function extracted() {\n    int myInt = 10;\n    myInt += 1;\n}"
         },
         {
           "range": {
@@ -41,7 +41,8 @@
           },
           "newText": "extracted();"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for statements which are inside an isolated resource function"

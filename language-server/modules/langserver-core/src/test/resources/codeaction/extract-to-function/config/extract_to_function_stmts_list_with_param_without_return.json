@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int param) {\n    int localVar \u003d 10;\n    localVar \u003d localVar + param;\n}\n"
+          "newText": "\n\nfunction extracted(int param) {\n    int localVar = 10;\n    localVar = localVar + param;\n}"
         },
         {
           "range": {
@@ -41,7 +41,8 @@
           },
           "newText": "extracted(param);"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ]
 }
