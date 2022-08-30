@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,27 +17,21 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.types.ClientType;
 
 /**
- * {@code BServiceType} represents a service object in Ballerina.
+ * {@code BClientType} represents a client object in Ballerina.
  *
- * @since 0.995.0
+ * @since 2201.2.0
  */
-public class BServiceType extends BNetworkObjectType implements ServiceType {
-    public BServiceType(String typeName, Module pkg, long flags) {
+public class BClientType extends BNetworkObjectType implements ClientType {
+    public BClientType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
     }
 
     @Override
-    public int getTag() {
-        return TypeTags.SERVICE_TAG;
-    }
-
-    @Override
     public BObjectType duplicate() {
-        BServiceType type = new BServiceType(this.typeName, this.pkg, this.flags);
+        BClientType type = new BClientType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
         type.setMethods(duplicateArray(getMethods()));
         type.immutableType = this.immutableType;

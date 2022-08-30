@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,10 +17,13 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code ServiceType} represents a service object in Ballerina.
+ * {@code NetworkObjectType} represents a network object in Ballerina.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
-public interface ServiceType extends NetworkObjectType {
+public interface NetworkObjectType extends ObjectType {
 
+    RemoteMethodType[] getRemoteMethods();
+
+    ResourceMethodType[] getResourceMethods();
 }

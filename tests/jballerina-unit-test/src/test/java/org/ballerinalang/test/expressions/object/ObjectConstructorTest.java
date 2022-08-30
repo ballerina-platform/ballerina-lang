@@ -188,6 +188,10 @@ public class ObjectConstructorTest {
         validateError(negativeResult, index++, "missing object constructor expression", 154, 14);
         validateError(negativeResult, index++, "annotation not attached to a construct", 154, 18);
         validateError(negativeResult, index++, "missing semicolon token", 155, 1);
+        validateError(negativeResult, index++, "incompatible types: expected 'object { resource " +
+                "function get name() returns (); }', found 'isolated object { }'", 159, 7);
+        validateError(negativeResult, index++, "incompatible types: expected 'object { resource " +
+                "function get name() returns (); }', found 'isolated object { }'", 163, 7);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
