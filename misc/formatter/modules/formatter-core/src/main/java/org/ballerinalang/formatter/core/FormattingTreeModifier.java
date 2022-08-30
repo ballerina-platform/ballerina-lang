@@ -289,11 +289,11 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean prevPreservedNewLine = env.hasPreservedNewline;
         MetadataNode metadata = formatNode(functionDefinitionNode.metadata().orElse(null), 0, 1);
         // If metadata is documentation string, set preserved new line to false, so to remove user defined new line
-        preserveNewline(metadata == null ?
+        setPreserveNewline(metadata == null ?
                 prevPreservedNewLine : metadata.documentationString().isEmpty() && prevPreservedNewLine);
         NodeList<Token> qualifierList = formatNodeList(functionDefinitionNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
-        preserveNewline(prevPreservedNewLine);
+        setPreserveNewline(prevPreservedNewLine);
 
         IdentifierToken functionName;
         if (functionDefinitionNode.relativeResourcePath().isEmpty()) {
@@ -4332,7 +4332,7 @@ public class FormattingTreeModifier extends TreeModifier {
      *
      * @param value boolean true for setting new line.
      */
-    private void preserveNewline(boolean value) {
+    private void setPreserveNewline(boolean value) {
         env.hasPreservedNewline = value;
     }
 
