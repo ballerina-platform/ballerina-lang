@@ -252,7 +252,6 @@ public class JvmInstructionGen {
     private final JvmTypeTestGen typeTestGen;
     private final Map<String, String> functions;
 
-
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                              JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector, Types types) {
@@ -495,15 +494,7 @@ public class JvmInstructionGen {
     public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
-        if (varDcl.kind == VarKind.GLOBAL) {
-            String varName = varDcl.name.value;
-            PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
-            String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
-            String typeSig = getTypeDesc(bType);
-            mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
-            return;
-        } else if (varDcl.kind == VarKind.CONSTANT) {
+        if (varDcl.kind == VarKind.GLOBAL || varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
@@ -1719,9 +1710,14 @@ public class JvmInstructionGen {
         String name = inst.funcName.value;
 
         String funcKey = inst.pkgId.toString() + ":" + name;
-        String lambdaName = functions.containsKey(funcKey) ? functions.get(funcKey) :
-                Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" + asyncDataCollector.getLambdaIndex() +
-                        "$";
+        String lambdaName;
+        if (functions.containsKey(funcKey)) {
+            lambdaName = functions.get(funcKey);
+        } else {
+            lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
+                    asyncDataCollector.getLambdaIndex() + "$";
+            functions.put(funcKey, lambdaName);
+        }
 
         asyncDataCollector.incrementLambdaIndex();
 
@@ -1769,7 +1765,6 @@ public class JvmInstructionGen {
 
         this.storeToVar(inst.lhsOp.variableDcl);
         asyncDataCollector.add(lambdaName, inst);
-        functions.put(funcKey, lambdaName);
     }
 
     void generateNewXMLElementIns(BIRNonTerminator.NewXMLElement newXMLElement) {
@@ -2007,8 +2002,7 @@ public class JvmInstructionGen {
             mv.visitInsn(AASTORE);
         }
 
-        String descriptor = TYPE_DESC_CONSTRUCTOR;
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
     }
 
     void loadVar(BIRNode.BIRVariableDcl varDcl) {
