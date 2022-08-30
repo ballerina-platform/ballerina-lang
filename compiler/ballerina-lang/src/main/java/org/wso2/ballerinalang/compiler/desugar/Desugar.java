@@ -169,6 +169,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
@@ -8397,7 +8408,102 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        regExpTemplateLiteral.reDisjunction = rewriteExpr(regExpTemplateLiteral.reDisjunction);
         result = regExpTemplateLiteral;
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+        reDisjunction.sequenceList.forEach(this::rewriteExpr);
+        result = reDisjunction;
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+        reSequence.termList.forEach(this::rewriteExpr);
+        result = reSequence;
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+        reAssertion.assertion = rewriteExpr(reAssertion.assertion);
+        result = reAssertion;
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        reAtomQuantifier.atom = rewriteExpr(reAtomQuantifier.atom);
+        // Create empty quantifier.
+        if (reAtomQuantifier.quantifier == null) {
+            reAtomQuantifier.quantifier = ASTBuilderUtil.createEmptyQuantifier(reAtomQuantifier.pos,
+                    symTable.anydataType, symTable.stringType);
+        }
+        reAtomQuantifier.quantifier = rewriteExpr(reAtomQuantifier.quantifier);
+        result = reAtomQuantifier;
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+        reAtomCharOrEscape.charOrEscape = rewriteExpr(reAtomCharOrEscape.charOrEscape);
+        result = reAtomCharOrEscape;
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+        reQuantifier.quantifier = rewriteExpr(reQuantifier.quantifier);
+        result = reQuantifier;
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        reCharacterClass.characterClassStart = rewriteExpr(reCharacterClass.characterClassStart);
+        // Create empty charSet.
+        if (reCharacterClass.charSet == null) {
+            reCharacterClass.charSet = ASTBuilderUtil.createEmptyCharSet(reCharacterClass.pos,
+                    symTable.anydataType, symTable.stringType);
+        }
+        reCharacterClass.charSet = rewriteExpr(reCharacterClass.charSet);
+        reCharacterClass.characterClassEnd = rewriteExpr(reCharacterClass.characterClassEnd);
+        result = reCharacterClass;
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+        reCharSet.charSetAtoms = rewriteExpr(reCharSet.charSetAtoms);
+        result = reCharSet;
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        reCapturingGroups.openParen = rewriteExpr(reCapturingGroups.openParen);
+        // Create empty flagExpr.
+        if (reCapturingGroups.flagExpr == null) {
+            reCapturingGroups.flagExpr = ASTBuilderUtil.createEmptyFlagExpression(reCapturingGroups.pos,
+                    symTable.anydataType, symTable.stringType);
+        } else {
+            reCapturingGroups.flagExpr = rewriteExpr(reCapturingGroups.flagExpr);
+        }
+        reCapturingGroups.disjunction = rewriteExpr(reCapturingGroups.disjunction);
+        reCapturingGroups.closeParen = rewriteExpr(reCapturingGroups.closeParen);
+        result = reCapturingGroups;
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression reFlagExpression) {
+        reFlagExpression.questionMark = rewriteExpr(reFlagExpression.questionMark);
+        // Create empty flagOnOff.
+        if (reFlagExpression.flagsOnOff == null) {
+            reFlagExpression.flagsOnOff = ASTBuilderUtil.createEmptyFlagOnOff(reFlagExpression.pos,
+                    symTable.anydataType, symTable.stringType);
+        }
+        reFlagExpression.flagsOnOff = rewriteExpr(reFlagExpression.flagsOnOff);
+        reFlagExpression.colon = rewriteExpr(reFlagExpression.colon);
+        result = reFlagExpression;
+    }
+
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        reFlagsOnOff.flags = rewriteExpr(reFlagsOnOff.flags);
+        result = reFlagsOnOff;
     }
 
     // private functions
