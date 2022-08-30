@@ -97,10 +97,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_XML_CDATA_END_TOKEN("BCE0062", "error.missing.xml.cdata.end.token"),
     ERROR_MISSING_REG_EXP_CHAR_CLASS_START_TOKEN("BCE0063", "error.missing.reg.exp.char.class.start.token"),
     ERROR_MISSING_REG_EXP_CHAR_CLASS_END_TOKEN("BCE0064", "error.missing.reg.exp.char.class.end.token"),
-    ERROR_MISSING_REG_EXP_CAPTURING_GROUP_START_TOKEN("BCE0063", "error.missing.reg.exp.capturing.group.start.token"),
-    ERROR_MISSING_REG_EXP_CAPTURING_GROUP_END_TOKEN("BCE0064", "error.missing.reg.exp.capturing.group.end.token"),
-    ERROR_MISSING_REG_EXP_FLAG_EXPR_START_TOKEN("BCE0063", "error.missing.reg.exp.flag.expr.start.token"),
-    ERROR_MISSING_REG_EXP_FLAG_EXPR_END_TOKEN("BCE0064", "error.missing.reg.exp.flag.expr.end.token"),
+    ERROR_MISSING_REG_EXP_CAPTURING_GROUP_START_TOKEN("BCE0065", "error.missing.reg.exp.capturing.group.start.token"),
+    ERROR_MISSING_REG_EXP_CAPTURING_GROUP_END_TOKEN("BCE0066", "error.missing.reg.exp.capturing.group.end.token"),
+    ERROR_MISSING_REG_EXP_FLAG_EXPR_START_TOKEN("BCE0067", "error.missing.reg.exp.flag.expr.start.token"),
+    ERROR_MISSING_REG_EXP_FLAG_EXPR_END_TOKEN("BCE0068", "error.missing.reg.exp.flag.expr.end.token"),
 
     // Missing keywords
     ERROR_MISSING_PUBLIC_KEYWORD("BCE0200", "error.missing.public.keyword"),
