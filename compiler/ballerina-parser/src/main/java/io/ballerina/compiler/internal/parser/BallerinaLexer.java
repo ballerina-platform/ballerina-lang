@@ -1229,7 +1229,7 @@ public class BallerinaLexer extends AbstractLexer {
                             continue;
                         case 'u':
                             if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                                processNumericEscape();
+                                processNumericEscape(peek());
                             } else {
                                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
                                 this.reader.advance(2);
@@ -1248,35 +1248,6 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getLiteral(SyntaxKind.STRING_LITERAL_TOKEN);
-    }
-
-    /**
-     * Process numeric escape.
-     * <p>
-     * <code>NumericEscape := \ u { CodePoint }</code>
-     */
-    private void processNumericEscape() {
-        // Process '\ u {'
-        this.reader.advance(3);
-
-        // Process code-point
-        if (!isHexDigit(peek())) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        reader.advance();
-        while (isHexDigit(peek())) {
-            reader.advance();
-        }
-
-        // Process close brace
-        if (peek() != LexerTerminals.CLOSE_BRACE) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        this.reader.advance();
     }
 
     /**
@@ -1535,7 +1506,7 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'u':
                     // NumericEscape
                     if (reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                        processNumericEscape();
+                        processNumericEscape(peek());
                     } else {
                         reader.advance(2);
                     }
