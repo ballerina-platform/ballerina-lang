@@ -1320,13 +1320,13 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReSequence reSequence) {
-        find(reSequence.reTermList);
+        find(reSequence.termList);
     }
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
-        find(reAtomQuantifier.reAtom);
-        find(reAtomQuantifier.reQuantifier);
+        find(reAtomQuantifier.atom);
+        find(reAtomQuantifier.quantifier);
     }
 
     @Override
@@ -1336,37 +1336,37 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
-        find(reQuantifier.reQuantifier);
+        find(reQuantifier.quantifier);
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
         find(reCharacterClass.characterClassStart);
-        find(reCharacterClass.reCharSet);
+        find(reCharacterClass.charSet);
         find(reCharacterClass.characterClassEnd);
     }
 
     @Override
     public void visit(BLangReCharSet reCharSet) {
-        find(reCharSet.reCharSet);
+        find(reCharSet.charSetAtoms);
     }
 
     @Override
     public void visit(BLangReAssertion reAssertion) {
-        find(reAssertion.reAssertion);
+        find(reAssertion.assertion);
     }
 
     @Override
     public void visit(BLangReCapturingGroups reCapturingGroups) {
         find(reCapturingGroups.openParen);
         find(reCapturingGroups.flagExpr);
-        find(reCapturingGroups.reDisjunction);
+        find(reCapturingGroups.disjunction);
         find(reCapturingGroups.closeParen);
     }
 
     @Override
     public void visit(BLangReDisjunction reDisjunction) {
-        find(reDisjunction.reSequenceList);
+        find(reDisjunction.sequenceList);
     }
 
     @Override

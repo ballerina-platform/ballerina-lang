@@ -1359,13 +1359,13 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangReSequence node, T data) {
         analyzeNode(node, data);
-        visitNode(node.reTermList, data);
+        visitNode(node.termList, data);
     }
 
     public void visit(BLangReAtomQuantifier node, T data) {
         analyzeNode(node, data);
-        visitNode(node.reAtom, data);
-        visitNode(node.reQuantifier, data);
+        visitNode(node.atom, data);
+        visitNode(node.quantifier, data);
     }
 
     public void visit(BLangReAtomCharOrEscape node, T data) {
@@ -1375,24 +1375,24 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangReQuantifier node, T data) {
         analyzeNode(node, data);
-        visitNode(node.reQuantifier, data);
+        visitNode(node.quantifier, data);
     }
 
     public void visit(BLangReCharacterClass node, T data) {
         analyzeNode(node, data);
         visitNode(node.characterClassStart, data);
-        visitNode(node.reCharSet, data);
+        visitNode(node.charSet, data);
         visitNode(node.characterClassEnd, data);
     }
 
     public void visit(BLangReCharSet node, T data) {
         analyzeNode(node, data);
-        visitNode(node.reCharSet, data);
+        visitNode(node.charSetAtoms, data);
     }
 
     public void visit(BLangReAssertion node, T data) {
         analyzeNode(node, data);
-        visitNode(node.reAssertion, data);
+        visitNode(node.assertion, data);
     }
 
     @Override
@@ -1400,14 +1400,14 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         analyzeNode(node, data);
         visitNode(node.openParen, data);
         visitNode(node.flagExpr, data);
-        visitNode(node.reDisjunction, data);
+        visitNode(node.disjunction, data);
         visitNode(node.closeParen, data);
     }
 
     @Override
     public void visit(BLangReDisjunction node, T data) {
         analyzeNode(node, data);
-        visitNode(node.reSequenceList, data);
+        visitNode(node.sequenceList, data);
     }
 
     @Override

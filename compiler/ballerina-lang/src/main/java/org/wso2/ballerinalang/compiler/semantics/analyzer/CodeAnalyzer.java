@@ -3397,57 +3397,46 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangReSequence reSequence, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReQuantifier reQuantifier, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReCharSet reCharSet, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReAssertion reAssertion, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReCapturingGroups reCapturingGroups, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReDisjunction reDisjunction, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReFlagsOnOff source, AnalyzerData data) {
-
     }
 
     @Override
     public void visit(BLangReFlagExpression source, AnalyzerData data) {
-
     }
 
     private void logDeprecatedWaring(String deprecatedConstruct, BSymbol symbol, Location pos) {

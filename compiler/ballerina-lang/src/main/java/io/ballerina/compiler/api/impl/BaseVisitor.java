@@ -1053,31 +1053,25 @@ abstract class BaseVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReSequence reSequence) {
-
     }
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
-
     }
 
     @Override
     public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
-
     }
 
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
-
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
-
     }
 
     @Override
     public void visit(BLangReCharSet reCharSet) {
-
     }
 }

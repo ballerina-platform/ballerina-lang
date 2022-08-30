@@ -23,7 +23,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -1114,14 +1113,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReSequence reSequence) {
-        rewrite(reSequence.reTermList);
+        rewrite(reSequence.termList);
         result = reSequence;
     }
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
-        rewrite(reAtomQuantifier.reAtom);
-        rewrite(reAtomQuantifier.reQuantifier);
+        rewrite(reAtomQuantifier.atom);
+        rewrite(reAtomQuantifier.quantifier);
         result = reAtomQuantifier;
     }
 
@@ -1133,27 +1132,27 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
-        rewrite(reQuantifier.reQuantifier);
+        rewrite(reQuantifier.quantifier);
         result = reQuantifier;
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
         rewrite(reCharacterClass.characterClassStart);
-        rewrite(reCharacterClass.reCharSet);
+        rewrite(reCharacterClass.charSet);
         rewrite(reCharacterClass.characterClassEnd);
         result = reCharacterClass;
     }
 
     @Override
     public void visit(BLangReCharSet reCharSet) {
-        rewrite(reCharSet.reCharSet);
+        rewrite(reCharSet.charSetAtoms);
         result = reCharSet;
     }
 
     @Override
     public void visit(BLangReAssertion reAssertion) {
-        rewrite(reAssertion.reAssertion);
+        rewrite(reAssertion.assertion);
         result = reAssertion;
     }
 
@@ -1161,14 +1160,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangReCapturingGroups reCapturingGroups) {
         rewrite(reCapturingGroups.openParen);
         rewrite(reCapturingGroups.flagExpr);
-        rewrite(reCapturingGroups.reDisjunction);
+        rewrite(reCapturingGroups.disjunction);
         rewrite(reCapturingGroups.closeParen);
         result = reCapturingGroups;
     }
 
     @Override
     public void visit(BLangReDisjunction reDisjunction) {
-        rewrite(reDisjunction.reSequenceList);
+        rewrite(reDisjunction.sequenceList);
         result = reDisjunction;
     }
 

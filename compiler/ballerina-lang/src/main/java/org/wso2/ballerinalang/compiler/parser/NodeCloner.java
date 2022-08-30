@@ -2337,15 +2337,15 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangReSequence source) {
         BLangReSequence clone = new BLangReSequence();
         source.cloneRef = clone;
-        clone.reTermList = cloneList(source.reTermList);
+        clone.termList = cloneList(source.termList);
     }
 
     @Override
     public void visit(BLangReAtomQuantifier source) {
         BLangReAtomQuantifier clone = new BLangReAtomQuantifier();
         source.cloneRef = clone;
-        clone.reAtom = clone(source.reAtom);
-        clone.reQuantifier = clone(source.reQuantifier);
+        clone.atom = clone(source.atom);
+        clone.quantifier = clone(source.quantifier);
     }
 
     @Override
@@ -2359,7 +2359,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangReQuantifier source) {
         BLangReQuantifier clone = new BLangReQuantifier();
         source.cloneRef = clone;
-        clone.reQuantifier = clone(source.reQuantifier);
+        clone.quantifier = clone(source.quantifier);
     }
 
     @Override
@@ -2367,7 +2367,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangReCharacterClass clone = new BLangReCharacterClass();
         source.cloneRef = clone;
         clone.characterClassStart = clone(source.characterClassStart);
-        clone.reCharSet = clone(source.reCharSet);
+        clone.charSet = clone(source.charSet);
         clone.characterClassEnd = clone(source.characterClassEnd);
     }
 
@@ -2375,14 +2375,14 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangReCharSet source) {
         BLangReCharSet clone = new BLangReCharSet();
         source.cloneRef = clone;
-        clone.reCharSet = clone(source.reCharSet);
+        clone.charSetAtoms = clone(source.charSetAtoms);
     }
 
     @Override
     public void visit(BLangReAssertion source) {
         BLangReAssertion clone = new BLangReAssertion();
         source.cloneRef = clone;
-        clone.reAssertion = clone(source.reAssertion);
+        clone.assertion = clone(source.assertion);
     }
 
     @Override
@@ -2391,7 +2391,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.openParen = clone(source.openParen);
         clone.flagExpr = clone(source.flagExpr);
-        clone.reDisjunction = clone(source.reDisjunction);
+        clone.disjunction = clone(source.disjunction);
         clone.closeParen = clone(source.closeParen);
     }
 
@@ -2399,7 +2399,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangReDisjunction source) {
         BLangReDisjunction clone = new BLangReDisjunction();
         source.cloneRef = clone;
-        clone.reSequenceList = cloneList(source.reSequenceList);
+        clone.sequenceList = cloneList(source.sequenceList);
     }
 
     @Override

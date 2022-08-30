@@ -1397,13 +1397,13 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReSequence reSequence) {
-        lookupNodes(reSequence.reTermList);
+        lookupNodes(reSequence.termList);
     }
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
-        lookupNode(reAtomQuantifier.reAtom);
-        lookupNode(reAtomQuantifier.reQuantifier);
+        lookupNode(reAtomQuantifier.atom);
+        lookupNode(reAtomQuantifier.quantifier);
     }
 
     @Override
@@ -1413,37 +1413,37 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
-        lookupNode(reQuantifier.reQuantifier);
+        lookupNode(reQuantifier.quantifier);
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
         lookupNode(reCharacterClass.characterClassStart);
-        lookupNode(reCharacterClass.reCharSet);
+        lookupNode(reCharacterClass.charSet);
         lookupNode(reCharacterClass.characterClassEnd);
     }
 
     @Override
     public void visit(BLangReCharSet reCharSet) {
-        lookupNode(reCharSet.reCharSet);
+        lookupNode(reCharSet.charSetAtoms);
     }
 
     @Override
     public void visit(BLangReAssertion reAssertion) {
-        lookupNode(reAssertion.reAssertion);
+        lookupNode(reAssertion.assertion);
     }
 
     @Override
     public void visit(BLangReCapturingGroups reCapturingGroups) {
         lookupNode(reCapturingGroups.openParen);
         lookupNode(reCapturingGroups.flagExpr);
-        lookupNode(reCapturingGroups.reDisjunction);
+        lookupNode(reCapturingGroups.disjunction);
         lookupNode(reCapturingGroups.closeParen);
     }
 
     @Override
     public void visit(BLangReDisjunction reDisjunction) {
-        lookupNodes(reDisjunction.reSequenceList);
+        lookupNodes(reDisjunction.sequenceList);
     }
 
     @Override
