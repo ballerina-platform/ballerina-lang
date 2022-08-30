@@ -5,13 +5,13 @@ type AssetsItem record {
 };
 
 type TripInformation record {
-    anydata TripName?;
-    anydata Move?;
+    anydata TripName;
+    anydata Move;
     int Leg;
-    anydata Stop?;
+    anydata Stop;
     int OrderHeader;
     AssetsItem[] Assets;
-    anydata AdditionalDataElements?;
+    anydata AdditionalDataElements;
 };
 
 type HeaderInformation record {
@@ -22,7 +22,7 @@ type Content record {
     int Response;
     boolean RedispatchNow;
     string Reason;
-    anydata AdditionalDataElements?;
+    anydata AdditionalDataElements;
     TripInformation TripInformation;
     HeaderInformation HeaderInformation;
 };

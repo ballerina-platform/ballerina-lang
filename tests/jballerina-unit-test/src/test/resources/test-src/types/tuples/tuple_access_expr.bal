@@ -277,3 +277,439 @@ function testTupleAccessUsingUnionWithFiniteTypesNegative() {
     string|boolean f1 = tuple[index0];
     var f2 = tuple[index1];
 }
+
+type IntTuple [int...];
+type StringTuple [string...];
+type BooleanTuple [boolean...];
+type CustomTuple [int, string, boolean];
+
+int index = 0;
+
+[int...] moduleLevelIntTuple = [1, 2, 3];
+[string...] moduleLevelStringTuple = ["string 1", "string 2", "string 3"];
+[boolean...] moduleLevelBooleanTuple = [true, true, true];
+
+public function testModuleLevelTupleAccessWithCustomType() {
+    foreach int i in 0 ..< 3 {
+        assertEquals(moduleLevelIntTuple[i], i + 1);
+        assertEquals(moduleLevelStringTuple[i], string `string ${i + 1}`);
+        assertEquals(moduleLevelBooleanTuple[i], true);
+    }
+}
+
+public function testTupleAccessWithCustomType() {
+    IntTuple intTuple = [1, 2, 3];
+    StringTuple stringTuple = ["string 1", "string 2", "string 3"];
+    BooleanTuple booleanTuple = [true, false, true];
+    CustomTuple customTuple = [1, "string 1", true];
+
+    [int...] expectedIntTuple = [1, 2, 3];
+    [string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+    [boolean...] expectedBooleanTuple = [true, false, true];
+
+    assertEquals(intTuple[index], 1);
+    assertEquals(intTuple[index + 1], 2);
+    assertEquals(intTuple[index + 2], 3);
+
+    assertEquals(stringTuple[index], "string 1");
+    assertEquals(stringTuple[index + 1], "string 2");
+    assertEquals(stringTuple[index + 2], "string 3");
+
+    assertEquals(booleanTuple[index], true);
+    assertEquals(booleanTuple[index + 1], false);
+    assertEquals(booleanTuple[index + 2], true);
+
+    assertEquals(customTuple[index], 1);
+    assertEquals(customTuple[index + 1], "string 1");
+    assertEquals(customTuple[index + 2], true);
+
+    foreach var i in 0 ..< intTuple.length() {
+        assertEquals(intTuple[i], expectedIntTuple[i]);
+        assertEquals(stringTuple[i], expectedStringTuple[i]);
+        assertEquals(booleanTuple[i], expectedBooleanTuple[i]);
+    }
+}
+
+type IntTuple2 [int, int, int];
+type StringTuple2 [string, string, string];
+type BooleanTuple2 [boolean, boolean, boolean];
+type CustomTuple2 [int, string, boolean];
+
+public function testTupleAccessWithCustomType2() {
+    IntTuple2 intTuple = [1, 2, 3];
+    StringTuple2 stringTuple = ["string 1", "string 2", "string 3"];
+    BooleanTuple2 booleanTuple = [true, false, true];
+    CustomTuple2 customTuple = [1, "string 1", true];
+
+    [int...] expectedIntTuple = [1, 2, 3];
+    [string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+    [boolean...] expectedBooleanTuple = [true, false, true];
+
+    assertEquals(intTuple[index], 1);
+    assertEquals(intTuple[index + 1], 2);
+    assertEquals(intTuple[index + 2], 3);
+
+    assertEquals(stringTuple[index], "string 1");
+    assertEquals(stringTuple[index + 1], "string 2");
+    assertEquals(stringTuple[index + 2], "string 3");
+
+    assertEquals(booleanTuple[index], true);
+    assertEquals(booleanTuple[index + 1], false);
+    assertEquals(booleanTuple[index + 2], true);
+
+    assertEquals(customTuple[index], 1);
+    assertEquals(customTuple[index + 1], "string 1");
+    assertEquals(customTuple[index + 2], true);
+
+    foreach var i in 0 ..< intTuple.length() {
+        assertEquals(intTuple[i], expectedIntTuple[i]);
+        assertEquals(stringTuple[i], expectedStringTuple[i]);
+        assertEquals(booleanTuple[i], expectedBooleanTuple[i]);
+    }
+}
+
+type IntUnionStringTuple [int...]|[string...];
+type StringUnionBooleanTuple [boolean...]|[string...];
+type BooleanUnionIntTuple [boolean...]|[int...];
+type CustomUnionTuple [int...]|[string...]|[int, string, boolean]|[boolean...];
+
+public function testTupleAccessWithCustomUnionTypes() {
+    IntUnionStringTuple intUnionStringTuple = [1, 2, 3];
+    StringUnionBooleanTuple stringUnionBooleanTuple = ["string 1", "string 2", "string 3"];
+    BooleanUnionIntTuple booleanUnionIntTuple = [true, false, true];
+    CustomUnionTuple customUnionTuple = [1, "string 1", true];
+
+    [int...] expectedIntTuple = [1, 2, 3];
+    [string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+    [boolean...] expectedBooleanTuple = [true, false, true];
+
+    assertEquals(intUnionStringTuple[index], 1);
+    assertEquals(intUnionStringTuple[index + 1], 2);
+    assertEquals(intUnionStringTuple[index + 2], 3);
+
+    assertEquals(stringUnionBooleanTuple[index], "string 1");
+    assertEquals(stringUnionBooleanTuple[index + 1], "string 2");
+    assertEquals(stringUnionBooleanTuple[index + 2], "string 3");
+
+    assertEquals(booleanUnionIntTuple[index], true);
+    assertEquals(booleanUnionIntTuple[index + 1], false);
+    assertEquals(booleanUnionIntTuple[index + 2], true);
+
+    assertEquals(customUnionTuple[index], 1);
+    assertEquals(customUnionTuple[index + 1], "string 1");
+    assertEquals(customUnionTuple[index + 2], true);
+
+    foreach var i in 0 ..< intUnionStringTuple.length() {
+        assertEquals(intUnionStringTuple[i], expectedIntTuple[i]);
+        assertEquals(stringUnionBooleanTuple[i], expectedStringTuple[i]);
+        assertEquals(booleanUnionIntTuple[i], expectedBooleanTuple[i]);
+    }
+}
+
+type IntReadonlyTuple ([int...] & readonly)|[string...];
+type StringReadonlyTuple [boolean...]|([string...] & readonly);
+type BooleanReadonlyTuple ([boolean...] & readonly)|[int...];
+type CustomReadonlyTuple [int...]|[string...]|([int, string, boolean] & readonly)|[boolean...];
+
+public function testTupleAccessWithCustomReadonlyUnionTypes() {
+    IntReadonlyTuple intReadonlyTuple = [1, 2, 3];
+    StringReadonlyTuple stringReadonlyTuple = ["string 1", "string 2", "string 3"];
+    BooleanReadonlyTuple booleanReadonlyTuple = [true, false, true];
+    CustomReadonlyTuple customReadonlyTuple = [1, "string 1", true];
+
+    [int...] expectedIntTuple = [1, 2, 3];
+    [string...] expectedStringTuple = ["string 1", "string 2", "string 3"];
+    [boolean...] expectedBooleanTuple = [true, false, true];
+
+    assertEquals(intReadonlyTuple[index], 1);
+    assertEquals(intReadonlyTuple[index + 1], 2);
+    assertEquals(intReadonlyTuple[index + 2], 3);
+
+    assertEquals(stringReadonlyTuple[index], "string 1");
+    assertEquals(stringReadonlyTuple[index + 1], "string 2");
+    assertEquals(stringReadonlyTuple[index + 2], "string 3");
+
+    assertEquals(booleanReadonlyTuple[index], true);
+    assertEquals(booleanReadonlyTuple[index + 1], false);
+    assertEquals(booleanReadonlyTuple[index + 2], true);
+
+    assertEquals(customReadonlyTuple[index], 1);
+    assertEquals(customReadonlyTuple[index + 1], "string 1");
+    assertEquals(customReadonlyTuple[index + 2], true);
+
+    foreach var i in 0 ..< intReadonlyTuple.length() {
+        assertEquals(intReadonlyTuple[i], expectedIntTuple[i]);
+        assertEquals(stringReadonlyTuple[i], expectedStringTuple[i]);
+        assertEquals(booleanReadonlyTuple[i], expectedBooleanTuple[i]);
+    }
+}
+
+function testTupleAccessWithBindingPattern() {
+    int i = 0;
+    int[2] x = [1, 2];
+    [int, int] [a, b] = x;
+    int[][2] y = [x, [1, 2], x, [a, b]];
+
+    foreach [int, int] [c, d] in y {
+        assertEquals(c, 1);
+        assertEquals(d, 2);
+    }
+
+    string[2] x2 = ["string 1", "string 2"];
+    [string, string] [a2, b2] = x2;
+    string[][2] y2 = [x2, ["string 1", "string 2"], x2, [a2, b2]];
+
+    foreach [string, string] [c2, d2] in y2 {
+        assertEquals(c2, "string 1");
+        assertEquals(d2, "string 2");
+    }
+}
+
+function testTupleAccessWithBindingPattern2() {
+    int i = 0;
+    int[2] x = [1, 2];
+    [int, int] [a, b] = x;
+    int[][2] y = [x, [1, 2], x, [a, b]];
+
+    foreach [int, int] c in y {
+        assertEquals(c[i], 1);
+        assertEquals(c[1], 2);
+    }
+
+    string[2] x2 = ["string 1", "string 2"];
+    [string, string] [a2, b2] = x2;
+    string[][2] y2 = [x2, ["string 1", "string 2"], x2, [a2, b2]];
+
+    foreach [string, string] c2 in y2 {
+        assertEquals(c2[i], "string 1");
+        assertEquals(c2[1], "string 2");
+    }
+}
+
+function testTupleWithRestTypesAccess() {
+    [int...] t1 = [1, 2, 3, 5];
+    [int, string, boolean...] t2 = [1, "a", true, true];
+
+    var x1 = t1[0];
+    int x2 = x1;
+    assertEquals(x2, 1);
+
+    var x3 = t2[0];
+    int x4 = x3;
+    assertEquals(x4, 1);
+
+    var x5 = t2[3];
+    boolean x6 = x5;
+    assertEquals(x6, true);
+
+    var x7 = t1[index];
+    int x8 = x7;
+    assertEquals(x8, 1);
+
+    var x9 = t2[index];
+    int|string|boolean x10 = x9;
+    assertEquals(x10, 1);
+
+    var x11 = t2[index + 2];
+    int|string|boolean x12 = x11;
+    assertEquals(x12, true);
+
+    int x13 = t1[0];
+    assertEquals(x13, 1);
+
+    int x14 = t2[0];
+    assertEquals(x14, 1);
+
+    boolean x15 = t2[3];
+    assertEquals(x15, true);
+
+    int x16 = t1[index];
+    assertEquals(x16, 1);
+
+    int|string|boolean x17 = t2[index];
+    assertEquals(x17, 1);
+
+    int|string|boolean x18 = t2[index + 2];
+    assertEquals(x18, true);
+}
+
+public function testTupleWithRestTypesAccess2() {
+    int e = 44;
+
+    [any...] tuple1 = [];
+    tuple1[45] = "anydata";
+    tuple1[e] = "anydata";
+
+    [anydata...] tuple2 = [];
+    tuple2[45] = "any";
+    tuple2[e] = "any";
+
+    [int...] tuple3 = [];
+    tuple3[45] = 3;
+    tuple3[e] = 3;
+
+    [string...] tuple4 = [];
+    tuple4[45] = "string";
+    tuple4[e] = "string";
+}
+
+type CustomTupleWithRestTypes1 [int...];
+type CustomTupleWithRestTypes2 [int, string, boolean...];
+
+function testCustomTupleWithRestTypesAccess() {
+    CustomTupleWithRestTypes1 t1 = [1, 2, 3, 5];
+    CustomTupleWithRestTypes2 t2 = [1, "a", true, true];
+
+    var x1 = t1[0];
+    int x2 = x1;
+    assertEquals(x2, 1);
+
+    var x3 = t2[0];
+    int x4 = x3;
+    assertEquals(x4, 1);
+
+    var x5 = t2[3];
+    boolean x6 = x5;
+    assertEquals(x6, true);
+
+    var x7 = t1[index];
+    int x8 = x7;
+    assertEquals(x8, 1);
+
+    var x9 = t2[index];
+    int|string|boolean x10 = x9;
+    assertEquals(x10, 1);
+
+    var x11 = t2[index + 2];
+    int|string|boolean x12 = x11;
+    assertEquals(x12, true);
+
+    int x13 = t1[0];
+    assertEquals(x13, 1);
+
+    int x14 = t2[0];
+    assertEquals(x14, 1);
+
+    boolean x15 = t2[3];
+    assertEquals(x15, true);
+
+    int x16 = t1[index];
+    assertEquals(x16, 1);
+
+    int|string|boolean x17 = t2[index];
+    assertEquals(x17, 1);
+
+    int|string|boolean x18 = t2[index + 2];
+    assertEquals(x18, true);
+}
+
+function testTupleAccessWithByteType() {
+    [int...] t1 = [1, 2, 3, 5];
+    [int, string, boolean...] t2 = [1, "a", true, true];
+    [int, string, boolean] t3 = [1, "a", true];
+
+    CustomTupleWithRestTypes1 t4 = [1, 2, 3, 5];
+    CustomTupleWithRestTypes2 t5 = [1, "a", true, true];
+    CustomTuple t6 = [1, "a", true];
+
+    byte byteIndex = 0;
+
+    var x1 = t1[byteIndex];
+    int x2 = x1;
+    assertEquals(x2, 1);
+
+    var x3 = t2[byteIndex];
+    int|string|boolean x4 = x3;
+    assertEquals(x4, 1);
+
+    var x5 = t2[byteIndex + 2];
+    int|string|boolean x6 = x5;
+    assertEquals(x6, true);
+
+    var x7 = t3[byteIndex];
+    int|string|boolean x8 = x7;
+    assertEquals(x8, 1);
+
+    var x9 = t3[byteIndex + 2];
+    int|string|boolean x10 = x9;
+    assertEquals(x10, true);
+
+    var x11 = t4[byteIndex];
+    int x12 = x11;
+    assertEquals(x12, 1);
+
+    var x13 = t5[byteIndex];
+    int|string|boolean x14 = x13;
+    assertEquals(x14, 1);
+
+    var x15 = t5[byteIndex + 2];
+    int|string|boolean x16 = x15;
+    assertEquals(x16, true);
+
+    var x17 = t6[byteIndex];
+    int|string|boolean x18 = x17;
+    assertEquals(x18, 1);
+
+    var x19 = t6[byteIndex + 2];
+    int|string|boolean x20 = x19;
+    assertEquals(x20, true);
+}
+
+const int constantIndex = 0;
+
+function testTupleAccessWithConstantType() {
+    [int...] t1 = [1, 2, 3, 5];
+    [int, string, boolean...] t2 = [1, "a", true, true];
+    [int, string, boolean] t3 = [1, "a", true];
+
+    CustomTupleWithRestTypes1 t4 = [1, 2, 3, 5];
+    CustomTupleWithRestTypes2 t5 = [1, "a", true, true];
+    CustomTuple t6 = [1, "a", true];
+
+    var x1 = t1[constantIndex];
+    int x2 = x1;
+    assertEquals(x2, 1);
+
+    var x3 = t2[constantIndex];
+    int|string|boolean x4 = x3;
+    assertEquals(x4, 1);
+
+    var x5 = t2[constantIndex + 2];
+    int|string|boolean x6 = x5;
+    assertEquals(x6, true);
+
+    var x7 = t3[constantIndex];
+    int|string|boolean x8 = x7;
+    assertEquals(x8, 1);
+
+    var x9 = t3[constantIndex + 2];
+    int|string|boolean x10 = x9;
+    assertEquals(x10, true);
+
+    var x11 = t4[constantIndex];
+    int x12 = x11;
+    assertEquals(x12, 1);
+
+    var x13 = t5[constantIndex];
+    int|string|boolean x14 = x13;
+    assertEquals(x14, 1);
+
+    var x15 = t5[constantIndex + 2];
+    int|string|boolean x16 = x15;
+    assertEquals(x16, true);
+
+    var x17 = t6[constantIndex];
+    int|string|boolean x18 = x17;
+    assertEquals(x18, 1);
+
+    var x19 = t6[constantIndex + 2];
+    int|string|boolean x20 = x19;
+    assertEquals(x20, true);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error(string `expected [${expected.toString()}], found [${actual.toString()}]`);
+}

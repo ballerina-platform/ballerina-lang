@@ -51,6 +51,7 @@ public class TypeDescContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList();
+        // Skip this test due to issue: https://github.com/ballerina-platform/ballerina-lang/issues/37039
+        return Arrays.asList("function_typedesc17.json");
     }
 }
