@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 17,
+    "character": 48
+  },
+  "source": "create_function_in_named_arg_context3.bal",
+  "expected": [
+    {
+      "title": "Create function 'getRandomAge(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 1
+            },
+            "end": {
+              "line": 18,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getRandomAge() returns int {\n    return 0;\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_named_arg_context3.bal",
+        "range": {
+          "start": {
+            "line": 17,
+            "character": 47
+          },
+          "end": {
+            "line": 17,
+            "character": 61
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 17.0,
+              "character": 47.0
+            },
+            "end": {
+              "line": 17.0,
+              "character": 61.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

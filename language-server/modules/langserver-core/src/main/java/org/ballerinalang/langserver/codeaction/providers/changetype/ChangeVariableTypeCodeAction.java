@@ -22,8 +22,11 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -114,7 +117,12 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             }
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(PositionUtil.toRange(typeNode.get().lineRange()), type));
-            String commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
+            String commandTitle;
+            if (variableNode.get().kind() == SyntaxKind.CONST_DECLARATION) {
+                commandTitle = String.format(CommandConstants.CHANGE_CONST_TYPE_TITLE, variableName.get(), type);
+            } else {
+                commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
+            }
             actions.add(CodeActionUtil
                     .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
@@ -138,11 +146,14 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
     }
 
     boolean isVariableNode(NonTerminalNode sNode) {
-        return sNode != null &&
-                (sNode.kind() == SyntaxKind.LOCAL_VAR_DECL ||
-                        sNode.kind() == SyntaxKind.MODULE_VAR_DECL ||
-                        sNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) &&
-                (sNode.kind() != SyntaxKind.POSITIONAL_ARG || sNode.kind() != SyntaxKind.NAMED_ARG);
+        if (sNode == null || sNode.kind() == SyntaxKind.POSITIONAL_ARG || sNode.kind() == SyntaxKind.NAMED_ARG) {
+            return false;
+        }
+
+        return sNode.kind() == SyntaxKind.LOCAL_VAR_DECL
+                || sNode.kind() == SyntaxKind.MODULE_VAR_DECL
+                || sNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT
+                || sNode.kind() == SyntaxKind.CONST_DECLARATION;
     }
 
     private Optional<String> getTypeNodeStr(ExpressionNode expressionNode) {
@@ -152,6 +163,9 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         } else if (expressionNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qnRefNode = (QualifiedNameReferenceNode) expressionNode;
             return Optional.of(qnRefNode.modulePrefix().text() + ":" + qnRefNode.identifier().text());
+        } else if (expressionNode instanceof BuiltinSimpleNameReferenceNode) {
+            // This case occurs with constant declarations with types
+            return Optional.of(((BuiltinSimpleNameReferenceNode) expressionNode).name().text());
         }
         return Optional.empty();
     }
@@ -161,6 +175,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             case LOCAL_VAR_DECL:
                 return Optional.of(
                         ((VariableDeclarationNode) matchedNode).typedBindingPattern().typeDescriptor());
+            case MODULE_VAR_DECL:
+                 return Optional.of(
+                         ((ModuleVariableDeclarationNode) matchedNode).typedBindingPattern().typeDescriptor());
+
             case ASSIGNMENT_STATEMENT:
                 Optional<VariableSymbol> optVariableSymbol = getVariableSymbol(context, matchedNode);
                 if (optVariableSymbol.isEmpty()) {
@@ -173,6 +191,9 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 } else {
                     return Optional.empty();
                 }
+            case CONST_DECLARATION:
+                ConstantDeclarationNode constDecl = (ConstantDeclarationNode) matchedNode;
+                return Optional.ofNullable(constDecl.typeDescriptor().orElse(null));
             default:
                 return Optional.empty();
         }
@@ -188,6 +209,13 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 }
                 CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPatternNode;
                 return Optional.of(captureBindingPatternNode.variableName().text());
+            case MODULE_VAR_DECL:
+                ModuleVariableDeclarationNode modVarDecl = (ModuleVariableDeclarationNode) matchedNode;
+                BindingPatternNode bindingPattern = modVarDecl.typedBindingPattern().bindingPattern();
+                if (bindingPattern.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
+                    return Optional.empty();
+                }
+                return Optional.of(((CaptureBindingPatternNode) bindingPattern).variableName().text());
             case ASSIGNMENT_STATEMENT:
                 AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
                 Node varRef = assignmentStmtNode.varRef();
@@ -197,6 +225,9 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                     return Optional.of(((QualifiedNameReferenceNode) varRef).identifier().text());
                 }
                 return Optional.empty();
+            case CONST_DECLARATION:
+                ConstantDeclarationNode constantDecl = (ConstantDeclarationNode) matchedNode;
+                return Optional.of(constantDecl.variableName().text());
             default:
                 return Optional.empty();
         }

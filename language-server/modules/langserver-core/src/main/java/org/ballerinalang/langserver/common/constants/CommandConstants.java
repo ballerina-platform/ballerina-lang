@@ -110,6 +110,8 @@ public class CommandConstants {
     public static final String ADD_TYPE_CAST_TO_NUMERIC_OPERAND_TITLE = "Add type cast to '%s'";
 
     public static final String CHANGE_VAR_TYPE_TITLE = "Change variable '%s' type to '%s'";
+    
+    public static final String CHANGE_CONST_TYPE_TITLE = "Change constant '%s' type to '%s'";
 
     public static final String CHANGE_PARAM_TYPE_TITLE = "Change parameter '%s' type to '%s'";
 

@@ -134,6 +134,8 @@ public class TestUtil {
 
     private static final String CODE_ACTION = "textDocument/codeAction";
 
+    private static final String CODE_ACTION_RESOLVE = "codeAction/resolve";
+
     private static final String FORMATTING = "textDocument/formatting";
 
     private static final String RANGE_FORMATTING = "textDocument/rangeFormatting";
@@ -324,6 +326,18 @@ public class TestUtil {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
         CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get the resolvable code action response.
+     *
+     * @param serviceEndpoint Language server service endpoint
+     * @param codeAction      Code action data
+     * @return {@link String} Response as a string
+     */
+    public static String getCodeActionResolveResponse(Endpoint serviceEndpoint, Object codeAction) {
+        CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION_RESOLVE, codeAction);
         return getResponseString(result);
     }
 
