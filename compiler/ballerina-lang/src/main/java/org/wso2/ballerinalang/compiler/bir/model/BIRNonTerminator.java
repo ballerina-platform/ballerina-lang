@@ -849,6 +849,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New ReDisjunction instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReDisjunction extends BIRNonTerminator {
         public final BIROperand sequences;
         public BIROperand lhsOp;
@@ -870,6 +875,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New ReSequence instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReSequence extends BIRNonTerminator {
         public final BIROperand terms;
         public BIROperand lhsOp;
@@ -891,6 +901,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New ReAssertion instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReAssertion extends BIRNonTerminator {
         public BIROperand assertion;
         public BIROperand lhsOp;
@@ -912,6 +927,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New ReAtom [ReQuantifier] instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReAtomQuantifier extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand atom;
@@ -935,6 +955,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New ReLiteralChar, ".", or ReEscape instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReLiteralCharOrEscape extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand charOrEscape;
@@ -956,6 +981,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New character class instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReCharacterClass extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand classStart;
@@ -982,6 +1012,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New ReCharSet instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReCharSet extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand charSet;
@@ -1003,6 +1038,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New capturing group instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReCapturingGroup extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand openParen;
@@ -1031,6 +1071,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New flag expression instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReFlagExpression extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand questionMark;
@@ -1057,6 +1102,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New ReFlagOnOff instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReFlagOnOff extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand flags;
@@ -1078,6 +1128,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New ReQuantifier instruction.
+     *
+     * @since 2201.3.0
+     */
     public static class NewReQuantifier extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand quantifier;

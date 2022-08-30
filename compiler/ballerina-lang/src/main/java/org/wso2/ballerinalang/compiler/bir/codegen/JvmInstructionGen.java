@@ -1952,13 +1952,15 @@ public class JvmInstructionGen {
     void generateNewRegExpAtomQuantifierIns(BIRNonTerminator.NewReAtomQuantifier newReAtomQuantifier) {
         this.loadVar(newReAtomQuantifier.atom.variableDcl);
         this.loadVar(newReAtomQuantifier.quantifier.variableDcl);
-        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReAtomQuantifier", CREATE_RE_ATOM_QUANTIFIER, false);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReAtomQuantifier", CREATE_RE_ATOM_QUANTIFIER,
+                false);
         this.storeToVar(newReAtomQuantifier.lhsOp.variableDcl);
     }
 
     void generateNewRegExpLiteralCharOrEscapeIns(BIRNonTerminator.NewReLiteralCharOrEscape newReLiteralCharOrEscape) {
         this.loadVar(newReLiteralCharOrEscape.charOrEscape.variableDcl);
-        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReLiteralCharOrEscape", CREATE_RE_LITERAL_CHAR, false);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReLiteralCharOrEscape", CREATE_RE_LITERAL_CHAR,
+                false);
         this.storeToVar(newReLiteralCharOrEscape.lhsOp.variableDcl);
     }
 
@@ -1966,7 +1968,8 @@ public class JvmInstructionGen {
         this.loadVar(newReCharacterClass.classStart.variableDcl);
         this.loadVar(newReCharacterClass.charSet.variableDcl);
         this.loadVar(newReCharacterClass.classEnd.variableDcl);
-        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharacterClass", CREATE_RE_CHAR_CLASS, false);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharacterClass", CREATE_RE_CHAR_CLASS,
+                false);
         this.storeToVar(newReCharacterClass.lhsOp.variableDcl);
     }
 

@@ -134,14 +134,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -2391,7 +2391,8 @@ public class BIRGen extends BLangNodeVisitor {
         terms.accept(this);
         BIROperand sequences = this.env.targetOperand;
 
-        BIRNonTerminator.NewReSequence newReSequence = new BIRNonTerminator.NewReSequence(reSequence.pos, sequences, toVarRef);
+        BIRNonTerminator.NewReSequence newReSequence =
+                new BIRNonTerminator.NewReSequence(reSequence.pos, sequences, toVarRef);
         setScopeAndEmit(newReSequence);
         this.env.targetOperand = toVarRef;
     }
@@ -2442,8 +2443,8 @@ public class BIRGen extends BLangNodeVisitor {
         reQuantifier.quantifier.accept(this);
         BIROperand quantifier = this.env.targetOperand;
 
-        BIRNonTerminator.NewReQuantifier newReQuantifier = new BIRNonTerminator.NewReQuantifier(reQuantifier.pos, toVarRef,
-                quantifier);
+        BIRNonTerminator.NewReQuantifier newReQuantifier =
+                new BIRNonTerminator.NewReQuantifier(reQuantifier.pos, toVarRef, quantifier);
         setScopeAndEmit(newReQuantifier);
         this.env.targetOperand = toVarRef;
     }
