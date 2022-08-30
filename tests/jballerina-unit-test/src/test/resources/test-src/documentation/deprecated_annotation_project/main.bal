@@ -95,10 +95,9 @@ public type Bank record {|
 
 # Employee record
 #
-# + name - street Parameter Description
-# + age - city Parameter Description
-# # Deprecated
+# + age - age Parameter Description
 public type Employee record {|
+    # # Deprecated
     @deprecated
     string name;
     int age;

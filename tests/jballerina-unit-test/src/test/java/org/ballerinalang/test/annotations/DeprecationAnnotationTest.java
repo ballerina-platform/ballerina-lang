@@ -36,7 +36,6 @@ public class DeprecationAnnotationTest {
     @Test(description = "Test the deprecation annotation")
     public void testDeprecationAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 53);
 
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 24, 5);
@@ -91,8 +90,10 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.job' is deprecated", 319, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.job' is deprecated", 320, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.job' is deprecated", 321, 9);
-        BAssertUtil.validateWarning(compileResult, i, "usage of construct 'Job.experiance' is deprecated", 321, 9);
-
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experiance' is deprecated", 321, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee2.name' is deprecated", 344, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee2.job' is deprecated", 346, 9);
+        Assert.assertEquals(compileResult.getWarnCount(), i);
     }
 
     @Test(description = "Test the deprecation annotation")

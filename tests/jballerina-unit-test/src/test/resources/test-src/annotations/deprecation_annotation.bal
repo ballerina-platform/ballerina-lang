@@ -312,11 +312,36 @@ type Job record {|
     int experiance;
 |};
 
-public function main() {
+public function testDeprecatedRecordFields() {
     Employee employee = {name: "John", id: 112, job: {title: "SE", experiance: 2}};
     _ = employee.name; // warning
     _ = employee.id;
     _ = employee.job; // warning
     _ = employee.job.title; // warning
     _ = employee.job.experiance; // warning
+}
+
+# Employee record
+type Employee2 record {|
+    # This is the description of the `Employee2`'s `name` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    string name;
+
+    # This is the description of the `Employee2`'s `id` field.
+    int id;
+
+    # This is the description of the `Employee2`'s `job` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    Job job;
+|};
+
+public function testDeprecatedRecordFieldsWithDocumentation() {
+    Employee2 employee2 = {name: "John", id: 112, job: {title: "SE", experiance: 2}};
+    _ = employee2.name; // warning
+    _ = employee2.id;
+    _ = employee2.job; // warning
 }
