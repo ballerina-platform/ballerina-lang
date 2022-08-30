@@ -398,7 +398,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         return stmtExpr;
     }
 
-    void handleErrorReturnsFromQuery(Location pos, BLangVariableReference resultRef, BLangBlockStmt queryBlock,
+    //Creates return branches to handle different runtime values
+    private void handleErrorReturnsFromQuery(Location pos, BLangVariableReference resultRef, BLangBlockStmt queryBlock,
                                      boolean returnsWithinDoClause, BType returnType) {
         BLangInvocation addStreamFunctionInvocation = createQueryLibInvocation(QUERY_UNWRAP_DISTINCT_ERROR_FUNCTION,
                 Lists.of(addTypeConversionExpr(resultRef, symTable.errorType)), pos);
@@ -409,61 +410,54 @@ public class QueryDesugar extends BLangNodeVisitor {
             BSymbol queryErrorSymbol = symTable.langQueryModuleSymbol
                     .scope.lookup(QUERY_BODY_DISTINCT_ERROR_NAME).symbol;
             BType errorType = queryErrorSymbol.type;
-
-            BLangErrorType queryErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+            BLangErrorType queryErrorTypeNode = desugar.getErrorTypeNode();
             queryErrorTypeNode.setBType(errorType);
-
             // $streamElement$ is QueryError
             BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, resultRef, queryErrorTypeNode);
             testExpr.setBType(symTable.booleanType);
-
             desugar.failFastForErrorResult(pos, queryBlock, testExpr, resultRef);
         }
+        // if (!($streamElement$ is () || $streamElement$ is CompleteEarlyError )) {
+        //      return $streamElement$;
+        // } else if ($streamElement$ is CompleteEarlyError) {
+        //      $streamElement$ =  unwrapQueryError($streamElement$);
+        // }
         BLangIf ifStatement = ASTBuilderUtil.createIfStmt(pos, queryBlock);
         if (returnsWithinDoClause) {
-            // if (!($streamElement$ is () || $streamElement$ is CompleteEarlyError )) {
-            //      return $streamElement$;
-            // } else if ($streamElement$ is CompleteEarlyError) {
-            //      $streamElement$ =  unwrapQueryError($streamElement$);
-            // }
             BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, addTypeConversionExpr(resultRef, returnType));
             BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(pos);
             ifBody.stmts.add(returnStmt);
 
-            BLangTypeTestExpr nilTypeTestExpr = desugar.getNilTypeTestExpr(pos, resultRef);
-
             BSymbol completeEarlyErrorSymbol = symTable.langQueryModuleSymbol
                     .scope.lookup(QUERY_QUERY_PIPELINE_DISTINCT_ERROR_NAME).symbol;
-            BType completeEarlyError = completeEarlyErrorSymbol.type;
-
+            BType completeEarlyErrorType = completeEarlyErrorSymbol.type;
             BLangErrorType completeEarlyErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-            completeEarlyErrorTypeNode.setBType(completeEarlyError);
+            completeEarlyErrorTypeNode.setBType(completeEarlyErrorType);
 
-            BLangTypeTestExpr completeEarlyTypeTestExpr = desugar.createTypeCheckExpr(pos, resultRef, completeEarlyErrorTypeNode);
-            completeEarlyTypeTestExpr.setBType(symTable.booleanType);
+            BLangTypeTestExpr completeEarlyTypeTestExpr = desugar.createTypeCheckExpr(pos, resultRef,
+                    completeEarlyErrorTypeNode);
+            BLangTypeTestExpr nilTypeTestExpr = desugar.getNilTypeTestExpr(pos, resultRef);
+            BLangBinaryExpr isNilOrErrorCheck = ASTBuilderUtil.createBinaryExpr(pos, nilTypeTestExpr,
+                    completeEarlyTypeTestExpr, symTable.booleanType, OperatorKind.OR, null);
 
-            BLangBinaryExpr isErrorCheck = ASTBuilderUtil.createBinaryExpr(pos, nilTypeTestExpr, completeEarlyTypeTestExpr,
-                    symTable.booleanType, OperatorKind.OR, null);
-
-            BLangGroupExpr nilCheckGroupExpr = new BLangGroupExpr();
-            nilCheckGroupExpr.setBType(symTable.booleanType);
-            // !($streamElement$ is () && $streamElement$ is CompleteEarlyError)
-            nilCheckGroupExpr.expression = desugar.createNotBinaryExpression(pos, isErrorCheck);
-
-            ifStatement.expr = nilCheckGroupExpr;
+            BLangGroupExpr notNilOrErrCheckExpr = new BLangGroupExpr();
+            notNilOrErrCheckExpr.setBType(symTable.booleanType);
+            // !($streamElement$ is () || $streamElement$ is CompleteEarlyError)
+            notNilOrErrCheckExpr.expression = desugar.createNotBinaryExpression(pos, isNilOrErrorCheck);
+            ifStatement.expr = notNilOrErrCheckExpr;
             ifStatement.body = ifBody;
         }
-        BLangTypeTestExpr isErrorTestCheck = desugar.getErrorTypeTestExpr(pos, resultRef);
+        BLangTypeTestExpr isErrorCheck = desugar.getErrorTypeTestExpr(pos, resultRef);
         BLangBlockStmt ifErrorBody = ASTBuilderUtil.createBlockStmt(pos);
-        BLangAssignment unwrapError = ASTBuilderUtil.createAssignmentStmt(pos, resultRef,
+        BLangAssignment unwrapDistinctError = ASTBuilderUtil.createAssignmentStmt(pos, resultRef,
                 desugar.addConversionExprIfRequired(addStreamFunctionInvocation, symTable.errorType));
-        ifErrorBody.stmts.add(unwrapError);
+        ifErrorBody.stmts.add(unwrapDistinctError);
         if (ifStatement.expr == null) {
-            ifStatement.expr = isErrorTestCheck;
+            ifStatement.expr = isErrorCheck;
             ifStatement.body = ifErrorBody;
         } else {
             BLangIf elseIfStmt = ASTBuilderUtil.createIfStmt(pos, queryBlock);
-            elseIfStmt.expr = isErrorTestCheck;
+            elseIfStmt.expr = isErrorCheck;
             elseIfStmt.body = ifErrorBody;
             ifStatement.elseStmt = elseIfStmt;
         }
