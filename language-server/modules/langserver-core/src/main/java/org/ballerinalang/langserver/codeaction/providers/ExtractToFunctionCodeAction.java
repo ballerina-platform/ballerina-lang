@@ -79,8 +79,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
-        return CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode())
-                && context.currentSemanticModel().isPresent() && context.currentDocument().isPresent();
+        if (isExpressionNode(positionDetails.matchedCodeActionNode())
+                && isExpressionNotExtractable(context, positionDetails)) {
+            return false;
+        }
+
+        return context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()
+                && CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
     }
 
     @Override
@@ -298,29 +303,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private List<CodeAction> getCodeActionsForExpressions(CodeActionContext context,
                                                           RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
-        Optional<Node> enclosingModulePartNode = findEnclosingModulePartNode(matchedCodeActionNode);
-// todo move this to validate()
-        List<SyntaxKind> unSupportedModuleLevelSyntaxKinds = List.of(SyntaxKind.CONST_DECLARATION,
-                SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION);
-
-        if (enclosingModulePartNode.isEmpty()
-                || unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.get().kind())) {
-            return Collections.emptyList();
-        }
-
-        if (context.currentSyntaxTree().isEmpty() || (matchedCodeActionNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
-                && matchedCodeActionNode.parent() != null
-                && matchedCodeActionNode.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
-            return Collections.emptyList();
-        }
-
-        if (matchedCodeActionNode.kind() == SyntaxKind.FIELD_ACCESS
-                && (((FieldAccessExpressionNode) matchedCodeActionNode).expression().toSourceCode().strip()
-                .equals(SymbolUtil.SELF_KW)
-                || matchedCodeActionNode.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
-                || matchedCodeActionNode.parent().kind() == SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT)) {
-            return Collections.emptyList();
-        }
 
         SyntaxTree syntaxTree = context.currentSyntaxTree().get();
         LineRange rootLineRange = syntaxTree.rootNode().lineRange();
@@ -424,7 +406,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 isIsolated, "");
     }
 
-    // todo use formatter
     private List<Symbol> getVarSymbolsWithinRangeForExprs(NonTerminalNode matchedNode, CodeActionContext context) {
         return getVisibleSymbols(context, PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
@@ -507,6 +488,40 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         }
 
         return false;
+    }
+
+    private static boolean isExpressionNode(NonTerminalNode node) {
+        return (node.kind().compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0
+                    && node.kind().compareTo(SyntaxKind.TYPE_DESC) < 0);
+    }
+
+    private boolean isExpressionNotExtractable(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
+        NonTerminalNode matchedCodeActionNode = positionDetails.matchedCodeActionNode();
+        Optional<Node> enclosingModulePartNode = findEnclosingModulePartNode(matchedCodeActionNode);
+        boolean isRangeNotExtractable = false;
+
+        List<SyntaxKind> unSupportedModuleLevelSyntaxKinds = List.of(SyntaxKind.CONST_DECLARATION,
+                SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION);
+
+        if (enclosingModulePartNode.isEmpty()
+                || unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.get().kind())) {
+            isRangeNotExtractable = true;
+        }
+
+        if (context.currentSyntaxTree().isEmpty() || (matchedCodeActionNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                && matchedCodeActionNode.parent() != null
+                && matchedCodeActionNode.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
+            isRangeNotExtractable = true;
+        }
+
+        if (matchedCodeActionNode.kind() == SyntaxKind.FIELD_ACCESS
+                && (((FieldAccessExpressionNode) matchedCodeActionNode).expression().toSourceCode().strip()
+                .equals(SymbolUtil.SELF_KW)
+                || matchedCodeActionNode.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
+                || matchedCodeActionNode.parent().kind() == SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT)) {
+            isRangeNotExtractable = true;
+        }
+        return isRangeNotExtractable;
     }
 
     public static List<SyntaxKind> getSupportedExpressionSyntaxKindsList() {
