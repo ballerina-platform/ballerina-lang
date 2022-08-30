@@ -10007,7 +10007,20 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void addImportForModuleGeneratedForClientDecl(LineRange clientDeclPrefixLineRange) {
+        // Currently happens when client declarations are in single bal files. May not be required once it is
+        // restricted.
+        if (!symTable.clientDeclarations.containsKey(clientDeclPrefixLineRange)) {
+            return;
+        }
+
         PackageID packageID = symTable.clientDeclarations.get(clientDeclPrefixLineRange);
+
+        // Also happens with single bal files when there are IDL client plugins.
+        // TODO: 2022-08-30 Remove once fixed from the project API side.
+        if (Names.ANON_ORG.equals(packageID.orgName) && Names.DOT.equals(packageID.name)) {
+            return;
+        }
+
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         BLangPackage enclPkg = env.enclPkg;
         Location pos = enclPkg.pos;
