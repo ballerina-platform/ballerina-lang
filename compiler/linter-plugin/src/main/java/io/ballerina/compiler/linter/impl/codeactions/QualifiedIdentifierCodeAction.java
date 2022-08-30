@@ -89,7 +89,7 @@ public class QualifiedIdentifierCodeAction extends LinterCodeAction {
                 return Optional.empty();
             }
 
-            updatedText = qNameRefNode.modulePrefix().toSourceCode().strip()
+            updatedText = qNameRefNode.modulePrefix().text()
                     + qNameRefNode.colon().toSourceCode().strip()
                     + qNameRefNode.identifier().toSourceCode().strip();
         } else if (kind == SyntaxKind.XML_QUALIFIED_NAME) {

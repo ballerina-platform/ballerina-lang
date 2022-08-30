@@ -64,8 +64,8 @@ public class CodeActionTests {
                 {"source/qname2.bal", LinePosition.from(2, 5), Constants.BCE_INTERVENING_WS, false},
                 {"source/qname3.bal", LinePosition.from(2, 9), Constants.BCE_INTERVENING_WS, false},
                 {"source/qname4.bal", LinePosition.from(3, 4), Constants.BCE_INVALID_WS, false},
-                {"source/qname5.bal", LinePosition.from(4, 7), Constants.BCE_INTERVENING_WS, false},
-                {"source/qname6.bal", LinePosition.from(4, 8), Constants.BCE_INTERVENING_WS, false},
+                {"source/qname5.bal", LinePosition.from(6, 9), Constants.BCE_INTERVENING_WS, false},
+                {"source/qname6.bal", LinePosition.from(4, 7), Constants.BCE_INTERVENING_WS, false},
                 {"source/qnameNegative1.bal", LinePosition.from(3, 9), Constants.BCE_INTERVENING_WS, true},
                 {"source/qnameNegative2.bal", LinePosition.from(9, 3), Constants.BCE_INTERVENING_WS, true},
         };
