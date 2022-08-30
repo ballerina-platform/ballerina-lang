@@ -57,6 +57,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -806,6 +808,24 @@ public class CodeActionUtil {
                                               String codeActionKind) {
         CodeAction action = createCodeAction(commandTitle, edits, uri);
         action.setKind(codeActionKind);
+        return action;
+    }
+
+    /**
+     * Returns a Resolvable code action.
+     *
+     * @param commandTitle   title of the code action
+     * @param codeActionKind kind of the code action
+     * @param data           code action data
+     * @return {@link ResolvableCodeAction}
+     */
+    public static ResolvableCodeAction createResolvableCodeAction(String commandTitle, String codeActionKind,
+                                                                  CodeActionData data) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        ResolvableCodeAction action = new ResolvableCodeAction(commandTitle);
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+        action.setKind(codeActionKind);
+        action.setData(data);
         return action;
     }
 }
