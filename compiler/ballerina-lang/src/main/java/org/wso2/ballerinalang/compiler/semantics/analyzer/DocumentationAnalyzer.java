@@ -302,7 +302,8 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
         }
     }
 
-    private void validateObjectOrRecord(BLangTypeDefinition typeDefinition, List<BLangSimpleVariable> fields, AnalyzerData data) {
+    private void validateObjectOrRecord(BLangTypeDefinition typeDefinition, List<BLangSimpleVariable> fields,
+                                        AnalyzerData data) {
         validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
                 DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
         validateReturnParameter(typeDefinition, null, false);
