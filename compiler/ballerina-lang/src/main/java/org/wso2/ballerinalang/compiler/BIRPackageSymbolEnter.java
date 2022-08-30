@@ -1619,9 +1619,10 @@ public class BIRPackageSymbolEnter {
                         ignoreAttachedFunc();
                     }
                     int funcCount = inputStream.readInt();
+                    boolean isImmutable = isImmutable(objectSymbol.flags);
                     for (int i = 0; i < funcCount; i++) {
                         //populate intersection type object functions
-                        if (isImmutable(objectSymbol.flags) && Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
+                        if (isImmutable) {
                             populateIntersectionTypeReferencedFunctions(inputStream, objectSymbol);
                         } else {
                             ignoreAttachedFunc();
@@ -1752,33 +1753,30 @@ public class BIRPackageSymbolEnter {
             String attachedFuncName = getStringCPEntryValue(inputStream);
             String attachedFuncOrigName = getStringCPEntryValue(inputStream);
             var attachedFuncFlags = inputStream.readLong();
-            if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
-                    Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
-                BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
-                Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                        objectSymbol.name.value, attachedFuncName));
-                Name funcOrigName = names.fromString(attachedFuncOrigName);
-                BInvokableSymbol attachedFuncSymbol =
-                        Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
-                                env.pkgSymbol.pkgID, attachedFuncType,
-                                env.pkgSymbol, false, symTable.builtinPos,
-                                COMPILED_SOURCE);
-                BAttachedFunction attachedFunction = new BAttachedFunction(names.fromString(attachedFuncName),
-                        attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
+            BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
+            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(
+                    objectSymbol.name.value, attachedFuncName));
+            Name funcOrigName = Names.fromString(attachedFuncOrigName);
+            BInvokableSymbol attachedFuncSymbol =
+                    Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
+                            env.pkgSymbol.pkgID, attachedFuncType,
+                            env.pkgSymbol, false, symTable.builtinPos,
+                            COMPILED_SOURCE);
+            BAttachedFunction attachedFunction = new BAttachedFunction(Names.fromString(attachedFuncName),
+                    attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
 
-                setInvokableTypeSymbol(attachedFuncType);
+            setInvokableTypeSymbol(attachedFuncType);
 
-                if (!Symbols.isFlagOn(attachedFuncType.flags, Flags.ANY_FUNCTION)) {
-                    BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) attachedFuncType.tsymbol;
-                    attachedFuncSymbol.params = tsymbol.params;
-                    attachedFuncSymbol.restParam = tsymbol.restParam;
-                    attachedFuncSymbol.retType = tsymbol.returnType;
-                }
-
-                objectSymbol.referencedFunctions.add(attachedFunction);
-                objectSymbol.attachedFuncs.add(attachedFunction);
-                objectSymbol.scope.define(funcName, attachedFuncSymbol);
+            if (!Symbols.isFlagOn(attachedFuncType.flags, Flags.ANY_FUNCTION)) {
+                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) attachedFuncType.tsymbol;
+                attachedFuncSymbol.params = tsymbol.params;
+                attachedFuncSymbol.restParam = tsymbol.restParam;
+                attachedFuncSymbol.retType = tsymbol.returnType;
             }
+
+            objectSymbol.referencedFunctions.add(attachedFunction);
+            objectSymbol.attachedFuncs.add(attachedFunction);
+            objectSymbol.scope.define(funcName, attachedFuncSymbol);
         }
     }
 

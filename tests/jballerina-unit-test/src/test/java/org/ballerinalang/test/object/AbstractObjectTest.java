@@ -59,20 +59,22 @@ public class AbstractObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object_negative.bal");
         int index = 0;
         BAssertUtil.validateError(compileResult, index++,
-                "object type descriptor '$anonType$_1' cannot have an init method", 2, 45);
+                "object type descriptor '$anonType$$p1$$_1' cannot have an init method", 2, 45);
         BAssertUtil.validateError(compileResult, index++, "missing object keyword", 2, 81);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 2, 81);
         BAssertUtil.validateError(compileResult, index++, "missing identifier", 2, 83);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 2, 83);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$_1'", 2, 90);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$_2'", 3, 68);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$$p1$$_1'",
+                2, 90);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$$p2$$_0'",
+                3, 68);
         BAssertUtil.validateError(compileResult, index++,
-                "object type descriptor '$anonType$_4' cannot have an init method", 6, 49);
+                "object type descriptor '$anonType$_1' cannot have an init method", 6, 49);
         BAssertUtil.validateError(compileResult, index++, "missing object keyword", 6, 85);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 6, 85);
         BAssertUtil.validateError(compileResult, index++, "missing identifier", 6, 87);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 6, 87);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$_6'", 8, 72);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$_3'", 8, 72);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 

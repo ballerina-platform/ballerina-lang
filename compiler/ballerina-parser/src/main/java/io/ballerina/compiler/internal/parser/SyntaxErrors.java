@@ -191,6 +191,7 @@ public class SyntaxErrors {
             case HEX_INTEGER_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_INTEGER_LITERAL;
             case OBJECT_FIELD_RHS:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case NIL_LITERAL:
             case ERROR_MATCH_PATTERN:

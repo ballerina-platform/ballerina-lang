@@ -55,7 +55,7 @@ public abstract class CompletionTest extends AbstractLSTest {
 
     private final String configDir = "config";
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
