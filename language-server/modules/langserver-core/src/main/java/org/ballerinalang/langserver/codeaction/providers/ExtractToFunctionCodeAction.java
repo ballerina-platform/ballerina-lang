@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -77,7 +78,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         return CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode())
-                && context.currentSemanticModel().isPresent();
+                && context.currentSemanticModel().isPresent() && context.currentDocument().isPresent();
     }
 
     @Override
@@ -232,33 +233,15 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             }
         }
 
-        List<String> argsForExtractFunction = new ArrayList<>();
-        List<String> argsForReplaceFunctionCall = new ArrayList<>();
-
-        for (Symbol symbol : argsSymbolsForExtractFunction) {
-            if (symbol.getName().isEmpty()) {
-                return Collections.emptyList();
-            }
-            argsForReplaceFunctionCall.add(symbol.getName().get());
-
-            if (symbol.kind() == SymbolKind.VARIABLE && symbol.getName().isPresent()) {
-                Optional<String> possibleType = CodeActionUtil
-                        .getPossibleType(((VariableSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
-                if (possibleType.isEmpty()) {
-                    return Collections.emptyList();
-                }
-                argsForExtractFunction.add(String.format("%s %s", possibleType.get(), symbol.getName().get()));
-            } else if (symbol.kind() == SymbolKind.PARAMETER) {
-                Optional<String> possibleType = CodeActionUtil
-                        .getPossibleType(((ParameterSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
-                if (possibleType.isEmpty()) {
-                    return Collections.emptyList();
-                }
-                argsForExtractFunction.add(String.format("%s %s", possibleType.get(), symbol.getName().get()));
-            }
+        Optional<HashMap<String, List<String>>> argLists = getArgLists(context, argsSymbolsForExtractFunction);
+        if (argLists.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        String functionName = getFunctionName(context);
+        List<String> argsForExtractFunction = argLists.get().get("argsForExtractFunction");
+        List<String> argsForReplaceFunctionCall = argLists.get().get("argsForReplaceFunctionCall");
+
+        String functionName = getFunctionName(context, matchedCodeActionNode);
         String returnStatement = "";
         if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
             returnStatement = String.format("return %s;", updatingVar.get().getName().get());
@@ -276,7 +259,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         String extractFunction = generateFunction(functionName, argsForExtractFunction, returnTypeDescriptor,
                 returnStatement, newLineAtEnd, isIsolated, funcBody);
-        String replaceFunctionCall = getReplaceFunctionCallForStatements(argsForReplaceFunctionCall, functionName);
+        String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, false);
 
         if (updatingVar.isPresent() && updatingVar.get().getName().isPresent()) {
             String varName = updatingVar.get().getName().get();
@@ -346,8 +329,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         }
 
         if (context.currentSyntaxTree().isEmpty() || (matchedCodeActionNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
-                        && matchedCodeActionNode.parent() != null
-                        && matchedCodeActionNode.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
+                && matchedCodeActionNode.parent() != null
+                && matchedCodeActionNode.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
             return Collections.emptyList();
         }
 
@@ -382,10 +365,26 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        String functionName = getFunctionName(context);
-        String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName, context);
+        List<String> argsForExtractFunction = new ArrayList<>();
+        List<String> argsForReplaceFunctionCall = new ArrayList<>();
 
-        String replaceFunctionCall = getReplaceFunctionCallForExpressions(matchedCodeActionNode, context, functionName);
+        List<Symbol> varAndParamSymbolsWithinRange = getVarSymbolsWithinRangeForExprs(matchedCodeActionNode, context);
+
+        if (matchedCodeActionNode.kind() != SyntaxKind.LET_EXPRESSION) {
+            Optional<HashMap<String, List<String>>> argLists = getArgLists(context, varAndParamSymbolsWithinRange);
+            if (argLists.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            argsForExtractFunction = argLists.get().get("argsForExtractFunction");
+            argsForReplaceFunctionCall = argLists.get().get("argsForReplaceFunctionCall");
+        }
+
+        String functionName = getFunctionName(context, matchedCodeActionNode);
+        String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName,
+                argsForExtractFunction);
+
+        String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, true);
 
         TextEdit extractFunctionEdit = new TextEdit(functionInsertRange, function);
         TextEdit replaceEdit = new TextEdit(PositionUtil.toRange(matchedCodeActionNode.lineRange()),
@@ -395,8 +394,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return List.of(codeAction);
     }
 
-    private String getFunctionName(CodeActionContext context) {
-        Set<String> visibleSymbolNames = getVisibleSymbols(context, context.range().getEnd()).stream()
+    private String getFunctionName(CodeActionContext context, NonTerminalNode matchedNode) {
+        Set<String> visibleSymbolNames = getVisibleSymbols(context,
+                PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .map(Symbol::getName)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -415,45 +415,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .visibleSymbols(context.currentDocument().get(), PositionUtil.getLinePosition(position));
     }
 
-    private String getReplaceFunctionCallForExpressions(NonTerminalNode matchedNode, CodeActionContext context,
-                                                        String functionName) {
-        List<Symbol> varNamesWithinTheRange = getVarSymbolsWithinRangeForExprs(matchedNode, context);
-        List<String> args = context.nodeAtRange().kind() != SyntaxKind.LET_EXPRESSION ? varNamesWithinTheRange.stream()
-                .map(Symbol::getName)
-                .filter(Optional::isPresent)
-                .map(Optional::get).collect(Collectors.toList()) : Collections.emptyList();
-        return functionName + CommonKeys.OPEN_PARENTHESES_KEY + String.join(", ", args)
+    private String getReplaceFunctionCall(List<String> varSymbolNames, String functionName, boolean isExpr) {
+        String funcCall = functionName + CommonKeys.OPEN_PARENTHESES_KEY + String.join(", ", varSymbolNames)
                 + CommonKeys.CLOSE_PARENTHESES_KEY;
-    }
-
-    private String getReplaceFunctionCallForStatements(List<String> varSymbolNames, String functionName) {
-
-        return functionName +
-                CommonKeys.OPEN_PARENTHESES_KEY +
-                String.join(", ", varSymbolNames) +
-                CommonKeys.CLOSE_PARENTHESES_KEY +
-                CommonKeys.SEMI_COLON_SYMBOL_KEY;
+        return isExpr ? funcCall : funcCall + CommonKeys.SEMI_COLON_SYMBOL_KEY;
     }
 
     private String getFunction(NonTerminalNode matchedNode, boolean newLineAtEnd, TypeSymbol typeSymbol,
-                               String functionName, CodeActionContext context) {
-        List<String> args = new ArrayList<>();
-        List<Symbol> varAndParamSymbolsWithinRange = getVarSymbolsWithinRangeForExprs(matchedNode, context);
-
-        if (matchedNode.kind() != SyntaxKind.LET_EXPRESSION) {
-            varAndParamSymbolsWithinRange.forEach(symbol -> {
-                if (symbol.kind() == SymbolKind.VARIABLE) {
-                    VariableSymbol variableSymbol = (VariableSymbol) symbol;
-                    TypeSymbol rawType = CommonUtil.getRawType(variableSymbol.typeDescriptor());
-                    args.add(rawType.signature() + " " + symbol.getName().get());
-                } else if (symbol.kind() == SymbolKind.PARAMETER) {
-                    Optional<String> possibleType = CodeActionUtil
-                            .getPossibleType(((ParameterSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
-                    args.add(possibleType.get() + " " + symbol.getName().get());
-                }
-            });
-        }
-
+                               String functionName, List<String> args) {
         String returnsClause = String.format("returns %s", typeSymbol.signature());
         String returnStatement;
 
@@ -471,6 +440,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return generateFunction(functionName, args, returnsClause, returnStatement, newLineAtEnd, isIsolated, "");
     }
 
+    // todo use formatter
+    // todo generateFunction merge with in the og class
     private List<Symbol> getVarSymbolsWithinRangeForExprs(NonTerminalNode matchedNode, CodeActionContext context) {
         return getVisibleSymbols(context, PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
@@ -478,8 +449,43 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                         .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                         .getRangeFromLineRange(location.lineRange()),
                                 PositionUtil.toRange(matchedNode.lineRange()))))
+                // for every variable and parameter symbol, the symbol.getLocation() is not empty
                 .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
                 .collect(Collectors.toList());
+    }
+
+    private Optional<HashMap<String, List<String>>> getArgLists(CodeActionContext context, List<Symbol> symbolsList) {
+        List<String> argsForExtractFunction = new ArrayList<>();
+        List<String> argsForReplaceFunctionCall = new ArrayList<>();
+
+        for (Symbol symbol : symbolsList) {
+            if (symbol.getName().isEmpty()) {
+                return Optional.empty();
+            }
+            argsForReplaceFunctionCall.add(symbol.getName().get());
+
+            if (symbol.kind() == SymbolKind.VARIABLE) {
+                Optional<String> possibleType = CodeActionUtil
+                        .getPossibleType(((VariableSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
+                if (possibleType.isEmpty()) {
+                    return Optional.empty();
+                }
+                argsForExtractFunction.add(String.format("%s %s", possibleType.get(), symbol.getName().get()));
+            } else if (symbol.kind() == SymbolKind.PARAMETER) {
+                Optional<String> possibleType = CodeActionUtil
+                        .getPossibleType(((ParameterSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
+                if (possibleType.isEmpty()) {
+                    return Optional.empty();
+                }
+                argsForExtractFunction.add(String.format("%s %s", possibleType.get(), symbol.getName().get()));
+            }
+        }
+
+        HashMap<String, List<String>> argListMap = new HashMap<>();
+        argListMap.put("argsForExtractFunction", argsForExtractFunction);
+        argListMap.put("argsForReplaceFunctionCall", argsForReplaceFunctionCall);
+
+        return Optional.of(argListMap);
     }
 
     private Optional<Node> findEnclosingModulePartNode(NonTerminalNode node) {
