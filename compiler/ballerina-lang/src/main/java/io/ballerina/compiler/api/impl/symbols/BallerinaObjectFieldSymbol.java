@@ -101,7 +101,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
             return this.annotAttachments;
         }
 
-        List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
+        List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
             annotAttachments.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));

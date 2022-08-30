@@ -159,8 +159,10 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
         List<AnnotationAttachmentSymbol> annotationAttachments = new ArrayList<>();
 
         for (BAnnotationAttachmentSymbol annot : this.typeSymbol.returnTypeAnnots) {
-            annots.add(symbolFactory.createAnnotationSymbol(annot));
-            annotationAttachments.add(symbolFactory.createAnnotAttachment(annot));
+            BallerinaAnnotationAttachmentSymbol annotAttachment =
+                    symbolFactory.createAnnotAttachment(annot);
+            annots.add(annotAttachment.typeDescriptor());
+            annotationAttachments.add(annotAttachment);
         }
 
         AnnotatableReturnType annotatableReturnType = new AnnotatableReturnType();
