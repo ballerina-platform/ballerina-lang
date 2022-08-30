@@ -2619,6 +2619,15 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
     }
 
+    public BSymbol getModuleForClientDecl(PackageID packageID) {
+        for (BPackageSymbol moduleSymbol : symTable.pkgEnvMap.keySet()) {
+            if (packageID.equals(moduleSymbol.pkgID)) {
+                return moduleSymbol;
+            }
+        }
+        return symTable.notFoundSymbol;
+    }
+
     private static class ParameterizedTypeInfo {
         BType paramValueType;
         int index = -1;
@@ -2641,13 +2650,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.notFoundSymbol;
         }
 
-        PackageID packageID = clientDeclarations.get(lineRange);
-        for (BPackageSymbol moduleSymbol : symTable.pkgEnvMap.keySet()) {
-            if (packageID.equals(moduleSymbol.pkgID)) {
-                return moduleSymbol;
-            }
-        }
-        return symTable.notFoundSymbol;
+        return getModuleForClientDecl(clientDeclarations.get(lineRange));
     }
 
     /**

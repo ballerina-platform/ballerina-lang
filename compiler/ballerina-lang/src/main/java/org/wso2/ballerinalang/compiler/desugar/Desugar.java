@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -784,6 +785,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.constants = rewrite(pkgNode.constants, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        pkgNode.clientDeclarations = rewrite(pkgNode.clientDeclarations, env);
         desugarClassDefinitions(pkgNode.topLevelNodes);
 
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
@@ -8345,11 +8347,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClientDeclaration clientDeclaration) {
+        addImportForModuleGeneratedForClientDecl(clientDeclaration);
         this.result = clientDeclaration;
     }
 
     @Override
     public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
+        addImportForModuleGeneratedForClientDecl(clientDeclarationStatement.clientDeclaration);
         this.result = clientDeclarationStatement;
     }
 
@@ -9996,5 +10000,24 @@ public class Desugar extends BLangNodeVisitor {
             env.enclPkg.imports.add(importDcl);
             env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
+    }
+
+    private void addImportForModuleGeneratedForClientDecl(BLangClientDeclaration clientDeclaration) {
+        addImportForModuleGeneratedForClientDecl(clientDeclaration.prefix.pos.lineRange());
+    }
+
+    private void addImportForModuleGeneratedForClientDecl(LineRange clientDeclPrefixLineRange) {
+        PackageID packageID = symTable.clientDeclarations.get(clientDeclPrefixLineRange);
+        BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+        BLangPackage enclPkg = env.enclPkg;
+        Location pos = enclPkg.pos;
+        importDcl.pos = pos;
+        importDcl.pkgNameComps = List.of(ASTBuilderUtil.createIdentifier(pos, packageID.name.value));
+        importDcl.orgName = ASTBuilderUtil.createIdentifier(pos, packageID.orgName.value);
+        importDcl.version = ASTBuilderUtil.createIdentifier(pos, packageID.version.value);
+        BPackageSymbol moduleSymbol = (BPackageSymbol) symResolver.getModuleForClientDecl(packageID);
+        importDcl.symbol = moduleSymbol;
+        enclPkg.imports.add(importDcl);
+        enclPkg.symbol.imports.add(moduleSymbol);
     }
 }
