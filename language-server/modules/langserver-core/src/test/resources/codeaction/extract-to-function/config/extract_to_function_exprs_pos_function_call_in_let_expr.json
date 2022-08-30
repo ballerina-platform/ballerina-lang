@@ -6,8 +6,38 @@
   "source": "extract_to_function_exprs_let_expr.bal",
   "expected": [
     {
-      "title": "Extract to function"
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(int letVar2) returns int {\n    return doSomething(letVar2) + 1;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 69
+            },
+            "end": {
+              "line": 1,
+              "character": 93
+            }
+          },
+          "newText": "extracted(letVar2)"
+        }
+      ],
+      "resolvable": false
     }
   ],
-  "description": "Extract to function for expressions, cursor inside the function call in let expression negative"
+  "description": "Extract to function for expressions, cursor inside the function call in let expression"
 }
