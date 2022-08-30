@@ -38,41 +38,22 @@ import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
  * @since 2201.3.0
  */
 public class RegExpValue implements RefValue {
-    private final String pattern;
+    private RegExpDisjunction regExpDisjunction;
     private BTypedesc typedesc;
     private final Type type = PredefinedTypes.TYPE_STRING_REG_EXP;
 
-    public RegExpValue(BString pattern) {
-        this.pattern = pattern.getValue();
+    public RegExpValue(RegExpDisjunction regExpDisjunction) {
+        this.regExpDisjunction = regExpDisjunction;
         setTypedescValue(this.type);
     }
 
-    public String getRegExpValue() {
-        return this.pattern;
-    }
-
-    public boolean isEmpty() {
-        return this.pattern.isEmpty();
-    }
-
-    @Override
-    public BTypedesc getTypedesc() {
-        return this.typedesc;
-    }
-
-    @Override
-    public Object copy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        return this;
+    public RegExpDisjunction getRegExpDisjunction() {
+        return this.regExpDisjunction;
     }
 
     @Override
     public String stringValue(BLink parent) {
-        return this.pattern;
+        return this.regExpDisjunction.stringValue(parent);
     }
 
     @Override
@@ -90,9 +71,13 @@ public class RegExpValue implements RefValue {
         return this.type;
     }
 
+    protected void setTypedescValue(Type type) {
+        this.typedesc = getTypedescValue(type, this);
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(this.pattern);
+        return Objects.hash(this.regExpDisjunction);
     }
 
     @Override
@@ -100,7 +85,18 @@ public class RegExpValue implements RefValue {
         return this == obj;
     }
 
-    protected void setTypedescValue(Type type) {
-        this.typedesc = getTypedescValue(type, this);
+    @Override
+    public BTypedesc getTypedesc() {
+        return this.typedesc;
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        return this;
+    }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        return this;
     }
 }
