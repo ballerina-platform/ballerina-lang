@@ -26,7 +26,7 @@ function f1(A|B x) {
     if x is A {
         return;
     } else {
-        B _ = x; // OK
+        B _ = x; // error
     }
 }
 
@@ -34,7 +34,7 @@ function f2(A|B x) {
     if x is A {
         return;
     }
-    B _ = x; // OK
+    B _ = x; // error
 }
 
 type C record {|
@@ -51,7 +51,7 @@ function f3(E v) {
     if v is C {
 
     } else {
-        D _ = v; // OK
+        D _ = v; // error
     }
 }
 
@@ -201,7 +201,7 @@ function f12(V|W|X|Y v) {
     if v is V|W {
 
     } else {
-        X|Y _ = v; // OK
+        X|Y _ = v; // error
     }
 
     if v is V|W|X {
@@ -218,8 +218,8 @@ function f13([int]|[string] x) {
         if x is [string] {
             return;
         }
-        [int|string] _ = x; // unreachable
-        [int] _ = x; // error: https://github.com/ballerina-platform/ballerina-lang/issues/36921
+        [int|string] _ = x; // Reachable, since type is still `[int|string]`.
+        [int] _ = x; // error
     }
 }
 
@@ -227,8 +227,8 @@ function f14([int]|[string] x) {
     if x is [int] {
         [int] _ = x;
     } else {
-        [string] _ = x; // OK
-        [int] _ = x; // error
+        [string] _ = x; // error incompatible types: expected '[string]', found '([int]|[string])'
+
         [int|string] _ = x; // OK
         [int]|[string] _ = x; // OK
     }
@@ -297,8 +297,8 @@ function f19(int[]|string[] x) {
     if x is int[] {
         int[] _ = x;
     } else {
-        string[] _ = x; // OK
-        int[] _ = x; // error
+        string[] _ = x; // error incompatible types: expected 'string[]', found '(int[]|string[])'
+
         (int|string)[] _ = x; // OK
         int[]|string[] _ = x; // OK
     }
@@ -341,8 +341,8 @@ function f23((int|string)[] & readonly x) {
         int[] _ = x; // OK
         int[] & readonly _ = x; // OK
     } else {
-        string[] _ = x; // error incompatible types: expected 'string[]', found '(int|string)[] & readonly'
-        string[] & readonly _ = x; // error incompatible types: expected 'string[] & readonly', found '(int|string)[] & readonly'
+        string[] _ = x; // error incompatible types: expected 'string[]', found '((int|string)[] & readonly)'
+        string[] & readonly _ = x; // error incompatible types: expected 'string[] & readonly', found '((int|string)[] & readonly)'
         (int|string)[] _ = x; // OK
         (int|string)[] & readonly _ = x; // OK
     }
@@ -351,8 +351,8 @@ function f23((int|string)[] & readonly x) {
         string[] _ = x; // OK
         string[] & readonly _ = x; // OK
     } else {
-        int[] _ = x; // error incompatible types: expected 'int[]', found '(int|string)[] & readonly'
-        int[] & readonly _ = x; // error incompatible types: expected 'int[] & readonly', found '(int|string)[] & readonly'
+        int[] _ = x; // error incompatible types: expected 'int[]', found '((int|string)[] & readonly)'
+        int[] & readonly _ = x; // error incompatible types: expected 'int[] & readonly', found '((int|string)[] & readonly)'
         (int|string)[] _ = x; // OK
         (int|string)[] & readonly _ = x; // OK
     }
@@ -376,13 +376,13 @@ function f24() {
     if b is Z {
         Z _ = b; // OK
     } else {
-        json _ = b; // OK
+        json _ = b; // error incompatible types: expected 'json', found '(Z|json)'
     }
 
     if b is json {
         json _ = b; // OK
     } else {
-        Z _ = b; // OK
+        Z _ = b; // error incompatible types: expected 'Z', found '(Z|json)'
     }
 
     anydata|record {| stream<int> s; |} c = 1;
@@ -390,13 +390,13 @@ function f24() {
     if c is anydata {
         anydata _ = c; // OK
     } else {
-        record {| stream<int> s; |} _ = c; // OK
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |})'
     }
 
     if c is record {| stream<int> s; |} {
         record {| stream<int> s; |} _ = c; // OK
     } else {
-        anydata _ = c; // OK
+        anydata _ = c; // error incompatible types: expected 'anydata', found '(anydata|record {| stream<int> s; |})'
     }
 
     any|record {| error x; |} d = 1;
@@ -422,13 +422,13 @@ function f25() {
     if b is Z {
         Z _ = b; // OK
     } else {
-        json|Z _ = b; // error incompatible types: expected '(json|Z)', found '(json|stream<int>)'
+        json|stream<int> _ = b; // error incompatible types: expected '(json|stream<int>)', found '(Z|json|stream<int>)'
     }
 
     if b is json {
         json _ = b; // OK
     } else {
-        Z|stream<int> _ = b; // OK
+        Z|stream<int> _ = b; // error incompatible types: expected '(Z|stream<int>)', found '(Z|json|stream<int>)'
     }
 
     anydata|record {| stream<int> s; |}|future<string> c = 1;
@@ -436,13 +436,13 @@ function f25() {
     if c is anydata|future<string> {
         anydata|future<string> _ = c; // OK
     } else {
-        record {| stream<int> s; |} _ = c; // OK
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |})'
     }
 
     if c is record {| stream<int> s; |} {
         record {| stream<int> s; |} _ = c; // OK
     } else {
-        anydata|record {| stream<int> s; |} _ = c; // error incompatible types: expected '(anydata|record {| stream<int> s; |})', found '(anydata|future<string>)'
+        anydata|future<string> _ = c; // error incompatible types: expected '(anydata|future<string>)', found '(anydata|record {| stream<int> s; |}|future<string>)'
     }
 
     any|record {| error x; |}|error d = 1;
@@ -459,7 +459,7 @@ function f25() {
     if e is Z {
         Z _ = e;
     } else {
-        map<int>|xml _ = e; // OK
+        map<int>|xml _ = e; // error incompatible types: expected '(map<int>|xml)', found '(Z|map<int>|xml)'
     }
 }
 
@@ -475,7 +475,7 @@ function f26(A|A2 x) {
     if x is A {
         A _ = x;
     } else {
-        A2 _ = x; // OK
+        A2 _ = x; // error incompatible types: expected 'A2', found '(A|A2)'
     }
 
     A|A2|A3 y = <A> {a: ""};
@@ -483,7 +483,7 @@ function f26(A|A2 x) {
     if y is A {
         A _ = y;
     } else {
-        A2|A3 _ = y; // OK
+        A2|A3 _ = y; // error incompatible types: expected '(A2|A3)', found '(A|A2|A3)'
     }
 }
 
@@ -505,7 +505,7 @@ function f27(A4|A5 v, A4|A6 w) {
     if v is A4 {
 
     } else {
-        A5 _ = v; // OK
+        A5 _ = v; // error incompatible types: expected 'A5', found '(A4|A5)'
     }
 
     if w is A4 {
@@ -564,7 +564,7 @@ function f30() {
     if content is int[] || content is stream<string[], error?> {
         int[]|stream<string[], error?> _ = content; // OK
     } else {
-        boolean[] _ = content; // OK
+        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(int[]|boolean[])'
         boolean[]|int[] _ = content; // OK
     }
 
@@ -572,7 +572,7 @@ function f30() {
         int[]|stream<string[], error?> _ = content; // OK
     } else {
         boolean[]|int[] _ = content; // OK
-        int[] _ = content; // error incompatible types: expected 'int[]', found 'boolean[]'
+        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(int[]|boolean[])'
     }
 }
 
@@ -582,7 +582,7 @@ function f31() {
     if content is int[]|float[] {
         int[] _ = content; // OK
     } else {
-        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(boolean[]|xml)'
+        boolean[]|xml _ = content; // error incompatible types: expected '(boolean[]|xml)', found '(int[]|boolean[]|xml)'
         anydata[]|xml _ = content; // OK
         boolean[]|xml|int[] _ = content; // OK
     }
@@ -646,14 +646,14 @@ function f32(ValueType x) {
     } else if z is [int, decimal] {
 
     } else {
-        record {} _ = z; // OK
+        record {} _ = z; // error incompatible types: expected 'record {| anydata...; |}', found '([int,decimal]|record {| anydata...; |}|byte[])'
     }
 
     if z is byte[]|[int, decimal] {
         if z is byte[] {
 
         } else {
-            [int, int] _ = z; // error incompatible types: expected '[int,int]', found '[int,decimal]'
+            [int, decimal] _ = z; // error incompatible types: expected '[int,decimal]', found '(byte[]|[int,decimal])'
         }
     } else {
         record {} _ = z; // OK
@@ -663,18 +663,18 @@ function f32(ValueType x) {
     if z is byte[]|record {} {
 
     } else {
-        [int, decimal] _ = z; // OK
+        [int, decimal] _ = z; // error incompatible types: expected '[int,decimal]', found '([int,decimal]|byte[])'
     }
 
     if z is byte[] {
 
     } else {
-        [int, int]|record {} _ = z; // error incompatible types: expected '([int,int]|record {| anydata...; |})', found '([int,decimal]|record {| anydata...; |})'
+        [int, decimal]|record {} _ = z; // error incompatible types: expected '([int,decimal]|record {| anydata...; |})', found '([int,decimal]|record {| anydata...; |}|byte[])'
     }
 
     if z is [int, decimal] {
 
     } else {
-        byte[]|record {} _ = z; // OK
+        byte[]|record {} _ = z; // error incompatible types: expected '(byte[]|record {| anydata...; |})', found '([int,decimal]|record {| anydata...; |}|byte[])'
     }
 }
