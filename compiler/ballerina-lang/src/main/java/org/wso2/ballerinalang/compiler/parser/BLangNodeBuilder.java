@@ -3975,7 +3975,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             intersectionType.constituentTypeNodes.add(lhsType);
             intersectionType.constituentTypeNodes.add(rhsType);
         }
-
+        intersectionType.inTypeDefinitionContext = isInTypeDefinitionContext(intersectionTypeDescriptorNode.parent());
         intersectionType.pos = getPosition(intersectionTypeDescriptorNode);
         return intersectionType;
     }
