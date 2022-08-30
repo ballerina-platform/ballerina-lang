@@ -29,6 +29,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -114,7 +115,12 @@ public class PackageUtils {
         Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
         ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
         Path projectRoot = projectKindAndProjectRootPair.getValue();
-        BuildOptions options = BuildOptions.builder().setOffline(true).build();
+
+        BuildOptions options = BuildOptions.builder()
+                .setOffline(true)
+                .targetDir(ProjectUtils.getTemporaryTargetPath())
+                .build();
+
         if (projectKind == ProjectKind.BUILD_PROJECT) {
             return BuildProject.load(projectRoot, options);
         } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
