@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 2201.3.0
  */
 public class BLangReAssertion extends BLangReTerm implements ReAssertionNode {
-    public BLangExpression reAssertion;
+    public BLangExpression assertion;
 
     @Override
     public NodeKind getKind() {

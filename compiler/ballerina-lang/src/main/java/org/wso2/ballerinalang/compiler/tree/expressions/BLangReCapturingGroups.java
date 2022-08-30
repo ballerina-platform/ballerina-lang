@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangReCapturingGroups extends BLangReAtom implements ReCapturingGroupsNode {
     public BLangExpression openParen;
     public BLangExpression flagExpr;
-    public BLangReDisjunction reDisjunction;
+    public BLangReDisjunction disjunction;
     public BLangExpression closeParen;
 
     @Override

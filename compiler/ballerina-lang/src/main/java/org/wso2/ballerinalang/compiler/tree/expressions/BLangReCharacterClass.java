@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangReCharacterClass extends BLangReAtom implements ReCharacterClassNode {
     public BLangExpression characterClassStart;
-    public BLangReCharSet reCharSet;
+    public BLangReCharSet charSet;
     public BLangExpression characterClassEnd;
 
     @Override

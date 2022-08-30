@@ -33,10 +33,10 @@ import java.util.List;
  */
 public class BLangReDisjunction extends BLangExpression implements ReDisjunctionNode {
 
-    public List<BLangExpression> reSequenceList;
+    public List<BLangExpression> sequenceList;
 
     public BLangReDisjunction() {
-        reSequenceList = new ArrayList<>();
+        sequenceList = new ArrayList<>();
     }
 
     @Override

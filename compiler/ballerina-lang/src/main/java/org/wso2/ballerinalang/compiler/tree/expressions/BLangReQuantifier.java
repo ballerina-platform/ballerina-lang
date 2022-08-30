@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 2201.3.0
  */
 public class BLangReQuantifier extends BLangExpression implements ReQuantifierNode {
-    public BLangExpression reQuantifier;
+    public BLangExpression quantifier;
 
     @Override
     public NodeKind getKind() {

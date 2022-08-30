@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangRegExpTemplateLiteral extends BLangExpression implements RegExpTemplateLiteralNode {
     public BLangReDisjunction reDisjunction;
+    public boolean containInterpolations;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 2201.3.0
  */
 public class BLangReAtomQuantifier extends BLangReTerm implements ReAtomQuantifierNode {
-    public BLangExpression reAtom;
-    public BLangReQuantifier reQuantifier;
+    public BLangExpression atom;
+    public BLangReQuantifier quantifier;
 
     @Override
     public NodeKind getKind() {

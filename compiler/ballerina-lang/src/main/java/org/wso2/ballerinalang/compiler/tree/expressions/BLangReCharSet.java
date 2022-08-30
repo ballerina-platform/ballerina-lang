@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 2201.3.0
  */
 public class BLangReCharSet extends BLangExpression implements ReCharSetNode {
-    public BLangExpression reCharSet;
+    public BLangExpression charSetAtoms;
 
     @Override
     public NodeKind getKind() {

@@ -32,10 +32,10 @@ import java.util.List;
  * @since 2201.3.0
  */
 public class BLangReSequence extends BLangExpression implements ReSequenceNode {
-    public List<BLangReTerm> reTermList;
+    public List<BLangReTerm> termList;
 
     public BLangReSequence() {
-        reTermList = new ArrayList<>();
+        termList = new ArrayList<>();
     }
 
     @Override
