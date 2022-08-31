@@ -278,4 +278,8 @@ public class Symbols {
     public static boolean isService(BSymbol sym) {
         return (sym.flags & Flags.SERVICE) == Flags.SERVICE;
     }
+
+    public static boolean isClient(BSymbol sym) {
+        return (sym.flags & Flags.CLIENT) == Flags.CLIENT;
+    }
 }

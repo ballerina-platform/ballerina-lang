@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -39,6 +40,7 @@ import java.util.Optional;
 
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getClassIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getConstIdentifier;
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getEnumIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getFunctionIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getModuleVarIdentifier;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getServiceIdentifier;
@@ -65,6 +67,8 @@ public class ModuleComparator implements Comparator {
     private final Map<String, ClassDefinitionNode> oldClasses = new HashMap<>();
     private final Map<String, TypeDefinitionNode> newTypes = new HashMap<>();
     private final Map<String, TypeDefinitionNode> oldTypes = new HashMap<>();
+    private final Map<String, EnumDeclarationNode> newEnums = new HashMap<>();
+    private final Map<String, EnumDeclarationNode> oldEnums = new HashMap<>();
 
     public ModuleComparator(Module newModule, Module oldModule) {
         this.newModule = newModule;
@@ -73,16 +77,18 @@ public class ModuleComparator implements Comparator {
 
     @Override
     public Optional<ModuleDiff> computeDiff() {
-        ModuleDiff.Builder moduleDiffBuilder = new ModuleDiff.Builder(newModule, oldModule);
         extractModuleLevelDefinitions(newModule, true);
         extractModuleLevelDefinitions(oldModule, false);
 
+        ModuleDiff.Builder moduleDiffBuilder = new ModuleDiff.Builder(newModule, oldModule);
         extractFunctionDiffs(moduleDiffBuilder);
         extractServiceDiffs(moduleDiffBuilder);
         extractModuleVarDiffs(moduleDiffBuilder);
         extractConstantDiffs(moduleDiffBuilder);
         extractClassDiffs(moduleDiffBuilder);
         extractTypeDefinitionDiffs(moduleDiffBuilder);
+        extractEnumDeclarationDiffs(moduleDiffBuilder);
+
         // Todo: implement analyzers for other module-level definitions
         return moduleDiffBuilder.build();
     }
@@ -132,6 +138,14 @@ public class ModuleComparator implements Comparator {
         constDiffExtractor.getAdditions().forEach((name, type) -> diffModifier.withTypeDefAdded(type));
         constDiffExtractor.getRemovals().forEach((name, type) -> diffModifier.withTypeDefRemoved(type));
         constDiffExtractor.getCommons().forEach((name, types) -> diffModifier.withTypeDefModified(types.getKey(),
+                types.getValue()));
+    }
+
+    private void extractEnumDeclarationDiffs(ModuleDiff.Builder diffModifier) {
+        DiffExtractor<EnumDeclarationNode> constDiffExtractor = new DiffExtractor<>(newEnums, oldEnums);
+        constDiffExtractor.getAdditions().forEach((name, type) -> diffModifier.withEnumAdded(type));
+        constDiffExtractor.getRemovals().forEach((name, type) -> diffModifier.withEnumRemoved(type));
+        constDiffExtractor.getCommons().forEach((name, types) -> diffModifier.withEnumModified(types.getKey(),
                 types.getValue()));
     }
 
@@ -200,8 +214,15 @@ public class ModuleComparator implements Comparator {
                             oldTypes.put(getTypeDefIdentifier(typeNode), typeNode);
                         }
                         break;
-                    case LISTENER_DECLARATION:
                     case ENUM_DECLARATION:
+                        EnumDeclarationNode enumNode = (EnumDeclarationNode) member;
+                        if (isNewModule) {
+                            newEnums.put(getEnumIdentifier(enumNode), enumNode);
+                        } else {
+                            oldEnums.put(getEnumIdentifier(enumNode), enumNode);
+                        }
+                        break;
+                    case LISTENER_DECLARATION:
                     default:
                         // Todo: implement
                 }
