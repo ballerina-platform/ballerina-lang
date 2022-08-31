@@ -86,7 +86,7 @@ public class IDLClientCompilerTests {
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
         int index = 0;
         validateError(diagnostics, index++, "unknown type 'Config'", 19, 1);
-        validateError(diagnostics, index++, "unknown type 'Client'", 20, 5);
+        validateError(diagnostics, index++, "unknown type 'Client'", 20, 1);
         validateError(diagnostics, index++, "unknown type 'ClientConfig'", 23, 5);
         validateError(diagnostics, index++, "unknown type 'Client'", 24, 5);
         validateError(diagnostics, index++, "unknown type 'ClientConfiguratin'", 29, 5);
