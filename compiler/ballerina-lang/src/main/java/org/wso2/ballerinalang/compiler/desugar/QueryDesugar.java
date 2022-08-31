@@ -213,7 +213,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_UNWRAP_DISTINCT_ERROR_FUNCTION = new Name("unwrapQueryError");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final Name QUERY_BODY_DISTINCT_ERROR_NAME = new Name("Error");
-    private static final Name QUERY_QUERY_PIPELINE_DISTINCT_ERROR_NAME = new Name("CompleteEarlyError");
+    private static final Name QUERY_PIPELINE_DISTINCT_ERROR_NAME = new Name("CompleteEarlyError");
+    private static final Name QUERY_DISTINCT_UNION_ERROR_NAME = new Name("QueryErrorTypes");
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
     private BLangExpression onConflictExpr;
     private BVarSymbol currentFrameSymbol;
@@ -268,22 +269,20 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env,
                 queryBlock, stmtsToBePropagated);
         BLangStatementExpression streamStmtExpr;
+        BLangExpression result = streamRef;
         BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
                 Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
+        BType resultType = queryExpr.getBType();
         if (queryExpr.isStream) {
-            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
-            streamStmtExpr.setBType(streamRef.getBType());
+            resultType = streamRef.getBType();
         } else if (queryExpr.isTable) {
             onConflictExpr = (onConflictExpr == null)
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
-            BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
+            result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr, isReadonly), pos);
-            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
-                    addTypeConversionExpr(result,
-                            queryExpr.getBType()));
-            streamStmtExpr.setBType(tableRef.getBType());
+            resultType = tableRef.getBType();
             onConflictExpr = null;
         } else if (queryExpr.isMap) {
             onConflictExpr = (onConflictExpr == null)
@@ -294,14 +293,10 @@ public class QueryDesugar extends BLangNodeVisitor {
                     .findFirst().orElse(symTable.mapType);
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
-            BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
+            result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
-            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
-                    addTypeConversionExpr(result, queryExpr.getBType()));
-            streamStmtExpr.setBType(queryExpr.getBType());
             onConflictExpr = null;
         } else {
-            BLangVariableReference result;
             BType refType = Types.getReferredType(queryExpr.getBType());
             if (isXml(refType)) {
                 if (types.isSubTypeOfReadOnly(refType, env)) {
@@ -324,20 +319,11 @@ public class QueryDesugar extends BLangNodeVisitor {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
                         Lists.of(streamRef, arr, isReadonly), pos);
             }
-            if (containsCheckExpr) {
-                // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
-                // so that it will propagate the error properly.
-                desugar.resetSkipFailStmtRewrite();
-                BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.getBType());
-                checkedExpr.equivalentErrorTypeList.addAll(this.checkedErrorList);
-                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
-                streamStmtExpr.setBType(checkedExpr.getBType());
-            } else {
-                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
-                        addTypeConversionExpr(result, queryExpr.getBType()));
-                streamStmtExpr.setBType(queryExpr.getBType());
-            }
         }
+        handleErrorReturnsFromQuery(pos, result, queryBlock, false, resultType);
+        streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                addTypeConversionExpr(result, queryExpr.getBType()));
+        streamStmtExpr.setBType(resultType);
         this.checkedErrorList = prevCheckedErrorList;
         return streamStmtExpr;
     }
@@ -399,9 +385,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     //Creates return branches to handle different runtime values
-    private void handleErrorReturnsFromQuery(Location pos, BLangVariableReference resultRef, BLangBlockStmt queryBlock,
+    private void handleErrorReturnsFromQuery(Location pos, BLangExpression resultRef, BLangBlockStmt queryBlock,
                                      boolean returnsWithinDoClause, BType returnType) {
-        BLangInvocation addStreamFunctionInvocation = createQueryLibInvocation(QUERY_UNWRAP_DISTINCT_ERROR_FUNCTION,
+        BLangInvocation unwrappedDistinctError = createQueryLibInvocation(QUERY_UNWRAP_DISTINCT_ERROR_FUNCTION,
                 Lists.of(addTypeConversionExpr(resultRef, symTable.errorType)), pos);
         if (containsCheckExpr) {
             // if ($streamElement$ is QueryError) {
@@ -415,7 +401,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             // $streamElement$ is QueryError
             BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, resultRef, queryErrorTypeNode);
             testExpr.setBType(symTable.booleanType);
-            desugar.failFastForErrorResult(pos, queryBlock, testExpr, resultRef);
+            desugar.failFastForErrorResult(pos, queryBlock, testExpr, unwrappedDistinctError);
         }
         // if (!($streamElement$ is () || $streamElement$ is CompleteEarlyError )) {
         //      return $streamElement$;
@@ -429,7 +415,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             ifBody.stmts.add(returnStmt);
 
             BSymbol completeEarlyErrorSymbol = symTable.langQueryModuleSymbol
-                    .scope.lookup(QUERY_QUERY_PIPELINE_DISTINCT_ERROR_NAME).symbol;
+                    .scope.lookup(QUERY_PIPELINE_DISTINCT_ERROR_NAME).symbol;
             BType completeEarlyErrorType = completeEarlyErrorSymbol.type;
             BLangErrorType completeEarlyErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
             completeEarlyErrorTypeNode.setBType(completeEarlyErrorType);
@@ -447,17 +433,24 @@ public class QueryDesugar extends BLangNodeVisitor {
             ifStatement.expr = notNilOrErrCheckExpr;
             ifStatement.body = ifBody;
         }
-        BLangTypeTestExpr isErrorCheck = desugar.getErrorTypeTestExpr(pos, resultRef);
+        BSymbol queryErrorUnionSymbol = symTable.langQueryModuleSymbol
+                .scope.lookup(QUERY_DISTINCT_UNION_ERROR_NAME).symbol;
+        BType queryErrorUnionErrorType = queryErrorUnionSymbol.type;
+        BLangErrorType queryErrorUnionErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        queryErrorUnionErrorTypeNode.setBType(queryErrorUnionErrorType);
+        BLangTypeTestExpr queryErrorUnionTypeTestExpr = desugar.createTypeCheckExpr(pos, resultRef,
+                queryErrorUnionErrorTypeNode);
+
         BLangBlockStmt ifErrorBody = ASTBuilderUtil.createBlockStmt(pos);
         BLangAssignment unwrapDistinctError = ASTBuilderUtil.createAssignmentStmt(pos, resultRef,
-                desugar.addConversionExprIfRequired(addStreamFunctionInvocation, symTable.errorType));
+                desugar.addConversionExprIfRequired(unwrappedDistinctError, symTable.errorType));
         ifErrorBody.stmts.add(unwrapDistinctError);
         if (ifStatement.expr == null) {
-            ifStatement.expr = isErrorCheck;
+            ifStatement.expr = queryErrorUnionTypeTestExpr;
             ifStatement.body = ifErrorBody;
         } else {
             BLangIf elseIfStmt = ASTBuilderUtil.createIfStmt(pos, queryBlock);
-            elseIfStmt.expr = isErrorCheck;
+            elseIfStmt.expr = queryErrorUnionTypeTestExpr;
             elseIfStmt.body = ifErrorBody;
             ifStatement.elseStmt = elseIfStmt;
         }
@@ -563,9 +556,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType constraintType = resultType;
         BType completionType = symTable.errorOrNilType;
         BType refType = Types.getReferredType(resultType);
+        boolean isStream = false;
         if (refType.tag == TypeTags.ARRAY) {
             constraintType = ((BArrayType) refType).eType;
         } else if (refType.tag == TypeTags.STREAM) {
+            isStream = true;
             constraintType = ((BStreamType) refType).constraint;
             completionType = ((BStreamType) refType).completionType;
         }
@@ -578,7 +573,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         completionTdExpr.resolvedType = completionType;
         completionTdExpr.setBType(completionTdType);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_PIPELINE_FUNCTION,
-                Lists.of(valueVarRef, constraintTdExpr, completionTdExpr), pos);
+                Lists.of(valueVarRef, constraintTdExpr, completionTdExpr, desugar.getBooleanLiteral(isStream)), pos);
     }
 
     /**

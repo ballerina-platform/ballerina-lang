@@ -31,6 +31,7 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:xml', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:table', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:stream', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:error', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:object', configuration: 'distributionBala')
 

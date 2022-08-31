@@ -20,9 +20,9 @@ import ballerina/lang.'error;
 
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
-        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd)
+        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isStream)
             returns _StreamPipeline {
-    return new _StreamPipeline(collection, constraintTd, completionTd);
+    return new _StreamPipeline(collection, constraintTd, completionTd, isStream);
 }
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)

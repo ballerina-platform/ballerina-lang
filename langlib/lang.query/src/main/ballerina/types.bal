@@ -77,19 +77,24 @@ class _StreamPipeline {
     _StreamFunction streamFunction;
     typedesc<Type> constraintTd;
     typedesc<CompletionType> completionTd;
+    boolean isLazyLoading;
 
     function init(
             Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
-            typedesc<Type> constraintTd, typedesc<CompletionType> completionTd) {
+            typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) {
         self.streamFunction = new _InitFunction(collection);
         self.constraintTd = constraintTd;
         self.completionTd = completionTd;
+        self.isLazyLoading = isLazyLoading;
     }
 
     public isolated function next() returns _Frame|error? {
         _StreamFunction sf = self.streamFunction;
         var res = internal:invokeAsExternal(sf.process);
         if (res is _Frame|error) {
+            if (self.isLazyLoading && (res is QueryErrorTypes)) {
+                return unwrapQueryError(res);
+            }
             return res;
         }
     }
@@ -132,6 +137,8 @@ class _InitFunction {
         if (v is record {|(any|error) value;|}) {
             record {|(any|error)...; |} _frame = {...v};
             return _frame;
+        } else if(v is error) {
+            return prepareCompleteEarlyError(v);
         }
         return v;
     }
@@ -190,6 +197,9 @@ class _InputFunction {
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
+            if(cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
             return cFrame;
         }
         return pFrame;
@@ -246,7 +256,7 @@ class _NestedFromFunction {
                 }
                 return _frame;
             } else if (v is error) {
-                return v;
+                return prepareCompleteEarlyError(v);
             } else {
                 // Move to next frame
                 self.currentFrame = ();
@@ -307,6 +317,9 @@ class _LetFunction {
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
+            if (cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
             return cFrame;
         }
         return pFrame;
@@ -342,7 +355,7 @@ class _InnerJoinFunction {
         while (f is _Frame) {
             any|error rhsKeyFuncResult = rhsKeyFunction(f);
             if rhsKeyFuncResult is error {
-                self.failureAtJoin = rhsKeyFuncResult;
+                self.failureAtJoin = prepareQueryBodyError(rhsKeyFuncResult);
                 return;
             } else {
                 self.rhsFramesMap.put(rhsKeyFuncResult.toString(), f);
@@ -374,7 +387,11 @@ class _InnerJoinFunction {
         }
 
         if (lhsFrame is _Frame) {
-            lhsKey = (check lhsKF(lhsFrame)).toString();
+            any|error lhsKFRes = lhsKF(lhsFrame);
+            if (lhsKFRes is error) {
+                return prepareQueryBodyError(lhsKFRes);
+            }
+            lhsKey = (lhsKFRes).toString();
             if (rhsCandidates is ()) {
                 rhsCandidates = rhsFramesMap.get(lhsKey);
                 self.rhsCandidates = rhsCandidates;
@@ -432,7 +449,7 @@ class _OuterJoinFunction {
         while (f is _Frame) {
             any|error rhsKeyFuncResult = rhsKeyFunction(f);
             if rhsKeyFuncResult is error {
-                self.failureAtJoin = rhsKeyFuncResult;
+                self.failureAtJoin = prepareQueryBodyError(rhsKeyFuncResult);
                 return;
             } else {
                 self.rhsFramesMap.put(rhsKeyFuncResult.toString(), f);
@@ -465,7 +482,11 @@ class _OuterJoinFunction {
         }
 
         if (lhsFrame is _Frame) {
-            lhsKey = (check lhsKF(lhsFrame)).toString();
+            any|error lhsKFRes = lhsKF(lhsFrame);
+            if (lhsKFRes is error) {
+                return prepareQueryBodyError(lhsKFRes);
+            }
+            lhsKey = (lhsKFRes).toString();
             if (rhsCandidates is ()) {
                 rhsCandidates = rhsFramesMap.get(lhsKey);
                 self.rhsCandidates = rhsCandidates;
@@ -535,7 +556,7 @@ class _FilterFunction {
                     return pFrame;
                 }
             } else {
-                return filterResult;
+                return prepareQueryBodyError(filterResult);
             }
         }
         return pFrame;
@@ -572,7 +593,10 @@ class _OrderByFunction {
             _OrderTreeNode oTree = new;
             // consume all events for ordering.
             while (f is _Frame) {
-                check orderKeyFunc(f);
+                error? res = orderKeyFunc(f);
+                if(res is error) {
+                    return prepareQueryBodyError(res);
+                }
                 oTree.add(f, <any[]>(checkpanic f["$orderDirection$"]), <any[]>(checkpanic f["$orderKey$"]));
                 f = pf.process();
             }
@@ -621,6 +645,9 @@ class _SelectFunction {
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
+            if (cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
             return cFrame;
         }
         return pFrame;
@@ -662,9 +689,6 @@ class _DoFunction {
             }
             return pFrame;
         }
-        if (pFrame is error) {
-            return prepareCompleteEarlyError(pFrame);
-        }
         return pFrame;
     }
 
@@ -693,15 +717,19 @@ class _LimitFunction {
         function (_Frame _frame) returns int|error limitFunc = self.limitFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
-            int lmt = check limitFunc(pFrame);
-            if (lmt < 1) {
-                panic error("Invalid limit", message = "limit cannot be < 1.");
+            int|error lmt = limitFunc(pFrame);
+            if (lmt is int) {
+                if (lmt < 1) {
+                    panic error("Invalid limit", message = "limit cannot be < 1.");
+                }
+                if (self.count < lmt) {
+                    self.count += 1;
+                    return pFrame;
+                }
+                return ();
+            } else {
+                return prepareQueryBodyError(lmt);
             }
-            if (self.count < lmt) {
-                self.count += 1;
-                return pFrame;
-            }
-            return ();
         }
         return pFrame;
     }
@@ -874,5 +902,10 @@ class _OrderTreeNode {
     }
 }
 
+//Distinct error to identify errors thrown from query body
 public type Error distinct error;
+
+//Distinct error to identify errors thrown from query pipeline
 public type CompleteEarlyError distinct error;
+
+public type QueryErrorTypes CompleteEarlyError|Error;
