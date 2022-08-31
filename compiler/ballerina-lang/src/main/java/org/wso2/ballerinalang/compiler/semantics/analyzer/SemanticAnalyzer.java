@@ -415,7 +415,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangClientDeclaration clientDeclaration, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        symbolEnter.defineNode(clientDeclaration, currentEnv);
+
+        // Module-level client declarations are defined during symbol enter for the module (package) node.
+        // So we only define for client declaration statements here.
+        if (clientDeclaration.symbol == null) {
+            symbolEnter.defineNode(clientDeclaration, currentEnv);
+        }
 
         BClientDeclarationSymbol symbol = (BClientDeclarationSymbol) clientDeclaration.symbol;
 

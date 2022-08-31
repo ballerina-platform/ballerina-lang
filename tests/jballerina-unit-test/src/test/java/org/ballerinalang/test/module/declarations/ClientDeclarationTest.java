@@ -51,7 +51,11 @@ public class ClientDeclarationTest {
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("qux"), 30, 52);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("qux"), 31, 31);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("quux"), 34, 50);
-        BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("corge"), 37, 50);
+        // Symbols for module client declarations are defined at symbol enter because they are required to resolve
+        // constructs from the corresponding module, whereas for module XMLNS declarations symbols are defined at
+        // semantic analysis. Therefore, the error is always logged for the XMLNS declaration even though it is defined
+        // after the client declaration in the source.
+        BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("corge"), 36, 31);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

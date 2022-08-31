@@ -409,6 +409,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
+
+        for (BLangClientDeclaration clientDeclaration : pkgNode.clientDeclarations) {
+            defineNode(clientDeclaration, pkgEnv);
+        }
+
         // Define type definitions.
         this.typePrecedence = 0;
 
