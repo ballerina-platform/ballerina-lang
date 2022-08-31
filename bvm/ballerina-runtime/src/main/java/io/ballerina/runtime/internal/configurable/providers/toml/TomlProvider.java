@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
@@ -635,7 +636,8 @@ public class TomlProvider implements ConfigProvider {
                     new ArrayList<>(), new ArrayList<>(), false, false));
         }
 
-        if (convertibleTypes.size() > 1) {
+        if (convertibleTypes.size() > 1 &&
+                !(balValue instanceof BArray && unionType.getTag() == TypeTags.ANYDATA_TAG)) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
                     variableName, decodeIdentifier(unionType.toString()));

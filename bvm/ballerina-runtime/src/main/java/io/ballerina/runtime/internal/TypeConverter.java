@@ -46,6 +46,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -577,7 +578,7 @@ public class TypeConverter {
     }
 
     private static boolean isConvertibleToTableType(Object sourceValue, BTableType tableType) {
-        if (!(sourceValue instanceof TableValueImpl)) {
+        if (!(sourceValue instanceof TableValueImpl || sourceValue instanceof ArrayValueImpl)) {
             return false;
         }
         return isValidTableConstraint(tableType.getConstrainedType());
