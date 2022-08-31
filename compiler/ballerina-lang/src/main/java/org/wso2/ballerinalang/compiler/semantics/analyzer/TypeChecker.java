@@ -453,11 +453,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (literalType == symTable.semanticError || literalExpr.isFiniteContext) {
             return;
         }
-        if (literalType.tag == TypeTags.ARRAY) {
-            data.resultType = checkByteArrayType(literalExpr, literalType, data);
-        } else {
-            data.resultType = types.checkType(literalExpr, literalType, data.expType);
-        }
+        data.resultType = types.checkType(literalExpr, literalType, data.expType);
     }
 
     @Override
@@ -876,43 +872,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             byte[] byteArray = Types.convertToByteArray((String) literalExpr.value);
             literalType = new BArrayType(symTable.byteType, null, byteArray.length,
                     BArrayState.CLOSED);
+            if (Symbols.isFlagOn(expectedType.flags, Flags.READONLY)) {
+                literalType = ImmutableTypeCloner.getEffectiveImmutableType(literalExpr.pos, types,
+                        literalType, data.env, symTable, anonymousModelHelper, names);
+            }
+
+            if (expectedType.tag == TypeTags.ARRAY) {
+                BArrayType arrayType = (BArrayType) expectedType;
+                if (arrayType.state == BArrayState.INFERRED) {
+                    arrayType.size = byteArray.length;
+                    arrayType.state = BArrayState.CLOSED;
+                }
+            }
         }
 
         return literalType;
-    }
-
-    private BType checkByteArrayType(BLangLiteral literalExpr, BType literalType, AnalyzerData data) {
-        byte[] byteArray = Types.convertToByteArray((String) literalExpr.value);
-        if (literalExpr.expectedType.tag == TypeTags.ARRAY) {
-            return checkByteArrayCompatibility(
-                    literalExpr, (BArrayType) literalType, byteArray, data);
-        }
-        return types.checkType(literalExpr, literalType, data.expType);
-    }
-
-    private BType checkByteArrayCompatibility(BLangLiteral literalExpr, BArrayType literalType,
-                                              byte[] byteArray, AnalyzerData data) {
-        BArrayType arrayType = (BArrayType) data.expType;
-        if (arrayType.state == BArrayState.INFERRED) {
-            arrayType.size = byteArray.length;
-            arrayType.state = BArrayState.CLOSED;
-        }
-
-        if (Symbols.isFlagOn(arrayType.flags, Flags.READONLY)) {
-            if (arrayType.state != BArrayState.OPEN && byteArray.length != arrayType.size) {
-                dlog.error(literalExpr.pos, DiagnosticErrorCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
-                        byteArray.length);
-                return symTable.semanticError;
-            }
-            arrayType.eType = arrayType.eType.tag != TypeTags.INTERSECTION ?
-                    arrayType.eType : ((BIntersectionType) arrayType.eType).effectiveType;
-            boolean isValidType =
-                        types.checkType(literalExpr.pos, symTable.byteType, arrayType.eType,
-                                DiagnosticErrorCode.INCOMPATIBLE_TYPES) != symTable.semanticError;
-            return isValidType ? (BArrayType) ImmutableTypeCloner.getEffectiveImmutableType(literalExpr.pos, types,
-                    literalType, data.env, symTable, anonymousModelHelper, names) : symTable.semanticError;
-        }
-        return types.checkType(literalExpr, literalType, arrayType);
     }
 
     private BType getTypeMatchingFloatOrDecimal(BType finiteType, Set<BType> memberTypes, BLangLiteral literalExpr,
