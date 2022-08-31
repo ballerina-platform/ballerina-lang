@@ -181,6 +181,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) returnTypeSymbol;
             TypeSymbol typeSymbol = futureTypeSymbol.typeParameter().orElse(null);
             checkAndSetTypeResult(typeSymbol);
+        } else {
+            TypeSymbol nilTypeSymbol = semanticModel.types().NIL;
+            checkAndSetTypeResult(nilTypeSymbol);
         }
     }
 

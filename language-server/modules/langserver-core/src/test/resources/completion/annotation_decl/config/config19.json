@@ -105,11 +105,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Annotation",
+      "label": "annotation",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
-      "filterText": "Annotation",
+      "filterText": "annotation",
       "insertText": "annotation ",
       "insertTextFormat": "Snippet"
     },

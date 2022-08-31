@@ -12,19 +12,6 @@
           "range": {
             "start": {
               "line": 5,
-              "character": 19
-            },
-            "end": {
-              "line": 5,
-              "character": 19
-            }
-          },
-          "newText": "\n    if apple is int {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 5,
               "character": 4
             },
             "end": {
@@ -33,6 +20,19 @@
             }
           },
           "newText": "int|error apple \u003d "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 19
+            },
+            "end": {
+              "line": 5,
+              "character": 19
+            }
+          },
+          "newText": "\n    if apple is int {\n\n    }"
         }
       ]
     }
