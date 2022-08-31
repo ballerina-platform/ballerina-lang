@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
@@ -28,7 +27,7 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * An regular expression parser for ballerina.
+ * A regular expression parser for ballerina.
  *
  * @since 2201.3.0
  */
@@ -36,7 +35,7 @@ public class RegExpParser extends AbstractParser {
     private final Queue<STNode> interpolationExprs;
 
     protected RegExpParser(AbstractTokenReader tokenReader, Queue<STNode> interpolationExprs) {
-        super(tokenReader, new RegExpParserErrorHandler(tokenReader));
+        super(tokenReader);
         this.interpolationExprs = interpolationExprs;
     }
 
@@ -88,7 +87,6 @@ public class RegExpParser extends AbstractParser {
      * @return ReTerm node
      */
     private STNode parseReTerm() {
-        startContext(ParserRuleContext.REG_EXP_TERM);
         STToken nextToken = peek();
         SyntaxKind tokenKind = nextToken.kind;
         if (tokenKind == SyntaxKind.RE_ASSERTION) {
@@ -120,8 +118,6 @@ public class RegExpParser extends AbstractParser {
             return STNodeFactory.createReAtomQuantifierNode(reAtom, quantifier);
         }
 
-        endContext();
-
         return STNodeFactory.createReAtomQuantifierNode(reAtom, null);
     }
 
@@ -151,7 +147,6 @@ public class RegExpParser extends AbstractParser {
      * @return Character class node
      */
     private STNode parseCharacterClass() {
-        startContext(ParserRuleContext.REG_EXP_CHAR_CLASS);
         STNode characterClassStart = parseCharacterClassStart();
         STToken nextToken = peek();
         STNode characterSet = null;
@@ -159,7 +154,6 @@ public class RegExpParser extends AbstractParser {
             characterSet = parseReCharSet(nextToken);
         }
         STNode characterClassEnd = parseCharacterClassEnd();
-        endContext();
         return STNodeFactory.createReCharacterClassNode(characterClassStart, characterSet, characterClassEnd);
     }
 
@@ -177,10 +171,8 @@ public class RegExpParser extends AbstractParser {
         if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN ||
                 token.kind == SyntaxKind.NEGATED_CHAR_CLASS_START_TOKEN) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.REG_EXP_CHAR_CLASS_START);
-            return parseCharacterClassStart();
         }
+        throw new IllegalStateException();
     }
 
     /**
@@ -206,8 +198,7 @@ public class RegExpParser extends AbstractParser {
         if (token.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
             return consume();
         } else {
-            recover(token, ParserRuleContext.REG_EXP_CHAR_CLASS_END);
-            return parseCharacterClassEnd();
+            return createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_BRACKET_TOKEN);
         }
     }
 
@@ -227,7 +218,6 @@ public class RegExpParser extends AbstractParser {
      * @return Capturing group node
      */
     private STNode parseCapturingGroups() {
-        startContext(ParserRuleContext.REG_EXP_CAPTURING_GROUP);
         STNode openParenthesis = parseOpenParenthesis();
         STToken nextToken = peek();
         STNode flagExpression = null;
@@ -236,7 +226,6 @@ public class RegExpParser extends AbstractParser {
         }
         STNode reDisjunction = parseReDisjunction();
         STNode closeParenthesis = parseCloseParenthesis();
-        endContext();
         return STNodeFactory.createReCapturingGroupsNode(openParenthesis, flagExpression, reDisjunction,
                 closeParenthesis);
     }
@@ -250,10 +239,8 @@ public class RegExpParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             return consume();
-        } else {
-            recover(nextToken, ParserRuleContext.REG_EXP_CAPTURING_GROUP_START);
-            return parseOpenParenthesis();
         }
+        throw new IllegalStateException();
     }
 
     /**
@@ -262,7 +249,6 @@ public class RegExpParser extends AbstractParser {
      * @return Flag expression node
      */
     private STNode parseFlagExpression(STToken nextToken) {
-        startContext(ParserRuleContext.REG_EXP_FLAG_EXPR);
         STNode questionMark = parseQuestionMark(nextToken);
         nextToken = peek();
         STNode reFlagsOnOff = null;
@@ -271,10 +257,6 @@ public class RegExpParser extends AbstractParser {
             nextToken = peek();
         }
         STNode colon = parseColon(nextToken);
-        if (colon.isMissing()) {
-            colon = SyntaxErrors.addDiagnostic(colon, DiagnosticErrorCode.ERROR_MISSING_REG_EXP_FLAG_EXPR_END_TOKEN);
-        }
-        endContext();
         return STNodeFactory.createReFlagExpressionNode(questionMark, reFlagsOnOff, colon);
     }
 
@@ -315,7 +297,7 @@ public class RegExpParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.COLON_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.COLON_TOKEN);
         }
     }
 
@@ -329,8 +311,7 @@ public class RegExpParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
             return consume();
         } else {
-            recover(nextToken, ParserRuleContext.REG_EXP_CAPTURING_GROUP_END);
-            return parseCloseParenthesis();
+            return createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN);
         }
     }
 
@@ -373,7 +354,7 @@ public class RegExpParser extends AbstractParser {
         }
     }
 
-    private AbstractParserErrorHandler.Solution recover(STToken token, ParserRuleContext currentCtx) {
-        return this.recover(token, currentCtx, false);
+    private STNode createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return SyntaxErrors.createMissingRegExpTokenWithDiagnostics(expectedKind);
     }
 }

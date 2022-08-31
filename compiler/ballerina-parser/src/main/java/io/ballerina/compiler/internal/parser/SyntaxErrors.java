@@ -86,6 +86,10 @@ public class SyntaxErrors {
         return createMissingTokenWithDiagnostics(expectedKind, getDocWarningCode(expectedKind));
     }
 
+    public static STToken createMissingRegExpTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return createMissingTokenWithDiagnostics(expectedKind, getRegExpErrorCode(expectedKind));
+    }
+
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind,
                                                             DiagnosticCode diagnosticCode) {
         List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
@@ -308,7 +312,6 @@ public class SyntaxErrors {
             case TEMPLATE_START:
             case XML_CONTENT:
             case XML_TEXT:
-            case REG_EXP_TERM:
                 return DiagnosticErrorCode.ERROR_MISSING_BACKTICK_TOKEN;
             case XML_COMMENT_START:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_COMMENT_START_TOKEN;
@@ -329,19 +332,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
             case XML_CDATA_END:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_CDATA_END_TOKEN;
-            case REG_EXP_CAPTURING_GROUP_START:
-                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_CAPTURING_GROUP_START_TOKEN;
-            case REG_EXP_CAPTURING_GROUP_END:
-                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_CAPTURING_GROUP_END_TOKEN;
-            case REG_EXP_FLAG_EXPR_START:
-                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_FLAG_EXPR_START_TOKEN;
-            case REG_EXP_FLAG_EXPR_END:
-                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_FLAG_EXPR_END_TOKEN;
-            case REG_EXP_CHAR_CLASS:
-            case REG_EXP_CHAR_CLASS_START:
-                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_CHAR_CLASS_START_TOKEN;
-            case REG_EXP_CHAR_CLASS_END:
-                return DiagnosticErrorCode.ERROR_MISSING_REG_EXP_CHAR_CLASS_END_TOKEN;
             default:
                 return getKeywordErrorCode(ctx);
         }
@@ -563,6 +553,19 @@ public class SyntaxErrors {
                 return DiagnosticWarningCode.WARNING_MISSING_PARAMETER_NAME;
             case CODE_CONTENT:
                 return DiagnosticWarningCode.WARNING_MISSING_CODE_REFERENCE;
+            default:
+                return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
+        }
+    }
+
+    private static DiagnosticCode getRegExpErrorCode(SyntaxKind expectedKind) {
+        switch (expectedKind) {
+            case CLOSE_PAREN_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
+            case CLOSE_BRACKET_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
+            case COLON_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
             default:
                 return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
         }
