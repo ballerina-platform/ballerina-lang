@@ -137,11 +137,11 @@ function testTupleWithVar() {
 }
 
 function testTupleAnnot1() returns any {
-    return tuples:returnTupleAnnot1();
+    return tuples:returnTupleWithMemberAnnot1();
 }
 
 function testTupleAnnot2() returns any {
-    return tuples:returnTupleAnnot2();
+    return tuples:returnTupleWithMemberAnnot2();
 }
 
 function assertTrue(any|error actual) {

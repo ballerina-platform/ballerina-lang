@@ -22,12 +22,12 @@ type T3 [@member int, string];
 @tup
 type T4 [@member int, string];
 
-public function returnTupleAnnot1() returns T1 {
+public function returnTupleWithMemberAnnot1() returns T1 {
     T1 x1 =  [1, 2, "hello", "world"];
     return x1;
 }
 
-public function returnTupleAnnot2() returns [T2, T3, T4] {
+public function returnTupleWithMemberAnnot2() returns [T2, T3, T4] {
     T2 x2 =  [1, 2, "a"];
     T3 x3 =  [1, "hello"];
     T4 x4 =  [1, "a"];

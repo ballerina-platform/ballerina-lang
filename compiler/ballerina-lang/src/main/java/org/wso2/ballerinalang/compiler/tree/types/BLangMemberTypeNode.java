@@ -30,7 +30,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-
 /**
  * {@code BLangMemberTypeNode} represents a non-rest member of a tuple.
  *
@@ -40,7 +39,6 @@ public class BLangMemberTypeNode extends BLangType implements AnnotatableNode {
 
     public BLangType typeNode;
     public List<BLangAnnotationAttachment> annAttachments;
-    public Set<Flag> flagSet;
 
     public BLangMemberTypeNode() {
         this.annAttachments = null;
