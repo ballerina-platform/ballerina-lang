@@ -253,7 +253,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_REG_EXP_CAPTURING_GROUP_END_TOKEN"
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                                           ]
                                         }
                                       ]
@@ -400,7 +400,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_REG_EXP_CAPTURING_GROUP_END_TOKEN"
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                                           ]
                                         }
                                       ]
@@ -523,7 +523,7 @@
                                               "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_MISSING_REG_EXP_FLAG_EXPR_END_TOKEN"
+                                                "ERROR_MISSING_COLON_TOKEN"
                                               ]
                                             }
                                           ]
@@ -685,7 +685,7 @@
                                               "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_MISSING_REG_EXP_FLAG_EXPR_END_TOKEN"
+                                                "ERROR_MISSING_COLON_TOKEN"
                                               ]
                                             }
                                           ]
@@ -741,7 +741,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_REG_EXP_CAPTURING_GROUP_END_TOKEN"
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                                           ]
                                         }
                                       ]

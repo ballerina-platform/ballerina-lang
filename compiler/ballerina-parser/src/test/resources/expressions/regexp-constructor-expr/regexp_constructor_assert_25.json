@@ -159,7 +159,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_REG_EXP_CHAR_CLASS_END_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
                                           ]
                                         }
                                       ]
@@ -275,7 +275,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_REG_EXP_CHAR_CLASS_END_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
                                           ]
                                         }
                                       ]
@@ -392,7 +392,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_REG_EXP_CHAR_CLASS_END_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
                                           ]
                                         }
                                       ]
@@ -508,7 +508,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_REG_EXP_CHAR_CLASS_END_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
                                           ]
                                         }
                                       ]
@@ -615,7 +615,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_REG_EXP_CHAR_CLASS_END_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
                                           ]
                                         }
                                       ]
