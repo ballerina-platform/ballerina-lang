@@ -99,7 +99,10 @@ function testFromJsonWithTypeAmbiguousTargetType() {
     string str = "{\"name\":\"Name\",\"age\":35}";
     json j = <json> checkpanic str.fromJsonString();
     Student3|error p = j.fromJsonWithType(Student2Or3);
-    assertEquality(p is error, true);
+    assertEquality(p is error, false);
+    assertEquality(p is Student3, true);
+    assertEquality(p is Student2Or3, true);
+    assertEquality(checkpanic p, <Student3> {name:"Name",age:35});
 }
 
 type XmlType xml;
@@ -365,7 +368,9 @@ function testFromJsonStringWithTypeRecord() {
 function testFromJsonStringWithAmbiguousType() {
     string str = "{\"name\":\"Name\",\"age\":35}";
     Student3|error p = str.fromJsonStringWithType(Student2Or3);
-    assertEquality(p is error, true);
+    assertEquality(p is error, false);
+    assertEquality(p is Student2Or3, true);
+    assertEquality(p is Student3, true);
 }
 
 function testFromJsonStringWithTypeMap() {
@@ -444,14 +449,9 @@ public type Value record {|
 public function testConvertJsonToAmbiguousType() {
     json j = {"value": <map<int>> {i: 1}};
     Value|error res = j.cloneWithType(Value);
-
-    if res is error {
-        assertEquality("'map<json>' value cannot be converted to 'Value': " +
-        "\n\t\tvalue '{\"i\":1}' cannot be converted to 'Maps': ambiguous target type", res.detail()["message"]);
-        return;
-    }
-
-    panic error("Invalid respone.", message = "Expected error");
+    assertEquality(res is error, false);
+    assertEquality(res is Value, true);
+    assertEquality(checkpanic res,<Value> checkpanic {value:{i:1}});
 }
 
 function assert(anydata actual, anydata expected) {
