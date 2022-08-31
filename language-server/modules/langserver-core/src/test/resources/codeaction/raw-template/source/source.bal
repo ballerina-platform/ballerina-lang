@@ -4,7 +4,7 @@ function testFunctionWithStringReturn() returns string {
     return `Ballerina`;
 }
 
-function testFunctionWithUnionReturn() returns xml|int|record{| string name; |} {
+function testFunctionWithUnionReturn() returns xml|string|int|record{| string name; |} {
     return `Ballerina`;
 }
 
