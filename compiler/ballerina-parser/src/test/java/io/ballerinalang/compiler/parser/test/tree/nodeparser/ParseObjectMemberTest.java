@@ -111,11 +111,8 @@ public class ParseObjectMemberTest {
         List<Token> tokens = objectMemberNode.leadingInvalidTokens();
         Assert.assertEquals(tokens.size(), 1);
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.PERCENT_TOKEN);
-        tokens = objectMemberNode.trailingInvalidTokens();
-        Assert.assertEquals(tokens.size(), 1);
-        Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);
         Assert.assertEquals(objectMemberNode.toString(), " INVALID[%] isolated resource function foo . () {\n" +
                 " INVALID[%] int x = 1;\n" +
-                "} INVALID[;]");
+                "};");
     }
 }

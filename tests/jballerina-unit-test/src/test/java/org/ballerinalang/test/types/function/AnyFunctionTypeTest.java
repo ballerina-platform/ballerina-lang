@@ -39,6 +39,11 @@ public class AnyFunctionTypeTest {
         functionTypeTestResult = BCompileUtil.compile("test-src/types/function/test_any_function_type.bal");
     }
 
+//    @Test
+//    public void testOptionalSemicolon() {
+//        BRunUtil.invoke(functionTypeTestResult, "foo");
+//    }
+
     @Test
     public void testAnyFunctionTypeNegative() {
         CompileResult negativeCompileResult =

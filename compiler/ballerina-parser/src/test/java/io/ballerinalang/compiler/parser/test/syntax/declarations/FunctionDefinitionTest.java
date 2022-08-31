@@ -51,6 +51,11 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
         test("func-definition/isolated_func_def_06.bal", "func-definition/isolated_func_def_assert_06.json");
     }
 
+    @Test
+    public void testOptionalSemicolon() {
+        test("func-definition/func_def_source_34.bal", "func-definition/func_def_assert_34.json");
+    }
+
     // Recovery tests
 
     @Test

@@ -61,6 +61,11 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
         testFile("class-def/class_def_source_38.bal", "class-def/class_def_assert_38.json");
     }
 
+    @Test
+    public void testOptionalSemicolon() {
+        testFile("class-def/class_def_source_45.bal", "class-def/class_def_assert_45.json");
+    }
+
     // Test class type qualifiers
 
      @Test
