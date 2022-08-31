@@ -20,8 +20,12 @@ package io.ballerina.compiler.api.impl.type.builders;
 
 import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -103,6 +107,11 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
 
         if (type instanceof AbstractTypeSymbol) {
             return ((AbstractTypeSymbol) type).getBType();
+        }
+
+        if ((type instanceof ClassSymbol || type instanceof ConstantSymbol || type instanceof EnumSymbol)
+                && type instanceof BallerinaSymbol) {
+            return ((BallerinaSymbol) type).getInternalSymbol().getType();
         }
 
         throw new IllegalArgumentException("Invalid array member type descriptor provided");

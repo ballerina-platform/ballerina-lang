@@ -90,6 +90,14 @@ public class TypeBuildersTest {
     private static final String ORG = "$anon";
     private static final String MODULE = ".";
     private static final String VERSION = "0.0.0";
+    private TypeSymbol CLASS_TYPE;
+    private TypeSymbol CUS_RECORD_TYPE;
+    private TypeSymbol CONST_TYPE;
+    private TypeSymbol RED_TYPE;
+    private TypeSymbol GREEN_TYPE;
+    private TypeSymbol SINGLETON_TYPE;
+    private TypeSymbol TABLE_TYPE;
+    private TypeSymbol ENUM_TYPE;
 
     @BeforeClass
     public void setup() {
@@ -103,6 +111,15 @@ public class TypeBuildersTest {
         for (TypeSymbol xmlSubTypeMember : xmlSubTypeMembers) {
             xmlSubTypes.add(((XMLTypeSymbol) ((TypeReferenceTypeSymbol) xmlSubTypeMember).typeDescriptor()));
         }
+
+        CLASS_TYPE = getReferredTypeSymbol(157, 10);
+        CUS_RECORD_TYPE = getReferredTypeSymbol(158, 8);
+        CONST_TYPE = getReferredTypeSymbol(159, 12);
+        RED_TYPE = getReferredTypeSymbol(160, 8);
+        GREEN_TYPE = getReferredTypeSymbol(161, 10);
+        SINGLETON_TYPE = getReferredTypeSymbol(162, 6);
+        TABLE_TYPE = getReferredTypeSymbol(163, 13);
+        ENUM_TYPE = getReferredTypeSymbol(164, 11);
     }
 
     @Test(dataProvider = "xmlTypeBuilderProvider")
@@ -295,6 +312,10 @@ public class TypeBuildersTest {
                 {types.INT, null, "int[]"},
                 {types.BYTE, 24, "byte[24]"},
                 {types.FLOAT, -1, "float[*]"},
+                {CONST_TYPE, 4, "\"389\"[4]"},
+                {ENUM_TYPE, 2, "myEnum[2]"},
+                {SINGLETON_TYPE, 5, "5[5]"},
+                {CLASS_TYPE, -1, "MyCls[*]"},
         };
     }
 
@@ -557,12 +578,21 @@ public class TypeBuildersTest {
     private Object[][] getUnionTypes() {
         return new Object[][] {
                 {List.of(types.INT, types.STRING), "int|string"},
-                {List.of(types.FLOAT, getSymbolTypeDef(140, 6), types.BOOLEAN), "float|MyCls|boolean"},
-                {List.of(getSymbolTypeDef(133, 6), getSymbolTypeDef(135, 5)), "\"389\"|Cus"},
+                {List.of(types.FLOAT, CLASS_TYPE, types.BOOLEAN), "float|MyCls|boolean"},
+                {List.of(CONST_TYPE, CUS_RECORD_TYPE), "\"389\"|Cus"},
+                {List.of(RED_TYPE, TABLE_TYPE, GREEN_TYPE), "\"DER\"|table<Student>|\"GREEN\""},
+                {List.of(types.BYTE, SINGLETON_TYPE), "byte|5"},
+                {List.of(types.DECIMAL, ENUM_TYPE, CONST_TYPE), "decimal|myEnum|\"389\""},
         };
     }
 
     // utils
+
+    private TypeSymbol getReferredTypeSymbol(int line, int column) {
+        TypeSymbol typeSymbol = getSymbolTypeDef(line, column);
+        return typeSymbol.typeKind() == TYPE_REFERENCE ? ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor() :
+                typeSymbol;
+    }
 
     private TypeSymbol getSymbolTypeDef(int line, int column) {
         Project project = BCompileUtil.loadProject("test-src/typedefs_for_type_builders.bal");

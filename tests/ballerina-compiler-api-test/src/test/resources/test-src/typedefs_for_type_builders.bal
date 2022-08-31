@@ -153,3 +153,14 @@ class MyCls {
         self.x = x;
     }
 }
+
+function miscTypes() {
+    MyCls a;
+    Cus b;
+    MYCONST c;
+    RED d;
+    GREEN e;
+    5 f;
+    StuTable g;
+    myEnum h;
+}
