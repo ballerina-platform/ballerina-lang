@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 3,
+    "character": 15
+  },
+  "description": "Test return raw template when expecting a string",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Change to 'string' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 11
+            },
+            "end": {
+              "line": 3,
+              "character": 22
+            }
+          },
+          "newText": "string `Ballerina`"
+        }
+      ]
+    }
+  ]
+}

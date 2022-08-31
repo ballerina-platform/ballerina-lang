@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 15,
+    "character": 22
+  },
+  "description": "Test variable declaration of a row template when expecting a string",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Change to 'string' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 18
+            },
+            "end": {
+              "line": 15,
+              "character": 29
+            }
+          },
+          "newText": "string `Ballerina`"
+        }
+      ]
+    }
+  ]
+}

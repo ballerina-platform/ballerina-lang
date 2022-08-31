@@ -1,0 +1,48 @@
+{
+  "position": {
+    "line": 11,
+    "character": 15
+  },
+  "description": "Test return raw template when expecting a nil type",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Change to 'string' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 11
+            },
+            "end": {
+              "line": 11,
+              "character": 22
+            }
+          },
+          "newText": "string `Ballerina`"
+        }
+      ]
+    },
+    {
+      "title": "Change to 'xml' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 11
+            },
+            "end": {
+              "line": 11,
+              "character": 22
+            }
+          },
+          "newText": "xml `Ballerina`"
+        }
+      ]
+    }
+  ]
+}
