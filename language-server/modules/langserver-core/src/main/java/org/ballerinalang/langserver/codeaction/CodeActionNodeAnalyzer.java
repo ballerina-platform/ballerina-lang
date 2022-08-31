@@ -390,9 +390,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(BasicLiteralNode node) {
-        checkAndSetCodeActionNode(node);
-        checkAndSetSyntaxKind(node.kind());
-        visitSyntaxNode(node);
+            checkAndSetCodeActionNode(node);
+            checkAndSetSyntaxKind(node.kind());
+            visitSyntaxNode(node);
     }
 
     @Override
@@ -453,13 +453,6 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(TypeofExpressionNode node) {
-        checkAndSetCodeActionNode(node);
-        checkAndSetSyntaxKind(node.kind());
-        visitSyntaxNode(node);
-    }
-
-    @Override
-    public void visit(UnaryExpressionNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
@@ -544,6 +537,13 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(AssignmentStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(UnaryExpressionNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);

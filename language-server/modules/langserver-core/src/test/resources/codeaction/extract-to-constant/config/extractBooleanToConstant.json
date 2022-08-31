@@ -1,38 +1,39 @@
 {
   "position": {
     "line": 5,
-    "character": 6
+    "character": 31
   },
-  "source": "typeGuard.bal",
+  "source": "extractToConstant.bal",
   "expected": [
     {
-      "title": "Create variable and type guard",
+      "title": "Extract to constant",
+      "kind": "refactor.extract",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 5,
-              "character": 4
+              "line": 0,
+              "character": 0
             },
             "end": {
-              "line": 5,
-              "character": 4
+              "line": 0,
+              "character": 0
             }
           },
-          "newText": "int|error apple \u003d "
+          "newText": "const boolean CONST \u003d true;\n"
         },
         {
           "range": {
             "start": {
               "line": 5,
-              "character": 19
+              "character": 29
             },
             "end": {
               "line": 5,
-              "character": 19
+              "character": 33
             }
           },
-          "newText": "\n    if apple is int {\n\n    }"
+          "newText": "CONST"
         }
       ]
     }

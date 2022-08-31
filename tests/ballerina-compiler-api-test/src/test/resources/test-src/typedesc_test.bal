@@ -341,3 +341,23 @@ public function testXmlSubTypes() {
     XmlUnionC j4;
     xml<XmlUnionC> j5;
 }
+
+enum enumsForSingletons {
+    RED,
+    GREEN,
+    BLUE
+}
+
+function testSingletonTypes() {
+    5 a;
+    "6" b;
+    "abc" c;
+    1.2 d;
+    3.4f e;
+    0xA f;
+    0xB5ef g;
+    0xA1.B5 h;
+    0xB2.8Fp1 i;
+    "a" j;
+    RED k;
+}
