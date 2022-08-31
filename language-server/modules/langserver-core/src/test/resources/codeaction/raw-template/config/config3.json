@@ -24,6 +24,25 @@
           "newText": "xml `Ballerina`"
         }
       ]
+    },
+    {
+      "title": "Change to 'string' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 11
+            },
+            "end": {
+              "line": 7,
+              "character": 22
+            }
+          },
+          "newText": "string `Ballerina`"
+        }
+      ]
     }
   ]
 }
