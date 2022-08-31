@@ -110,20 +110,39 @@ function testAssignIntOrStringArrayIntOrFloatOrStringUnionArray() {
     assertEquality(2, arr2[1]);
 }
 
-function assignAnyToUnionWithErrorAndAny() {
+function testAssignAnyToUnionWithErrorAndAny() {
     any x = 4;
     any|error y = x;
     assertEquality(4, y);
 }
 
 function testAssignVarInQueryExpression() {
-    xml x1 = xml `<book>The Lost World</book>`;
+    xml x1 = xml `<book><a>The Lost World</a><b>Clean Code</b></book>`;
 
     var x2 = from xml element in x1 select element.toBalString();
     assertTrue(x2 is string[]);
+    string[] x3 = x2;
+    assertEquality(x3, <string[]> ["xml`<book><a>The Lost World</a><b>Clean Code</b></book>`"]);
 
-    var x3 = from xml element in x1 select element;
-    assertTrue(x3 is xml[]);
+    var x4 = from xml element in x1 select element;
+    assertTrue(x4 is xml[]);
+    xml[] x5 = x4;
+    assertEquality(x5, <xml[]> [xml `<book><a>The Lost World</a><b>Clean Code</b></book>`]);
+
+    var x6 = from xml element in x1/<a> select element;
+    assertTrue(x6 is xml<xml:Element>);
+    xml x7 = x6;
+    assertEquality(x7, xml `<a>The Lost World</a>`);
+
+    var x8 = from string element in "string" select element;
+    assertTrue(x8 is string);
+    string x9 = x8;
+    assertEquality(x9, "string");
+
+    var x10 = from string element in ["string 1", "string 2"] select element;
+    assertTrue(x10 is string[]);
+    string[] x11 = x10;
+    assertEquality(x11, <string[]>["string 1", "string 2"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
