@@ -1323,11 +1323,11 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
     EvenNumberGenerator evenGen = new();
     stream<int, error> evenNumberStream = new(evenGen);
 
-    map<int> map1 = map from var item in (from var integer in evenNumberStream select integer)
+    map<int>|error map1 = map from var item in (from var integer in evenNumberStream select integer)
                             select [item.toBalString(), item];
     assertEqual(map1, error("Greater than 20!"));
 
-    table<ResultValue> table1 = table key() from var item in (from var integer in evenNumberStream select integer)
+    table<ResultValue>|error table1 = table key() from var item in (from var integer in evenNumberStream select integer)
                                         select {value: item};
     assertEqual(table1, error("Greater than 20!"));
 
