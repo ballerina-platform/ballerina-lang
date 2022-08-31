@@ -35,6 +35,8 @@ import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -258,18 +260,44 @@ public class JsonToRecordMapper {
                     .get(entry.getKey()), jsonNodes.get(jsonEscapedFieldToFields.get(entry.getKey())));
             if (!entry.getValue().getValue0().typeName().toSourceCode()
                     .equals(entry.getValue().getValue1().typeName().toSourceCode()) && !isRecordTypeDesc) {
-                List<TypeDescriptorNode> typeDescNodes =
-                        List.of((TypeDescriptorNode) entry.getValue().getValue0().typeName(),
-                                (TypeDescriptorNode) entry.getValue().getValue1().typeName());
+                TypeDescriptorNode node1 = (TypeDescriptorNode) entry.getValue().getValue0().typeName();
+                TypeDescriptorNode node2 = (TypeDescriptorNode) entry.getValue().getValue1().typeName();
+
+                TypeDescriptorNode nonAnyDataNode = null;
+                boolean alreadyOptionalTypeDesc = false;
+
+                if (node1.kind().equals(SyntaxKind.OPTIONAL_TYPE_DESC)) {
+                    OptionalTypeDescriptorNode optionalTypeDescNode = (OptionalTypeDescriptorNode) node1;
+                    node1 = (TypeDescriptorNode) optionalTypeDescNode.typeDescriptor();
+                    alreadyOptionalTypeDesc = true;
+                } else if (node2.kind().equals(SyntaxKind.OPTIONAL_TYPE_DESC)) {
+                    OptionalTypeDescriptorNode optionalTypeDescNode = (OptionalTypeDescriptorNode) node2;
+                    node2 = (TypeDescriptorNode) optionalTypeDescNode.typeDescriptor();
+                    alreadyOptionalTypeDesc = true;
+                } else {
+                    Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
+                    if (node1.kind().equals(SyntaxKind.ANYDATA_KEYWORD)) {
+                        nonAnyDataNode =
+                                NodeParser.parseTypeDescriptor(node2.toSourceCode() + questionMarkToken.text());
+                    } else if (node2.kind().equals(SyntaxKind.ANYDATA_KEYWORD)) {
+                        nonAnyDataNode =
+                                NodeParser.parseTypeDescriptor(node1.toSourceCode() + questionMarkToken.text());
+                    }
+                }
+
                 List<TypeDescriptorNode> typeDescNodesSorted =
-                        sortTypeDescriptorNodes(extractTypeDescriptorNodes(typeDescNodes));
-                TypeDescriptorNode unionTypeDescNode = createUnionTypeDescriptorNode(typeDescNodesSorted);
+                        sortTypeDescriptorNodes(extractTypeDescriptorNodes(List.of(node1, node2)));
+                TypeDescriptorNode unionTypeDescNode =
+                        createUnionTypeDescriptorNode(typeDescNodesSorted, alreadyOptionalTypeDesc);
+
                 RecordFieldNode recordField =
                         (RecordFieldNode) getRecordField(jsonEntry, false, isOptional, recordToTypeDescNodes);
-                recordField = recordField.modify().withTypeName(unionTypeDescNode).apply();
+                recordField = recordField.modify()
+                        .withTypeName(nonAnyDataNode == null ? unionTypeDescNode : nonAnyDataNode).apply();
                 recordFields.add(recordField);
             } else {
-                Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
+                Node recordField =
+                        getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
                 recordFields.add(recordField);
             }
         }
@@ -300,25 +328,25 @@ public class JsonToRecordMapper {
      *
      * @param entry Map entry of a JSON field name and the corresponding JSON element
      * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
-     * @param optionalField To denote whether the record field is optional or not
+     * @param isOptionalField To denote whether the record field is optional or not
      * @param recordToTypeDescNodes The map of recordNames and the TypeDescriptorNodes already generated
      * @return {@link Node} Record field node for the corresponding JSON field
      */
     private static Node getRecordField(Map.Entry<String, JsonElement> entry, boolean isRecordTypeDesc,
-                                       boolean optionalField, Map<String, NonTerminalNode> recordToTypeDescNodes) {
+                                       boolean isOptionalField, Map<String, NonTerminalNode> recordToTypeDescNodes) {
         Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
-        TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
-        IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
-        Token optionalFieldToken = optionalField ? questionMarkToken : null;
+        TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
+        IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
+        Token optionalFieldToken = isOptionalField ? questionMarkToken : null;
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-                fieldTypeName, fieldName, questionMarkToken, semicolonToken);
+                fieldTypeName, fieldName, optionalFieldToken, semicolonToken);
 
         if (entry.getValue().isJsonPrimitive()) {
             typeName = getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive());
-            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
             recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                     fieldTypeName, fieldName,
                     optionalFieldToken, semicolonToken);
@@ -327,7 +355,7 @@ public class JsonToRecordMapper {
             String type = StringUtils.capitalize(elementKey);
             typeName = AbstractNodeFactory.createIdentifierToken(type);
             fieldTypeName = isRecordTypeDesc ? (TypeDescriptorNode) recordToTypeDescNodes.get(type) :
-                    NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+                    NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
             recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                     fieldTypeName, fieldName,
                     optionalFieldToken, semicolonToken);
@@ -363,14 +391,16 @@ public class JsonToRecordMapper {
             JsonElement element = iterator.next();
             if (element.isJsonPrimitive()) {
                 Token tempTypeName = getPrimitiveTypeName(element.getAsJsonPrimitive());
-                TypeDescriptorNode tempTypeNode = NodeFactory.createBuiltinSimpleNameReferenceNode(null, tempTypeName);
+                TypeDescriptorNode tempTypeNode =
+                        NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
                         .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonNull()) {
                 Token tempTypeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
-                TypeDescriptorNode tempTypeNode = NodeFactory.createBuiltinSimpleNameReferenceNode(null, tempTypeName);
+                TypeDescriptorNode tempTypeNode =
+                        NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
                         .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
@@ -382,7 +412,7 @@ public class JsonToRecordMapper {
 
                 TypeDescriptorNode tempTypeNode = isRecordTypeDesc ?
                         (TypeDescriptorNode) recordToTypeDescNodes.get(type) :
-                        NodeFactory.createBuiltinSimpleNameReferenceNode(null, tempTypeName);
+                        NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
                         .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
@@ -400,7 +430,7 @@ public class JsonToRecordMapper {
         }
 
         List<TypeDescriptorNode> typeDescriptorNodesSorted = sortTypeDescriptorNodes(typeDescriptorNodes);
-        TypeDescriptorNode fieldTypeName = createUnionTypeDescriptorNode(typeDescriptorNodesSorted);
+        TypeDescriptorNode fieldTypeName = createUnionTypeDescriptorNode(typeDescriptorNodesSorted, false);
         NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createEmptyNodeList();
         ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openSBracketToken, null,
                 closeSBracketToken);
@@ -415,10 +445,11 @@ public class JsonToRecordMapper {
      * @param typeNames List of TypeDescriptorNodes to be unionized
      * @return {@link TypeDescriptorNode} Union TypeDescriptorNode of provided TypeDescriptorNodes
      */
-    private static TypeDescriptorNode createUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
+    private static TypeDescriptorNode createUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames,
+                                                                    boolean isOptional) {
         if (typeNames.size() == 0) {
             Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
-            return NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+            return NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
         } else if (typeNames.size() == 1) {
             return typeNames.get(0);
         }
@@ -428,8 +459,12 @@ public class JsonToRecordMapper {
         TypeDescriptorNode unionTypeDescNode = NodeParser.parseTypeDescriptor(unionTypeDescNodeSource);
         Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+        Token questionMarkToken = NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
 
-        return NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken,
-                unionTypeDescNode, closeParenToken);
+        ParenthesisedTypeDescriptorNode parenTypeDescNode =
+                NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode, closeParenToken);
+
+        return isOptional ?
+                NodeFactory.createOptionalTypeDescriptorNode(parenTypeDescNode, questionMarkToken) : parenTypeDescNode;
     }
 }

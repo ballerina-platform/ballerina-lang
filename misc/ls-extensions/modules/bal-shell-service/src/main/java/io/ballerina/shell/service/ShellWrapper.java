@@ -53,6 +53,7 @@ public class ShellWrapper {
     private File tempFile;
     private static final String TEMP_FILE_PREFIX = "temp-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
+    private static final String COMMAND_PREFIX = "/";
 
     private static class InstanceHolder {
         private static final ShellWrapper instance = new ShellWrapper();
@@ -101,6 +102,10 @@ public class ShellWrapper {
             } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.SNIPPET_FAILED) {
                 throw new SnippetException();
             } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.TREE_PARSER_FAILED) {
+                if (source.startsWith(COMMAND_PREFIX)) {
+                    // remove diagnostics added by parser due to the command prefix
+                    evaluator.resetDiagnostics();
+                }
                 throw new TreeParserException();
             } else {
                 throw new InvokerException();

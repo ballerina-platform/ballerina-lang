@@ -181,22 +181,22 @@ function testInvalidStaticTypeWithQueryConstructingMap() {
 
     map<User> a2 = map from var user in users1
                      where user.age > 21 && user.age < 60
-                     select [user.firstName, user];
+                     select [user.firstName, user.age];
 
     map<string> a3 = map from var user in users1
                      where user.age > 21 && user.age < 60
-                     let string[2] arr = [user.firstName, user.lastName]
+                     let string[2] arr = [user.firstName, user.age]
                      select arr;
 
     map<int>|error a4 = map from var user in users2
                          where user.age > 21 && user.age < 60
                          select [user.firstName, user.lastName];
 
-    map<User> a5 = map from var user in users2
+    map<string> a5 = map from var user in users2
                      where user.age > 21 && user.age < 60
                      select [user.firstName, user];
 
-    map<string> a6 = map from var user in users2
+    map<User> a6 = map from var user in users2
                      where user.age > 21 && user.age < 60
                      let string[2] arr = [user.firstName, user.lastName]
                      select arr;
@@ -321,4 +321,115 @@ function testQueryConstructingMapsWithoutStringSubtypeKeys() {
 
     [FooBar5, int|float][] list8 = [];
     map<int|float>|error mp8 = map from var item in list8 select item;
+}
+
+function testConstructingInvalidReadonlyMapWithOnConflict() {
+    int[][2] & readonly arr = [[1, 2], [3, 4], [9, 10]];
+    error? onConflictError = null;
+    map<int[2]> & readonly mp1 = map from var item in arr
+                                        select [item[0].toString(), item] on conflict error("Duplicate Key!");
+
+    ImmutableMapOfDept mp3 = map from var item in ["ABC", "DEF", "XY"]
+                                        let Department dept = {dept: item}
+                                        select [item, dept] on conflict null;
+
+    map<string> & readonly mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        select item on conflict onConflictError;
+}
+
+type CustomerTableKeyless table<Customer>;
+
+function testWithReadonlyContextualTypeForQueryConstructingTablesWithOnConflict() {
+    Customer[] & readonly customerList1 = [];
+    error? onConflictError = null;
+
+    CustomerTable & readonly out1 = table key(id, name) from var customer in customerList1
+        select {
+            id: customer.id,
+            name: customer.name
+        } on conflict onConflictError;
+
+    Customer[] customerList2 = [];
+    CustomerTable out2 = table key(id, name) from var customer in customerList2
+        select customer on conflict null;
+
+    CustomerTableKeyless & readonly out3 = table key() from var customer in customerList1
+        select customer on conflict onConflictError;
+}
+
+class EvenNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {| int value; |}|error {
+        self.i += 2;
+        if self.i > 20 {
+            return error("Greater than 20!");
+        }
+        return { value: self.i };
+    }
+}
+
+type ResultValue record {|
+    int value;
+|};
+
+type NumberRecord record {|
+    readonly int id;
+    string value;
+|};
+
+function testQueryConstructingMapsAndTablesWithClauseMayCompleteSEarlyWithError() {
+    EvenNumberGenerator evenGen = new();
+    stream<int, error> evenNumberStream = new(evenGen);
+
+    map<int> map1 = map from var item in evenNumberStream
+                        select [item.toBalString(), item];
+
+    table<ResultValue> table1 = table key() from var item in evenNumberStream
+                                    select {value: item};
+
+    table<NumberRecord> key(id) table2 = table key(id) from var item in evenNumberStream
+                                            select {id: item, value: item.toBalString()};
+    // Enable following tests after fixing issue - lang/#36746
+    // map<int> map2 = map from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select [secondNo.toBalString(), secondNo];
+
+    // table<NumberRecord> key() table3 = table key() from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select {id: secondNo, value: secondNo.toBalString()};
+
+    // table<NumberRecord> key(id) table4 = table key(id) from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select {id: secondNo, value: secondNo.toBalString()};
+
+    map<int> map3 = map from var firstNo in [1, 4, 9, 10]
+                            select [firstNo.toBalString(), firstNo] on conflict error("Error");
+
+    table<NumberRecord> key(id) table6 = table key(id) from var firstNo in [1, 4, 9, 10]
+                            select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error");
+}
+
+function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2() {
+    EvenNumberGenerator evenGen = new();
+    stream<int, error> evenNumberStream = new(evenGen);
+
+    map<int> map1 = map from var item in (from var integer in evenNumberStream select integer)
+                        select [item.toBalString(), item];
+
+    table<ResultValue> table1 = table key() from var item in (from var integer in evenNumberStream select integer)
+                                    select {value: item};
+
+    table<NumberRecord> key(id) table2 = table key(id) from var item in (from var integer in evenNumberStream select integer)
+                                            select {id: item, value: item.toBalString()};
+
+    map<int>|error map2 = map from var item in (map from var firstNo in [1, 4, 4, 10]
+                            select [firstNo.toBalString(), firstNo] on conflict error("Error"))
+                        select [item.toBalString(), item];
+
+    table<record {| readonly int id; string value; |}>|error table3 = table key() from var item in (table key(id) from var firstNo in [1, 4, 4, 10]
+                            select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error"))
+                                    select item;
 }

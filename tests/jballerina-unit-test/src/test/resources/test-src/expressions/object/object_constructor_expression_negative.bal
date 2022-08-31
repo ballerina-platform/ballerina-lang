@@ -153,3 +153,11 @@ function testMissingObjConstructorDiagnosticWithAnnots() {
     var f1 = @s1
     var f3 = @s1 @s2 {}
 }
+
+client object {
+    resource function get name();
+} _ = client object {};
+
+service object {
+    resource function get name();
+} _ = service object {};
