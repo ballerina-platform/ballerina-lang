@@ -1710,10 +1710,8 @@ public class JvmInstructionGen {
         String name = inst.funcName.value;
 
         String funcKey = inst.pkgId.toString() + ":" + name;
-        String lambdaName;
-        if (functions.containsKey(funcKey)) {
-            lambdaName = functions.get(funcKey);
-        } else {
+        String lambdaName = functions.get(funcKey);
+        if (lambdaName == null) {
             lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
                     asyncDataCollector.getLambdaIndex() + "$";
             functions.put(funcKey, lambdaName);
