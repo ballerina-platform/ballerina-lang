@@ -24,7 +24,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
-    implementation project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
 ext.moduleName = 'simple.idl.client.plugin'
