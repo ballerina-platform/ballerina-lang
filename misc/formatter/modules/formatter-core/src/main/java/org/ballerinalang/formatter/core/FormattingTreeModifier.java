@@ -3075,12 +3075,33 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ConditionalExpressionNode transform(ConditionalExpressionNode conditionalExpressionNode) {
+        boolean isContinuing = isContinuing(conditionalExpressionNode.questionMarkToken());
+        boolean prevPreserveIndent = env.preserveIndentation;
         ExpressionNode lhsExpression = formatNode(conditionalExpressionNode.lhsExpression(), 1, 0);
         Token questionMarkToken = formatToken(conditionalExpressionNode.questionMarkToken(), 1, 0);
+        if (isContinuing) {
+            indent();
+            preserveIndentation(false);
+        }
         ExpressionNode middleExpression = formatNode(conditionalExpressionNode.middleExpression(), 1, 0);
+        if (isContinuing) {
+            unindent();
+            preserveIndentation(prevPreserveIndent);
+        }
+
+        isContinuing = isContinuing(conditionalExpressionNode.colonToken());
+        prevPreserveIndent = env.preserveIndentation;
         Token colonToken = formatToken(conditionalExpressionNode.colonToken(), 1, 0);
+        if (isContinuing) {
+            indent();
+            preserveIndentation(false);
+        }
         ExpressionNode endExpression = formatNode(conditionalExpressionNode.endExpression(),
                 env.trailingWS, env.trailingNL);
+        if (isContinuing) {
+            unindent();
+            preserveIndentation(prevPreserveIndent);
+        }
 
         return conditionalExpressionNode.modify()
                 .withLhsExpression(lhsExpression)
@@ -4355,6 +4376,17 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Check whether a node in a statement continues to the next lines.
+     *
+     * @param node node to be checked for continuity
+     * @return <code>true</code> If the statement continues to the next line.
+     *         <code>false</code> otherwise
+     */
+    private boolean isContinuing(Node node) {
+        return node.toSourceCode().contains(System.lineSeparator());
     }
 
     /**
