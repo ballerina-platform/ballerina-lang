@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 23,
+    "character": 39
+  },
+  "description": "Test raw template inside a let expression",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Change to 'string' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 36
+            },
+            "end": {
+              "line": 23,
+              "character": 45
+            }
+          },
+          "newText": "string `${item}` "
+        }
+      ]
+    }
+  ]
+}

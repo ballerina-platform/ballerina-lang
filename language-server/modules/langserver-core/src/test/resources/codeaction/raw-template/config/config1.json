@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 0,
+    "character": 32
+  },
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Change to 'xml' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 27
+            },
+            "end": {
+              "line": 0,
+              "character": 51
+            }
+          },
+          "newText": "xml `Module Var Declaration`"
+        }
+      ]
+    }
+  ],
+  "description": "Test module variable declaration with a row template"
+}

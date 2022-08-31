@@ -1,0 +1,48 @@
+{
+  "position": {
+    "line": 19,
+    "character": 15
+  },
+  "description": "Test variable declaration of a row template when expecting a int",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Change to 'string' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 12
+            },
+            "end": {
+              "line": 19,
+              "character": 17
+            }
+          },
+          "newText": "string `123`"
+        }
+      ]
+    },
+    {
+      "title": "Change to 'xml' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 12
+            },
+            "end": {
+              "line": 19,
+              "character": 17
+            }
+          },
+          "newText": "xml `123`"
+        }
+      ]
+    }
+  ]
+}

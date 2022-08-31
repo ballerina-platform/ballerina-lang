@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 7,
+    "character": 15
+  },
+  "description": "Test return raw template when expecting a union type",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Change to 'xml' sub type of row template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 11
+            },
+            "end": {
+              "line": 7,
+              "character": 22
+            }
+          },
+          "newText": "xml `Ballerina`"
+        }
+      ]
+    }
+  ]
+}
