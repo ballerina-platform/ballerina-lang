@@ -2370,7 +2370,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private boolean isTokenInRegExp(SyntaxKind kind) {
         switch (kind) {
+            case RE_ASSERTION:
+            case RE_CHAR_ESCAPE:
+            case RE_CHAR_SET:
             case RE_FLAGS_ON_OFF:
+            case RE_QUANTIFIER:
             case OPEN_BRACKET_TOKEN:
             case CLOSE_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
