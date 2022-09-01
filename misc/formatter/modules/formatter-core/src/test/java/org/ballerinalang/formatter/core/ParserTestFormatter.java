@@ -76,6 +76,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "record_type_def_source_14.bal",
                 "object_type_def_source_12.bal",
                 "anon_func_source_01.bal",
+                "conditional_expr_source_27.bal",
 
                 // the following tests need to be enabled in the future
                 "annotations_source_04.bal", // could be considered an invalid scenario

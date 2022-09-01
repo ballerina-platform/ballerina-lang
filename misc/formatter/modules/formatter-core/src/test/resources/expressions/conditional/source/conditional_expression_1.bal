@@ -15,4 +15,11 @@ public function foo() {
                   string var3 = true ?
          "hello" :
                                     "hi";
+
+string var4 =            true
+?                     "hello"               :
+                                 "hi";
+
+                                 string var5 = true      ?      "hello"
+                 :          "hi";
 }
