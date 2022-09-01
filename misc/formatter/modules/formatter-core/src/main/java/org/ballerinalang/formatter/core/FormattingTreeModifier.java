@@ -247,7 +247,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
+import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
 
 /**
  * A formatter implementation that updates the minutiae of a given tree according to the ballerina formatting
@@ -344,15 +344,17 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FunctionSignatureNode transform(FunctionSignatureNode functionSignatureNode) {
-        Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, 0);
+        int parenTrailingNL = 0;
+        if (hasNonWSMinutiae(functionSignatureNode.openParenToken().trailingMinutiae())) {
+            parenTrailingNL++;
+        }
+        Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
-        // Start a new indentation for the parameters. So any wrapped parameter will
-        // start from the same level as the open parenthesis.
-        int currentIndentation = env.currentIndentation;
-        setIndentation(env.lineLength);
+        // Start a new indentation of two tabs for the parameters.
+        indent(2);
         SeparatedNodeList<ParameterNode> parameters =
-                formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0);
-        setIndentation(currentIndentation);
+                formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0, 0, 0, true);
+        unindent(2);
 
         Token closePara;
         ReturnTypeDescriptorNode returnTypeDesc = null;
@@ -445,10 +447,10 @@ public class FormattingTreeModifier extends TreeModifier {
         typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), hasInit ? 1 : 0, 0);
         Token equalToken = formatToken(variableDeclarationNode.equalsToken().orElse(null), 1, 0);
 
-        boolean previousInLineAnnotation = env.inLineAnnotation;
-        setInLineAnnotation(true);
+        boolean previousInlineAnnotation = env.inlineAnnotation;
+        setInlineAnnotation(true);
         ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().orElse(null), 0, 0);
-        setInLineAnnotation(previousInLineAnnotation);
+        setInlineAnnotation(previousInlineAnnotation);
 
         Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
                 env.trailingWS, env.trailingNL);
@@ -873,13 +875,13 @@ public class FormattingTreeModifier extends TreeModifier {
         Node varRef = formatNode(assignmentStatementNode.varRef(), 1, 0);
         Token equalsToken = formatToken(assignmentStatementNode.equalsToken(), 1, 0);
 
-        boolean previousinLineAnnotation = env.inLineAnnotation;
-        setInLineAnnotation(true);
+        boolean previousInlineAnnotation = env.inlineAnnotation;
+        setInlineAnnotation(true);
 
         ExpressionNode expression = formatNode(assignmentStatementNode.expression(), 0, 0);
         Token semicolonToken = formatToken(assignmentStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
-        setInLineAnnotation(previousinLineAnnotation);
+        setInlineAnnotation(previousInlineAnnotation);
 
         return assignmentStatementNode.modify()
                 .withVarRef(varRef)
@@ -1132,12 +1134,12 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ParenthesisedTypeDescriptorNode transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
         Token openParenToken = formatToken(parenthesisedTypeDescriptorNode.openParenToken(), 0, 0);
-        TypeDescriptorNode typedesc = formatNode(parenthesisedTypeDescriptorNode.typedesc(), 0, 0);
+        TypeDescriptorNode typeDesc = formatNode(parenthesisedTypeDescriptorNode.typedesc(), 0, 0);
         Token closeParenToken = formatToken(parenthesisedTypeDescriptorNode.closeParenToken(),
                 env.trailingWS, env.trailingNL);
         return parenthesisedTypeDescriptorNode.modify()
                 .withOpenParenToken(openParenToken)
-                .withTypedesc(typedesc)
+                .withTypedesc(typeDesc)
                 .withCloseParenToken(closeParenToken)
                 .apply();
     }
@@ -1307,10 +1309,10 @@ public class FormattingTreeModifier extends TreeModifier {
                         moduleVariableDeclarationNode.equalsToken().isPresent() ? 1 : 0, 0);
         Token equalsToken = formatToken(moduleVariableDeclarationNode.equalsToken().orElse(null), 1, 0);
 
-        boolean prevInLineAnnotation = env.inLineAnnotation;
-        setInLineAnnotation(true);
+        boolean prevInlineAnnotation = env.inlineAnnotation;
+        setInlineAnnotation(true);
         ExpressionNode initializer = formatNode(moduleVariableDeclarationNode.initializer().orElse(null), 0, 0);
-        setInLineAnnotation(prevInLineAnnotation);
+        setInlineAnnotation(prevInlineAnnotation);
 
         Token semicolonToken = formatToken(moduleVariableDeclarationNode.semicolonToken(),
                 env.trailingWS, env.trailingNL);
@@ -2139,7 +2141,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public StartActionNode transform(StartActionNode startActionNode) {
         NodeList<AnnotationNode> annotations;
-        if (env.inLineAnnotation) {
+        if (env.inlineAnnotation) {
             annotations = formatNodeList(startActionNode.annotations(), 1, 0, 1, 0);
         } else {
             annotations = formatNodeList(startActionNode.annotations(), 0, 1, 0, 1);
@@ -3598,7 +3600,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 return node;
             }
 
-            if (!isInLineRange(node, lineRange)) {
+            if (!isInlineRange(node, lineRange)) {
                 checkForNewline(node);
                 return node;
             }
@@ -3646,7 +3648,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 return token;
             }
 
-            if (!isInLineRange(token, lineRange)) {
+            if (!isInlineRange(token, lineRange)) {
                 checkForNewline(token);
                 return token;
             }
@@ -3664,7 +3666,7 @@ public class FormattingTreeModifier extends TreeModifier {
             env.leadingNL = trailingNL > 0 ? trailingNL - 1 : 0;
 
             // If this node has a trailing new line, then the next immediate token
-            // will become the first token the the next line
+            // will become the first token the next line
             env.hasNewline = trailingNL > 0 || hasTrailingNL(token);
             env.trailingNL = prevTrailingNL;
             env.trailingWS = prevTrailingWS;
@@ -3822,12 +3824,11 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
      * @param itemTrailingNL Number of newlines to be added after each item in the list
      * @param separatorTrailingWS Number of single-length spaces to be added after each separator in the list
-     * @param separatorTrailingNL Number of newlines to be added after each each separator in the list
+     * @param separatorTrailingNL Number of newlines to be added after each separator in the list
      * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
      * @param listTrailingNL Number of newlines to be added after the last item in the list
      * @return Formatted node list
      */
-    @SuppressWarnings("unchecked")
     protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
                                                                             int itemTrailingWS,
                                                                             int itemTrailingNL,
@@ -3835,6 +3836,38 @@ public class FormattingTreeModifier extends TreeModifier {
                                                                             int separatorTrailingNL,
                                                                             int listTrailingWS,
                                                                             int listTrailingNL) {
+        return formatSeparatedNodeList(nodeList,
+                itemTrailingWS,
+                itemTrailingNL,
+                separatorTrailingWS,
+                separatorTrailingNL,
+                listTrailingWS,
+                listTrailingNL,
+                false);
+    }
+
+    /**
+     * Format a delimited list of nodes.
+     *
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
+     * @param itemTrailingNL Number of newlines to be added after each item in the list
+     * @param separatorTrailingWS Number of single-length spaces to be added after each separator in the list
+     * @param separatorTrailingNL Number of newlines to be added after each separator in the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
+     * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @param allowInAndMultiLine Allow both inline and multiline formatting at the same time
+     * @return Formatted node list
+     */
+    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int separatorTrailingWS,
+                                                                            int separatorTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL,
+                                                                            boolean allowInAndMultiLine) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -3857,6 +3890,15 @@ public class FormattingTreeModifier extends TreeModifier {
             }
 
             Token oldSeparator = nodeList.getSeparator(index);
+            if (allowInAndMultiLine) {
+                separatorTrailingWS = 0;
+                separatorTrailingNL = 0;
+                if (hasNonWSMinutiae(oldSeparator.trailingMinutiae())) {
+                    separatorTrailingNL++;
+                } else {
+                    separatorTrailingWS++;
+                }
+            }
             Token newSeparator = formatToken(oldSeparator, separatorTrailingWS, separatorTrailingNL);
             newNodes[(2 * index) + 1] = newSeparator;
 
@@ -3949,7 +3991,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 return true;
 
             // Template literals are multi line tokens, and newline are
-            // part of the content. Hence we cannot wrap those.
+            // part of the content. Hence, we cannot wrap those.
             case XML_TEMPLATE_EXPRESSION:
             case STRING_TEMPLATE_EXPRESSION:
             case TEMPLATE_STRING:
@@ -4011,7 +4053,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Minutiae prevMinutiae = null;
         if (env.hasNewline) {
             // 'hasNewlines == true' means a newline has already been added.
-            // Therefore increase the 'consecutiveNewlines' count
+            // Therefore, increase the 'consecutiveNewlines' count
             consecutiveNewlines++;
 
             for (int i = 0; i < env.leadingNL; i++) {
@@ -4045,7 +4087,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     break;
                 case COMMENT_MINUTIAE:
                     if (consecutiveNewlines == 0) {
-                        // A comment without a leading newline is only possible if there is a explicit newline added
+                        // A comment without a leading newline is only possible if there is an explicit newline added
                         // by the user. So, it is being honored here.
                         leadingMinutiae.add(getNewline());
                     }
@@ -4189,22 +4231,40 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
-     * Indent the code by the 4-whitespace characters.
+     * Indent the code by the number of white-spaces defined by tab-size.
      */
     private void indent() {
-        env.currentIndentation += options.getTabSize();
+        indent(1);
     }
 
     /**
-     * Undo the indentation of the code by the 4-whitespace characters.
+     * Indent the code by the number of white-spaces defined by tab-size.
+     *
+     * @param step Number of tabs.
+     */
+    private void indent(int step) {
+        env.currentIndentation += (options.getTabSize() * step);
+    }
+
+    /**
+     * Undo the indentation of the code by the number of white-spaces defined by tab-size.
      */
     private void unindent() {
-        if (env.currentIndentation < options.getTabSize()) {
+        unindent(1);
+    }
+
+    /**
+     * Undo the indentation of the code by the number of white-spaces defined by tab-size.
+     *
+     * @param step Number of tabs.
+     */
+    private void unindent(int step) {
+        if (env.currentIndentation < (options.getTabSize() * step)) {
             env.currentIndentation = 0;
             return;
         }
 
-        env.currentIndentation -= options.getTabSize();
+        env.currentIndentation -= (options.getTabSize() * step);
     }
 
     /**
@@ -4254,8 +4314,8 @@ public class FormattingTreeModifier extends TreeModifier {
      *
      * @param value boolean true for setting inline annotations.
      */
-    private void setInLineAnnotation(boolean value) {
-        env.inLineAnnotation = value;
+    private void setInlineAnnotation(boolean value) {
+        env.inlineAnnotation = value;
     }
 
     private String getWSContent(int count) {
@@ -4282,7 +4342,7 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
-     * Check whether a object type descriptor needs to be expanded in to multiple lines.
+     * Check whether an object type descriptor needs to be expanded in to multiple lines.
      *
      * @param objectTypeDesc Object type descriptor
      * @return <code>true</code> If the object type descriptor needs to be expanded in to multiple lines.
