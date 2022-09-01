@@ -29,6 +29,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -72,10 +73,12 @@ class IDLPluginManager {
         private final Node clientNode;
         private final List<ModuleConfig> moduleConfigs;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
+        private Path resourcePath;
 
-        public IDLSourceGeneratorContextImpl(Node clientNode, Package currentPackage,
+        public IDLSourceGeneratorContextImpl(Node clientNode, Package currentPackage, Path resourcePath,
                                              Map<LineRange, PackageID> idlClientMap, List<ModuleConfig> moduleConfigs) {
             this.currentPackage = currentPackage;
+            this.resourcePath = resourcePath;
             this.idlClientMap = idlClientMap;
             this.clientNode = clientNode;
             this.moduleConfigs = moduleConfigs;
@@ -89,6 +92,11 @@ class IDLPluginManager {
         @Override
         public Package currentPackage() {
             return currentPackage;
+        }
+
+        @Override
+        public Path resourcePath() {
+            return resourcePath;
         }
 
         @Override

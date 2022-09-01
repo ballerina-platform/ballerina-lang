@@ -49,8 +49,8 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
     private static class OpenAPIClientGenerator extends IDLClientGenerator {
 
         @Override
-        public boolean canHandle(Node clientNode) {
-            return !getUri(clientNode).startsWith("http://example.com");
+        public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
+            return !getUri(idlSourceGeneratorContext.clientNode()).startsWith("http://example.com");
         }
 
         @Override

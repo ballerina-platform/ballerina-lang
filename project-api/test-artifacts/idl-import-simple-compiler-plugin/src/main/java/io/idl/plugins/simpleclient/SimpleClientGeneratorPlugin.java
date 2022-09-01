@@ -53,8 +53,8 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
         private int id = 1;
 
         @Override
-        public boolean canHandle(Node clientNode) {
-            String uri = getUri(clientNode);
+        public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
+            String uri = getUri(idlSourceGeneratorContext.clientNode());
 
             if (uri.startsWith("http://example.com/disallow")) {
                 return false;

@@ -30,10 +30,10 @@ public abstract class IDLClientGenerator {
     /**
      * Checks whether the plugin can support code generation for the passed client node.
      *
-     * @param clientNode the client syntax node
+     * @param generatorContext IDL client source generator context
      * @return whether the client can be generated
      */
-    public abstract boolean canHandle(Node clientNode);
+    public abstract boolean canHandle(IDLSourceGeneratorContext generatorContext);
 
     /**
      * Performs a IDL generation with the passed context.

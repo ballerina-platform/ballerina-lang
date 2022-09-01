@@ -17,13 +17,16 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.internal.IDLClients;
@@ -42,6 +45,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -231,13 +238,15 @@ class DocumentContext {
         public void visit(ModuleClientDeclarationNode moduleClientDeclarationNode) {
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
-                    if (idlClientGenerator.canHandle(moduleClientDeclarationNode)) {
-                        IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
-                                new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                        moduleClientDeclarationNode,
-                                        currentPkg, idlClientMap,
-                                        idlPluginManager.generatedModuleConfigs());
+                    Path idlPath = getIDLPath(moduleClientDeclarationNode);
+                    IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
+                            new IDLPluginManager.IDLSourceGeneratorContextImpl(
+                                    moduleClientDeclarationNode,
+                                    currentPkg, idlPath, idlClientMap,
+                                    idlPluginManager.generatedModuleConfigs());
+                    if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                         idlClientGenerator.perform(idlSourceGeneratorContext);
+                        return; // Assumption: only one plugin will be able to handle a given client node
                     }
                 }
             }
@@ -247,16 +256,46 @@ class DocumentContext {
         public void visit(ClientDeclarationNode clientDeclarationNode) {
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
-                    if (idlClientGenerator.canHandle(clientDeclarationNode)) {
-                        IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
-                                new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                        clientDeclarationNode,
-                                        currentPkg, idlClientMap,
-                                        idlPluginManager.generatedModuleConfigs());
+                    Path idlPath = getIDLPath(clientDeclarationNode);
+                    IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
+                            new IDLPluginManager.IDLSourceGeneratorContextImpl(
+                                    clientDeclarationNode,
+                                    currentPkg, idlPath, idlClientMap,
+                                    idlPluginManager.generatedModuleConfigs());
+                    if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                         idlClientGenerator.perform(idlSourceGeneratorContext);
+                        return; // Assumption: only one plugin will be able to handle a given client node
                     }
                 }
             }
+        }
+
+        private Path getIDLPath(Node clientNode) {
+            String uri = getUri(clientNode);
+            Path uriPath = Paths.get(uri);
+            if (Files.notExists(uriPath)) {
+                // report syntax diagnostics
+            }
+            return uriPath;
+        }
+
+        private void reportSyntaxDiagnostics(PackageID pkgID, SyntaxTree tree, BLangDiagnosticLog dlog) {
+            for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
+                dlog.logDiagnostic(pkgID, syntaxDiagnostic);
+            }
+        }
+
+        private String getUri(Node clientNode) {
+            BasicLiteralNode clientUri;
+
+            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
+                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
+            } else {
+                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
+            }
+
+            String text = clientUri.literalToken().text();
+            return text.substring(1, text.length() - 1);
         }
     }
 }

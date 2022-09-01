@@ -23,6 +23,8 @@ import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.nio.file.Path;
+
 /**
  * The context for the IDl client source code generator task.
  *
@@ -33,6 +35,8 @@ public interface IDLSourceGeneratorContext {
     Node clientNode();
 
     Package currentPackage();
+
+    Path resourcePath();
 
     void reportDiagnostic(Diagnostic diagnostic);
 
