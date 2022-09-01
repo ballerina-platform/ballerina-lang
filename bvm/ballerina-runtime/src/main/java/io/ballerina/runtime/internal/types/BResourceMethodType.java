@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
@@ -33,9 +34,10 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
     public final String accessor;
     public final String[] resourcePath;
 
-    public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, long flags, String accessor,
+    public BResourceMethodType(String funcName, Module pkg, BObjectType parent, BFunctionType type, long flags,
+                               String accessor,
                                String[] resourcePath) {
-        super(funcName, parent, type, flags);
+        super(funcName, pkg, parent, type, flags);
         this.type = type;
         this.flags = flags;
         this.accessor = accessor;
@@ -79,7 +81,7 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath);
+        return new BResourceMethodType(funcName, pkg, parentObjectType, type, flags, accessor, resourcePath);
     }
 
     @Deprecated

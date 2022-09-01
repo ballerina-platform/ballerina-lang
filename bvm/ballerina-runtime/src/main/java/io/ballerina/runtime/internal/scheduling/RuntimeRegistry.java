@@ -79,7 +79,7 @@ public class RuntimeRegistry {
 
     private void invokeListenerGracefulStop(Strand strand, Scheduler scheduler) {
         Iterator<BObject> itr = listenerSet.iterator();
-        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
+        AsyncFunctionCallback callback = new AsyncFunctionCallback(strand) {
             @Override
             public void notifySuccess(Object result) {
                 if (itr.hasNext()) {
@@ -100,14 +100,13 @@ public class RuntimeRegistry {
 
         BObject listener = itr.next();
         Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
-        callback.setStrand(strand);
         scheduler.schedule(new Object[1], func, null, callback, null, null,
                 null, strand.getMetadata());
     }
 
     private void invokeStopHandlerFunction(Strand strand, Scheduler scheduler) {
         BFunctionPointer<?, ?> bFunctionPointer = stopHandlerStack.pop();
-        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
+        AsyncFunctionCallback callback = new AsyncFunctionCallback(strand) {
             @Override
             public void notifySuccess(Object result) {
                 if (stopHandlerStack.isEmpty()) {
@@ -123,7 +122,6 @@ public class RuntimeRegistry {
         };
         final FutureValue future = scheduler.createFuture(strand, callback, null,
                 ((BFunctionType) bFunctionPointer.getType()).retType, null, strand.getMetadata());
-        callback.setStrand(strand);
         scheduler.scheduleLocal(new Object[]{strand}, bFunctionPointer, strand, future);
     }
 }

@@ -389,9 +389,12 @@ public class JvmObjectTypeGen {
         mv.visitTypeInsn(NEW, METHOD_TYPE_IMPL);
 
         mv.visitInsn(DUP);
-
         // Load function name
         mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
+
+        // Load module
+        String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
 
         // Load the parent object type
         jvmTypeGen.loadType(mv, objType);
@@ -414,6 +417,10 @@ public class JvmObjectTypeGen {
         // Load function name
         mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
 
+        // Load module
+        String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
+
         // Load the parent object type
         jvmTypeGen.loadType(mv, objType);
         mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
@@ -435,6 +442,10 @@ public class JvmObjectTypeGen {
 
         // Load function name
         mv.visitLdcInsn(resourceFunction.funcName.value);
+
+        // Load module
+        String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
 
         // Load the parent object type
         jvmTypeGen.loadType(mv, objType);

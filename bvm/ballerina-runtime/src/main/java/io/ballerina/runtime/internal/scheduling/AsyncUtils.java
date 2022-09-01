@@ -23,11 +23,13 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -81,7 +83,8 @@ public class AsyncUtils {
     public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, String strandName,
                                                          StrandMetadata metadata, Object[] args, Function<Object,
             Object> resultHandleFunction, Scheduler scheduler) {
-        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
+        Strand parent = Scheduler.getStrand();
+        AsyncFunctionCallback callback = new AsyncFunctionCallback(parent) {
             @Override
             public void notifySuccess(Object result) {
                 setReturnValues(resultHandleFunction.apply(getFutureResult()));
@@ -89,31 +92,24 @@ public class AsyncUtils {
 
             @Override
             public void notifyFailure(BError error) {
-                handleRuntimeErrors(error);
+                handleRuntimeErrors(parent, error);
             }
         };
-        return invokeFunctionPointerAsync(func, Scheduler.getStrand(), strandName, metadata, args, callback, scheduler);
-    }
-
-    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Strand parent, String name,
-                                                         StrandMetadata metadata, Object[] args,
-                                                         AsyncFunctionCallback callback, Scheduler scheduler) {
-
+        BFunctionType funcType = (BFunctionType) func.getType();
         blockStrand(parent);
-        final FutureValue future = scheduler.createFuture(parent, null, null,
-                                                          ((BFunctionType) func.getType()).retType, name, metadata);
-        future.callback = callback;
-        callback.setFuture(future);
-        callback.setStrand(parent);
-        return scheduler.scheduleLocal(args, func, parent, future);
-    }
+        FutureValue future = scheduler.createFuture(parent, null, null, funcType.retType, strandName, metadata);
+        AsyncUtils.getArgsWithDefaultValues(scheduler, func, new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                invokeFunctionPointerAsync(func, parent, future, (Object[]) result, callback, scheduler);
+            }
 
-    public static void blockStrand(Strand strand) {
-        if (!strand.blockedOnExtern) {
-            strand.blockedOnExtern = true;
-            strand.setState(State.BLOCK_AND_YIELD);
-            strand.returnValue = null;
-        }
+            @Override
+            public void notifyFailure(BError error) {
+                callback.notifyFailure(error);
+            }
+        }, args);
+        return future;
     }
 
     /**
@@ -138,56 +134,45 @@ public class AsyncUtils {
                                                              Consumer<Object> futureResultConsumer,
                                                              Supplier<Object> returnValueSupplier,
                                                              Scheduler scheduler) {
-
         if (noOfIterations <= 0) {
             return;
         }
-        Strand strand = Scheduler.getStrand();
-        blockStrand(strand);
+        Strand parent = Scheduler.getStrand();
+        blockStrand(parent);
         AtomicInteger callCount = new AtomicInteger(0);
-        scheduleNextFunction(func, strand, strandName, metadata, noOfIterations, callCount, argsSupplier,
-                             futureResultConsumer, returnValueSupplier, scheduler);
-    }
+        BFunctionType funcType = (BFunctionType) func.getType();
+        scheduleNextFunction(func, funcType, parent, strandName, metadata, noOfIterations, callCount, argsSupplier,
+                futureResultConsumer, returnValueSupplier, scheduler);
 
-    private static void scheduleNextFunction(BFunctionPointer<?, ?> func, Strand strand, String strandName,
-                                             StrandMetadata metadata, int noOfIterations,
-                                             AtomicInteger callCount, Supplier<Object[]> argsSupplier,
-                                             Consumer<Object> futureResultConsumer,
-                                             Supplier<Object> returnValueSupplier, Scheduler scheduler) {
-        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
-            @Override
-            public void notifySuccess(Object result) {
-                futureResultConsumer.accept(getFutureResult());
-                if (callCount.incrementAndGet() != noOfIterations) {
-                    scheduleNextFunction(func, strand, strandName, metadata, noOfIterations, callCount, argsSupplier,
-                                         futureResultConsumer, returnValueSupplier, scheduler);
-                } else {
-                    setReturnValues(returnValueSupplier.get());
-                }
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                handleRuntimeErrors(error);
-            }
-        };
-        invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
     }
 
     public static void getArgsWithDefaultValues(Scheduler scheduler, BObject object,
                                                 String methodName, Callback callback, Object... args) {
-        if (args.length == 0) {
+        ObjectType objectType = object.getType();
+        Module module = objectType.getPackage();
+        if (args.length == 0 || module == null) {
             callback.notifySuccess(args);
             return;
         }
-        ObjectType objectType = object.getType();
-        Module module = objectType.getPackage();
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
-        MethodType methodType = getMethodType(methodName, objectType);
-        if (methodType == null) {
+        FunctionType functionType = getObjectMethodType(methodName, objectType);
+        if (functionType == null) {
             throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
         }
-        Parameter[] parameters = methodType.getParameters();
+        Parameter[] parameters = functionType.getParameters();
+        getArgsWithDefaultValues(scheduler, callback, valueCreator, 0, args, parameters, new ArrayList<>());
+    }
+
+    private static void getArgsWithDefaultValues(Scheduler scheduler, BFunctionPointer<?, ?> func, Callback callback,
+                                                 Object... args) {
+        FunctionType functionType = (FunctionType) func.getType();
+        Module module = functionType.getPackage();
+        if (args.length == 0 || module == null) {
+            callback.notifySuccess(args);
+            return;
+        }
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
+        Parameter[] parameters = functionType.getParameters();
         getArgsWithDefaultValues(scheduler, callback, valueCreator, 0, args, parameters, new ArrayList<>());
     }
 
@@ -195,16 +180,19 @@ public class AsyncUtils {
                                                  int startArg, Object[] args, Parameter[] parameters,
                                                  List<Object> argsWithDefaultValues) {
         int paramCount = startArg / 2;
-        Parameter parameter = parameters[paramCount];
-        if (!((boolean) args[startArg + 1]) && parameter.isDefault) {
+        Parameter parameter;
+        if (!((Boolean) args[startArg + 1]) && (paramCount < parameters.length) &&
+                ((parameter = parameters[paramCount]).isDefault)) {
             // If argument not provided and parameter has default value we call default value function to get the value
             callDefaultValueFunction(scheduler, callback, valueCreator, startArg, args, parameters,
                     argsWithDefaultValues, parameter);
             return;
         }
+
         // else use user given argument value.
         argsWithDefaultValues.add(args[startArg]);
-        getNextDefaultParamValue(scheduler, callback, valueCreator, startArg, args, parameters, argsWithDefaultValues);
+        getNextDefaultParamValue(scheduler, callback, valueCreator, startArg, args, parameters,
+                argsWithDefaultValues);
     }
 
     private static void getNextDefaultParamValue(Scheduler scheduler, Callback callback, ValueCreator valueCreator,
@@ -244,7 +232,7 @@ public class AsyncUtils {
         scheduler.schedule(args, defaultFunc, future);
     }
 
-    private static MethodType getMethodType(String methodName, ObjectType objectType) {
+    private static MethodType getObjectMethodType(String methodName, ObjectType objectType) {
         Map<String, MethodType> methodTypesMap = new HashMap<>();
         if (objectType.getTag() == TypeTags.SERVICE_TAG) {
             BServiceType serviceType = (BServiceType) objectType;
@@ -264,9 +252,68 @@ public class AsyncUtils {
         return methodTypesMap.get(methodName);
     }
 
+    private static void scheduleNextFunction(BFunctionPointer<?, ?> func, BFunctionType funcType, Strand parent,
+                                             String strandName, StrandMetadata metadata, int noOfIterations,
+                                             AtomicInteger callCount, Supplier<Object[]> argsSupplier,
+                                             Consumer<Object> futureResultConsumer,
+                                             Supplier<Object> returnValueSupplier, Scheduler scheduler) {
+        AsyncFunctionCallback callback = new AsyncFunctionCallback(parent) {
+            @Override
+            public void notifySuccess(Object result) {
+                futureResultConsumer.accept(getFutureResult());
+                if (callCount.incrementAndGet() != noOfIterations) {
+                    scheduleNextFunction(func, funcType, parent, strandName, metadata, noOfIterations, callCount,
+                            argsSupplier, futureResultConsumer, returnValueSupplier, scheduler);
+                } else {
+                    setReturnValues(returnValueSupplier.get());
+                }
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                handleRuntimeErrors(parent, error);
+            }
+        };
+        AsyncUtils.getArgsWithDefaultValues(scheduler, func, new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                FutureValue future = scheduler.createFuture(parent, null, null, funcType.retType, strandName, metadata);
+                invokeFunctionPointerAsync(func, parent, future, (Object[]) result, callback, scheduler);
+            }
+            @Override
+            public void notifyFailure(BError error) {
+                handleRuntimeErrors(parent, error);
+            }
+        }, argsSupplier.get());
+    }
+
+    private static void invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Strand parent,
+                                                   FutureValue future, Object[] args,
+                                                   AsyncFunctionCallback callback, Scheduler scheduler) {
+        future.callback = callback;
+        callback.setFuture(future);
+        Object[] argsWithStrand = new Object[args.length + 1];
+        System.arraycopy(args, 0, argsWithStrand, 1, args.length);
+        argsWithStrand[0] = future.strand;
+        scheduler.scheduleLocal(argsWithStrand, func, parent, future);
+    }
+
+    private static void blockStrand(Strand strand) {
+        if (!strand.blockedOnExtern) {
+            strand.blockedOnExtern = true;
+            strand.setState(State.BLOCK_AND_YIELD);
+            strand.returnValue = null;
+        }
+    }
+
+    private static void handleRuntimeErrors(Strand parent, BError error) {
+        parent.panic = error;
+        parent.scheduler.unblockStrand(parent);
+    }
+
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
 
-        private Strand strand;
+        private final Strand strand;
 
         public Unblocker(Strand strand) {
             this.strand = strand;
