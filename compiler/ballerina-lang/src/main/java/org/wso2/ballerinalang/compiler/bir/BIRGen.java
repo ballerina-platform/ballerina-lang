@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -1334,9 +1333,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: make vCall a new instruction to avoid package id in vCall
         if (invocationExpr.functionPointerInvocation) {
-            BType invocationExprType = invocationExpr.getBType();
-            boolean workerDerivative = (invocationExprType instanceof BFutureType) &&
-                    (((BFutureType) invocationExprType).workerDerivative);
+            boolean workerDerivative = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.WORKER);
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, transactional, thenBB, this.currentScope, workerDerivative);
         } else if (invocationExpr.async) {
