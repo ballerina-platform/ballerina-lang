@@ -322,7 +322,9 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
     private boolean addNewLineAtEnd(Node enclosingNode) {
         Iterator<Node> iterator = enclosingNode.parent().children().iterator();
         while (iterator.hasNext()) {
-            if (iterator.next().lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
+            Node next = iterator.next();
+            if (next.textRange().length() > 0
+                    && next.lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
                 return true;
             }
         }

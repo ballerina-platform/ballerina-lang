@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getBoolean() returns boolean {\n    return false;\n}\n"
+          "newText": "\n\nfunction getBoolean() returns boolean {\n    return false;\n}"
         }
       ],
       "resolvable": true,
