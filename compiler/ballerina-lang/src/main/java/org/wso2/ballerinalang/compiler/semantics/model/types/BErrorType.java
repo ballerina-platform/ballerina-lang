@@ -23,15 +23,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Optional;
-
 /**
  * Represents error type in Ballerina.
  *
  * @since 0.983.0
  */
 public class BErrorType extends BType implements ErrorType {
-
     public BType detailType;
     public BTypeIdSet typeIdSet;
 
@@ -73,15 +70,5 @@ public class BErrorType extends BType implements ErrorType {
             return String.valueOf(tsymbol);
         }
         return ERROR +  detailType + CLOSE_ERROR;
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

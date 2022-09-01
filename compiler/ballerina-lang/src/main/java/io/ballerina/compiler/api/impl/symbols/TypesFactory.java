@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -64,7 +63,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
@@ -156,14 +154,6 @@ public class TypesFactory {
                                  boolean typeRefFromIntersectType) {
         if (bType == null) {
             return null;
-        }
-
-        if (getOriginalType && bType instanceof IntersectableReferenceType) {
-            Optional<BIntersectionType> intersectionType = ((IntersectableReferenceType) bType).getIntersectionType();
-            if (intersectionType.isPresent()) {
-                bType = intersectionType.get();
-                tSymbol = bType.tsymbol;
-            }
         }
 
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {

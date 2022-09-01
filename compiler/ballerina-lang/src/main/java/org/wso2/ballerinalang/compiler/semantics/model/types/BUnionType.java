@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -42,11 +41,7 @@ import java.util.stream.Stream;
  * @since 0.966.0
  */
 public class BUnionType extends BType implements UnionType {
-
     public boolean resolvingToString = false;
-
-    private BIntersectionType intersectionType = null;
-
     private boolean nullable;
     private String cachedToString;
 
@@ -489,15 +484,5 @@ public class BUnionType extends BType implements UnionType {
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
         cachedToString = (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) :
                 typeStr;
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
  * @since 0.966.0
  */
 public class BTupleType extends BType implements TupleType {
-
     public List<BType> tupleTypes;
     public BType restType;
     public Boolean isAnyData = null;
@@ -124,16 +122,6 @@ public class BTupleType extends BType implements TupleType {
 
         this.resolvingToString = false;
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 
     // In the case of a cyclic tuple, this aids in

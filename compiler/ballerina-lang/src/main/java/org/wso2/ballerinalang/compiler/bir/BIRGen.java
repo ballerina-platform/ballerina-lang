@@ -537,15 +537,14 @@ public class BIRGen extends BLangNodeVisitor {
     private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
         int tag = constValue.type.tag;
         if (tag == TypeTags.INTERSECTION) {
-            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
-            tag = constValue.type.tag;
+            tag = ((BIntersectionType) constValue.type).effectiveType.tag;
         }
 
         if (tag == TypeTags.RECORD) {
             Map<String, ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
                     .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
+            return new ConstValue(mapConstVal, constValue.type);
         }
 
         if (tag == TypeTags.TUPLE) {
@@ -554,7 +553,7 @@ public class BIRGen extends BLangNodeVisitor {
             for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
                 tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
             }
-            return new ConstValue(tupleConstVal, ((BTupleType) constValue.type).getIntersectionType().get());
+            return new ConstValue(tupleConstVal, constValue.type);
         }
 
         return new ConstValue(constValue.value, constValue.type);
@@ -2174,7 +2173,7 @@ public class BIRGen extends BLangNodeVisitor {
         keySpecifierLiteral.pos = tableConstructorExpr.pos;
         keySpecifierLiteral.setBType(symTable.stringArrayType);
         keySpecifierLiteral.exprs = new ArrayList<>();
-        BTableType type = (BTableType) tableConstructorExpr.getBType();
+        BTableType type = (BTableType) Types.getReferredType(tableConstructorExpr.getBType());
 
         if (!type.fieldNameList.isEmpty()) {
             type.fieldNameList.forEach(col -> {
@@ -2191,7 +2190,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableConstructorExpr.pos;
-        dataLiteral.setBType(new BArrayType(((BTableType) tableConstructorExpr.getBType()).constraint));
+        dataLiteral.setBType(new BArrayType(type.constraint));
         dataLiteral.exprs = new ArrayList<>(tableConstructorExpr.recordLiteralList);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;

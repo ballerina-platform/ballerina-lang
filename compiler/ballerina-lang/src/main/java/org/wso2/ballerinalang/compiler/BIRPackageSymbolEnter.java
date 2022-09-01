@@ -29,7 +29,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
-import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -1456,7 +1455,7 @@ public class BIRPackageSymbolEnter {
                         constituentTypes.add(readTypeFromCp());
                     }
 
-                    IntersectableReferenceType effectiveType = (IntersectableReferenceType) readTypeFromCp();
+                    BType effectiveType = readTypeFromCp();
                     return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType, flags);
                 case TypeTags.PACKAGE:
                     // TODO fix

@@ -24,18 +24,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Optional;
-
 /**
  * Represents XML Type.
  *
  * @since 0.961.0
  */
 public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
-
     public BType constraint;
-
-    private BIntersectionType intersectionType = null;
 
     public BXMLType(BType constraint, BTypeSymbol tsymbol) {
         super(TypeTags.XML, tsymbol);
@@ -69,15 +64,5 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

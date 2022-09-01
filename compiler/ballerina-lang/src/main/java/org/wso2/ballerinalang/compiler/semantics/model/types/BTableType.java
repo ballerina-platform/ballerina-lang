@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * {@code BTableType} represents a table in Ballerina.
@@ -36,7 +35,6 @@ import java.util.Optional;
  * @since 1.3.0
  */
 public class BTableType extends BType implements TableType {
-
     public BType constraint;
     public BType keyTypeConstraint;
     public List<String> fieldNameList = new ArrayList<>();
@@ -98,15 +96,5 @@ public class BTableType extends BType implements TableType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

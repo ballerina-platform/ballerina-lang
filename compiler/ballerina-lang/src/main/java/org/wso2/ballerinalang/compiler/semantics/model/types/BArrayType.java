@@ -26,15 +26,10 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Optional;
-
 /**
  * @since 0.94
  */
 public class BArrayType extends BType implements ArrayType {
-
-    private static final String SEMI_COLON = ";";
-
     public BType eType;
 
     public int size = -1;
@@ -110,15 +105,5 @@ public class BArrayType extends BType implements ArrayType {
             }
         }
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

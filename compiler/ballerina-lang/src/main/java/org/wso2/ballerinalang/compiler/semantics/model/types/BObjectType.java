@@ -28,15 +28,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Optional;
-
 /**
  * {@code BObjectType} represents object type in Ballerina.
  *
  * @since 0.971.0
  */
 public class BObjectType extends BStructureType implements ObjectType {
-
     private static final String OBJECT = "object";
     private static final String SPACE = " ";
     private static final String PUBLIC = "public";
@@ -123,15 +120,5 @@ public class BObjectType extends BStructureType implements ObjectType {
             return sb.toString();
         }
         return this.tsymbol.toString();
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }
