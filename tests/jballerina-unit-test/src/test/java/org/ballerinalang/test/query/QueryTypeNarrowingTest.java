@@ -71,7 +71,7 @@ public class QueryTypeNarrowingTest {
                 118, 22);
         validateError(compileResult, i++, "incompatible types: expected 'B', found 'AorB'",
                 123, 15);
-        validateError(compileResult, i++, "incompatible types: expected 'E', found 'DorE'",,
+        validateError(compileResult, i++, "incompatible types: expected 'E', found 'DorE'",
                 210, 22);
         validateError(compileResult, i++, "incompatible types: expected 'E', found 'DorE'",
                 221, 15);

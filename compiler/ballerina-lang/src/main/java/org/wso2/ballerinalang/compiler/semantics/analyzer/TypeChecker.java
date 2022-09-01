@@ -6281,7 +6281,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (data.commonAnalyzerData.queryCompletesEarly) {
             if (queryConstructType == Types.QueryConstructType.TABLE ||
-                    queryConstructType == Types.QueryConstructType.MAP) {
+                            queryConstructType == Types.QueryConstructType.MAP) {
                 completionTypes.addAll(data.commonAnalyzerData.checkedErrorList);
             }
             if (completionTypes.isEmpty()) {

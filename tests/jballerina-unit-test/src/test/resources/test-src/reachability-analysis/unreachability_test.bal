@@ -1053,7 +1053,7 @@ function testUnreachableStatementInQueryAction2() returns error? {
 }
 
 function testUnreachableStatementInQueryAction3() returns error? {
-    checkpanic from var item in 1 ... 5
+    checkpanic from var _ in new IterableWithError()
         where false
         do {
             int _ = 10; // unreachable code
@@ -1099,7 +1099,7 @@ function testUnreachableStatementInQueryAction7() returns error? {
 }
 
 function testUnreachableStatementInQueryAction8() returns error? {
-    return checkpanic from var item in 1 ... 5
+    checkpanic from var _ in new IterableWithError()
         where false
         do {
             int _ = 10; // unreachable code
@@ -1755,4 +1755,18 @@ function testUnreachabilityWithCombinationOfBreakAndContinue10() returns int {
         }
     }
     return 4;
+}
+
+class IterableWithError {
+    *object:Iterable;
+    public function iterator() returns object {
+
+        public isolated function next() returns record {|int value;|}|error?;
+    } {
+        return object {
+            public isolated function next() returns record {|int value;|}|error? {
+               return error("Custom error thrown.");
+            }
+        };
+    }
 }
