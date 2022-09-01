@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -225,8 +224,9 @@ public class ModuleVariableDeclarationNodeContext extends
             return false;
         }
         int textPosition = context.getCursorPositionInTree();
-        TextRange equalTokenRange = node.equalsToken().get().textRange();
-        return equalTokenRange.endOffset() <= textPosition;
+        int equalTokenEndOffset = node.equalsToken().get().textRange().endOffset();
+        int semicolonTokenStartOffset = node.semicolonToken().textRange().startOffset();
+        return equalTokenEndOffset <= textPosition && textPosition <= semicolonTokenStartOffset;
     }
 
     enum ResolvedContext {
