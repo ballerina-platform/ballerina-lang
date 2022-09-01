@@ -3637,7 +3637,7 @@
     {
       "name": "RetryStatementNode",
       "base": "StatementNode",
-      "kind": "ROLLBACK_STATEMENT",
+      "kind": "RETRY_STATEMENT",
       "attributes": [
         {
           "name": "retryKeyword",

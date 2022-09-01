@@ -4628,22 +4628,24 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private void validateReferencedFunction(Location pos, BAttachedFunction func, SymbolEnv env,
                                             DiagnosticErrorCode code) {
-        if (!Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.CLASS)) {
+        BInvokableSymbol invokableSymbol = func.symbol;
+        BType receiverType = invokableSymbol.receiverSymbol.type;
+        if (!Symbols.isFlagOn(receiverType.tsymbol.flags, Flags.CLASS)) {
             return;
         }
 
-        if (!Symbols.isFunctionDeclaration(func.symbol)) {
+        if (!Symbols.isFunctionDeclaration(invokableSymbol)) {
             return;
         }
 
-        // Service typing does not consider resource methods when type checking.
-        if (Symbols.isResource(func.symbol)) {
-            return;
-        }
-
-        // There must be an implementation at the outer level, if the function is an interface.
-        if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
-            dlog.error(pos, code, func.funcName, func.symbol.receiverSymbol.type);
+        if (!env.enclPkg.objAttachedFunctions.contains(invokableSymbol)) {
+            if (Symbols.isResource(invokableSymbol)) {
+                // Use the function signature in the error msg since resource function name will contain `$`s if
+                // we use the func.funcName
+                dlog.error(pos, code, func, receiverType);
+            } else {
+                dlog.error(pos, code, func.funcName, receiverType);
+            }
         }
     }
 
