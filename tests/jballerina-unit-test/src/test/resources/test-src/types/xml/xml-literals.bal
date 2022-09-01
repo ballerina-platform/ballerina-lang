@@ -421,7 +421,7 @@ function testXMLLiteralWithConditionExpr() {
     s = ();
 
     xml:Element e1 = xml `<baz/>`;
-    xml v1 = (s ?: e1) + xml `<element>A</element>`;
+    xml? v1 = (s ?: e1) + xml `<element>A</element>`;
     test:assertEquals(v1.toString(), "<baz></baz><element>A</element>");
 
     xml<xml:Element> e2 = xml `<baz/>`;
@@ -435,4 +435,13 @@ function testXMLLiteralWithConditionExpr() {
     XMLType e4 = xml `<?target data?>`;
     xml v4 = (s ?: e4) + xml `<element>A</element>`;
     test:assertEquals(v4.toString(), "<?target data?><element>A</element>");
+
+    xml w1 = (s ?: (v1 is xml<xml:Element> ? e2 : xml `<user>Foo</user>`)) + xml `<element>B</element>`;
+    test:assertEquals(w1.toString(), "<baz></baz><element>B</element>");
+
+    xml w2 = (s ?: (v1 ?: xml `<user>Foo</user>`)) + xml `<element>B</element>`;
+    test:assertEquals(w2.toString(), "<baz></baz><element>A</element><element>B</element>");
+
+    xml w3 = (s ?: (s ?: (v1 is xml:Element ? e2 : xml `<user>Foo</user>`))) + xml `<element>B</element>`;
+    test:assertEquals(w3.toString(), "<user>Foo</user><element>B</element>");
 }
