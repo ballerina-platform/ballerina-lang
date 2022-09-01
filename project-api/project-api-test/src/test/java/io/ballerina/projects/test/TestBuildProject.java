@@ -97,6 +97,7 @@ import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.REPO_BIR_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -1305,7 +1306,7 @@ public class TestBuildProject extends BaseTest {
 
         // 3) Compile the package
         PackageCompilation compilation = currentPackage.getCompilation();
-        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 5);
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 1);
 
         // 4) Edit a module that is used by another module
         Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
@@ -1314,17 +1315,12 @@ public class TestBuildProject extends BaseTest {
 
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
         Diagnostic firstDiagnostic = diagnosticIterator.next();
         Assert.assertEquals(firstDiagnostic.message(), "cyclic module imports detected " +
                 "'foo/myproject.schema:0.1.0 -> foo/myproject.storage:0.1.0 -> foo/myproject.schema:0.1.0'");
-
-        Diagnostic secondDiagnostic = diagnosticIterator.next();
-        Assert.assertEquals(secondDiagnostic.location().lineRange().filePath(),
-                Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
-        Assert.assertTrue(secondDiagnostic.message().contains("unknown type 'PersonalDetails'"));
     }
 
     /**
@@ -1371,7 +1367,7 @@ public class TestBuildProject extends BaseTest {
         project.save();
 
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0);
@@ -1416,11 +1412,11 @@ public class TestBuildProject extends BaseTest {
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
-        BuildProject project = loadBuildProject(projectPath);
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
         project.save();
 
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
@@ -1433,7 +1429,7 @@ public class TestBuildProject extends BaseTest {
 
         // 2) Build project again with build file after removing Dependencies.toml
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
-        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        Assert.assertTrue(project.targetDir().resolve(BUILD_FILE).toFile().exists());
         BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
         projectSecondBuild.save();
 
@@ -1450,7 +1446,7 @@ public class TestBuildProject extends BaseTest {
                 readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
 
         // Remove generated files
-        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectSecondBuild.targetDir().resolve(BUILD_FILE));
     }
 
     @Test(description = "test auto updating dependencies with old distribution version")
@@ -1466,11 +1462,11 @@ public class TestBuildProject extends BaseTest {
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
-        BuildProject project = loadBuildProject(projectPath);
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
         project.save();
 
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
@@ -1481,7 +1477,7 @@ public class TestBuildProject extends BaseTest {
         // When distribution is not matching always should update Dependencies.toml, even build file has not expired
         initialBuildJson.setDistributionVersion("slbeta0");
         ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
-        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        Assert.assertTrue(project.targetDir().resolve(BUILD_FILE).toFile().exists());
         BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
         projectSecondBuild.save();
 
@@ -1497,7 +1493,7 @@ public class TestBuildProject extends BaseTest {
         // 3) Build project again after setting dist version as null
         initialBuildJson.setDistributionVersion(null);
         ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
-        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        Assert.assertTrue(projectSecondBuild.targetDir().resolve(BUILD_FILE).toFile().exists());
         BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
         projectThirdBuild.save();
 
@@ -1511,7 +1507,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
 
         // Remove generated files
-        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectSecondBuild.targetDir().resolve(BUILD_FILE));
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
     }
 
@@ -1883,7 +1879,9 @@ public class TestBuildProject extends BaseTest {
     @Test (description = "tests calling targetDir for Build Project")
     public void testBuildProjectTargetDir() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        BuildProject project = loadBuildProject(projectPath);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+        BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
         Path targetDirPath = project.targetDir();
         Path expectedPath = projectPath.resolve("target");
         Assert.assertEquals(targetDirPath, expectedPath);
@@ -2051,12 +2049,16 @@ public class TestBuildProject extends BaseTest {
         // Clean project directory
         writeContent(projectPath.resolve(BALLERINA_TOML), "");
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(projectPath.resolve(BUILD_FILE));
 
         // write content to the Ballerina.toml
         writeContent(projectPath.resolve(BALLERINA_TOML), balTomlContent);
 
         // 1) Initialize the project instance
-        BuildProject project = loadBuildProject(projectPath);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+
+        BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
         project.save();
 
         // 2) Check compilation diagnostics
@@ -2074,6 +2076,44 @@ public class TestBuildProject extends BaseTest {
         // Clean project directory
         writeContent(projectPath.resolve(BALLERINA_TOML), "");
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+    }
+
+    @Test(description = "test accessing semantic model after first build",
+            dependsOnMethods = "testGetSemanticModel")
+    public void testAccessSemanticModelAfterFirstBuild() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        // Delete build file if already exists
+        if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
+            Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        }
+        // Set sticky false, to imitate the default build command behavior
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
+        // Get compilation
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        compilation.diagnosticResult().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+        // Call `JBallerinaBackend`
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        // Check bir is generated for default module
+        Assert.assertTrue(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
+                .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
+
+        // 2) Build project again with build file
+        // Set temp dir as the target
+        buildOptionsBuilder.targetDir(ProjectUtils.getTemporaryTargetPath());
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptionsBuilder.build());
+        projectSecondBuild.save();
+        // Get compilation
+        PackageCompilation compilationSecondBuild = projectSecondBuild.currentPackage().getCompilation();
+        compilationSecondBuild.diagnosticResult().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(compilationSecondBuild.diagnosticResult().hasErrors());
+        // Get semantic model of the default module
+        Module defaultModule = projectSecondBuild.currentPackage().getDefaultModule();
+        compilationSecondBuild.getSemanticModel(defaultModule.moduleId());
     }
 
     @Test(description = "tests the order of module documents")

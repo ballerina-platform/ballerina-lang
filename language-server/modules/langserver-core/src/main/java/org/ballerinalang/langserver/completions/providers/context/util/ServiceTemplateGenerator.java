@@ -236,6 +236,16 @@ public class ServiceTemplateGenerator {
     }
 
     /**
+     * Update the module listener meta data map.
+     * @param newPackages packages list
+     * @param context language server context
+     */
+    public void updateListenerMetaDataMap(List<LSPackageLoader.PackageInfo> newPackages, 
+                                          LanguageServerContext context) {
+        this.loadListenersFromPackages(newPackages, context);
+    }
+
+    /**
      * Given a module symbol, find and populate service metadata into the moduleServiceTemplateMap cache.
      * Used to dynamically add new entries to the cache.
      *

@@ -100,6 +100,8 @@ public class ConfigResolver {
 
     private Function<ConfigProvider, Optional<?>> getValueFunction(Module module, VariableKey key, Type type) {
         switch (type.getTag()) {
+            case TypeTags.NULL_TAG:
+                return Optional.empty();
             case TypeTags.INT_TAG:
                 return configProvider -> configProvider.getAsIntAndMark(module, key);
             case TypeTags.BYTE_TAG:

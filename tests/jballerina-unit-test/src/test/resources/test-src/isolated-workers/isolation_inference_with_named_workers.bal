@@ -417,6 +417,349 @@ function testClientClassMethodIsolationInference() {
     assertFalse(isMethodIsolated(c3, "bar"));
 }
 
+public isolated function f18() returns int {
+    return 1;
+}
+
+function f19() {
+    future<int> _ = start f18();
+    final int[] & readonly b = [];
+
+    worker A {
+       future<int> _ = start f18();
+       int[] t = b;
+    }
+}
+
+function f20() {
+    future<()> _ = start f19();
+    final int[] & readonly b = [];
+
+    worker A {
+       future<()> _ = start f19();
+       int[] t = b;
+    }
+}
+
+function f21() {
+    future<int> _ = start f18();
+    int[] b = [];
+
+    worker A {
+       future<int> _ = start f18();
+       int[] t = b;
+    }
+}
+
+public function f22() returns int {
+    return 1;
+}
+
+function f23() {
+    future<int> _ = start f18();
+
+    worker A {
+       future<int> _ = start f22();
+    }
+}
+
+public isolated function f24(int[] a) returns int {
+    return a[0];
+}
+
+int[] intArr = [10];
+
+function f25() {
+    future<int> _ = start f18();
+
+    worker A {
+       future<int> _ = start f24(intArr);
+    }
+}
+
+function f26() {
+    future<int> _ = start f18();
+    final int[] & readonly arr = [];
+
+    worker A {
+       future<int> _ = start f24(arr);
+    }
+}
+
+function f27() {
+    future<int> _ = start f24(intArr);
+
+    worker A {
+       future<int> _ = start f24([1, 2]);
+    }
+}
+
+function f28() {
+    future<int> _ = start f24([1, 2]);
+    final int[] & readonly arr = [];
+
+    worker A {
+       future<int> _ = start f24(arr);
+    }
+}
+
+isolated function f29(int[] a) returns int {
+    return a[0];
+}
+
+function f30() {
+    future<int> _ = start f18();
+
+    worker A {
+       future<int> _ = start f29(intArr);
+    }
+}
+
+function f31() {
+    worker A {
+       future<int> _ = start f29([1, 2]);
+    }
+
+    fork {
+        worker B {
+            future<int> _ = start f29([1, 2]);
+        }
+
+        worker C {
+            future<int> _ = start f24([1, 2]);
+        }
+    }
+
+    future<int> _ = start f18();
+}
+
+function f32() {
+    worker A {
+       future<int> _ = start f29([1, 2]);
+    }
+
+    int[] arr = [];
+
+    fork {
+        worker B {
+            future<int> _ = start f29([1, 2]);
+        }
+
+        worker C {
+            future<int> _ = start f24(arr);
+        }
+    }
+
+    future<int> _ = start f18();
+}
+
+function f33() {
+    worker A {
+       future<int> _ = start f29([1, 2]);
+    }
+
+    int[] arr = [];
+
+    fork {
+        worker B {
+            future<int> _ = start f29([1, 2]);
+        }
+
+        worker C {
+            future<int> _ = start f24([]);
+        }
+    }
+
+    future<int> _ = start f24(arr);
+}
+
+function f34(int[] arr) returns int {
+    return arr[0];
+}
+
+function f35() {
+    worker A {
+       future<int> _ = start f34([1, 2]);
+    }
+
+    final int[] & readonly arr = [];
+
+    fork {
+        worker B {
+            future<int> _ = start f34(arr);
+        }
+
+        worker C {
+            future<int> _ = start f34([]);
+        }
+    }
+
+    future<int> _ = start f34(arr);
+}
+
+function f36() {
+    worker A {
+       future<int> _ = start f34([1, 2]);
+    }
+
+    final int[] & readonly arr = [];
+
+    fork {
+        worker B {
+            future<int> _ = start f34(arr);
+        }
+
+        worker C {
+            future<int> _ = start f34([]);
+        }
+    }
+
+    int[] arr2 = [];
+    future<int> _ = start f34(arr2);
+}
+
+function testIsolatedInferenceWithWorkersAndStartsCallingPublicIsolatedFunctions() {
+    assertTrue(<any>f19 is isolated function);
+    assertTrue(<any>f20 is isolated function);
+    assertFalse(<any>f21 is isolated function);
+    assertFalse(<any>f23 is isolated function);
+    assertFalse(<any>f25 is isolated function);
+    assertTrue(<any>f26 is isolated function);
+    assertFalse(<any>f27 is isolated function);
+    assertTrue(<any>f28 is isolated function);
+    assertFalse(<any>f30 is isolated function);
+    assertTrue(<any>f31 is isolated function);
+    assertFalse(<any>f32 is isolated function);
+    assertFalse(<any>f33 is isolated function);
+    assertTrue(<any>f35 is isolated function);
+    assertFalse(<any>f36 is isolated function);
+}
+
+final int[] & readonly intArr2 = [];
+
+function f37(int[] b) returns int {
+    return b[0];
+}
+
+listener Listener ep = new ();
+
+service on ep {
+    resource function get foo() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr2);
+
+        worker A {
+            future<int> _ = start f37(a);
+            int[] y = intArr2;
+        }
+
+        future<int> _ = start f37(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f37(intArr2);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f37(a);
+                int[] y = a;
+            }
+        }
+
+        return intArr2;
+    }
+
+    resource function get baz() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr);
+        return a;
+    }
+
+    resource function get boo() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr2);
+
+        worker A {
+            future<int> _ = start f37(intArr);
+            int[] y = a;
+        }
+
+        return intArr2;
+    }
+
+    remote function bar() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr2);
+
+        worker A {
+            future<int> _ = start f37(a);
+            int[] y = intArr2;
+        }
+
+        future<int> _ = start f37(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f37(intArr2);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f37(a);
+                int[] y = a;
+            }
+        }
+
+        return intArr2;
+    }
+
+    function bam() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f37(intArr2);
+
+        worker A {
+            future<int> _ = start f37(a);
+            int[] y = intArr2;
+        }
+
+        future<int> _ = start f37(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f37(intArr2);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f37(a);
+                int[] y = a;
+            }
+        }
+
+        return a;
+    }
+}
+
+class Listener {
+    public function attach(service object {} s, string|string[]? name = ()) = @java:Method {
+                                       name: "testServiceDeclarationMethodIsolationInferenceWithWorkers",
+                                       'class: "org.ballerinalang.test.isolation.IsolatedWorkerTest"
+                                   } external;
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}
+
 function assertTrue(anydata actual) => assertEquality(true, actual);
 
 function assertFalse(anydata actual) => assertEquality(false, actual);
