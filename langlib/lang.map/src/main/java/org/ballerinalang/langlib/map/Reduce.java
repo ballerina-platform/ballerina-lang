@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,13 +45,10 @@ public class Reduce {
         int size = m.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
         Object[] keys = m.getKeys();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand, accum.get(),
-                                m.get(keys[index.incrementAndGet()])},
-                        accum::set, accum::get, Scheduler.getStrand().scheduler);
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{accum.get(), true,m.get(keys[index.incrementAndGet()]), true }, accum::set,
+                accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }
 

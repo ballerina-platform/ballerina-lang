@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +41,9 @@ public class InvokeAsExternal {
 
         BFunctionPointer function = (BFunctionPointer) func;
         List<Object> argList = new ArrayList<>();
-        argList.add(Scheduler.getStrand());
         for (Object arg : args) {
             argList.add(arg);
+            argList.add(true);
         }
         return function.asyncCall(argList.toArray(), o -> o, METADATA);
     }
