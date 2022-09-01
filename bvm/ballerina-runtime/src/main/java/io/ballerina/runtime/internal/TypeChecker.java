@@ -46,9 +46,11 @@ import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BNetworkObjectType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BParameterizedType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BResourceMethodType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -79,6 +81,7 @@ import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -88,7 +91,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
@@ -1685,17 +1687,17 @@ public class TypeChecker {
 
         Map<String, Field> targetFields = targetType.getFields();
         Map<String, Field> sourceFields = sourceObjectType.getFields();
-        MethodType[] targetFuncs = targetType.getMethods();
-        MethodType[] sourceFuncs = sourceObjectType.getMethods();
+        List<MethodType> targetFuncs = getAllFunctionsList(targetType);
+        List<MethodType> sourceFuncs = getAllFunctionsList(sourceObjectType);
 
         if (targetType.getFields().values().stream().anyMatch(field -> SymbolFlags
                 .isFlagOn(field.getFlags(), SymbolFlags.PRIVATE))
-                || Stream.of(targetFuncs).anyMatch(func -> SymbolFlags.isFlagOn(func.getFlags(),
+                || targetFuncs.stream().anyMatch(func -> SymbolFlags.isFlagOn(func.getFlags(),
                                                                                 SymbolFlags.PRIVATE))) {
             return false;
         }
 
-        if (targetFields.size() > sourceFields.size() || targetFuncs.length > sourceFuncs.length) {
+        if (targetFields.size() > sourceFields.size() || targetFuncs.size() > sourceFuncs.size()) {
             return false;
         }
 
@@ -1714,6 +1716,16 @@ public class TypeChecker {
 
         return checkObjectSubTypeForMethods(unresolvedTypes, targetFuncs, sourceFuncs, targetTypeModule,
                                             sourceTypeModule, sourceObjectType, targetType);
+    }
+    
+    private static List<MethodType> getAllFunctionsList(BObjectType objectType) {
+        List<MethodType> functionList = new ArrayList<>(Arrays.asList(objectType.getMethods()));
+        if (objectType.getTag() == TypeTags.SERVICE_TAG ||
+                (objectType.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
+            Collections.addAll(functionList, ((BNetworkObjectType) objectType).getResourceMethods());
+        }
+        
+        return functionList;
     }
 
     private static boolean checkObjectSubTypeForFields(Map<String, Field> targetFields,
@@ -1768,17 +1780,17 @@ public class TypeChecker {
     }
 
     private static boolean checkObjectSubTypeForMethods(List<TypePair> unresolvedTypes,
-                                                        MethodType[] targetFuncs,
-                                                        MethodType[] sourceFuncs,
+                                                        List<MethodType> targetFuncs,
+                                                        List<MethodType> sourceFuncs,
                                                         String targetTypeModule, String sourceTypeModule,
                                                         BObjectType sourceType, BObjectType targetType) {
         for (MethodType lhsFunc : targetFuncs) {
-            // As stage-2 of service typing changes, resource functions are not considered for object subtyping.
-            if (SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE)) {
-                continue;
+            Optional<MethodType> rhsFunction = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
+            if (rhsFunction.isEmpty()) {
+                return false;
             }
 
-            MethodType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
+            MethodType rhsFunc = rhsFunction.get();
             if (rhsFunc == null ||
                     !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.getFlags(),
                                               rhsFunc.getFlags())) {
@@ -1816,15 +1828,47 @@ public class TypeChecker {
                 lhsTypePkg.equals(rhsTypePkg);
     }
 
-    private static MethodType getMatchingInvokableType(MethodType[] rhsFuncs,
+    private static Optional<MethodType> getMatchingInvokableType(List<MethodType> rhsFuncs,
                                                        MethodType lhsFunc,
                                                        List<TypePair> unresolvedTypes) {
-        return Arrays.stream(rhsFuncs)
+        Optional<MethodType> matchingFunction = rhsFuncs.stream()
                 .filter(rhsFunc -> lhsFunc.getName().equals(rhsFunc.getName()))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.getType(), lhsFunc.getType(),
                                                                           unresolvedTypes))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
+
+        if (matchingFunction.isEmpty()) {
+            return matchingFunction;
+        }
+        // For resource function match, we need to check whether lhs function resource path type belongs to 
+        // rhs function resource path type
+        MethodType matchingFunc = matchingFunction.get();
+        boolean lhsFuncIsResource = SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE);
+        boolean matchingFuncIsResource = SymbolFlags.isFlagOn(matchingFunc.getFlags(), SymbolFlags.RESOURCE);
+        
+        if (!lhsFuncIsResource && !matchingFuncIsResource) {
+            return matchingFunction;
+        }
+        
+        if ((lhsFuncIsResource && !matchingFuncIsResource) || (matchingFuncIsResource && !lhsFuncIsResource)) {
+            return Optional.empty();
+        }
+
+        List<Type> lhsFuncResourcePathTypes = ((BResourceMethodType) lhsFunc).resourcePathType.getTupleTypes();
+        List<Type> rhsFuncResourcePathTypes = ((BResourceMethodType) matchingFunc).resourcePathType.getTupleTypes();
+
+        int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.size();
+        if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.size()) {
+            return Optional.empty();
+        }
+
+        for (int i = 0; i < lhsFuncResourcePathTypesSize; i++) {
+            if (!checkIsType(lhsFuncResourcePathTypes.get(i), rhsFuncResourcePathTypes.get(i))) {
+                return Optional.empty();
+            }
+        }
+
+        return matchingFunction;
     }
 
     private static boolean checkFunctionTypeEqualityForObjectType(FunctionType source, FunctionType target,
@@ -1901,7 +1945,7 @@ public class TypeChecker {
 
         return false;
     }
-
+    
     public static boolean isInherentlyImmutableType(Type sourceType) {
         if (isSimpleBasicType(sourceType)) {
             return true;

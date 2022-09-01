@@ -3,5 +3,5 @@ type NewRecord record {
     string lastName;
     boolean married;
     int age;
-    anydata phoneNumber?;
+    anydata phoneNumber;
 };

@@ -44,6 +44,9 @@ type Record record {
 
 type INT int;
 
+// Constant map definition
+const map<int> cm = {a: 1};
+
 class ABC {
     private final readonly & Record rec;
     private final readonly & INT num;
