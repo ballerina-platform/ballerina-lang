@@ -7002,7 +7002,7 @@ public class Types {
     /**
      * Enum to represent query construct type.
      *
-     * @since 1.2.0
+     * @since 2201.3.0
      */
     enum QueryConstructType {
         DEFAULT,

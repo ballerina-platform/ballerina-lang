@@ -20,9 +20,9 @@ import ballerina/lang.'error;
 
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
-        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isStream)
+        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading)
             returns _StreamPipeline {
-    return new _StreamPipeline(collection, constraintTd, completionTd, isStream);
+    return new _StreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
 }
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
@@ -242,9 +242,8 @@ function createImmutableValue(any mutableValue) = @java:Method {
     name: "createImmutableValue"
 } external;
 
-# Log and prepare `error` as a `Error`.
+# Prepare `error` as a distinct `Error`.
 #
-# + message - Error message
 # + err - `error` instance
 # + return - Prepared `Error` instance
 public isolated function prepareQueryBodyError(error err) returns Error {
@@ -252,17 +251,16 @@ public isolated function prepareQueryBodyError(error err) returns Error {
     return queryError;
 }
 
-# Log and prepare `error` as a `Error`.
+# Prepare `error` as a distinct `CompleteEarlyError`.
 #
-# + message - Error message
 # + err - `error` instance
-# + return - Prepared `Error` instance
+# + return - Prepared `CompleteEarlyError` instance
 public isolated function prepareCompleteEarlyError(error err) returns CompleteEarlyError {
     CompleteEarlyError completeEarlyErr = error CompleteEarlyError("", err);
     return completeEarlyErr;
 }
 
-public isolated function unwrapQueryError(error err) returns error {
+public isolated function getQueryErrorRootCause(error err) returns error {
     error? cause = error:cause(err);
     return cause is error ? cause : err;
 }

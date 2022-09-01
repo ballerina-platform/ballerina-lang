@@ -93,7 +93,7 @@ class _StreamPipeline {
         var res = internal:invokeAsExternal(sf.process);
         if (res is _Frame|error) {
             if (self.isLazyLoading && (res is QueryErrorTypes)) {
-                return unwrapQueryError(res);
+                return getQueryErrorRootCause(res);
             }
             return res;
         }

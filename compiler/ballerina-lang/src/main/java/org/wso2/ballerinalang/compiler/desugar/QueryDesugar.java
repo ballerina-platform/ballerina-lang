@@ -210,7 +210,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
     private static final Name QUERY_ADD_TO_MAP_FUNCTION = new Name("addToMap");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
-    private static final Name QUERY_UNWRAP_DISTINCT_ERROR_FUNCTION = new Name("unwrapQueryError");
+    private static final Name QUERY_GET_QUERY_ERROR_ROOT_CAUSE_FUNCTION = new Name("getQueryErrorRootCause");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final Name QUERY_BODY_DISTINCT_ERROR_NAME = new Name("Error");
     private static final Name QUERY_PIPELINE_DISTINCT_ERROR_NAME = new Name("CompleteEarlyError");
@@ -385,7 +385,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
                 addTypeConversionExpr(result, returnType));
         stmtExpr.setBType(returnType);
-
         this.checkedErrorList = prevCheckedErrorList;
         return stmtExpr;
     }
@@ -393,7 +392,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     //Creates return branches to handle different runtime values
     private void handleErrorReturnsFromQuery(Location pos, BLangExpression resultRef, BLangBlockStmt queryBlock,
                                      boolean returnsWithinDoClause, BType returnType) {
-        BLangInvocation unwrappedDistinctError = createQueryLibInvocation(QUERY_UNWRAP_DISTINCT_ERROR_FUNCTION,
+        BLangInvocation getRootCauseError = createQueryLibInvocation(QUERY_GET_QUERY_ERROR_ROOT_CAUSE_FUNCTION,
                 Lists.of(addTypeConversionExpr(resultRef, symTable.errorType)), pos);
         if (containsCheckExpr) {
             // if ($streamElement$ is QueryError) {
@@ -407,7 +406,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             // $streamElement$ is QueryError
             BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, resultRef, queryErrorTypeNode);
             testExpr.setBType(symTable.booleanType);
-            desugar.failFastForErrorResult(pos, queryBlock, testExpr, unwrappedDistinctError);
+            desugar.failFastForErrorResult(pos, queryBlock, testExpr, getRootCauseError);
         }
         // if (!($streamElement$ is () || $streamElement$ is CompleteEarlyError )) {
         //      return $streamElement$;
@@ -449,7 +448,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         BLangBlockStmt ifErrorBody = ASTBuilderUtil.createBlockStmt(pos);
         BLangAssignment unwrapDistinctError = ASTBuilderUtil.createAssignmentStmt(pos, resultRef,
-                desugar.addConversionExprIfRequired(unwrappedDistinctError, symTable.errorType));
+                desugar.addConversionExprIfRequired(getRootCauseError, symTable.errorType));
         ifErrorBody.stmts.add(unwrapDistinctError);
         if (ifStatement.expr == null) {
             ifStatement.expr = queryErrorUnionTypeTestExpr;
