@@ -6059,19 +6059,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType mapConstraintType = getTypeOfTypeParameter(selectType,
                         queryExpr.getSelectClause().expression.pos);
                 if (mapConstraintType != symTable.semanticError) {
-                    BType mapType = new BMapType(TypeTags.MAP, mapConstraintType, null);
+                    actualType = new BMapType(TypeTags.MAP, mapConstraintType, null);
                     if (Symbols.isFlagOn(resolvedTypes.get(0).flags, Flags.READONLY)) {
-                        mapType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, mapType, env,
+                        actualType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, actualType, env,
                                 symTable, anonymousModelHelper, names, null);
                     }
-                    actualType = BUnionType.create(null, mapType, symTable.errorType);
                 }
             } else {
                 actualType = resolvedTypes.get(0);
             }
 
             if (completionType != null && completionType.tag != TypeTags.NIL) {
-                return BUnionType.create(null, actualType, completionType);
+                return BUnionType.create(null, actualType, types.getSafeType(completionType, true, false));
             } else {
                 return actualType;
             }
@@ -6243,30 +6242,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-//private BType getCompletionForCollection(BType collectionType) {
-//    if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
-//        return null;
-//    }
-//    BType returnType = null, completionType = null;
-//    switch (collectionType.tag) {
-//        case TypeTags.STREAM:
-//            completionType = ((BStreamType) collectionType).completionType;
-//            break;
-//        case TypeTags.OBJECT:
-//            returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
-//            break;
-//        default:
-//            BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
-//                    names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), data.env);
-//            if (itrSymbol == this.symTable.notFoundSymbol) {
-//                return null;
-//            }
-//            BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
-//            returnType = types.getResultTypeOfNextInvocation(
-//                    (BObjectType) Types.getReferredType(invokableSymbol.retType));
-//    }
-//}
-
     private BType getCompletionType(BType collectionType, Types.QueryConstructType queryConstructType,
                                     AnalyzerData data) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
@@ -6305,7 +6280,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (data.commonAnalyzerData.queryCompletesEarly) {
-            if (queryConstructType == Types.QueryConstructType.TABLE) {
+            if (queryConstructType == Types.QueryConstructType.TABLE ||
+                    queryConstructType == Types.QueryConstructType.MAP) {
                 completionTypes.addAll(data.commonAnalyzerData.checkedErrorList);
             }
             if (completionTypes.isEmpty()) {

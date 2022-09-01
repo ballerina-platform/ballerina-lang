@@ -278,16 +278,16 @@ public class WhileStmtTest {
                 "incompatible types: expected 'int', found '(int|string)'", 69, 17);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'string', found '(int|string)'", 83, 16);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'A', found 'B'", 153, 15);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'B', found 'A'", 161, 15);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'B', found '(A|B)'", 153, 15);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'A', found 'C'", 161, 15);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '(X|V)', found '(X|Y)'", 261, 17);
+                "incompatible types: expected '(X|Y)', found '(W|X|Y)'", 261, 17);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '[int]', found '[string]'", 271, 19);
+                "incompatible types: expected '[string]', found '([int]|[string])'", 271, 22);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected '[int]', found '([string] & readonly)'", 282, 19);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'int[]', found 'string[]'", 288, 19);
+                "incompatible types: expected 'string[]', found '(int[]|string[])'", 288, 22);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'int[]', found '(string[] & readonly)'", 298, 19);
         BAssertUtil.validateError(compileResult, index++,
