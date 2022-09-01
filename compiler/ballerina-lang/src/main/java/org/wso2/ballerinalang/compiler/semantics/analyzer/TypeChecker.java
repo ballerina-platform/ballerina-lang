@@ -6084,7 +6084,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private List<BType> getCollectionTypes(List<BLangNode> clauses) {
         return clauses.stream()
                 .filter(clause -> (clause.getKind() == NodeKind.FROM || clause.getKind() == NodeKind.JOIN))
-                .map(clause -> ((BLangInputClause)clause).collection.getBType())
+                .map(clause -> ((BLangInputClause) clause).collection.getBType())
                 .collect(Collectors.toList());
     }
 
