@@ -5089,9 +5089,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (Symbols.isPrivate(referencedFuncSymbol) || Symbols.isResource(referencedFuncSymbol)) {
-            // we should not copy private functions. And we ignore the resource functions as they are not part of the
-            // type.
+        if (Symbols.isPrivate(referencedFuncSymbol)) {
+            // we should not copy private functions
             return;
         }
 
