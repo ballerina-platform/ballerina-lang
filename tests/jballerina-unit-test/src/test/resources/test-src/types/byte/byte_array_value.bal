@@ -36,6 +36,20 @@ function base64ByteArrayLiteralWithWS() {
     assertEquality(byteArray1, byteArray3);
 }
 
+function testByteArrayLiteralInherentType() {
+    var byteArray1 = base16 `aa bb`;
+    assertEquality(true, byteArray1 is byte[2]);
+
+    var byteArray2 = base64 `aa bb`;
+    assertEquality(true, byteArray2 is byte[3]);
+
+    byte[*] byteArray3 = base16 `aa bb`;
+    assertEquality(true, byteArray3 is byte[2]);
+
+    byte[*] byteArray4 = base64 `aa bb`;
+    assertEquality(true, byteArray4 is byte[3]);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -50,4 +50,9 @@ public class BByteArrayValueTest {
                 "base64ByteArrayLiteralWithWS"
         };
     }
+
+    @Test
+    public void testByteArrayLiteralInherentType() {
+        BRunUtil.invoke(compileResult, "testByteArrayLiteralInherentType");
+    }
 }

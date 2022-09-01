@@ -85,6 +85,18 @@ public class BByteArrayValueNegativeTest {
                 28, 17);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[2]', found 'byte[3]'",
                 30, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: 'byte[2]' cannot be cast to " +
+                        "'(byte[3] & readonly)'", 33, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'",
+                33, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: 'byte[3]' cannot be cast to " +
+                "'(int[2] & readonly)'", 34, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found 'other'",
+                34, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: 'byte[3]' cannot be cast to " +
+                "'(string[] & readonly)'", 35, 21);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[]', found 'other'",
+                35, 21);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 }
