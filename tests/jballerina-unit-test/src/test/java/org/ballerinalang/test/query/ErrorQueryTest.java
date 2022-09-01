@@ -124,6 +124,15 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testErrorReturnedFromOrderByClause");
     }
 
+    @Test
+    public void testErrorReturnedFromQueryAction() {
+        BRunUtil.invoke(result, "testErrorReturnedFromQueryAction");
+    }
+    @Test
+    public void testCompleteEarlyErrorsWithinQueryAction() {
+        BRunUtil.invoke(result, "testCompleteEarlyErrorsWithinQueryAction");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

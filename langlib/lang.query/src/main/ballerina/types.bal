@@ -244,6 +244,8 @@ class _NestedFromFunction {
                 if (collection is any) {
                     itr = self._getIterator(collection);
                     self.itr = itr;
+                } else if (collection is error) {
+                    return prepareQueryBodyError(collection);
                 }
             }
         }
@@ -362,6 +364,9 @@ class _InnerJoinFunction {
                 f = pipelineToJoin.next();
             }
         }
+        if (f is error) {
+            self.failureAtJoin = f;
+        }
     }
 
     # Desugared function to do;
@@ -455,6 +460,9 @@ class _OuterJoinFunction {
                 self.rhsFramesMap.put(rhsKeyFuncResult.toString(), f);
                 f = pipelineToJoin.next();
             }
+        }
+        if (f is error) {
+            self.failureAtJoin = f;
         }
     }
 

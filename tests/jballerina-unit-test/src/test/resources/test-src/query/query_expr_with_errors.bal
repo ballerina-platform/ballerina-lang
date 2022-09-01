@@ -78,6 +78,22 @@ class IterableWithError {
     }
 }
 
+public type BarError distinct error;
+
+class IterableWithImmediateError {
+    *object:Iterable;
+    public function iterator() returns object {
+
+        public isolated function next() returns record {|int value;|}|BarError?;
+    } {
+        return object {
+            public isolated function next() returns record {|int value;|}|BarError? {
+               return error BarError("Custom error thrown.");
+            }
+        };
+    }
+}
+
 // Normal Queries
 
 public function queryWithoutErrors() {
@@ -488,6 +504,108 @@ function checkErrorAtOrderBy() returns error? {
     _ = from int i in 1...3
        order by check verifyCheck(i)
        select i;
+}
+
+function testErrorReturnedFromQueryAction() {
+    assertTrue(checkErrorAtDo() is error);
+    assertTrue(checkErrorAtLet() is error);
+    assertTrue(checkErrorAtWhere3() is error);
+    assertTrue(checkErrorAtFrom1() is error);
+    assertTrue(checkErrorAtFrom2() is error);
+    assertTrue(checkErrorAtJoin() is error);
+    assertTrue(checkErrorAtOrderBy2() is error);
+}
+
+function checkErrorAtDo() returns error? {
+    _ = from int i in 1...3
+       do {
+          _ = check verifyCheck(i);
+       };
+}
+
+function checkErrorAtLet() returns error? {
+    _ = from int i in 1...3
+       let int _ = check verifyCheck(i)
+       do {
+       };
+}
+
+function checkErrorAtWhere3() returns error? {
+    _ = from int i in 1...3
+       where i == check verifyCheck(i)
+       do {
+       };
+}
+
+function checkErrorAtFrom1() returns error? {
+    _ = from int i in check verifyCheckArr()
+       do {
+       };
+}
+
+function checkErrorAtFrom2() returns error? {
+    _ = from int i in 1...3
+        from int j in check verifyCheckArr()
+       do {
+       };
+}
+
+function checkErrorAtJoin() returns error? {
+    _ = from int i in 1...3
+        join int j in check verifyCheckArr()
+        on i equals j
+       do {
+       };
+}
+
+function checkErrorAtOrderBy2() returns error? {
+    _ = from int i in 1...3
+        order by check verifyCheck(i)
+       do {
+       };
+}
+
+function testCompleteEarlyErrorsWithinQueryAction() {
+    IterableWithImmediateError itr = new();
+
+    error? res1 = from int i in itr
+       do {
+       };
+    assertTrue(res1 is error);
+    assertEquality("Custom error thrown.", (<error>res1).message());
+
+    error? res2 = from int i in [1, 2, 3]
+           from int j in itr
+           do {
+           };
+    assertTrue(res2 is error);
+    assertEquality("Custom error thrown.", (<error>res2).message());
+
+    error? res3 = from int i in [1, 2, 3]
+               join int j in itr
+               on i equals j
+               do {
+               };
+    assertTrue(res3 is error);
+    assertEquality("Custom error thrown.", (<error>res3).message());
+
+    int[]|error res4 = from int i in itr
+       select i;
+    assertTrue(res4 is error);
+    assertEquality("Custom error thrown.", (<error>res4).message());
+
+    int[]|error res5 = from int i in [1, 2, 3]
+               from int j in itr
+               select i;
+    assertTrue(res5 is error);
+    assertEquality("Custom error thrown.", (<error>res5).message());
+
+    int[]|BarError res6 = from int i in [1, 2, 3]
+               join int j in itr
+               on i equals j
+               select i;
+    assertTrue(res6 is BarError);
+    assertEquality("Custom error thrown.", (<error>res6).message());
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------
