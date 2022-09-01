@@ -47,14 +47,16 @@ public class FunctionCallExpressionNodeContext extends InvocationNodeContextProv
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, FunctionCallExpressionNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) ctx.getNodeAtCursor();
-            return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
+            completionItems.addAll(this.getCompletionItemList(QNameRefCompletionUtil
+                    .getExpressionContextEntries(ctx, qNameRef), ctx));
+        } else {
+            completionItems.addAll(this.actionKWCompletions(ctx));
+            completionItems.addAll(this.expressionCompletions(ctx));
+            completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
         }
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.actionKWCompletions(ctx));
-        completionItems.addAll(this.expressionCompletions(ctx));
-        completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
         this.sort(ctx, node, completionItems);
         return completionItems;
     }
