@@ -35,6 +35,6 @@ function test() {
     on i equals j
     do { };
 
-    checkpanic from int i in (from int k in arr1 select k)
-                do { };
+    from int i in (from int k in arr1 select k)
+    do { };
 }
