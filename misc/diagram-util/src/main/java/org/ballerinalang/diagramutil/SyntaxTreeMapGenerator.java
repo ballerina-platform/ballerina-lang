@@ -184,18 +184,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Ignore as semantic API calls cannot break the ST JSON creation.
             }
 
-            if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
-                RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
-                if (semanticModel != null) {
-                    Optional<Symbol> expressionSymbol = this.semanticModel.symbol(
-                            remoteMethodCallActionNode.expression());
-                    if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
-                        VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
-                        markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
-                    }
-                }
-            }
-
             nodeJson.add("typeData", symbolJson);
 
             if ((node.kind() == SyntaxKind.BLOCK_STATEMENT || node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK)
@@ -268,20 +256,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
     }
 
-    private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node,
-                               boolean isRemoteAction) {
-        TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
-        if (rawType.typeKind() == TypeDescKind.OBJECT) {
-            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
-            boolean isEndpoint = objectTypeSymbol.qualifiers()
-                    .contains(Qualifier.CLIENT);
-            if (isEndpoint) {
-                symbolJson.addProperty("isEndpoint", true);
-                updateVisibleEP(node, rawType, isRemoteAction);
-            }
-        }
-    }
-
     private JsonObject updateVisibleEP(Node node, TypeSymbol typeSymbol, boolean isRemoteAction) {
         JsonObject symbolMetaInfo = new JsonObject();
 
@@ -292,7 +266,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 String symbolName = paramName.isPresent() ? paramName.get().text() : "";
                 symbolMetaInfo = getModuleMetaInfo(typeSymbol, symbolName, requiredParameterNode.lineRange(),
                         false, true, true);
-                if (!isAvailableAsEndpoint(symbolName)) {
+                if (!isAvailableAsEndpoint(symbolName, requiredParameterNode.lineRange())) {
                     this.visibleEpsForEachBlock.add(symbolMetaInfo);
                 }
                 break;
@@ -302,7 +276,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         SyntaxKind.CAPTURE_BINDING_PATTERN) {
                     String moduleVarName = ((CaptureBindingPatternNode) moduleVariableDeclarationNode
                             .typedBindingPattern().bindingPattern()).variableName().text();
-                    if (!isAvailableAsEndpoint(moduleVarName)) {
+                    if (!isAvailableAsEndpoint(moduleVarName, moduleVariableDeclarationNode.lineRange())) {
                         this.visibleEpsForModule.add(getModuleMetaInfo(typeSymbol, moduleVarName,
                                 moduleVariableDeclarationNode.lineRange(), true, true));
                     }
@@ -316,7 +290,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                             .typedBindingPattern().bindingPattern()).variableName().text();
                     symbolMetaInfo = getModuleMetaInfo(typeSymbol, localVarName, variableDeclarationNode.lineRange(),
                             false, false);
-                    if (!isAvailableAsEndpoint(localVarName)) {
+                    if (!isAvailableAsEndpoint(localVarName, variableDeclarationNode.lineRange())) {
                         this.visibleEpsForEachBlock.add(symbolMetaInfo);
                     }
                 }
@@ -327,14 +301,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     String asgmtVarName = ((SimpleNameReferenceNode) assignmentStatementNode.varRef()).name().text();
                     symbolMetaInfo = getModuleMetaInfo(typeSymbol, asgmtVarName, assignmentStatementNode.lineRange(),
                             false, false);
-                    if (!isAvailableAsEndpoint(asgmtVarName)) {
+                    if (!isAvailableAsEndpoint(asgmtVarName, assignmentStatementNode.lineRange())) {
                         this.visibleEpsForEachBlock.add(symbolMetaInfo);
                     }
                 }
                 break;
             case SIMPLE_NAME_REFERENCE:
                 String name = ((SimpleNameReferenceNode) node).name().text();
-                if (isRemoteAction && !isAvailableAsEndpoint(name)) {
+                if (isRemoteAction && !isAvailableAsEndpoint(name, node.lineRange())) {
                     this.visibleEpsForModule.add(getModuleMetaInfo(typeSymbol, name, node.lineRange(),
                             false, true));
                 }
@@ -386,15 +360,19 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return metaInfo;
     }
 
-    private boolean isAvailableAsEndpoint(String name) {
+    private boolean isAvailableAsEndpoint(String name, LineRange lineRange) {
         for (JsonObject ep : this.visibleEpsForEachBlock) {
-            if (ep.get("name").getAsString().equals(name)) {
+            if (ep.get("name").getAsString().equals(name) &&
+                    ep.getAsJsonObject("position").get("startLine").getAsInt() ==
+                            lineRange.startLine().line()) {
                 return true;
             }
         }
 
         for (JsonObject ep : this.visibleEpsForModule) {
-            if (ep.get("name").getAsString().equals(name)) {
+            if (ep.get("name").getAsString().equals(name) &&
+                    ep.getAsJsonObject("position").get("startLine").getAsInt() ==
+                            lineRange.startLine().line()) {
                 return true;
             }
         }
