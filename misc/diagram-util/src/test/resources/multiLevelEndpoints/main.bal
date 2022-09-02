@@ -65,5 +65,7 @@ function fourthFunc(ExternalClient exEpP2) returns boolean {
 
     ExternalClient|error exEp10 = new ("http://example.com/2");
 
+    ExternalClient exEp8 = new ("http://example.com/7");
+
     return true;
 }
