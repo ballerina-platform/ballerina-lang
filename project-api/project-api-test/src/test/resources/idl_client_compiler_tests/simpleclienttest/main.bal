@@ -41,6 +41,51 @@ function testClientDeclStmt() {
     assertEquals("http://www.example.com", url);
 }
 
+public const annotation record { int i; }[] ClientAnnot on source client;
+
+@ClientAnnot {
+    i: 123
+}
+client "http://example.com/apis/one.yaml" as bar;
+
+function testClientDeclAnnotSymbols() {
+    @ClientAnnot {
+        i: 12
+    }
+    @ClientAnnot {
+        i: 13
+    }
+    client "http://example.com/apis/two.yaml" as qux;
+
+    client "http://example.com/apis/three.yaml" as quux;
+}
+
+function testClientDeclScoping1() {
+    client "http://example.com/apis/two.yaml" as foo; // OK, shadows the module-level prefix
+    foo:Config config2 = {url: "http://www.examples.com"};
+    foo:client cl2 = new (config2);
+    string url = cl2->getUrl();
+    assertEquals("http://www.examples.com", url);
+}
+
+function testClientDeclScoping2(boolean b) { // no assertion, validates absence of errors
+    if b {
+        client "http://example.com/apis/one.yaml" as bar; // OK, different scope
+        bar:ClientConfiguration _ = {'limit: 5};
+    } else {
+        client "http://example.com/apis/two.yaml" as bar; // OK, different scope
+        bar:Config _ = {url: "http://www.examples.com"};
+    }
+
+    if !b {
+        client "http://example.com/apis/two.yaml" as bar; // OK, different scope
+        bar:Config _ = {url: "http://www.examples.com"};
+        return;
+    }
+    client "http://example.com/apis/one.yaml" as bar; // OK, different scope
+    bar:ClientConfiguration _ = {'limit: 5};
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -26,15 +26,28 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.test.TestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.ballerinalang.model.tree.ClientDeclarationNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Compiler test cases for IDL clients.
@@ -74,7 +87,8 @@ public class IDLClientCompilerTests {
     public Object[] testFuncNames() {
         return new Object[] {
             "testModuleClientDecl",
-            "testClientDeclStmt"
+            "testClientDeclStmt",
+            "testClientDeclScoping1"
         };
     }
 
@@ -93,8 +107,46 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, "unknown type 'clients'", 30, 5);
         validateError(diagnostics, index++, "unknown type 'ClientConfiguration'", 36, 5);
         validateError(diagnostics, index++, "unknown type 'Config'", 37, 5);
+        validateError(diagnostics, index++, "no module generated for the client declaration", 40, 1);
+        validateError(diagnostics, index++, "no module generated for the client declaration", 43, 5);
         Assert.assertEquals(diagnostics.length, index);
+    }
 
+    @Test
+    public void testAnnotationOnClientDeclaration() {
+        List<? extends ClientDeclarationNode> clientDeclarations = result.getAST().getClientDeclarations();
+
+        ClientDeclarationNode clientDeclarationNode = clientDeclarations.stream()
+                .filter(cl -> "foo".equals(cl.getPrefix().getValue())).findFirst().get();
+        List<? extends AnnotationAttachmentSymbol> attachments =
+                ((BClientDeclarationSymbol) ((BLangClientDeclaration) clientDeclarationNode).symbol).getAnnotations();
+        Assert.assertEquals(attachments.size(), 0);
+
+        clientDeclarationNode = clientDeclarations.stream()
+                .filter(cl -> "bar".equals(cl.getPrefix().getValue())).findFirst().get();
+        attachments =
+                ((BClientDeclarationSymbol) ((BLangClientDeclaration) clientDeclarationNode).symbol).getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+        assertAttachmentSymbol(attachments.get(0), 123L);
+    }
+
+    @Test
+    public void testAnnotationOnClientDeclarationStmt() {
+        FunctionNode functionNode = result.getAST().getFunctions().stream()
+                .filter(fn -> "testClientDeclAnnotSymbols".equals(((BLangFunction) fn).name.value)).findFirst().get();
+
+        BLangStatement stmt = ((BLangBlockFunctionBody) ((BLangFunction) functionNode).body).stmts.get(0);
+        List<? extends AnnotationAttachmentSymbol> attachments =
+                ((BClientDeclarationSymbol) ((BLangClientDeclarationStatement) stmt).clientDeclaration.symbol)
+                        .getAnnotations();
+        Assert.assertEquals(attachments.size(), 2);
+        assertAttachmentSymbol(attachments.get(0), 12L);
+        assertAttachmentSymbol(attachments.get(1), 13L);
+
+        stmt = ((BLangBlockFunctionBody) ((BLangFunction) functionNode).body).stmts.get(1);
+        attachments = ((BClientDeclarationSymbol) ((BLangClientDeclarationStatement) stmt).clientDeclaration.symbol)
+                .getAnnotations();
+        Assert.assertEquals(attachments.size(), 0);
     }
 
     private Package loadPackage(String path) {
@@ -113,5 +165,19 @@ public class IDLClientCompilerTests {
                             "incorrect line number:");
         Assert.assertEquals(diag.location().lineRange().startLine().offset() + 1, expectedErrCol,
                             "incorrect column position:");
+    }
+
+    private void assertAttachmentSymbol(AnnotationAttachmentSymbol attachmentSymbol, Object value) {
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachmentSymbol;
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "ClientAnnot");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+
+        Object constValue =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol)
+                        .attachmentValueSymbol.value.value;
+
+        Map<String, BLangConstantValue> mapConst = (Map<String, BLangConstantValue>) constValue;
+        Assert.assertEquals(mapConst.size(), 1);
+        Assert.assertEquals(mapConst.get("i").value, value);
     }
 }
