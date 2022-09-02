@@ -36,3 +36,9 @@ function testClientDeclStmtNegative2() {
     baz:ClientConfiguration c1;
     bar:Config c2;
 }
+
+client "http://example.com/disallow/one.yaml" as qux;
+
+function testClientDeclStmtWithNoGeneratedModuleNegative() {
+    client "http://example.com/disallow/two.yaml" as bar;
+}

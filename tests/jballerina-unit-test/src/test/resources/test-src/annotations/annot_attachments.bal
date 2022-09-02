@@ -294,20 +294,3 @@ public enum Color2 {
     RED,
     BLUE
 }
-
-public const annotation record { int i; }[] v29 on source client;
-
-@v29 {
-    i: 291
-}
-client "http://www.example.com/apis/one.yaml" as foo;
-
-function myFunction7() {
-    @v29 {
-        i: 292
-    }
-    @v29 {
-        i: 293
-    }
-    client "http://www.example.com/apis/two.yaml" as bar;
-}

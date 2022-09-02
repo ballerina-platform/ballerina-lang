@@ -37,25 +37,35 @@ import java.util.Set;
 public class ClientDeclarationTest {
 
     private static final String REDECLARED_PREFIX_ERROR = "redeclared symbol '%s'";
+    private static final String NO_MODULE_GENERATED_ERROR = "no module generated for the client declaration";
 
     @Test
     public void testInvalidRedeclaredPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/module.declarations/client-decl/client_decl_redeclared_prefix_negative_test.bal");
         int index = 0;
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 21, 1);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("foo"), 21, 50);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 23, 1);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("bar"), 23, 50);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 24, 1);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("bar"), 24, 52);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 26, 1);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("baz"), 26, 51);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("baz"), 27, 1);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 29, 1);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 30, 1);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("qux"), 30, 52);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("qux"), 31, 31);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 33, 1);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 34, 1);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("quux"), 34, 50);
         // Symbols for module client declarations are defined at symbol enter because they are required to resolve
         // constructs from the corresponding module, whereas for module XMLNS declarations symbols are defined at
         // semantic analysis. Therefore, the error is always logged for the XMLNS declaration even though it is defined
         // after the client declaration in the source.
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("corge"), 36, 31);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 37, 1);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
@@ -64,6 +74,7 @@ public class ClientDeclarationTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/module.declarations/client-decl/client_decl_client_prefix_as_xmlns_prefix_negative_test.bal");
         int index = 0;
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 17, 1);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 20, 19);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 21, 16);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 22, 24);
@@ -120,6 +131,7 @@ public class ClientDeclarationTest {
         BAssertUtil.validateError(result, index++, "annotation 'A5' is not allowed on var", 42, 1);
         BAssertUtil.validateError(result, index++, "annotation 'A6' is not allowed on var", 45, 1);
         BAssertUtil.validateError(result, index++, "annotation 'A7' is not allowed on client", 48, 1);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 48, 1);
         BAssertUtil.validateError(result, index++, "annotation value expected for annotation of record type 'record " +
                 "{| int i; |}' with required fields", 49, 1);
         BAssertUtil.validateError(result, index++, "cannot specify more than one annotation value for annotation " +

@@ -39,20 +39,30 @@ import java.util.Set;
 public class ClientDeclarationStatementTest {
 
     private static final String REDECLARED_PREFIX_ERROR = "redeclared symbol '%s'";
+    private static final String NO_MODULE_GENERATED_ERROR = "no module generated for the client declaration";
 
     @Test
     public void testInvalidRedeclaredPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/clientdeclstmt/client_decl_stmt_redeclared_prefix_negative_test.bal");
         int index = 0;
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 22, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("foo"), 22, 54);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 24, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("bar"), 24, 54);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 25, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("bar"), 25, 56);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 27, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("baz"), 27, 55);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("baz"), 28, 5);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 30, 5);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 31, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("qux"), 31, 56);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("qux"), 32, 35);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 34, 5);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 35, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("quux"), 35, 54);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 38, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("corge"), 38, 54);
         Assert.assertEquals(result.getErrorCount(), index);
     }
@@ -62,6 +72,7 @@ public class ClientDeclarationStatementTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/clientdeclstmt/client_decl_stmt_client_prefix_as_xmlns_prefix_negative_test.bal");
         int index = 0;
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 18, 5);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 20, 19);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 21, 16);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 22, 24);
@@ -82,7 +93,7 @@ public class ClientDeclarationStatementTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/clientdeclstmt/client_decl_stmt_test.bal");
         List<BLangStatement> stmts = ((BLangBlockFunctionBody) result.getAST().getFunctions().get(0).getBody()).stmts;
-        Assert.assertEquals(stmts.size(), 4);
+        Assert.assertEquals(stmts.size(), 3);
 
         final Map<String, String> expectedDeclDetails = Map.ofEntries(
             Map.entry("foo", "http://www.example.com/apis/one.yaml"),
@@ -103,18 +114,12 @@ public class ClientDeclarationStatementTest {
     }
 
     @Test
-    public void testClientDeclStmtScoping() {
-        CompileResult result = BCompileUtil.compile(
-                "test-src/statements/clientdeclstmt/client_decl_stmt_scoping_test.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testClientAnnotationsNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/clientdeclstmt/client_decl_stmt_annotations_negative_test.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++, "annotation 'A7' is not allowed on client", 22, 5);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 22, 5);
         BAssertUtil.validateError(result, index++, "annotation value expected for annotation of record type 'record " +
                 "{| int i; |}' with required fields", 23, 5);
         BAssertUtil.validateError(result, index++, "cannot specify more than one annotation value for annotation " +
