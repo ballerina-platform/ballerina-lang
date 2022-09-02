@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "import-module";
@@ -38,6 +39,12 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
     @Test(dataProvider = "codeaction-data-provider")
     public void test(String config) throws IOException, WorkspaceDocumentException {
         super.test(config);
+    }
+
+    @Test(dataProvider = "negativeDataProvider")
+    @Override
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @Override
@@ -52,7 +59,18 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
                 {"importModule1a.json"},
                 {"importModule1b.json"},
                 {"importModule2.json"},
-                {"importModule3.json"}
+                {"importModule3.json"},
+                {"importModuleWithModAlias1.json"},
+                {"importModuleWithModAlias2.json"},
+                {"importModuleWithMultipleModAliases1.json"},
+                {"importModuleWithMultipleModAliases2.json"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"negativeImportModuleWithMultipleModAliases1.json"}
         };
     }
 }

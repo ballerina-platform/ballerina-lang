@@ -237,10 +237,11 @@ public class ServiceTemplateGenerator {
 
     /**
      * Update the module listener meta data map.
+     *
      * @param newPackages packages list
-     * @param context language server context
+     * @param context     language server context
      */
-    public void updateListenerMetaDataMap(List<LSPackageLoader.PackageInfo> newPackages, 
+    public void updateListenerMetaDataMap(List<LSPackageLoader.PackageInfo> newPackages,
                                           LanguageServerContext context) {
         this.loadListenersFromPackages(newPackages, context);
     }
@@ -345,11 +346,13 @@ public class ServiceTemplateGenerator {
 
         //Generate completion items for the listeners in the current project.
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        if (project.isEmpty()) {
+        Optional<PackageCompilation> packageCompilation =
+                ctx.workspace().waitAndGetPackageCompilation(ctx.filePath());
+        if (project.isEmpty() || packageCompilation.isEmpty()) {
             return completionItems;
         }
         boolean isDefaultModule = currentModule.get().isDefaultModule();
-        PackageCompilation packageCompilation = project.get().currentPackage().getCompilation();
+        
         project.get().currentPackage().modules().forEach(module -> {
             //Symbols in the default module should not be visible to other modules.
             if (module.isDefaultModule() && !isDefaultModule) {
@@ -368,7 +371,7 @@ public class ServiceTemplateGenerator {
             if (processedModuleList.contains(moduleHash)) {
                 return;
             }
-            SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
+            SemanticModel semanticModel = packageCompilation.get().getSemanticModel(module.moduleId());
             semanticModel.moduleSymbols().stream().filter(listenerPredicate()).forEach(listener ->
                     generateServiceSnippetMetaData(listener, moduleID).ifPresent(item ->
                             completionItems.add(generateServiceSnippet(item,
