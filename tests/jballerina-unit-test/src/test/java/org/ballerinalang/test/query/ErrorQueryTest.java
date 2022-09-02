@@ -130,7 +130,7 @@ public class ErrorQueryTest {
     }
     @Test
     public void testCompleteEarlyErrorsWithinQueryAction() {
-        BRunUtil.invoke(result, "testCompleteEarlyErrorsWithinQueryAction");
+        BRunUtil.invoke(result, "testCompleteEarlyErrorsWithinQuery");
     }
 
     @AfterClass

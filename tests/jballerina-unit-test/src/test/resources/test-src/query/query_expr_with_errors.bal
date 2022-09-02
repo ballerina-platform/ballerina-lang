@@ -565,7 +565,7 @@ function checkErrorAtOrderBy2() returns error? {
        };
 }
 
-function testCompleteEarlyErrorsWithinQueryAction() {
+function testCompleteEarlyErrorsWithinQuery() {
     IterableWithImmediateError itr = new();
 
     error? res1 = from int i in itr
@@ -606,6 +606,40 @@ function testCompleteEarlyErrorsWithinQueryAction() {
                select i;
     assertTrue(res6 is BarError);
     assertEquality("Custom error thrown.", (<error>res6).message());
+
+    error? res7 = getErrorAtOnConflict();
+    assertTrue(res7 is error);
+    assertEquality("Custom error", (<error>res7).message());
+}
+
+type NumberRecord record {|
+    readonly int id;
+    string value;
+|};
+
+type TableT table<NumberRecord> key (id);
+
+function getErrorAtOnConflict() returns error? {
+  TableT|error tbl1 = table key(id) from var i in [1, 2, 1]
+                        select {
+                            id: i,
+                            value: ""
+                        }
+                        on conflict getErrorOrNil();
+  assertTrue(tbl1 is error);
+  assertEquality("Custom error", (<error>tbl1).message());
+
+  TableT|error tbl2 = table key(id) from var i in [1, 2, 1]
+                      select {
+                          id: i,
+                          value: ""
+                      }
+                      on conflict check getErrorOrNil();
+  assertTrue(false); //should be unreachable
+}
+
+function getErrorOrNil() returns error? {
+    return error("Custom error");
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------
