@@ -21,12 +21,12 @@ package io.ballerina.semantic.api.test.symbols;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
-import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.values.ConstantValue;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
@@ -73,8 +73,7 @@ public class ConstAnnotationAttachmentSymbolTest {
         assertTrue(annotAttachment.isConstAnnotation());
 
         assertTrue(annotAttachment.attachmentValue().isPresent());
-        ConstantSymbol constantSymbol = annotAttachment.attachmentValue().get();
-        BallerinaConstantValue constVal = (BallerinaConstantValue) constantSymbol.constValue();
+        ConstantValue constVal = annotAttachment.attachmentValue().get();
 
         // Test type-descriptor
         assertEquals(constVal.valueType().typeKind(), TypeDescKind.INTERSECTION);

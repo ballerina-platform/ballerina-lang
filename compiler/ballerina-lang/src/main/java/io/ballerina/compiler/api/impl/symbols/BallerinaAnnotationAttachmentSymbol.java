@@ -20,8 +20,8 @@ import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.values.ConstantValue;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -35,7 +35,7 @@ import java.util.Optional;
 public class BallerinaAnnotationAttachmentSymbol extends BallerinaSymbol implements AnnotationAttachmentSymbol {
 
     private final AnnotationSymbol typeDescriptorImpl;
-    private final ConstantSymbol attachmentValueSymbol;
+    private final ConstantValue attachmentValue;
     private final boolean isConstAnnotation;
 
     public BallerinaAnnotationAttachmentSymbol(String name, BAnnotationAttachmentSymbol annotAttachmentSymbol,
@@ -43,19 +43,19 @@ public class BallerinaAnnotationAttachmentSymbol extends BallerinaSymbol impleme
         super(name, SymbolKind.ANNOTATION_ATTACHMENT, annotAttachmentSymbol, context);
         this.typeDescriptorImpl = annotationSymbol;
         this.isConstAnnotation = false;
-        this.attachmentValueSymbol = null;
+        this.attachmentValue = null;
     }
 
     public BallerinaAnnotationAttachmentSymbol(String name,
                                                BAnnotationAttachmentSymbol.
                                                        BConstAnnotationAttachmentSymbol annotAttachmentSymbol,
                                                AnnotationSymbol annotationSymbol,
-                                               ConstantSymbol attachmentValueSymbol,
+                                               ConstantValue attachmentValue,
                                                CompilerContext context) {
         super(name, SymbolKind.ANNOTATION_ATTACHMENT, annotAttachmentSymbol, context);
         this.typeDescriptorImpl = annotationSymbol;
         this.isConstAnnotation = annotAttachmentSymbol.isConstAnnotation();
-        this.attachmentValueSymbol = attachmentValueSymbol;
+        this.attachmentValue = attachmentValue;
     }
 
     @Override
@@ -64,8 +64,8 @@ public class BallerinaAnnotationAttachmentSymbol extends BallerinaSymbol impleme
     }
 
     @Override
-    public Optional<ConstantSymbol> attachmentValue() {
-        return Optional.of(attachmentValueSymbol);
+    public Optional<ConstantValue> attachmentValue() {
+        return Optional.of(attachmentValue);
     }
 
     @Override

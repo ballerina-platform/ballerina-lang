@@ -16,6 +16,8 @@
  */
 package io.ballerina.compiler.api.symbols;
 
+import io.ballerina.compiler.api.values.ConstantValue;
+
 import java.util.Optional;
 
 /**
@@ -37,7 +39,7 @@ public interface AnnotationAttachmentSymbol extends Symbol {
      *
      * @return The constant value associated with the annotation-attachment
      */
-    Optional<ConstantSymbol> attachmentValue();
+    Optional<ConstantValue> attachmentValue();
 
     /**
      * Returns the annotation symbol associated with this annotation-attachment symbol.

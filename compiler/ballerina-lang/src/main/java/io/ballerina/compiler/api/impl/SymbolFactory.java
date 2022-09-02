@@ -711,7 +711,7 @@ public class SymbolFactory {
                 annotAttachment).attachmentValueSymbol;
         return new BallerinaAnnotationAttachmentSymbol(annotAttachment.getOriginalName().getValue(),
                 (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment,
-                annotationSymbol, createConstantSymbol(attachmentValue, attachmentValue.name.getValue()),  context);
+                annotationSymbol, createConstantValue(attachmentValue.value),  context);
 
     }
 
