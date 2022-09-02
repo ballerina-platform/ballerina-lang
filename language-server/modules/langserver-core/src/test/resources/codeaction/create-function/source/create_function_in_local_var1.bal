@@ -1,5 +1,5 @@
 public function main() {
-    int var1 = createInt();
+    int var1 = getInt();
 }
 
 function anotherFunction() {

@@ -8,46 +8,46 @@
     {
       "title": "Create function 'getInt(...)'",
       "kind": "quickfix",
+      "resolvable": true,
       "edits": [
         {
           "range": {
             "start": {
-              "line": 8,
+              "line": 2,
               "character": 1
             },
             "end": {
-              "line": 8,
+              "line": 2,
               "character": 1
             }
           },
-          "newText": "\n\nfunction getMessage() returns string {\n    return \"\";\n}"
+          "newText": "\n\nfunction getInt() returns int {\n    return 0;\n}"
         }
       ],
-      "resolvable": true,
       "data": {
         "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
         "codeActionName": "Create Function",
-        "fileUri": "create_function_in_error_constructor1.bal",
+        "fileUri": "create_function_in_local_var2.bal",
         "range": {
           "start": {
-            "line": 7,
-            "character": 28
+            "line": 1,
+            "character": 15
           },
           "end": {
-            "line": 7,
-            "character": 40
+            "line": 1,
+            "character": 23
           }
         },
         "actionData": {
           "key": "node.range",
           "value": {
             "start": {
-              "line": 7.0,
-              "character": 28.0
+              "line": 1,
+              "character": 15
             },
             "end": {
-              "line": 7.0,
-              "character": 40.0
+              "line": 1,
+              "character": 23
             }
           }
         }

@@ -73,7 +73,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
-    private  WorkspaceManager workspaceManager;
+    private WorkspaceManager workspaceManager;
 
     private LanguageServerContext serverContext;
 
@@ -123,6 +123,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     continue;
                 }
                 matchedCodeActionsCount++;
+                boolean misMatched = false;
                 // We have to make sure the title is a match since we are checking against all the
                 // code actions received.
                 actual.title = actualTitle;
@@ -131,7 +132,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 actual.kind = right.get("kind") == null ? null : right.get("kind").getAsString();
                 if (expected.kind != null) {
                     if (!expected.kind.equals(actual.kind)) {
-                        continue;
+                        misMatched = true;
                     }
                 }
 
@@ -139,24 +140,21 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 if (expected.edits != null) {
                     JsonElement editsElement;
                     if (expected.resolvable) {
-                        Assert.assertFalse(right.has("edit"));
+                        actual.resolvable = true;
+                        //Resolvable code actions can't return edits before it's resolved
+                        Assert.assertFalse(right.has("edits"));
                         ResolvableCodeAction action = ResolvableCodeAction.from(gson.fromJson(right, CodeAction.class));
                         String response = TestUtil.getCodeActionResolveResponse(getServiceEndpoint(), action);
                         JsonObject resolvedResponse = getResponseJson(response);
                         editsElement = resolvedResponse.get("result").getAsJsonObject().get("edit").getAsJsonObject()
                                 .get("documentChanges").getAsJsonArray().get(0).getAsJsonObject().get("edits");
                         JsonElement actualData = right.get("data");
-                        if (!actualData.isJsonNull()) {
-                            this.alterFileUri(actual, actualData, sourceRoot);
+                        actual.data = gson.fromJson(actualData, CodeActionData.class);
+                        this.alterFileUri(actual, sourceRoot);
+                        if (expected.data == null || actual.data == null
+                                || !compareCodeActionData(actual.data, expected.data)) {
+                            misMatched = true;
                         }
-                        if (expected.data != null) {
-                            this.alterExpectedUri(expected.data, sourceRoot);
-                            JsonElement expectedData = gson.toJsonTree(expected.data);
-                            if (!expectedData.equals(actualData)) {
-                                this.alterFileUri(actual, actualData, sourceRoot);
-                            }
-                        }
-
                     } else {
                         editsElement = right.get("edit").getAsJsonObject().get("documentChanges")
                                 .getAsJsonArray().get(0).getAsJsonObject().get("edits");
@@ -166,9 +164,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     }.getType();
                     List<TextEdit> actualEdit = gson.fromJson(editsElement, type);
                     List<TextEdit> expEdit = expected.edits;
+                    actual.edits = actualEdit;
                     if (!expEdit.equals(actualEdit)) {
-                        actual.edits = actualEdit;
-                        continue;
+                        misMatched = true;
                     }
                 }
                 // Match args
@@ -178,19 +176,19 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                     if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
                         actual.command = actualCommand;
-                        continue;
+                        misMatched = true;
                     }
 
                     if (!Objects.equals(actualCommand.get("title"), expectedCommand.get("title"))) {
                         actual.command = actualCommand;
-                        continue;
+                        misMatched = true;
                     }
 
                     JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                     JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
                     if (!TestUtil.isArgumentsSubArray(actualArgs, expArgs)) {
                         actual.command = actualCommand;
-                        continue;
+                        misMatched = true;
                     }
 
                     boolean docUriFound = false;
@@ -208,12 +206,14 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                     if (!docUriFound) {
                         actual.command = actualCommand;
-                        continue;
+                        misMatched = true;
                     }
                 }
                 // Code-action matched
-                codeActionFound = true;
-                break;
+                if (!misMatched) {
+                    codeActionFound = true;
+                    break;
+                }
             }
 
             if (!codeActionFound && actual.title != null) {
@@ -225,18 +225,18 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         String cursorStartStr = range.getStart().getLine() + ":" + range.getStart().getCharacter();
         String cursorEndStr = range.getEnd().getLine() + ":" + range.getEnd().getCharacter();
         if (!mismatchedCodeActions.isEmpty()) {
-//            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
+            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
             Assert.fail(
                     String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
-                    Arrays.toString(mismatchedCodeActions.toArray()),
-                    cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
+                            Arrays.toString(mismatchedCodeActions.toArray()),
+                            cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
         }
 
         if (matchedCodeActionsCount != testConfig.expected.size()) {
             Assert.fail(
                     String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
-                    Arrays.toString(mismatchedCodeActions.toArray()),
-                    cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
+                            Arrays.toString(mismatchedCodeActions.toArray()),
+                            cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
         }
     }
 
@@ -330,6 +330,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     }
 
     protected void alterExpectedUri(CodeActionData data, Path root) throws IOException {
+        if (data == null || data.getFileUri() == null) {
+            return;
+        }
         String[] uriComponents = data.getFileUri().replace("\"", "").split("/");
         Path expectedPath = Paths.get(root.toUri());
         for (String uriComponent : uriComponents) {
@@ -338,8 +341,10 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         data.setFileUri(expectedPath.toFile().getCanonicalPath());
     }
 
-    protected void alterFileUri(CodeActionObj actual, JsonElement actualData, Path root) {
-        actual.data = gson.fromJson(actualData, CodeActionData.class);
+    protected void alterFileUri(CodeActionObj actual, Path root) {
+        if (actual.data == null || actual.data.getFileUri() == null) {
+            return;
+        }
         String fileUri = actual.data.getFileUri().replace(root.toUri().toString(), "");
         actual.data.setFileUri(fileUri);
     }
@@ -359,6 +364,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
      * Represents a code action test config.
      */
     static class TestConfig {
+
         Range range;
         Position position;
         String source;
@@ -368,6 +374,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     }
 
     static class CodeActionObj {
+
         String title;
         String kind;
         List<TextEdit> edits;
@@ -379,5 +386,19 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         public String toString() {
             return title;
         }
+    }
+
+    protected Object convertActionData(Object actionData) {
+        return actionData;
+    }
+
+    protected boolean compareCodeActionData(CodeActionData actual, CodeActionData expected) {
+        JsonElement actualActionData = gson.toJsonTree(convertActionData(actual.getActionData()));
+        JsonElement expectedActionData = gson.toJsonTree(convertActionData(expected.getActionData()));
+        return expected.getFileUri().equals(actual.getFileUri())
+                && expected.getCodeActionName().equals(actual.getCodeActionName())
+                && expected.getExtName().equals(actual.getExtName())
+                && expected.getRange().equals(actual.getRange())
+                && expectedActionData.equals(actualActionData);
     }
 }
