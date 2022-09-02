@@ -75,7 +75,7 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
             BVariable resultVar = VariableFactory.getVariable(context, subExprResult.getJdiValue());
 
             // If the expression subExprResult is an object, try invoking as an object method invocation.
-            if (subExprResult.getType() != BVariableType.OBJECT) {
+            if (subExprResult.getType() != BVariableType.CLIENT_OBJECT) {
                 throw createEvaluationException("invalid remote method call: expected a client object, but found " +
                         "'other'");
             }

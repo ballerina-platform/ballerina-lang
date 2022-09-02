@@ -402,3 +402,46 @@ function testQueryInXMLTemplateExpr() {
     // var x8 = xml `<doc>${xml `foo` + (from string s in ["a", "b"] select xml `${s}z`)}</doc>`; // issue #36541
     // test:assertEquals(x8.toString(), "<doc>fooazbz</doc>")
 }
+
+type XMLType xml:Comment|xml:ProcessingInstruction;
+
+function testXMLLiteralWithConditionExpr() {
+    xml? s = xml `foo`;
+    string target = "foo";
+
+    xml x1 = (s ?: xml `<baz/>`);
+    test:assertEquals(x1.toString(), target);
+
+    xml x2 = (s is xml ? s : xml `<baz/>`) + xml ``;
+    test:assertEquals(x2.toString(), target);
+
+    xml x3 = (s ?: xml `<baz/>`) + xml ``;
+    test:assertEquals(x3.toString(), target);
+
+    s = ();
+
+    xml:Element e1 = xml `<baz/>`;
+    xml? v1 = (s ?: e1) + xml `<element>A</element>`;
+    test:assertEquals(v1.toString(), "<baz></baz><element>A</element>");
+
+    xml<xml:Element> e2 = xml `<baz/>`;
+    xml v2 = (s ?: e2) + xml `<element>A</element>`;
+    test:assertEquals(v2.toString(), "<baz></baz><element>A</element>");
+
+    XMLType e3 = xml `<!--This is a comment-->`;
+    xml v3 = (s ?: e3) + xml `<element>A</element>`;
+    test:assertEquals(v3.toString(), "<!--This is a comment--><element>A</element>");
+
+    XMLType e4 = xml `<?target data?>`;
+    xml v4 = (s ?: e4) + xml `<element>A</element>`;
+    test:assertEquals(v4.toString(), "<?target data?><element>A</element>");
+
+    xml w1 = (s ?: (v1 is xml<xml:Element> ? e2 : xml `<user>Foo</user>`)) + xml `<element>B</element>`;
+    test:assertEquals(w1.toString(), "<baz></baz><element>B</element>");
+
+    xml w2 = (s ?: (v1 ?: xml `<user>Foo</user>`)) + xml `<element>B</element>`;
+    test:assertEquals(w2.toString(), "<baz></baz><element>A</element><element>B</element>");
+
+    xml w3 = (s ?: (s ?: (v1 is xml:Element ? e2 : xml `<user>Foo</user>`))) + xml `<element>B</element>`;
+    test:assertEquals(w3.toString(), "<user>Foo</user><element>B</element>");
+}

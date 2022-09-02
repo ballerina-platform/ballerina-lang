@@ -32,11 +32,13 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     public final String accessor;
     public final String[] resourcePath;
+    public BTupleType resourcePathType;
 
-    public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, long flags, String accessor,
-                               String[] resourcePath) {
+    public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, BTupleType resourcePathType,
+                               long flags, String accessor, String[] resourcePath) {
         super(funcName, parent, type, flags);
         this.type = type;
+        this.resourcePathType = resourcePathType;
         this.flags = flags;
         this.accessor = accessor;
         this.resourcePath = resourcePath;
@@ -79,7 +81,8 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath);
+        return new BResourceMethodType(funcName, parentObjectType, type, resourcePathType, flags, accessor,
+                resourcePath);
     }
 
     @Deprecated
