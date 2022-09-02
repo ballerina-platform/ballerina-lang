@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
@@ -33,7 +34,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -125,13 +125,13 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
             return null;
         }
 
-        if (value.value instanceof BallerinaConstantValue) {
-            return stringValueOf((BallerinaConstantValue) value.value);
+        if (value.value() instanceof BallerinaConstantValue) {
+            return stringValueOf((BallerinaConstantValue) value.value());
         }
 
-        if (value.value instanceof HashMap) {
+        if (value.value() instanceof HashMap) {
             StringJoiner joiner = new StringJoiner(", ", "{", "}");
-            Map map = (Map) value.value;
+            Map map = (Map) value.value();
 
             map.forEach((k, v) -> {
                 StringBuilder builder = new StringBuilder();
@@ -140,7 +140,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
                 if (v instanceof BallerinaConstantValue) {
                     builder.append(stringValueOf((BallerinaConstantValue) v));
                 } else {
-                    builder.append(toStringVal(v, value.typeDescriptor));
+                    builder.append(toStringVal(v, value.valueType()));
                 }
 
                 joiner.add(builder.toString());
@@ -149,7 +149,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
             return joiner.toString();
         }
 
-        return toStringVal(value.value, value.typeDescriptor);
+        return toStringVal(value.value(), value.valueType());
     }
 
     private String toStringVal(Object obj, TypeSymbol valType) {
@@ -158,62 +158,6 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         }
 
         return String.valueOf(obj);
-    }
-
-    /**
-     *  Value of the constant symbol.
-     *
-     *  @since 2201.2.0
-     */
-    public static class BallerinaConstantValue {
-        private final Object value;
-        private final TypeSymbol typeDescriptor;
-
-        public BallerinaConstantValue(Object value, TypeSymbol typeDescriptor) {
-            this.value = value;
-            this.typeDescriptor = typeDescriptor;
-        }
-
-        public Object value() {
-            return value;
-        }
-
-        public TypeSymbol typeDescriptor() {
-            return typeDescriptor;
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(value);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-
-            if (o == null) {
-                return false;
-            }
-
-            if (o instanceof BallerinaConstantValue) {
-                BallerinaConstantValue that = (BallerinaConstantValue) o;
-
-                if (this.typeDescriptor != that.typeDescriptor) {
-                    return false;
-                }
-
-                return this.value.equals(that.value);
-            }
-
-            return this.value.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.value, this.typeDescriptor);
-        }
     }
 
     /**

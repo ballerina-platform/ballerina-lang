@@ -40,6 +40,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -586,7 +587,7 @@ public class SymbolFactory {
         return symbolBuilder.build();
     }
 
-    private BallerinaConstantSymbol.BallerinaConstantValue createConstantValue(BLangConstantValue constantValue) {
+    private BallerinaConstantValue createConstantValue(BLangConstantValue constantValue) {
         if (constantValue == null) {
             return null;
         }
@@ -597,9 +598,9 @@ public class SymbolFactory {
 
         if (constantValue.value instanceof HashMap) {
             Map constValueMap = (Map) constantValue.value;
-            Map<String, BallerinaConstantSymbol.BallerinaConstantValue> constSymbolMap = new LinkedHashMap<>();
+            Map<String, BallerinaConstantValue> constSymbolMap = new LinkedHashMap<>();
             constValueMap.forEach((key, value) -> {
-                BallerinaConstantSymbol.BallerinaConstantValue newContValue;
+                BallerinaConstantValue newContValue;
                 if (value instanceof BLangConstantValue) {
                     newContValue = createConstantValue((BLangConstantValue) value);
                     constSymbolMap.put((String) key, newContValue);
@@ -611,8 +612,8 @@ public class SymbolFactory {
         return createConstantValue(constantValue.value, constantValue.type);
     }
 
-    private BallerinaConstantSymbol.BallerinaConstantValue createConstantValue(Object value, BType bType) {
-        return new BallerinaConstantSymbol.BallerinaConstantValue(value, typesFactory.getTypeDescriptor(bType));
+    private BallerinaConstantValue createConstantValue(Object value, BType bType) {
+        return new BallerinaConstantValue(value, typesFactory.getTypeDescriptor(bType));
     }
 
     /**

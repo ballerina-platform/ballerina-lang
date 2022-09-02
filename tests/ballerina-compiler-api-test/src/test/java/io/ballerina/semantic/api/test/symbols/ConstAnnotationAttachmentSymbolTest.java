@@ -19,7 +19,7 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
+import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
@@ -74,42 +74,38 @@ public class ConstAnnotationAttachmentSymbolTest {
 
         assertTrue(annotAttachment.attachmentValue().isPresent());
         ConstantSymbol constantSymbol = annotAttachment.attachmentValue().get();
-        BallerinaConstantSymbol.BallerinaConstantValue constVal =
-                (BallerinaConstantSymbol.BallerinaConstantValue) constantSymbol.constValue();
+        BallerinaConstantValue constVal = (BallerinaConstantValue) constantSymbol.constValue();
 
         // Test type-descriptor
-        assertEquals(constVal.typeDescriptor().typeKind(), TypeDescKind.INTERSECTION);
-        assertEquals(((IntersectionTypeSymbol) constVal.typeDescriptor()).memberTypeDescriptors().get(0).typeKind(),
+        assertEquals(constVal.valueType().typeKind(), TypeDescKind.INTERSECTION);
+        assertEquals(((IntersectionTypeSymbol) constVal.valueType()).memberTypeDescriptors().get(0).typeKind(),
                 TypeDescKind.RECORD);
-        assertEquals(((IntersectionTypeSymbol) constVal.typeDescriptor()).memberTypeDescriptors().get(1).typeKind(),
+        assertEquals(((IntersectionTypeSymbol) constVal.valueType()).memberTypeDescriptors().get(1).typeKind(),
                 TypeDescKind.READONLY);
         RecordTypeSymbol recTypeSymbol =
-                (RecordTypeSymbol) ((IntersectionTypeSymbol) constVal.typeDescriptor()).memberTypeDescriptors().get(0);
+                (RecordTypeSymbol) ((IntersectionTypeSymbol) constVal.valueType()).memberTypeDescriptors().get(0);
         assertEquals(recTypeSymbol.signature(), "record {|1 id; record {|1 a; 2 b;|} perm;|}");
 
         // Test const value
         assertTrue(constVal.value() instanceof HashMap);
         HashMap valueMap = (HashMap) constVal.value();
 
-        assertTrue(valueMap.get("id") instanceof BallerinaConstantSymbol.BallerinaConstantValue);
-        BallerinaConstantSymbol.BallerinaConstantValue idValue =
-                (BallerinaConstantSymbol.BallerinaConstantValue) valueMap.get("id");
-        assertEquals(idValue.typeDescriptor().typeKind(), TypeDescKind.INT);
+        assertTrue(valueMap.get("id") instanceof BallerinaConstantValue);
+        BallerinaConstantValue idValue =
+                (BallerinaConstantValue) valueMap.get("id");
+        assertEquals(idValue.valueType().typeKind(), TypeDescKind.INT);
         assertEquals(idValue.value(), 1L);
 
-        assertTrue(valueMap.get("perm") instanceof BallerinaConstantSymbol.BallerinaConstantValue);
-        BallerinaConstantSymbol.BallerinaConstantValue permValue =
-                (BallerinaConstantSymbol.BallerinaConstantValue) valueMap.get("perm");
-        assertEquals(permValue.typeDescriptor().typeKind(), TypeDescKind.INTERSECTION);
-        assertEquals(((IntersectionTypeSymbol) permValue.typeDescriptor()).effectiveTypeDescriptor().typeKind(),
+        assertTrue(valueMap.get("perm") instanceof BallerinaConstantValue);
+        BallerinaConstantValue permValue = (BallerinaConstantValue) valueMap.get("perm");
+        assertEquals(permValue.valueType().typeKind(), TypeDescKind.INTERSECTION);
+        assertEquals(((IntersectionTypeSymbol) permValue.valueType()).effectiveTypeDescriptor().typeKind(),
                 TypeDescKind.RECORD);
         assertTrue(permValue.value() instanceof HashMap);
         HashMap permMap = (HashMap) permValue.value();
-        assertEquals(((BallerinaConstantSymbol.BallerinaConstantValue) permMap.get("a")).value(), 1L);
-        assertEquals(((BallerinaConstantSymbol.BallerinaConstantValue) permMap.get("a")).typeDescriptor().typeKind(),
-                TypeDescKind.INT);
-        assertEquals(((BallerinaConstantSymbol.BallerinaConstantValue) permMap.get("b")).value(), 2L);
-        assertEquals(((BallerinaConstantSymbol.BallerinaConstantValue) permMap.get("b")).typeDescriptor().typeKind(),
-                TypeDescKind.INT);
+        assertEquals(((BallerinaConstantValue) permMap.get("a")).value(), 1L);
+        assertEquals(((BallerinaConstantValue) permMap.get("a")).valueType().typeKind(), TypeDescKind.INT);
+        assertEquals(((BallerinaConstantValue) permMap.get("b")).value(), 2L);
+        assertEquals(((BallerinaConstantValue) permMap.get("b")).valueType().typeKind(), TypeDescKind.INT);
     }
 }
