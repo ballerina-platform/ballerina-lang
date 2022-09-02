@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -1451,6 +1452,13 @@ public class Types {
         return constraint;
     }
 
+    public static BType getEffectiveType(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            return ((BIntersectionType) type).effectiveType;
+        }
+        return type;
+    }
+
     boolean isSelectivelyImmutableType(BType type, PackageID packageID) {
         return isSelectivelyImmutableType(type, new HashSet<>(), false, packageID);
     }
@@ -1728,15 +1736,16 @@ public class Types {
                 continue;
             }
 
-            // Service resource methods are not considered as part of service objects type.
-            if (isLhsAService && Symbols.isResource(lhsFunc.symbol)) {
-                continue;
-            }
-
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
+            Optional<BAttachedFunction> rhsFunction = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            if (rhsFunction.isEmpty()) {
                 return false;
             }
+
+            BAttachedFunction rhsFunc = rhsFunction.get();
+            if (!isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
+                return false;
+            }
+            
             if (Symbols.isRemote(lhsFunc.symbol) != Symbols.isRemote(rhsFunc.symbol)) {
                 return false;
             }
@@ -1746,14 +1755,7 @@ public class Types {
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
-        int count = 0;
-        for (BAttachedFunction attachedFunc : sym.attachedFuncs) {
-            // Resource functions does not consider as a part of type.
-            if (!Symbols.isResource(attachedFunc.symbol)) {
-                count++;
-            }
-        }
-
+        int count = sym.attachedFuncs.size();
         // If an explicit initializer is available, it could mean,
         // 1) User explicitly defined an initializer
         // 2) The object type is coming from an already compiled source, hence the initializer is already set.
@@ -3489,13 +3491,48 @@ public class Types {
         }
     }
 
-    private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,
-                                                       Set<TypePair> unresolvedTypes) {
-        return rhsFuncList.stream()
+    private Optional<BAttachedFunction> getMatchingInvokableType(List<BAttachedFunction> rhsFuncList,
+                                                                 BAttachedFunction lhsFunc,
+                                                                 Set<TypePair> unresolvedTypes) {
+        Optional<BAttachedFunction> matchingFunction = rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> isFunctionTypeAssignable(rhsFunc.type, lhsFunc.type, unresolvedTypes))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
+        
+        if (matchingFunction.isEmpty()) {
+            return matchingFunction;
+        }
+        // For resource function match, we need to check whether lhs function resource path type belongs to 
+        // rhs function resource path type
+        BAttachedFunction matchingFunc = matchingFunction.get();
+        // Todo: We could include this logic in `isFunctionTypeAssignable` if we have `resourcePathType` information in
+        // `BInvokableType` issue #37502
+        boolean lhsFuncIsResource = Symbols.isResource(lhsFunc.symbol);
+        boolean matchingFuncIsResource = Symbols.isResource(matchingFunc.symbol);
+
+        if (!lhsFuncIsResource && !matchingFuncIsResource) {
+            return matchingFunction;
+        }
+
+        if ((lhsFuncIsResource && !matchingFuncIsResource) || (matchingFuncIsResource && !lhsFuncIsResource)) {
+            return Optional.empty();
+        }
+
+        List<BType> lhsFuncResourcePathTypes = ((BResourceFunction) lhsFunc).resourcePathType.tupleTypes;
+        List<BType> rhsFuncResourcePathTypes = ((BResourceFunction) matchingFunc).resourcePathType.tupleTypes;
+
+        int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.size();
+        if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.size()) {
+            return Optional.empty();
+        }
+        
+        for (int i = 0; i < lhsFuncResourcePathTypesSize; i++) {
+            if (!isAssignable(lhsFuncResourcePathTypes.get(i), rhsFuncResourcePathTypes.get(i))) {
+                return Optional.empty();
+            }
+        }
+        
+        return matchingFunction;
     }
 
     private boolean isInSameVisibilityRegion(BSymbol lhsSym, BSymbol rhsSym) {

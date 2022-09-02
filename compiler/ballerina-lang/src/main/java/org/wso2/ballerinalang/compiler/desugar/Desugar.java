@@ -5813,7 +5813,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         List<BLangExpression> exprs = tupleLiteral.exprs;
-        BTupleType tupleType = (BTupleType) tupleLiteral.getBType();
+        BTupleType tupleType = (BTupleType) Types.getReferredType(tupleLiteral.getBType());
         List<BType> tupleMemberTypes = tupleType.tupleTypes;
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
@@ -6559,13 +6559,13 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             if (resourcePathName.value.equals("*")) {
-                if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded &&
-                        requiredArg.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+                if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded) {
                     BLangStatementExpression statementExpression = new BLangStatementExpression();
                     statementExpression.expr = requiredArg;
                     statementExpression.stmt = firstRequiredArgFromRestArg.stmt;
                     statementExpression.setBType(requiredArg.getBType());
                     bLangInvocation.requiredArgs.add(statementExpression);
+                    isFirstRequiredArgFromRestArgIncluded = true;
                 } else {
                     bLangInvocation.requiredArgs.add(requiredArg);
                 }
