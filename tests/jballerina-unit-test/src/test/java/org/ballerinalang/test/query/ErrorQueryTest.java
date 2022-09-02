@@ -133,6 +133,11 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testCompleteEarlyErrorsWithinQuery");
     }
 
+    @Test
+    public void testErrorReturnedFromStreams() {
+        BRunUtil.invoke(result, "testErrorReturnedFromStreams");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

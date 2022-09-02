@@ -501,9 +501,9 @@ function testErrorReturnedFromOrderByClause() {
 }
 
 function checkErrorAtOrderBy() returns error? {
-    _ = from int i in 1...3
-       order by check verifyCheck(i)
-       select i;
+    _ = from int i in 1 ... 3
+        order by check verifyCheck(i)
+        select i;
 }
 
 function testErrorReturnedFromQueryAction() {
@@ -517,93 +517,93 @@ function testErrorReturnedFromQueryAction() {
 }
 
 function checkErrorAtDo() returns error? {
-    _ = from int i in 1...3
-       do {
-          _ = check verifyCheck(i);
-       };
+    _ = from int i in 1 ... 3
+        do {
+            _ = check verifyCheck(i);
+        };
 }
 
 function checkErrorAtLet() returns error? {
-    _ = from int i in 1...3
-       let int _ = check verifyCheck(i)
-       do {
-       };
+    _ = from int i in 1 ... 3
+        let int _ = check verifyCheck(i)
+        do {
+        };
 }
 
 function checkErrorAtWhere3() returns error? {
-    _ = from int i in 1...3
-       where i == check verifyCheck(i)
-       do {
-       };
+    _ = from int i in 1 ... 3
+        where i == check verifyCheck(i)
+        do {
+        };
 }
 
 function checkErrorAtFrom1() returns error? {
     _ = from int i in check verifyCheckArr()
-       do {
-       };
+        do {
+        };
 }
 
 function checkErrorAtFrom2() returns error? {
-    _ = from int i in 1...3
+    _ = from int i in 1 ... 3
         from int j in check verifyCheckArr()
-       do {
-       };
+        do {
+        };
 }
 
 function checkErrorAtJoin() returns error? {
-    _ = from int i in 1...3
+    _ = from int i in 1 ... 3
         join int j in check verifyCheckArr()
         on i equals j
-       do {
-       };
+        do {
+        };
 }
 
 function checkErrorAtOrderBy2() returns error? {
-    _ = from int i in 1...3
+    _ = from int i in 1 ... 3
         order by check verifyCheck(i)
-       do {
-       };
+        do {
+        };
 }
 
 function testCompleteEarlyErrorsWithinQuery() {
-    IterableWithImmediateError itr = new();
+    IterableWithImmediateError itr = new ();
 
     error? res1 = from int i in itr
-       do {
-       };
+        do {
+        };
     assertTrue(res1 is error);
     assertEquality("Custom error thrown.", (<error>res1).message());
 
     error? res2 = from int i in [1, 2, 3]
-           from int j in itr
-           do {
-           };
+        from int j in itr
+        do {
+        };
     assertTrue(res2 is error);
     assertEquality("Custom error thrown.", (<error>res2).message());
 
     error? res3 = from int i in [1, 2, 3]
-               join int j in itr
-               on i equals j
-               do {
-               };
+        join int j in itr
+                on i equals j
+        do {
+        };
     assertTrue(res3 is error);
     assertEquality("Custom error thrown.", (<error>res3).message());
 
     int[]|error res4 = from int i in itr
-       select i;
+        select i;
     assertTrue(res4 is error);
     assertEquality("Custom error thrown.", (<error>res4).message());
 
     int[]|error res5 = from int i in [1, 2, 3]
-               from int j in itr
-               select i;
+        from int j in itr
+        select i;
     assertTrue(res5 is error);
     assertEquality("Custom error thrown.", (<error>res5).message());
 
     int[]|BarError res6 = from int i in [1, 2, 3]
-               join int j in itr
-               on i equals j
-               select i;
+        join int j in itr
+                on i equals j
+        select i;
     assertTrue(res6 is BarError);
     assertEquality("Custom error thrown.", (<error>res6).message());
 
@@ -617,29 +617,46 @@ type NumberRecord record {|
     string value;
 |};
 
-type TableT table<NumberRecord> key (id);
+type TableT table<NumberRecord> key(id);
 
 function getErrorAtOnConflict() returns error? {
-  TableT|error tbl1 = table key(id) from var i in [1, 2, 1]
-                        select {
-                            id: i,
-                            value: ""
-                        }
-                        on conflict getErrorOrNil();
-  assertTrue(tbl1 is error);
-  assertEquality("Custom error", (<error>tbl1).message());
+    TableT|error tbl1 = table key(id) from var i in [1, 2, 1]
+        select {
+            id: i,
+            value: ""
+        }
+        on conflict getErrorOrNil();
+    assertTrue(tbl1 is error);
+    assertEquality("Custom error", (<error>tbl1).message());
 
-  TableT|error tbl2 = table key(id) from var i in [1, 2, 1]
-                      select {
-                          id: i,
-                          value: ""
-                      }
-                      on conflict check getErrorOrNil();
-  assertTrue(false); //should be unreachable
+    TableT|error tbl2 = table key(id) from var i in [1, 2, 1]
+        select {
+            id: i,
+            value: ""
+        }
+        on conflict check getErrorOrNil();
+    assertTrue(false); //should be unreachable
 }
 
-function getErrorOrNil() returns error? {
-    return error("Custom error");
+function testErrorReturnedFromStreams() returns error? {
+    IterableWithImmediateError itr = new();
+    stream<int, BarError?> stm1 = stream from int i in itr
+    select i;
+
+    var res1 = stm1.next();
+    assertTrue(res1 is BarError);
+    assertEquality("Custom error thrown.", (<error>res1).message());
+
+    stream<int, error?> stm2 = stream from int i in 1...3
+    select check verifyCheck(i);
+
+    var res2 = stm2.next();
+    assertTrue(res2 is error);
+    assertEquality("Verify Check.", (<error>res2).message());
+
+    stream<int, FooError?> stm3 = stream from int i in 1...3
+        select check getDistinctErrorOrInt();
+
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------
@@ -654,6 +671,14 @@ public function verifyPanic(int i) returns int {
 
 public function verifyCheckArr() returns int[]|error {
     return error("Verify Check.");
+}
+
+function getErrorOrNil() returns error? {
+    return error("Custom error");
+}
+
+function getDistinctErrorOrInt() returns int|BarError {
+    return error BarError("Distinct error thrown");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
