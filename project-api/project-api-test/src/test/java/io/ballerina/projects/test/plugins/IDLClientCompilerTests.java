@@ -18,12 +18,16 @@
 
 package io.ballerina.projects.test.plugins;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.test.TestUtils;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
@@ -65,12 +69,15 @@ public class IDLClientCompilerTests {
 
     @BeforeSuite
     public void setup() {
-        Package currentPackage = loadPackage("simpleclienttest");
-        PackageCompilation compilation = currentPackage.getCompilation();
+        Project project = loadPackage("simpleclienttest");
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertEquals(idlClientGeneratorResult.reportedDiagnostics().diagnostics().size(), 0);
+
+        PackageCompilation compilation = project.currentPackage().getCompilation();
         Assert.assertEquals(compilation.diagnosticResult().diagnostics().size(), 0);
 
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
-        result = new CompileResult(currentPackage, jBallerinaBackend);
+        result = new CompileResult(project.currentPackage(), jBallerinaBackend);
         try {
             BRunUtil.runInit(result);
         } catch (ClassNotFoundException e) {
@@ -94,8 +101,10 @@ public class IDLClientCompilerTests {
 
     @Test
     public void testModuleClientDeclUndefinedSymbolsInGeneratedModuleNegative() {
-        Package currentPackage = loadPackage("simpleclientnegativetest");
-        PackageCompilation compilation = currentPackage.getCompilation();
+        Project project = loadPackage("simpleclientnegativetest");
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        PackageCompilation compilation = project.currentPackage().getCompilation();
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
         int index = 0;
@@ -149,10 +158,10 @@ public class IDLClientCompilerTests {
         Assert.assertEquals(attachments.size(), 0);
     }
 
-    private Package loadPackage(String path) {
+    private Project loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
-        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
-        return buildProject.currentPackage();
+        BuildOptions.builder().targetDir(ProjectUtils.getTemporaryTargetPath());
+        return TestUtils.loadBuildProject(projectDirPath);
     }
 
     private static void validateError(Diagnostic[] diagnostics, int errorIndex, String expectedErrMsg,

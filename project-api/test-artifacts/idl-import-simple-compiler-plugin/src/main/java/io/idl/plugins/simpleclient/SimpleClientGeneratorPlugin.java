@@ -121,7 +121,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "            self.'limit = 'limit;\n" +
                                 "        }\n" +
                                 "    }\n" +
-                                "}", "simple_client");
+                                "}", "simple_client.bal");
             }
 
             return DocumentConfig.from(
@@ -141,7 +141,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                             "            return self.url;\n" +
                             "        }\n" +
                             "    }\n" +
-                            "}", "simple_client");
+                            "}", "simple_client.bal");
         }
     }
 }

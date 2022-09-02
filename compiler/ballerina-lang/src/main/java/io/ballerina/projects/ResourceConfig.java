@@ -63,7 +63,7 @@ public class ResourceConfig {
         return name;
     }
 
-    byte[] content() {
+    public byte[] content() {
         return content;
     }
 

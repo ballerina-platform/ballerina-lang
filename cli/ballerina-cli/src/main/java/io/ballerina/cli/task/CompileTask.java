@@ -20,6 +20,7 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -84,8 +85,10 @@ public class CompileTask implements Task {
 
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        List<Diagnostic> diagnostics = new ArrayList<>(idlClientGeneratorResult.reportedDiagnostics().diagnostics());
+
         try {
-            List<Diagnostic> diagnostics = new ArrayList<>();
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();

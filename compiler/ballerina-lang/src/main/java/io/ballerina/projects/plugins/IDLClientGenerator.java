@@ -18,8 +18,6 @@
 
 package io.ballerina.projects.plugins;
 
-import io.ballerina.compiler.syntax.tree.Node;
-
 /**
  * Represent an IDL client analysis task.
  *

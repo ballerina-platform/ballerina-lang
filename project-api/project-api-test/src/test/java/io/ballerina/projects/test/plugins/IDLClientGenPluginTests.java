@@ -19,7 +19,10 @@
 package io.ballerina.projects.test.plugins;
 
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.test.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -35,11 +38,14 @@ import java.nio.file.Paths;
 public class IDLClientGenPluginTests {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get(
-            "src/test/resources/compiler_plugin_tests").toAbsolutePath();
+            "src/test/resources").toAbsolutePath();
 
     @Test
-    public void testInBuiltCompilerPluginBuildProject() {
-        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"));
+    public void testIdlPluginBuildProject() {
+        Project project = TestUtils.loadBuildProject(
+                RESOURCE_DIRECTORY.resolve("compiler_plugin_tests/package_test_idl_plugin"));
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
@@ -47,5 +53,46 @@ public class IDLClientGenPluginTests {
                 "Unexpected number of compilation diagnostics");
 
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 3);
+    }
+
+    @Test
+    public void testIdlPluginBuildProjectRepeatCompilation() {
+        Project project = TestUtils.loadBuildProject(
+                RESOURCE_DIRECTORY.resolve("idl_client_compiler_tests/simpleclienttest"));
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 19);
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 0);
+
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 4);
+    }
+
+    @Test
+    public void testIdlPluginBuildProjectRepeatEditsWithCompilation() {
+        Project project = TestUtils.loadBuildProject(
+                RESOURCE_DIRECTORY.resolve("idl_client_compiler_tests/simpleclienttest"));
+
+        DocumentId documentId = project.currentPackage().getDefaultModule().documentIds()
+                .stream().findFirst().orElseThrow();
+        String sourceCode = project.currentPackage().getDefaultModule().document(documentId).syntaxTree().toSourceCode();
+        for (int i = 1; i < 6; i++) {
+            sourceCode += ("int a" + i + " = " + i);
+            project.currentPackage().getDefaultModule().document(documentId).modify().withContent(sourceCode).apply();
+            Assert.assertEquals(
+                    project.currentPackage().getCompilation().diagnosticResult().diagnostics().size(), 19 + i);
+        }
+
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 5);
+
+        for (int i = 6; i < 11; i++) {
+            sourceCode += ("int a" + i + " = " + i);
+            project.currentPackage().getDefaultModule().document(documentId).modify().withContent(sourceCode).apply();
+            Assert.assertEquals(
+                    project.currentPackage().getCompilation().diagnosticResult().diagnostics().size(), i);
+        }
+
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 4);
     }
 }

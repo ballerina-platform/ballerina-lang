@@ -1,14 +1,19 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -217,6 +222,70 @@ public class Package {
         return new Package(packageContext.duplicate(project), project);
     }
 
+    public IDLClientGeneratorResult runIDLGeneratorPlugins() {
+        ResolutionOptions resolutionOptions = ResolutionOptions.builder()
+                .setOffline(this.packageContext.compilationOptions().offlineBuild())
+                .setSticky(this.packageContext.compilationOptions().sticky()).build();
+        return runIDLGeneratorPlugins(resolutionOptions);
+    }
+
+    public IDLClientGeneratorResult runIDLGeneratorPlugins(ResolutionOptions resolutionOptions) {
+        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            throw new ProjectException(
+                    "IDL plugin generation is not supported for project kind: " + ProjectKind.BALA_PROJECT);
+        }
+
+        // Clear existing module and document contexts and re-compile.
+        // Otherwise the cached compilations will be reused and IDL client modules will not be generated.
+        Package updatedPackage = resetIfCompiled();
+
+        // Generate IDL client modules
+        CompilationOptions newCompilationOptions = this.packageContext.compilationOptions().acceptTheirs(
+                CompilationOptions.builder()
+                        .withIDLGenerators(true)
+                        .setOffline(resolutionOptions.offline())
+                        .setSticky(resolutionOptions.sticky())
+                        .build());
+        PackageResolution packageResolution = updatedPackage.getResolution(newCompilationOptions);
+
+        // Add generated client modules to the updated package.
+        // The IDL plugins should be disable to avoid infinite recursion.
+        updatedPackage = addGeneratedModules(updatedPackage, newCompilationOptions, packageResolution);
+        try {
+            saveGeneratedModules(packageResolution.generatedModules());
+        } catch (IOException e) {
+            throw new ProjectException("failed to save generated IDL client modules: " + e.getMessage(), e);
+        }
+        return new IDLClientGeneratorResult(
+                updatedPackage, packageResolution.diagnosticResult().allDiagnostics);
+    }
+
+    private Package addGeneratedModules(Package updatedPackage,
+                                        CompilationOptions newCompilationOptions,
+                                        PackageResolution packageResolution) {
+        newCompilationOptions = newCompilationOptions.acceptTheirs(
+                    CompilationOptions.builder().withIDLGenerators(false).build());
+        Modifier modifier = updatedPackage.modify().withCompilationOptions(newCompilationOptions);
+        for (ModuleConfig generatedModule : packageResolution.generatedModules()) {
+            modifier.addModule(generatedModule);
+        }
+        return modifier.apply();
+    }
+
+    private Package resetIfCompiled() {
+        if (this.packageContext.cachedCompilation() == null) {
+            return this;
+        }
+        return duplicate(this.project);
+    }
+
+    private void saveGeneratedModules(List<ModuleConfig> generatedModules) throws IOException {
+        Path modulesRoot = this.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        for (ModuleConfig moduleConfig : generatedModules) {
+            ProjectUtils.writeModule(moduleConfig, modulesRoot);
+        }
+    }
+
     /**
      * Run {@code CodeGenerator} and {@code CodeModifier} tasks in engaged {@code CompilerPlugin}s.
      * <p>
@@ -389,13 +458,14 @@ public class Package {
         private DependencyManifest dependencyManifest;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
-        private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
+//        private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
         private CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
         private TomlDocumentContext cloudTomlContext;
         private TomlDocumentContext compilerPluginTomlContext;
         private MdDocumentContext packageMdContext;
+        private PackageContext oldPackageContext;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -403,13 +473,14 @@ public class Package {
             this.dependencyManifest = oldPackage.dependencyManifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
-            this.dependencyGraph = oldPackage.getResolution().dependencyGraph();
+//            this.dependencyGraph = oldPackage.getResolution().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
             this.cloudTomlContext = oldPackage.packageContext.cloudTomlContext().orElse(null);
             this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
+            this.oldPackageContext = oldPackage.packageContext;
         }
 
         Modifier updateModules(Set<ModuleContext> newModuleContexts) {
@@ -582,9 +653,11 @@ public class Package {
                     this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
-            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
-                    .dependencyGraph();
-            cleanPackageCache(this.dependencyGraph, newDepGraph);
+            if (oldPackageContext.cachedCompilation() != null) {
+                DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
+                        .dependencyGraph();
+                cleanPackageCache(oldPackageContext.getResolution().dependencyGraph(), newDepGraph);
+            }
             return this.project.currentPackage();
         }
 
