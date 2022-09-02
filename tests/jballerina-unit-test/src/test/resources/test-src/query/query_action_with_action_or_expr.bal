@@ -173,34 +173,43 @@ function testQueryActionWithParenthesizedClientRemoteMethodCall() {
 }
 
 function testQueryActionWithQueryAction() {
+    assertTrue(checkNestedQueryAction() is ());
+}
+
+function checkNestedQueryAction() returns error? {
     int sum = 0;
-    error? a = from int i in 1...5
-               let error? val = from var j in ["1", "2", "3"]
-                                do {
-                                    sum += check int:fromString(j);
-                                }
-               where val is ()
-               do {
-                   sum += i;
-               };
+    error? a = from int i in 1 ... 5
+        let error? val = from var j in ["1", "2", "3"]
+            do {
+                sum += check int:fromString(j);
+            }
+        where val is ()
+        do {
+            sum += i;
+        };
     assertEquality(true, a is ());
     assertEquality(45, sum);
 }
 
 function testQueryActionWithParenthesizedQueryAction() {
+    assertTrue(checkQueryActionWithParenthesizedQueryAction() is ());
+}
+
+function checkQueryActionWithParenthesizedQueryAction() returns error? {
     int sum = 0;
-    error? a = from int i in 1...5
-               let error? val = (from var j in ["1", "2", "3"]
-                                do {
-                                    sum += check int:fromString(j);
-                                })
-               where val is ()
-               do {
-                   sum += i;
-               };
+    error? a = from int i in 1 ... 5
+        let error? val = (from var j in ["1", "2", "3"]
+            do {
+                sum += check int:fromString(j);
+            })
+        where val is ()
+        do {
+            sum += i;
+        };
     assertEquality(true, a is ());
     assertEquality(45, sum);
 }
+
 
 function testQueryActionWithTypeCastActionOrExpr() returns error? {
     int sum = 0;
@@ -638,4 +647,8 @@ function assertEquality(anydata expected, anydata actual) {
 
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
+function assertTrue(anydata actual) {
+    return assertEquality(true, actual);
 }

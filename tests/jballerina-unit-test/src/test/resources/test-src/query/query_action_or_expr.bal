@@ -167,48 +167,56 @@ function testQueryActionOrExprWithParenthesizedClientRemoteMethodCall() {
 }
 
 function testQueryActionOrExprWithQueryAction() {
+    assertTrue(checkQueryActionExpressionNested() is ());
+}
+
+function checkQueryActionExpressionNested() returns error? {
     int sum = 0;
-    error?[] a = from int i in 1...5
-                 select from var j in 1...5
-                        do {
-                            sum = sum + j;
-                        };
+    error?[] a = from int i in 1 ... 5
+        select from var j in 1 ... 5
+            do {
+                sum = sum + j;
+            };
     assertEquality(75, sum);
 
     sum = 0;
-    error?[] b = from int i in 1...5
-                 let error? val = from var j in ["1", "2", "3"]
-                                  do {
-                                      int _ = check int:fromString(j);
-                                  }
-                 where val is ()
-                 select from var j in 1...5
-                        do {
-                            sum = sum + j;
-                        };
+    error?[] b = from int i in 1 ... 5
+        let error? val = from var j in ["1", "2", "3"]
+            do {
+                int _ = check int:fromString(j);
+            }
+        where val is ()
+        select from var j in 1 ... 5
+            do {
+                sum = sum + j;
+            };
     assertEquality(75, sum);
 }
 
 function testQueryActionOrExprWithParenthesizedQueryAction() {
+    assertTrue(checkQueryActionOrExprWithParenthesizedQueryAction() is ());
+}
+
+function checkQueryActionOrExprWithParenthesizedQueryAction() returns error? {
     int sum = 0;
-    error?[] a = from int i in 1...5
-                 select (from var j in 1...5
-                        do {
-                            sum = sum + j;
-                        });
+    error?[] a = from int i in 1 ... 5
+        select (from var j in 1 ... 5
+            do {
+                sum = sum + j;
+            });
     assertEquality(75, sum);
 
     sum = 0;
-    error?[] b = from int i in 1...5
-                 let error? val = (from var j in ["1", "2", "3"]
-                                  do {
-                                      int _ = check int:fromString(j);
-                                  })
-                 where val is ()
-                 select (from var j in 1...5
-                        do {
-                            sum = sum + j;
-                        });
+    error?[] b = from int i in 1 ... 5
+        let error? val = (from var j in ["1", "2", "3"]
+            do {
+                int _ = check int:fromString(j);
+            })
+        where val is ()
+        select (from var j in 1 ... 5
+            do {
+                sum = sum + j;
+            });
     assertEquality(75, sum);
 }
 
@@ -703,4 +711,8 @@ function assertEquality(anydata expected, anydata actual) {
 
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
+function assertTrue(anydata actual) {
+    return assertEquality(true, actual);
 }
