@@ -156,18 +156,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                         .map(symbol -> (VariableSymbol) symbol)
                         .collect(Collectors.toList());
 
-        List<VariableSymbol> moduleVarSymbolsAssignedInRangeAndReferredAfterRange =
-                assStmtModuleVarSymbolsInRange.stream()
-                        .filter(symbol -> semanticModel.references(symbol).stream()
-                                .anyMatch(location -> PositionUtil.isRangeWithinRange
-                                        (PositionUtil.toRange(location.lineRange()), rangeAfterHighlightedRange)))
-                        .map(symbol -> (VariableSymbol) symbol)
-                        .collect(Collectors.toList());
-
-        List<VariableSymbol> varSymbolsAssignedInRangeAndReferredAfterRange =
-                Stream.concat(localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.stream(),
-                        moduleVarSymbolsAssignedInRangeAndReferredAfterRange.stream()).collect(Collectors.toList());
-
         /*
         * Following checks are done when deciding the selected range R is extractable to a function.
         *
@@ -176,7 +164,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         *
         * */
         boolean isRangeExtractable = assStmtLocalVarSymbolsInRangeAndNotDeclaredWithinRange.size() == 0
-                && varSymbolsAssignedInRangeAndReferredAfterRange.size() <= 1;
+                && localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() <= 1;
 
         // here we decide whether the selected range is extractable by the usages of symbols
         if (!isRangeExtractable) {
