@@ -323,21 +323,17 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        List<String> argsForExtractFunction = new ArrayList<>();
-        List<String> argsForReplaceFunctionCall = new ArrayList<>();
-
+        LineRange matchedCALineRange = matchedCodeActionNode.lineRange();
         List<Symbol> varAndParamSymbolsWithinRange =
-                getVarAndParamSymbolsWithinRangeForExprs(matchedCodeActionNode, context);
+                getVarAndParamSymbolsWithinRangeForExprs(matchedCALineRange, context);
+        Optional<HashMap<String, List<String>>> argLists = getArgLists(context, varAndParamSymbolsWithinRange);
 
-        if (matchedCodeActionNode.kind() != SyntaxKind.LET_EXPRESSION) {
-            Optional<HashMap<String, List<String>>> argLists = getArgLists(context, varAndParamSymbolsWithinRange);
-            if (argLists.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            argsForExtractFunction = argLists.get().get("argsForExtractFunction");
-            argsForReplaceFunctionCall = argLists.get().get("argsForReplaceFunctionCall");
+        if (argLists.isEmpty()) {
+            return Collections.emptyList();
         }
+
+        List<String> argsForExtractFunction = argLists.get().get("argsForExtractFunction");
+        List<String> argsForReplaceFunctionCall = argLists.get().get("argsForReplaceFunctionCall");
 
         String functionName = getFunctionName(context, matchedCodeActionNode);
         String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName,
@@ -403,14 +399,17 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 isIsolated, "");
     }
 
-    private List<Symbol> getVarAndParamSymbolsWithinRangeForExprs(NonTerminalNode matchedNode, CodeActionContext context) {
-        return getVisibleSymbols(context, PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
+    private List<Symbol> getVarAndParamSymbolsWithinRangeForExprs(LineRange matchedLineRange,
+                                                                  CodeActionContext context) {
+        return getVisibleSymbols(context, PositionUtil.toPosition(matchedLineRange.endLine())).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
                 .filter(symbol -> context.currentSemanticModel().get().references(symbol).stream()
                         .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                         .getRangeFromLineRange(location.lineRange()),
-                                PositionUtil.toRange(matchedNode.lineRange()))))
+                                PositionUtil.toRange(matchedLineRange))))
                 // for every variable and parameter symbol, the symbol.getLocation() is not empty
+                .filter(symbol -> !PositionUtil.isWithinLineRange(symbol.getLocation().get().lineRange(),
+                        matchedLineRange))
                 .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
                 .collect(Collectors.toList());
     }
