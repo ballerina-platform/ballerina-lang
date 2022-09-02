@@ -1098,7 +1098,7 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     assert(d is [int, decimal|int...], false);
     assert(d is [float, decimal|int...], false);
     assert(d is error, false);
-    //assert(checkpanic d,  [1,2.5,3,5.200000000000000177635683940025046]);
+    assert(checkpanic d, <[int|float, decimal|int...]>[1,2.5,3,5.2]);
 }
 
 function testCloneWithTypeToTupleTypeWithFiniteTypesNegative() {
