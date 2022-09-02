@@ -54,6 +54,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_list_with_moduleVar_with_return.json"},
                 {"extract_to_function_stmts_list_assigned_twice.json"},
                 {"extract_to_function_stmts_list_multipleLocalVarDefsInRange_with_single_return.json"},
+                {"extract_to_function_stmts_list_with_mul_modVar_asgmnts.json"},
+                {"extract_to_function_stmts_list_with_mul_modVar_and_locVar_asgmts.json"},
                 {"extract_to_function_stmts_list_varDeclOnlyInRange_return_single.json"},
                 {"extract_to_function_stmts_list_with_ifElseStatement.json"},
                 {"extract_to_function_stmts_list_with_compound_assignments.json"},
@@ -176,8 +178,6 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_stmts_list_with_mul_varDecls_referredAfterRange.json"},
                 {"negative_extract_to_function_stmts_list_with_cmpAss_without_varDecl.json"},
                 {"negative_extract_to_function_stmts_list_with_asgnmt_and_cmpAsgnmt.json"},
-                {"negative_extract_to_function_stmts_list_with_mul_modVar_asgmnts.json"},
-                {"neg_extract_to_function_stmts_list_with_mul_modVar_and_locVar_asgmts.json"},
                 {"negative_extract_to_function_stmts_list_with_while_loop_with_return_inside.json"},
                 {"negative_extract_to_function_stmts_list_with_while_loop_with_panic_inside.json"},
 
