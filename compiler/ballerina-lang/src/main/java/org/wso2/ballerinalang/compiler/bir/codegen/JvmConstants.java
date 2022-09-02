@@ -145,6 +145,7 @@ public class JvmConstants {
     public static final String RECORD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BRecordType";
     public static final String OBJECT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BObjectType";
     public static final String SERVICE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BServiceType";
+    public static final String CLIENT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BClientType";
     public static final String ERROR_TYPE_IMPL = "io/ballerina/runtime/internal/types/BErrorType";
     public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTupleType";
     public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFunctionType";
@@ -176,7 +177,7 @@ public class JvmConstants {
     // other jvm-specific classes
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
-    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonUtils";
+    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
     public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";

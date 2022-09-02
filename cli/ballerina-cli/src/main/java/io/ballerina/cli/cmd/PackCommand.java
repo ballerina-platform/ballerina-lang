@@ -30,6 +30,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -80,6 +81,9 @@ public class PackCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
+
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
 
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -233,10 +237,13 @@ public class PackCommand implements BLauncherCmd {
             this.outStream.println("warning: " + e.getMessage());
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream))
+                .addTask(new CompileTask(outStream, errStream, true, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
