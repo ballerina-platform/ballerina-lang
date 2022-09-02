@@ -1164,7 +1164,7 @@ public class ProjectUtils {
         for (ResourceConfig resource : moduleConfig.resources()) {
             Files.write(
                     moduleDirPath.resolve(ProjectConstants.RESOURCE_DIR_NAME).resolve(resource.name()),
-                    resource.content());
+                    resource.content().orElse(null));
         }
     }
 }

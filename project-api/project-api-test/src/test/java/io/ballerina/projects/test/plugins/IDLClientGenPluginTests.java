@@ -22,7 +22,6 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.test.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -74,7 +73,8 @@ public class IDLClientGenPluginTests {
 
         DocumentId documentId = project.currentPackage().getDefaultModule().documentIds()
                 .stream().findFirst().orElseThrow();
-        String sourceCode = project.currentPackage().getDefaultModule().document(documentId).syntaxTree().toSourceCode();
+        String sourceCode = project.currentPackage().getDefaultModule()
+                .document(documentId).syntaxTree().toSourceCode();
         for (int i = 1; i < 6; i++) {
             sourceCode += ("int a" + i + " = " + i);
             project.currentPackage().getDefaultModule().document(documentId).modify().withContent(sourceCode).apply();

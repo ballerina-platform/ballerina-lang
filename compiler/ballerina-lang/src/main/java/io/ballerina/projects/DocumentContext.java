@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
@@ -271,17 +270,7 @@ class DocumentContext {
 
         private Path getIDLPath(Node clientNode) {
             String uri = getUri(clientNode);
-            Path uriPath = Paths.get(uri);
-            if (Files.notExists(uriPath)) {
-                // report syntax diagnostics
-            }
-            return uriPath;
-        }
-
-        private void reportSyntaxDiagnostics(PackageID pkgID, SyntaxTree tree, BLangDiagnosticLog dlog) {
-            for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
-                dlog.logDiagnostic(pkgID, syntaxDiagnostic);
-            }
+            return Paths.get(uri);
         }
 
         private String getUri(Node clientNode) {
