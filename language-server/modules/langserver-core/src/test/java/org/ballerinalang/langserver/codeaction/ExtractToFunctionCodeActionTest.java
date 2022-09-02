@@ -124,6 +124,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_let_expr.json"},
                 {"extract_to_function_exprs_let_expr_selecting_expression.json"},
                 {"extract_to_function_exprs_let_expr_selecting_let_var_decl_expr.json"},
+                {"extract_to_function_exprs_let_expr_with_non_let_var_decls_referred.json"},
                 {"extract_to_function_exprs_implicit_new_expr.json"},
                 {"extract_to_function_exprs_explicit_new_expr.json"},
 //                {"extract_to_function_exprs_object_constructor.json"}, // todo support later
