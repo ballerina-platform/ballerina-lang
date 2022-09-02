@@ -95,6 +95,18 @@ function testFromJsonWithTypeRecord3() {
 
 type Student2Or3 Student2|Student3;
 
+type PetByAge record {
+    int age;
+    string nickname?;
+};
+
+type PetByType record {
+    "Cat"|"Dog" pet_type;
+    boolean hunts?;
+};
+
+type Pet PetByAge|PetByType;
+
 function testFromJsonWithTypeAmbiguousTargetType() {
     string str = "{\"name\":\"Name\",\"age\":35}";
     json j = <json> checkpanic str.fromJsonString();
@@ -102,7 +114,18 @@ function testFromJsonWithTypeAmbiguousTargetType() {
     assertEquality(p is error, false);
     assertEquality(p is Student3, true);
     assertEquality(p is Student2Or3, true);
-    assertEquality(checkpanic p, <Student3> {name:"Name",age:35});
+    assertEquality(checkpanic p, <Student3> {name: "Name", age: 35});
+
+    json jval = {
+        "nickname": "Fido",
+        "pet_type": "Dog",
+        "age": 4
+    };
+
+    Pet pet = checkpanic jval.fromJsonWithType();
+    assertEquality(pet is PetByAge, true);
+    assertEquality(pet is PetByType, false);
+    assertEquality(checkpanic pet, <PetByAge>{"nickname": "Fido", "pet_type": "Dog", age: 4});
 }
 
 type XmlType xml;
@@ -241,12 +264,23 @@ json[] jStudentArr = [
 function testFromJsonWithTypeWithNullValues() {
     json j1 = {x: null};
     IntVal val = checkpanic j1.fromJsonWithType(IntVal);
-    assert(val, {x:()});
+    assert(val, {x: ()});
 
     PostGradStudent[] studentArr = checkpanic jStudentArr.fromJsonWithType(PostGradStudentArray);
-    assert(studentArr, [{employed:false,first_name:"Radha",address:{city:"Colombo",country:"Sri Lanka",
-    apartment_no:123,street:"Perera Mawatha"}},{employed:true,first_name:"Nilu",last_name:"Peiris",address:()},
-    {employed:false,first_name:"Meena",address:{city:"Colombo",country:(),street:"Main Street"}}]);
+    assert(studentArr, [
+        {
+            employed: false,
+            first_name: "Radha",
+            address: {
+                city: "Colombo",
+                country: "Sri Lanka",
+                apartment_no: 123,
+                street: "Perera Mawatha"
+            }
+        },
+        {employed: true, first_name: "Nilu", last_name: "Peiris", address: ()},
+        {employed: false, first_name: "Meena", address: {city: "Colombo", country: (), street: "Main Street"}}
+    ]);
 }
 
 function testFromJsonWithTypeWithNullValuesNegative() {
@@ -278,6 +312,7 @@ function testFromJsonWithTypeWithInferredArgument() {
 }
 
 type FooBar [StringType...];
+
 type StringType string;
 
 public function testFromJsonWithTypeWithTypeReferences() {
@@ -313,13 +348,12 @@ function testFromJsonWithTypeNestedRecordsNegative() {
 
     error err = <error> radha;
     string errorMsg = "'map<json>' value cannot be converted to '(Student & readonly)': " +
-     "\n\t\tmissing required field 'address.country' of type 'string?' in record '(PermanentAddress & readonly)'" +
-     "\n\t\tfield 'address.city' in record '(PermanentAddress & readonly)' should be of type 'string', found '7'" +
-     "\n\t\tvalue of field 'employed' adding to the record '(Student & readonly)' should be of type 'string', found 'false'";
+    "\n\t\tmissing required field 'address.country' of type 'string?' in record '(PermanentAddress & readonly)'" +
+    "\n\t\tfield 'address.city' in record '(PermanentAddress & readonly)' should be of type 'string', found '7'" +
+    "\n\t\tvalue of field 'employed' adding to the record '(Student & readonly)' should be of type 'string', found 'false'";
     assertEquality(<string> checkpanic err.detail()["message"], errorMsg);
-    assertEquality(err.message(),"{ballerina/lang.value}ConversionError");
+    assertEquality(err.message(), "{ballerina/lang.value}ConversionError");
 }
-
 
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 
@@ -440,7 +474,8 @@ function tesFromJsonWithTypeMapWithDecimal() {
     assertEquality(castedValue["factor"], mp["factor"]);
     assertEquality(castedValue["name"], mp["name"]);
 }
-public type Maps record {|int i; int...;|}|record {|int i?;|};
+
+public type Maps record {|int i;int...; |}|record {|int i?;|};
 
 public type Value record {|
     Maps value;
@@ -451,7 +486,7 @@ public function testConvertJsonToAmbiguousType() {
     Value|error res = j.cloneWithType(Value);
     assertEquality(res is error, false);
     assertEquality(res is Value, true);
-    assertEquality(checkpanic res,<Value> checkpanic {value:{i:1}});
+    assertEquality(checkpanic res, <Value> checkpanic {value: {i: 1}});
 }
 
 function assert(anydata actual, anydata expected) {
