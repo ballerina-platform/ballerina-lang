@@ -127,7 +127,8 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
         if (context.getCursorPositionInTree() >= node.inKeyword().textRange().endOffset()) {
             completionItems.forEach(lsCItem -> {
                 int rank = 3;
-                if (expectedTypeSymbol.isPresent()) {
+                if (expectedTypeSymbol.isPresent() 
+                        && SortingUtil.isCompletionItemAssignable(lsCItem, expectedTypeSymbol.get())) {
                     rank = 1;
                 } else if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
                     rank = 2;
