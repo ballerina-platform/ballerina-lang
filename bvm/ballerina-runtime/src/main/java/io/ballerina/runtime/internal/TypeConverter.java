@@ -50,7 +50,6 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -260,14 +259,11 @@ public class TypeConverter {
         }
     }
 
-    // TODO: return only the first matching type
+    // only the first matching type is returned
     public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
                                                 List<TypeValuePair> unresolvedValues, List<String> errors) {
 
-        Type inputValueType;
-        Set<Type> convertibleTypes = new LinkedHashSet<>();
         int targetTypeTag = targetType.getTag();
-
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
@@ -285,75 +281,45 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.ARRAY_TAG:
-                if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues, varName, errors
-                )) {
-                    convertibleTypes.add(targetType);
+                if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues, varName, errors)) {
+                    return Set.of(targetType);
                 }
                 break;
             case TypeTags.TUPLE_TAG:
-                if (isConvertibleToTupleType(inputValue, (BTupleType) targetType, unresolvedValues, varName, errors
-                )) {
-                    convertibleTypes.add(targetType);
+                if (isConvertibleToTupleType(inputValue, (BTupleType) targetType, unresolvedValues, varName, errors)) {
+                    return Set.of(targetType);
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, varName, isFromJson,
                         unresolvedValues, errors)) {
-                    convertibleTypes.add(targetType);
+                    return Set.of(targetType);
                 }
                 break;
             case TypeTags.ANYDATA_TAG:
                 Type matchingType = TypeConverter.resolveMatchingTypeForUnion(inputValue, targetType);
                 if (matchingType != null) {
-                    convertibleTypes.add(matchingType);
+                    return Set.of(matchingType);
                 }
                 break;
             case TypeTags.MAP_TAG:
-                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors
-                )) {
-                    convertibleTypes.add(targetType);
+                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors)) {
+                    return Set.of(targetType);
                 }
                 break;
             case TypeTags.TABLE_TAG:
                 if (isConvertibleToTableType(((BTableType) targetType).getConstrainedType())) {
-                    convertibleTypes.add(targetType);
+                    return Set.of(targetType);
                 }
                 break;
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
-                if (isFromJson) {
-                    convertibleTypes.addAll(getConvertibleTypesFromJson(inputValue, effectiveType, varName,
-                            unresolvedValues, errors));
-                } else {
-                    convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, varName,
-                            false, unresolvedValues, errors));
-                }
-                break;
+                return isFromJson ? getConvertibleTypesFromJson(inputValue, effectiveType, varName,
+                        unresolvedValues, errors) : getConvertibleTypes(inputValue, effectiveType, varName,
+                        false, unresolvedValues, errors);
             case TypeTags.FINITE_TYPE_TAG:
-                BFiniteType finiteType = (BFiniteType) targetType;
-                if (finiteType.valueSpace.size() == 1) {
-                    Type valueType = getType(finiteType.valueSpace.iterator().next());
-                    if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
-                        return getConvertibleTypes(inputValue, valueType, varName, isFromJson, unresolvedValues,
-                                errors);
-                    }
-                }
-                inputValueType = TypeChecker.getType(inputValue);
-                Set<Object> finiteTypeValueSpace = finiteType.valueSpace;
-                for (Object valueSpaceItem : finiteTypeValueSpace) {
-                    if (inputValue == valueSpaceItem) {
-                        return Set.of(inputValueType);
-                    }
-                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, false)) {
-                        return Set.of(TypeChecker.getType(valueSpaceItem));
-                    }
-                }
-                for (Object valueSpaceItem : finiteTypeValueSpace) {
-                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
-                        return Set.of(TypeChecker.getType(valueSpaceItem));
-                    }
-                }
-                break;
+                return getFiniteTypeConvertibleTypes(inputValue, (BFiniteType) targetType, varName, isFromJson,
+                        errors, unresolvedValues);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return getConvertibleTypes(inputValue, ((BTypeReferenceType) targetType).getReferredType(), varName,
                         isFromJson, unresolvedValues, errors);
@@ -362,28 +328,47 @@ public class TypeConverter {
                         isFromJson, unresolvedValues, errors);
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
-                    convertibleTypes.add(targetType);
+                    return Set.of(targetType);
                 }
         }
-        return convertibleTypes;
+        return new LinkedHashSet<>();
     }
 
-    private static Set<Type> getDirectlyConvertibleTypesInUnion(Object inputValue, BUnionType targetType) {
-        for (Type memType : targetType.getMemberTypes()) {
-            if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-                return Set.of(memType);
+    public static Set<Type> getFiniteTypeConvertibleTypes(Object inputValue, BFiniteType targetFiniteType,
+                                                          String varName, boolean isFromJson, List<String> errors,
+                                                          List<TypeValuePair> unresolvedValues) {
+        if (targetFiniteType.valueSpace.size() == 1) {
+            Type valueType = getType(targetFiniteType.valueSpace.iterator().next());
+            if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+                return getConvertibleTypes(inputValue, valueType, varName, isFromJson, unresolvedValues,
+                        errors);
+            }
+        }
+        Type inputValueType = TypeChecker.getType(inputValue);
+        Set<Object> finiteTypeValueSpace = targetFiniteType.valueSpace;
+        for (Object valueSpaceItem : finiteTypeValueSpace) {
+            if (inputValue == valueSpaceItem) {
+                return Set.of(inputValueType);
+            }
+            if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, false)) {
+                return Set.of(TypeChecker.getType(valueSpaceItem));
+            }
+        }
+        for (Object valueSpaceItem : finiteTypeValueSpace) {
+            if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
+                return Set.of(TypeChecker.getType(valueSpaceItem));
             }
         }
         return new LinkedHashSet<>();
     }
 
-    public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
+    public static Set<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
                                                          List<TypeValuePair> unresolvedValues, List<String> errors) {
 
         int targetTypeTag = TypeUtils.getReferredType(targetType).getTag();
 
-        List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
-                varName, true, unresolvedValues, errors));
+        Set<Type> convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, varName, true,
+                unresolvedValues, errors);
 
         if (convertibleTypes.isEmpty()) {
             switch (targetTypeTag) {

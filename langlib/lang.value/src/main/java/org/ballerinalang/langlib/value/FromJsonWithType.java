@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
@@ -106,13 +107,13 @@ public class FromJsonWithType {
         unresolvedValues.add(typeValuePair);
 
         List<String> errors = new ArrayList<>();
-        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType,
+        Set<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType,
                 null, new ArrayList<>(), errors);
         if (convertibleTypes.isEmpty()) {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
-        Type matchingType = TypeUtils.getReferredType(convertibleTypes.get(0));
+        Type matchingType = TypeUtils.getReferredType(convertibleTypes.iterator().next());
 
         Object newValue;
         switch (sourceType.getTag()) {
