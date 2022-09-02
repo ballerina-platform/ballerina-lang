@@ -5948,8 +5948,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
         Types.CommonAnalyzerData typeCheckerData = data.commonAnalyzerData;
-        typeCheckerData.queryCompletesEarly = isWithinQuery(data);
+        typeCheckerData.checkWithinQueryExpr = isWithinQuery(data);
         visitCheckAndCheckPanicExpr(checkedExpr, data);
+        if (typeCheckerData.checkWithinQueryExpr && checkedExpr.equivalentErrorTypeList != null) {
+            data.commonAnalyzerData.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        }
     }
 
     @Override
@@ -5962,8 +5965,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         Types.CommonAnalyzerData typeCheckerData = data.commonAnalyzerData;
 
         //reset common analyzer data
-        boolean prevCheckWithinQueryExpr = typeCheckerData.queryCompletesEarly;
+        boolean prevQueryCompletesEarly = typeCheckerData.queryCompletesEarly;
         typeCheckerData.queryCompletesEarly = false;
+
+        boolean prevCheckWithinQueryExpr = typeCheckerData.checkWithinQueryExpr;
+        typeCheckerData.checkWithinQueryExpr = false;
+
+        HashSet<BType> prevCompleteEarlyErrorList = typeCheckerData.completeEarlyErrorList;
+        typeCheckerData.completeEarlyErrorList = new HashSet<>();
 
         HashSet<BType> prevCheckedErrorList = typeCheckerData.checkedErrorList;
         typeCheckerData.checkedErrorList = new HashSet<>();
@@ -6006,7 +6015,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         //re-assign common analyzer data
-        typeCheckerData.queryCompletesEarly = prevCheckWithinQueryExpr;
+        typeCheckerData.queryCompletesEarly = prevQueryCompletesEarly;
+        typeCheckerData.checkWithinQueryExpr = prevCheckWithinQueryExpr;
+        typeCheckerData.completeEarlyErrorList = prevCompleteEarlyErrorList;
         typeCheckerData.checkedErrorList = prevCheckedErrorList;
         typeCheckerData.queryFinalClauses = prevQueryFinalClauses;
         typeCheckerData.letCount = prevLetCount;
@@ -6250,6 +6261,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             switch (collectionType.tag) {
                 case TypeTags.STREAM:
                     completionType = ((BStreamType) collectionType).completionType;
+                    returnType = completionType;
                     break;
                 case TypeTags.OBJECT:
                     returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
@@ -6280,7 +6292,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (data.commonAnalyzerData.queryCompletesEarly) {
             if (queryConstructType == Types.QueryConstructType.TABLE ||
-                            queryConstructType == Types.QueryConstructType.MAP) {
+                    queryConstructType == Types.QueryConstructType.MAP) {
+                completionTypes.addAll(data.commonAnalyzerData.completeEarlyErrorList);
+            }
+        } else if (queryConstructType == Types.QueryConstructType.STREAM) {
+            if (data.commonAnalyzerData.checkWithinQueryExpr) {
                 completionTypes.addAll(data.commonAnalyzerData.checkedErrorList);
             }
             if (completionTypes.isEmpty()) {
@@ -6289,6 +6305,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 completionTypes.add(symTable.nilType);
             }
         }
+
         if (!completionTypes.isEmpty()) {
             if (completionTypes.size() == 1) {
                 completionType = completionTypes.iterator().next();
@@ -6443,11 +6460,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 symTable.errorOrNilType, data);
         if (types.containsErrorType(type)) {
             data.commonAnalyzerData.queryCompletesEarly = true;
-            if (typeCheckerData.checkedErrorList != null) {
+            if (typeCheckerData.completeEarlyErrorList != null) {
                 BType possibleErrorType = type.tag == TypeTags.UNION ?
                         types.getErrorType((BUnionType) type) :
                         types.getErrorType(BUnionType.create(null, type));
-                typeCheckerData.checkedErrorList.add(possibleErrorType);
+                typeCheckerData.completeEarlyErrorList.add(possibleErrorType);
             }
         }
     }

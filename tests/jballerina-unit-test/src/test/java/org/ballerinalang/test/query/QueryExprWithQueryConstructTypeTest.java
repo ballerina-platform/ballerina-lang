@@ -241,6 +241,10 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
                         "is not an iterable collection", 395, 100);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
+                "found 'stream<int,BarError?>'", 405, 32);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
+                "found 'stream<int,BarError?>'", 408, 32);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

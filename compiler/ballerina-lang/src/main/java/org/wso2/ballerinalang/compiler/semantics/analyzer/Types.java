@@ -7000,6 +7000,8 @@ public class Types {
         Stack<SymbolEnv> queryEnvs = new Stack<>();
         Stack<BLangNode> queryFinalClauses = new Stack<>();
         boolean queryCompletesEarly = false;
+        boolean checkWithinQueryExpr = false;
+        HashSet<BType> completeEarlyErrorList = new HashSet<>();
         HashSet<BType> checkedErrorList = new HashSet<>();
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;

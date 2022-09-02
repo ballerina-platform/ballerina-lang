@@ -654,7 +654,7 @@ function testErrorReturnedFromStreams() returns error? {
     assertTrue(res2 is error);
     assertEquality("Verify Check.", (<error>res2).message());
 
-    stream<int, FooError?> stm3 = stream from int i in 1...3
+    stream<int, BarError?> stm3 = stream from int i in 1...3
         select check getDistinctErrorOrInt();
 
 }

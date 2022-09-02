@@ -396,3 +396,25 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
                             select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error"))
                                     select item;
 }
+
+public type FooError distinct error;
+
+public type BarError distinct error;
+
+function testIncompatibleAssignments() returns error? {
+    stream<int, FooError?> _ = stream from int i in 1 ... 3
+        select check getDistinctErrorOrInt();
+
+    stream<int, FooError?> _ = stream from int i in 1 ... 3
+        let int _ = check getDistinctErrorOrInt()
+        select i;
+}
+
+function testCheckExprWithoutEnclEnvErrorReturn()  {
+    stream<int, BarError?> _ = stream from int i in 1 ... 3
+        select check getDistinctErrorOrInt();
+}
+
+function getDistinctErrorOrInt() returns int|BarError {
+    return error BarError("Distinct error thrown");
+}
