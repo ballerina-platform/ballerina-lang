@@ -1520,7 +1520,7 @@ function testCloneWithTypeWithFiniteType() {
     IntTwoOrFloatTwo|error g = y.cloneWithType();
     assert(g is error, false);
     IntTwoOrFloatTwo h = checkpanic g;
-    assert(h, 2);
+    assert(h, 2.0);
 
     int z = 1;
     float w = 1.0;
@@ -1566,7 +1566,7 @@ function testCloneWithTypeWithUnionOfFiniteType() {
     (IntOneOrFloatTwo|IntTwoOrThree)|error e = y.cloneWithType();
     assert(e is error, false);
     IntOneOrFloatTwo|IntTwoOrThree f = checkpanic e;
-    assert(f, 2.0);
+    assert(f, 2);
 
     (DecimalOneOrTwo|FloatThreeOrFour)|error g = y.cloneWithType();
     assert(checkpanic g, 2d);
@@ -1601,7 +1601,7 @@ function testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray() {
     (IntTwoOrThree|FloatThreeOrFour)[]|error c = y.cloneWithType();
     assert(c is error, false);
     (IntTwoOrThree|FloatThreeOrFour)[] d = checkpanic c;
-    assert(d, [3, 4.0]);
+    assert(d, [3.0, 4.0]);
 }
 
 function testCloneWithTypeWithUnionTypeArrayFromIntArray() {
@@ -2194,8 +2194,9 @@ function testCloneWithTypeWithAmbiguousUnion() {
 
     jsonArr = [2.0d];
     string[]|Finite[] arrayFiniteVal1 = checkpanic jsonArr.cloneWithType();
-    assertTrue(arrayFiniteVal1[0] is int);
-    assertFalse(arrayFiniteVal1[0] is decimal);
+    assertTrue(arrayFiniteVal1 is Finite[]);
+    assertFalse(arrayFiniteVal1[0] is int);
+    assertTrue(arrayFiniteVal1[0] is decimal);
 
     jsonArr = [2.0];
     string[]|Finite[]|error arrayFiniteVal2 = jsonArr.cloneWithType();

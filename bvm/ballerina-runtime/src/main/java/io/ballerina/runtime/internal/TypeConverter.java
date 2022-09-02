@@ -263,20 +263,17 @@ public class TypeConverter {
     // TODO: return only the first matching type
     public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
                                                 List<TypeValuePair> unresolvedValues, List<String> errors) {
-        Set<Type> convertibleTypes = new LinkedHashSet<>();
 
         Type inputValueType;
+        Set<Type> convertibleTypes = new LinkedHashSet<>();
         int targetTypeTag = targetType.getTag();
-        int initialErrorCount = errors.size();
 
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
-                inputValueType = TypeChecker.getType(inputValue);
-
-                Set<Type> directlyConvertibleTypesInUnion = getDirectlyConvertibleTypesInUnion(
-                        inputValue, inputValueType, (BUnionType) targetType);
-                if (!directlyConvertibleTypesInUnion.isEmpty()) {
-                    return directlyConvertibleTypesInUnion;
+                for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
+                    if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
+                        return Set.of(memType);
+                    }
                 }
 
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
@@ -342,10 +339,16 @@ public class TypeConverter {
                     }
                 }
                 inputValueType = TypeChecker.getType(inputValue);
-                for (Object valueSpaceItem : finiteType.valueSpace) {
+                Set<Object> finiteTypeValueSpace = finiteType.valueSpace;
+                for (Object valueSpaceItem : finiteTypeValueSpace) {
                     if (inputValue == valueSpaceItem) {
                         return Set.of(inputValueType);
                     }
+                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, false)) {
+                        return Set.of(TypeChecker.getType(valueSpaceItem));
+                    }
+                }
+                for (Object valueSpaceItem : finiteTypeValueSpace) {
                     if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
                         return Set.of(TypeChecker.getType(valueSpaceItem));
                     }
@@ -365,12 +368,9 @@ public class TypeConverter {
         return convertibleTypes;
     }
 
-    private static Set<Type> getDirectlyConvertibleTypesInUnion(Object inputValue, Type inputValueType,
-                                                                BUnionType targetType) {
-        boolean isInputValueSimpleBasicType = isSimpleBasicType(inputValueType);
+    private static Set<Type> getDirectlyConvertibleTypesInUnion(Object inputValue, BUnionType targetType) {
         for (Type memType : targetType.getMemberTypes()) {
-            if (inputValueType == memType || isIntegerSubtypeAndConvertible(inputValue, memType) ||
-                    (!isInputValueSimpleBasicType && TypeChecker.checkIsLikeType(inputValue, memType, false))) {
+            if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
                 return Set.of(memType);
             }
         }
