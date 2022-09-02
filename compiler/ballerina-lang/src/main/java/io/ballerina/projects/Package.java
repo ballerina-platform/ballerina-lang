@@ -458,7 +458,6 @@ public class Package {
         private DependencyManifest dependencyManifest;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
-//        private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
         private CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
@@ -473,7 +472,6 @@ public class Package {
             this.dependencyManifest = oldPackage.dependencyManifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
-//            this.dependencyGraph = oldPackage.getResolution().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);

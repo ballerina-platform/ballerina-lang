@@ -85,6 +85,7 @@ public class CompileTask implements Task {
 
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
+        // Run IDL generator plugins
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
         List<Diagnostic> diagnostics = new ArrayList<>(idlClientGeneratorResult.reportedDiagnostics().diagnostics());
 
