@@ -1251,6 +1251,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangClientDeclaration clientDeclaration) {
         BLangIdentifier prefix = clientDeclaration.prefix;
+
+        if (!symTable.clientDeclarations.containsKey(prefix.pos.lineRange())) {
+            dlog.error(clientDeclaration.pos, DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL);
+        }
+
         Name prefixName = names.fromIdNode(prefix);
 
         BClientDeclarationSymbol clientDeclarationSymbol =
