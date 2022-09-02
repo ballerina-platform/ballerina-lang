@@ -656,7 +656,33 @@ function testErrorReturnedFromStreams() returns error? {
 
     stream<int, BarError?> stm3 = stream from int i in 1...3
         select check getDistinctErrorOrInt();
+}
 
+function testErrorsFailAndReturnedInQuery() {
+    assertTrue(getErrorFailedFromQueryAction() is error);
+    assertTrue(getErrorReturnedFromQueryAction() is error);
+}
+
+function getErrorFailedFromQueryAction() returns error? {
+   error? res = from int i in 1 ... 3
+        do {
+            check getNil();
+            if (2 / 2 == 1) {
+                fail error("Custom Error");
+            }
+        };
+   assertTrue(false); //should not be reachable
+}
+
+function getErrorReturnedFromQueryAction() returns error? {
+   error? res = from int i in 1 ... 3
+        do {
+            check getNil();
+            if (2 / 2 == 1) {
+                return error("Custom Error");
+            }
+        };
+   assertTrue(false); //should not be reachable
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------
@@ -679,6 +705,10 @@ function getErrorOrNil() returns error? {
 
 function getDistinctErrorOrInt() returns int|BarError {
     return error BarError("Distinct error thrown");
+}
+
+function getNil() returns error? {
+    return ();
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

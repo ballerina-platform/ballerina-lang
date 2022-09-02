@@ -138,6 +138,11 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testErrorReturnedFromStreams");
     }
 
+    @Test
+    public void testErrorsFailAndReturnedInQuery() {
+        BRunUtil.invoke(result, "testErrorsFailAndReturnedInQuery");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
