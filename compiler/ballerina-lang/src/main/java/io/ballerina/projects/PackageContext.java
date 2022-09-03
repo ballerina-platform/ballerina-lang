@@ -240,18 +240,6 @@ class PackageContext {
     PackageResolution getResolution() {
         if (packageResolution == null) {
             packageResolution = PackageResolution.from(this, this.compilationOptions);
-            if (this.compilationOptions.withIDLGenerators() && this.project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-                CompilationOptions compilationOptions = CompilationOptions.builder().withIDLGenerators(false).build();
-                CompilationOptions newCompilationOptions = this.compilationOptions.acceptTheirs(compilationOptions);
-                Package.Modifier modifier = project.currentPackage().modify()
-                        .withCompilationOptions(newCompilationOptions);
-                for (ModuleConfig generatedModule : packageResolution.generatedModules()) {
-                    modifier.addModule(generatedModule);
-                }
-                Package newPackage = modifier.apply();
-                packageResolution = newPackage.packageContext().getResolution(newCompilationOptions);
-            }
-
         }
         return packageResolution;
     }

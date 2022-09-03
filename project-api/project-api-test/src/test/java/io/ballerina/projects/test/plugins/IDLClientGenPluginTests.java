@@ -19,6 +19,8 @@
 package io.ballerina.projects.test.plugins;
 
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.test.TestUtils;
 import org.testng.Assert;
@@ -38,14 +40,64 @@ public class IDLClientGenPluginTests {
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
 
     @Test
-    public void testInBuiltCompilerPluginBuildProject() {
+    public void testIdlPluginBuildProject() {
         Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"));
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
                 "Unexpected number of compilation diagnostics");
 
-        Assert.assertEquals(project.currentPackage().moduleIds().size(), 3);
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
+    }
+
+    @Test
+    public void testIdlPluginBuildProjectRepeatCompilation() {
+        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"));
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 6);
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 1);
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 0);
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
+    }
+
+    @Test
+    public void testIdlPluginBuildProjectRepeatEditsWithCompilation() {
+        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"));
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 6);
+
+        DocumentId documentId = project.currentPackage().getDefaultModule().documentIds()
+                .stream().findFirst().orElseThrow();
+        String sourceCode = project.currentPackage().getDefaultModule()
+                .document(documentId).syntaxTree().toSourceCode();
+
+        // Edit, compile and check diagnostics
+        for (int i = 1; i < 6; i++) {
+            sourceCode += ("int a" + i + " = " + i);
+            project.currentPackage().getDefaultModule().document(documentId).modify().withContent(sourceCode).apply();
+            Assert.assertEquals(
+                    project.currentPackage().getCompilation().diagnosticResult().diagnostics().size(), 6 + i);
+        }
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 1);
+
+        // Run IDL client generator plugins
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 5);
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
+
+        // Repeat: Edit, compile and check diagnostics
+        for (int i = 6; i < 11; i++) {
+            sourceCode += ("int a" + i + " = " + i);
+            project.currentPackage().getDefaultModule().document(documentId).modify().withContent(sourceCode).apply();
+            Assert.assertEquals(
+                    project.currentPackage().getCompilation().diagnosticResult().diagnostics().size(), i);
+        }
+
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
     }
 }

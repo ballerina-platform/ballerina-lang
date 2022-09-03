@@ -17,13 +17,16 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.internal.IDLClients;
@@ -42,6 +45,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -231,13 +239,22 @@ class DocumentContext {
         public void visit(ModuleClientDeclarationNode moduleClientDeclarationNode) {
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
-                    if (idlClientGenerator.canHandle(moduleClientDeclarationNode)) {
-                        IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
-                                new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                        moduleClientDeclarationNode,
-                                        currentPkg, idlClientMap,
-                                        idlPluginManager.generatedModuleConfigs());
+                    Path idlPath;
+                    try {
+                        idlPath = getIDLPath(moduleClientDeclarationNode);
+                    } catch (IOException e) {
+                        // ignore ex
+                        // TODO: report diagnostics and return
+                        idlPath = null;
+                    }
+                    IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
+                            new IDLPluginManager.IDLSourceGeneratorContextImpl(
+                                    moduleClientDeclarationNode,
+                                    currentPkg, idlPath, idlClientMap,
+                                    idlPluginManager.generatedModuleConfigs());
+                    if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                         idlClientGenerator.perform(idlSourceGeneratorContext);
+                        return; // Assumption: only one plugin will be able to handle a given client node
                     }
                 }
             }
@@ -247,16 +264,53 @@ class DocumentContext {
         public void visit(ClientDeclarationNode clientDeclarationNode) {
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
-                    if (idlClientGenerator.canHandle(clientDeclarationNode)) {
-                        IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
-                                new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                        clientDeclarationNode,
-                                        currentPkg, idlClientMap,
-                                        idlPluginManager.generatedModuleConfigs());
+                    Path idlPath;
+                    try {
+                        idlPath = getIDLPath(clientDeclarationNode);
+                    } catch (IOException e) {
+                        // ignore ex
+                        // TODO: report diagnostics and return
+                        idlPath = null;
+                    }
+                    IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
+                            new IDLPluginManager.IDLSourceGeneratorContextImpl(
+                                    clientDeclarationNode,
+                                    currentPkg, idlPath, idlClientMap,
+                                    idlPluginManager.generatedModuleConfigs());
+                    if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                         idlClientGenerator.perform(idlSourceGeneratorContext);
+                        return; // Assumption: only one plugin will be able to handle a given client node
                     }
                 }
             }
+        }
+
+        // TODO: implement validations
+        private Path getIDLPath(Node clientNode) throws IOException {
+            URL url = new URL(getUri(clientNode));
+            Path resourcePath = this.currentPkg.project().targetDir().resolve(url.getFile());
+            try (BufferedInputStream in = new BufferedInputStream(url.openStream());
+                 FileOutputStream fileOutputStream = new FileOutputStream(resourcePath.toFile())) {
+                byte[] dataBuffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                    fileOutputStream.write(dataBuffer, 0, bytesRead);
+                }
+            }
+            return resourcePath;
+        }
+
+        private String getUri(Node clientNode) {
+            BasicLiteralNode clientUri;
+
+            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
+                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
+            } else {
+                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
+            }
+
+            String text = clientUri.literalToken().text();
+            return text.substring(1, text.length() - 1);
         }
     }
 }
