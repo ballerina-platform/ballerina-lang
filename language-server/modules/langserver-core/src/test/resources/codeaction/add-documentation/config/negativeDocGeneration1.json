@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 1,
+    "character": 17
+  },
+  "source": "negativeDocGenerationSource.bal",
+  "expected": [
+    {
+      "title": "Document this"
+    }
+  ]
+}

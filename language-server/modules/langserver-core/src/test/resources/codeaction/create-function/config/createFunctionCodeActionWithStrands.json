@@ -8,24 +8,49 @@
     {
       "title": "Create function 'testAsync(...)'",
       "kind": "quickfix",
-      "command": {
-        "title": "Create function 'testAsync(...)'",
-        "command": "CREATE_FUNC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line": 5,
-                "character": 21
-              },
-              "end": {
-                "line": 5,
-                "character": 38
-              }
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 1
+            },
+            "end": {
+              "line": 11,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction testAsync() returns int {\n    return 0;\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createFunctionCodeActionWithStrands.bal",
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 21
+          },
+          "end": {
+            "line": 5,
+            "character": 38
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 5.0,
+              "character": 21.0
+            },
+            "end": {
+              "line": 5.0,
+              "character": 38.0
             }
           }
-        ]
+        }
       }
     }
   ]
