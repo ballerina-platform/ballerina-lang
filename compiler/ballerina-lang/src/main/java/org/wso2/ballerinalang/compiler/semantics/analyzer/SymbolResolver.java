@@ -2650,7 +2650,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.notFoundSymbol;
         }
 
-        return getModuleForClientDecl(clientDeclarations.get(lineRange));
+        BSymbol moduleSymbol = getModuleForClientDecl(clientDeclarations.get(lineRange));
+        if (moduleSymbol == symTable.notFoundSymbol) {
+            return moduleSymbol;
+        }
+
+        ((BPackageSymbol) moduleSymbol).isUsed = true;
+        return moduleSymbol;
     }
 
     /**
