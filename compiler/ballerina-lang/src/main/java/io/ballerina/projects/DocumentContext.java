@@ -45,8 +45,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -236,7 +239,14 @@ class DocumentContext {
         public void visit(ModuleClientDeclarationNode moduleClientDeclarationNode) {
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
-                    Path idlPath = getIDLPath(moduleClientDeclarationNode);
+                    Path idlPath;
+                    try {
+                        idlPath = getIDLPath(moduleClientDeclarationNode);
+                    } catch (IOException e) {
+                        // ignore ex
+                        // TODO: report diagnostics and return
+                        idlPath = null;
+                    }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
                                     moduleClientDeclarationNode,
@@ -254,7 +264,14 @@ class DocumentContext {
         public void visit(ClientDeclarationNode clientDeclarationNode) {
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
-                    Path idlPath = getIDLPath(clientDeclarationNode);
+                    Path idlPath;
+                    try {
+                        idlPath = getIDLPath(clientDeclarationNode);
+                    } catch (IOException e) {
+                        // ignore ex
+                        // TODO: report diagnostics and return
+                        idlPath = null;
+                    }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
                                     clientDeclarationNode,
@@ -268,9 +285,19 @@ class DocumentContext {
             }
         }
 
-        private Path getIDLPath(Node clientNode) {
-            String uri = getUri(clientNode);
-            return Paths.get(uri);
+        // TODO: implement validations
+        private Path getIDLPath(Node clientNode) throws IOException {
+            URL url = new URL(getUri(clientNode));
+            Path resourcePath = this.currentPkg.project().targetDir().resolve(url.getFile());
+            try (BufferedInputStream in = new BufferedInputStream(url.openStream());
+                 FileOutputStream fileOutputStream = new FileOutputStream(resourcePath.toFile())) {
+                byte[] dataBuffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                    fileOutputStream.write(dataBuffer, 0, bytesRead);
+                }
+            }
+            return resourcePath;
         }
 
         private String getUri(Node clientNode) {
