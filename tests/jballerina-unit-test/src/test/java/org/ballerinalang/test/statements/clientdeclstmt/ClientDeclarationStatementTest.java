@@ -64,6 +64,9 @@ public class ClientDeclarationStatementTest {
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("quux"), 35, 54);
         BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 38, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("corge"), 38, 54);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 40, 5);
+        BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 44, 9);
+        BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("foobar"), 44, 56);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

@@ -93,7 +93,7 @@ public class IDLClientCompilerTests {
     }
 
     @Test
-    public void testModuleClientDeclUndefinedSymbolsInGeneratedModuleNegative() {
+    public void testClientDeclUndefinedSymbolsAndNoGeneratedModulesNegative() {
         Package currentPackage = loadPackage("simpleclientnegativetest");
         PackageCompilation compilation = currentPackage.getCompilation();
 
@@ -109,6 +109,19 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, "unknown type 'Config'", 37, 5);
         validateError(diagnostics, index++, "no module generated for the client declaration", 40, 1);
         validateError(diagnostics, index++, "no module generated for the client declaration", 43, 5);
+        Assert.assertEquals(diagnostics.length, index);
+    }
+
+    @Test
+    public void testUnusedClientDeclPrefixNegative() {
+        Package currentPackage = loadPackage("simpleclientnegativetesttwo");
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
+        int index = 0;
+        validateError(diagnostics, index++, "unused client declaration prefix 'foo'", 17, 46);
+        validateError(diagnostics, index++, "unused client declaration prefix 'bar'", 20, 50);
+        validateError(diagnostics, index++, "unused client declaration prefix 'baz'", 23, 56);
         Assert.assertEquals(diagnostics.length, index);
     }
 
@@ -143,7 +156,7 @@ public class IDLClientCompilerTests {
         assertAttachmentSymbol(attachments.get(0), 12L);
         assertAttachmentSymbol(attachments.get(1), 13L);
 
-        stmt = ((BLangBlockFunctionBody) ((BLangFunction) functionNode).body).stmts.get(1);
+        stmt = ((BLangBlockFunctionBody) ((BLangFunction) functionNode).body).stmts.get(2);
         attachments = ((BClientDeclarationSymbol) ((BLangClientDeclarationStatement) stmt).clientDeclaration.symbol)
                 .getAnnotations();
         Assert.assertEquals(attachments.size(), 0);

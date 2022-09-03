@@ -48,6 +48,8 @@ public const annotation record { int i; }[] ClientAnnot on source client;
 }
 client "http://example.com/apis/one.yaml" as bar;
 
+bar:ClientConfiguration clientConfig = {'limit: 15};
+
 function testClientDeclAnnotSymbols() {
     @ClientAnnot {
         i: 12
@@ -56,8 +58,10 @@ function testClientDeclAnnotSymbols() {
         i: 13
     }
     client "http://example.com/apis/two.yaml" as qux;
+    qux:Config _ = {url: "http://www.example.com/one"};
 
     client "http://example.com/apis/three.yaml" as quux;
+    quux:Config _ = {url: "http://www.example.com/two"};
 }
 
 function testClientDeclScoping1() {
