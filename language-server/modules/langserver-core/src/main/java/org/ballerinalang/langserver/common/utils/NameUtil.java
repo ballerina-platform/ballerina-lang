@@ -117,7 +117,7 @@ public class NameUtil {
         int idx = 0;
         while (visibleSymbolNames.contains(typeName)) {
             idx++;
-            typeName = typeName + idx;
+            typeName = prefix + idx;
         }
 
         return typeName;
