@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 23,
+    "character": 4
+  },
+  "source": "createUndefinedFunction7.bal",
+  "expected": [
+    {
+      "title": "Create function 'printThis(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 33,
+              "character": 1
+            },
+            "end": {
+              "line": 33,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction printThis(boolean b) {\n    \n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction7.bal",
+        "range": {
+          "start": {
+            "line": 23,
+            "character": 4
+          },
+          "end": {
+            "line": 23,
+            "character": 29
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 23.0,
+              "character": 4.0
+            },
+            "end": {
+              "line": 23.0,
+              "character": 29.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

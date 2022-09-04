@@ -2099,7 +2099,7 @@ public class TestBuildProject extends BaseTest {
         // Call `JBallerinaBackend`
         JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         // Check bir is generated for default module
-        Assert.assertTrue(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
+        Assert.assertFalse(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
                 .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
 
         // 2) Build project again with build file

@@ -106,7 +106,7 @@ public class CompilationOptions {
     }
 
     public boolean withIDLGenerators() {
-        return toBooleanTrueIfNull(this.withIDLGenerators);
+        return toBooleanDefaultIfNull(this.withIDLGenerators);
     }
 
     public Boolean configSchemaGen() {

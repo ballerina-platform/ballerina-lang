@@ -38,7 +38,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * IDL client generation test class.
+ * Simple IDL client generation test class.
+ *
+ * @since 2.3.0
  */
 public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
     @Override
@@ -49,19 +51,16 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
     private static class OpenAPIClientGenerator extends IDLClientGenerator {
 
         @Override
-        public boolean canHandle(Node clientNode) {
-            return !getUri(clientNode).startsWith("http://example.com");
+        public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
+            return !getUri(idlSourceGeneratorContext.clientNode()).startsWith("http://example.com");
         }
 
-        @Override
         public void perform(IDLSourceGeneratorContext idlSourceGeneratorContext) {
-            ModuleId moduleId = ModuleId.create("client1",
-                    idlSourceGeneratorContext.currentPackage().packageId());
-            DocumentId documentId = DocumentId.create("openApiClient", moduleId);
-            DocumentConfig documentConfig = DocumentConfig.from(
-                    documentId, "type openApiClient record {};", "openApiClient");
+            ModuleId moduleId = ModuleId.create("client", idlSourceGeneratorContext.currentPackage().packageId());
+            DocumentId documentId = DocumentId.create("idl_client", moduleId);
+            DocumentConfig documentConfig = getClientCode(documentId);
             ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
-                    ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), "client1"),
+                    ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), "client"),
                     idlSourceGeneratorContext.currentPackage().descriptor());
             ModuleConfig moduleConfig = ModuleConfig.from(
                     moduleId, moduleDescriptor, Collections.singletonList(documentConfig),
@@ -82,5 +81,26 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
             return text.substring(1, text.length() - 1);
         }
 
+        private DocumentConfig getClientCode(DocumentId documentId) {
+            return DocumentConfig.from(
+                    documentId, "public type ClientConfiguration record {\n" +
+                            "    string specVersion;\n" +
+                            "};\n" +
+                            "\n" +
+                            "public isolated client class 'client {\n" +
+                            "    public final string specVersion;\n" +
+                            "\n" +
+                            "    public function init(*ClientConfiguration config) {\n" +
+                            "        self.specVersion = config.specVersion;\n" +
+                            "    }\n" +
+                            "\n" +
+                            "    remote function getSpecVersion() returns string {\n" +
+                            "        lock {\n" +
+                            "            return self.specVersion;\n" +
+                            "        }\n" +
+                            "    }\n" +
+                            "\n" +
+                            "}", "idl_client");
+        }
     }
 }

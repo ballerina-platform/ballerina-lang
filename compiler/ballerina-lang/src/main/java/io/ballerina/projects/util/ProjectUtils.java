@@ -20,9 +20,11 @@ package io.ballerina.projects.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -36,6 +38,7 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -1145,5 +1148,23 @@ public class ProjectUtils {
             pattern = pattern.substring(0, pattern.length() - 1);
         }
         return pattern;
+    }
+
+    public static void writeModule(ModuleConfig moduleConfig, Path modulesRoot) throws IOException {
+        Path moduleDirPath = modulesRoot.resolve(moduleConfig.moduleDescriptor().name().toString());
+        Files.createDirectories(moduleDirPath);
+        for (DocumentConfig sourceDoc : moduleConfig.sourceDocs()) {
+            Files.writeString(moduleDirPath.resolve(sourceDoc.name()), sourceDoc.content());
+        }
+        for (DocumentConfig testSourceDoc : moduleConfig.testSourceDocs()) {
+            Files.writeString(
+                    moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(testSourceDoc.name()),
+                    testSourceDoc.content());
+        }
+        for (ResourceConfig resource : moduleConfig.resources()) {
+            Files.write(
+                    moduleDirPath.resolve(ProjectConstants.RESOURCE_DIR_NAME).resolve(resource.name()),
+                    resource.content().orElse(null));
+        }
     }
 }

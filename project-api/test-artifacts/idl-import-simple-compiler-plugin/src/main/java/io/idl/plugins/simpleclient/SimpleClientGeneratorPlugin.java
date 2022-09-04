@@ -53,8 +53,8 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
         private int id = 1;
 
         @Override
-        public boolean canHandle(Node clientNode) {
-            String uri = getUri(clientNode);
+        public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
+            String uri = getUri(idlSourceGeneratorContext.clientNode());
 
             if (uri.startsWith("http://example.com/disallow")) {
                 return false;
@@ -121,7 +121,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "            self.'limit = 'limit;\n" +
                                 "        }\n" +
                                 "    }\n" +
-                                "}", "simple_client");
+                                "}", "simple_client.bal");
             }
 
             return DocumentConfig.from(
@@ -141,7 +141,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                             "            return self.url;\n" +
                             "        }\n" +
                             "    }\n" +
-                            "}", "simple_client");
+                            "}", "simple_client.bal");
         }
     }
 }
