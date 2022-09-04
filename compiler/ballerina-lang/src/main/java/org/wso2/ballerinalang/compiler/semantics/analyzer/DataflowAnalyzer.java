@@ -735,12 +735,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangClientDeclaration clientDeclaration) {
         BLangIdentifier prefix = clientDeclaration.prefix;
         Location location = prefix.pos;
-        BSymbol symbol = symResolver.getModuleForClientDecl(symTable.clientDeclarations.get(location.lineRange()));
-
-        if (symbol != symTable.notFoundSymbol) {
-            checkUnusedImportOrClientDeclPrefix((BPackageSymbol) symbol, prefix.value, location,
-                                                DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX);
-        }
+        BPackageSymbol symbol = symResolver.getModuleForClientDecl(
+                symTable.clientDeclarations.get(location.lineRange()));
+        checkUnusedImportOrClientDeclPrefix(symbol, prefix.value, location,
+                                            DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX);
     }
     
     @Override
