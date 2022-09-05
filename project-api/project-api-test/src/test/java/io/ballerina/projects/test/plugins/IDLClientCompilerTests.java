@@ -67,6 +67,8 @@ public class IDLClientCompilerTests {
             "exposing a construct from a module generated for a client declaration is not yet supported";
     private static final String NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR =
             "a module generated for a client declaration must have an object type or class named 'client'";
+    private static final String MUTABLE_STATE_IN_GENERATED_MODULE_ERROR =
+            "a module generated for a client declaration cannot have mutable state";
 
     private CompileResult result;
 
@@ -173,6 +175,8 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 123, 1);
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 127, 1);
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 138, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 141, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 143, 1);
         Assert.assertEquals(diagnostics.length, index);
     }
 
@@ -188,6 +192,11 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
         validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
         validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 9, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 11, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 13, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 15, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 19, 1);
         Assert.assertEquals(diagnostics.length, index);
     }
 

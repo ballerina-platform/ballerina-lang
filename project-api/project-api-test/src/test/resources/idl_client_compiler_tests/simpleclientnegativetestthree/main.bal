@@ -136,3 +136,10 @@ function testFn() returns future<foo:IntMap> {
 
 future<foo:IntMap> v29 = testFn(); // OK
 public future<foo:IntMap> v30 = testFn(); // error
+
+type T8 foo:IntMap|map<T8>; // OK
+public type T9 foo:IntMap|map<T8>; // error
+
+public function testFn2() returns T8 { // error
+    return {a: 1};
+}

@@ -23,4 +23,7 @@ bar:'client b = new;
 function fn() {
     client "http://example.com/invalidgeneratedcode/three.yaml" as baz;
     baz:'client? _ = ();
+
+    client "http://example.com/invalidgeneratedcode/four.yaml" as qux;
+    qux:client _ = new;
 }

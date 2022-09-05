@@ -192,10 +192,39 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "}", "simple_client.bal");
             }
 
+            if (uri.equals("http://example.com/invalidgeneratedcode/three.yaml")) {
+                return DocumentConfig.from(
+                        documentId, "public type 'client object { // Not a client object\n" +
+                                "    function fn();\n" +
+                                "};", "simple_client.bal");
+            }
+
             return DocumentConfig.from(
-                    documentId, "public type 'client object { // Not a client object\n" +
-                            "    function fn();\n" +
-                            "};", "simple_client.bal");
+                    documentId, "const int A = 1; // OK\n" +
+                            "\n" +
+                            "const map<int> B = {a: 1, b: A}; // OK\n" +
+                            "\n" +
+                            "final int c = 2; // OK\n" +
+                            "\n" +
+                            "final int[] & readonly d = [1, 2]; // OK\n" +
+                            "\n" +
+                            "final int[] e = [1, 2]; // error\n" +
+                            "\n" +
+                            "readonly & int[] f = [1, 2]; // error\n" +
+                            "\n" +
+                            "final var g = e; // error\n" +
+                            "\n" +
+                            "var h = f; // error\n" +
+                            "\n" +
+                            "final var i = d; // OK\n" +
+                            "\n" +
+                            "var j = d; // error\n" +
+                            "\n" +
+                            "public client class 'client {\n" +
+                            "    remote function fn() {\n" +
+                            "        \n" +
+                            "    }\n" +
+                            "}\n", "simple_client.bal");
         }
     }
 }
