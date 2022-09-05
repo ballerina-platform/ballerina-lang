@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.StatementNode;
@@ -71,17 +72,21 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
+        Node parentNode = node.parent();
         // Avoid providing the code action for the following since it is syntactically incorrect.
         // 1. a mapping constructor used in a table constructor  
         // 2. a function call used in a local variable declaration
         // 3. a function call used in an expression statement
         // 4. a constant declaration
-        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent()
-                && CodeActionNodeValidator.validate(context.nodeAtRange()) && 
-                !(node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && node.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)
-                && !(node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) 
-                && !(node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.CALL_STATEMENT)
-                && node.parent().kind() != SyntaxKind.CONST_DECLARATION;
+        // 5. the variable reference of an assignment node
+        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
+                !(node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && parentNode.kind() == SyntaxKind.TABLE_CONSTRUCTOR)
+                && !(node.kind() == SyntaxKind.FUNCTION_CALL && parentNode.kind() == SyntaxKind.LOCAL_VAR_DECL) 
+                && !(node.kind() == SyntaxKind.FUNCTION_CALL && parentNode.kind() == SyntaxKind.CALL_STATEMENT)
+                && parentNode.kind() != SyntaxKind.CONST_DECLARATION
+                && !(parentNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT
+                && ((AssignmentStatementNode) parentNode).varRef().equals(node))
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**

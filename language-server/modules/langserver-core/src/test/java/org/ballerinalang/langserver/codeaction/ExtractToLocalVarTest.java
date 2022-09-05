@@ -69,7 +69,9 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInExplicitNewExpression.json"},
                 {"extractToVariableInErrorConstructor.json"},
                 {"extractToVariableInLetExpression.json"},
-                {"extractToVariableInQueryExpression.json"}
+                {"extractToVariableInQueryExpression.json"},
+                {"extractToVariableInFieldAccessInReturnStmt.json"},
+                {"extractToVariableInFieldAccessInAssignmentStmt.json"}
         };
     }
 
@@ -85,7 +87,8 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInLetVarDeclNegative.json"},
                 {"extractToVariableInLetVarDeclNegative2.json"},
                 {"extractToVariableInObjectConstructorNegative.json"},
-                {"extractToVariableInQueryExpressionNegative.json"}
+                {"extractToVariableInQueryExpressionNegative.json"},
+                {"extractToVariableInFieldAccessNegative.json"},
         };
     }
     
