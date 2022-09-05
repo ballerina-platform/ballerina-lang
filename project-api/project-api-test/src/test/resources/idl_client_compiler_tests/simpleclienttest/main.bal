@@ -90,6 +90,13 @@ function testClientDeclScoping2(boolean b) { // no assertion, validates absence 
     bar:ClientConfiguration _ = {'limit: 5};
 }
 
+function testClientDeclModuleWithClientObjectType() {
+    client "http://example.com/apis/clientobjecttype.yaml" as foo2; // OK, shadows the module-level prefix
+    foo2:client cl = foo2:fn();
+    int index = cl->getIndex();
+    assertEquals(10, index);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -65,6 +65,8 @@ public class IDLClientCompilerTests {
 
     private static final String UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR =
             "exposing a construct from a module generated for a client declaration is not yet supported";
+    private static final String NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR =
+            "a module generated for a client declaration must have an object type or class named 'client'";
 
     private CompileResult result;
 
@@ -96,7 +98,8 @@ public class IDLClientCompilerTests {
         return new Object[] {
             "testModuleClientDecl",
             "testClientDeclStmt",
-            "testClientDeclScoping1"
+            "testClientDeclScoping1",
+            "testClientDeclModuleWithClientObjectType"
         };
     }
 
@@ -170,6 +173,21 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 123, 1);
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 127, 1);
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 138, 1);
+        Assert.assertEquals(diagnostics.length, index);
+    }
+
+    @Test
+    public void testInvalidGeneratedModuleNegative() {
+        Project project = loadPackage("simpleclientnegativetestfour");
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+
+        Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
+        int index = 0;
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
         Assert.assertEquals(diagnostics.length, index);
     }
 
