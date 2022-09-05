@@ -509,6 +509,7 @@ public class SortingUtil {
                             break;
                         case Function:
                             rank = onQnameRef ? 1 : 3;
+                            rank = completionItem.getCompletionItem().getLabel().startsWith("main(") ? 25 : rank;
                             break;
                         case Method:
                             rank = 4;
