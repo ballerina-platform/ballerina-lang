@@ -217,46 +217,6 @@ function testResetTypeNarrowingWithBlockStmt() {
     }
 }
 
-type Type A|Tuple|List;
-type A "A";
-type Tuple ["tuple", Type, Type...];
-type List ["list", int?, Type];
-
-function testCustomCircularTupleTypeWithIsCheck() {
-    Type a = ["list", 1, "A"];
-    Type b = ["tuple", "A", "A", "A"];
-    Type c = "A";
-
-    assertEquality(checkIsExpressionWithCircularTuple(a), "List Type");
-    assertEquality(checkIsExpressionWithCircularTuple(b), "Not a List Type");
-    assertEquality(checkIsExpressionWithCircularTuple(c), "Not a List Type");
-
-    assertEquality(checkIsExpressionWithCircularTuple2(a), "List Type");
-    assertEquality(checkIsExpressionWithCircularTuple2(b), "Tuple Type");
-    assertEquality(checkIsExpressionWithCircularTuple2(c), "Type A");
-}
-
-function checkIsExpressionWithCircularTuple(Type t) returns string {
-    if t is List {
-        List _ = t;
-        return "List Type";
-    }
-    return "Not a List Type";
-}
-
-function checkIsExpressionWithCircularTuple2(Type t) returns string {
-    if t is List {
-        List _ = t;
-        return "List Type";
-    } else if t is Tuple {
-        Tuple _ = t;
-        return "Tuple Type";
-    } else if (t is A) {
-        A _ = t;
-        return "Type A";
-    }
-}
-
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
