@@ -161,6 +161,10 @@ public class Package {
         return this.packageContext.getResolution(compilationOptions);
     }
 
+    PackageResolution getResolution(CompilationOptions compilationOptions, IDLPluginManager idlPluginManager) {
+        return this.packageContext.getResolution(compilationOptions, idlPluginManager);
+    }
+
     public DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
         // Each Package should know the packages that it depends on and packages that depends on it
         // Each Module should know the modules that it depends on and modules that depends on it
@@ -235,8 +239,11 @@ public class Package {
                     "IDL plugin generation is not supported for project kind: " + ProjectKind.BALA_PROJECT);
         }
 
-        // Clear existing module and document contexts and re-compile.
-        // Otherwise the cached compilations will be reused and IDL client modules will not be generated.
+        // Initialize IDL plugin manager
+        IDLPluginManager idlPluginManager = IDLPluginManager.from(this.project.targetDir());
+
+        // Clear existing module and document contexts.
+        // Otherwise the cached compilations will be reused skipping the IDL client generator plugins.
         Package updatedPackage = resetIfCompiled();
 
         // Generate IDL client modules
@@ -246,7 +253,7 @@ public class Package {
                         .setOffline(resolutionOptions.offline())
                         .setSticky(resolutionOptions.sticky())
                         .build());
-        PackageResolution packageResolution = updatedPackage.getResolution(newCompilationOptions);
+        PackageResolution packageResolution = updatedPackage.getResolution(newCompilationOptions, idlPluginManager);
 
         // Add generated client modules to the updated package.
         // The IDL plugins should be disable to avoid infinite recursion.
@@ -256,8 +263,7 @@ public class Package {
         } catch (IOException e) {
             throw new ProjectException("failed to save generated IDL client modules: " + e.getMessage(), e);
         }
-        return new IDLClientGeneratorResult(
-                updatedPackage, packageResolution.diagnosticResult().allDiagnostics);
+        return new IDLClientGeneratorResult(updatedPackage, idlPluginManager.diagnosticList());
     }
 
     private Package addGeneratedModules(Package updatedPackage,

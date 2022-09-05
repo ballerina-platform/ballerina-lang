@@ -249,6 +249,11 @@ class PackageContext {
         return packageResolution;
     }
 
+    PackageResolution getResolution(CompilationOptions compilationOptions, IDLPluginManager idlPluginManager) {
+        packageResolution = PackageResolution.from(this, compilationOptions, idlPluginManager);
+        return packageResolution;
+    }
+
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }

@@ -30,9 +30,14 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.internal.IDLClients;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.TransactionImportValidator;
 import io.ballerina.projects.plugins.IDLClientGenerator;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
@@ -237,54 +242,114 @@ class DocumentContext {
 
         @Override
         public void visit(ModuleClientDeclarationNode moduleClientDeclarationNode) {
+            // report unsupported project error for single file
+            if (this.currentPkg.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                ProjectDiagnosticErrorCode errorCode =
+                        ProjectDiagnosticErrorCode.CLIENT_DECL_IN_UNSUPPORTED_PROJECT_KIND;
+                Location location = moduleClientDeclarationNode.location();
+                String message = "client declaration is not supported with standalone ballerina file";
+                idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                return;
+            }
+
+            // client declaration is in a BuildProject
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
                     Path idlPath;
                     try {
                         idlPath = getIDLPath(moduleClientDeclarationNode);
                     } catch (IOException e) {
-                        // ignore ex
-                        // TODO: report diagnostics and return
-                        idlPath = null;
+                        ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
+                        Location location = moduleClientDeclarationNode.location();
+                        String message = "unable to get resource from uri, reason: " + e.getMessage();
+                        idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                        return;
                     }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
                                     moduleClientDeclarationNode,
                                     currentPkg, idlPath, idlClientMap,
                                     idlPluginManager.generatedModuleConfigs());
-                    if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
-                        idlClientGenerator.perform(idlSourceGeneratorContext);
-                        return; // Assumption: only one plugin will be able to handle a given client node
+                    try {
+                        if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
+                            idlClientGenerator.perform(idlSourceGeneratorContext);
+                            idlPluginManager.diagnosticList().addAll(idlSourceGeneratorContext.reportedDiagnostics());
+                            return; // Assumption: only one plugin will be able to handle a given client node
+                        }
+                    } catch (Exception e) {
+                        ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.UNEXPECTED_IDL_EXCEPTION;
+                        Location location = moduleClientDeclarationNode.location();
+                        String message = "unexpected exception thrown from plugin class: " 
+                                + idlClientGenerator.getClass().getName() + ", exception: " + e.getMessage();
+                        idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                        return;
                     }
                 }
             }
+            ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.MATCHING_PLUGIN_NOT_FOUND;
+            Location location = moduleClientDeclarationNode.location();
+            String message = "no matching plugin found for client declaration";
+            idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
         }
 
         @Override
         public void visit(ClientDeclarationNode clientDeclarationNode) {
+            // report unsupported project error for single file
+            if (this.currentPkg.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                ProjectDiagnosticErrorCode errorCode =
+                        ProjectDiagnosticErrorCode.CLIENT_DECL_IN_UNSUPPORTED_PROJECT_KIND;
+                Location location = clientDeclarationNode.location();
+                String message = "client declaration is not supported with standalone ballerina file";
+                idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                return;
+            }
+
+            // client declaration is in a BuildProject
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
                     Path idlPath;
                     try {
                         idlPath = getIDLPath(clientDeclarationNode);
                     } catch (IOException e) {
-                        // ignore ex
-                        // TODO: report diagnostics and return
-                        idlPath = null;
+                        ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
+                        Location location = clientDeclarationNode.location();
+                        String message = "unable to get resource from uri, reason: " + e.getMessage();
+                        idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                        return;
                     }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
                                     clientDeclarationNode,
                                     currentPkg, idlPath, idlClientMap,
                                     idlPluginManager.generatedModuleConfigs());
-                    if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
-                        idlClientGenerator.perform(idlSourceGeneratorContext);
-                        return; // Assumption: only one plugin will be able to handle a given client node
+                    try {
+                        if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
+                            idlClientGenerator.perform(idlSourceGeneratorContext);
+                            idlPluginManager.diagnosticList().addAll(idlSourceGeneratorContext.reportedDiagnostics());
+                            return; // Assumption: only one plugin will be able to handle a given client node
+                        }
+                    } catch (Exception e) {
+                        ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.UNEXPECTED_IDL_EXCEPTION;
+                        Location location = clientDeclarationNode.location();
+                        String message = "unexpected exception thrown from plugin class: "
+                                + idlClientGenerator.getClass().getName() + ", exception: " + e.getMessage();
+                        idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                        return;
                     }
                 }
             }
+            ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.MATCHING_PLUGIN_NOT_FOUND;
+            Location location = clientDeclarationNode.location();
+            String message = "no matching plugin found for client declaration";
+            idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
         }
 
+        private Diagnostic createDiagnostic(ProjectDiagnosticErrorCode errorCode, Location location, String message) {
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                    errorCode.diagnosticId(), message, DiagnosticSeverity.ERROR);
+            return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+        }
+      
         // TODO: implement validations
         private Path getIDLPath(Node clientNode) throws IOException {
             URL url = new URL(getUri(clientNode));

@@ -84,15 +84,12 @@ public class PackageResolution {
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
     private List<ModuleConfig> generatedModules;
 
-    private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+    private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions,
+                              IDLPluginManager idlPluginManager) {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
-        if (compilationOptions.withIDLGenerators()) {
-            this.idlPluginManager = IDLPluginManager.initPlugins();
-        } else {
-            this.idlPluginManager = null;
-        }
+        this.idlPluginManager = idlPluginManager;
 
         ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
@@ -109,7 +106,12 @@ public class PackageResolution {
     }
 
     static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
-        return new PackageResolution(rootPackageContext, compilationOptions);
+        return new PackageResolution(rootPackageContext, compilationOptions, null);
+    }
+
+    static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions,
+                                  IDLPluginManager idlPluginManager) {
+        return new PackageResolution(rootPackageContext, compilationOptions, idlPluginManager);
     }
 
     /**

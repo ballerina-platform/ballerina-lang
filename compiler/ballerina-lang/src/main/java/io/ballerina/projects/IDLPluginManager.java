@@ -18,6 +18,7 @@
 
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -29,24 +30,39 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 class IDLPluginManager {
-    private final List<IDLPluginContextImpl> idlPluginContexts;
+    private List<IDLPluginContextImpl> idlPluginContexts;
     private final List<ModuleConfig> moduleConfigs;
+    private final List<Diagnostic> diagnosticList;
+    private final Path target;
+    private final Map<String, String> cachedPlugins;
 
-    private IDLPluginManager(List<IDLPluginContextImpl> compilerPluginContexts) {
-        this.idlPluginContexts = compilerPluginContexts;
+//    private IDLPluginManager(List<IDLPluginContextImpl> compilerPluginContexts) {
+//        this.idlPluginContexts = compilerPluginContexts;
+//        this.moduleConfigs = new ArrayList<>();
+//        this.diagnosticList = new ArrayList<>();
+//    }
+
+    private IDLPluginManager(Path target, Map<String, String> cachedPlugins) {
+        this.target = target;
         this.moduleConfigs = new ArrayList<>();
+        this.diagnosticList = new ArrayList<>();
+        this.cachedPlugins = cachedPlugins;
     }
 
-    static IDLPluginManager initPlugins() {
-        List<IDLPluginContextImpl> compilerPluginContexts = initializePlugins(CompilerPlugins.getBuiltInIDLPlugins());
-        return new IDLPluginManager(compilerPluginContexts);
+    static IDLPluginManager from(Path target) {
+        if (Files.exists(target.resolve("idl-plugin-cache.json"))) {
+            return new IDLPluginManager(target, new HashMap<>());
+        }
+        return new IDLPluginManager(target, null);
     }
 
     private static List<IDLPluginContextImpl> initializePlugins(List<IDLGeneratorPlugin> builtInIDLPlugins) {
@@ -60,11 +76,22 @@ class IDLPluginManager {
     }
 
     public List<IDLPluginContextImpl> idlPluginContexts() {
+        if (this.idlPluginContexts == null) {
+            idlPluginContexts = initializePlugins(CompilerPlugins.getBuiltInIDLPlugins());
+        }
         return idlPluginContexts;
     }
 
     public List<ModuleConfig> generatedModuleConfigs() {
         return moduleConfigs;
+    }
+
+    public void reportDiagnostic(Diagnostic diagnostic) {
+        this.diagnosticList.add(diagnostic);
+    }
+
+    public List<Diagnostic> diagnosticList() {
+        return diagnosticList;
     }
 
     public static class IDLSourceGeneratorContextImpl implements IDLSourceGeneratorContext {
@@ -104,7 +131,6 @@ class IDLPluginManager {
             diagnostics.add(diagnostic);
         }
 
-        // TODO: add diagnostics to the package
         Collection<Diagnostic> reportedDiagnostics() {
             return diagnostics;
         }
