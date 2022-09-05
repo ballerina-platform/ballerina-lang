@@ -261,6 +261,8 @@ public class PullCommand implements BLauncherCmd {
         if (!resolutionDiagnostics.isEmpty()) {
             printDiagnostics(resolutionDiagnostics,
                     "failed to resolve dependencies: dependency resolution contains errors");
+        }
+        if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
             return true;
         }
 
@@ -268,6 +270,8 @@ public class PullCommand implements BLauncherCmd {
         Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (!backendDiagnostics.isEmpty()) {
             printDiagnostics(backendDiagnostics, "failed to generate caches: package compilation contains errors");
+        }
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             return true;
         }
         return false;
