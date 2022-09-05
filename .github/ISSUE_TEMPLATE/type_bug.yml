@@ -39,7 +39,7 @@ body:
     attributes:
       label: Labels
       description: Tag the issue with related labels
-      multiple: true
+      multiple: false
       options:
         - LanguageServer
         - CompilerFE
