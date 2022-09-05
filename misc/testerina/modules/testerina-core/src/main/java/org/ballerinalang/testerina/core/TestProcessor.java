@@ -167,10 +167,11 @@ public class TestProcessor {
             testSuite.addTestExecutionDependencies(jarPaths);
         }
 
+        // TODO: Deprecate these functions
 //        addUtilityFunctions(module, testSuite);
-        populateMockFunctionNamesMap(testSuite);
 //        processAnnotations(module, testSuite);
 //        testSuite.sort();
+        populateMockFunctionNamesMap(testSuite);
         return testSuite;
     }
 

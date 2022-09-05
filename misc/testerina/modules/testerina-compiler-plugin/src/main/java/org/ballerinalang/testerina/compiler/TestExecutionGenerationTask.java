@@ -54,7 +54,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Code generator to generate the Testerina runtime function.
+ * Code generation task to generate the main Testerina runtime function.
+ *
+ * @since 2201.3.0
  */
 public class TestExecutionGenerationTask implements GeneratorTask<SourceGeneratorContext> {
 

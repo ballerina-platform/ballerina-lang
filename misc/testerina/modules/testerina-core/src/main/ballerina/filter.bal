@@ -17,37 +17,63 @@
 string[] filterGroups = [];
 string[] filterDisableGroups = [];
 string[] filterTests = [];
-string[] filterSubTasks = [];
-string currentModuleName = "";
+string[] filterSubTests = [];
+string moduleName = "";
 boolean hasFilteredTests = false;
-string projectTargetPath = "";
+string targetPath = "";
+boolean terminate = false;
 
-public function setTestOptions(string targetPath, string moduleName, string report,
-    string coverage, string groups, string disableGroups, string tests, string rerunFailed) {
-    projectTargetPath = targetPath;
-    currentModuleName = moduleName;
+public function setTestOptions(string inTargetPath, string inModuleName, string inReport,
+    string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed) {
 
-    filterGroups = parseStringArrayInput(groups);
-    filterDisableGroups = parseStringArrayInput(disableGroups);
-    boolean|error rerunFailedBoolean = boolean:fromString(rerunFailed);
-    if rerunFailedBoolean is error {
-        println("Invalid rerun parameter: " + rerunFailedBoolean.message());
-        return;
-    }
+    targetPath = inTargetPath;
+    moduleName = inModuleName;
+    filterGroups = parseStringArrayInput(inGroups);
+    filterDisableGroups = parseStringArrayInput(inDisableGroups);
+    boolean rerunFailed = parseBooleanInput(inRerunFailed, "rerun-failed");
+    boolean testReport = parseBooleanInput(inReport, "test-report");
+    boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
 
-    if rerunFailedBoolean {
-        json[]|error output = readFromRerunJson(projectTargetPath, currentModuleName);
-        if output is error {
-            println("Unable to read the 'rerun_test.json'");
+    if rerunFailed {
+        error? err = parseRerunJson();
+        if err is error {
+            println("Unable to read the 'rerun_test.json': " + err.message());
             return;
-        } else {
-            filterTests = <string[]>output[0];
-            filterSubTasks = <string[]>output[1];
         }
     } else {
-        filterTests = parseStringArrayInput(tests);
+        filterTests = parseStringArrayInput(inTests);
     }
+
+    if testReport || codeCoverage {
+        reportGenerators.push(moduleStatusReport);
+    }
+
     hasFilteredTests = filterTests.length() > 0;
 }
 
 function parseStringArrayInput(string arrArg) returns string[] => arrArg == "" ? [] : split(arrArg, ",");
+
+function parseBooleanInput(string input, string variableName) returns boolean {
+    boolean|error booleanVariable = boolean:fromString(input);
+    if booleanVariable is error {
+        println(string `Invalid '${variableName}' parameter: ${booleanVariable.message()}`);
+        terminate = true;
+        return false;
+    }
+    return booleanVariable;
+}
+
+function parseRerunJson() returns error? {
+    map<ModuleRerunJson> rerunJson = check readRerunJson();
+
+    ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
+    if moduleRerunJson is ModuleRerunJson {
+        filterTests = moduleRerunJson.testNames;
+        filterSubTests = moduleRerunJson.subTestNames;
+    }
+}
+
+function readRerunJson() returns map<ModuleRerunJson>|error {
+    string|error content = trap readContent(targetPath + "/" + RERUN_JSON_FILE);
+    return content is string ? content.fromJsonStringWithType() : content;
+}

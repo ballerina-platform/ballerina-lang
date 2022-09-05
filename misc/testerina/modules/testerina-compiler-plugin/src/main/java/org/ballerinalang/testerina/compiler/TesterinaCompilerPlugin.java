@@ -23,6 +23,8 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 
 /**
  * Compiler plugin for the Testerina module.
+ *
+ * @since 2201.3.0
  */
 public class TesterinaCompilerPlugin extends CompilerPlugin {
 
