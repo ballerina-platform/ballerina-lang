@@ -164,10 +164,7 @@ public class TestProcessor {
             testSuite.addTestExecutionDependencies(jarPaths);
         }
 
-//        addUtilityFunctions(module, testSuite);
         populateMockFunctionNamesMap(module, testSuite);
-//        processAnnotations(module, testSuite);
-//        testSuite.sort();
         return testSuite;
     }
 

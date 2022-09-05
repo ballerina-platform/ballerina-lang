@@ -168,9 +168,9 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
 
 function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrError[] params) returns boolean {
     if hasFilteredTests {
-        int? testIndex = filterSubTasks.indexOf(testFunction.name + DATA_PROVIDER_SEPARATOR + suffix);
+        int? testIndex = filterSubTests.indexOf(testFunction.name + DATA_PROVIDER_SEPARATOR + suffix);
         if testIndex is int {
-            _ = filterSubTasks.remove(testIndex);
+            _ = filterSubTests.remove(testIndex);
         } else {
             return false;
         }

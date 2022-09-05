@@ -14,6 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const string RERUN_JSON_FILE = "rerun_test.json";
+const string MODULE_STATUS_JSON_FILE = "module_status.json";
+const string CACHE_DIRECTORY = "cache";
+const string TESTS_CACHE_DIRECTORY = "tests_cache";
+
 type ReportGenerate function (ReportData data);
 
 ReportData reportData = new ();
@@ -33,7 +38,8 @@ class Result {
         self.data = data;
     }
 
-    function fullName() returns string => self.data.name + DATA_PROVIDER_SEPARATOR + self.data.suffix;
+    function fullName() returns string => 
+        self.data.suffix == "" ? self.data.name : self.data.name + DATA_PROVIDER_SEPARATOR + self.data.suffix;
 
     function isDataProvider() returns boolean => self.data.suffix != "";
 
@@ -91,9 +97,55 @@ function failedTestsReport(ReportData data) {
         } else {
             testNames.push(testPrefix);
         }
-    }
+    }   
+    ModuleRerunJson moduleReport = {testNames, subTestNames};
+    string filePath = targetPath + "/" + RERUN_JSON_FILE;
 
-    error? err = writeToRerunJson(testNames, subTestNames, projectTargetPath, currentModuleName);
+    map<ModuleRerunJson> rerunJson;
+    if fileExists(filePath) {
+        map<ModuleRerunJson>|error content = readRerunJson();
+        if content is error {
+            println(content.message());
+            return;
+        }
+        rerunJson = content;
+    } else {
+        rerunJson = {};
+    }
+    rerunJson[moduleName] = moduleReport;
+
+    error? err = writeContent(filePath, rerunJson.toString());
+    if err is error {
+        println(err.message());
+    }
+}
+
+function moduleStatusReport(ReportData data) {
+    map<string>[] tests = [];
+    data.passedCases().forEach(result => tests.push({
+        "name": result.fullName(),
+        "status": "PASSED"
+    }));
+    data.failedCases().forEach(result => tests.push({
+        "name": result.fullName(),
+        "status": "FAILURE",
+        "failureMessage": result.message()
+    }));
+    data.skippedCases().forEach(result => tests.push({
+        "name": result.fullName(),
+        "status": "SKIPPED"
+    }));
+
+    map<json> output = {
+        "totalTests": data.passedCount() + data.failedCount() + data.skippedCount(),
+        "passed": data.passedCount(),
+        "failed": data.failedCount(),
+        "skipped": data.skippedCount(),
+        "tests": tests
+    };
+
+    error? err = writeContent(targetPath + "/" + CACHE_DIRECTORY + "/" + TESTS_CACHE_DIRECTORY 
+        + "/" + moduleName + "/" + MODULE_STATUS_JSON_FILE, output.toString());
     if err is error {
         println(err.message());
     }
