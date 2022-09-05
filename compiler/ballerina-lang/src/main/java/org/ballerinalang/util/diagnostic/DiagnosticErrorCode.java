@@ -783,7 +783,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4035", "invalid.usage.of.the.client.keyword.as.an.unquoted.identifier"),
     INVALID_NON_ANYDATA_CLIENT_DECL_ANNOTATION("BCE4036", "invalid.non.anydata.client.decl.annotation"),
     NO_MODULE_GENERATED_FOR_CLIENT_DECL("BCE4037", "no.module.generated.for.client.decl"),
-    UNUSED_CLIENT_DECL_PREFIX("BCE4038", "unused.client.decl.prefix")
+    UNUSED_CLIENT_DECL_PREFIX("BCE4038", "unused.client.decl.prefix"),
+    UNSUPPORTED_EXPOSURE_OF_CONSTRUCT_FROM_MODULE_GENERATED_FOR_CLIENT_DECL(
+            "BCE4039", "unsupported.exposure.of.construct.from.module.generated.for.client.decl")
     ;
 
     private String diagnosticId;

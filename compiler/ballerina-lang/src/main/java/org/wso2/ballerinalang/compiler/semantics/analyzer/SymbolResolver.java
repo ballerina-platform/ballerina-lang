@@ -2619,7 +2619,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
     }
 
-    public BPackageSymbol getModuleForClientDecl(PackageID packageID) {
+    public BPackageSymbol getModuleForPackageId(PackageID packageID) {
         return symTable.pkgEnvMap.keySet().stream()
                 .filter(moduleSymbol -> packageID.equals(moduleSymbol.pkgID))
                 .findFirst()
@@ -2648,7 +2648,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.notFoundSymbol;
         }
 
-        BPackageSymbol moduleSymbol = getModuleForClientDecl(clientDeclarations.get(lineRange));
+        BPackageSymbol moduleSymbol = getModuleForPackageId(clientDeclarations.get(lineRange));
         moduleSymbol.isUsed = true;
         return moduleSymbol;
     }
