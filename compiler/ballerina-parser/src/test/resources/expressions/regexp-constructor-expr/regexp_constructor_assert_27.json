@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -45,6 +46,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -57,9 +59,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -93,6 +97,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -108,33 +113,31 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHARACTER_CLASS",
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
                                         }
                                       ]
                                     }
@@ -164,6 +167,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -197,6 +201,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -212,33 +217,31 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHARACTER_CLASS",
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
                                         }
                                       ]
                                     }
@@ -268,6 +271,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -301,6 +305,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -316,33 +321,31 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHARACTER_CLASS",
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
                                         }
                                       ]
                                     }
@@ -372,6 +375,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -405,6 +409,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -420,33 +425,31 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHARACTER_CLASS",
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
                                         }
                                       ]
                                     }
@@ -476,6 +479,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -509,6 +513,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -524,33 +529,31 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHARACTER_CLASS",
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
                                         }
                                       ]
                                     }
@@ -580,6 +583,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -613,6 +617,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -628,33 +633,31 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHARACTER_CLASS",
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
                                         }
                                       ]
                                     }
@@ -684,6 +687,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -717,6 +721,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -732,241 +737,31 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHARACTER_CLASS",
+                                      "kind": "RE_ATOM",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHARACTER_CLASS",
-                                      "children": [
-                                        {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHARACTER_CLASS",
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "RE_CHAR_ESCAPE",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                          ],
+                                          "value": "RE_CHAR_ESCAPE"
                                         }
                                       ]
                                     }

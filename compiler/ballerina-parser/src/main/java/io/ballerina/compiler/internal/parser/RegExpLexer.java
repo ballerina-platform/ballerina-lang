@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.CharReader;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A LL(k) lexer for RegExp in ballerina.
@@ -221,7 +220,8 @@ public class RegExpLexer extends AbstractLexer {
         if (isEndOfCharSet()) {
             return;
         }
-        if (peek() == LexerTerminals.MINUS) {
+        if (peek() == LexerTerminals.MINUS &&
+                this.reader.peek(1) != LexerTerminals.CLOSE_BRACKET) {
             this.reader.advance();
             processReCharSetAtom();
             if (isEndOfCharSet()) {
@@ -276,10 +276,7 @@ public class RegExpLexer extends AbstractLexer {
                 return;
             }
             processReEscape();
-            return;
         }
-        this.reader.advance();
-        reportLexerError(DiagnosticErrorCode.ERROR_INVALID_CHARACTER_SET_IN_REG_EXP);
     }
 
     /**
@@ -303,7 +300,7 @@ public class RegExpLexer extends AbstractLexer {
         if (isEndOfCharSet()) {
             return;
         }
-        if (nextToken == LexerTerminals.MINUS) {
+        if (nextToken == LexerTerminals.MINUS && this.reader.peek(1) != LexerTerminals.CLOSE_BRACKET) {
             this.reader.advance();
             processReCharSetAtom();
             if (isEndOfCharSet()) {
@@ -453,20 +450,23 @@ public class RegExpLexer extends AbstractLexer {
      * </code>
      */
     private void processReUnicodeProperty() {
-        this.reader.advance(2);
+        // Process '\p{' or '\P{'
+        this.reader.advance(3);
 
         if (peek() == 's') {
             this.reader.advance();
             // ReUnicodeScript starts with `sc=`.
             if (peek() != 'c') {
                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-                return;
+                if (peek() != LexerTerminals.EQUAL) {
+                    this.reader.advance();
+                }
+            } else {
+                this.reader.advance();
             }
-            this.reader.advance();
 
             if (peek() != LexerTerminals.EQUAL) {
                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-                return;
             }
             this.reader.advance();
 
@@ -480,13 +480,15 @@ public class RegExpLexer extends AbstractLexer {
             this.reader.advance();
             if (peek() != 'c') {
                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-                return;
+                if (peek() != LexerTerminals.EQUAL) {
+                    this.reader.advance();
+                }
+            } else {
+                this.reader.advance();
             }
-            this.reader.advance();
 
             if (peek() != LexerTerminals.EQUAL) {
                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-                return;
             }
             this.reader.advance();
         }
@@ -502,11 +504,16 @@ public class RegExpLexer extends AbstractLexer {
      * </code>
      */
     private void processReUnicodePropertyValue() {
-        int nextChar = peek();
-        while (isDigit(nextChar) || 'A' <= nextChar && nextChar <= 'Z' || 'a' <= nextChar && nextChar <= 'z' ||
-                nextChar == '_') {
-            reader.advance();
-            nextChar = peek();
+        if (!isReUnicodePropertyValueChar(peek())) {
+            // ReUnicodePropertyEscape should have at least one character.
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
+            if (peek() != LexerTerminals.CLOSE_BRACE) {
+                this.reader.advance();
+            }
+        }
+
+        while (isReUnicodePropertyValueChar(peek())) {
+            this.reader.advance();
         }
 
         if (peek() != LexerTerminals.CLOSE_BRACE) {
@@ -516,6 +523,11 @@ public class RegExpLexer extends AbstractLexer {
         }
 
         this.reader.advance();
+    }
+
+    private boolean isReUnicodePropertyValueChar(int nextChar) {
+        return isDigit(nextChar) || 'A' <= nextChar && nextChar <= 'Z' || 'a' <= nextChar && nextChar <= 'z' ||
+                nextChar == '_';
     }
 
     /**
@@ -604,114 +616,22 @@ public class RegExpLexer extends AbstractLexer {
     }
 
     private STToken getRegExpSyntaxToken(SyntaxKind kind) {
-        STNode leadingTrivia = getLeadingTrivia();
-        STNode trailingTrivia = processTrailingRegExpTrivia();
+        STNode leadingTrivia = STNodeFactory.createEmptyNodeList();
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getRegExpText(SyntaxKind kind) {
-        STNode leadingTrivia = getLeadingTrivia();
+        STNode leadingTrivia = STNodeFactory.createEmptyNodeList();
         String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingRegExpTrivia();
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
-    }
-
-    /**
-     * Process and return trailing trivia.
-     *
-     * @return Trailing trivia
-     */
-    private STNode processTrailingRegExpTrivia() {
-        List<STNode> triviaList = new ArrayList<>(10);
-        processRegExpTrivia(triviaList);
-        return STNodeFactory.createNodeList(triviaList);
     }
 
     private STToken getRegExpCloseBraceTokenWithoutTrailingWS() {
         STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
         return STNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, leadingTrivia, trailingTrivia);
-    }
-
-    /**
-     * Process regExp trivia and add it to the provided list.
-     * <p>
-     * <code>
-     * regExp-trivia := (WS | invalid-tokens)+
-     * <br/><br/>
-     * WS := #x20 | #x9 | #xD | #xA
-     * </code>
-     *
-     * @param triviaList List of trivia
-     */
-    private void processRegExpTrivia(List<STNode> triviaList) {
-        while (!reader.isEOF()) {
-            reader.mark();
-            char c = reader.peek();
-            switch (c) {
-                case LexerTerminals.SPACE:
-                case LexerTerminals.TAB:
-                    triviaList.add(processWhitespaces());
-                    break;
-                case LexerTerminals.CARRIAGE_RETURN:
-                case LexerTerminals.NEWLINE:
-                    triviaList.add(processEndOfLine());
-                    return;
-                default:
-                    return;
-            }
-        }
-    }
-
-    /**
-     * Process whitespace up to an end of line.
-     * <p>
-     * <code>whitespace := 0x9 | 0xC | 0x20</code>
-     *
-     * @return Whitespace trivia
-     */
-    private STNode processWhitespaces() {
-        while (!reader.isEOF()) {
-            char c = reader.peek();
-            switch (c) {
-                case LexerTerminals.SPACE:
-                case LexerTerminals.TAB:
-                case LexerTerminals.FORM_FEED:
-                    reader.advance();
-                    continue;
-                case LexerTerminals.CARRIAGE_RETURN:
-                case LexerTerminals.NEWLINE:
-                default:
-                    break;
-            }
-            break;
-        }
-
-        return STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_MINUTIAE, getLexeme());
-    }
-
-    /**
-     * Process end of line.
-     * <p>
-     * <code>end-of-line := 0xA | 0xD</code>
-     *
-     * @return End of line trivia
-     */
-    private STNode processEndOfLine() {
-        char c = reader.peek();
-        switch (c) {
-            case LexerTerminals.NEWLINE:
-                reader.advance();
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
-            case LexerTerminals.CARRIAGE_RETURN:
-                reader.advance();
-                if (reader.peek() == LexerTerminals.NEWLINE) {
-                    reader.advance();
-                }
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
-            default:
-                throw new IllegalStateException();
-        }
     }
 
     /**

@@ -178,4 +178,16 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
         testFile("regexp-constructor-expr/regexp_constructor_source_25.bal",
                 "regexp-constructor-expr/regexp_constructor_assert_25.json");
     }
+
+    @Test
+    public void testRecoveryWithMissingBackticks() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_26.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_26.json");
+    }
+
+    @Test
+    public void testRecoveryWithInvalidUnicodePropertyValue3() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_27.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_27.json");
+    }
 }
