@@ -5812,7 +5812,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         List<BLangExpression> exprs = tupleLiteral.exprs;
-        BTupleType tupleType = (BTupleType) tupleLiteral.getBType();
+        BTupleType tupleType = (BTupleType) Types.getReferredType(tupleLiteral.getBType());
         List<BType> tupleMemberTypes = tupleType.tupleTypes;
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
