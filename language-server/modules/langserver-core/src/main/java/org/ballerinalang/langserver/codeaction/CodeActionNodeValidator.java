@@ -292,8 +292,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && !node.closeParenToken().isMissing()
                 && node.leadingInvalidTokens().isEmpty()
                 && node.trailingInvalidTokens().isEmpty()
-                && (node.returnTypeDesc().isEmpty()
-                || node.returnTypeDesc().get().apply(this))
+                && (node.returnTypeDesc().isEmpty() || node.returnTypeDesc().get().apply(this))
                 && node.parameters().stream().allMatch(parameterNode -> parameterNode.apply(this));
     }
 
