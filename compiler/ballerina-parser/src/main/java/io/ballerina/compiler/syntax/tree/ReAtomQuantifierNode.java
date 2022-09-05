@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.3.0
  */
 public class ReAtomQuantifierNode extends ReTermNode {
 
