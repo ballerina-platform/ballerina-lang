@@ -163,7 +163,8 @@ class IDLPluginManager {
                     this.currentPackage.descriptor());
             return ModuleConfig.from(
                     moduleConfig.moduleId(), newModuleDescriptor, moduleConfig.sourceDocs(),
-                    moduleConfig.testSourceDocs(), moduleConfig.moduleMd().orElse(null), moduleConfig.dependencies());
+                    moduleConfig.testSourceDocs(), moduleConfig.moduleMd().orElse(null), moduleConfig.dependencies(),
+                    ModuleKind.COMPILER_GENERATED);
         }
     }
 }

@@ -57,7 +57,7 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
 
         public void perform(IDLSourceGeneratorContext idlSourceGeneratorContext) {
             ModuleId moduleId = ModuleId.create("client", idlSourceGeneratorContext.currentPackage().packageId());
-            DocumentId documentId = DocumentId.create("idl_client", moduleId);
+            DocumentId documentId = DocumentId.create("idl_client.bal", moduleId);
             DocumentConfig documentConfig = getClientCode(documentId);
             ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
                     ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), "client"),
@@ -100,7 +100,7 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
                             "        }\n" +
                             "    }\n" +
                             "\n" +
-                            "}", "idl_client");
+                            "}", "idl_client.bal");
         }
     }
 }

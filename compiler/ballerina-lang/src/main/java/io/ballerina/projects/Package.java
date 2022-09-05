@@ -773,7 +773,8 @@ public class Package {
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
-                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
+                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap,
+                        oldModuleContext.kind()));
             }
             updateModules(moduleContextSet);
         }

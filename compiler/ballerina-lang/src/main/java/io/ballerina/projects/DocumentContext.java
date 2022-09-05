@@ -54,6 +54,7 @@ import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -353,7 +354,10 @@ class DocumentContext {
         // TODO: implement validations
         private Path getIDLPath(Node clientNode) throws IOException {
             URL url = new URL(getUri(clientNode));
-            Path resourcePath = this.currentPkg.project().targetDir().resolve(url.getFile());
+            Path resourcePath = this.currentPkg.project().targetDir().resolve(
+                    "idl-resource" + System.currentTimeMillis());
+            Files.createDirectories(this.currentPkg.project().targetDir());
+            Files.createFile(resourcePath);
             try (BufferedInputStream in = new BufferedInputStream(url.openStream());
                  FileOutputStream fileOutputStream = new FileOutputStream(resourcePath.toFile())) {
                 byte[] dataBuffer = new byte[1024];
