@@ -114,7 +114,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(startPositionOffset, endPositionOffset);
         NonTerminalNode node = CommonUtil.findNode(range, syntaxTree);
         if (node.kind() == SyntaxKind.LIST) {
-            if (isStatementNodeInside(node)) {
+            if (hasChildStatement(node)) {
                 analyzer.checkAndSetCodeActionNode(node);
                 analyzer.checkAndSetSyntaxKind(node.kind());
             }
@@ -628,7 +628,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         node.accept(this);
     }
 
-    private static boolean isStatementNodeInside(NonTerminalNode node) {
+    private static boolean hasChildStatement(NonTerminalNode node) {
         for (Node childNode : node.children()) {
             if (childNode.kind().compareTo(SyntaxKind.BLOCK_STATEMENT) >= 0
                     && childNode.kind().compareTo(SyntaxKind.BINARY_EXPRESSION) < 0) {

@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int localVar, int param) returns int {\n    return (param + moduleVar) * localVar;\n}"
+          "newText": "\n\nfunction extracted(int param, int localVar) returns int {\n    return (param + moduleVar) * localVar;\n}"
         },
         {
           "range": {
@@ -39,9 +39,10 @@
               "character": 42
             }
           },
-          "newText": "return extracted(localVar, param);"
+          "newText": "return extracted(param, localVar);"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for return statement"

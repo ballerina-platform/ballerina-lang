@@ -55,15 +55,13 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Code Action for extracting a code segment to a function.
@@ -87,9 +85,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
     @Override
     public List<SyntaxKind> getSyntaxKinds() {
-        return Stream
-                .concat(getSupportedStatementSyntaxKindsList().stream(), getSupportedExpressionSyntaxKindsList()
-                        .stream()).collect(Collectors.toList());
+        List<SyntaxKind> supportedSyntaxKinds = new ArrayList<>();
+        supportedSyntaxKinds.addAll(getSupportedStatementSyntaxKindsList());
+        supportedSyntaxKinds.addAll(getSupportedExpressionSyntaxKindsList());
+        return supportedSyntaxKinds;
     }
 
     @Override
@@ -106,77 +105,35 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
         Optional<Node> enclosingNode = findEnclosingModulePartNode(matchedCodeActionNode);
 
-        if (enclosingNode.isEmpty() || findEnclosingFunctionDefinitionNode(matchedCodeActionNode).isEmpty()) {
+        if (enclosingNode.isEmpty() || !isWithinFunctionDefinitionNode(matchedCodeActionNode)) {
             return Collections.emptyList();
         }
 
         SemanticModel semanticModel = context.currentSemanticModel().get();
 
-        Position endPosOfEnclosingNode = PositionUtil.toPosition(enclosingNode.get().lineRange().endLine());
-        Position endPosOfStatements
-                = new Position(endPosOfEnclosingNode.getLine(), endPosOfEnclosingNode.getCharacter() - 1);
-        Range rangeAfterHighlightedRange = new Range(context.range().getEnd(), endPosOfStatements);
-
-        ExtractToFuncStatementAnalyzer extractToFuncStatementAnalyzer
+        ExtractToFuncStatementAnalyzer statementAnalyzer
                 = new ExtractToFuncStatementAnalyzer(context.range(), semanticModel);
-        extractToFuncStatementAnalyzer.analyze(matchedCodeActionNode);
+        statementAnalyzer.analyze(matchedCodeActionNode);
 
         // here we decide whether the selected range is extractable by its content syntactically
-        if (!extractToFuncStatementAnalyzer.isExtractable()) {
+        if (!statementAnalyzer.isExtractable()) {
             return Collections.emptyList();
         }
 
-        // these assigned symbols can be either localVar or moduleVar
-        List<Symbol> assignmentStatementSymbolsInRange = extractToFuncStatementAnalyzer.getAssignmentStatementSymbols();
-        List<Symbol> localVarDeclarationSymbolsInRange = extractToFuncStatementAnalyzer.getVarDeclarationSymbols();
-        List<Node> selectedNodes = extractToFuncStatementAnalyzer.getSelectedNodes();
-
-        Set<Symbol> assignmentOrLocalVarDeclSymbolsInRange =
-                Stream.of(assignmentStatementSymbolsInRange, localVarDeclarationSymbolsInRange)
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toSet());
-
-        List<Symbol> assStmtModuleVarSymbolsInRange = assignmentStatementSymbolsInRange.stream()
-                .filter(symbol -> symbol.getLocation().isPresent() && !PositionUtil
-                        .isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.get().lineRange()))
-                .collect(Collectors.toList());
-
-        List<Symbol> assStmtLocalVarSymbolsInRangeAndNotDeclaredWithinRange = assignmentStatementSymbolsInRange.stream()
-                .filter(symbol -> symbol.getLocation().isPresent() && !PositionUtil.isRangeWithinRange
-                        (PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range()))
-                .filter(symbol -> !assStmtModuleVarSymbolsInRange.contains(symbol))
-                .collect(Collectors.toList());
-
-        List<VariableSymbol> localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange =
-                assignmentOrLocalVarDeclSymbolsInRange.stream()
-                        .filter(symbol -> !assStmtModuleVarSymbolsInRange.contains(symbol))
-                        .filter(symbol -> semanticModel.references(symbol).stream()
-                                .anyMatch(location -> PositionUtil.isRangeWithinRange
-                                        (PositionUtil.toRange(location.lineRange()), rangeAfterHighlightedRange)))
-                        .map(symbol -> (VariableSymbol) symbol)
-                        .collect(Collectors.toList());
+        Optional<Optional<VariableSymbol>> validExtractableUpdatingVariableSymbol
+                = getUpdatingVariableSymbol(statementAnalyzer, enclosingNode.get(), context);
 
         /*
-        * Following checks are done when deciding the selected range R is extractable to a function.
-        *
-        * 1. All updating local variables inside R have been declared inside R.
-        * 2. The number of local variables in (1.) is less or equal to 1.
-        *
-        * */
-        boolean isRangeExtractable = assStmtLocalVarSymbolsInRangeAndNotDeclaredWithinRange.size() == 0
-                && localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() <= 1;
-
-        // here we decide whether the selected range is extractable by the usages of symbols
-        if (!isRangeExtractable) {
+        * here we decide whether the selected range is extractable by the usages of symbols, empty scenario implies
+        * multiple variable symbols updated and referred after range
+         */
+        if (validExtractableUpdatingVariableSymbol.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Optional<VariableSymbol> updatingVar = Optional.empty();
+        // empty scenario implies that extracted function should not return any value
+        Optional<VariableSymbol> updatingVar = validExtractableUpdatingVariableSymbol.get();
         Optional<String> possibleTypeOfUpdatingVar = Optional.empty();
-
-        if (localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.size() == 1) {
-            updatingVar = Optional.of(localVarSymbolsDeclaredOrAssignedInRangeAndReferredAfterRange.iterator().next());
-        }
 
         if (updatingVar.isPresent()) {
             Optional<String> posType =
@@ -205,13 +162,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         List<Symbol> argsSymbolsForExtractFunction =
                 getVarAndParamSymbolsWithinRangeForStmts(context, enclosingNode.get());
 
-        Optional<HashMap<String, List<String>>> argLists = getArgLists(context, argsSymbolsForExtractFunction);
+        Optional<ArgLists> argLists = getArgLists(context, argsSymbolsForExtractFunction);
         if (argLists.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<String> argsForExtractFunction = argLists.get().get("argsForExtractFunction");
-        List<String> argsForReplaceFunctionCall = argLists.get().get("argsForReplaceFunctionCall");
+        List<String> argsForExtractFunction = argLists.get().extractFunctionArgs;
+        List<String> argsForReplaceFunctionCall = argLists.get().replaceFunctionCallArgs;
 
         String functionName = getFunctionName(context, matchedCodeActionNode);
         String returnStatement = "";
@@ -219,6 +176,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             returnStatement = String.format("return %s;", updatingVar.get().getName().get());
         }
 
+        List<Node> selectedNodes = statementAnalyzer.getSelectedNodes();
         String funcBody = selectedNodes.stream().map(Node::toSourceCode).collect(Collectors.joining(""));
         Range extractFunctionInsertRange;
 
@@ -263,6 +221,66 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return List.of(codeAction);
     }
 
+    private Optional<Optional<VariableSymbol>> getUpdatingVariableSymbol(ExtractToFuncStatementAnalyzer analyzer,
+                                                                     Node enclosingNode, CodeActionContext context) {
+        SemanticModel semanticModel = context.currentSemanticModel().get();
+        // these updating symbols can be either localVar or moduleVar
+        List<Symbol> updatingSymbolsInRange = analyzer.getUpdatingSymbols();
+        List<Symbol> declaredVariableSymbols = analyzer.getDeclaredVariableSymbols();
+
+        HashSet<Symbol> updatingOrDeclaredLocVarSymbolsInRange = new HashSet<>(updatingSymbolsInRange);
+        updatingOrDeclaredLocVarSymbolsInRange.addAll(declaredVariableSymbols);
+
+        List<Symbol> updatingModVarSymbols = updatingSymbolsInRange.stream()
+                .filter(symbol -> symbol.getLocation().isPresent() && !PositionUtil
+                        .isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.lineRange()))
+                .collect(Collectors.toList());
+
+        List<Symbol> updatingButNotDeclaredLocVarSymbolsInRange = updatingSymbolsInRange.stream()
+                .filter(symbol -> symbol.getLocation().isPresent() && !PositionUtil.isRangeWithinRange
+                        (PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range()))
+                .filter(symbol -> !updatingModVarSymbols.contains(symbol))
+                .collect(Collectors.toList());
+
+        List<VariableSymbol> locVarSymbolsDeclaredOrUpdatingInRangeAndReferredAfterRange =
+                updatingOrDeclaredLocVarSymbolsInRange.stream()
+                        .filter(symbol -> !updatingModVarSymbols.contains(symbol))
+                        .filter(symbol -> semanticModel.references(symbol).stream()
+                                .anyMatch(location -> PositionUtil.isRangeWithinRange
+                                        (PositionUtil.toRange(location.lineRange()),
+                                                getRangeAfterHighlightedRange(context, enclosingNode))))
+                        .map(symbol -> (VariableSymbol) symbol)
+                        .collect(Collectors.toList());
+
+        /*
+         * Following checks are done when deciding the selected range R is extractable to a function.
+         *
+         * 1. All updating local variables inside R have been declared inside R.
+         * 2. The number of local variables in (1.) is less or equal to 1.
+         *
+         * */
+        boolean isRangeExtractable = updatingButNotDeclaredLocVarSymbolsInRange.size() == 0
+                && locVarSymbolsDeclaredOrUpdatingInRangeAndReferredAfterRange.size() <= 1;
+
+        // here we decide whether the selected range is extractable by the usages of symbols
+        if (!isRangeExtractable) {
+            return Optional.empty();
+        }
+
+        Optional<VariableSymbol> updatingVar = Optional.empty();
+        if (locVarSymbolsDeclaredOrUpdatingInRangeAndReferredAfterRange.size() == 1) {
+            updatingVar = locVarSymbolsDeclaredOrUpdatingInRangeAndReferredAfterRange.stream().findFirst();
+        }
+        return Optional.of(updatingVar);
+    }
+
+    private Range getRangeAfterHighlightedRange(CodeActionContext context, Node enclosingNode) {
+        Position endPosOfEnclosingNode = PositionUtil.toPosition(enclosingNode.lineRange().endLine());
+        Position endPosOfStatements
+                = new Position(endPosOfEnclosingNode.getLine(), endPosOfEnclosingNode.getCharacter() - 1);
+        return new Range(context.range().getEnd(), endPosOfStatements);
+    }
+
     private List<Symbol> getVarAndParamSymbolsWithinRangeForStmts(CodeActionContext context, Node enclosingNode) {
         List<Symbol> argsSymbolsForExtractFunction = new ArrayList<>();
         List<Symbol> visibleSymbolsToStartPosOfRange = getVisibleSymbols(context, context.range().getStart());
@@ -274,15 +292,11 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                         .isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.lineRange()))
                 .collect(Collectors.toList());
 
-        List<Symbol> parameterSymbols = visibleSymbolsToStartPosOfRange.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.PARAMETER)
-                .collect(Collectors.toList());
+        HashSet<Symbol> paramAndLocVarSymbolsVisibleToRange = visibleSymbolsToStartPosOfRange.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.PARAMETER).collect(Collectors.toCollection(HashSet::new));
+        paramAndLocVarSymbolsVisibleToRange.addAll(localVarSymbolsDeclarationsBeforeStartOfRange);
 
-        List<Symbol> visibleLocalAndParamSymbolsToRange = Stream
-                .concat(localVarSymbolsDeclarationsBeforeStartOfRange.stream(), parameterSymbols.stream())
-                .collect(Collectors.toList());
-
-        visibleLocalAndParamSymbolsToRange.forEach(symbol -> {
+        paramAndLocVarSymbolsVisibleToRange.forEach(symbol -> {
             Optional<Location> anyLocationReferred = context.currentSemanticModel().get().references(symbol).stream()
                     // check whether the symbols are referred inside the selected range
                     .filter(location -> PositionUtil.isRangeWithinRange(PositionUtil
@@ -293,7 +307,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             }
         });
 
-        return argsSymbolsForExtractFunction;
+        return argsSymbolsForExtractFunction.stream()
+                .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
+                .collect(Collectors.toList());
     }
 
     private List<CodeAction> getCodeActionsForExpressions(CodeActionContext context,
@@ -323,17 +339,16 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        LineRange matchedCALineRange = matchedCodeActionNode.lineRange();
         List<Symbol> varAndParamSymbolsWithinRange =
-                getVarAndParamSymbolsWithinRangeForExprs(matchedCALineRange, context);
-        Optional<HashMap<String, List<String>>> argLists = getArgLists(context, varAndParamSymbolsWithinRange);
+                getVarAndParamSymbolsWithinRangeForExprs(matchedCodeActionNode.lineRange(), context);
+        Optional<ArgLists> argLists = getArgLists(context, varAndParamSymbolsWithinRange);
 
         if (argLists.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<String> argsForExtractFunction = argLists.get().get("argsForExtractFunction");
-        List<String> argsForReplaceFunctionCall = argLists.get().get("argsForReplaceFunctionCall");
+        List<String> argsForExtractFunction = argLists.get().extractFunctionArgs;
+        List<String> argsForReplaceFunctionCall = argLists.get().replaceFunctionCallArgs;
 
         String functionName = getFunctionName(context, matchedCodeActionNode);
         String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName,
@@ -414,7 +429,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .collect(Collectors.toList());
     }
 
-    private Optional<HashMap<String, List<String>>> getArgLists(CodeActionContext context, List<Symbol> symbolsList) {
+    private Optional<ArgLists> getArgLists(CodeActionContext context, List<Symbol> symbolsList) {
         List<String> argsForExtractFunction = new ArrayList<>();
         List<String> argsForReplaceFunctionCall = new ArrayList<>();
 
@@ -441,11 +456,11 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             }
         }
 
-        HashMap<String, List<String>> argListMap = new HashMap<>();
-        argListMap.put("argsForExtractFunction", argsForExtractFunction);
-        argListMap.put("argsForReplaceFunctionCall", argsForReplaceFunctionCall);
+        ArgLists argLists = new ArgLists();
+        argLists.extractFunctionArgs = argsForExtractFunction;
+        argLists.replaceFunctionCallArgs = argsForReplaceFunctionCall;
 
-        return Optional.of(argListMap);
+        return Optional.of(argLists);
     }
 
     private Optional<Node> findEnclosingModulePartNode(NonTerminalNode node) {
@@ -461,19 +476,19 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return Optional.empty();
     }
 
-    private Optional<NonTerminalNode> findEnclosingFunctionDefinitionNode(NonTerminalNode node) {
+    private boolean isWithinFunctionDefinitionNode(NonTerminalNode node) {
         NonTerminalNode reference = node;
 
         while (reference != null && reference.parent() != null) {
             SyntaxKind parentKind = reference.parent().kind();
             if (parentKind == SyntaxKind.FUNCTION_DEFINITION || parentKind == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION
                     || parentKind == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                return Optional.of(reference);
+                return true;
             }
             reference = reference.parent();
         }
 
-        return Optional.empty();
+        return false;
     }
 
     private boolean addNewLineAtEnd(Node enclosingNode) {
@@ -486,6 +501,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return false;
     }
 
+    /*
+    * With the fix of #37454, we can remove this function
+    * */
+    @Deprecated(forRemoval = true)
     private static boolean isExpressionNode(NonTerminalNode node) {
         return (node.kind().compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0
                     && node.kind().compareTo(SyntaxKind.TYPE_DESC) < 0);
@@ -565,5 +584,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     @Override
     public String getName() {
         return NAME;
+    }
+
+    static class ArgLists {
+        List<String> extractFunctionArgs;
+        List<String> replaceFunctionCallArgs;
     }
 }
