@@ -96,6 +96,10 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                 return DocumentConfig.from(
                         documentId, "public const DEFAULT_URL = \"http://www.example.com\";\n" +
                                 "\n" +
+                                "public type IntMap map<int>;\n" +
+                                "\n" +
+                                "public type XmlElement xml:Element;\n" +
+                                "\n" +
                                 "public type ClientConfiguration record {\n" +
                                 "    string url?;\n" +
                                 "    int 'limit;\n" +
