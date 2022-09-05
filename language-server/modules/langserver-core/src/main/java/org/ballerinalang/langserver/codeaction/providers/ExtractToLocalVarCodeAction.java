@@ -159,7 +159,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                         .lineRange())))
                 .collect(Collectors.toList());
         
-        if (symbolsWithinRange.size() == 0 ) {
+        if (symbolsWithinRange.size() == 0) {
             return false;
         }
 
