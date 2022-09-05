@@ -5460,8 +5460,36 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void validateClientDeclarations(BLangPackage bLangPackage) {
-        // TODO: 2022-09-05 Validate presence of client objects and absence of mutable state for generated modules.
+        if (this.symTable.clientDeclarations.containsValue(bLangPackage.packageID)) {
+            checkForClientObjectTypeOrClass(bLangPackage);
+        }
+
         disallowExposingConstructsFromClientDeclModules(bLangPackage);
+    }
+
+    private void checkForClientObjectTypeOrClass(BLangPackage bLangPackage) {
+        for (BLangClassDefinition classDefinition : bLangPackage.classDefinitions) {
+            if (classDefinition.name.value.equals(Names.CLIENT.value) &&
+                    classDefinition.flagSet.contains(Flag.CLIENT)) {
+                return;
+            }
+        }
+
+        for (BLangTypeDefinition typeDefinition : bLangPackage.typeDefinitions) {
+            BType bType = typeDefinition.typeNode.getBType();
+            if (bType.tag != TypeTags.OBJECT) {
+                continue;
+            }
+
+            if (Names.CLIENT.value.equals(bType.tsymbol.name.value) &&
+                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLIENT)) {
+                return;
+            }
+        }
+
+        List<BLangCompilationUnit> compUnits = bLangPackage.compUnits;
+        dlog.error(compUnits.isEmpty() ? bLangPackage.symbol.pos : compUnits.get(0).pos,
+                   DiagnosticErrorCode.MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE);
     }
 
     private void disallowExposingConstructsFromClientDeclModules(BLangPackage bLangPackage) {
