@@ -37,6 +37,13 @@ public function main() {
     xmlns "http://example.com" as corge;
     client "http://www.example.com/apis/ten.yaml" as corge;
 
+    client "http://www.example.com/apis/ten.yaml" as foobar;
+
+    boolean b = true;
+    if b {
+        client "http://example.com/apis/three.yaml" as foobar;
+    }
+
     foo:Signed8 _ = 1;
     bar:Char _ = "a";
 }

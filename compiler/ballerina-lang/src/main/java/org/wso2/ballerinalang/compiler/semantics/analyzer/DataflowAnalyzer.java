@@ -733,6 +733,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClientDeclaration clientDeclaration) {
+        BLangIdentifier prefix = clientDeclaration.prefix;
+        Location location = prefix.pos;
+        BPackageSymbol symbol = symResolver.getModuleForClientDecl(
+                symTable.clientDeclarations.get(location.lineRange()));
+        checkUnusedImportOrClientDeclPrefix(symbol, prefix.value, location,
+                                            DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX);
     }
     
     @Override
@@ -2455,12 +2461,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void checkUnusedImports(List<BLangImportPackage> imports) {
         for (BLangImportPackage importStmt : imports) {
-            if (importStmt.symbol == null || importStmt.symbol.isUsed ||
-                    Names.IGNORE.value.equals(importStmt.alias.value)) {
-                continue;
-            }
-            dlog.error(importStmt.alias.pos, DiagnosticErrorCode.UNUSED_MODULE_PREFIX, importStmt.alias.value);
+            BLangIdentifier prefix = importStmt.alias;
+            String prefixValue = prefix.value;
+            Location location = prefix.pos;
+            checkUnusedImportOrClientDeclPrefix(importStmt.symbol, prefixValue, location,
+                                                DiagnosticErrorCode.UNUSED_MODULE_PREFIX);
         }
+    }
+
+    private void checkUnusedImportOrClientDeclPrefix(BPackageSymbol symbol, String prefixValue, Location location,
+                                                     DiagnosticErrorCode errorCode) {
+        if (symbol == null || symbol.isUsed || Names.IGNORE.value.equals(prefixValue)) {
+            return;
+        }
+        dlog.error(location, errorCode, prefixValue);
     }
 
     private void checkUnusedErrorVarsDeclaredWithVar() {

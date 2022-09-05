@@ -10081,7 +10081,7 @@ public class Desugar extends BLangNodeVisitor {
         importDcl.pkgNameComps = List.of(ASTBuilderUtil.createIdentifier(pos, packageID.name.value));
         importDcl.orgName = ASTBuilderUtil.createIdentifier(pos, packageID.orgName.value);
         importDcl.version = ASTBuilderUtil.createIdentifier(pos, packageID.version.value);
-        BPackageSymbol moduleSymbol = (BPackageSymbol) symResolver.getModuleForClientDecl(packageID);
+        BPackageSymbol moduleSymbol = symResolver.getModuleForClientDecl(packageID);
         importDcl.symbol = moduleSymbol;
         enclPkg.imports.add(importDcl);
         enclPkg.symbol.imports.add(moduleSymbol);
