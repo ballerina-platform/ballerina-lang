@@ -20,6 +20,11 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
+/**
+ * Parameters for the runtime Testerina main function.
+ *
+ * @since 2201.3.0
+ */
 public class TestArguments {
 
     private final Class<?>[] argTypes;

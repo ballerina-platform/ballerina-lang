@@ -25,3 +25,8 @@ public type AnyOrError any|error;
 public type TestError distinct error;
 
 type ExecutionError distinct error<record {|string functionName;|}>;
+
+type ModuleRerunJson record {|
+    string[] testNames;
+    string[] subTestNames;
+|};

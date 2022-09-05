@@ -134,11 +134,6 @@ public class RunTestsTask implements Task {
         this.isSingleTestExecution = false;
         this.isRerunTestExecution = rerunTests;
 
-        // If rerunTests is true, we get the rerun test list and assign it to 'testList'
-//        if (this.isRerunTestExecution) {
-//            testList = new ArrayList<>();
-//        }
-
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
         } else if (groupList != null) {
@@ -161,7 +156,6 @@ public class RunTestsTask implements Task {
             start = System.currentTimeMillis();
         }
 
-//        filterTestGroups();
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
 
@@ -206,6 +200,7 @@ public class RunTestsTask implements Task {
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
 
+            // TODO: Deprecate this functionality
 //            if (suite == null) {
 //                continue;
 //            } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
@@ -218,14 +213,15 @@ public class RunTestsTask implements Task {
                 hasTests = true;
             }
 
-//            if (isRerunTestExecution) {
-//                singleExecTests = readFailedTestsFromFile(target.path());
-//            }
             if (!isRerunTestExecution) {
                 clearFailedTestsJson(target.path());
             }
+            // TODO: Deprecate this functionality
+//            if (isRerunTestExecution) {
+//                singleExecTests = readFailedTestsFromFile(target.path());
+//            }
 //            if (isSingleTestExecution || isRerunTestExecution) {
-                // Update data driven tests with key
+            // Update data driven tests with key
 //                updatedSingleExecTests = filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
 //                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, updatedSingleExecTests));
 //            }
@@ -352,6 +348,7 @@ public class RunTestsTask implements Task {
      * @param suite           TestSuite
      * @param singleExecTests List<String>
      * @return List of updated tests
+     * @// TODO: Deprecate this function
      */
     private List<String> filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
         List<String> updatedSingleExecTests = new ArrayList<>();
@@ -427,17 +424,6 @@ public class RunTestsTask implements Task {
             // Generate coverage XML report
             CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
                     packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
-        }
-    }
-
-    private void filterTestGroups() {
-        TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
-        if (disableGroupList != null) {
-//            testerinaRegistry.setGroups(disableGroupList);
-            testerinaRegistry.setShouldIncludeGroups(false);
-        } else if (groupList != null) {
-//            testerinaRegistry.setGroups(groupList);
-            testerinaRegistry.setShouldIncludeGroups(true);
         }
     }
 
@@ -592,17 +578,6 @@ public class RunTestsTask implements Task {
         BufferedReader bufferedReader = Files.newBufferedReader(statusJsonPath, StandardCharsets.UTF_8);
         return gson.fromJson(bufferedReader, ModuleStatus.class);
     }
-
-//    private List<String> readFailedTestsFromFile(Path rerunTestJsonPath) {
-//        Gson gson = new Gson();
-//        rerunTestJsonPath = Paths.get(rerunTestJsonPath.toString(), RERUN_TEST_JSON_FILE);
-//
-//        try (BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8)) {
-//            return gson.fromJson(bufferedReader, ArrayList.class);
-//        } catch (IOException e) {
-//            throw createLauncherException("error while running failed tests : ", e);
-//        }
-//    }
 
     private void clearFailedTestsJson(Path targetPath) {
         Path rerunTestJsonPath = Paths.get(targetPath.toString(), RERUN_TEST_JSON_FILE);

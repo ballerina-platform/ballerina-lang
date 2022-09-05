@@ -23,6 +23,8 @@ import io.ballerina.projects.plugins.CodeGeneratorContext;
 
 /**
  * Code generator for the Testerina module.
+ *
+ * @since 2201.3.0
  */
 public class TesterinaCodeGenerator extends CodeGenerator {
 
