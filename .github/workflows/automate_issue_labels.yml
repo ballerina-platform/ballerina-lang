@@ -1,0 +1,102 @@
+name: Add issue labels
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  Add-label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Check for DevTools label
+        if: ${{ contains(github.event.issue.body, 'DevTools') }}
+        run: gh issue edit $ISSUE --add-label "Team/DevTools"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Observability label
+        if: ${{ contains(github.event.issue.body, 'Observability') }}
+        run: gh issue edit $ISSUE --add-label "Team/Observability"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for jBallerina label
+        if: ${{ contains(github.event.issue.body, 'jBallerina') }}
+        run: gh issue edit $ISSUE --add-label "Team/jBallerina"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for LS label
+        if: ${{ contains(github.event.issue.body, 'LanguageServer') }}
+        run: gh issue edit $ISSUE --add-label "Team/LanguageServer"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Compiler FE Tools label
+        if: ${{ contains(github.event.issue.body, 'CompilerFETools') }}
+        run: gh issue edit $ISSUE --add-label "Team/CompilerFETools"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Compiler FE label
+        if: ${{ contains(github.event.issue.body, 'CompilerFE') }}
+        run: gh issue edit $ISSUE --add-label "Team/CompilerFE"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Standard Libraries label
+        if: ${{ contains(github.event.issue.body, 'StandardLibs') }}
+        run: gh issue edit $ISSUE --add-label "Team/StandardLibs"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for VSCode label
+        if: ${{ contains(github.event.issue.body, 'VSCode') }}
+        run: gh issue edit $ISSUE --add-label "Team/VSCode"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for CICD label
+        if: ${{ contains(github.event.issue.body, 'CICD') }}
+        run: gh issue edit $ISSUE --add-label "Team/CICD"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for DIU label
+        if: ${{ contains(github.event.issue.body, 'DIU') }}
+        run: gh issue edit $ISSUE --add-label "Team/DIU"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for PCM label
+        if: ${{ contains(github.event.issue.body, 'PCM') }}
+        run: gh issue edit $ISSUE --add-label "Team/PCM"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for LS/Extensions label
+        if: ${{ contains(github.event.issue.body, 'LanguageServer/Extensions') }}
+        run: gh issue edit $ISSUE --add-label "Team/LanguageServer/Extensions"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Website label
+        if: ${{ contains(github.event.issue.body, 'Website') }}
+        run: gh issue edit $ISSUE --add-label "Team/Website"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}

@@ -86,10 +86,7 @@ public class TestProcessor {
     private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
     private static final String TEST_PREFIX = "test";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
-    private static final String MODULE = "moduleName";
-    private static final String FUNCTION = "functionName";
-    private static final String MOCK_ANNOTATION_DELIMITER = "#";
-    private static final String MOCK_FN_DELIMITER = "~";
+    private static final String MODULE_DELIMITER = "§";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
@@ -171,7 +168,7 @@ public class TestProcessor {
 //        addUtilityFunctions(module, testSuite);
 //        processAnnotations(module, testSuite);
 //        testSuite.sort();
-        populateMockFunctionNamesMap(testSuite);
+        populateMockFunctionNamesMap(module, testSuite);
         return testSuite;
     }
 
@@ -349,10 +346,13 @@ public class TestProcessor {
         }
     }
 
-    private void populateMockFunctionNamesMap(TestSuite testSuite) {
+    private void populateMockFunctionNamesMap(Module module, TestSuite testSuite) {
         Map<String, String> mockFunctionsSourceMap = registry.getMockFunctionSourceMap();
         for (Map.Entry<String, String> entry : mockFunctionsSourceMap.entrySet()) {
-            testSuite.addMockFunction(entry.getKey(), entry.getValue());
+            String[] entryValues = entry.getKey().split(MODULE_DELIMITER);
+            if (module.moduleName().toString().equals(entryValues[0])) {
+                testSuite.addMockFunction(entryValues[1], entry.getValue());
+            }
         }
     }
 

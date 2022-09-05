@@ -582,8 +582,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.EXPRESSION_RHS };
 
     private static final ParserRuleContext[] BINDING_PATTERN_OR_VAR_REF_RHS =
-            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS,
-                    ParserRuleContext.VARIABLE_REF_RHS };
+            { ParserRuleContext.VARIABLE_REF_RHS, ParserRuleContext.ASSIGN_OP,
+                    ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS };
 
     private static final ParserRuleContext[] TYPE_DESC_RHS_OR_BP_RHS =
             { ParserRuleContext.TYPE_DESC_RHS_IN_TYPED_BP, ParserRuleContext.LIST_BINDING_PATTERN_RHS };
@@ -1730,6 +1730,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ATTACH_POINT_IDENT:
                 return ParserRuleContext.SINGLE_KEYWORD_ATTACH_POINT_IDENT;
             case ATTACH_POINT_END:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
                 return ParserRuleContext.SEMICOLON;
             case XML_NAMESPACE_PREFIX_DECL:
                 return ParserRuleContext.SEMICOLON;
@@ -1849,7 +1850,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_START_BRACKETED_LIST_RHS:
                 return ParserRuleContext.VARIABLE_NAME;
             case BINDING_PATTERN_OR_EXPR_RHS:
-            case BINDING_PATTERN_OR_VAR_REF_RHS:
             case BRACKETED_LIST_RHS:
                 return ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS;
             case BRACKETED_LIST_MEMBER:
