@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -73,36 +72,23 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -365,7 +351,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv));
-        validateClientDeclarations(pkgNode);
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
 
         // cleanup to avoid caching on compile context
@@ -5456,310 +5441,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         @Override
         public int hashCode() {
             return Objects.hash(name, row, column);
-        }
-    }
-
-    private void validateClientDeclarations(BLangPackage bLangPackage) {
-        if (this.symTable.clientDeclarations.containsValue(bLangPackage.packageID)) {
-            checkForClientObjectTypeOrClass(bLangPackage);
-        }
-
-        disallowExposingConstructsFromClientDeclModules(bLangPackage);
-    }
-
-    private void checkForClientObjectTypeOrClass(BLangPackage bLangPackage) {
-        for (BLangClassDefinition classDefinition : bLangPackage.classDefinitions) {
-            if (classDefinition.name.value.equals(Names.CLIENT.value) &&
-                    classDefinition.flagSet.contains(Flag.CLIENT)) {
-                return;
-            }
-        }
-
-        for (BLangTypeDefinition typeDefinition : bLangPackage.typeDefinitions) {
-            BType bType = typeDefinition.typeNode.getBType();
-            if (bType.tag != TypeTags.OBJECT) {
-                continue;
-            }
-
-            if (Names.CLIENT.value.equals(bType.tsymbol.name.value) &&
-                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLIENT)) {
-                return;
-            }
-        }
-
-        List<BLangCompilationUnit> compUnits = bLangPackage.compUnits;
-        dlog.error(compUnits.isEmpty() ? bLangPackage.symbol.pos : compUnits.get(0).pos,
-                   DiagnosticErrorCode.MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE);
-    }
-
-    private void disallowExposingConstructsFromClientDeclModules(BLangPackage bLangPackage) {
-        BClientDeclConstructExposureDisallowingTypeVisitor collector =
-                new BClientDeclConstructExposureDisallowingTypeVisitor(this.symResolver, this.symTable);
-        PackageID packageID = bLangPackage.packageID;
-
-        List<BLangVariable> moduleVarsAndConstants = new ArrayList<>() {{
-            addAll(bLangPackage.globalVars);
-            addAll(bLangPackage.constants);
-        }};
-
-        for (BLangVariable construct : moduleVarsAndConstants) {
-            if (!construct.flagSet.contains(Flag.PUBLIC)) {
-                continue;
-            }
-
-            BLangType typeNode = construct.typeNode;
-
-            if (typeNode == null) {
-                continue;
-            }
-
-            logErrorForUnsupportedConstructExposureFromClientDeclModule(packageID, collector, construct.pos,
-                                                                        typeNode.getBType());
-        }
-
-        for (BLangTypeDefinition typeDefinition : bLangPackage.typeDefinitions) {
-            Set<Flag> flagSet = typeDefinition.flagSet;
-            if (!flagSet.contains(Flag.PUBLIC) || flagSet.contains(Flag.ANONYMOUS)) {
-                continue;
-            }
-
-            logErrorForUnsupportedConstructExposureFromClientDeclModule(packageID, collector, typeDefinition.pos,
-                                                                        typeDefinition.typeNode.getBType());
-        }
-
-        for (BLangClassDefinition classDefinition : bLangPackage.classDefinitions) {
-            Set<Flag> flagSet = classDefinition.flagSet;
-            if (!flagSet.contains(Flag.PUBLIC) || classDefinition.isServiceDecl || flagSet.contains(Flag.OBJECT_CTOR)) {
-                continue;
-            }
-
-            logErrorForUnsupportedConstructExposureFromClientDeclModule(packageID, collector, classDefinition.pos,
-                                                                        classDefinition.getBType());
-        }
-
-        for (BLangFunction function : bLangPackage.functions) {
-            if (!function.flagSet.contains(Flag.PUBLIC) &&
-                    (!function.attachedFunction || !function.receiver.flagSet.contains(Flag.PUBLIC))) {
-                continue;
-            }
-
-            logErrorForUnsupportedConstructExposureFromClientDeclModule(packageID, collector, function.pos,
-                                                                        function.getBType());
-        }
-    }
-
-    private void logErrorForUnsupportedConstructExposureFromClientDeclModule(PackageID currentPkgId,
-            BClientDeclConstructExposureDisallowingTypeVisitor collector, Location location, BType type) {
-        List<BType> exposedTypes = new ArrayList<>(1);
-        collector.visitType(type, exposedTypes, currentPkgId);
-        if (!exposedTypes.isEmpty()) {
-            dlog.error(location,
-                       DiagnosticErrorCode.UNSUPPORTED_EXPOSURE_OF_CONSTRUCT_FROM_MODULE_GENERATED_FOR_CLIENT_DECL);
-        }
-    }
-
-    private static class BClientDeclConstructExposureDisallowingTypeVisitor implements TypeVisitor {
-
-        Set<BType> unresolvedTypes;
-        SymbolResolver symResolver;
-        SymbolTable symTable;
-        List<BType> exposedTypes;
-        PackageID currentPkgId;
-
-        public BClientDeclConstructExposureDisallowingTypeVisitor(SymbolResolver symResolver, SymbolTable symTable) {
-            this.symResolver = symResolver;
-            this.symTable = symTable;
-            this.unresolvedTypes = Collections.emptySet();
-            this.exposedTypes = Collections.emptyList();
-        }
-
-        public void visitType(BType type, List<BType> exposedTypes, PackageID currentPkgId) {
-            this.unresolvedTypes = new HashSet<>();
-            this.exposedTypes = exposedTypes;
-            this.currentPkgId = currentPkgId;
-            this.visitType(type);
-        }
-
-        private void visitType(BType type) {
-            if (type == null) {
-                return;
-            }
-
-            if (!unresolvedTypes.add(type)) {
-                return;
-            }
-
-            BTypeSymbol tsymbol = type.tsymbol;
-            if (tsymbol != null &&
-                    !this.currentPkgId.equals(tsymbol.pkgID) &&
-                    this.symTable.clientDeclarations.containsValue(tsymbol.pkgID)) {
-                this.exposedTypes.add(type);
-                return;
-            }
-
-            type.accept(this);
-        }
-
-        @Override
-        public void visit(BAnnotationType bAnnotationType) {
-        }
-
-        @Override
-        public void visit(BArrayType bArrayType) {
-            visitType(bArrayType.eType);
-        }
-
-        @Override
-        public void visit(BBuiltInRefType bBuiltInRefType) {
-        }
-
-        @Override
-        public void visit(BAnyType bAnyType) {
-        }
-
-        @Override
-        public void visit(BAnydataType bAnydataType) {
-        }
-
-        @Override
-        public void visit(BErrorType bErrorType) {
-            visitType(bErrorType.detailType);
-        }
-
-        @Override
-        public void visit(BFiniteType bFiniteType) {
-        }
-
-        @Override
-        public void visit(BInvokableType bInvokableType) {
-            if (Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION)) {
-                return;
-            }
-
-            for (BType paramType : bInvokableType.paramTypes) {
-                visitType(paramType);
-            }
-            visitType(bInvokableType.restType);
-            visitType(bInvokableType.retType);
-        }
-
-        @Override
-        public void visit(BJSONType bjsonType) {
-        }
-
-        @Override
-        public void visit(BMapType bMapType) {
-            visitType(bMapType.constraint);
-        }
-
-        @Override
-        public void visit(BStreamType bStreamType) {
-            visitType(bStreamType.constraint);
-            visitType(bStreamType.completionType);
-        }
-
-        @Override
-        public void visit(BTypedescType bTypedescType) {
-            visitType(bTypedescType.constraint);
-        }
-
-        @Override
-        public void visit(BTypeReferenceType bTypeReferenceType) {
-            visitType(bTypeReferenceType.referredType);
-        }
-
-        @Override
-        public void visit(BParameterizedType bTypedescType) {
-        }
-
-        @Override
-        public void visit(BNeverType bNeverType) {
-        }
-
-        @Override
-        public void visit(BNilType bNilType) {
-        }
-
-        @Override
-        public void visit(BNoType bNoType) {
-        }
-
-        @Override
-        public void visit(BPackageType bPackageType) {
-        }
-
-        @Override
-        public void visit(BStructureType bStructureType) {
-        }
-
-        @Override
-        public void visit(BTupleType bTupleType) {
-            for (BType memType : bTupleType.tupleTypes) {
-                visitType(memType);
-            }
-
-            visitType(bTupleType.restType);
-        }
-
-        @Override
-        public void visit(BUnionType bUnionType) {
-            for (BType memType : bUnionType.getMemberTypes()) {
-                visitType(memType);
-            }
-        }
-
-        @Override
-        public void visit(BIntersectionType bIntersectionType) {
-            for (BType constituentType : bIntersectionType.getConstituentTypes()) {
-                visitType(constituentType);
-            }
-            visitType(bIntersectionType.effectiveType);
-        }
-
-        @Override
-        public void visit(BXMLType bXmlType) {
-            visitType(bXmlType.constraint);
-        }
-
-        @Override
-        public void visit(BTableType bTableType) {
-            visitType(bTableType.constraint);
-            visitType(bTableType.keyTypeConstraint);
-        }
-
-        @Override
-        public void visit(BRecordType bRecordType) {
-            for (BField field : bRecordType.fields.values()) {
-                visitType(field.type);
-            }
-
-            if (!bRecordType.sealed) {
-                visitType(bRecordType.restFieldType);
-            }
-        }
-
-        @Override
-        public void visit(BObjectType bObjectType) {
-            for (BField field : bObjectType.fields.values()) {
-                visitType(field.type);
-            }
-
-            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) bObjectType.tsymbol).attachedFuncs) {
-                visitType(attachedFunc.type);
-            }
-        }
-
-        @Override
-        public void visit(BType bType) {
-        }
-
-        @Override
-        public void visit(BFutureType bFutureType) {
-            visitType(bFutureType.constraint);
-        }
-
-        @Override
-        public void visit(BHandleType bHandleType) {
         }
     }
 }

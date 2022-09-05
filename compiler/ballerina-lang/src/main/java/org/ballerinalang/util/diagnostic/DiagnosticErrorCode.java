@@ -787,7 +787,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_EXPOSURE_OF_CONSTRUCT_FROM_MODULE_GENERATED_FOR_CLIENT_DECL(
             "BCE4039", "unsupported.exposure.of.construct.from.module.generated.for.client.decl"),
     MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE(
-            "BCE4040", "module.generated.for.client.decl.must.have.a.client.object.type")
+            "BCE4040", "module.generated.for.client.decl.must.have.a.client.object.type"),
+    MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
+            "BCE4041", "module.generated.for.client.decl.cannot.have.mutable.state")
     ;
 
     private String diagnosticId;
