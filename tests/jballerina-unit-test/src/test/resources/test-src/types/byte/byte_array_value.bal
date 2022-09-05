@@ -48,6 +48,12 @@ function testByteArrayLiteralInherentType() {
 
     byte[*] byteArray4 = base64 `aa bb`;
     assertEquality(true, byteArray4 is byte[3]);
+
+    byte[*] byteArray5 = (base64 `aa bb`);
+    assertEquality(true, byteArray5 is byte[3]);
+
+    byte[*] byteArray6 = (((base16 `aa bb`)));
+    assertEquality(true, byteArray6 is byte[2]);
 }
 
 function assertEquality(anydata expected, anydata actual) {

@@ -242,7 +242,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private static final String FUNCTION_NAME_SHIFT = "shift";
     private static final String FUNCTION_NAME_UNSHIFT = "unshift";
     private static final String FUNCTION_NAME_ENSURE_TYPE = "ensureType";
-    private static final String BASE_16 = "base16";
 
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final BLangDiagnosticLog dlog;

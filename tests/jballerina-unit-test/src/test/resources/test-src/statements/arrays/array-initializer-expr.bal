@@ -59,3 +59,8 @@ function finiteTypeArray() returns FiniteType {
     error e = error ("FAILED TEST");
     panic e;
 }
+
+function testInferredArrayInitWithInGrpExpr() returns (any[]) {
+    any[*] arr = (([1, 2, "a"]));
+    return arr;
+}

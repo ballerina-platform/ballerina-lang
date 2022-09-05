@@ -1739,9 +1739,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case VARIABLE:
                 BLangSimpleVariable varNode = (BLangSimpleVariable) node;
                 BLangExpression expr = varNode.expr;
-                return expr != null && (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR ||
-                        expr.getKind() == LITERAL) &&
-                        isValidContextForInferredArray(node.parent);
+                return expr != null && isValidContextForInferredArray(node.parent) &&
+                        isValidVariableForInferredArray(expr);
             default:
                 return false;
         }
@@ -1756,6 +1755,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return true;
             case VARIABLE_DEF:
                 return isValidContextForInferredArray(node.parent);
+            default:
+                return false;
+        }
+    }
+
+    private boolean isValidVariableForInferredArray(BLangNode node) {
+        switch (node.getKind()) {
+            case LITERAL:
+            case LIST_CONSTRUCTOR_EXPR:
+                return true;
+            case GROUP_EXPR:
+                return isValidVariableForInferredArray(((BLangGroupExpr) node).expression);
             default:
                 return false;
         }
