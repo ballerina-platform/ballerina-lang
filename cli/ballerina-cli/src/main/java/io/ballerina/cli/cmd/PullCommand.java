@@ -208,6 +208,7 @@ public class PullCommand implements BLauncherCmd {
                 }
                 boolean hasCompilationErrors = pullDependencyPackages(orgName, packageName, version);
                 if (hasCompilationErrors) {
+                    CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
                     return;
                 }
             } catch (PackageAlreadyExistsException e) {
@@ -259,8 +260,7 @@ public class PullCommand implements BLauncherCmd {
         Collection<Diagnostic> resolutionDiagnostics = packageCompilation.getResolution()
                 .diagnosticResult().diagnostics();
         if (!resolutionDiagnostics.isEmpty()) {
-            printDiagnostics(resolutionDiagnostics,
-                    "failed to resolve dependencies: dependency resolution contains errors");
+            printDiagnostics(resolutionDiagnostics);
         }
         if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
             return true;
@@ -269,7 +269,7 @@ public class PullCommand implements BLauncherCmd {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (!backendDiagnostics.isEmpty()) {
-            printDiagnostics(backendDiagnostics, "failed to generate caches: package compilation contains errors");
+            printDiagnostics(backendDiagnostics);
         }
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             return true;
@@ -277,11 +277,10 @@ public class PullCommand implements BLauncherCmd {
         return false;
     }
 
-    private void printDiagnostics(Collection<Diagnostic> diagnostics, String message) {
+    private void printDiagnostics(Collection<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic: diagnostics) {
             CommandUtil.printError(this.errStream, diagnostic.toString(), null, false);
         }
-        CommandUtil.printError(this.errStream, message, null, false);
         CommandUtil.exitError(this.exitWhenFinish);
     }
 
