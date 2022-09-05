@@ -86,10 +86,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     private final SemanticModel semanticModel;
     private FunctionCallExpressionNode functionCallExpr;
     private TypeSymbol returnTypeSymbol;
-    private TypeDescKind returnTypeDescKind;
     private boolean resultFound = false;
 
-    public FunctionCallExpressionTypeFinder(SemanticModel semanticModel, 
+    public FunctionCallExpressionTypeFinder(SemanticModel semanticModel,
                                             FunctionCallExpressionNode functionCallExpr) {
         this.semanticModel = semanticModel;
         this.functionCallExpr = functionCallExpr;
@@ -182,6 +181,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) returnTypeSymbol;
             TypeSymbol typeSymbol = futureTypeSymbol.typeParameter().orElse(null);
             checkAndSetTypeResult(typeSymbol);
+        } else {
+            TypeSymbol nilTypeSymbol = semanticModel.types().NIL;
+            checkAndSetTypeResult(nilTypeSymbol);
         }
     }
 
@@ -244,7 +246,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
         // This is the message parameter of an error constructor.
         if (returnTypeSymbol.typeKind() == TypeDescKind.ERROR) {
-            checkAndSetTypeDescResult(TypeDescKind.STRING);
+            checkAndSetTypeResult(semanticModel.types().STRING);
             return;
         }
 
@@ -305,7 +307,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             TypeSymbol detailType = CommonUtil.getRawType(errorTypeSymbol.detailTypeDescriptor());
             if (detailType.typeKind() != TypeDescKind.RECORD) {
                 // Should be a map<> - member type is assumed to be anydata at this time
-                checkAndSetTypeDescResult(TypeDescKind.ANYDATA);
+                checkAndSetTypeResult(semanticModel.types().ANYDATA);
                 return;
             }
 
@@ -409,7 +411,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         semanticModel.typeOf(unaryExpressionNode).ifPresent(this::checkAndSetTypeResult);
 
         if (!resultFound) {
-            checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+            checkAndSetTypeResult(semanticModel.types().BOOLEAN);
         }
     }
 
@@ -417,7 +419,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     public void visit(IfElseStatementNode node) {
         // Set function call type to boolean only if it's in the condition area
         if (PositionUtil.isWithinLineRange(functionCallExpr.lineRange(), node.condition().lineRange())) {
-            checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+            checkAndSetTypeResult(semanticModel.types().BOOLEAN);
             return;
         }
         node.parent().accept(this);
@@ -425,13 +427,13 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(FailStatementNode failStatementNode) {
-        checkAndSetTypeDescResult(TypeDescKind.ERROR);
+        checkAndSetTypeResult(semanticModel.types().ERROR);
     }
 
     @Override
     public void visit(WhileStatementNode whileStatementNode) {
         if (PositionUtil.isWithinLineRange(functionCallExpr.lineRange(), whileStatementNode.condition().lineRange())) {
-            checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+            checkAndSetTypeResult(semanticModel.types().BOOLEAN);
             return;
         }
         whileStatementNode.parent().accept(this);
@@ -454,7 +456,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(CheckExpressionNode checkExpressionNode) {
         if (checkExpressionNode.parent().kind() == SyntaxKind.CALL_STATEMENT) {
-            checkAndSetTypeDescResult(TypeDescKind.ERROR);
+            checkAndSetTypeResult(semanticModel.types().ERROR);
         } else {
             checkExpressionNode.parent().accept(this);
         }
@@ -462,9 +464,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(PanicStatementNode panicStatementNode) {
-        checkAndSetTypeDescResult(TypeDescKind.ERROR);
+        checkAndSetTypeResult(semanticModel.types().ERROR);
     }
-    
+
     @Override
     protected void visitSyntaxNode(Node node) {
         // Do nothing
@@ -481,39 +483,17 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         }
     }
 
-    private void checkAndSetTypeDescResult(TypeDescKind typeDescKind) {
-        if (typeDescKind == null) {
-            return;
-        }
-
-        this.returnTypeSymbol = null;
-        this.returnTypeDescKind = typeDescKind;
-        this.resultFound = true;
-    }
-
     private void resetResult() {
-        this.returnTypeDescKind = null;
         this.returnTypeSymbol = null;
         this.resultFound = false;
     }
 
     /**
-     * Get the type symbol of the return type of the function call expression provided to this instance. Should be
-     * invoked after invoking {@link #findTypeOf(FunctionCallExpressionNode)}.
+     * Get the type symbol of the return type of the function call expression provided to this instance.
      *
      * @return Optional type symbol of the return type of function call expression
      */
     public Optional<TypeSymbol> getReturnTypeSymbol() {
         return Optional.ofNullable(returnTypeSymbol);
-    }
-
-    /**
-     * Get the type descriptor kind of the return type of the function call expression. Should be used when
-     * {@link #getReturnTypeSymbol()} returns empty.
-     *
-     * @return Return type descriptor kind
-     */
-    public Optional<TypeDescKind> getReturnTypeDescKind() {
-        return Optional.ofNullable(returnTypeDescKind);
     }
 }

@@ -8,24 +8,49 @@
     {
       "title": "Create function 'getManufacturer(...)'",
       "kind": "quickfix",
-      "command": {
-        "title": "Create function 'getManufacturer(...)'",
-        "command": "CREATE_FUNC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line": 18,
-                "character": 22
-              },
-              "end": {
-                "line": 18,
-                "character": 39
-              }
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 24,
+              "character": 1
+            },
+            "end": {
+              "line": 24,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getManufacturer() returns Manufacturer {\n    return {name: \"\"};\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunctionInRecord.bal",
+        "range": {
+          "start": {
+            "line": 18,
+            "character": 22
+          },
+          "end": {
+            "line": 18,
+            "character": 39
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 18.0,
+              "character": 22.0
+            },
+            "end": {
+              "line": 18.0,
+              "character": 39.0
             }
           }
-        ]
+        }
       }
     }
   ]

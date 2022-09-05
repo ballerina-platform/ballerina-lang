@@ -84,7 +84,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
 
         diags.forEach(diagnostic -> {
             DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, context);
-            edits.addAll(getDiagBasedTextEdits(diagnostic, positionDetails, context));
+            edits.addAll(getDiagBasedTextEdits(positionDetails, context));
         });
 
         CodeAction quickFixCodeAction = CodeActionUtil.createCodeAction(CommandConstants.IMPLEMENT_ALL, edits,
