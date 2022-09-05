@@ -2269,7 +2269,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         if (!(hasReadOnlyType || isErrorIntersection)) {
             dlog.error(intersectionTypeNode.pos,
-                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION, intersectionTypeNode);
+                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
             for (int i = 2; i < constituentTypeNodes.size(); i++) {
                 resolveTypeNode(constituentTypeNodes.get(i), data.env);
             }
