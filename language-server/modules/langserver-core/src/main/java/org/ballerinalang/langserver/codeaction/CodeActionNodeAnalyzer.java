@@ -603,13 +603,6 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     @Override
-    public void visit(SimpleNameReferenceNode node) {
-        checkAndSetCodeActionNode(node);
-        checkAndSetSyntaxKind(node.kind());
-        visitSyntaxNode(node);
-    }
-
-    @Override
     public void visit(ObjectFieldNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
