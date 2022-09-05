@@ -64,10 +64,12 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInListConstructor.json"},
                 {"extractToVariableInTypeCastExpression.json"},
                 {"extractToVariableInTableConstructor.json"},
+                {"extractToVariableInTableConstructor2.json"},
                 {"extractToVariableInImplicitNewExpression.json"},
                 {"extractToVariableInExplicitNewExpression.json"},
-                {"extractToVariableInObjectConstructor.json"},
-                {"extractToVariableInErrorConstructor.json"}
+                {"extractToVariableInErrorConstructor.json"},
+                {"extractToVariableInLetExpression.json"},
+                {"extractToVariableInQueryExpression.json"}
         };
     }
 
@@ -75,7 +77,16 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
     public Object[][] negativeDataProvider() {
         return new Object[][]{
                 {"extractToVariableInFunctionCallNegative.json"},
+                {"extractToVariableInFunctionCallNegative2.json"},
+                {"extractToVariableInFunctionCallNegative3.json"},
                 {"extractToVariableInTableConstructorNegative.json"},
+                {"extractToVariableInConstExprNegative.json"},
+                {"extractToVariableInLetExpressionNegative.json"},
+                {"extractToVariableInLetVarDeclNegative.json"},
+                {"extractToVariableInLetVarDeclNegative2.json"},
+                {"extractToVariableInObjectConstructorNegative.json"},
+                {"extractToVariableInQueryExpressionNegative.json"},
+                {"extractToVariableInSimpleNameRefNegative.json"}
         };
     }
     
