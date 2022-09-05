@@ -391,16 +391,21 @@ public class BallerinaSemanticModel implements SemanticModel {
     @Override
     public Optional<TypeSymbol> expectedType(Document sourceDocument, LinePosition linePosition) {
         Optional<TypeSymbol> typeSymbol;
+        TypeSymbol expectedTypeSymbol;
         BLangCompilationUnit compilationUnit = getCompilationUnit(sourceDocument);
         SyntaxTree syntaxTree = sourceDocument.syntaxTree();
         Node node = findNode(linePosition, syntaxTree);
-        ExpectedTypeFinder expectedTypeFinder = new ExpectedTypeFinder(new BallerinaSemanticModel(this.bLangPackage,
-                this.compilerContext), compilationUnit, typesFactory, linePosition, symbolFactory, symbolTable);
-        if (node.kind() == SyntaxKind.LIST) {
-            typeSymbol = node.parent().apply(expectedTypeFinder);
-        } else {
+        ExpectedTypeFinder expectedTypeFinder = new ExpectedTypeFinder(this, compilationUnit,
+                this.compilerContext, linePosition, sourceDocument);
+        do {
             typeSymbol = node.apply(expectedTypeFinder);
-        }
+            if (typeSymbol == null || typeSymbol.isEmpty()) {
+                expectedTypeSymbol = null;
+            } else {
+                expectedTypeSymbol = typeSymbol.get();
+            }
+            node = node.parent();
+        } while (expectedTypeSymbol == null && node != null);
 
         return typeSymbol;
     }
