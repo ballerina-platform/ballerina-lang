@@ -12,6 +12,19 @@
         {
           "range": {
             "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "module2:Country|error countryWithError \u003d "
+        },
+        {
+          "range": {
+            "start": {
               "line": 0,
               "character": 0
             },
@@ -34,19 +47,6 @@
             }
           },
           "newText": "\n    if countryWithError is module2:Country {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 7,
-              "character": 4
-            },
-            "end": {
-              "line": 7,
-              "character": 4
-            }
-          },
-          "newText": "module2:Country|error countryWithError \u003d "
         }
       ]
     },
@@ -54,19 +54,6 @@
       "title": "Create variable and check error",
       "kind": "quickfix",
       "edits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import testproject.module2;\n"
-        },
         {
           "range": {
             "start": {
@@ -105,6 +92,19 @@
             }
           },
           "newText": " returns error?"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import testproject.module2;\n"
         }
       ]
     },
