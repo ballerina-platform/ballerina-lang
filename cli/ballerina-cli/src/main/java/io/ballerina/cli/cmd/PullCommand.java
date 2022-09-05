@@ -209,6 +209,7 @@ public class PullCommand implements BLauncherCmd {
                 boolean hasCompilationErrors = pullDependencyPackages(orgName, packageName, version);
                 if (hasCompilationErrors) {
                     CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
             } catch (PackageAlreadyExistsException e) {
@@ -281,7 +282,6 @@ public class PullCommand implements BLauncherCmd {
         for (Diagnostic diagnostic: diagnostics) {
             CommandUtil.printError(this.errStream, diagnostic.toString(), null, false);
         }
-        CommandUtil.exitError(this.exitWhenFinish);
     }
 
     @Override
