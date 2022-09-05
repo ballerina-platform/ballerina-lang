@@ -46,6 +46,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
         return new Object[][]{
                 // statements and list
 
+                // list
                 {"extract_to_function_stmts_list_without_return.json"},
                 {"extract_to_function_stmts_list_with_return.json"},
                 {"extract_to_function_stmts_list_with_param_without_return.json"},
@@ -63,6 +64,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_list_with_moduleVar_assignmentStatement.json"},
                 {"extract_to_function_stmts_list_with_moduleVar_comAssignmentStatement.json"},
 
+                // statements
                 {"extract_to_function_stmts_block_stmt_inside_block.json"},
 
                 {"extract_to_function_stmts_local_var_decl_with_init.json"},

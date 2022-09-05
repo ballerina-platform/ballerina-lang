@@ -44,8 +44,8 @@ import java.util.Optional;
  * @since 2201.2.1
  */
 public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
-    private final List<Symbol> assignmentStatementSymbols = new ArrayList<>();
-    private final List<Symbol> varDeclarationSymbols = new ArrayList<>();
+    private final List<Symbol> updatingSymbols = new ArrayList<>();
+    private final List<Symbol> declaredVariableSymbols = new ArrayList<>();
     private final List<Node> selectedNodes = new ArrayList<>();
     private boolean isExtractable = true;
     private final Range selectedRange;
@@ -81,12 +81,12 @@ public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
         }
     }
 
-    public List<Symbol> getAssignmentStatementSymbols() {
-        return assignmentStatementSymbols;
+    public List<Symbol> getUpdatingSymbols() {
+        return updatingSymbols;
     }
 
-    public List<Symbol> getVarDeclarationSymbols() {
-        return varDeclarationSymbols;
+    public List<Symbol> getDeclaredVariableSymbols() {
+        return declaredVariableSymbols;
     }
 
     public List<Node> getSelectedNodes() {
@@ -109,23 +109,23 @@ public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
     @Override
     public void visit(AssignmentStatementNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.varRef());
-        if (symbol.isPresent() && !assignmentStatementSymbols.contains(symbol.get())) {
-            this.assignmentStatementSymbols.add((symbol.get()));
+        if (symbol.isPresent() && !updatingSymbols.contains(symbol.get())) {
+            this.updatingSymbols.add((symbol.get()));
         }
     }
 
     @Override
     public void visit(CompoundAssignmentStatementNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.lhsExpression());
-        if (symbol.isPresent() && !assignmentStatementSymbols.contains(symbol.get())) {
-            this.assignmentStatementSymbols.add((symbol.get()));
+        if (symbol.isPresent() && !updatingSymbols.contains(symbol.get())) {
+            this.updatingSymbols.add((symbol.get()));
         }
     }
 
     @Override
     public void visit(VariableDeclarationNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.typedBindingPattern().bindingPattern());
-        symbol.ifPresent(varDeclarationSymbols::add);
+        symbol.ifPresent(declaredVariableSymbols::add);
         super.visit(node);
     }
 
