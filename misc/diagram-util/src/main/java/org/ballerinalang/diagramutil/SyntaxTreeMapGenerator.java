@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -183,6 +184,18 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Ignore as semantic API calls cannot break the ST JSON creation.
             }
 
+            if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+                RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
+                if (semanticModel != null) {
+                    Optional<Symbol> expressionSymbol = this.semanticModel.symbol(
+                            remoteMethodCallActionNode.expression());
+                    if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
+                        VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
+                        markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
+                    }
+                }
+            }
+
             nodeJson.add("typeData", symbolJson);
 
             if ((node.kind() == SyntaxKind.BLOCK_STATEMENT || node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK)
@@ -252,6 +265,20 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     updateVisibleEP(node, memberRawType, false);
                 }
             });
+        }
+    }
+
+    private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node,
+                               boolean isRemoteAction) {
+        TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                    .contains(Qualifier.CLIENT);
+            if (isEndpoint) {
+                symbolJson.addProperty("isEndpoint", true);
+                updateVisibleEP(node, rawType, isRemoteAction);
+            }
         }
     }
 
@@ -361,17 +388,13 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     private boolean isAvailableAsEndpoint(String name, LineRange lineRange) {
         for (JsonObject ep : this.visibleEpsForEachBlock) {
-            if (ep.get("name").getAsString().equals(name) &&
-                    ep.getAsJsonObject("position").get("startLine").getAsInt() ==
-                            lineRange.startLine().line()) {
+            if (ep.get("name").getAsString().equals(name) && ep.get("innerBlock") == null) {
                 return true;
             }
         }
 
         for (JsonObject ep : this.visibleEpsForModule) {
-            if (ep.get("name").getAsString().equals(name) &&
-                    ep.getAsJsonObject("position").get("startLine").getAsInt() ==
-                            lineRange.startLine().line()) {
+            if (ep.get("name").getAsString().equals(name)) {
                 return true;
             }
         }
