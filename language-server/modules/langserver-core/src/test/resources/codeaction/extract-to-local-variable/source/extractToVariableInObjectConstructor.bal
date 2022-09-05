@@ -1,6 +1,8 @@
 function testFunction() {
-
-    var constructor = object {   
-    
-    };
+    var constructor = object {
+                              int a = 0;
+                              function test() {
+                      
+                              }
+                          };
 }

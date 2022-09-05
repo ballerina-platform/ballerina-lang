@@ -2,14 +2,14 @@
   "range": {
     "start": {
       "line": 2,
-      "character": 22
+      "character": 24
     },
     "end": {
-      "line": 4,
-      "character": 5
+      "line": 3,
+      "character": 37
     }
   },
-  "source": "extractToVariableInObjectConstructor.bal",
+  "source": "extractToVariableInQueryExpression.bal",
   "expected": [
     {
       "title": "Extract to local variable",
@@ -26,17 +26,17 @@
               "character": 4
             }
           },
-          "newText": "isolated object {} var1 \u003d object {   \n    \n    };\n    "
+          "newText": "int[] var1 \u003d from var i in nums\n                        select i * 10;\n    "
         },
         {
           "range": {
             "start": {
               "line": 2,
-              "character": 22
+              "character": 24
             },
             "end": {
-              "line": 4,
-              "character": 5
+              "line": 3,
+              "character": 37
             }
           },
           "newText": "var1"

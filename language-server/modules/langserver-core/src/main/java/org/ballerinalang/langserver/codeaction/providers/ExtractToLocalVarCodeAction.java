@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -60,23 +61,27 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL, SyntaxKind.STRING_LITERAL,
                 SyntaxKind.BINARY_EXPRESSION, SyntaxKind.START_ACTION, SyntaxKind.BRACED_EXPRESSION,
                 SyntaxKind.FUNCTION_CALL, SyntaxKind.QUALIFIED_NAME_REFERENCE, SyntaxKind.INDEXED_EXPRESSION,
-                SyntaxKind.FIELD_ACCESS, SyntaxKind.METHOD_CALL, SyntaxKind.CHECK_EXPRESSION, 
+                SyntaxKind.FIELD_ACCESS, SyntaxKind.METHOD_CALL, SyntaxKind.CHECK_EXPRESSION, SyntaxKind.LET_EXPRESSION,
                 SyntaxKind.MAPPING_CONSTRUCTOR, SyntaxKind.TYPEOF_EXPRESSION, SyntaxKind.UNARY_EXPRESSION,
                 SyntaxKind.TYPE_TEST_EXPRESSION, SyntaxKind.TRAP_EXPRESSION, SyntaxKind.LIST_CONSTRUCTOR, 
-                SyntaxKind.TYPE_CAST_EXPRESSION, SyntaxKind.TABLE_CONSTRUCTOR, SyntaxKind.LET_EXPRESSION,
-                SyntaxKind.IMPLICIT_NEW_EXPRESSION, SyntaxKind.EXPLICIT_NEW_EXPRESSION, 
-                SyntaxKind.PARENTHESIZED_ARG_LIST, SyntaxKind.ERROR_CONSTRUCTOR, SyntaxKind.OBJECT_CONSTRUCTOR);
+                SyntaxKind.TYPE_CAST_EXPRESSION, SyntaxKind.TABLE_CONSTRUCTOR, SyntaxKind.IMPLICIT_NEW_EXPRESSION, 
+                SyntaxKind.EXPLICIT_NEW_EXPRESSION, SyntaxKind.ERROR_CONSTRUCTOR, SyntaxKind.QUERY_EXPRESSION);
     }
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
-        // Avoid providing the code action for a mapping constructor used in a table constructor and 
-        // a function call used in a local variable declaration, since it produces syntax errors.
+        // Avoid providing the code action for the following since it is syntactically incorrect.
+        // 1. a mapping constructor used in a table constructor  
+        // 2. a function call used in a local variable declaration
+        // 3. a function call used in an expression statement
+        // 4. a constant declaration
         return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent()
                 && CodeActionNodeValidator.validate(context.nodeAtRange()) && 
                 !(node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && node.parent().kind() == SyntaxKind.TABLE_CONSTRUCTOR)
-                && !(node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL);
+                && !(node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) 
+                && !(node.kind() == SyntaxKind.FUNCTION_CALL && node.parent().kind() == SyntaxKind.CALL_STATEMENT)
+                && node.parent().kind() != SyntaxKind.CONST_DECLARATION;
     }
 
     /**
@@ -86,7 +91,11 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     public List<CodeAction> getCodeActions(CodeActionContext context,
                                            RangeBasedPositionDetails posDetails) {
         
-        Node node = posDetails.matchedCodeActionNode(); 
+        Node node = posDetails.matchedCodeActionNode();
+        if (isNotExtractable(node, context)) {
+            return Collections.emptyList();
+        }
+        
         String varName = getLocalVarName(context);
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
@@ -126,13 +135,47 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     }
 
     private String getLocalVarName(CodeActionContext context) {
-        Position pos = context.range().getEnd();
-        Set<String> allNames = context.visibleSymbols(new Position(pos.getLine(), pos.getCharacter())).stream()
+        Set<String> allNames = context.visibleSymbols(context.range().getEnd()).stream()
                 .map(Symbol::getName)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
         
         return NameUtil.generateTypeName(VARIABLE_NAME_PREFIX, allNames);
+    }
+
+    // If the variables within the selected range have been initialized in the closest statement node (and outside
+    // the highlighted range), the expression is not extractable.
+    private boolean isNotExtractable(Node matchedNode, CodeActionContext context) {
+        List<Symbol> symbolsWithinRange = getVisibleSymbols(context, 
+                PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
+                .filter(symbol -> (symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER) 
+                        && context.currentSemanticModel().get().references(symbol).stream()
+                        .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
+                                        .getRangeFromLineRange(location.lineRange()),
+                                PositionUtil.toRange(matchedNode.lineRange()))))
+                .filter(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol
+                        .getLocation().get().lineRange()), PositionUtil.toRange(getStatementNode(matchedNode)
+                        .lineRange())))
+                .collect(Collectors.toList());
+        
+        if (symbolsWithinRange.size() == 0 ) {
+            return false;
+        }
+
+        return symbolsWithinRange.stream()
+                .filter(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol
+                        .getLocation().get().lineRange()), PositionUtil.toRange(matchedNode.lineRange())))
+                .count() == 0;
+    }
+
+    /**
+     * This method is used because of the inconsistency in the context.visibleSymbols() and
+     * semanticModel().visibleSymbols() in LS. This method can be replaced after fixing #37234
+     */
+    @Deprecated(forRemoval = true)
+    private List<Symbol> getVisibleSymbols(CodeActionContext context, Position position) {
+        return context.currentSemanticModel().get()
+                .visibleSymbols(context.currentDocument().get(), PositionUtil.getLinePosition(position));
     }
 }

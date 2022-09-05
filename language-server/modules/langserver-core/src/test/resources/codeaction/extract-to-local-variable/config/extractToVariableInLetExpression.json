@@ -1,9 +1,15 @@
 {
-  "position": {
-    "line": 1,
-    "character": 33
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 19
+    },
+    "end": {
+      "line": 1,
+      "character": 76
+    }
   },
-  "source": "extractToVariableInTrapExpression.bal",
+  "source": "extractToVariableInLetExpression.bal",
   "expected": [
     {
       "title": "Extract to local variable",
@@ -13,24 +19,24 @@
           "range": {
             "start": {
               "line": 1,
-              "character": 5
+              "character": 4
             },
             "end": {
               "line": 1,
-              "character": 5
+              "character": 4
             }
           },
-          "newText": "int var1 \u003d foo();\n     "
+          "newText": "int var1 \u003d let int letVar1 \u003d 1, int letVar2 \u003d letVar1 + 1 in letVar1;\n    "
         },
         {
           "range": {
             "start": {
               "line": 1,
-              "character": 29
+              "character": 19
             },
             "end": {
               "line": 1,
-              "character": 34
+              "character": 76
             }
           },
           "newText": "var1"
