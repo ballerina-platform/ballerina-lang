@@ -211,6 +211,10 @@ public class AssignStmtTest {
                         "'function (any...) returns ()'", 123, 47);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected " +
                 "'[\"list\",int?,Type]', found 'Type'", 133, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
+                "found 'table<record {| |}>'", 138, 11);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
+                "found 'table<record {| |}>'", 141, 12);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
