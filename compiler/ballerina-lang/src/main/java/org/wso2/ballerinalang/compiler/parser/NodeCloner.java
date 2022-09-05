@@ -1757,6 +1757,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangIntersectionTypeNode clone = new BLangIntersectionTypeNode();
         source.cloneRef = clone;
         clone.constituentTypeNodes = cloneList(source.constituentTypeNodes);
+        clone.inTypeDefinitionContext = source.inTypeDefinitionContext;
         cloneBLangType(source, clone);
     }
 

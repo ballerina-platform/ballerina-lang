@@ -1265,8 +1265,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangIntersectionTypeNode intersectionTypeNode, AnalyzerData data) {
-
-        return computeIntersectionType(intersectionTypeNode, data);
+        BType intersectionType = computeIntersectionType(intersectionTypeNode, data);
+        if (data.env.node.getKind() != NodeKind.PACKAGE || !intersectionTypeNode.inTypeDefinitionContext) {
+            symbolEnter.defineNode(intersectionTypeNode, data.env);
+        }
+        return intersectionType;
     }
 
     @Override
@@ -2240,11 +2243,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         boolean validIntersection = true;
         boolean isErrorIntersection = false;
         boolean isAlreadyExistingType = false;
+        boolean isNoType = false;
 
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, data, data.env);
         if (typeOne == symTable.noType) {
-            return symTable.noType;
+            isNoType = true;
         }
 
         typeBLangTypeMap.put(typeOne, bLangTypeOne);
@@ -2252,7 +2256,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
         BType typeTwo = resolveTypeNode(bLangTypeTwo, data, data.env);
         if (typeTwo == symTable.noType) {
-            return symTable.noType;
+            isNoType = true;
         }
 
         BType typeOneReference = Types.getReferredType(typeOne);
@@ -2265,15 +2269,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         if (typeOneReference.tag == TypeTags.ERROR || typeTwoReference.tag == TypeTags.ERROR) {
             isErrorIntersection = true;
-        }
-
-        if (!(hasReadOnlyType || isErrorIntersection)) {
-            dlog.error(intersectionTypeNode.pos,
-                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION, intersectionTypeNode);
-            for (int i = 2; i < constituentTypeNodes.size(); i++) {
-                resolveTypeNode(constituentTypeNodes.get(i), data.env);
-            }
-            return symTable.semanticError;
         }
 
         BType potentialIntersectionType = getPotentialIntersection(
@@ -2289,40 +2284,44 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         if (potentialIntersectionType == symTable.semanticError) {
             validIntersection = false;
-        } else {
-            for (int i = 2; i < constituentTypeNodes.size(); i++) {
-                BLangType bLangType = constituentTypeNodes.get(i);
-                BType type = resolveTypeNode(bLangType, data, data.env);
-                if (type.tag == TypeTags.ERROR) {
-                    isErrorIntersection = true;
-                }
-                typeBLangTypeMap.put(type, bLangType);
+        }
 
-                if (!hasReadOnlyType) {
-                    hasReadOnlyType = type == symTable.readonlyType;
-                }
-
-                if (type == symTable.noType) {
-                    return symTable.noType;
-                }
-
-                BType tempIntersectionType = getPotentialIntersection(
-                        Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
-                        potentialIntersectionType, type, data.env);
-                if (tempIntersectionType == symTable.semanticError) {
-                    validIntersection = false;
-                    break;
-                }
-
-                if (type == tempIntersectionType) {
-                    potentialIntersectionType = type;
-                    isAlreadyExistingType = true;
-                } else if (potentialIntersectionType != tempIntersectionType) {
-                    potentialIntersectionType = tempIntersectionType;
-                    isAlreadyExistingType = false;
-                }
-                constituentBTypes.add(type);
+        for (int i = 2; i < constituentTypeNodes.size(); i++) {
+            BLangType bLangType = constituentTypeNodes.get(i);
+            BType type = resolveTypeNode(bLangType, data, data.env);
+            if (type.tag == TypeTags.ERROR) {
+                isErrorIntersection = true;
             }
+            typeBLangTypeMap.put(type, bLangType);
+
+            if (!hasReadOnlyType) {
+                hasReadOnlyType = type == symTable.readonlyType;
+            }
+
+            if (type == symTable.noType) {
+                isNoType = true;
+            }
+
+            BType tempIntersectionType = getPotentialIntersection(
+                    Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
+                    potentialIntersectionType, type, data.env);
+            if (tempIntersectionType == symTable.semanticError) {
+                validIntersection = false;
+                continue;
+            }
+
+            if (type == tempIntersectionType) {
+                potentialIntersectionType = type;
+                isAlreadyExistingType = true;
+            } else if (potentialIntersectionType != tempIntersectionType) {
+                potentialIntersectionType = tempIntersectionType;
+                isAlreadyExistingType = false;
+            }
+            constituentBTypes.add(type);
+        }
+
+        if (isNoType) {
+            return symTable.noType;
         }
 
         if (!validIntersection) {
@@ -2423,7 +2422,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return intersectionType;
     }
 
-    private BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
+    public BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
                                            BType lhsType, BType rhsType, SymbolEnv env) {
         if (lhsType == symTable.readonlyType) {
             return rhsType;
