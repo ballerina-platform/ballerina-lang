@@ -67,8 +67,6 @@ public class TypeDefinitionsNegativeTest {
 
         BAssertUtil.validateError(compileResult, index++, "unknown type 'Person'", 17, 22);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'Person'", 18, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid intersection type 'int & string':" +
-                " no intersection", 20, 30);
         BAssertUtil.validateError(compileResult, index++, "unsupported intersection 'int & string'", 20, 30);
         BAssertUtil.validateError(compileResult, index++, "type definitions are allowed only at module level", 23, 5);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'CustomType'", 28, 6);

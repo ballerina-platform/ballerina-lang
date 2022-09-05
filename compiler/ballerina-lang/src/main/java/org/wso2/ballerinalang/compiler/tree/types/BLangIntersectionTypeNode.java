@@ -36,7 +36,6 @@ public class BLangIntersectionTypeNode extends BLangType implements Intersection
 
     // BLangNodes
     public List<BLangType> constituentTypeNodes;
-    public boolean inTypeDefinitionContext;
 
     public BLangIntersectionTypeNode() {
         this.constituentTypeNodes = new ArrayList<>();
