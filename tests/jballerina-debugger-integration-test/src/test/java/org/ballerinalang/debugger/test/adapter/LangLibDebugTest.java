@@ -83,8 +83,7 @@ public class LangLibDebugTest extends BaseTestCase {
         Path filePath = debugTestRunner.testProjectPath.resolve(debugTestRunner.getBalServer().getServerHome())
                 .resolve("repo").resolve("bala").resolve("ballerina").resolve("lang.query").resolve("0.0.0")
                 .resolve("any").resolve("modules").resolve("lang.query").resolve("types.bal");
-
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 84));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 85));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         // Test for debug engage inside lang lib init() method
