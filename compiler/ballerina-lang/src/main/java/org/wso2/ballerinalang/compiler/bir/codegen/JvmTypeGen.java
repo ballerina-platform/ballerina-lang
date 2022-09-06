@@ -908,7 +908,14 @@ public class JvmTypeGen {
         loadType(mv, bType.retType);
 
         mv.visitLdcInsn(bType.flags);
-
+        mv.visitLdcInsn(bType.name.getValue());
+        if (bType.tsymbol == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            String moduleVarName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
+            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleVarName,
+                    JvmSignatures.GET_MODULE);
+        }
         // initialize the function type using the param types array and the return type
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL, false);
     }
