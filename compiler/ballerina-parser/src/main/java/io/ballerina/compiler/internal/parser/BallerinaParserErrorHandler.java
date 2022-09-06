@@ -4843,7 +4843,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_MEMBER:
                 return ParserRuleContext.CLASS_MEMBER_OR_OBJECT_MEMBER_START;
             case COMP_UNIT:
-                return ParserRuleContext.TOP_LEVEL_NODE;
+                STToken nextToken = this.tokenReader.peek();
+                switch (nextToken.kind) {
+                    case SEMICOLON_TOKEN:
+                        return ParserRuleContext.SEMICOLON;
+                    default:
+                        return ParserRuleContext.TOP_LEVEL_NODE;
+                }
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
                 endContext(); // end func-def

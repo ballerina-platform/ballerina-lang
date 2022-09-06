@@ -6573,7 +6573,6 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-            case SEMICOLON_TOKEN:
                 // Null return indicates the end of object members
                 return null;
             case ASTERISK_TOKEN:
