@@ -177,8 +177,9 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             return false;
         }
 
-        return symbolsWithinRange.stream().noneMatch(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol
-                .getLocation().get().lineRange()), PositionUtil.toRange(matchedNode.lineRange())));
+        return symbolsWithinRange.stream().noneMatch(symbol -> PositionUtil.isRangeWithinRange(PositionUtil
+                        .getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
+                PositionUtil.toRange(matchedNode.lineRange())));
     }
 
     /**
