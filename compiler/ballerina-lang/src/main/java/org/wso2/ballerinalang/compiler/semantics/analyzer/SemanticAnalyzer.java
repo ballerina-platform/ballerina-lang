@@ -5061,14 +5061,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         List<BType> exposedTypes;
         PackageID currentPkgId;
 
-        public BClientDeclConstructExposureDisallowingTypeVisitor(SymbolResolver symResolver, SymbolTable symTable) {
+        private BClientDeclConstructExposureDisallowingTypeVisitor(SymbolResolver symResolver, SymbolTable symTable) {
             this.symResolver = symResolver;
             this.symTable = symTable;
             this.unresolvedTypes = Collections.emptySet();
             this.exposedTypes = Collections.emptyList();
         }
 
-        public void visitType(BType type, List<BType> exposedTypes, PackageID currentPkgId) {
+        private void visitType(BType type, List<BType> exposedTypes, PackageID currentPkgId) {
             this.unresolvedTypes = new HashSet<>();
             this.exposedTypes = exposedTypes;
             this.currentPkgId = currentPkgId;
