@@ -5198,7 +5198,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         @Override
         public void visit(BUnionType bUnionType) {
-            for (BType memType : bUnionType.getMemberTypes()) {
+            for (BType memType : bUnionType.getOriginalMemberTypes()) {
                 visitType(memType);
             }
         }

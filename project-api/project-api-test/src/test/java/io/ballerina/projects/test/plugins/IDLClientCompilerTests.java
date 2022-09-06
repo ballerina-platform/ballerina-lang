@@ -177,6 +177,7 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 138, 1);
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 141, 1);
         validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 143, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 148, 1);
         Assert.assertEquals(diagnostics.length, index);
     }
 

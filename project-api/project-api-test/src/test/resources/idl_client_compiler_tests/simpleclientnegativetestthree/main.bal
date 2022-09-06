@@ -143,3 +143,6 @@ public type T9 foo:IntMap|map<T8>; // error
 public function testFn2() returns T8 { // error
     return {a: 1};
 }
+
+never|foo:IntMap v33 = {}; // OK
+public never|foo:IntMap v34 = {}; // error
