@@ -186,7 +186,8 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
         int cursor = context.getCursorPositionInTree();
         Token serviceKeyword = node.serviceKeyword();
 
-        return serviceKeyword.textRange().endOffset() < cursor;
+        return serviceKeyword.textRange().endOffset() < cursor
+                && cursor <= node.closeBraceToken().textRange().endOffset();
     }
 
     @Override
