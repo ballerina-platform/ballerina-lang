@@ -2644,7 +2644,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         LineRange lineRange = symbol.pos.lineRange();
         Map<LineRange, PackageID> clientDeclarations = symTable.clientDeclarations;
 
-        if (!clientDeclarations.containsKey(lineRange)) {
+        if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange) == null) {
             return symTable.notFoundSymbol;
         }
 

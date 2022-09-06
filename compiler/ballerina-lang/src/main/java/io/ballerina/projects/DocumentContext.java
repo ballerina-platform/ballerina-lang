@@ -171,6 +171,9 @@ class DocumentContext {
             // Add generated client modules to module load requests
             for (Map.Entry<LineRange, PackageID> locationPackageIDEntry : idlClientsMap.entrySet()) {
                 PackageID packageID = locationPackageIDEntry.getValue();
+                if (packageID == null) {
+                    continue;
+                }
                 moduleLoadRequests.add(new ModuleLoadRequest(
                         PackageOrg.from(packageID.orgName.getValue()),
                         packageID.name.getValue(),
@@ -291,6 +294,7 @@ class DocumentContext {
             Location location = moduleClientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
             idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+            idlClientMap.put(moduleClientDeclarationNode.clientPrefix().location().lineRange(), null);
         }
 
         @Override
@@ -343,6 +347,7 @@ class DocumentContext {
             Location location = clientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
             idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+            idlClientMap.put(clientDeclarationNode.clientPrefix().location().lineRange(), null);
         }
 
         private Diagnostic createDiagnostic(ProjectDiagnosticErrorCode errorCode, Location location, String message) {
