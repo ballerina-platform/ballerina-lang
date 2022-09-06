@@ -172,7 +172,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         Token listenerKeyword = node.listenerKeyword();
 
         // Added +1 since the completion is valid after listener <cursor>
-        return !listenerKeyword.isMissing() && listenerKeyword.textRange().endOffset() + 1 <= cursor;
+        return !listenerKeyword.isMissing() && listenerKeyword.textRange().endOffset() + 1 <= cursor
+                && cursor <= node.semicolonToken().textRange().endOffset();
     }
 
     private List<LSCompletionItem> typeDescriptorContextItems(BallerinaCompletionContext context) {
