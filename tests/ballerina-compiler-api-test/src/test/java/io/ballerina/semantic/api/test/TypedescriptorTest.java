@@ -47,6 +47,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -1100,6 +1101,33 @@ public class TypedescriptorTest {
                 ((VariableSymbol) symbol.get()).typeDescriptor()).typeDescriptor()).memberTypeDescriptors();
         assertEquals(memberSymbols.get(0).signature(), "\"parent\"");
         assertEquals(memberSymbols.get(1).signature(), "\"any\"");
+    }
+
+    @Test(dataProvider = "SingletonTypePos")
+    public void testSingletonType(int line, int col, TypeDescKind expKind, String expString) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), SINGLETON);
+        assertEquals(typeSymbol.signature(), expString);
+        TypeSymbol originalType = ((SingletonTypeSymbol) typeSymbol).originalType();
+        assertEquals(originalType.typeKind(), expKind);
+    }
+
+    @DataProvider(name = "SingletonTypePos")
+    private Object[][] getSingletonType() {
+        return new Object[][] {
+                {351, 6, INT, "5"},
+                {352, 8, STRING, "\"6\""},
+                {353, 10, STRING, "\"abc\""},
+                {354, 8, FLOAT, "1.2"},
+                {355, 9, FLOAT, "3.4"},
+                {356, 8, BYTE, "10"},
+                {357, 11, INT, "46575"},
+                {358, 12, FLOAT, "0xA1.B5p0"},
+                {359, 14, FLOAT, "0xB2.8Fp1"},
+                {360, 8, STRING, "\"a\""},
+                {361, 8, STRING, "\"RED\""},
+        };
     }
 
     private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {
