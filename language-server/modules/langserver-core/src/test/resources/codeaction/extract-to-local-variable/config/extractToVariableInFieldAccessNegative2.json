@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 57
+    "line": 30,
+    "character": 12
   },
-  "source": "extractToVariableInLetExpression.bal",
+  "source": "extractToVariableInFieldAccess.bal",
   "expected": [
     {
       "title": "Extract to local variable"

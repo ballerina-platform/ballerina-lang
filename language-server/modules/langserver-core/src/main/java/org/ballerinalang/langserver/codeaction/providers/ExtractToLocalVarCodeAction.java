@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
@@ -66,7 +67,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 SyntaxKind.MAPPING_CONSTRUCTOR, SyntaxKind.TYPEOF_EXPRESSION, SyntaxKind.UNARY_EXPRESSION,
                 SyntaxKind.TYPE_TEST_EXPRESSION, SyntaxKind.TRAP_EXPRESSION, SyntaxKind.LIST_CONSTRUCTOR, 
                 SyntaxKind.TYPE_CAST_EXPRESSION, SyntaxKind.TABLE_CONSTRUCTOR, SyntaxKind.IMPLICIT_NEW_EXPRESSION, 
-                SyntaxKind.EXPLICIT_NEW_EXPRESSION, SyntaxKind.ERROR_CONSTRUCTOR, SyntaxKind.QUERY_EXPRESSION);
+                SyntaxKind.EXPLICIT_NEW_EXPRESSION, SyntaxKind.ERROR_CONSTRUCTOR, SyntaxKind.QUERY_EXPRESSION,
+                SyntaxKind.WAIT_ACTION, SyntaxKind.XML_TEMPLATE_EXPRESSION);
     }
 
     @Override
@@ -76,16 +78,22 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         // Avoid providing the code action for the following since it is syntactically incorrect.
         // 1. a mapping constructor used in a table constructor  
         // 2. a function call used in a local variable declaration
-        // 3. a function call used in an expression statement
+        // 3. a function/ method call used in an expression statement
         // 4. a constant declaration
         // 5. the variable reference of an assignment node
+        // 6. the qualified name reference of a function call expression
+        // 7. a record field with default value
         return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
                 !(node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && parentNode.kind() == SyntaxKind.TABLE_CONSTRUCTOR)
                 && !(node.kind() == SyntaxKind.FUNCTION_CALL && parentNode.kind() == SyntaxKind.LOCAL_VAR_DECL) 
-                && !(node.kind() == SyntaxKind.FUNCTION_CALL && parentNode.kind() == SyntaxKind.CALL_STATEMENT)
-                && parentNode.kind() != SyntaxKind.CONST_DECLARATION
-                && !(parentNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT
+                && !((node.kind() == SyntaxKind.FUNCTION_CALL || node.kind() == SyntaxKind.METHOD_CALL) 
+                && parentNode.kind() == SyntaxKind.CALL_STATEMENT) && parentNode.kind() != SyntaxKind.CONST_DECLARATION
+                && !(parentNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT 
                 && ((AssignmentStatementNode) parentNode).varRef().equals(node))
+                && !(node.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE 
+                && parentNode.kind() == SyntaxKind.FUNCTION_CALL)
+                && parentNode.kind() != SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE
+                && parentNode.kind() != SyntaxKind.ENUM_MEMBER
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -133,7 +141,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     private Node getStatementNode(Node node) {
         Node statementNode = node;
         while (statementNode != null && !(statementNode instanceof StatementNode)
-                && !(statementNode instanceof ModuleMemberDeclarationNode)) {
+                && !(statementNode instanceof ModuleMemberDeclarationNode) 
+                && !(statementNode instanceof ObjectFieldNode)) {
             statementNode = statementNode.parent();
         }
         return statementNode;
@@ -168,10 +177,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             return false;
         }
 
-        return symbolsWithinRange.stream()
-                .filter(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol
-                        .getLocation().get().lineRange()), PositionUtil.toRange(matchedNode.lineRange())))
-                .count() == 0;
+        return symbolsWithinRange.stream().noneMatch(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol
+                .getLocation().get().lineRange()), PositionUtil.toRange(matchedNode.lineRange())));
     }
 
     /**
