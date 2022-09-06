@@ -46,9 +46,7 @@ import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.JacocoInstrumentUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
-import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TestProcessor;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.data.ExecutionData;
@@ -70,7 +68,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,12 +78,9 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODULE_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
@@ -112,7 +106,6 @@ public class RunTestsTask implements Task {
     private boolean report;
     private boolean coverage;
     private String coverageReportFormat;
-    private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private Map<String, Module> coverageModules;
@@ -131,7 +124,6 @@ public class RunTestsTask implements Task {
                         Map<String, Module> modules) {
         this.out = out;
         this.err = err;
-        this.isSingleTestExecution = false;
         this.isRerunTestExecution = rerunTests;
 
         if (disableGroupList != null) {
@@ -141,7 +133,6 @@ public class RunTestsTask implements Task {
         }
 
         if (testList != null) {
-            isSingleTestExecution = true;
             singleExecTests = testList;
         }
         this.includesInCoverage = includes;
@@ -200,14 +191,6 @@ public class RunTestsTask implements Task {
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
 
-            // TODO: Deprecate this functionality
-//            if (suite == null) {
-//                continue;
-//            } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
-//                continue;
-//            } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
-//                continue;
-//            }
             //Set 'hasTests' flag if there are any tests available in the package
             if (!hasTests) {
                 hasTests = true;
@@ -216,15 +199,6 @@ public class RunTestsTask implements Task {
             if (!isRerunTestExecution) {
                 clearFailedTestsJson(target.path());
             }
-            // TODO: Deprecate this functionality
-//            if (isRerunTestExecution) {
-//                singleExecTests = readFailedTestsFromFile(target.path());
-//            }
-//            if (isSingleTestExecution || isRerunTestExecution) {
-            // Update data driven tests with key
-//                updatedSingleExecTests = filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
-//                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, updatedSingleExecTests));
-//            }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 suite.setSourceFileName(project.sourceRoot().getFileName().toString());
             }
@@ -294,99 +268,6 @@ public class RunTestsTask implements Task {
         if (project.buildOptions().dumpBuildTime()) {
             BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
         }
-    }
-
-    /**
-     * Contains module name as prefix to test name.
-     *
-     * @param testName String
-     * @return boolean
-     */
-    private boolean containsModulePrefix(String testName) {
-        boolean hasModPrefix = false;
-        if (testName.contains(MODULE_SEPARATOR)) {
-            if (testName.contains(DATA_KEY_SEPARATOR)) {
-                if (testName.indexOf(MODULE_SEPARATOR) < testName.indexOf(DATA_KEY_SEPARATOR)) {
-                    hasModPrefix = true;
-                }
-            } else {
-                hasModPrefix = true;
-            }
-        }
-        return hasModPrefix;
-    }
-
-    /**
-     * Check whether module information is included in the provided test name.
-     *
-     * @param testName    String
-     * @param packageName String
-     * @param moduleName  String
-     * @return boolean
-     */
-    private boolean includesModule(String testName, String packageName, String moduleName) {
-        boolean flag = false;
-        if (containsModulePrefix(testName)) {
-            String prefix = testName.substring(0, testName.indexOf(MODULE_SEPARATOR));
-            try {
-                if (prefix.equals(packageName) || prefix.equals(packageName + DOT + moduleName)) {
-                    flag = true;
-                }
-            } catch (IndexOutOfBoundsException e) {
-                throw createLauncherException("error occurred while executing tests. Test list cannot be empty", e);
-            }
-        } else {
-            flag = true;
-        }
-        return flag;
-    }
-
-    /**
-     * Update test filters using the given data keys.
-     *
-     * @param moduleName      String
-     * @param suite           TestSuite
-     * @param singleExecTests List<String>
-     * @return List of updated tests
-     * @// TODO: Deprecate this function
-     */
-    private List<String> filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
-        List<String> updatedSingleExecTests = new ArrayList<>();
-        Map<String, List<String>> keyValues = new HashMap<>();
-        for (String testName : singleExecTests) {
-            if (testName.contains(DATA_KEY_SEPARATOR) && includesModule(testName, suite.getPackageID(), moduleName)) {
-                try {
-                    // Separate test name and the data set key
-                    String testValue = testName.substring(0, testName.indexOf(DATA_KEY_SEPARATOR));
-                    String originalTestName = testValue;
-                    String caseValue = testName.substring(testName.indexOf(DATA_KEY_SEPARATOR) + 1);
-                    if (originalTestName.contains(MODULE_SEPARATOR)) {
-                        originalTestName = originalTestName.substring(originalTestName.indexOf(MODULE_SEPARATOR) + 1);
-                    }
-                    if (keyValues.containsKey(originalTestName)) {
-                        keyValues.get(originalTestName).add(caseValue);
-                    } else {
-                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(caseValue)));
-                    }
-                    // Update the test name in the filtered test list
-                    if (!updatedSingleExecTests.contains(testValue)) {
-                        updatedSingleExecTests.add(testValue);
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    throw createLauncherException("error occurred while filtering tests based on provided key values",
-                            e);
-                }
-            } else {
-                if (!updatedSingleExecTests.contains(testName)) {
-                    updatedSingleExecTests.add(testName);
-                }
-            }
-        }
-        if (!keyValues.isEmpty()) {
-            suite.setSingleDDTExecution(true);
-            suite.setDataKeyValues(keyValues);
-        }
-        return updatedSingleExecTests;
     }
 
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)

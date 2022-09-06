@@ -570,7 +570,7 @@ public class TestProcessor {
     }
 
     /**
-     * Get the execution path string from {@code Module}
+     * Get the execution path string from {@code Module}.
      *
      * @param module Module
      * @return String
