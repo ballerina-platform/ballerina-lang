@@ -19,6 +19,7 @@
 package io.ballerina.projects.test.plugins;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -76,10 +77,13 @@ public class IDLClientCompilerTests {
     public void setup() {
         Project project = loadPackage("simpleclienttest");
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
-        Assert.assertEquals(idlClientGeneratorResult.reportedDiagnostics().diagnostics().size(), 0);
+        DiagnosticResult diagnosticResult = idlClientGeneratorResult.reportedDiagnostics();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0,
+                TestUtils.getDiagnosticsAsString(diagnosticResult));
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        Assert.assertEquals(compilation.diagnosticResult().diagnostics().size(), 0);
+        Assert.assertEquals(compilation.diagnosticResult().diagnostics().size(), 0,
+                TestUtils.getDiagnosticsAsString(compilation.diagnosticResult()));
 
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         result = new CompileResult(project.currentPackage(), jBallerinaBackend);
@@ -109,7 +113,13 @@ public class IDLClientCompilerTests {
     public void testClientDeclUndefinedSymbolsAndNoGeneratedModulesNegative() {
         Project project = loadPackage("simpleclientnegativetest");
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
-        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+
+        // Expected to get 2 'no matching plugin found' errors
+        Assert.assertEquals(idlClientGeneratorResult.reportedDiagnostics().diagnostics().size(), 2,
+                TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
+        Assert.assertEquals(TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()),
+                "ERROR [main.bal:(40:1,40:82)] no matching plugin found for client declaration\n" +
+                        "ERROR [main.bal:(43:5,43:87)] no matching plugin found for client declaration\n");
         PackageCompilation compilation = project.currentPackage().getCompilation();
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
@@ -122,8 +132,6 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, "unknown type 'clients'", 30, 5);
         validateError(diagnostics, index++, "unknown type 'ClientConfiguration'", 36, 5);
         validateError(diagnostics, index++, "unknown type 'Config'", 37, 5);
-        validateError(diagnostics, index++, "no module generated for the client declaration", 40, 1);
-        validateError(diagnostics, index++, "no module generated for the client declaration", 43, 5);
         Assert.assertEquals(diagnostics.length, index);
     }
 
@@ -131,14 +139,15 @@ public class IDLClientCompilerTests {
     public void testUnusedClientDeclPrefixNegative() {
         Project project = loadPackage("simpleclientnegativetesttwo");
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
-        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
+                TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
         PackageCompilation compilation = project.currentPackage().getCompilation();
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
         int index = 0;
-        validateError(diagnostics, index++, "unused client declaration prefix 'foo'", 17, 46);
-        validateError(diagnostics, index++, "unused client declaration prefix 'bar'", 20, 50);
-        validateError(diagnostics, index++, "unused client declaration prefix 'baz'", 23, 56);
+        validateError(diagnostics, index++, "unused client declaration prefix 'foo'", 17, 69);
+        validateError(diagnostics, index++, "unused client declaration prefix 'bar'", 20, 74);
+        validateError(diagnostics, index++, "unused client declaration prefix 'baz'", 23, 78);
         Assert.assertEquals(diagnostics.length, index);
     }
 

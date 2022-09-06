@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/api-with-examples.yaml" as foo;
+client "https://postman-echo.com/get?name=projectapiclientplugin" as foo;
 
 function testModuleClientDecl() returns string {
     foo:ClientConfiguration config = {specVersion : "3.0.0"};

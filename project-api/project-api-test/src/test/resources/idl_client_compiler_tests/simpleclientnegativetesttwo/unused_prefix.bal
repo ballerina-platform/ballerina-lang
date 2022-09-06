@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "http://example.com/apis/one.yaml" as foo;
+client "https://postman-echo.com/get?name=simpleclienttest.yaml" as foo;
 
 function testUnusedClientDeclStmtPrefix(boolean b) {
-    client "http://example.com/apis/two.yaml" as bar;
+    client "https://postman-echo.com/get?name=simpleclienttest2.yaml" as bar;
 
     if b {
-        client "http://example.com/apis/three.yaml" as baz;
+        client "https://postman-echo.com/get?name=simpleclienttest3.yaml" as baz;
     }
 }

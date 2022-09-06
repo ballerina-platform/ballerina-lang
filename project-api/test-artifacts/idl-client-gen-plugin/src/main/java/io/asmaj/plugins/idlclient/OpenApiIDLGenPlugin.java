@@ -52,7 +52,8 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
 
         @Override
         public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
-            return !getUri(idlSourceGeneratorContext.clientNode()).startsWith("http://example.com");
+            return getUri(idlSourceGeneratorContext.clientNode())
+                    .equals("https://postman-echo.com/get?name=projectapiclientplugin");
         }
 
         public void perform(IDLSourceGeneratorContext idlSourceGeneratorContext) {

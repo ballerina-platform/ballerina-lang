@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "http://example.com/apis/one.yaml" as foo;
+client "https://postman-echo.com/get?name=simpleclienttest.yaml" as foo;
 
 foo:Config config = 1;
 foo:Client cl;
@@ -25,20 +25,20 @@ function testModuleClientDeclNegative() {
 }
 
 function testClientDeclStmtNegative1() {
-    client "http://example.com/apis/one.yaml" as bar;
+    client "https://postman-echo.com/get?name=simpleclienttest.yaml" as bar;
     bar:ClientConfiguratin config;
     bar:clients cl;
 }
 
 function testClientDeclStmtNegative2() {
-    client "http://example.com/apis/one.yaml" as bar;
-    client "http://example.com/apis/two.yaml" as baz;
+    client "https://postman-echo.com/get?name=simpleclienttest.yaml" as bar;
+    client "https://postman-echo.com/get?name=simpleclienttest2.yaml" as baz;
     baz:ClientConfiguration c1;
     bar:Config c2;
 }
 
-client "http://example.com/disallow/one.yaml" as qux;
+client "https://postman-echo.com/get?name=simpleclienttest-disallow.yaml" as qux;
 
 function testClientDeclStmtWithNoGeneratedModuleNegative() {
-    client "http://example.com/disallow/two.yaml" as bar;
+    client "https://postman-echo.com/get?name=simpleclienttest-disallow2.yaml" as bar;
 }

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "http://example.com/apis/one.yaml" as foo;
+client "https://postman-echo.com/get?name=simpleclienttest.yaml" as foo;
 
 const foo:IntMap C1 = {a: 1}; // OK
 public const foo:IntMap C2 = {a: 1}; // error

@@ -18,7 +18,6 @@
 
 package io.ballerina.projects;
 
-import com.google.gson.Gson;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -44,12 +43,6 @@ class IDLPluginManager {
     private final List<Diagnostic> diagnosticList;
     private final Path target;
     private final Map<String, String> cachedPlugins;
-
-//    private IDLPluginManager(List<IDLPluginContextImpl> compilerPluginContexts) {
-//        this.idlPluginContexts = compilerPluginContexts;
-//        this.moduleConfigs = new ArrayList<>();
-//        this.diagnosticList = new ArrayList<>();
-//    }
 
     private IDLPluginManager(Path target, Map<String, String> cachedPlugins) {
         this.target = target;
@@ -92,6 +85,14 @@ class IDLPluginManager {
 
     public List<Diagnostic> diagnosticList() {
         return diagnosticList;
+    }
+
+    public Path target() {
+        return target;
+    }
+
+    public Map<String, String> cachedPlugins() {
+        return cachedPlugins;
     }
 
     public static class IDLSourceGeneratorContextImpl implements IDLSourceGeneratorContext {

@@ -19,6 +19,7 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -34,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -45,6 +47,11 @@ import java.util.zip.ZipInputStream;
 public class TestUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
+    public static String getDiagnosticsAsString(DiagnosticResult diagnosticResult) {
+        return diagnosticResult.diagnostics().stream().map(
+                diagnostic -> diagnostic.toString() + "\n").collect(Collectors.joining());
+    }
 
     public static BuildProject loadBuildProject(Path projectPath) {
         BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();

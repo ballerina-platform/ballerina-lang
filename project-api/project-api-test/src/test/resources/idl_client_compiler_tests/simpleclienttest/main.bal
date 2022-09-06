@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "http://example.com/apis/one.yaml" as foo;
+client "https://postman-echo.com/get?name=simpleclienttest.yaml" as foo;
 
 function testModuleClientDecl() {
     foo:ClientConfiguration config = {'limit: 5};
@@ -26,7 +26,7 @@ function testModuleClientDecl() {
 }
 
 function testClientDeclStmt() {
-    client "http://example.com/apis/one.yaml" as bar;
+    client "https://postman-echo.com/get?name=simpleclienttest.yaml" as bar;
     bar:ClientConfiguration config = {'limit: 5};
     bar:client cl = new (config);
     int 'limit = cl->getLimit();
@@ -34,7 +34,7 @@ function testClientDeclStmt() {
     cl->setLimit(10);'limit = cl->getLimit();
     assertEquals(10, 'limit);
 
-    client "http://example.com/apis/two.yaml" as baz;
+    client "https://postman-echo.com/get?name=simpleclienttest2.yaml" as baz;
     baz:Config config2 = {url: "http://www.example.com"};
     baz:client cl2 = new (config2);
     string url = cl2->getUrl();
@@ -46,7 +46,7 @@ public const annotation record { int i; }[] ClientAnnot on source client;
 @ClientAnnot {
     i: 123
 }
-client "http://example.com/apis/one.yaml" as bar;
+client "https://postman-echo.com/get?name=simpleclienttest.yaml" as bar;
 
 bar:ClientConfiguration clientConfig = {'limit: 15};
 
@@ -57,15 +57,15 @@ function testClientDeclAnnotSymbols() {
     @ClientAnnot {
         i: 13
     }
-    client "http://example.com/apis/two.yaml" as qux;
+    client "https://postman-echo.com/get?name=simpleclienttest2.yaml" as qux;
     qux:Config _ = {url: "http://www.example.com/one"};
 
-    client "http://example.com/apis/three.yaml" as quux;
+    client "https://postman-echo.com/get?name=simpleclienttest3.yaml" as quux;
     quux:Config _ = {url: "http://www.example.com/two"};
 }
 
 function testClientDeclScoping1() {
-    client "http://example.com/apis/two.yaml" as foo; // OK, shadows the module-level prefix
+    client "https://postman-echo.com/get?name=simpleclienttest2.yaml" as foo; // OK, shadows the module-level prefix
     foo:Config config2 = {url: "http://www.examples.com"};
     foo:client cl2 = new (config2);
     string url = cl2->getUrl();
@@ -74,24 +74,24 @@ function testClientDeclScoping1() {
 
 function testClientDeclScoping2(boolean b) { // no assertion, validates absence of errors
     if b {
-        client "http://example.com/apis/one.yaml" as bar; // OK, different scope
+        client "https://postman-echo.com/get?name=simpleclienttest.yaml" as bar; // OK, different scope
         bar:ClientConfiguration _ = {'limit: 5};
     } else {
-        client "http://example.com/apis/two.yaml" as bar; // OK, different scope
+        client "https://postman-echo.com/get?name=simpleclienttest2.yaml" as bar; // OK, different scope
         bar:Config _ = {url: "http://www.examples.com"};
     }
 
     if !b {
-        client "http://example.com/apis/two.yaml" as bar; // OK, different scope
+        client "https://postman-echo.com/get?name=simpleclienttest2.yaml" as bar; // OK, different scope
         bar:Config _ = {url: "http://www.examples.com"};
         return;
     }
-    client "http://example.com/apis/one.yaml" as bar; // OK, different scope
+    client "https://postman-echo.com/get?name=simpleclienttest.yaml" as bar; // OK, different scope
     bar:ClientConfiguration _ = {'limit: 5};
 }
 
 function testClientDeclModuleWithClientObjectType() {
-    client "http://example.com/apis/clientobjecttype.yaml" as foo2; // OK, shadows the module-level prefix
+    client "https://postman-echo.com/get?name=simpleclienttest-clientobjecttype.yaml" as foo2; // OK, shadows the module-level prefix
     foo2:client cl = foo2:fn();
     int index = cl->getIndex();
     assertEquals(10, index);
