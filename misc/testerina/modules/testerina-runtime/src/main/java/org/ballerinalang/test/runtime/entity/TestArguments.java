@@ -31,7 +31,7 @@ public class TestArguments {
     private final Object[] argValues;
 
     public TestArguments(String targetPath, String moduleName, String report, String coverage,
-                         String groups, String disableGroups,  String tests, String rerunFailed ) {
+                         String groups, String disableGroups,  String tests, String rerunFailed) {
 
         argTypes = new Class[17];
         argValues = new Object[17];

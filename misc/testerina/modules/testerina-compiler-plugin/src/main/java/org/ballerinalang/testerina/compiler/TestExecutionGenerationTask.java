@@ -18,7 +18,6 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -51,7 +50,6 @@ import io.ballerina.tools.text.TextDocuments;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Code generation task to generate the main Testerina runtime function.
@@ -199,21 +197,22 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
         return getFunctionCallStatement(getTestFunctionCall(TEST_REGISTER_FUNCTION, separatedNodeList));
     }
 
-    private static StatementNode invokeFactoryFunction(String functionName,
-                                                       Optional<ReturnTypeDescriptorNode> returnTypeDesc) {
-
-        SimpleNameReferenceNode simpleNameReferenceNode =
-                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(functionName));
-        ExpressionNode functionExpressionNode = NodeFactory.createFunctionCallExpressionNode(
-                simpleNameReferenceNode,
-                NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
-                NodeFactory.createSeparatedNodeList(new ArrayList<>()),
-                NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
-
-        return getFunctionCallStatement(returnTypeDesc.isPresent()
-                ? getCheckedExpressionStatement(functionExpressionNode)
-                : functionExpressionNode);
-    }
+    //TODO: Enable dynamic registration upon approval
+//    private static StatementNode invokeFactoryFunction(String functionName,
+//                                                       Optional<ReturnTypeDescriptorNode> returnTypeDesc) {
+//
+//        SimpleNameReferenceNode simpleNameReferenceNode =
+//                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(functionName));
+//        ExpressionNode functionExpressionNode = NodeFactory.createFunctionCallExpressionNode(
+//                simpleNameReferenceNode,
+//                NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
+//                NodeFactory.createSeparatedNodeList(new ArrayList<>()),
+//                NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
+//
+//        return getFunctionCallStatement(returnTypeDesc.isPresent()
+//                ? getCheckedExpressionStatement(functionExpressionNode)
+//                : functionExpressionNode);
+//    }
 
     public static MethodCallExpressionNode getTestFunctionCall(String functionName,
                                                                SeparatedNodeList<FunctionArgumentNode> nodeList) {
@@ -238,15 +237,16 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
     }
 
-    private static CheckExpressionNode getCheckedExpressionStatement(ExpressionNode expression) {
-
-        return NodeFactory.createCheckExpressionNode(
-                SyntaxKind.CHECK_EXPRESSION,
-                NodeFactory.createToken(SyntaxKind.CHECK_KEYWORD,
-                        NodeFactory.createEmptyMinutiaeList(),
-                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
-                expression);
-    }
+    //TODO: Enable dynamic registration upon approval
+//    private static CheckExpressionNode getCheckedExpressionStatement(ExpressionNode expression) {
+//
+//        return NodeFactory.createCheckExpressionNode(
+//                SyntaxKind.CHECK_EXPRESSION,
+//                NodeFactory.createToken(SyntaxKind.CHECK_KEYWORD,
+//                        NodeFactory.createEmptyMinutiaeList(),
+//                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
+//                expression);
+//    }
 
     private static SeparatedNodeList<FunctionArgumentNode> getFunctionParamList(PositionalArgumentNode... args) {
 
