@@ -15,11 +15,44 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cl",
-      "kind": "Variable",
-      "detail": "Client",
-      "sortText": "AB",
-      "insertText": "cl",
+      "label": "scheme",
+      "kind": "Field",
+      "detail": "ClientConfig.scheme",
+      "sortText": "K",
+      "insertText": "scheme: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "port",
+      "kind": "Field",
+      "detail": "ClientConfig.port",
+      "sortText": "K",
+      "insertText": "port: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "host",
+      "kind": "Field",
+      "detail": "ClientConfig.host",
+      "sortText": "K",
+      "insertText": "host: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "timeout",
+      "kind": "Field",
+      "detail": "ClientConfig.timeout",
+      "sortText": "K",
+      "insertText": "timeout: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill ClientConfig Required Fields",
+      "kind": "Property",
+      "detail": "ClientConfig",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "scheme: ${1:\"\"},\nport: ${2:0},\nhost: ${3:\"\"},\ntimeout: ${4:0}",
       "insertTextFormat": "Snippet"
     }
   ]

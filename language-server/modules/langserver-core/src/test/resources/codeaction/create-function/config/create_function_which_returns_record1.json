@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 7,
+    "character": 16
+  },
+  "source": "create_function_which_returns_record1.bal",
+  "expected": [
+    {
+      "title": "Create function \u0027createData(...)\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 1
+            },
+            "end": {
+              "line": 8,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction createData() returns Data {\n    return {id: \"\", value: \"\", count: 0};\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_which_returns_record1.bal",
+        "range": {
+          "start": {
+            "line": 7,
+            "character": 16
+          },
+          "end": {
+            "line": 7,
+            "character": 28
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 7.0,
+              "character": 16.0
+            },
+            "end": {
+              "line": 7.0,
+              "character": 28.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

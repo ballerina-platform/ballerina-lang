@@ -747,6 +747,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.params = params;
             this.closureMaps = closureMaps;
             this.type = type;
+            this.type.name = funcName;
         }
 
         public FPLoad(Location location, PackageID pkgId, PackageID boundMethodPkgId, Name funcName, BIROperand lhsOp,
@@ -754,6 +755,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
                       SchedulerPolicy schedulerPolicy) {
             this(location, pkgId, funcName, lhsOp, params, closureMaps, type, strandName, schedulerPolicy);
             this.boundMethodPkgId = boundMethodPkgId;
+            this.type.name = funcName;
         }
 
         @Override
