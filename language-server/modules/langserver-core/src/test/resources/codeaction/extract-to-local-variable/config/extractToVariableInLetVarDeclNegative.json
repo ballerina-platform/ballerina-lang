@@ -1,7 +1,13 @@
 {
-  "position": {
-    "line": 1,
-    "character": 57
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 54
+    },
+    "end": {
+      "line": 2,
+      "character": 65
+    }
   },
   "source": "extractToVariableInLetExpression.bal",
   "expected": [

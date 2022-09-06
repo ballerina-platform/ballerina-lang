@@ -1,15 +1,15 @@
 {
   "range": {
     "start": {
-      "line": 2,
-      "character": 19
+      "line": 24,
+      "character": 16
     },
     "end": {
-      "line": 2,
-      "character": 85
+      "line": 24,
+      "character": 24
     }
   },
-  "source": "extractToVariableInLetExpression.bal",
+  "source": "extractToVariableInFieldAccess.bal",
   "expected": [
     {
       "title": "Extract to local variable",
@@ -18,25 +18,25 @@
         {
           "range": {
             "start": {
-              "line": 2,
-              "character": 4
+              "line": 24,
+              "character": 8
             },
             "end": {
-              "line": 2,
-              "character": 4
+              "line": 24,
+              "character": 8
             }
           },
-          "newText": "int var1 \u003d let int letVar1 \u003d 1, int letVar2 \u003d letVar1 + 1 + intVal in letVar1;\n    "
+          "newText": "int var1 \u003d self.age;\n        "
         },
         {
           "range": {
             "start": {
-              "line": 2,
-              "character": 19
+              "line": 24,
+              "character": 16
             },
             "end": {
-              "line": 2,
-              "character": 85
+              "line": 24,
+              "character": 24
             }
           },
           "newText": "var1"

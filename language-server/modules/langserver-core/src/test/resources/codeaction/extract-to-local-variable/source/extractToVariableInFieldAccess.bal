@@ -25,3 +25,8 @@ class Employee {
         years = self.age;
     }
 }
+
+function testFunction2() {
+     Employee emp = new();
+     emp.setAge(23);
+}

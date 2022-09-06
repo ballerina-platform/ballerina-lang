@@ -1,3 +1,4 @@
 function testFunction() {
-    int localVar = let int letVar1 = 1, int letVar2 = letVar1 + 1 in letVar1;
+    int intVal = 2;
+    int localVar = let int letVar1 = 1, int letVar2 = letVar1 + 1 + intVal in letVar1;
 }

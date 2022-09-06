@@ -1,15 +1,15 @@
 {
   "range": {
     "start": {
-      "line": 1,
-      "character": 54
+      "line": 19,
+      "character": 8
     },
     "end": {
-      "line": 1,
-      "character": 65
+      "line": 19,
+      "character": 16
     }
   },
-  "source": "extractToVariableInLetExpression.bal",
+  "source": "extractToVariableInFieldAccess.bal",
   "expected": [
     {
       "title": "Extract to local variable"
