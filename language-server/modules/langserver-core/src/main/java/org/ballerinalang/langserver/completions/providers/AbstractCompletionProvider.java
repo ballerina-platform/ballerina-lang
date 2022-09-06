@@ -302,6 +302,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 String label = completionItem.getLabel();
                 String moduleName = importDeclarationNode.prefix().isEmpty() ? moduleSymbol.id().moduleName()
                         : importDeclarationNode.prefix().get().prefix().text();
+                if (moduleName.contains(".")) {
+                    moduleName = moduleName.split("\\.")[1];
+                }
                 completionItem.setInsertText(moduleName + ":" + insertText);
                 completionItem.setLabel(moduleName + ":" + label);
                 completionItems.add(lsCompletionItem);
