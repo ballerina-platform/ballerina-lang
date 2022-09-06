@@ -18,8 +18,10 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -141,6 +143,12 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                     combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
                 }
             }
+            
+            CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
+            funcDef.get().accept(checkExprNodeFinder);
+            if (checkExprNodeFinder.containCheckExprNode()) {
+                combinedTypes.add(Collections.singletonList("error"));
+            }
 
             types = getPossibleCombinations(combinedTypes, types);
         }
@@ -215,5 +223,26 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             typeList = updatedTypes;
         }
         return typeList;
+    }
+
+    /**
+     * A visitor to find check expression exist inside a Node.
+     */
+    static class CheckExprNodeFinder extends NodeVisitor {
+
+        private CheckExpressionNode checkExpressionNode = null;
+
+        public void visit(FunctionDefinitionNode functionDefinitionNode) {
+            functionDefinitionNode.functionBody().accept(this);
+        }
+
+        @Override
+        public void visit(CheckExpressionNode checkExpressionNode) {
+            this.checkExpressionNode = checkExpressionNode;
+        }
+
+        boolean containCheckExprNode() {
+            return this.checkExpressionNode != null;
+        }
     }
 }
