@@ -4696,6 +4696,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForCloseBrace(int nextLookahead) {
         ParserRuleContext parentCtx = getParentContext();
+        STToken nextToken;
         switch (parentCtx) {
             case FUNC_BODY_BLOCK:
                 endContext(); // end body block
@@ -4706,7 +4707,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_DECL:
             case MODULE_CLASS_DEFINITION:
                 endContext();
-                return ParserRuleContext.TOP_LEVEL_NODE;
+                nextToken = this.tokenReader.peek();
+                switch (nextToken.kind) {
+                    case SEMICOLON_TOKEN:
+                        return ParserRuleContext.SEMICOLON;
+                    default:
+                        return ParserRuleContext.TOP_LEVEL_NODE;
+                }
             case OBJECT_CONSTRUCTOR_MEMBER:
                 endContext();
                 parentCtx = getParentContext();
@@ -4755,7 +4762,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         endContext(); // end named-worker
                         parentCtx = getParentContext();
                         if (parentCtx == ParserRuleContext.FORK_STMT) {
-                            STToken nextToken = this.tokenReader.peek(nextLookahead);
+                            nextToken = this.tokenReader.peek(nextLookahead);
                             switch (nextToken.kind) {
                                 case CLOSE_BRACE_TOKEN:
                                     return ParserRuleContext.CLOSE_BRACE;
@@ -4804,7 +4811,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ENUM_MEMBER_LIST:
                 endContext(); // end ENUM_MEMBER_LIST context
                 endContext(); // end MODULE_ENUM_DECLARATION ctx
-                return ParserRuleContext.TOP_LEVEL_NODE;
+                nextToken = this.tokenReader.peek();
+                switch (nextToken.kind) {
+                    case SEMICOLON_TOKEN:
+                        return ParserRuleContext.SEMICOLON;
+                    default:
+                        return ParserRuleContext.TOP_LEVEL_NODE;
+                }
             case MATCH_BODY:
                 endContext(); // end match body
                 endContext(); // end match stmt

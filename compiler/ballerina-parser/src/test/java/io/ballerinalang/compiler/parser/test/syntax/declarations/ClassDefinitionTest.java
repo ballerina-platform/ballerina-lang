@@ -172,4 +172,9 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
     public void testErrorsBeforeClass() {
         testFile("class-def/class_def_source_44.bal", "class-def/class_def_assert_44.json");
     }
+
+    @Test
+    public void testOptionalSemicolonRecovery() {
+        testFile("class-def/class_def_source_46.bal", "class-def/class_def_assert_46.json");
+    }
 }

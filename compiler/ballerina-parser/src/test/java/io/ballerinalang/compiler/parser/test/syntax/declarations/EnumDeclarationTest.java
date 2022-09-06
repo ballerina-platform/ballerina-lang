@@ -76,4 +76,8 @@ public class EnumDeclarationTest extends AbstractDeclarationTest {
         testFile("enum-decl/enum_decl_source_09.bal", "enum-decl/enum_decl_assert_09.json");
     }
 
+    @Test
+    public void testOptionalSemicolonRecovery() {
+        testFile("enum-decl/enum_decl_source_11.bal", "enum-decl/enum_decl_assert_11.json");
+    }
 }
