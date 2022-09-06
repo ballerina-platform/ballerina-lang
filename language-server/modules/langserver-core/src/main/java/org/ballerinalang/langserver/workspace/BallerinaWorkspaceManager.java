@@ -1160,7 +1160,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
 
         /**
-         * Check if the project in a crashed state.
+         * Check if the project is in a crashed state.
          *
          * @return whether the project is in a crashed state
          */
