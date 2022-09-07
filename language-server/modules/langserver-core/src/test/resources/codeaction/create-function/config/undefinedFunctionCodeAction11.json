@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 17,
+    "character": 17
+  },
+  "source": "createUndefinedFunction7.bal",
+  "expected": [
+    {
+      "title": "Create function 'addAndGetResultOfTwoIntegers(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 33,
+              "character": 1
+            },
+            "end": {
+              "line": 33,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction addAndGetResultOfTwoIntegers(int a, int b) returns int {\n    return 0;\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction7.bal",
+        "range": {
+          "start": {
+            "line": 17,
+            "character": 17
+          },
+          "end": {
+            "line": 17,
+            "character": 51
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 17.0,
+              "character": 17.0
+            },
+            "end": {
+              "line": 17.0,
+              "character": 51.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

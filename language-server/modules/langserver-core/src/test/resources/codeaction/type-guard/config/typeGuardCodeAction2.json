@@ -12,19 +12,6 @@
           "range": {
             "start": {
               "line": 4,
-              "character": 13
-            },
-            "end": {
-              "line": 4,
-              "character": 13
-            }
-          },
-          "newText": "\n    if bar is error {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 4,
               "character": 4
             },
             "end": {
@@ -33,6 +20,19 @@
             }
           },
           "newText": "error? bar \u003d "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 13
+            },
+            "end": {
+              "line": 4,
+              "character": 13
+            }
+          },
+          "newText": "\n    if bar is error {\n\n    }"
         }
       ]
     }

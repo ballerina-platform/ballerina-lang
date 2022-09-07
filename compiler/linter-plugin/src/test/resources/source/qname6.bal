@@ -3,4 +3,5 @@ function name() {
     // need to replace
     // comments
     xml:
+    Element e;
 }
