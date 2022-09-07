@@ -309,9 +309,36 @@ function testInvalidFieldBindingPattern() {
     EmployeeNew e = {name: ""};
     var {name, id} = e;
 
-    [record {int i?;}] y = [{}];
-    var [{i: i2}] = y;
-
     record {| int i; int...; |} a = {i: 1};
     record {| int i; int...; |} {i: _, j} = a;
 }
+
+type Topt1 record {
+    int a;
+    record {
+        int b?;
+    }[1] c?;
+};
+
+function testInvalidOptionalFieldAssignment1() {
+    Topt1 topt = {a: 4, c: [{b: 5}]};
+    var {a, c} = topt;
+    record {int b?;}[1] _ = c; // error
+}
+
+function testInvalidOptionalFieldAssignment2() {
+    Topt1 topt = {a: 4, c: [{b: 5}]};
+    var {a, c: [{b}]} = topt; // error
+}
+
+function testInvalidOptionalFieldAssignment3() {
+    Topt1 topt = {a: 4};
+    var {a, c: [{b}]} = topt; // error
+}
+
+type Topt2 record {
+    int a;
+    record {
+        int b?;
+    }[1] c?;
+};

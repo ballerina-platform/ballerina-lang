@@ -285,6 +285,15 @@ public class RecordVariableDefinitionTest {
     }
 
     @Test
+    public void testOptionalFieldAssignment() {
+        BRunUtil.invoke(result, "testOptionalFieldAssignment1");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment2");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment3");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment4");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment5");
+    }
+
+    @Test
     public void testNegativeRecordVariables() {
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
@@ -373,9 +382,16 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid field binding pattern; can only bind required fields", 310, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid field binding pattern; can only bind required fields", 313, 11);
+                "invalid field binding pattern; can only bind required fields", 313, 40);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid field binding pattern; can only bind required fields", 316, 40);
+                "incompatible types: expected 'record {| int b?; anydata...; |}[1]', " +
+                        "found 'record {| int b?; anydata...; |}[1]?'", 326, 29);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'record {| int b?; anydata...; |}[1]', " +
+                        "found 'record {| int b?; anydata...; |}[1]?'", 331, 16);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'record {| int b?; anydata...; |}[1]', " +
+                        "found 'record {| int b?; anydata...; |}[1]?'", 336, 16);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

@@ -2701,7 +2701,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         // To support variable forward referencing we need to symbol enter each record member with type at SymbolEnter.
         if (!(symbolEnterAndValidateRecordVariable(recordVar, env))) {
             recordVar.setBType(symTable.semanticError);
-            return;
         }
     }
 
@@ -2980,10 +2979,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(variable.key.pos, DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
 
-            if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
+            BField field = recordVarTypeFields.get(variable.getKey().getValue());
+            if (field == null) {
                 validRecord = false;
                 if (recordVarType.sealed) {
-                    validRecord = false;
                     dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                                variable.getKey().getValue(), recordVar.getBType());
                 } else {
@@ -2991,14 +2990,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                             DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
                 }
                 continue;
-            } else {
-                if (Symbols.isOptional(recordVarTypeFields.get(variable.key.value).symbol)) {
-                    validRecord = false;
-                    dlog.error(variable.key.pos,
-                            DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+            }
+            BType fieldType = field.type;
+            if (Symbols.isOptional(field.symbol)) {
+                fieldType = types.addNilForNillableAccessType(fieldType);
+                if (value.getKind() != NodeKind.VARIABLE) {
+                    dlog.error(variable.valueBindingPattern.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, field.type,
+                            fieldType);
+                    continue;
                 }
             }
-            defineMemberNode(value, env, recordVarTypeFields.get((variable.getKey().getValue())).type);
+            defineMemberNode(value, env, fieldType);
         }
 
         if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()

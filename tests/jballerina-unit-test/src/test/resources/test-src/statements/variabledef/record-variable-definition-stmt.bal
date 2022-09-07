@@ -468,9 +468,79 @@ function testRestFieldResolving() {
     testClosedRecordDefinedRestField();
 }
 
+type Topt1 record {
+    int x?;
+    int y?;
+};
+
+function testOptionalFieldAssignment1() {
+    Topt1 topt = {x: 2, y: 4};
+    var {x, y} = topt;
+    assertEquality(2, x);
+    assertEquality(4, y);
+
+    topt = {y: 5};
+    var {x:x1, y:y1} = topt;
+    assertTrue(x1 is ());
+    assertEquality(5, y1);
+
+    topt = {};
+    var {x:x2, y:y2} = topt;
+    assertTrue(x2 is ());
+    assertTrue(y2 is ());
+}
+
+type Topt2 record {
+    int a;
+    record {
+        int b?;
+    }[1] c;
+};
+
+function testOptionalFieldAssignment2() {
+    Topt2 topt = {a: 4, c: [{b: 5}]};
+    var {a, c: [{b}]} = topt;
+    assertEquality(4, a);
+    assertEquality(5, b);
+}
+
+type Topt3 record {
+    int a;
+    record {
+        int b?;
+    }[1] c?;
+};
+
+function testOptionalFieldAssignment3() {
+    Topt3 topt = {a: 4, c: [{b: 5}]};
+    var {a, c} = topt;
+    assertEquality(a, 4);
+    record {int b?;}[1]? _ = c;
+    var {b} = (<record {int b?;}[1]> c)[0];
+    assertEquality(b, 5);
+}
+
+function testOptionalFieldAssignment4() {
+    Topt3 topt = {a: 4};
+    var {a, c} = topt;
+    assertTrue(c is ());
+}
+
+function testOptionalFieldAssignment5() {
+    [record {int i?;}] y = [{}];
+    var [{i}] = y;
+    assertTrue(i is ());
+    var [{i: i2}] = y;
+    assertTrue(i2 is ());
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(boolean actual) {
+    assertEquality(true, actual);
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

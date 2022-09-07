@@ -2331,9 +2331,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             if (!rhsRecordType.fields.containsKey(lhsField.variableName.value)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                         lhsField.variableName.value, rhsType);
-            } else if (Symbols.isOptional(rhsRecordType.fields.get(lhsField.variableName.value).symbol)) {
-                dlog.error(lhsField.variableName.pos,
-                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
             mappedFields.add(lhsField.variableName.value);
         }
@@ -2366,7 +2363,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 }
 
                 resetTypeNarrowing(variableReference, data);
-                types.checkType(variableReference.pos, rhsField.type,
+                BType actualType = rhsField.type;
+                if (Symbols.isOptional(rhsField.symbol) && !actualType.isNullable()) {
+                    actualType = types.addNilForNillableAccessType(actualType);
+                }
+                types.checkType(variableReference.pos, actualType,
                                 variableReference.getBType(), DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             } else {
                 dlog.error(variableReference.pos, DiagnosticErrorCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN,

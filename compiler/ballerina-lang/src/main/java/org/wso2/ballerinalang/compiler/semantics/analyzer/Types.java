@@ -6997,6 +6997,15 @@ public class Types {
         }
     }
 
+    public BType addNilForNillableAccessType(BType actualType) {
+        // index based map/record access always returns a nil-able type for optional/rest fields.
+        if (actualType.isNullable()) {
+            return actualType;
+        }
+
+        return BUnionType.create(null, actualType, symTable.nilType);
+    }
+
     private enum BasicTypes {
         NIL,
         BOOLEAN,

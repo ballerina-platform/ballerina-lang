@@ -86,10 +86,11 @@ public class RecordDefNegativeTest {
                 27, 5);
         BAssertUtil.validateError(compileResult, indx++, "'_' is a keyword, and may not be used as an identifier",
                 27, 31);
-        BAssertUtil.validateError(compileResult, indx++,
-                "invalid field binding pattern; can only bind required fields", 50, 28);
+        BAssertUtil.validateError(compileResult, indx++, "incompatible types: expected 'int', found 'int?'", 50, 31);
         BAssertUtil.validateError(compileResult, indx++,
                 "invalid field binding pattern; can only bind required fields", 55, 24);
+        BAssertUtil.validateError(compileResult, indx++, "incompatible types: expected 'int', found 'int?'", 74, 33);
+        BAssertUtil.validateError(compileResult, indx++, "incompatible types: expected 'int', found 'int?'", 79, 20);
         assertEquals(compileResult.getErrorCount(), indx);
     }
 

@@ -199,44 +199,6 @@ function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
     return [m["var1"], m["var2"]];
 }
 
-type Employee record {
-    string name;
-    int id;
-    int age?;
-};
-
-type EmployeeOne record {
-    string name;
-    record { int id; int age; } details?;
-};
-
-function testOptionalFieldsInRecordBindingPattern(){
-   Employee e = {name: "Jo", id: 1234};
-
-   string eName;
-   int eId;
-   int eAge;
-
-   {name: eName, id: eId, age: eAge} = e;
-
-   string name;
-   int id;
-   int age;
-
-   {name, id:id, age} = e;
-
-   EmployeeOne e1 = {name: "Jo", details: {
-          id: 5,
-          age: 32
-  }};
-
-  string nameOne;
-  int idOne;
-  int ageOne;
-
-  {name: nameOne, details:{id: idOne, age: ageOne}} = e1;
-}
-
 function testMappingBindingPatternWithMap() {
     map<string> stringMap = {"a":"Foo"};
     string? foo;

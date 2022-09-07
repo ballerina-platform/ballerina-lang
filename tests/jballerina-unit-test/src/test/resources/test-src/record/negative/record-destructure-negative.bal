@@ -43,7 +43,7 @@ type EmployeeTwo record {
     map<string> name;
 };
 
-function testInvalidFieldBindingPattern(){
+function testInvalidFieldBindingPattern() {
     EmployeeOne emp = {a: 4, age: [{b: 5}]};
     int empOneName;
     int empOneAge;
@@ -53,4 +53,28 @@ function testInvalidFieldBindingPattern(){
     int empAge;
     string empName;
     {age:empAge, name:{first:empName}} = empTwo;
+}
+
+type Student1 record {
+    string name;
+    int id;
+    int age?;
+};
+
+type Student2 record {
+    string name;
+    record { int id; int age; } details?;
+};
+
+function testOptionalFieldsInRecordBindingPattern() {
+    string eName;
+    int eId;
+    int eAge;
+    Student1 e = {name: "Jo", id: 1234};
+    {name: eName, id: eId, age: eAge} = e; // error
+
+    string name;
+    int id;
+    int age;
+    {name, id: id, age} = e; // error
 }
