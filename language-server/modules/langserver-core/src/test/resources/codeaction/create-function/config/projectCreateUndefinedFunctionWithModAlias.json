@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 3,
+    "character": 27
+  },
+  "source": "testproject/modAlias.bal",
+  "expected": [
+    {
+      "title": "Create function 'createTeacher(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 1
+            },
+            "end": {
+              "line": 5,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction createTeacher(string s) returns mod2:Teacher {\n    return {name: \"\"};\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "testproject/modAlias.bal",
+        "range": {
+          "start": {
+            "line": 3,
+            "character": 27
+          },
+          "end": {
+            "line": 3,
+            "character": 53
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 3.0,
+              "character": 27.0
+            },
+            "end": {
+              "line": 3.0,
+              "character": 53.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

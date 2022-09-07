@@ -13,19 +13,6 @@
           "range": {
             "start": {
               "line": 9,
-              "character": 15
-            },
-            "end": {
-              "line": 9,
-              "character": 15
-            }
-          },
-          "newText": "\n        if unionResult is error {\n\n        }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 9,
               "character": 8
             },
             "end": {
@@ -34,6 +21,19 @@
             }
           },
           "newText": "error? unionResult = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 15
+            },
+            "end": {
+              "line": 9,
+              "character": 15
+            }
+          },
+          "newText": "\n        if unionResult is error {\n\n        }"
         }
       ]
     },
