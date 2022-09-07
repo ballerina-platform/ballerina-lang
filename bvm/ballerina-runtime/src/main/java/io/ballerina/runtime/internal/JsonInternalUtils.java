@@ -59,7 +59,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -320,6 +319,7 @@ public class JsonInternalUtils {
     }
 
     public static Object convertJSON(Object jsonValue, Type targetType) {
+        Type matchingType;
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonNodeToInt(jsonValue);
@@ -343,43 +343,21 @@ public class JsonInternalUtils {
             case TypeTags.ANY_TAG:
                 return jsonValue;
             case TypeTags.UNION_TAG:
-                for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
-                    if (TypeConverter.isIntegerSubtypeAndConvertible(jsonValue, memType)) {
-                        return jsonNodeToInt(jsonValue);
-                    }
-                    Type matchingType = TypeConverter.getConvertibleType(jsonValue, memType, null,
-                            true, new ArrayList<>(), new ArrayList<>());
-                    if (matchingType != null) {
-                        return convertJSON(jsonValue, matchingType);
-                    }
+                matchingType = TypeConverter.getConvertibleTypeInTargetUnionType(jsonValue,
+                        (BUnionType) targetType, null, true, new ArrayList<>(), new ArrayList<>());
+                if (matchingType == null) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                            getTypeName(jsonValue));
                 }
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
-                        getTypeName(jsonValue));
+                return convertJSON(jsonValue, matchingType);
             case TypeTags.FINITE_TYPE_TAG:
-                BFiniteType finiteType = (BFiniteType) targetType;
-                if (finiteType.valueSpace.size() == 1) {
-                    Type valueType = TypeChecker.getType(finiteType.valueSpace.iterator().next());
-                    if (!TypeChecker.isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
-                        return convertJSON(jsonValue, valueType);
-                    }
+                matchingType = TypeConverter.getConvertibleFiniteType(jsonValue, (BFiniteType) targetType,
+                        null, true, new ArrayList<>(), new ArrayList<>());
+                if (matchingType == null) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                            getTypeName(jsonValue));
                 }
-                Type inputValueType = TypeChecker.getType(jsonValue);
-                Set<Object> finiteTypeValueSpace = finiteType.valueSpace;
-                for (Object valueSpaceItem : finiteTypeValueSpace) {
-                    if (jsonValue == valueSpaceItem) {
-                        return convertJSON(jsonValue, inputValueType);
-                    }
-                    if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem, false)) {
-                        return convertJSON(jsonValue, TypeChecker.getType(valueSpaceItem));
-                    }
-                }
-                for (Object valueSpaceItem : finiteTypeValueSpace) {
-                    if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem, true)) {
-                        return convertJSON(jsonValue, TypeChecker.getType(valueSpaceItem));
-                    }
-                }
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
-                        getTypeName(jsonValue));
+                return convertJSON(jsonValue, matchingType);
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 return convertJSONToRecord(jsonValue, (BStructureType) targetType);
