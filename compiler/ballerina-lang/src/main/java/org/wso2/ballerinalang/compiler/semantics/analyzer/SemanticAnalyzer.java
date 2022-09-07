@@ -4992,10 +4992,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 new BClientDeclConstructExposureDisallowingTypeVisitor(this.symResolver, this.symTable);
         PackageID packageID = bLangPackage.packageID;
 
-        List<BLangVariable> moduleVarsAndConstants = new ArrayList<>() {{
-            addAll(bLangPackage.globalVars);
-            addAll(bLangPackage.constants);
-        }};
+        List<BLangVariable> moduleVarsAndConstants = new ArrayList<>();
+        moduleVarsAndConstants.addAll(bLangPackage.globalVars);
+        moduleVarsAndConstants.addAll(bLangPackage.constants);
 
         for (BLangVariable construct : moduleVarsAndConstants) {
             if (!construct.flagSet.contains(Flag.PUBLIC)) {
