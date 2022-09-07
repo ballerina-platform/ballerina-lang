@@ -81,6 +81,9 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
+    @CommandLine.Option(names = {"--verbose", "-v"})
+    private boolean verboseEnabled;
+
     public PullCommand() {
         this.errStream = System.err;
         this.exitWhenFinish = true;

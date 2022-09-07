@@ -87,6 +87,9 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-source-check"}, description = "skip checking if source has changed")
     private boolean skipSourceCheck;
 
+    @CommandLine.Option(names = {"--verbose", "-v"})
+    private boolean verboseEnabled;
+
     private Path userDir;
     private PrintStream errStream;
     private PrintStream outStream;
@@ -176,7 +179,7 @@ public class PushCommand implements BLauncherCmd {
                     return;
                 }
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                        initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
+                        initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings), verboseEnabled);
                 if (balaPath == null) {
                     pushPackage(project, client);
                 } else {
