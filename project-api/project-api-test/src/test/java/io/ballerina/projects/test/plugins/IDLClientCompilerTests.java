@@ -63,6 +63,13 @@ public class IDLClientCompilerTests {
     private static final String CARRIAGE_RETURN_CHAR = "\\r";
     private static final String EMPTY_STRING = "";
 
+    private static final String UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR =
+            "exposing a construct from a module generated for a client declaration is not yet supported";
+    private static final String NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR =
+            "a module generated for a client declaration must have an object type or class named 'client'";
+    private static final String MUTABLE_STATE_IN_GENERATED_MODULE_ERROR =
+            "a module generated for a client declaration cannot have mutable state";
+
     private CompileResult result;
 
     @BeforeSuite
@@ -93,7 +100,8 @@ public class IDLClientCompilerTests {
         return new Object[] {
             "testModuleClientDecl",
             "testClientDeclStmt",
-            "testClientDeclScoping1"
+            "testClientDeclScoping1",
+            "testClientDeclModuleWithClientObjectType"
         };
     }
 
@@ -131,6 +139,65 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, "unused client declaration prefix 'foo'", 17, 46);
         validateError(diagnostics, index++, "unused client declaration prefix 'bar'", 20, 50);
         validateError(diagnostics, index++, "unused client declaration prefix 'baz'", 23, 56);
+        Assert.assertEquals(diagnostics.length, index);
+    }
+
+    @Test
+    public void testExposingConstructFromGeneratedModuleNegative() {
+        Project project = loadPackage("simpleclientnegativetestthree");
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+
+        Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
+        int index = 0;
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 20, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 23, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 37, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 45, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 51, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 54, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 57, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 63, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 72, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 78, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 81, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 84, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 87, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 90, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 93, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 96, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 99, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 102, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 105, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 108, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 114, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 123, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 127, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 138, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 141, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 143, 1);
+        validateError(diagnostics, index++, UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR, 148, 1);
+        Assert.assertEquals(diagnostics.length, index);
+    }
+
+    @Test
+    public void testInvalidGeneratedModuleNegative() {
+        Project project = loadPackage("simpleclientnegativetestfour");
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+
+        Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
+        int index = 0;
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 9, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 11, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 13, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 15, 1);
+        validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 19, 1);
         Assert.assertEquals(diagnostics.length, index);
     }
 

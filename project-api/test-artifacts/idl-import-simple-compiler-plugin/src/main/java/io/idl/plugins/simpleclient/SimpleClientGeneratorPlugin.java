@@ -92,9 +92,17 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
         }
 
         private DocumentConfig getClientCode(DocumentId documentId, String uri) {
+            if (uri.startsWith("http://example.com/invalidgeneratedcode")) {
+                return getInvalidCode(documentId, uri);
+            }
+
             if ("http://example.com/apis/one.yaml".equals(uri)) {
                 return DocumentConfig.from(
                         documentId, "public const DEFAULT_URL = \"http://www.example.com\";\n" +
+                                "\n" +
+                                "public type IntMap map<int>;\n" +
+                                "\n" +
+                                "public type XmlElement xml:Element;\n" +
                                 "\n" +
                                 "public type ClientConfiguration record {\n" +
                                 "    string url?;\n" +
@@ -124,6 +132,23 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "}", "simple_client.bal");
             }
 
+            if ("http://example.com/apis/clientobjecttype.yaml".equals(uri)) {
+                return DocumentConfig.from(
+                        documentId, "public type 'client client object {\n" +
+                                "    int index;\n" +
+                                "\n" +
+                                "    remote function getIndex() returns int;\n" +
+                                "};\n" +
+                                "\n" +
+                                "public function fn() returns 'client {\n" +
+                                "    return client object {\n" +
+                                "        int index = 10;\n" +
+                                "\n" +
+                                "        remote function getIndex() returns int => self.index;\n" +
+                                "    };\n" +
+                                "}", "simple_client.bal");
+            }
+
             return DocumentConfig.from(
                     documentId, "public type Config record {\n" +
                             "    string url;\n" +
@@ -142,6 +167,64 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                             "        }\n" +
                             "    }\n" +
                             "}", "simple_client.bal");
+        }
+
+        private DocumentConfig getInvalidCode(DocumentId documentId, String uri) {
+            if (uri.equals("http://example.com/invalidgeneratedcode/one.yaml")) {
+                return DocumentConfig.from(
+                        documentId, "public client class MyClientClass {\n" +
+                                "    remote function fn() {\n" +
+                                "\n" +
+                                "    }\n" +
+                                "}\n" +
+                                "\n" +
+                                "public type Client client object {\n" +
+                                "    remote function getId();\n" +
+                                "};", "simple_client.bal");
+            }
+
+            if (uri.equals("http://example.com/invalidgeneratedcode/two.yaml")) {
+                return DocumentConfig.from(
+                        documentId, "public class 'client { // Not a client class\n" +
+                                "    function fn() {\n" +
+                                "        \n" +
+                                "    }\n" +
+                                "}", "simple_client.bal");
+            }
+
+            if (uri.equals("http://example.com/invalidgeneratedcode/three.yaml")) {
+                return DocumentConfig.from(
+                        documentId, "public type 'client object { // Not a client object\n" +
+                                "    function fn();\n" +
+                                "};", "simple_client.bal");
+            }
+
+            return DocumentConfig.from(
+                    documentId, "const int A = 1; // OK\n" +
+                            "\n" +
+                            "const map<int> B = {a: 1, b: A}; // OK\n" +
+                            "\n" +
+                            "final int c = 2; // OK\n" +
+                            "\n" +
+                            "final int[] & readonly d = [1, 2]; // OK\n" +
+                            "\n" +
+                            "final int[] e = [1, 2]; // error\n" +
+                            "\n" +
+                            "readonly & int[] f = [1, 2]; // error\n" +
+                            "\n" +
+                            "final var g = e; // error\n" +
+                            "\n" +
+                            "var h = f; // error\n" +
+                            "\n" +
+                            "final var i = d; // OK\n" +
+                            "\n" +
+                            "var j = d; // error\n" +
+                            "\n" +
+                            "public client class 'client {\n" +
+                            "    remote function fn() {\n" +
+                            "        \n" +
+                            "    }\n" +
+                            "}\n", "simple_client.bal");
         }
     }
 }
