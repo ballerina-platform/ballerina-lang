@@ -292,7 +292,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 String symbolName = paramName.isPresent() ? paramName.get().text() : "";
                 symbolMetaInfo = getModuleMetaInfo(typeSymbol, symbolName, requiredParameterNode.lineRange(),
                         false, true, true);
-                if (!isAvailableAsEndpoint(symbolName, requiredParameterNode.lineRange())) {
+                if (!isAvailableAsEndpoint(symbolName)) {
                     this.visibleEpsForEachBlock.add(symbolMetaInfo);
                 }
                 break;
@@ -302,7 +302,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         SyntaxKind.CAPTURE_BINDING_PATTERN) {
                     String moduleVarName = ((CaptureBindingPatternNode) moduleVariableDeclarationNode
                             .typedBindingPattern().bindingPattern()).variableName().text();
-                    if (!isAvailableAsEndpoint(moduleVarName, moduleVariableDeclarationNode.lineRange())) {
+                    if (!isAvailableAsEndpoint(moduleVarName)) {
                         this.visibleEpsForModule.add(getModuleMetaInfo(typeSymbol, moduleVarName,
                                 moduleVariableDeclarationNode.lineRange(), true, true));
                     }
@@ -316,7 +316,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                             .typedBindingPattern().bindingPattern()).variableName().text();
                     symbolMetaInfo = getModuleMetaInfo(typeSymbol, localVarName, variableDeclarationNode.lineRange(),
                             false, false);
-                    if (!isAvailableAsEndpoint(localVarName, variableDeclarationNode.lineRange())) {
+                    if (!isAvailableAsEndpoint(localVarName)) {
                         this.visibleEpsForEachBlock.add(symbolMetaInfo);
                     }
                 }
@@ -327,14 +327,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     String asgmtVarName = ((SimpleNameReferenceNode) assignmentStatementNode.varRef()).name().text();
                     symbolMetaInfo = getModuleMetaInfo(typeSymbol, asgmtVarName, assignmentStatementNode.lineRange(),
                             false, false);
-                    if (!isAvailableAsEndpoint(asgmtVarName, assignmentStatementNode.lineRange())) {
+                    if (!isAvailableAsEndpoint(asgmtVarName)) {
                         this.visibleEpsForEachBlock.add(symbolMetaInfo);
                     }
                 }
                 break;
             case SIMPLE_NAME_REFERENCE:
                 String name = ((SimpleNameReferenceNode) node).name().text();
-                if (isRemoteAction && !isAvailableAsEndpoint(name, node.lineRange())) {
+                if (isRemoteAction && !isAvailableAsEndpoint(name)) {
                     this.visibleEpsForModule.add(getModuleMetaInfo(typeSymbol, name, node.lineRange(),
                             false, true));
                 }
@@ -386,7 +386,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return metaInfo;
     }
 
-    private boolean isAvailableAsEndpoint(String name, LineRange lineRange) {
+    private boolean isAvailableAsEndpoint(String name) {
         for (JsonObject ep : this.visibleEpsForEachBlock) {
             if (ep.get("name").getAsString().equals(name) && ep.get("innerBlock") == null) {
                 return true;
