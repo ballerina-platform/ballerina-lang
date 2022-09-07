@@ -6501,6 +6501,18 @@ public class Types {
         }
     }
 
+    public boolean isNeverType(BType type) {
+        if (type.tag == NEVER) {
+            return true;
+        } else if (type.tag == TypeTags.TYPEREFDESC) {
+            return isNeverType(getReferredType(type));
+        } else if (type.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            return memberTypes.stream().allMatch(this::isNeverType);
+        }
+        return false;
+    }
+
     boolean isSingletonType(BType bType) {
         BType type = getReferredType(bType);
         return type.tag == TypeTags.FINITE && ((BFiniteType) type).getValueSpace().size() == 1;

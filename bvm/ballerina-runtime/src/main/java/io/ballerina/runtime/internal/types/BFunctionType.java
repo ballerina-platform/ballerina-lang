@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -61,8 +62,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.flags = flags;
     }
 
-    public BFunctionType(Parameter[] parameters, Type restType, Type retType, long flags) {
-        super("function ()", null, Object.class);
+    public BFunctionType(Parameter[] parameters, Type restType, Type retType, long flags, String name, Module pkg) {
+        super(name, pkg, Object.class);
         this.parameters = parameters;
         this.restType = restType;
         this.retType = retType;
