@@ -169,18 +169,18 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                         .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                         .getRangeFromLineRange(location.lineRange()),
                                 PositionUtil.toRange(matchedNode.lineRange()))))
-                .filter(symbol -> PositionUtil.isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol
-                        .getLocation().get().lineRange()), PositionUtil.toRange(getStatementNode(matchedNode)
-                        .lineRange())))
+                .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil
+                        .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
+                                PositionUtil.toRange(getStatementNode(matchedNode).lineRange())))
                 .collect(Collectors.toList());
         
         if (symbolsWithinRange.size() == 0) {
             return false;
         }
 
-        return symbolsWithinRange.stream().noneMatch(symbol -> PositionUtil.isRangeWithinRange(PositionUtil
-                        .getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
-                PositionUtil.toRange(matchedNode.lineRange())));
+        return symbolsWithinRange.stream().noneMatch(symbol -> symbol.getLocation().isPresent() && PositionUtil
+                .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
+                        PositionUtil.toRange(matchedNode.lineRange())));
     }
 
     /**
