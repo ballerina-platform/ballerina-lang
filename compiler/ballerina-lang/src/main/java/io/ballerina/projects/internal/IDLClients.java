@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A data holder for the generated IDL clients.
@@ -32,7 +33,7 @@ import java.util.Map;
  */
 public class IDLClients {
     public static final CompilerContext.Key<IDLClients> IDL_CLIENT_MAP_KEY = new CompilerContext.Key<>();
-    private final Map<LineRange, PackageID> idlClientMap;
+    private final Map<LineRange, Optional<PackageID>> idlClientMap;
 
     private IDLClients(CompilerContext context) {
         context.put(IDL_CLIENT_MAP_KEY, this);
@@ -48,7 +49,7 @@ public class IDLClients {
         return idlClients;
     }
 
-    public Map<LineRange, PackageID> idlClientMap() {
+    public Map<LineRange, Optional<PackageID>> idlClientMap() {
         return idlClientMap;
     }
 }

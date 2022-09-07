@@ -2642,13 +2642,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private BSymbol resolveClientDeclPrefix(BSymbol symbol) {
         LineRange lineRange = symbol.pos.lineRange();
-        Map<LineRange, PackageID> clientDeclarations = symTable.clientDeclarations;
+        Map<LineRange, Optional<PackageID>> clientDeclarations = symTable.clientDeclarations;
 
-        if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange) == null) {
+        if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange).isEmpty()) {
             return symTable.notFoundSymbol;
         }
 
-        BPackageSymbol moduleSymbol = getModuleForPackageId(clientDeclarations.get(lineRange));
+        BPackageSymbol moduleSymbol = getModuleForPackageId(clientDeclarations.get(lineRange).get());
         moduleSymbol.isUsed = true;
         return moduleSymbol;
     }

@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 class IDLPluginManager {
     private List<IDLPluginContextImpl> idlPluginContexts;
@@ -97,14 +98,15 @@ class IDLPluginManager {
 
     public static class IDLSourceGeneratorContextImpl implements IDLSourceGeneratorContext {
         private final Package currentPackage;
-        private final Map<LineRange, PackageID> idlClientMap;
+        private final Map<LineRange, Optional<PackageID>> idlClientMap;
         private final Node clientNode;
         private final List<ModuleConfig> moduleConfigs;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
         private Path resourcePath;
 
         public IDLSourceGeneratorContextImpl(Node clientNode, Package currentPackage, Path resourcePath,
-                                             Map<LineRange, PackageID> idlClientMap, List<ModuleConfig> moduleConfigs) {
+                                             Map<LineRange, Optional<PackageID>> idlClientMap,
+                                             List<ModuleConfig> moduleConfigs) {
             this.currentPackage = currentPackage;
             this.resourcePath = resourcePath;
             this.idlClientMap = idlClientMap;
@@ -147,7 +149,7 @@ class IDLPluginManager {
                 ClientDeclarationNode clientDeclarationNode = (ClientDeclarationNode) this.clientNode;
                 lineRange = clientDeclarationNode.clientPrefix().location().lineRange();
             }
-            this.idlClientMap.put(lineRange, newModuleConfig.moduleDescriptor().moduleCompilationId());
+            this.idlClientMap.put(lineRange, Optional.of(newModuleConfig.moduleDescriptor().moduleCompilationId()));
             this.moduleConfigs.add(newModuleConfig);
         }
 

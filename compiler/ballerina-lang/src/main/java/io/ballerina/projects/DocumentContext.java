@@ -58,6 +58,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -167,16 +168,17 @@ class DocumentContext {
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
         if (idlPluginManager != null) {
-            Map<LineRange, PackageID> idlClientsMap = generateIDLClients(syntaxTree, idlPluginManager, currentPkg);
+            Map<LineRange, Optional<PackageID>> idlClientsMap = generateIDLClients(
+                    syntaxTree, idlPluginManager, currentPkg);
             // Add generated client modules to module load requests
-            for (Map.Entry<LineRange, PackageID> locationPackageIDEntry : idlClientsMap.entrySet()) {
-                PackageID packageID = locationPackageIDEntry.getValue();
-                if (packageID == null) {
+            for (Map.Entry<LineRange, Optional<PackageID>> locationPackageIDEntry : idlClientsMap.entrySet()) {
+                Optional<PackageID> packageID = locationPackageIDEntry.getValue();
+                if (packageID.isEmpty()) {
                     continue;
                 }
                 moduleLoadRequests.add(new ModuleLoadRequest(
-                        PackageOrg.from(packageID.orgName.getValue()),
-                        packageID.name.getValue(),
+                        PackageOrg.from(packageID.get().orgName.getValue()),
+                        packageID.get().name.getValue(),
                         PackageDependencyScope.DEFAULT,
                         DependencyResolutionType.SOURCE));
             }
@@ -184,7 +186,7 @@ class DocumentContext {
         return moduleLoadRequests;
     }
 
-    private Map<LineRange, PackageID> generateIDLClients(
+    private Map<LineRange, Optional<PackageID>> generateIDLClients(
             SyntaxTree syntaxTree, IDLPluginManager idlPluginManager, Package currentPkg) {
         CompilerContext compilerContext = currentPkg.project().projectEnvironmentContext()
                 .getService(CompilerContext.class);
@@ -235,10 +237,10 @@ class DocumentContext {
 
         private final IDLPluginManager idlPluginManager;
         private final Package currentPkg;
-        private final Map<LineRange, PackageID> idlClientMap;
+        private final Map<LineRange, Optional<PackageID>> idlClientMap;
 
         public ClientNodeVisitor(IDLPluginManager idlPluginManager,
-                                 Package currentPkg, Map<LineRange, PackageID> idlClientMap) {
+                                 Package currentPkg, Map<LineRange, Optional<PackageID>> idlClientMap) {
             this.idlPluginManager = idlPluginManager;
             this.currentPkg = currentPkg;
             this.idlClientMap = idlClientMap;
@@ -294,7 +296,7 @@ class DocumentContext {
             Location location = moduleClientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
             idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
-            idlClientMap.put(moduleClientDeclarationNode.clientPrefix().location().lineRange(), null);
+            idlClientMap.put(moduleClientDeclarationNode.clientPrefix().location().lineRange(), Optional.empty());
         }
 
         @Override
@@ -347,7 +349,7 @@ class DocumentContext {
             Location location = clientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
             idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
-            idlClientMap.put(clientDeclarationNode.clientPrefix().location().lineRange(), null);
+            idlClientMap.put(clientDeclarationNode.clientPrefix().location().lineRange(), Optional.empty());
         }
 
         private Diagnostic createDiagnostic(ProjectDiagnosticErrorCode errorCode, Location location, String message) {
