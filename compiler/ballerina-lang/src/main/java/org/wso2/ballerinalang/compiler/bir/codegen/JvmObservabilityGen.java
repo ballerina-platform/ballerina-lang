@@ -122,10 +122,12 @@ class JvmObservabilityGen {
 
     private final Map<Object, BIROperand> compileTimeConstants;
     private final Map<Name, String> svcAttachPoints;
+    private final List<BIROperand> positionArgs;
 
     JvmObservabilityGen(PackageCache packageCache, SymbolTable symbolTable) {
         this.compileTimeConstants = new HashMap<>();
         this.svcAttachPoints = new HashMap<>();
+        this.positionArgs = new ArrayList<>();
         this.packageCache = packageCache;
         this.symbolTable = symbolTable;
         this.lambdaIndex = 0;
@@ -141,12 +143,13 @@ class JvmObservabilityGen {
      * @param pkg The package to instrument
      */
     void instrumentPackage(BIRPackage pkg) {
+        populatePositionArgs(pkg);
         for (int i = 0; i < pkg.functions.size(); i++) {
             localVarIndex = 0;
             BIRFunction func = pkg.functions.get(i);
 
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
-                rewriteControlFlowInvocation(func, pkg);
+                rewriteControlFlowInvocation(func);
             }
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
@@ -194,7 +197,7 @@ class JvmObservabilityGen {
                 localVarIndex = 0;
                 if (isService && ((func.flags & Flags.RESOURCE) == Flags.RESOURCE ||
                         (func.flags & Flags.REMOTE) == Flags.REMOTE)) {
-                    rewriteControlFlowInvocation(func, pkg);
+                    rewriteControlFlowInvocation(func);
                 }
                 rewriteAsyncInvocations(func, typeDef, pkg);
                 rewriteObservableFunctionInvocations(func, pkg);
@@ -223,14 +226,12 @@ class JvmObservabilityGen {
     /**
      * Adding Java Interop calls to basic blocks.
      * Here the JI calls are added for all kinds of terminators.
-     *
      * First we check if there are position details for instructions, if present we add the JI calls with those
      * positions else, we consider the terminator position to create the JI call.
      *
      * @param func The function of which the instructions should be rewritten
-     * @param pkg The package containing the function
      */
-    private void rewriteControlFlowInvocation(BIRFunction func, BIRPackage pkg) {
+    private void rewriteControlFlowInvocation(BIRFunction func) {
         int i = 0;
         while (i < func.basicBlocks.size()) {
             // Basic blocks with JI method calls are added for all kinds of Terminators
@@ -249,7 +250,7 @@ class JvmObservabilityGen {
             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
                 swapBasicBlockContent(func, currentBB, newBB);
-                injectCheckpointCall(func, currentBB, pkg, desugaredPos);
+                injectCheckpointCall(currentBB, desugaredPos);
                 currentBB.terminator.thenBB = newBB;
                 // Fix error entries in the error entry table
                 fixErrorTable(func, currentBB, newBB);
@@ -262,27 +263,24 @@ class JvmObservabilityGen {
     /**
      * Inject checkpoint JI method call to a basic block.
      *
-     * @param func Bir Function
      * @param currentBB The basic block to which the checkpoint call should be injected
-     * @param pkg The package the invocation belongs to
      * @param originalInsPosition The source code position of the invocation
      */
-    private void injectCheckpointCall(BIRFunction func, BIRBasicBlock currentBB, BIRPackage pkg,
-                                      Location originalInsPosition) {
+    private void injectCheckpointCall(BIRBasicBlock currentBB, Location originalInsPosition) {
+        updatePositionArgsConstLoadIns(originalInsPosition, currentBB);
         JIMethodCall recordCheckPointCallTerminator = new JIMethodCall(null);
         recordCheckPointCallTerminator.invocationType = INVOKESTATIC;
         recordCheckPointCallTerminator.jClassName = OBSERVE_UTILS;
         recordCheckPointCallTerminator.jMethodVMSig = CHECKPOINT_CALL;
         recordCheckPointCallTerminator.name = RECORD_CHECKPOINT_METHOD;
-        recordCheckPointCallTerminator.args = generatePositionArgs(pkg, func, currentBB, originalInsPosition);
+        recordCheckPointCallTerminator.args = positionArgs;
         currentBB.terminator = recordCheckPointCallTerminator;
     }
 
     /**
      * Rewrite the invocations in the function bodies to call a lambda asynchronously which in turn calls the
      * actual function synchronously. This is done so that the actual invocation can be observed accurately.
-     *
-     * Without this wrapper, the start and end time recorded would only reflect the time it took to give the the async
+     * Without this wrapper, the start and end time recorded would only reflect the time it took to give the async
      * invocation to the scheduler. However, we require the actual time it took for the invocation.
      *
      * @param func The function of which the instructions in the body should be rewritten
@@ -403,9 +401,7 @@ class JvmObservabilityGen {
     /**
      * Rewrite a function so that the internal body will be observed. This adds the relevant start and stop calls at
      * the beginning and return basic blocks of the function.
-     *
      * This is only to be used in service resource functions, workers and main method.
-     *
      * This method expects that Observable invocations had already been instrumented properly before this method is
      * called. This is because the uncaught panics thrown from such observable invocations are reported to the
      * observation covering the function body by using the re-panic terminators which gets added in
@@ -683,6 +679,7 @@ class JvmObservabilityGen {
                                                     String resourcePathOrFunction, String resourceAccessor,
                                                     boolean isResource, boolean isRemote, BIRPackage pkg,
                                                     Location originalInsPosition) {
+        injectObserveStartPositionArgs(func, originalInsPosition, observeStartBB);
         BIROperand serviceNameOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, serviceName);
         BIROperand resourcePathOrFunctionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
                                                                                  resourcePathOrFunction);
@@ -696,11 +693,10 @@ class JvmObservabilityGen {
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
         observeStartCallTerminator.jMethodVMSig = START_RESOURCE_OBSERVATION;
         observeStartCallTerminator.name = START_RESOURCE_OBSERVATION_METHOD;
-        List<BIROperand> positionOperands = generatePositionArgs(pkg, func, observeStartBB, originalInsPosition);
-        List<BIROperand> otherOperands = Arrays.asList(serviceNameOperand, resourcePathOrFunctionOperand,
-                resourceAccessorOperand, isResourceOperand, isRemoteOperand);
-        positionOperands.addAll(otherOperands);
-        observeStartCallTerminator.args = positionOperands;
+        List<BIROperand> callTermArgs = new ArrayList<>(Arrays.asList(serviceNameOperand, resourcePathOrFunctionOperand,
+                resourceAccessorOperand, isResourceOperand, isRemoteOperand));
+        callTermArgs.addAll(0, positionArgs);
+        observeStartCallTerminator.args = callTermArgs;
         observeStartBB.terminator = observeStartCallTerminator;
     }
 
@@ -721,8 +717,9 @@ class JvmObservabilityGen {
     private void injectStartCallableObservationCall(BIRFunction func, BIRBasicBlock observeStartBB,
                                                     Location desugaredInsLocation, boolean isRemote,
                                                     boolean isMainEntryPoint, boolean isWorker,
-                                                    BIROperand objectOperand, String action, BIRPackage pkg,
-                                                    Location originalInsPosition) {
+                                                    BIROperand objectOperand, String action,
+                                                    BIRPackage pkg, Location originalInsPosition) {
+        injectObserveStartPositionArgs(func, originalInsPosition, observeStartBB);
         BIROperand actionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, action);
         BIROperand isMainEntryPointOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType,
                 isMainEntryPoint);
@@ -734,11 +731,10 @@ class JvmObservabilityGen {
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
         observeStartCallTerminator.jMethodVMSig = START_CALLABLE_OBSERVATION;
         observeStartCallTerminator.name = START_CALLABLE_OBSERVATION_METHOD;
-        List<BIROperand> positionOperands = generatePositionArgs(pkg, func, observeStartBB, originalInsPosition);
-        List<BIROperand> otherOperands = Arrays.asList(objectOperand, actionOperand, isMainEntryPointOperand,
-                                                       isRemoteOperand, isWorkerOperand);
-        positionOperands.addAll(otherOperands);
-        observeStartCallTerminator.args = positionOperands;
+        List<BIROperand> callTermArgsOperands = new ArrayList<>(Arrays.asList(objectOperand, actionOperand,
+                isMainEntryPointOperand, isRemoteOperand, isWorkerOperand));
+        callTermArgsOperands.addAll(0, positionArgs);
+        observeStartCallTerminator.args = callTermArgsOperands;
         observeStartBB.terminator = observeStartCallTerminator;
     }
 
@@ -910,7 +906,6 @@ class JvmObservabilityGen {
 
     /**
      * Fix the ending BB of error entries in the error table of a function.
-     *
      * When desugar instructions were added after the original BB,
      * where the original BB is a trap ending BB, the new trap ending BBs changes.
      * This needs to be adjusted properly.
@@ -973,7 +968,7 @@ class JvmObservabilityGen {
     }
 
     /**
-     * Check if a basic block is covered in a error entry.
+     * Check if a basic block is covered into an error entry.
      *
      * @param errorEntry The error entry from the error table
      * @param basicBlocksList The basic blocks list which contains the basic block to be checked for
@@ -1020,45 +1015,63 @@ class JvmObservabilityGen {
         return pkg.orgName.value + "/" + pkg.name.value + ":" + pkg.version.value;
     }
 
-    /**
-     * Generate operands for location.
-     *
-     * @param pkg       Bir package
-     * @param func      Bir Function
-     * @param currentBB Current basic block
-     * @param location  Location
-     * @return List of operands for source file name, position start line and start column
-     */
-    private List<BIROperand> generatePositionArgs(BIRPackage pkg, BIRFunction func, BIRBasicBlock currentBB,
-                                                  Location location) {
-        String pkgId = generatePackageId(pkg.packageID);
-        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
+    private void injectObserveStartPositionArgs(BIRFunction func, Location pos, BIRBasicBlock observeStartBB) {
+        // Add variableDcl to localVars list if not available
+        for (BIROperand birOperand : positionArgs) {
+            if (!func.localVars.contains(birOperand.variableDcl)) {
+                func.localVars.add(birOperand.variableDcl);
+            }
+        }
+        // Add file name load instruction
+        addConstantLoadIns(pos, pos.lineRange().filePath(), symbolTable.stringType, positionArgs.get(1),
+                observeStartBB);
+        // Add line number load instruction
+        addConstantLoadIns(pos, pos.lineRange().startLine().line() + 1, symbolTable.intType,
+                positionArgs.get(2), observeStartBB);
+        // Add line offset load instruction
+        addConstantLoadIns(pos, pos.lineRange().startLine().offset() + 1, symbolTable.intType,
+                positionArgs.get(3), observeStartBB);
+    }
 
-        BIROperand fileNameOperand = generateTempLocalVariable(func, "fileName",
-                symbolTable.stringType, location, currentBB, location.lineRange().filePath());
-        BIROperand startLineOperand = generateTempLocalVariable(func, "startLine",
-                symbolTable.intType, location, currentBB, location.lineRange().startLine().line() + 1);
-        BIROperand startColOperand = generateTempLocalVariable(func, "startCol",
-                symbolTable.intType, location, currentBB, location.lineRange().startLine().offset() + 1);
+    private void updatePositionArgsConstLoadIns(Location pos, BIRBasicBlock currentBB) {
+        addConstantLoadIns(pos, pos.lineRange().startLine().line() + 1, symbolTable.intType,
+                positionArgs.get(2), currentBB);
+        addConstantLoadIns(pos, pos.lineRange().startLine().offset() + 1, symbolTable.intType,
+                positionArgs.get(3), currentBB);
+    }
 
-        return new ArrayList<>(Arrays.asList(pkgOperand, fileNameOperand, startLineOperand, startColOperand));
+    private void addConstantLoadIns(Location pos, Object value, BType variableType, BIROperand birOperand,
+                                    BIRBasicBlock currentBB) {
+        ConstantLoad constantLoad = new ConstantLoad(pos, value, variableType, birOperand);
+        currentBB.instructions.add(constantLoad);
     }
 
     /**
-     * Generate a temporary function scope variable with an initialized value.
+     * Initialize temporary variables for pkgId, fileName, startLine and startCol, and
+     * populate the position args operand list.
      *
-     * @param func The BIR function to which the variable should be added
-     * @param name The name of the variable
-     * @param variableType The type of the variable
-     * @return The generated operand for the variable declaration
+     * @param pkg BIR package
      */
-    private BIROperand generateTempLocalVariable(BIRFunction func, String name, BType variableType,
-                                                 Location initInsLocation, BIRBasicBlock initInsBB,
-                                                 Object initValue) {
-        BIROperand variableOperand = generateTempLocalVariable(func, name, variableType);
-        ConstantLoad constantLoadIns = new ConstantLoad(initInsLocation, initValue, variableType, variableOperand);
-        initInsBB.instructions.add(constantLoadIns);
-        return variableOperand;
+    private void populatePositionArgs(BIRPackage pkg) {
+        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
+                generatePackageId(pkg.packageID));
+        BIROperand fileNameOperand = generateTempLocalVariable("fileName", symbolTable.stringType);
+        BIROperand startLineOperand = generateTempLocalVariable("startLine", symbolTable.intType);
+        BIROperand startColOperand = generateTempLocalVariable("startCol", symbolTable.intType);
+        positionArgs.addAll(Arrays.asList(pkgOperand, fileNameOperand, startLineOperand, startColOperand));
+    }
+
+    /**
+     * Generate a temporary function scope variable.
+     *
+     * @param name variable name
+     * @param variableType variable type
+     * @return generated BIR operand for the variable declaration
+     */
+    private BIROperand generateTempLocalVariable(String name, BType variableType) {
+        BIRVariableDcl variableDcl = new BIRVariableDcl(variableType, new Name("$observability$" + name),
+                VarScope.FUNCTION, VarKind.TEMP);
+        return new BIROperand(variableDcl);
     }
 
     /**
