@@ -15,19 +15,28 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 
 import java.util.ArrayList;
@@ -97,6 +106,56 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
         }
 
         return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ConstantDeclarationNode constantDeclarationNode) {
+        if (context.currentSemanticModel().isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(constantDeclarationNode);
+        
+        if (symbol.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        return Optional.ofNullable(((ConstantSymbol) symbol.get()).typeDescriptor());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
+        // TODO: Add other cases like error constructors here
+        switch (positionalArgumentNode.parent().kind()) {
+            case FUNCTION_CALL:
+                return TypeResolverUtil.getPositionalArgumentTypeForFunction(
+                        ((FunctionCallExpressionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent(), context, context.cursorPositionInTree());
+            case METHOD_CALL:
+                return TypeResolverUtil.getPositionalArgumentTypeForFunction(
+                        ((MethodCallExpressionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent(), context, context.cursorPositionInTree());
+            case PARENTHESIZED_ARG_LIST:
+                ParenthesizedArgList parenthesizedArgList = (ParenthesizedArgList) positionalArgumentNode.parent();
+                switch (parenthesizedArgList.parent().kind()) {
+                    case IMPLICIT_NEW_EXPRESSION:
+                        ImplicitNewExpressionNode implicitNewExpressionNode =
+                                (ImplicitNewExpressionNode) parenthesizedArgList.parent();
+                        Optional<ParenthesizedArgList> argList = implicitNewExpressionNode.parenthesizedArgList();
+                        if (argList.isEmpty()) {
+                            return Optional.empty();
+                        }
+                        return TypeResolverUtil.getPositionalArgumentTypeForNewExpr(argList.get().arguments(),
+                                implicitNewExpressionNode, context, context.cursorPositionInTree());
+                    case EXPLICIT_NEW_EXPRESSION:
+                        ExplicitNewExpressionNode explicitNewExpressionNode =
+                                (ExplicitNewExpressionNode) parenthesizedArgList.parent();
+                        return TypeResolverUtil.getPositionalArgumentTypeForNewExpr(
+                                explicitNewExpressionNode.parenthesizedArgList().arguments(),
+                                explicitNewExpressionNode, context, context.cursorPositionInTree());
+                }
+        }
+
+        return Optional.empty();
     }
 
     private Optional<TypeSymbol> getTypeDescriptorOfVariable(Node node) {
