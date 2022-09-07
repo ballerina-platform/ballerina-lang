@@ -46,11 +46,16 @@ public class ConvertToXmlOrStringTemplateCodeActionTest extends AbstractCodeActi
                 {"config5.json"},
                 {"config6.json"},
                 {"config7.json"},
+                {"config8.json"},
+                {"config9.json"},
+                {"config10.json"},
+                {"config11.json"},
+                {"config12.json"}
         };
     }
 
     @Override
     public String getResourceDir() {
-        return "raw-template";
+        return "convert-to-str-xml-tmplt";
     }
 }
