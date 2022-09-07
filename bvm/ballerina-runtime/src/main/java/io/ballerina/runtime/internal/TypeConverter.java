@@ -267,21 +267,8 @@ public class TypeConverter {
         int targetTypeTag = targetType.getTag();
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
-                // only the first matching type is returned.
-                for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
-                    if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-                        return memType;
-                    }
-                }
-
-                for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
-                    Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                            isFromJson, unresolvedValues, errors);
-                    if (convertibleTypeInUnion != null) {
-                        return convertibleTypeInUnion;
-                    }
-                }
-                break;
+                return getConvertibleTypeInTargetUnionType(inputValue, (BUnionType) targetType, varName, isFromJson,
+                        errors, unresolvedValues);
             case TypeTags.ARRAY_TAG:
                 if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues, varName, errors)) {
                     return targetType;
@@ -333,9 +320,31 @@ public class TypeConverter {
     }
 
     @Nullable
+    public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
+                                                String varName, boolean isFromJson, List<String> errors,
+                                                List<TypeValuePair> unresolvedValues) {
+        // only the first matching type is returned.
+        List<Type> memberTypes = targetUnionType.getMemberTypes();
+        for (Type memType : memberTypes) {
+            if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
+                return memType;
+            }
+        }
+        for (Type memType : memberTypes) {
+            Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
+                    isFromJson, unresolvedValues, errors);
+            if (convertibleTypeInUnion != null) {
+                return convertibleTypeInUnion;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
                                                 String varName, boolean isFromJson, List<String> errors,
                                                 List<TypeValuePair> unresolvedValues) {
+        // only the first matching type is returned.
         if (targetFiniteType.valueSpace.size() == 1) {
             Type valueType = getType(targetFiniteType.valueSpace.iterator().next());
             if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
