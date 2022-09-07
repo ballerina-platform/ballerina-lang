@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
@@ -32,6 +33,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -306,16 +308,19 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode simpleNameReferenceNode) {
-        Optional<Symbol> symbol = this.getSymbolByName(simpleNameReferenceNode.name().text());
-        if (symbol.isEmpty()) {
-            return Optional.empty();
-        }
+        return this.getSymbolByName(simpleNameReferenceNode.name().text()).flatMap(SymbolUtil::getTypeDescriptor);
+    }
 
-        return SymbolUtil.getTypeDescriptor(symbol.get());
+    @Override
+    public Optional<TypeSymbol> transform(ConstantDeclarationNode constantDeclarationNode) {
+        return context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(constantDeclarationNode))
+                .map(symbol -> ((ConstantSymbol) symbol).typeDescriptor());
     }
 
     @Override
     public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
+        // TODO: Add other cases like error constructors here
         switch (positionalArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
                 return TypeResolverUtil.getPositionalArgumentTypeForFunction(

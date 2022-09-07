@@ -344,8 +344,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(TemplateExpressionNode node) {
-        return isVisited(node) || (!node.startBacktick().isMissing()
-                && !node.endBacktick().isMissing());
+        return isVisited(node) || !node.startBacktick().isMissing()
+                && !node.endBacktick().isMissing();
     }
     
     @Override
