@@ -6,14 +6,6 @@
   "source": "expression_context/source/annotation_access_ctx_source8.bal",
   "items": [
     {
-      "label": "deprecated",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "deprecated",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "MyAnnotation",
       "kind": "Property",
       "detail": "Annotation",
