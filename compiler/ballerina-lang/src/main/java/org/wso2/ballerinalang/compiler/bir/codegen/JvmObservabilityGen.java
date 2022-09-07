@@ -1017,9 +1017,10 @@ class JvmObservabilityGen {
 
     private void injectObserveStartPositionArgs(BIRFunction func, Location pos, BIRBasicBlock observeStartBB) {
         // Add variableDcl to localVars list if not available
-        for (BIROperand birOperand : positionArgs) {
-            if (!func.localVars.contains(birOperand.variableDcl)) {
-                func.localVars.add(birOperand.variableDcl);
+        // First variable added to the `positionArgs` is a global constant.
+        for (int i = 1; i < positionArgs.size(); i++) {
+            if (!func.localVars.contains(positionArgs.get(i).variableDcl)) {
+                func.localVars.add(positionArgs.get(i).variableDcl);
             }
         }
         // Add file name load instruction
