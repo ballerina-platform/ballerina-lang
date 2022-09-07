@@ -609,6 +609,31 @@ function testIntersectingUnionRefEquality() {
     assert(c !== a, true);
 }
 
+function func() {
+}
+
+function funcClone() {
+}
+
+function func1 = func;
+function func2 = funcClone;
+function func3 = function() => ();
+
+function testFPValueEquality() {
+    function func4 = function() => ();
+
+    test:assertTrue(func === func);
+    test:assertTrue(funcClone === funcClone);
+    test:assertTrue(func1 === func1);
+    test:assertTrue(func2 === func2);
+    test:assertTrue(func4 === func4);
+    test:assertTrue(func3 === func3);
+
+    test:assertFalse(func === funcClone);
+    test:assertFalse(func1 === func2);
+    test:assertFalse(func3 === func4);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
         return;
