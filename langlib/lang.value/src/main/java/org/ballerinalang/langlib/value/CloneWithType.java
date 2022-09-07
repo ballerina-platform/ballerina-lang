@@ -54,7 +54,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
@@ -67,6 +66,8 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 2.0
  */
 public class CloneWithType {
+
+    private CloneWithType() {}
 
     public static Object cloneWithType(Object v, BTypedesc t) {
         return convert(t.getDescribingType(), v, t);
@@ -97,32 +98,25 @@ public class CloneWithType {
         }
 
         List<String> errors = new ArrayList<>();
-        Set<Type> convertibleTypes;
-        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, null, false,
+        Type convertibleType = TypeConverter.getConvertibleType(value, targetType, null, false,
                 new ArrayList<>(), errors);
 
         Type sourceType = TypeChecker.getType(value);
-        if (convertibleTypes.isEmpty()) {
+        if (convertibleType == null) {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
-        Type matchingType;
-        if (convertibleTypes.contains(sourceType)) {
-            matchingType = sourceType;
-        } else {
-            matchingType = convertibleTypes.iterator().next();
-        }
         // handle primitive values
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
-            if (TypeChecker.checkIsType(value, matchingType)) {
+            if (TypeChecker.checkIsType(value, convertibleType)) {
                 return value;
             } else {
                 // Has to be a numeric conversion.
-                return TypeConverter.convertValues(matchingType, value);
+                return TypeConverter.convertValues(convertibleType, value);
             }
         }
 
-        return convert((BRefValue) value, matchingType, unresolvedValues, t);
+        return convert((BRefValue) value, convertibleType, unresolvedValues, t);
     }
 
     private static Type getTargetFromTypeDesc(Type targetType) {

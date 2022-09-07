@@ -78,6 +78,7 @@ import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -282,7 +283,8 @@ public class TypeChecker {
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
      */
-    public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
+    public static boolean checkIsType(@Nullable List<String> errors, Object sourceVal, Type sourceType,
+                                      Type targetType) {
         if (checkIsType(sourceVal, sourceType, targetType, null)) {
             return true;
         }
@@ -711,7 +713,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
-                                      List<TypePair> unresolvedTypes) {
+                                       @Nullable List<TypePair> unresolvedTypes) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
@@ -2188,9 +2190,9 @@ public class TypeChecker {
      * @param varName variable name to identify the parent of a record field
      * @return True if the value confirms to the provided type. False, otherwise.
      */
-    private static boolean checkIsLikeOnValue(List<String> errors, Object sourceValue, Type sourceType, Type targetType,
-                                              List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
-                                              String varName) {
+    private static boolean checkIsLikeOnValue(@Nullable List<String> errors, Object sourceValue, Type sourceType,
+                                              Type targetType, List<TypeValuePair> unresolvedValues,
+                                              boolean allowNumericConversion, @Nullable String varName) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 

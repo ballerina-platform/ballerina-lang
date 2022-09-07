@@ -18,6 +18,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
+    implementation 'org.jetbrains:annotations:20.1.0'
     implementation ('org.apache.ws.commons.axiom:axiom-impl') {
         exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
     }

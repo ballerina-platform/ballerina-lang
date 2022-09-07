@@ -347,10 +347,10 @@ public class JsonInternalUtils {
                     if (TypeConverter.isIntegerSubtypeAndConvertible(jsonValue, memType)) {
                         return jsonNodeToInt(jsonValue);
                     }
-                    Set<Type> matchingTypes = TypeConverter.getConvertibleTypes(jsonValue, memType, null,
+                    Type matchingType = TypeConverter.getConvertibleType(jsonValue, memType, null,
                             true, new ArrayList<>(), new ArrayList<>());
-                    if (!matchingTypes.isEmpty()) {
-                        return convertJSON(jsonValue, matchingTypes.iterator().next());
+                    if (matchingType != null) {
+                        return convertJSON(jsonValue, matchingType);
                     }
                 }
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
