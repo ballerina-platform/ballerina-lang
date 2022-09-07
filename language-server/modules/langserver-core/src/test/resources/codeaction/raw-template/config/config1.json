@@ -6,7 +6,7 @@
   "source": "source.bal",
   "expected": [
     {
-      "title": "Change to 'xml' sub type of row template",
+      "title": "Convert to 'xml' template",
       "kind": "quickfix",
       "edits": [
         {
