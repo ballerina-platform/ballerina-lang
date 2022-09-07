@@ -97,6 +97,7 @@ public type Bank record {|
 #
 # + age - age Parameter Description
 public type Employee record {|
+    # This is the description of the `Employee`'s `name` field.
     # # Deprecated
     @deprecated
     string name;

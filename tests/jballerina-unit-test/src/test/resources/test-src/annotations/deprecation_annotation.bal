@@ -321,7 +321,7 @@ public function testDeprecatedRecordFields() {
     _ = employee.job.experiance; // warning
 }
 
-# Employee record
+# Employee2 record
 type Employee2 record {|
     # This is the description of the `Employee2`'s `name` field.
     # # Deprecated
