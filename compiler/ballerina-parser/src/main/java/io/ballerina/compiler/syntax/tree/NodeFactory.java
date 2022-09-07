@@ -1250,6 +1250,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 semicolonToken.internalNode());
         return stModuleXMLNamespaceDeclarationNode.createUnlinkedFacade();
     }
+    public static FunctionBodyBlockNode createFunctionBodyBlockNode(
+            Token openBraceToken,
+            NamedWorkerDeclarator namedWorkerDeclarator,
+            NodeList<StatementNode> statements,
+            Token closeBraceToken) {
+        return createFunctionBodyBlockNode(openBraceToken, namedWorkerDeclarator, statements, closeBraceToken, null);
+    }
 
     public static FunctionBodyBlockNode createFunctionBodyBlockNode(
             Token openBraceToken,

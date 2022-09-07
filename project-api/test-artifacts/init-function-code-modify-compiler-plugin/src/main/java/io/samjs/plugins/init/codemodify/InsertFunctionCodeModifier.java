@@ -136,7 +136,7 @@ public class InsertFunctionCodeModifier extends CodeModifier {
                 createFunctionBodyBlockNode(
                         createToken(SyntaxKind.OPEN_BRACE_TOKEN, createEmptyMinutiaeList(),
                                 generateMinutiaeListWithNewline()), null,
-                        createEmptyNodeList(), createToken(SyntaxKind.CLOSE_BRACE_TOKEN), null);
+                        createEmptyNodeList(), createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
 
         return createFunctionDefinitionNode(
                 SyntaxKind.FUNCTION_DEFINITION, null, createNodeList(qualifierList),
