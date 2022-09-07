@@ -85,10 +85,12 @@ public class JvmArrayTypeConstantsGen {
     }
 
     public String add(BArrayType arrayType) {
-        if (!arrayTypeVarMap.containsKey(arrayType)) {
-            arrayTypeVarMap.put(arrayType, generateBArrayInits(arrayType));
+        String varName = arrayTypeVarMap.get(arrayType);
+        if (varName == null) {
+            varName = generateBArrayInits(arrayType);
+            arrayTypeVarMap.put(arrayType, varName);
         }
-        return arrayTypeVarMap.get(arrayType);
+        return varName;
     }
 
     private String generateBArrayInits(BArrayType arrayType) {
