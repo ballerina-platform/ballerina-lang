@@ -23,3 +23,7 @@ function testVariableDeclaration2() {
 function testLetExpressions(string item) {
     string letExpr = let string s = `${item}` in "car, van, bus";
 }
+
+configurable string userName = ?;
+
+const string myConst = `sample template`;

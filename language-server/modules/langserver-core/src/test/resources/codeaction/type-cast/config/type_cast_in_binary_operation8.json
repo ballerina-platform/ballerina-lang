@@ -6,21 +6,21 @@
   "source": "type_cast_in_binary_operation.bal",
   "expected": [
     {
-      "title": "Add type cast to 'f1'",
+      "title": "Add type cast to 'i1'",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
               "line": 18,
-              "character": 27
+              "character": 24
             },
             "end": {
               "line": 18,
-              "character": 27
+              "character": 24
             }
           },
-          "newText": "<int>"
+          "newText": "<float>"
         }
       ]
     }
