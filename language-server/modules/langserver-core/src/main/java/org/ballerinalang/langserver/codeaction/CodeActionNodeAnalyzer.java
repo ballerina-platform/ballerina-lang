@@ -114,6 +114,10 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(startPositionOffset, endPositionOffset);
         NonTerminalNode node = CommonUtil.findNode(range, syntaxTree);
         if (node.kind() == SyntaxKind.LIST) {
+            /*
+            * LIST node is used in multiple scenarios(ex: In the import declaration) and,
+            * LIST of Statement nodes is special cased here for the extract to function code action
+            * */
             if (hasChildStatement(node)) {
                 analyzer.checkAndSetCodeActionNode(node);
                 analyzer.checkAndSetSyntaxKind(node.kind());
@@ -390,9 +394,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(BasicLiteralNode node) {
-            checkAndSetCodeActionNode(node);
-            checkAndSetSyntaxKind(node.kind());
-            visitSyntaxNode(node);
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
     }
 
     @Override
@@ -621,6 +625,12 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         node.accept(this);
     }
 
+    /**
+     * // TODO replace the if condition logic with #37454.
+     *
+     * @param node External tree node list
+     * @return If any of the child node of the external tree node list is a statement node
+     */
     private static boolean hasChildStatement(NonTerminalNode node) {
         for (Node childNode : node.children()) {
             if (childNode.kind().compareTo(SyntaxKind.BLOCK_STATEMENT) >= 0

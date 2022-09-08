@@ -183,6 +183,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_stmts_list_with_asgnmt_and_cmpAsgnmt.json"},
                 {"negative_extract_to_function_stmts_list_with_while_loop_with_return_inside.json"},
                 {"negative_extract_to_function_stmts_list_with_while_loop_with_panic_inside.json"},
+                {"neg_extract_to_function_stmts_list_without_selecting_the_nodes_fully_single_line.json"},
+                {"neg_extract_to_function_stmts_list_without_selecting_the_nodes_fully_two_lines.json"},
 
                 {"negative_extract_to_function_stmts_if_else_stmt_with_varDecl_before_range.json"},
                 {"negative_extract_to_function_stmts_if_else_stmt_with_selecting_only_else_block.json"},
@@ -241,13 +243,15 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"negative_extract_to_function_exprs_field_access_expr_in_assignment_lhs.json"},
                 {"negative_extract_to_function_exprs_mapping_cons_inside_table.json"},
                 {"negative_extract_to_function_exprs_mapping_cons_annot_value.json"},
+                {"negative_extract_to_function_exprs_mapping_cons_string_within_specific_field.json"},
 
                 {"neg_extract_to_function_exprs_position_numeric_literal_before_literal.json"},
                 {"neg_extract_to_function_exprs_pos_object_cons_function_kw_inside.json"},
                 {"neg_extract_to_function_exprs_pos_in_const_declaration.json"},
                 {"neg_extract_to_function_exprs_pos_in_module_xmlns_declaration.json"},
                 {"neg_extract_to_function_exprs_pos_in_enum_declaration.json"},
-                {"neg_extract_to_function_exprs_pos_in_type_definition.json"}
+                {"neg_extract_to_function_exprs_pos_in_type_definition.json"},
+                {"neg_extract_to_function_exprs_pos_in_function_call_with_qualNameRef.json"}
         };
     }
 
