@@ -43,7 +43,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Code action to add Elvis operator.
+ * Code action to add conditional default value
+ *
+ * @since 2201.2.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddConditionalDefaultValueCodeAction implements DiagnosticBasedCodeActionProvider {
@@ -55,7 +57,8 @@ public class AddConditionalDefaultValueCodeAction implements DiagnosticBasedCode
     public boolean validate(Diagnostic diagnostic,
                             DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+        return context.currentSemanticModel().isPresent() &&
+                DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
                 CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -101,11 +104,7 @@ public class AddConditionalDefaultValueCodeAction implements DiagnosticBasedCode
     }
 
     private boolean isOptionalType(TypeSymbol typeSymbol, CodeActionContext context) {
-        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-        if (semanticModel.isEmpty()) {
-            return false;
-        }
-        TypeSymbol nilType = semanticModel.get().types().NIL;
+        TypeSymbol nilType = context.currentSemanticModel().get().types().NIL;
         return nilType.subtypeOf(typeSymbol);
     }
 
