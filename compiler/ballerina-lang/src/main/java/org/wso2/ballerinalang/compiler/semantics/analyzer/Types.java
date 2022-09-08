@@ -1452,6 +1452,13 @@ public class Types {
         return constraint;
     }
 
+    public static BType getEffectiveType(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            return ((BIntersectionType) type).effectiveType;
+        }
+        return type;
+    }
+
     boolean isSelectivelyImmutableType(BType type, PackageID packageID) {
         return isSelectivelyImmutableType(type, new HashSet<>(), false, packageID);
     }
@@ -6494,6 +6501,18 @@ public class Types {
             default:
                 return false;
         }
+    }
+
+    public boolean isNeverType(BType type) {
+        if (type.tag == NEVER) {
+            return true;
+        } else if (type.tag == TypeTags.TYPEREFDESC) {
+            return isNeverType(getReferredType(type));
+        } else if (type.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            return memberTypes.stream().allMatch(this::isNeverType);
+        }
+        return false;
     }
 
     boolean isSingletonType(BType bType) {

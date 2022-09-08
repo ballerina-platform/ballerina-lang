@@ -47,6 +47,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -149,6 +150,33 @@ public class TypedescriptorTest {
         Project project = BCompileUtil.loadProject("test-src/typedesc_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
+    }
+
+    @Test(dataProvider = "ParameterizedUnionReturnTypePosProvider")
+    public void testParameterizedUnionReturnType(int line, int col, String unionSignature, String memberSignature) {
+        Project project = BCompileUtil.loadProject("test-src/parameterized_return_type_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(line, col));
+        assertTrue(optionalSymbol.isPresent());
+        Symbol symbol = optionalSymbol.get();
+        Optional<TypeSymbol> returnTypeDescriptor = ((MethodSymbol) symbol).typeDescriptor().returnTypeDescriptor();
+        assertTrue(returnTypeDescriptor.isPresent());
+        TypeSymbol returnTypeSymbol = returnTypeDescriptor.get();
+        assertEquals(returnTypeSymbol.signature(), unionSignature);
+        assertEquals(returnTypeSymbol.typeKind(), UNION);
+        TypeSymbol firstMember = ((UnionTypeSymbol) returnTypeSymbol).memberTypeDescriptors().get(0);
+        assertEquals(firstMember.typeKind(), TYPE_REFERENCE);
+        TypeSymbol firstMemberTypeDescriptor = ((TypeReferenceTypeSymbol) firstMember).typeDescriptor();
+        assertEquals(firstMemberTypeDescriptor.signature(), memberSignature);
+    }
+
+    @DataProvider(name = "ParameterizedUnionReturnTypePosProvider")
+    private Object[][] getParameterizedUnionReturnTypePos() {
+        return new Object[][] {
+                {25, 9, "tdA|error", "anydata"},
+                {26, 7, "testType|error", "int|string"},
+        };
     }
 
     @Test
@@ -260,6 +288,57 @@ public class TypedescriptorTest {
                 {296, 17, "string[*][*]"},
                 {297, 24, "(int|string)[][*][]"},
                 {298, 30, "(Bar & readonly)[*][2][*]"},
+        };
+    }
+
+    @Test(dataProvider = "IntersectionReadonlyPosProvider")
+    public void testIntersectionReadonlyTypes(int line, int col, TypeDescKind expKind, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), expKind);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "IntersectionReadonlyPosProvider")
+    public Object[][] getIntersectionReadonlyPos() {
+        return new Object[][] {
+                {304, 19, INTERSECTION, "Bar & readonly"},
+                {305, 16, TYPE_REFERENCE, "BarReadonly"},
+                {306, 19, INTERSECTION, "Foo & readonly"},
+                {307, 16, TYPE_REFERENCE, "FooReadOnly"},
+                {308, 35, INTERSECTION, "record {|int a;|} & readonly"},
+        };
+    }
+
+    @Test(dataProvider = "XmlSubTypePosProvider")
+    public void testXmlSubTypes(int line, int col, TypeDescKind expTypeKind, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), expTypeKind);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "XmlSubTypePosProvider")
+    private Object[][] getXmlSubTypePos() {
+        return new Object[][] {
+                {324, 11, TYPE_REFERENCE, "XmlEle"},
+                {325, 16, XML, "xml<XmlEle>"},
+                {326, 15, TYPE_REFERENCE, "New_XmlEle"},
+                {327, 20, XML, "xml<New_XmlEle>"},
+                {328, 10, TYPE_REFERENCE, "XmlPI"},
+                {329, 15, TYPE_REFERENCE, "XmlComment"},
+                {330, 19, TYPE_REFERENCE, "New_XmlComment"},
+                {331, 24, XML, "xml<New_XmlComment>"},
+                {332, 18, TYPE_REFERENCE, "XmlCommentRef"},
+                {333, 23, XML, "xml<XmlCommentRef>"},
+                {334, 11, TYPE_REFERENCE, "XmlTxt"},
+                {335, 21, XML, "xml<xml:Element>"},
+                {336, 22, XML, "xml<xml:Comment>"},
+                {337, 14, TYPE_REFERENCE, "XmlUnionA"},
+                {338, 19, XML, "xml<XmlUnionA>"},
+                {339, 14, TYPE_REFERENCE, "XmlUnionB"},
+                {340, 14, TYPE_REFERENCE, "XmlUnionC"},
+                {341, 19, XML, "xml<XmlUnionC>"},
         };
     }
 
@@ -1022,6 +1101,33 @@ public class TypedescriptorTest {
                 ((VariableSymbol) symbol.get()).typeDescriptor()).typeDescriptor()).memberTypeDescriptors();
         assertEquals(memberSymbols.get(0).signature(), "\"parent\"");
         assertEquals(memberSymbols.get(1).signature(), "\"any\"");
+    }
+
+    @Test(dataProvider = "SingletonTypePos")
+    public void testSingletonType(int line, int col, TypeDescKind expKind, String expString) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), SINGLETON);
+        assertEquals(typeSymbol.signature(), expString);
+        TypeSymbol originalType = ((SingletonTypeSymbol) typeSymbol).originalType();
+        assertEquals(originalType.typeKind(), expKind);
+    }
+
+    @DataProvider(name = "SingletonTypePos")
+    private Object[][] getSingletonType() {
+        return new Object[][] {
+                {351, 6, INT, "5"},
+                {352, 8, STRING, "\"6\""},
+                {353, 10, STRING, "\"abc\""},
+                {354, 8, FLOAT, "1.2"},
+                {355, 9, FLOAT, "3.4"},
+                {356, 8, BYTE, "10"},
+                {357, 11, INT, "46575"},
+                {358, 12, FLOAT, "0xA1.B5p0"},
+                {359, 14, FLOAT, "0xB2.8Fp1"},
+                {360, 8, STRING, "\"a\""},
+                {361, 8, STRING, "\"RED\""},
+        };
     }
 
     private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {
