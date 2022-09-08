@@ -1504,12 +1504,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
         reQuantifier.quantifier = rewriteExpr(reQuantifier.quantifier);
+        reQuantifier.nonGreedyChar = rewriteExpr(reQuantifier.nonGreedyChar);
         result = reQuantifier;
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
         reCharacterClass.characterClassStart = rewriteExpr(reCharacterClass.characterClassStart);
+        reCharacterClass.negation = rewriteExpr(reCharacterClass.negation);
         reCharacterClass.charSet = rewriteExpr(reCharacterClass.charSet);
         reCharacterClass.characterClassEnd = rewriteExpr(reCharacterClass.characterClassEnd);
         result = reCharacterClass;

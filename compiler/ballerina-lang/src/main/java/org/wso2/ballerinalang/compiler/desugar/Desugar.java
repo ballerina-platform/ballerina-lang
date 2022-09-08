@@ -8451,12 +8451,24 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
         reQuantifier.quantifier = rewriteExpr(reQuantifier.quantifier);
+        // Create empty nonGreedyChar.
+        if (reQuantifier.nonGreedyChar == null) {
+            reQuantifier.nonGreedyChar = ASTBuilderUtil.createLiteral(reQuantifier.pos,
+                    symTable.stringType, "");
+        }
+        reQuantifier.nonGreedyChar = rewriteExpr(reQuantifier.nonGreedyChar);
         result = reQuantifier;
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
         reCharacterClass.characterClassStart = rewriteExpr(reCharacterClass.characterClassStart);
+        // Create empty negation.
+        if (reCharacterClass.negation == null) {
+            reCharacterClass.negation = ASTBuilderUtil.createLiteral(reCharacterClass.pos,
+                    symTable.stringType, "");
+        }
+        reCharacterClass.negation = rewriteExpr(reCharacterClass.negation);
         // Create empty charSet.
         if (reCharacterClass.charSet == null) {
             reCharacterClass.charSet = ASTBuilderUtil.createEmptyCharSet(reCharacterClass.pos,
@@ -8480,9 +8492,8 @@ public class Desugar extends BLangNodeVisitor {
         if (reCapturingGroups.flagExpr == null) {
             reCapturingGroups.flagExpr = ASTBuilderUtil.createEmptyFlagExpression(reCapturingGroups.pos,
                     symTable.anydataType, symTable.stringType);
-        } else {
-            reCapturingGroups.flagExpr = rewriteExpr(reCapturingGroups.flagExpr);
         }
+        reCapturingGroups.flagExpr = rewriteExpr(reCapturingGroups.flagExpr);
         reCapturingGroups.disjunction = rewriteExpr(reCapturingGroups.disjunction);
         reCapturingGroups.closeParen = rewriteExpr(reCapturingGroups.closeParen);
         result = reCapturingGroups;

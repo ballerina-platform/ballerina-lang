@@ -1376,11 +1376,13 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangReQuantifier node, T data) {
         analyzeNode(node, data);
         visitNode(node.quantifier, data);
+        visitNode(node.nonGreedyChar, data);
     }
 
     public void visit(BLangReCharacterClass node, T data) {
         analyzeNode(node, data);
         visitNode(node.characterClassStart, data);
+        visitNode(node.negation, data);
         visitNode(node.charSet, data);
         visitNode(node.characterClassEnd, data);
     }

@@ -2360,6 +2360,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangReQuantifier clone = new BLangReQuantifier();
         source.cloneRef = clone;
         clone.quantifier = clone(source.quantifier);
+        clone.nonGreedyChar = clone(source.nonGreedyChar);
     }
 
     @Override
@@ -2367,6 +2368,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangReCharacterClass clone = new BLangReCharacterClass();
         source.cloneRef = clone;
         clone.characterClassStart = clone(source.characterClassStart);
+        clone.negation = clone(source.negation);
         clone.charSet = clone(source.charSet);
         clone.characterClassEnd = clone(source.characterClassEnd);
     }

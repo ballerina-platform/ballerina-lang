@@ -5809,6 +5809,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangReQuantifier reQuantifier, AnalyzerData data) {
         checkExpr(reQuantifier.quantifier, symTable.anydataType, data);
+        if (reQuantifier.nonGreedyChar != null) {
+            checkExpr(reQuantifier.nonGreedyChar, symTable.anydataType, data);
+        }
         data.resultType = types.checkType(reQuantifier, symTable.anydataType, data.expType);
     }
 
@@ -5821,6 +5824,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangReCharacterClass reCharacterClass, AnalyzerData data) {
         checkExpr(reCharacterClass.characterClassStart, symTable.anydataType, data);
+        if (reCharacterClass.negation != null) {
+            checkExpr(reCharacterClass.negation, symTable.anydataType, data);
+        }
         if (reCharacterClass.charSet != null) {
             checkExpr(reCharacterClass.charSet, symTable.anydataType, data);
         }

@@ -1133,12 +1133,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
         rewrite(reQuantifier.quantifier);
+        rewrite(reQuantifier.nonGreedyChar);
         result = reQuantifier;
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
         rewrite(reCharacterClass.characterClassStart);
+        rewrite(reCharacterClass.negation);
         rewrite(reCharacterClass.charSet);
         rewrite(reCharacterClass.characterClassEnd);
         result = reCharacterClass;

@@ -1337,11 +1337,13 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
         find(reQuantifier.quantifier);
+        find(reQuantifier.nonGreedyChar);
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
         find(reCharacterClass.characterClassStart);
+        find(reCharacterClass.negation);
         find(reCharacterClass.charSet);
         find(reCharacterClass.characterClassEnd);
     }

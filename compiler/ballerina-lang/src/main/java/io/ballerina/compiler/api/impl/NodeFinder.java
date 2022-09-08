@@ -1809,11 +1809,13 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
         lookupNode(reQuantifier.quantifier);
+        lookupNode(reQuantifier.nonGreedyChar);
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
         lookupNode(reCharacterClass.characterClassStart);
+        lookupNode(reCharacterClass.negation);
         lookupNode(reCharacterClass.charSet);
         lookupNode(reCharacterClass.characterClassEnd);
     }
