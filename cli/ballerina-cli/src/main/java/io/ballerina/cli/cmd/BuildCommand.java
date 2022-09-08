@@ -163,6 +163,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
+    @CommandLine.Option(names = "--native")
+    private boolean enableNativeImage;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -249,7 +252,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output))
+                .addTask(new CreateExecutableTask(outStream, this.output, enableNativeImage))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 

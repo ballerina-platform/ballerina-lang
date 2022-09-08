@@ -51,12 +51,14 @@ public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
     private Path output;
     private Path currentDir;
+    private boolean enableNativeImage;
 
-    public CreateExecutableTask(PrintStream out, String output) {
+    public CreateExecutableTask(PrintStream out, String output, boolean enableNativeImage) {
         this.out = out;
         if (output != null) {
             this.output = Paths.get(output);
         }
+        this.enableNativeImage = enableNativeImage;
     }
 
     @Override
@@ -95,6 +97,19 @@ public class CreateExecutableTask implements Task {
                 start = System.currentTimeMillis();
             }
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+
+            if (enableNativeImage) {
+                String[] command = {"native-image", "-jar", executablePath.toString()};
+                ProcessBuilder builder = new ProcessBuilder();
+                builder.command(command);
+                builder.inheritIO();
+                Process process = builder.start();
+
+                if (process.waitFor() != 0) {
+                    out.println("\t GraalVM image generation failed.");
+                }
+            }
+
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -107,7 +122,7 @@ public class CreateExecutableTask implements Task {
                     out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
                 }
             }
-        } catch (ProjectException e) {
+        } catch (ProjectException | IOException | InterruptedException e) {
             throw createLauncherException(e.getMessage());
         }
 
