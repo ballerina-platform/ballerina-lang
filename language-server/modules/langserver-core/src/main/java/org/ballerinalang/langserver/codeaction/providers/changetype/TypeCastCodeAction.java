@@ -192,6 +192,10 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
     }
 
     private boolean isNumeric(TypeSymbol typeSymbol) {
+        //Todo: When the type is a singleton.
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+           return  ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream().allMatch(this::isNumeric);
+        }
         return (typeSymbol.typeKind().isIntegerType()
                 || typeSymbol.typeKind() == TypeDescKind.FLOAT
                 || typeSymbol.typeKind() == TypeDescKind.DECIMAL);
