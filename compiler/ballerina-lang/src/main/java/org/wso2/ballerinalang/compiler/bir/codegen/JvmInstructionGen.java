@@ -1966,6 +1966,7 @@ public class JvmInstructionGen {
 
     void generateNewRegExpCharacterClassIns(BIRNonTerminator.NewReCharacterClass newReCharacterClass) {
         this.loadVar(newReCharacterClass.classStart.variableDcl);
+        this.loadVar(newReCharacterClass.negation.variableDcl);
         this.loadVar(newReCharacterClass.charSet.variableDcl);
         this.loadVar(newReCharacterClass.classEnd.variableDcl);
         this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharacterClass", CREATE_RE_CHAR_CLASS,
@@ -2005,6 +2006,7 @@ public class JvmInstructionGen {
 
     void generateNewRegExpQuantifierIns(BIRNonTerminator.NewReQuantifier newReQuantifier) {
         this.loadVar(newReQuantifier.quantifier.variableDcl);
+        this.loadVar(newReQuantifier.nonGreedyChar.variableDcl);
         this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReQuantifier", CREATE_RE_QUANTIFIER, false);
         this.storeToVar(newReQuantifier.lhsOp.variableDcl);
     }

@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 
@@ -35,15 +36,15 @@ import java.util.Map;
  * @since 2201.3.0
  */
 public class RegExpAtomQuantifier implements RegExpTerm {
-    private RegExpAtom reAtom;
+    private Object reAtom;
     private RegExpQuantifier reQuantifier;
 
-    public RegExpAtomQuantifier(RegExpAtom reAtom, RegExpQuantifier reQuantifier) {
+    public RegExpAtomQuantifier(Object reAtom, RegExpQuantifier reQuantifier) {
         this.reAtom = reAtom;
         this.reQuantifier = reQuantifier;
     }
 
-    public RegExpAtom getReAtom() {
+    public Object getReAtom() {
         return this.reAtom;
     }
 
@@ -61,7 +62,7 @@ public class RegExpAtomQuantifier implements RegExpTerm {
 
     @Override
     public String stringValue(BLink parent) {
-        return this.reAtom.stringValue(parent) + this.reQuantifier.stringValue(parent);
+        return StringUtils.getStringValue(this.reAtom, parent) + this.reQuantifier.stringValue(parent);
     }
 
     @Override

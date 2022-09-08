@@ -36,14 +36,16 @@ import java.util.Map;
  */
 public class RegExpQuantifier implements RefValue {
     private String quantifier;
+    private String nonGreedyChar;
 
-    public RegExpQuantifier(String quantifier) {
+    public RegExpQuantifier(String quantifier, String nonGreedyChar) {
         this.quantifier = quantifier;
+        this.nonGreedyChar = nonGreedyChar;
     }
 
     @Override
     public String stringValue(BLink parent) {
-        return this.quantifier;
+        return this.quantifier + this.nonGreedyChar;
     }
 
     @Override

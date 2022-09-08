@@ -678,6 +678,7 @@ public class BIROptimizer {
         public void visit(BIRNonTerminator.NewReQuantifier reQuantifier) {
             this.optimizeNode(reQuantifier.lhsOp, this.env);
             this.optimizeNode(reQuantifier.quantifier, this.env);
+            this.optimizeNode(reQuantifier.nonGreedyChar, this.env);
         }
 
         @Override
@@ -690,6 +691,7 @@ public class BIROptimizer {
         public void visit(BIRNonTerminator.NewReCharacterClass reCharacterClass) {
             this.optimizeNode(reCharacterClass.lhsOp, this.env);
             this.optimizeNode(reCharacterClass.classStart, this.env);
+            this.optimizeNode(reCharacterClass.negation, this.env);
             this.optimizeNode(reCharacterClass.charSet, this.env);
             this.optimizeNode(reCharacterClass.classEnd, this.env);
         }

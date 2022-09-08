@@ -57,7 +57,7 @@ public class RegExpFactory {
         return new RegExpAssertion(assertion.getValue());
     }
 
-    public static RegExpAtomQuantifier createReAtomQuantifier(RegExpAtom reAtom, RegExpQuantifier quantifier) {
+    public static RegExpAtomQuantifier createReAtomQuantifier(Object reAtom, RegExpQuantifier quantifier) {
         return new RegExpAtomQuantifier(reAtom, quantifier);
     }
 
@@ -65,9 +65,10 @@ public class RegExpFactory {
         return new RegExpLiteralCharOrEscape(charOrEscape.getValue());
     }
 
-    public static RegExpCharacterClass createReCharacterClass(BString characterClassStart, RegExpCharSet reCharSet,
-                                                              BString characterClassEnd) {
-        return new RegExpCharacterClass(characterClassStart.getValue(), reCharSet, characterClassEnd.getValue());
+    public static RegExpCharacterClass createReCharacterClass(BString characterClassStart, BString negation,
+                                                              RegExpCharSet reCharSet, BString characterClassEnd) {
+        return new RegExpCharacterClass(characterClassStart.getValue(), negation.getValue(), reCharSet,
+                characterClassEnd.getValue());
     }
 
     public static RegExpCharSet createReCharSet(BString charSet) {
@@ -79,7 +80,6 @@ public class RegExpFactory {
         return new RegExpCapturingGroup(openParen.getValue(), flagExpr, reDisjunction, closeParen.getValue());
     }
 
-
     public static RegExpFlagExpression createReFlagExpression(BString questionMark, RegExpFlagOnOff flagsOnOff,
                                                               BString colon) {
         return new RegExpFlagExpression(questionMark.getValue(), flagsOnOff, colon.getValue());
@@ -89,8 +89,8 @@ public class RegExpFactory {
         return new RegExpFlagOnOff(flags.getValue());
     }
 
-    public static RegExpQuantifier createReQuantifier(BString quantifier) {
-        return new RegExpQuantifier(quantifier.getValue());
+    public static RegExpQuantifier createReQuantifier(BString quantifier, BString nonGreedyChar) {
+        return new RegExpQuantifier(quantifier.getValue(), nonGreedyChar.getValue());
     }
 
     public static RegExpDisjunction translateRegExpConstructs(RegExpValue regExpValue) {
@@ -108,7 +108,7 @@ public class RegExpFactory {
                     continue;
                 }
                 RegExpAtomQuantifier atomQuantifier = (RegExpAtomQuantifier) t;
-                RegExpAtom reAtom = atomQuantifier.getReAtom();
+                Object reAtom = atomQuantifier.getReAtom();
                 if (reAtom instanceof RegExpLiteralCharOrEscape) {
                     atomQuantifier.setReAtom(translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) reAtom));
                 } else if (reAtom instanceof RegExpCharacterClass) {
@@ -122,19 +122,19 @@ public class RegExpFactory {
     private static RegExpAtom translateLiteralCharOrEscape(RegExpLiteralCharOrEscape charOrEscape) {
         String value = charOrEscape.getCharOrEscape();
         if (".".equals(value)) {
-            return createCharacterClass("[^", "\\r\\n");
+            return createCharacterClass("^", "\\r\\n");
         }
         if ("\\s".equals(value)) {
-            return createCharacterClass("[", "\\t\\s\\n\\r");
+            return createCharacterClass("", "\\t\\s\\n\\r");
         }
         if ("\\S".equals(value)) {
-            return createCharacterClass("^[", "\\t\\s\\n\\r");
+            return createCharacterClass("^", "\\t\\s\\n\\r");
         }
         return charOrEscape;
     }
 
-    private static RegExpCharacterClass createCharacterClass(String classStart, String charSet) {
-        return new RegExpCharacterClass(classStart, new RegExpCharSet(charSet), "]");
+    private static RegExpCharacterClass createCharacterClass(String negation, String charSet) {
+        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet), "]");
     }
 
     private static RegExpAtom translateCharacterClass(RegExpCharacterClass charClass) {

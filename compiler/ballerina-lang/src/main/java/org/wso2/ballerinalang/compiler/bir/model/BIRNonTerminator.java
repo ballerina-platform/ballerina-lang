@@ -983,14 +983,16 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewReCharacterClass extends BIRNonTerminator {
         public BIROperand classStart;
+        public BIROperand negation;
         public BIROperand charSet;
         public BIROperand classEnd;
 
-        public NewReCharacterClass(Location pos, BIROperand lhsOp, BIROperand classStart,
+        public NewReCharacterClass(Location pos, BIROperand lhsOp, BIROperand classStart, BIROperand negation,
                                    BIROperand charSet, BIROperand classEnd) {
             super(pos, InstructionKind.NEW_RE_CHAR_CLASS);
             this.lhsOp = lhsOp;
             this.classStart = classStart;
+            this.negation = negation;
             this.charSet = charSet;
             this.classEnd = classEnd;
         }
@@ -1002,7 +1004,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            return new BIROperand[]{this.classStart, this.charSet, this.classEnd};
+            return new BIROperand[]{this.classStart, this.negation, this.charSet, this.classEnd};
         }
     }
 
@@ -1125,11 +1127,13 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewReQuantifier extends BIRNonTerminator {
         public BIROperand quantifier;
+        public BIROperand nonGreedyChar;
 
-        public NewReQuantifier(Location pos, BIROperand lhsOp, BIROperand quantifier) {
+        public NewReQuantifier(Location pos, BIROperand lhsOp, BIROperand quantifier, BIROperand nonGreedyChar) {
             super(pos, InstructionKind.NEW_RE_QUANTIFIER);
             this.lhsOp = lhsOp;
             this.quantifier = quantifier;
+            this.nonGreedyChar = nonGreedyChar;
         }
 
         @Override
@@ -1139,7 +1143,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            return new BIROperand[]{this.quantifier};
+            return new BIROperand[]{this.quantifier, this.nonGreedyChar};
         }
     }
 }

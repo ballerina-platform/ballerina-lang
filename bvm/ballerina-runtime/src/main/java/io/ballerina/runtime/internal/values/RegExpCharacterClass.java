@@ -36,11 +36,14 @@ import java.util.Map;
  */
 public class RegExpCharacterClass implements RegExpAtom {
     private String characterClassStart;
+    private String negation;
     private RegExpCharSet reCharSet;
     private String characterClassEnd;
 
-    public RegExpCharacterClass(String characterClassStart, RegExpCharSet reCharSet, String characterClassEnd) {
+    public RegExpCharacterClass(String characterClassStart, String negation, RegExpCharSet reCharSet,
+                                String characterClassEnd) {
         this.characterClassStart = characterClassStart;
+        this.negation = negation;
         this.reCharSet = reCharSet;
         this.characterClassEnd = characterClassEnd;
     }
@@ -63,7 +66,7 @@ public class RegExpCharacterClass implements RegExpAtom {
 
     @Override
     public String stringValue(BLink parent) {
-        return this.characterClassStart + this.reCharSet.stringValue(parent) + this.characterClassEnd;
+        return this.characterClassStart + this.negation + this.reCharSet.stringValue(parent) + this.characterClassEnd;
     }
 
     @Override

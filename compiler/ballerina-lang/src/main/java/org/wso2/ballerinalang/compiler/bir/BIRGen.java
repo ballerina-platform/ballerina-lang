@@ -2443,8 +2443,11 @@ public class BIRGen extends BLangNodeVisitor {
         reQuantifier.quantifier.accept(this);
         BIROperand quantifier = this.env.targetOperand;
 
+        reQuantifier.nonGreedyChar.accept(this);
+        BIROperand nonGreedyChar = this.env.targetOperand;
+
         BIRNonTerminator.NewReQuantifier newReQuantifier =
-                new BIRNonTerminator.NewReQuantifier(reQuantifier.pos, toVarRef, quantifier);
+                new BIRNonTerminator.NewReQuantifier(reQuantifier.pos, toVarRef, quantifier, nonGreedyChar);
         setScopeAndEmit(newReQuantifier);
         this.env.targetOperand = toVarRef;
     }
@@ -2475,6 +2478,9 @@ public class BIRGen extends BLangNodeVisitor {
         reCharacterClass.characterClassStart.accept(this);
         BIROperand classStart = this.env.targetOperand;
 
+        reCharacterClass.negation.accept(this);
+        BIROperand negation = this.env.targetOperand;
+
         reCharacterClass.charSet.accept(this);
         BIROperand charSet = this.env.targetOperand;
 
@@ -2483,7 +2489,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRNonTerminator.NewReCharacterClass newReCharacterClass =
                 new BIRNonTerminator.NewReCharacterClass(reCharacterClass.pos, toVarRef, classStart,
-                        charSet, classEnd);
+                        negation, charSet, classEnd);
         setScopeAndEmit(newReCharacterClass);
         this.env.targetOperand = toVarRef;
     }

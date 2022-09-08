@@ -584,12 +584,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewReQuantifier reQuantifier) {
         reQuantifier.lhsOp.accept(this);
         reQuantifier.quantifier.accept(this);
+        reQuantifier.nonGreedyChar.accept(this);
     }
 
     @Override
     public void visit(BIRNonTerminator.NewReCharacterClass reCharacterClass) {
         reCharacterClass.lhsOp.accept(this);
         reCharacterClass.classStart.accept(this);
+        reCharacterClass.negation.accept(this);
         reCharacterClass.charSet.accept(this);
         reCharacterClass.classEnd.accept(this);
     }
