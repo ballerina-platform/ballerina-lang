@@ -32,7 +32,8 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -336,6 +337,7 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 validateUnionValue(tomlValue, variableName, (BUnionType) type);
                 break;
             default:
@@ -632,15 +634,17 @@ public class TomlProvider implements ConfigProvider {
         Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
-            if (TypeChecker.checkIsLikeType(balValue, type, false)) {
-                convertibleTypes.add(type);
-                if (convertibleTypes.size() > 1) {
-                    invalidTomlLines.add(tomlValue.location().lineRange());
-                    throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
-                            variableName, decodeIdentifier(unionType.toString()));
-                }
-            }
+            convertibleTypes.addAll(TypeConverter.getConvertibleTypes(balValue, type, variableName, false,
+                    new ArrayList<>(), new ArrayList<>(), false, false));
         }
+
+        if (convertibleTypes.size() > 1 &&
+                !(balValue instanceof BArray && unionType.getTag() == TypeTags.ANYDATA_TAG)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
+                    variableName, decodeIdentifier(unionType.toString()));
+        }
+
         if (convertibleTypes.isEmpty()) {
             throwTypeIncompatibleError(tomlValue, variableName, unionType);
         }
@@ -692,6 +696,9 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
+                visitedNodes.add(tomlValue);
+                tomlValue = getValueFromKeyValueNode(tomlValue);
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
             case TypeTags.TABLE_TAG:
@@ -771,12 +778,11 @@ public class TomlProvider implements ConfigProvider {
             validateMapUnionArray((TomlTableArrayNode) tomlValue, variableName, arrayType, elementType);
             return;
         }
-        TomlValueNode valueNode = ((TomlKeyValueNode) tomlValue).value();
-        if (!checkEffectiveTomlType(valueNode.kind(), arrayType, variableName)) {
+        if (!checkEffectiveTomlType(tomlValue.kind(), arrayType, variableName)) {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         visitedNodes.add(tomlValue);
-        TomlArrayValueNode arrayNode = (TomlArrayValueNode) valueNode;
+        TomlArrayValueNode arrayNode = (TomlArrayValueNode) tomlValue;
         validateArraySize(arrayNode, variableName, arrayType, arrayNode.elements().size());
         validateArrayElements(variableName, arrayNode.elements(), elementType);
     }
@@ -820,6 +826,7 @@ public class TomlProvider implements ConfigProvider {
                     break;
                 case TypeTags.ANYDATA_TAG:
                 case TypeTags.UNION_TAG:
+                case TypeTags.JSON_TAG:
                     validateUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
                     break;
                 default:
