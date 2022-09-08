@@ -46,9 +46,11 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -294,7 +296,7 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.TABLE_TAG:
-                if (isConvertibleToTableType(((BTableType) targetType).getConstrainedType())) {
+                if (isConvertibleToTableType(inputValue, ((BTableType) targetType))) {
                     return targetType;
                 }
                 break;
@@ -315,7 +317,7 @@ public class TypeConverter {
                 return getConvertibleType(inputValue, ((BTypedescType) targetType).getConstraint(), varName,
                         isFromJson, unresolvedValues, errors, allowNumericConversion);
             default:
-                if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
+                if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)) {
                     return targetType;
                 }
         }
@@ -555,15 +557,23 @@ public class TypeConverter {
         }
     }
 
-    private static boolean isConvertibleToTableType(Type tableConstrainedType) {
+    private static boolean isConvertibleToTableType(Object sourceValue, BTableType tableType) {
+        if (!(sourceValue instanceof TableValueImpl || sourceValue instanceof ArrayValueImpl)) {
+            return false;
+        }
+        return isValidTableConstraint(tableType.getConstrainedType());
+    }
+
+    private static boolean isValidTableConstraint(Type tableConstrainedType) {
         switch (tableConstrainedType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
                 return true;
             case TypeTags.INTERSECTION_TAG:
-                return isConvertibleToTableType(((BIntersectionType) tableConstrainedType).getEffectiveType());
+                return isValidTableConstraint(((BIntersectionType) tableConstrainedType).getEffectiveType());
+            default:
+                return false;
         }
-        return false;
     }
 
     private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
