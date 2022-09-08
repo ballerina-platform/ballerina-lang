@@ -4618,7 +4618,8 @@
         },
         {
           "name": "nonGreedyChar",
-          "type": "Token"
+          "type": "Token",
+          "isOptional": true
         }
       ]
     }

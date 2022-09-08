@@ -3334,11 +3334,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node reBaseQuantifier,
             Token nonGreedyChar) {
         Objects.requireNonNull(reBaseQuantifier, "reBaseQuantifier must not be null");
-        Objects.requireNonNull(nonGreedyChar, "nonGreedyChar must not be null");
 
         STNode stReQuantifierNode = STNodeFactory.createReQuantifierNode(
                 reBaseQuantifier.internalNode(),
-                nonGreedyChar.internalNode());
+                getOptionalSTNode(nonGreedyChar));
         return stReQuantifierNode.createUnlinkedFacade();
     }
 }
