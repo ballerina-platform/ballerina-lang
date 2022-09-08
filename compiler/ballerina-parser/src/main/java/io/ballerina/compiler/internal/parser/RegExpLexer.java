@@ -360,6 +360,8 @@ public class RegExpLexer extends AbstractLexer {
                 processReQuantifierWithDigits();
                 hasQuantifier = true;
                 break;
+            default:
+                break;
         }
 
         endMode();
