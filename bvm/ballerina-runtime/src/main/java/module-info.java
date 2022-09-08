@@ -19,7 +19,6 @@ module io.ballerina.runtime {
     requires org.apache.commons.lang3;
     requires io.ballerina.identifier;
     requires jdk.unsupported;
-    requires org.jetbrains.annotations;
 
     // API exports
     exports io.ballerina.runtime.api;

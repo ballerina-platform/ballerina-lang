@@ -51,7 +51,6 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TableValueImpl;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -261,10 +260,9 @@ public class TypeConverter {
         }
     }
 
-    @Nullable
-    public static Type getConvertibleType(Object inputValue, Type targetType, @Nullable String varName,
-                                          boolean isFromJson, List<TypeValuePair> unresolvedValues,
-                                          List<String> errors, boolean allowNumericConversion) {
+    public static Type getConvertibleType(Object inputValue, Type targetType, String varName, boolean isFromJson,
+                                          List<TypeValuePair> unresolvedValues, List<String> errors,
+                                          boolean allowNumericConversion) {
 
         int targetTypeTag = targetType.getTag();
         switch (targetTypeTag) {
@@ -324,7 +322,6 @@ public class TypeConverter {
         return null;
     }
 
-    @Nullable
     public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
                                                            String varName, boolean isFromJson, List<String> errors,
                                                            List<TypeValuePair> unresolvedValues,
@@ -348,7 +345,6 @@ public class TypeConverter {
         return null;
     }
 
-    @Nullable
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
                                                 String varName, boolean isFromJson, List<String> errors,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
@@ -385,7 +381,6 @@ public class TypeConverter {
         return null;
     }
 
-    @Nullable
     public static Type getConvertibleTypeFromJson(Object value, Type targetType, String varName,
                                                   List<TypeValuePair> unresolvedValues, List<String> errors,
                                                   boolean allowNumericConversion) {
