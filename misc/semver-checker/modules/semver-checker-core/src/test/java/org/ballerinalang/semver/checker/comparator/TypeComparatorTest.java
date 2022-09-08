@@ -148,217 +148,260 @@ public class TypeComparatorTest {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testSimpleTypeBoolean(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testSimpleTypeFloat(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testSimpleTypeInt(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testSimpleTypeNil(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testSequenceTypeString(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testSequenceTypeXml(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testStructuredTypeList(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testStructuredTypeMap(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testStructuredTypeTable(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeError(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeFuture(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeHandle(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeStream(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeTypeDesc(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeFunctionParameter(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeFunctionQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeFunctionReturn(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectMethodAnnotation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectMethodDocumentation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectMethodBody(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectMethodIdentifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectMethodParameter(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectMethodQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectMethodReturn(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectFieldAnnotation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectFieldDocumentation(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectFieldIdentifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectFieldQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectFieldType(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testBehaviouralTypeObjectQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeAnyData(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeAnyType(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeByte(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeDistinct(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeIntersection(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeJsonType(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeNeverType(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeOptional(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeReadOnly(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeRecord(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeSingleton(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeTypeReference(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
-    @Test(dataProvider = "typeDefinitionTestDataProvider")
+    // Todo: Enable with https://github.com/ballerina-platform/ballerina-lang/issues/37017
+    @Test(enabled = false, dataProvider = "typeDefinitionTestDataProvider")
     public void testOtherTypeUnion(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
