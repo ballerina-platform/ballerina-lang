@@ -14,16 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "http://example.com/invalidgeneratedcode/one.yaml" as foo;
+client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-one.yaml" as foo;
 foo:MyClientClass a = new;
 
-client "http://example.com/invalidgeneratedcode/two.yaml" as bar;
+client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-two.yaml" as bar;
 bar:'client b = new;
 
 function fn() {
-    client "http://example.com/invalidgeneratedcode/three.yaml" as baz;
+    client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-three.yaml" as baz;
     baz:'client? _ = ();
 
-    client "http://example.com/invalidgeneratedcode/four.yaml" as qux;
+    client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-four.yaml" as qux;
     qux:client _ = new;
 }

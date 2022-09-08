@@ -4944,7 +4944,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void validateClientDeclarations(BLangPackage bLangPackage, AnalyzerData data) {
-        if (this.symTable.clientDeclarations.containsValue(bLangPackage.packageID)) {
+        if (this.symTable.clientDeclarations.containsValue(Optional.of(bLangPackage.packageID))) {
             checkForClientObjectTypeOrClass(bLangPackage);
             checkForMutableState(bLangPackage, data);
         }
@@ -5087,7 +5087,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BTypeSymbol tsymbol = type.tsymbol;
             if (tsymbol != null &&
                     !this.currentPkgId.equals(tsymbol.pkgID) &&
-                    this.symTable.clientDeclarations.containsValue(tsymbol.pkgID)) {
+                    this.symTable.clientDeclarations.containsValue(Optional.of(tsymbol.pkgID))) {
                 this.exposedTypes.add(type);
                 return;
             }

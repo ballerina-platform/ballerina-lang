@@ -56,11 +56,11 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
         public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
             String uri = getUri(idlSourceGeneratorContext.clientNode());
 
-            if (uri.startsWith("http://example.com/disallow")) {
+            if (uri.startsWith("https://postman-echo.com/get?name=simpleclienttest-disallow")) {
                 return false;
             }
 
-            return uri.startsWith("http://example.com");
+            return uri.startsWith("https://postman-echo.com/get?name=simpleclienttest");
         }
 
         @Override
@@ -92,11 +92,11 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
         }
 
         private DocumentConfig getClientCode(DocumentId documentId, String uri) {
-            if (uri.startsWith("http://example.com/invalidgeneratedcode")) {
+            if (uri.startsWith("https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode")) {
                 return getInvalidCode(documentId, uri);
             }
 
-            if ("http://example.com/apis/one.yaml".equals(uri)) {
+            if ("https://postman-echo.com/get?name=simpleclienttest.yaml".equals(uri)) {
                 return DocumentConfig.from(
                         documentId, "public const DEFAULT_URL = \"http://www.example.com\";\n" +
                                 "\n" +
@@ -132,7 +132,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "}", "simple_client.bal");
             }
 
-            if ("http://example.com/apis/clientobjecttype.yaml".equals(uri)) {
+            if ("https://postman-echo.com/get?name=simpleclienttest-clientobjecttype.yaml".equals(uri)) {
                 return DocumentConfig.from(
                         documentId, "public type 'client client object {\n" +
                                 "    int index;\n" +
@@ -170,7 +170,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
         }
 
         private DocumentConfig getInvalidCode(DocumentId documentId, String uri) {
-            if (uri.equals("http://example.com/invalidgeneratedcode/one.yaml")) {
+            if (uri.equals("https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-one.yaml")) {
                 return DocumentConfig.from(
                         documentId, "public client class MyClientClass {\n" +
                                 "    remote function fn() {\n" +
@@ -183,7 +183,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "};", "simple_client.bal");
             }
 
-            if (uri.equals("http://example.com/invalidgeneratedcode/two.yaml")) {
+            if (uri.equals("https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-two.yaml")) {
                 return DocumentConfig.from(
                         documentId, "public class 'client { // Not a client class\n" +
                                 "    function fn() {\n" +
@@ -192,7 +192,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "}", "simple_client.bal");
             }
 
-            if (uri.equals("http://example.com/invalidgeneratedcode/three.yaml")) {
+            if (uri.equals("https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-three.yaml")) {
                 return DocumentConfig.from(
                         documentId, "public type 'client object { // Not a client object\n" +
                                 "    function fn();\n" +

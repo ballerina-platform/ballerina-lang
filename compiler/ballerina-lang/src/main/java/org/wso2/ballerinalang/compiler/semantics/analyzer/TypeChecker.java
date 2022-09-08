@@ -205,6 +205,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BinaryOperator;
@@ -2818,7 +2819,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
         } else if (Names.CLIENT.equals(varName) &&
                 !identifier.isLiteral &&
-                !symTable.clientDeclarations.containsValue(pkgSymbol.pkgID)) {
+                !symTable.clientDeclarations.containsValue(Optional.of(pkgSymbol.pkgID))) {
             dlog.error(identifier.pos, DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
         }
 

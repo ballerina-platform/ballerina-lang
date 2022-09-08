@@ -1151,7 +1151,7 @@ public class ProjectUtils {
     }
 
     public static void writeModule(ModuleConfig moduleConfig, Path modulesRoot) throws IOException {
-        Path moduleDirPath = modulesRoot.resolve(moduleConfig.moduleDescriptor().name().toString());
+        Path moduleDirPath = modulesRoot.resolve(moduleConfig.moduleDescriptor().name().moduleNamePart());
         Files.createDirectories(moduleDirPath);
         for (DocumentConfig sourceDoc : moduleConfig.sourceDocs()) {
             Files.writeString(moduleDirPath.resolve(sourceDoc.name()), sourceDoc.content());
