@@ -1131,8 +1131,8 @@ public class TypedescriptorTest {
         };
     }
 
-    @Test(dataProvider = "ClassObjectTypePosProvider")
-    public void testClassObjectType(int line, int column, String expectedSignature, TypeDescKind expTypeKind) {
+    @Test(dataProvider = "ClassAndObjectTypePosProvider")
+    public void testClassAndObjectType(int line, int column, String expectedSignature, TypeDescKind expTypeKind) {
         Symbol varSymbol = getSymbol(line, column);
         assertEquals(varSymbol.kind(), VARIABLE);
         TypeSymbol typeSymbol = ((VariableSymbol) varSymbol).typeDescriptor();
@@ -1141,8 +1141,8 @@ public class TypedescriptorTest {
         assertEquals(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor().typeKind(), expTypeKind);
     }
 
-    @DataProvider(name = "ClassObjectTypePosProvider")
-    private Object[][] getClassObjectTypePos() {
+    @DataProvider(name = "ClassAndObjectTypePosProvider")
+    private Object[][] getClassAndObjectTypePos() {
         return new Object[][] {
                 {371, 12, "'client", OBJECT},
                 {372, 11, "'class", OBJECT},
