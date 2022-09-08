@@ -99,6 +99,8 @@ header2="header2"
 [configUnionTypes.configMap2.config2]
 password=["1", 2, 3]
 
+[configUnionTypes.config]
+auth.clientId = "ABC"
 
 [configUnionTypes.imported_unions]
 httpVersion = "HTTP_2"
