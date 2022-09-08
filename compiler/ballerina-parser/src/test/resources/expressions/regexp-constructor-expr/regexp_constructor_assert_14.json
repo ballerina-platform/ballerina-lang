@@ -122,15 +122,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "ad"
                                             }
                                           ]
                                         },
@@ -233,8 +235,8 @@
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "ad"
                                             }
                                           ]
                                         },
@@ -331,15 +333,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "ad-h"
                                             }
                                           ]
                                         },
@@ -436,15 +440,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\u{41d}-hM"
                                             }
                                           ]
                                         },
@@ -541,15 +547,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\u{41d}-hM-N"
                                             }
                                           ]
                                         },
@@ -646,15 +654,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\nd-hM-N\\tQ-T"
                                             }
                                           ]
                                         },
@@ -751,15 +761,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\-d-hM-N\\tQ-T"
                                             }
                                           ]
                                         },
@@ -862,8 +874,8 @@
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\-d-hM-N\\tQ-T"
                                             }
                                           ]
                                         },
@@ -960,15 +972,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\-\\tA"
                                             }
                                           ]
                                         },
@@ -1065,15 +1079,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\-\\u{1234A}"
                                             }
                                           ]
                                         },
