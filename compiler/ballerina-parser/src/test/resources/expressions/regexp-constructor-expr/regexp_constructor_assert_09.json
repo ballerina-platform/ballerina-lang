@@ -122,15 +122,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\^"
                                             }
                                           ]
                                         },
@@ -227,15 +229,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\$"
                                             }
                                           ]
                                         },
@@ -332,15 +336,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\\\"
                                             }
                                           ]
                                         },
@@ -437,15 +443,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\."
                                             }
                                           ]
                                         },
@@ -548,8 +556,8 @@
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\*"
                                             }
                                           ]
                                         },
@@ -646,15 +654,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\+"
                                             }
                                           ]
                                         },
@@ -757,8 +767,8 @@
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\?"
                                             }
                                           ]
                                         },
@@ -861,8 +871,8 @@
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\("
                                             }
                                           ]
                                         },
@@ -959,15 +969,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\)"
                                             }
                                           ]
                                         },
@@ -1070,8 +1082,8 @@
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\["
                                             }
                                           ]
                                         },
@@ -1168,15 +1180,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\]"
                                             }
                                           ]
                                         },
@@ -1279,8 +1293,8 @@
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\{"
                                             }
                                           ]
                                         },
@@ -1377,15 +1391,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\}"
                                             }
                                           ]
                                         },
@@ -1482,15 +1498,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "\\|"
                                             }
                                           ]
                                         },

@@ -89,17 +89,16 @@ public class RegExpParser extends AbstractParser {
     private STNode parseReTerm() {
         STToken nextToken = peek();
         SyntaxKind tokenKind = nextToken.kind;
-        if (tokenKind == SyntaxKind.RE_ASSERTION) {
+        if (tokenKind == SyntaxKind.RE_ASSERTION_VALUE) {
             return parseReAssertion();
         }
 
         STNode reAtom;
         switch (nextToken.kind) {
-            case RE_CHAR_ESCAPE:
+            case RE_CHAR_ESCAPE_VALUE:
                 reAtom = parseReAtomCharEscape();
                 break;
             case OPEN_BRACKET_TOKEN:
-            case NEGATED_CHAR_CLASS_START_TOKEN:
                 reAtom = parseCharacterClass();
                 break;
             case OPEN_PAREN_TOKEN:
@@ -113,7 +112,7 @@ public class RegExpParser extends AbstractParser {
         }
 
         nextToken = peek();
-        if (nextToken.kind == SyntaxKind.RE_QUANTIFIER) {
+        if (nextToken.kind == SyntaxKind.RE_BASE_QUANTIFIER_VALUE) {
             STNode quantifier = parseReQuantifier();
             return STNodeFactory.createReAtomQuantifierNode(reAtom, quantifier);
         }
@@ -148,31 +147,36 @@ public class RegExpParser extends AbstractParser {
      */
     private STNode parseCharacterClass() {
         STNode characterClassStart = parseCharacterClassStart();
-        STToken nextToken = peek();
-        STNode characterSet = null;
-        if (!isEndOfCharacterClass(nextToken)) {
-            characterSet = parseReCharSet(nextToken);
-        }
+        STNode negation = parseNegation();
+        STNode characterSet = parseReCharSet();
         STNode characterClassEnd = parseCharacterClassEnd();
-        return STNodeFactory.createReCharacterClassNode(characterClassStart, characterSet, characterClassEnd);
-    }
-
-    private boolean isEndOfCharacterClass(STToken nextToken) {
-        return nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN || nextToken.kind == SyntaxKind.EOF_TOKEN;
+        return STNodeFactory.createReCharacterClassNode(characterClassStart, negation, characterSet, characterClassEnd);
     }
 
     /**
-     * Parse open bracket token or open bracket token with ^ token in a character class.
+     * Parse open bracket token in a character class.
      *
-     * @return Open bracket token or open bracket token with ^ token node
+     * @return Open bracket token
      */
     private STNode parseCharacterClassStart() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN ||
-                token.kind == SyntaxKind.NEGATED_CHAR_CLASS_START_TOKEN) {
+        if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
             return consume();
         }
         throw new IllegalStateException();
+    }
+
+    /**
+     * Parse ^ token in a character class.
+     *
+     * @return ^ token
+     */
+    private STNode parseNegation() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.BITWISE_XOR_TOKEN) {
+            return consume();
+        }
+        return null;
     }
 
     /**
@@ -180,12 +184,13 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReCharSet node
      */
-    private STNode parseReCharSet(STToken nextToken) {
-        if (nextToken.kind == SyntaxKind.RE_CHAR_SET) {
+    private STNode parseReCharSet() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.RE_CHAR_SET_VALUE) {
             STNode charSet = consume();
             return STNodeFactory.createReCharSetNode(charSet);
         }
-        throw new IllegalStateException();
+        return null;
     }
 
     /**
@@ -209,7 +214,21 @@ public class RegExpParser extends AbstractParser {
      */
     private STNode parseReQuantifier() {
         STNode quantifier = consume();
-        return STNodeFactory.createReQuantifierNode(quantifier);
+        STNode nonGreedyChar = parseNonGreedyChar();
+        return STNodeFactory.createReQuantifierNode(quantifier, nonGreedyChar);
+    }
+
+    /**
+     * Parse ? token that comes after the ReBaseQuantifier.
+     *
+     * @return ? token
+     */
+    private STNode parseNonGreedyChar() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+            return consume();
+        }
+        return null;
     }
 
     /**
@@ -282,7 +301,7 @@ public class RegExpParser extends AbstractParser {
      * @return ReFlagsOnOff node
      */
     private STNode parseReFlagsOnOff(STToken nextToken) {
-        if (nextToken.kind == SyntaxKind.RE_FLAGS_ON_OFF) {
+        if (nextToken.kind == SyntaxKind.RE_FLAGS_ON_OFF_VALUE) {
             return consume();
         }
         throw new IllegalStateException();

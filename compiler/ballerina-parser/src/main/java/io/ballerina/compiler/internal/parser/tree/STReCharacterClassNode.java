@@ -31,58 +31,68 @@ import java.util.Collections;
  * @since 2201.3.0
  */
 public class STReCharacterClassNode extends STReAtomNode {
-    public final STNode openBracketAndNegation;
+    public final STNode openBracket;
+    public final STNode negation;
     public final STNode reCharSet;
     public final STNode closeBracket;
 
     STReCharacterClassNode(
-            STNode openBracketAndNegation,
+            STNode openBracket,
+            STNode negation,
             STNode reCharSet,
             STNode closeBracket) {
         this(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket,
                 Collections.emptyList());
     }
 
     STReCharacterClassNode(
-            STNode openBracketAndNegation,
+            STNode openBracket,
+            STNode negation,
             STNode reCharSet,
             STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RE_CHARACTER_CLASS, diagnostics);
-        this.openBracketAndNegation = openBracketAndNegation;
+        this.openBracket = openBracket;
+        this.negation = negation;
         this.reCharSet = reCharSet;
         this.closeBracket = closeBracket;
 
         addChildren(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReCharacterClassNode(
-                this.openBracketAndNegation,
+                this.openBracket,
+                this.negation,
                 this.reCharSet,
                 this.closeBracket,
                 diagnostics);
     }
 
     public STReCharacterClassNode modify(
-            STNode openBracketAndNegation,
+            STNode openBracket,
+            STNode negation,
             STNode reCharSet,
             STNode closeBracket) {
         if (checkForReferenceEquality(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket)) {
             return this;
         }
 
         return new STReCharacterClassNode(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket,
                 diagnostics);

@@ -127,8 +127,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "$"
                                     }
                                   ]
                                 },
@@ -137,16 +137,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -240,8 +240,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "^"
                                     }
                                   ]
                                 },
@@ -250,16 +250,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "+"
                                         }
                                       ]
                                     }
@@ -353,11 +353,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "a"
                                         }
                                       ]
                                     }
@@ -367,11 +367,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "b"
                                         }
                                       ]
                                     }
@@ -381,11 +381,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "c"
                                         }
                                       ]
                                     }
@@ -395,8 +395,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "^"
                                     }
                                   ]
                                 },
@@ -405,16 +405,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "+"
                                         }
                                       ]
                                     }
@@ -508,11 +508,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "a"
                                         }
                                       ]
                                     }
@@ -522,11 +522,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "b"
                                         }
                                       ]
                                     }
@@ -536,11 +536,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "c"
                                         }
                                       ]
                                     }
@@ -550,8 +550,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "^"
                                     }
                                   ]
                                 },
@@ -560,16 +560,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -579,11 +579,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "a"
                                         }
                                       ]
                                     }
@@ -593,11 +593,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "b"
                                         }
                                       ]
                                     }
@@ -691,11 +691,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "a"
                                         }
                                       ]
                                     }
@@ -705,11 +705,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "b"
                                         }
                                       ]
                                     }
@@ -719,11 +719,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "c"
                                         }
                                       ]
                                     }
@@ -733,8 +733,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "$"
                                     }
                                   ]
                                 },
@@ -743,16 +743,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -762,11 +762,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "a"
                                         }
                                       ]
                                     }
@@ -776,11 +776,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "b"
                                         }
                                       ]
                                     }
@@ -874,11 +874,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "a"
                                         }
                                       ]
                                     }
@@ -888,11 +888,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "b"
                                         }
                                       ]
                                     }
@@ -902,11 +902,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "c"
                                         }
                                       ]
                                     }
@@ -919,15 +919,17 @@
                                       "kind": "RE_CHARACTER_CLASS",
                                       "children": [
                                         {
-                                          "kind": "NEGATED_CHAR_CLASS_START_TOKEN",
-                                          "value": "NEGATED_CHAR_CLASS_START_TOKEN"
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
                                           "kind": "RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET",
-                                              "value": "RE_CHAR_SET"
+                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "value": "g-i"
                                             }
                                           ]
                                         },
@@ -942,8 +944,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "^"
                                     }
                                   ]
                                 },
@@ -952,16 +954,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "*"
                                         }
                                       ]
                                     }

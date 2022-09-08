@@ -128,16 +128,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "\\p"
                                         }
                                       ]
                                     }
@@ -232,16 +232,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "\\p{sd\u003dGreek}"
                                         }
                                       ]
                                     }
@@ -336,16 +336,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "\\p{sc-Greek}"
                                         }
                                       ]
                                     }
@@ -440,16 +440,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "\\p{sc\u003d#}"
                                         }
                                       ]
                                     }
@@ -544,16 +544,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "\\p{gd\u003dLu}"
                                         }
                                       ]
                                     }
@@ -648,16 +648,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "\\p{gc-Lu}"
                                         }
                                       ]
                                     }
@@ -752,16 +752,16 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
                                           ],
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "value": "\\p{gc\u003d#}"
                                         }
                                       ]
                                     }

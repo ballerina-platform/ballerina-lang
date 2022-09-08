@@ -31,40 +31,50 @@ import java.util.Collections;
  * @since 2201.3.0
  */
 public class STReQuantifierNode extends STNode {
-    public final STNode reQuantifier;
+    public final STNode reBaseQuantifier;
+    public final STNode nonGreedyChar;
 
     STReQuantifierNode(
-            STNode reQuantifier) {
+            STNode reBaseQuantifier,
+            STNode nonGreedyChar) {
         this(
-                reQuantifier,
+                reBaseQuantifier,
+                nonGreedyChar,
                 Collections.emptyList());
     }
 
     STReQuantifierNode(
-            STNode reQuantifier,
+            STNode reBaseQuantifier,
+            STNode nonGreedyChar,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RE_QUANTIFIER, diagnostics);
-        this.reQuantifier = reQuantifier;
+        this.reBaseQuantifier = reBaseQuantifier;
+        this.nonGreedyChar = nonGreedyChar;
 
         addChildren(
-                reQuantifier);
+                reBaseQuantifier,
+                nonGreedyChar);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReQuantifierNode(
-                this.reQuantifier,
+                this.reBaseQuantifier,
+                this.nonGreedyChar,
                 diagnostics);
     }
 
     public STReQuantifierNode modify(
-            STNode reQuantifier) {
+            STNode reBaseQuantifier,
+            STNode nonGreedyChar) {
         if (checkForReferenceEquality(
-                reQuantifier)) {
+                reBaseQuantifier,
+                nonGreedyChar)) {
             return this;
         }
 
         return new STReQuantifierNode(
-                reQuantifier,
+                reBaseQuantifier,
+                nonGreedyChar,
                 diagnostics);
     }
 

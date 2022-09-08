@@ -33,16 +33,20 @@ public class ReCharacterClassNode extends ReAtomNode {
         super(internalNode, position, parent);
     }
 
-    public Token openBracketAndNegation() {
+    public Token openBracket() {
         return childInBucket(0);
     }
 
-    public Optional<ReCharSetNode> reCharSet() {
+    public Optional<Token> negation() {
         return optionalChildInBucket(1);
     }
 
+    public Optional<ReCharSetNode> reCharSet() {
+        return optionalChildInBucket(2);
+    }
+
     public Token closeBracket() {
-        return childInBucket(2);
+        return childInBucket(3);
     }
 
     @Override
@@ -58,24 +62,28 @@ public class ReCharacterClassNode extends ReAtomNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "openBracketAndNegation",
+                "openBracket",
+                "negation",
                 "reCharSet",
                 "closeBracket"};
     }
 
     public ReCharacterClassNode modify(
-            Token openBracketAndNegation,
+            Token openBracket,
+            Token negation,
             ReCharSetNode reCharSet,
             Token closeBracket) {
         if (checkForReferenceEquality(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket)) {
             return this;
         }
 
         return NodeFactory.createReCharacterClassNode(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket);
     }
@@ -91,21 +99,29 @@ public class ReCharacterClassNode extends ReAtomNode {
      */
     public static class ReCharacterClassNodeModifier {
         private final ReCharacterClassNode oldNode;
-        private Token openBracketAndNegation;
+        private Token openBracket;
+        private Token negation;
         private ReCharSetNode reCharSet;
         private Token closeBracket;
 
         public ReCharacterClassNodeModifier(ReCharacterClassNode oldNode) {
             this.oldNode = oldNode;
-            this.openBracketAndNegation = oldNode.openBracketAndNegation();
+            this.openBracket = oldNode.openBracket();
+            this.negation = oldNode.negation().orElse(null);
             this.reCharSet = oldNode.reCharSet().orElse(null);
             this.closeBracket = oldNode.closeBracket();
         }
 
-        public ReCharacterClassNodeModifier withOpenBracketAndNegation(
-                Token openBracketAndNegation) {
-            Objects.requireNonNull(openBracketAndNegation, "openBracketAndNegation must not be null");
-            this.openBracketAndNegation = openBracketAndNegation;
+        public ReCharacterClassNodeModifier withOpenBracket(
+                Token openBracket) {
+            Objects.requireNonNull(openBracket, "openBracket must not be null");
+            this.openBracket = openBracket;
+            return this;
+        }
+
+        public ReCharacterClassNodeModifier withNegation(
+                Token negation) {
+            this.negation = negation;
             return this;
         }
 
@@ -124,7 +140,8 @@ public class ReCharacterClassNode extends ReAtomNode {
 
         public ReCharacterClassNode apply() {
             return oldNode.modify(
-                    openBracketAndNegation,
+                    openBracket,
+                    negation,
                     reCharSet,
                     closeBracket);
         }

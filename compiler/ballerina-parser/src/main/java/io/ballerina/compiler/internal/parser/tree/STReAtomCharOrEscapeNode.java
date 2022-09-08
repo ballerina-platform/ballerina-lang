@@ -43,7 +43,7 @@ public class STReAtomCharOrEscapeNode extends STReAtomNode {
     STReAtomCharOrEscapeNode(
             STNode reAtomCharOrEscape,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_ATOM, diagnostics);
+        super(SyntaxKind.RE_CHAR_ESCAPE, diagnostics);
         this.reAtomCharOrEscape = reAtomCharOrEscape;
 
         addChildren(

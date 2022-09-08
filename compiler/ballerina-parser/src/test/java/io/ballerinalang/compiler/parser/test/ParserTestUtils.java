@@ -364,6 +364,10 @@ public class ParserTestUtils {
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
+            case RE_ASSERTION_VALUE:
+            case RE_CHAR_ESCAPE_VALUE:
+            case RE_CHAR_SET_VALUE:
+            case RE_FLAGS_ON_OFF_VALUE:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
             case CODE_CONTENT:
@@ -1317,24 +1321,30 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_ATOM_QUANTIFIER;
             case "RE_ASSERTION":
                 return SyntaxKind.RE_ASSERTION;
+            case "RE_ASSERTION_VALUE":
+                return SyntaxKind.RE_ASSERTION_VALUE;
             case "RE_QUANTIFIER":
                 return SyntaxKind.RE_QUANTIFIER;
-            case "RE_ATOM":
-                return SyntaxKind.RE_ATOM;
+            case "RE_BASE_QUANTIFIER_VALUE":
+                return SyntaxKind.RE_BASE_QUANTIFIER_VALUE;
             case "RE_CHARACTER_CLASS":
                 return SyntaxKind.RE_CHARACTER_CLASS;
-            case "NEGATED_CHAR_CLASS_START_TOKEN":
-                return SyntaxKind.NEGATED_CHAR_CLASS_START_TOKEN;
             case "RE_CHAR_SET":
                 return SyntaxKind.RE_CHAR_SET;
+            case "RE_CHAR_SET_VALUE":
+                return SyntaxKind.RE_CHAR_SET_VALUE;
             case "RE_FLAG_EXPR":
                 return SyntaxKind.RE_FLAG_EXPR;
             case "RE_FLAGS_ON_OFF":
                 return SyntaxKind.RE_FLAGS_ON_OFF;
-            case "RE_CAPTURING_GROUPS":
-                return SyntaxKind.RE_CAPTURING_GROUPS;
+            case "RE_FLAGS_ON_OFF_VALUE":
+                return SyntaxKind.RE_FLAGS_ON_OFF_VALUE;
+            case "RE_CAPTURING_GROUP":
+                return SyntaxKind.RE_CAPTURING_GROUP;
             case "RE_CHAR_ESCAPE":
                 return SyntaxKind.RE_CHAR_ESCAPE;
+            case "RE_CHAR_ESCAPE_VALUE":
+                return SyntaxKind.RE_CHAR_ESCAPE_VALUE;
             default:
                 return getDocumentationKind(kind);
         }

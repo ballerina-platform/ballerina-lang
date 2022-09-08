@@ -32,8 +32,12 @@ public class ReQuantifierNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Node reQuantifier() {
+    public Node reBaseQuantifier() {
         return childInBucket(0);
+    }
+
+    public Token nonGreedyChar() {
+        return childInBucket(1);
     }
 
     @Override
@@ -49,18 +53,22 @@ public class ReQuantifierNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "reQuantifier"};
+                "reBaseQuantifier",
+                "nonGreedyChar"};
     }
 
     public ReQuantifierNode modify(
-            Node reQuantifier) {
+            Node reBaseQuantifier,
+            Token nonGreedyChar) {
         if (checkForReferenceEquality(
-                reQuantifier)) {
+                reBaseQuantifier,
+                nonGreedyChar)) {
             return this;
         }
 
         return NodeFactory.createReQuantifierNode(
-                reQuantifier);
+                reBaseQuantifier,
+                nonGreedyChar);
     }
 
     public ReQuantifierNodeModifier modify() {
@@ -74,23 +82,33 @@ public class ReQuantifierNode extends NonTerminalNode {
      */
     public static class ReQuantifierNodeModifier {
         private final ReQuantifierNode oldNode;
-        private Node reQuantifier;
+        private Node reBaseQuantifier;
+        private Token nonGreedyChar;
 
         public ReQuantifierNodeModifier(ReQuantifierNode oldNode) {
             this.oldNode = oldNode;
-            this.reQuantifier = oldNode.reQuantifier();
+            this.reBaseQuantifier = oldNode.reBaseQuantifier();
+            this.nonGreedyChar = oldNode.nonGreedyChar();
         }
 
-        public ReQuantifierNodeModifier withReQuantifier(
-                Node reQuantifier) {
-            Objects.requireNonNull(reQuantifier, "reQuantifier must not be null");
-            this.reQuantifier = reQuantifier;
+        public ReQuantifierNodeModifier withReBaseQuantifier(
+                Node reBaseQuantifier) {
+            Objects.requireNonNull(reBaseQuantifier, "reBaseQuantifier must not be null");
+            this.reBaseQuantifier = reBaseQuantifier;
+            return this;
+        }
+
+        public ReQuantifierNodeModifier withNonGreedyChar(
+                Token nonGreedyChar) {
+            Objects.requireNonNull(nonGreedyChar, "nonGreedyChar must not be null");
+            this.nonGreedyChar = nonGreedyChar;
             return this;
         }
 
         public ReQuantifierNode apply() {
             return oldNode.modify(
-                    reQuantifier);
+                    reBaseQuantifier,
+                    nonGreedyChar);
         }
     }
 }

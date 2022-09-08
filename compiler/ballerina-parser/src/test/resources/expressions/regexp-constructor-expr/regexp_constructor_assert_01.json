@@ -129,8 +129,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "^"
                                     }
                                   ]
                                 }
@@ -217,8 +217,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "^"
                                     }
                                   ]
                                 },
@@ -226,11 +226,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "A"
                                         }
                                       ]
                                     }
@@ -240,11 +240,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "B"
                                         }
                                       ]
                                     }
@@ -333,8 +333,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "$"
                                     }
                                   ]
                                 }
@@ -421,11 +421,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "A"
                                         }
                                       ]
                                     }
@@ -435,11 +435,11 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_ATOM",
+                                      "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE",
-                                          "value": "RE_CHAR_ESCAPE"
+                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "value": "B"
                                         }
                                       ]
                                     }
@@ -449,8 +449,8 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION",
-                                      "value": "RE_ASSERTION"
+                                      "kind": "RE_ASSERTION_VALUE",
+                                      "value": "$"
                                     }
                                   ]
                                 }
