@@ -1,7 +1,7 @@
-function testVarDecl() returns error?{
+function testVarDecl() returns error? {
     int myVal = check getInt();
 }
 
-function getInt() returns int? | error {
+function getInt() returns int?|error {
 
 }
