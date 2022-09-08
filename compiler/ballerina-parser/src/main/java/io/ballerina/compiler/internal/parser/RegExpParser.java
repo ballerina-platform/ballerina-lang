@@ -154,9 +154,9 @@ public class RegExpParser extends AbstractParser {
     }
 
     /**
-     * Parse open bracket token or open bracket token with ^ token in a character class.
+     * Parse open bracket token in a character class.
      *
-     * @return Open bracket token or open bracket token with ^ token node
+     * @return Open bracket token
      */
     private STNode parseCharacterClassStart() {
         STToken token = peek();
@@ -167,9 +167,9 @@ public class RegExpParser extends AbstractParser {
     }
 
     /**
-     * Parse open bracket token or open bracket token with ^ token in a character class.
+     * Parse ^ token in a character class.
      *
-     * @return Open bracket token or open bracket token with ^ token node
+     * @return ^ token
      */
     private STNode parseNegation() {
         STToken nextToken = peek();
@@ -219,9 +219,9 @@ public class RegExpParser extends AbstractParser {
     }
 
     /**
-     * Parse quantifier.
+     * Parse ? token that comes after the ReBaseQuantifier.
      *
-     * @return Quantifier node
+     * @return ? token
      */
     private STNode parseNonGreedyChar() {
         STToken nextToken = peek();
