@@ -55,7 +55,7 @@ public class STReCapturingGroupsNode extends STReAtomNode {
             STNode reSequences,
             STNode closeParenthesis,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_CAPTURING_GROUPS, diagnostics);
+        super(SyntaxKind.RE_CAPTURING_GROUP, diagnostics);
         this.openParenthesis = openParenthesis;
         this.reFlagExpression = reFlagExpression;
         this.reSequences = reSequences;

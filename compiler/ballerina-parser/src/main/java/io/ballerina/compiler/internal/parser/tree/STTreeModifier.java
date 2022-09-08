@@ -2652,11 +2652,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STReCharacterClassNode transform(
             STReCharacterClassNode reCharacterClassNode) {
-        STNode openBracketAndNegation = modifyNode(reCharacterClassNode.openBracketAndNegation);
+        STNode openBracket = modifyNode(reCharacterClassNode.openBracket);
+        STNode negation = modifyNode(reCharacterClassNode.negation);
         STNode reCharSet = modifyNode(reCharacterClassNode.reCharSet);
         STNode closeBracket = modifyNode(reCharacterClassNode.closeBracket);
         return reCharacterClassNode.modify(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket);
     }
@@ -2714,9 +2716,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STReQuantifierNode transform(
             STReQuantifierNode reQuantifierNode) {
-        STNode reQuantifier = modifyNode(reQuantifierNode.reQuantifier);
+        STNode reBaseQuantifier = modifyNode(reQuantifierNode.reBaseQuantifier);
+        STNode nonGreedyChar = modifyNode(reQuantifierNode.nonGreedyChar);
         return reQuantifierNode.modify(
-                reQuantifier);
+                reBaseQuantifier,
+                nonGreedyChar);
     }
 
     // Tokens

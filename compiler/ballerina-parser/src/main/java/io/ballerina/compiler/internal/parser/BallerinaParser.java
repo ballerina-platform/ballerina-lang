@@ -11131,21 +11131,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse <code>re</code> keyword.
-     *
-     * @return re keyword node
-     */
-    private STNode parseReKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.RE_KEYWORD) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.RE_KEYWORD);
-            return parseReKeyword();
-        }
-    }
-
-    /**
      * Parse regular expression constructor.
      * <p>
      * <code>regexp-constructor-expr := re BacktickString</code>
@@ -11153,7 +11138,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Regular expression template expression
      */
     private STNode parseRegExpTemplateExpression() {
-        STNode reKeyword = parseReKeyword();
+        STNode reKeyword = consume();
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
 
         if (startingBackTick.isMissing()) {
@@ -12813,6 +12798,7 @@ public class BallerinaParser extends AbstractParser {
                 return peek(nextTokenIndex).kind == SyntaxKind.OPEN_PAREN_TOKEN;
             case XML_KEYWORD:
             case STRING_KEYWORD:
+            case RE_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.BACKTICK_TOKEN;
 
             // 'start' and 'flush' are start of actions, but not expressions.

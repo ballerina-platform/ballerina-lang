@@ -4497,7 +4497,7 @@
         {
             "name": "ReAtomCharOrEscapeNode",
             "base": "ReAtomNode",
-            "kind": "RE_ATOM",
+            "kind": "RE_CHAR_ESCAPE",
             "attributes": [
                 {
                     "name": "reAtomCharOrEscape",
@@ -4511,8 +4511,13 @@
             "kind": "RE_CHARACTER_CLASS",
             "attributes": [
                 {
-                    "name": "openBracketAndNegation",
+                    "name": "openBracket",
                     "type": "Token"
+                },
+                {
+                    "name": "negation",
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "reCharSet",
@@ -4539,7 +4544,7 @@
         {
             "name": "ReCapturingGroupsNode",
             "base": "ReAtomNode",
-            "kind": "RE_CAPTURING_GROUPS",
+            "kind": "RE_CAPTURING_GROUP",
             "attributes": [
                 {
                     "name": "openParenthesis",
@@ -4608,8 +4613,12 @@
             "kind": "RE_QUANTIFIER",
             "attributes": [
                 {
-                    "name": "reQuantifier",
+                    "name": "reBaseQuantifier",
                     "type": "Node"
+                },
+                {
+                    "name": "nonGreedyChar",
+                    "type": "Token"
                 }
             ]
         }

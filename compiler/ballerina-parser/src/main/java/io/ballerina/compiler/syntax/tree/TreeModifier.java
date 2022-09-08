@@ -3348,14 +3348,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public ReCharacterClassNode transform(
             ReCharacterClassNode reCharacterClassNode) {
-        Token openBracketAndNegation =
-                modifyToken(reCharacterClassNode.openBracketAndNegation());
+        Token openBracket =
+                modifyToken(reCharacterClassNode.openBracket());
+        Token negation =
+                modifyToken(reCharacterClassNode.negation().orElse(null));
         ReCharSetNode reCharSet =
                 modifyNode(reCharacterClassNode.reCharSet().orElse(null));
         Token closeBracket =
                 modifyToken(reCharacterClassNode.closeBracket());
         return reCharacterClassNode.modify(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket);
     }
@@ -3423,10 +3426,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public ReQuantifierNode transform(
             ReQuantifierNode reQuantifierNode) {
-        Node reQuantifier =
-                modifyNode(reQuantifierNode.reQuantifier());
+        Node reBaseQuantifier =
+                modifyNode(reQuantifierNode.reBaseQuantifier());
+        Token nonGreedyChar =
+                modifyToken(reQuantifierNode.nonGreedyChar());
         return reQuantifierNode.modify(
-                reQuantifier);
+                reBaseQuantifier,
+                nonGreedyChar);
     }
 
     // Tokens

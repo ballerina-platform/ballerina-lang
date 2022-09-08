@@ -2469,12 +2469,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createReCharacterClassNode(
-            STNode openBracketAndNegation,
+            STNode openBracket,
+            STNode negation,
             STNode reCharSet,
             STNode closeBracket) {
 
         return new STReCharacterClassNode(
-                openBracketAndNegation,
+                openBracket,
+                negation,
                 reCharSet,
                 closeBracket);
     }
@@ -2525,10 +2527,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createReQuantifierNode(
-            STNode reQuantifier) {
+            STNode reBaseQuantifier,
+            STNode nonGreedyChar) {
 
         return new STReQuantifierNode(
-                reQuantifier);
+                reBaseQuantifier,
+                nonGreedyChar);
     }
 }
 

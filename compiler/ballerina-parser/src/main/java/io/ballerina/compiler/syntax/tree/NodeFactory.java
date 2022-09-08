@@ -3256,14 +3256,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ReCharacterClassNode createReCharacterClassNode(
-            Token openBracketAndNegation,
+            Token openBracket,
+            Token negation,
             ReCharSetNode reCharSet,
             Token closeBracket) {
-        Objects.requireNonNull(openBracketAndNegation, "openBracketAndNegation must not be null");
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
 
         STNode stReCharacterClassNode = STNodeFactory.createReCharacterClassNode(
-                openBracketAndNegation.internalNode(),
+                openBracket.internalNode(),
+                getOptionalSTNode(negation),
                 getOptionalSTNode(reCharSet),
                 closeBracket.internalNode());
         return stReCharacterClassNode.createUnlinkedFacade();
@@ -3329,11 +3331,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ReQuantifierNode createReQuantifierNode(
-            Node reQuantifier) {
-        Objects.requireNonNull(reQuantifier, "reQuantifier must not be null");
+            Node reBaseQuantifier,
+            Token nonGreedyChar) {
+        Objects.requireNonNull(reBaseQuantifier, "reBaseQuantifier must not be null");
+        Objects.requireNonNull(nonGreedyChar, "nonGreedyChar must not be null");
 
         STNode stReQuantifierNode = STNodeFactory.createReQuantifierNode(
-                reQuantifier.internalNode());
+                reBaseQuantifier.internalNode(),
+                nonGreedyChar.internalNode());
         return stReQuantifierNode.createUnlinkedFacade();
     }
 }
