@@ -33,39 +33,50 @@ import org.eclipse.lsp4j.Range;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * Node visitor for extract to function code action. This will determine,
- * 1. Symbols which get assigned to some expression inside the selected range
+ * Node visitor for the extract to function code action. This will determine,
+ * 1. Symbols which are referenced as an assignment inside the selected range
  * 2. Symbols which are declared inside the selected range
- * 3. Whether the selected range is extractable
- * 4. Nodes which are inside the selected range which should be extracted
+ * 3. Whether the selected range of a particular code action context is extractable to a function
+ * 4. Nodes which are inside the selected range that should be extracted(fully selected nodes)
  *
  * @since 2201.2.1
  */
-public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
-    private final List<Symbol> updatingSymbols = new ArrayList<>();
+public class ExtractToFunctionStatementAnalyzer extends NodeVisitor {
+    private final List<Symbol> updatedSymbols = new ArrayList<>();
     private final List<Symbol> declaredVariableSymbols = new ArrayList<>();
     private final List<Node> selectedNodes = new ArrayList<>();
     private boolean isExtractable = true;
     private final Range selectedRange;
     private final SemanticModel semanticModel;
 
-    public ExtractToFuncStatementAnalyzer(Range selectedRange, SemanticModel semanticModel) {
+    // Set of syntax kinds of nodes which we do not allow to have inside the extracted function
+    private final Set<SyntaxKind> notSupportedSyntaxKindsWithinRange = Set.of(SyntaxKind.BREAK_STATEMENT,
+            SyntaxKind.CONTINUE_STATEMENT, SyntaxKind.PANIC_STATEMENT, SyntaxKind.NAMED_WORKER_DECLARATION,
+            SyntaxKind.FORK_STATEMENT, SyntaxKind.TRANSACTION_STATEMENT, SyntaxKind.ROLLBACK_STATEMENT,
+            SyntaxKind.RETRY_STATEMENT, SyntaxKind.XML_NAMESPACE_DECLARATION, SyntaxKind.REMOTE_METHOD_CALL_ACTION,
+            SyntaxKind.BRACED_ACTION, SyntaxKind.CHECK_ACTION, SyntaxKind.START_ACTION, SyntaxKind.TRAP_ACTION,
+            SyntaxKind.FLUSH_ACTION, SyntaxKind.ASYNC_SEND_ACTION, SyntaxKind.SYNC_SEND_ACTION,
+            SyntaxKind.RECEIVE_ACTION, SyntaxKind.WAIT_ACTION, SyntaxKind.QUERY_ACTION, SyntaxKind.COMMIT_ACTION,
+            SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION);
+
+    public ExtractToFunctionStatementAnalyzer(Range selectedRange, SemanticModel semanticModel) {
         this.selectedRange = selectedRange;
         this.semanticModel = semanticModel;
     }
 
     public void analyze(NonTerminalNode node) {
         if (node.kind() == SyntaxKind.LIST) {
-            node.children().forEach(children -> {
+            node.children().forEach(child -> {
                 /*
-                 * When the matched code action is a LIST it contains all the child nodes which are not even
+                 * When the matched code action node is a LIST node it contains all the child nodes which are not even
                  * selected(highlighted), this check is added to find and ignore such child nodes.
                  */
-                if (PositionUtil.isRangeWithinRange(PositionUtil.toRange(children.lineRange()), selectedRange)) {
-                    selectedNodes.add(children);
-                    children.accept(this);
+                if (PositionUtil.isRangeWithinRange(PositionUtil.toRange(child.lineRange()), selectedRange)) {
+                    selectedNodes.add(child);
+                    child.accept(this);
                 }
             });
         } else {
@@ -79,27 +90,43 @@ public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
             selectedNodes.add(node);
             node.accept(this);
         }
+
+        if (selectedNodes.isEmpty()) {
+            this.isExtractable = false;
+        }
     }
 
-    public List<Symbol> getUpdatingSymbols() {
-        return updatingSymbols;
+    /**
+     * The list of symbols which are getting updated(assigned) inside the selected range.
+     */
+    public List<Symbol> getUpdatedSymbols() {
+        return updatedSymbols;
     }
 
+    /**
+     * The list of symbols which are getting declared inside the range.
+     */
     public List<Symbol> getDeclaredVariableSymbols() {
         return declaredVariableSymbols;
     }
 
+    /**
+     * The list of symbols which are fully selected by the user(partially selected nodes are not considered).
+     */
     public List<Node> getSelectedNodes() {
         return selectedNodes;
     }
 
+    /**
+     * Checks whether the content of the selected range is syntactically correct to be extracted to a function.
+     */
     public boolean isExtractable() {
         return isExtractable;
     }
 
     @Override
     public void visit(IfElseStatementNode node) {
-        if (node.parent() != null && node.parent().kind() == SyntaxKind.ELSE_BLOCK) {
+        if (node.parent().kind() == SyntaxKind.ELSE_BLOCK) {
             // this is when selected if-else-stmt is inside another if-else-stmt
             this.isExtractable = false;
         }
@@ -109,16 +136,16 @@ public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
     @Override
     public void visit(AssignmentStatementNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.varRef());
-        if (symbol.isPresent() && !updatingSymbols.contains(symbol.get())) {
-            this.updatingSymbols.add((symbol.get()));
+        if (symbol.isPresent() && !updatedSymbols.contains(symbol.get())) {
+            this.updatedSymbols.add((symbol.get()));
         }
     }
 
     @Override
     public void visit(CompoundAssignmentStatementNode node) {
         Optional<Symbol> symbol = semanticModel.symbol(node.lhsExpression());
-        if (symbol.isPresent() && !updatingSymbols.contains(symbol.get())) {
-            this.updatingSymbols.add((symbol.get()));
+        if (symbol.isPresent() && !updatedSymbols.contains(symbol.get())) {
+            this.updatedSymbols.add((symbol.get()));
         }
     }
 
@@ -131,8 +158,7 @@ public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(ReturnStatementNode node) {
-        if (node.expression().isPresent()
-                && (node.parent() == null || node.parent().kind() == SyntaxKind.FUNCTION_BODY_BLOCK)) {
+        if (node.expression().isPresent() && node.parent().kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
             super.visit(node);
         } else {
             this.isExtractable = false;
@@ -146,7 +172,7 @@ public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
             return;
         }
 
-        if (isSyntaxKindNotSupportedWithinRange(node.kind())) {
+        if (notSupportedSyntaxKindsWithinRange.contains(node.kind())) {
             this.isExtractable = false;
             return;
         }
@@ -154,38 +180,6 @@ public class ExtractToFuncStatementAnalyzer extends NodeVisitor {
         NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
         for (Node child : nonTerminalNode.children()) {
             child.accept(this);
-        }
-    }
-
-    private boolean isSyntaxKindNotSupportedWithinRange(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
-            // statements
-            case BREAK_STATEMENT:
-            case CONTINUE_STATEMENT:
-            case PANIC_STATEMENT:
-            case NAMED_WORKER_DECLARATION:
-            case FORK_STATEMENT:
-            case TRANSACTION_STATEMENT:
-            case ROLLBACK_STATEMENT:
-            case RETRY_STATEMENT:
-            case XML_NAMESPACE_DECLARATION:
-                // actions
-            case REMOTE_METHOD_CALL_ACTION:
-            case BRACED_ACTION:
-            case CHECK_ACTION:
-            case START_ACTION:
-            case TRAP_ACTION:
-            case FLUSH_ACTION:
-            case ASYNC_SEND_ACTION:
-            case SYNC_SEND_ACTION:
-            case RECEIVE_ACTION:
-            case WAIT_ACTION:
-            case QUERY_ACTION:
-            case COMMIT_ACTION:
-            case CLIENT_RESOURCE_ACCESS_ACTION:
-                return true;
-            default:
-                return false;
         }
     }
 }

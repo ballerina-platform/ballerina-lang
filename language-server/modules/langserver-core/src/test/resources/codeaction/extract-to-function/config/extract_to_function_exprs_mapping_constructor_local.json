@@ -18,11 +18,11 @@
         {
           "range": {
             "start": {
-              "line": 14,
+              "line": 16,
               "character": 1
             },
             "end": {
-              "line": 14,
+              "line": 16,
               "character": 1
             }
           },
@@ -41,7 +41,8 @@
           },
           "newText": "extracted()"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for expressions, mapping constructor inside function block"

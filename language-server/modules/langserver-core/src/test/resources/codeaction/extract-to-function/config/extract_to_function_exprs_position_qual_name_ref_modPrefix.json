@@ -12,11 +12,11 @@
         {
           "range": {
             "start": {
-              "line": 4,
+              "line": 5,
               "character": 1
             },
             "end": {
-              "line": 4,
+              "line": 5,
               "character": 1
             }
           },
@@ -35,7 +35,8 @@
           },
           "newText": "extracted()"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for expressions, cursor in the module prefix inside the qualified name reference"

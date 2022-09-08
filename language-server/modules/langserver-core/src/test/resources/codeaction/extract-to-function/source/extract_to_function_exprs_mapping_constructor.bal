@@ -12,4 +12,6 @@ Record moduleVar = { name: "ballerina" };
 
 function testFunction() {
     Record localVar = { name: "ballerina" };
+
+    map<int> map1 = {"Maths": 90, "Science": 85};
 }
