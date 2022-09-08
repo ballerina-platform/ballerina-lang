@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -36,8 +37,8 @@ public class ReQuantifierNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token nonGreedyChar() {
-        return childInBucket(1);
+    public Optional<Token> nonGreedyChar() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class ReQuantifierNode extends NonTerminalNode {
         public ReQuantifierNodeModifier(ReQuantifierNode oldNode) {
             this.oldNode = oldNode;
             this.reBaseQuantifier = oldNode.reBaseQuantifier();
-            this.nonGreedyChar = oldNode.nonGreedyChar();
+            this.nonGreedyChar = oldNode.nonGreedyChar().orElse(null);
         }
 
         public ReQuantifierNodeModifier withReBaseQuantifier(
@@ -100,7 +101,6 @@ public class ReQuantifierNode extends NonTerminalNode {
 
         public ReQuantifierNodeModifier withNonGreedyChar(
                 Token nonGreedyChar) {
-            Objects.requireNonNull(nonGreedyChar, "nonGreedyChar must not be null");
             this.nonGreedyChar = nonGreedyChar;
             return this;
         }

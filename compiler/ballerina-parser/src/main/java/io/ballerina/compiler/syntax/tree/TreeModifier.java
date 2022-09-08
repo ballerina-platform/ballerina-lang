@@ -3429,7 +3429,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node reBaseQuantifier =
                 modifyNode(reQuantifierNode.reBaseQuantifier());
         Token nonGreedyChar =
-                modifyToken(reQuantifierNode.nonGreedyChar());
+                modifyToken(reQuantifierNode.nonGreedyChar().orElse(null));
         return reQuantifierNode.modify(
                 reBaseQuantifier,
                 nonGreedyChar);
