@@ -102,6 +102,7 @@ public class ConfigValueCreator {
                 return createTableValue(tomlValue, type);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 return createUnionValue(tomlValue, (BUnionType) type);
             case TypeTags.XML_ATTRIBUTES_TAG:
             case TypeTags.XML_COMMENT_TAG:
@@ -178,11 +179,12 @@ public class ConfigValueCreator {
                 return getMapValueArray(tomlValue, arrayType, elementType);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
                     return getMapValueArray(tomlValue, arrayType, elementType);
                 } else {
-                    valueNode = ((TomlKeyValueNode) tomlValue).value();
-                    return createArrayFromSimpleTomlValue((TomlArrayValueNode) valueNode, arrayType, elementType);
+                    tomlValue = getValueFromKeyValueNode(tomlValue);
+                    return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType, elementType);
                 }
             default:
                 return getNonSimpleTypeArray(tomlValue, arrayType, ((IntersectionType) elementType).getEffectiveType());
@@ -236,6 +238,7 @@ public class ConfigValueCreator {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 balValue = createUnionValue(tomlValueNode, (BUnionType) elementType);
                 break;
             case TypeTags.TUPLE_TAG:
