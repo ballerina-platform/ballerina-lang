@@ -344,7 +344,7 @@ public class JsonInternalUtils {
                 return jsonValue;
             case TypeTags.UNION_TAG:
                 matchingType = TypeConverter.getConvertibleTypeInTargetUnionType(jsonValue,
-                        (BUnionType) targetType, null, true, new ArrayList<>(), new ArrayList<>());
+                        (BUnionType) targetType, null, true, new ArrayList<>(), new ArrayList<>(), true);
                 if (matchingType == null) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
@@ -352,7 +352,7 @@ public class JsonInternalUtils {
                 return convertJSON(jsonValue, matchingType);
             case TypeTags.FINITE_TYPE_TAG:
                 matchingType = TypeConverter.getConvertibleFiniteType(jsonValue, (BFiniteType) targetType,
-                        null, true, new ArrayList<>(), new ArrayList<>());
+                        null, true, new ArrayList<>(), new ArrayList<>(), true);
                 if (matchingType == null) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));

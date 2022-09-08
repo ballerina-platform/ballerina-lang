@@ -99,7 +99,7 @@ public class CloneWithType {
 
         List<String> errors = new ArrayList<>();
         Type convertibleType = TypeConverter.getConvertibleType(value, targetType, null, false,
-                new ArrayList<>(), errors);
+                new ArrayList<>(), errors, true);
 
         Type sourceType = TypeChecker.getType(value);
         if (convertibleType == null) {
