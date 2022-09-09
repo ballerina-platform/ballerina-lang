@@ -51,8 +51,11 @@ public class MapUtils {
                 mapValue.put(fieldName, value);
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false);
-                mapValue.put(fieldName, value);
+                if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+                    mapValue.put(fieldName, value);
+                } else {
+                    mapValue.remove(fieldName);
+                }
                 break;
         }
     }
@@ -71,8 +74,8 @@ public class MapUtils {
                                                                                expType, valuesType));
     }
 
-    public static void handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
-                                                               BRecordType recType, boolean initialValue) {
+    public static boolean handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
+                                                                  BRecordType recType, boolean initialValue) {
         Field recField = recType.getFields().get(fieldName.getValue());
         Type recFieldType;
 
@@ -89,6 +92,9 @@ public class MapUtils {
                                                              fieldName, recType));
             }
 
+            if (value == null && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.OPTIONAL)) {
+                return false;
+            }
             // If it can be updated, use it.
             recFieldType = recField.getFieldType();
         } else if (recType.restFieldType != null) {
@@ -103,7 +109,7 @@ public class MapUtils {
         }
 
         if (TypeChecker.checkIsType(value, recFieldType)) {
-            return;
+            return true;
         }
         Type valuesType = TypeChecker.getType(value);
 

@@ -121,9 +121,7 @@ function testRuntimeTypeRef() {
     test:assertEquals(val3, {id: 101, profile: {age: 22}});
 
     Employee2 emp = {id: 111};
-    emp.profile.age = 12;
-    test:assertFalse(emp.profile is ());
-    test:assertEquals(emp.profile, {age: 12});
+    test:assertTrue(emp.profile is ());
 }
 
 @X

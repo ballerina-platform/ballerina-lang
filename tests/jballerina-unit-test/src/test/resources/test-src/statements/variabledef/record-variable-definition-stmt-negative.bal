@@ -337,8 +337,12 @@ function testInvalidOptionalFieldAssignment3() {
 }
 
 type Topt2 record {
-    int a;
-    record {
-        int b?;
-    }[1] c?;
+   int? x;
+   int? y;
 };
+
+function testRecordDefinitionWithOptionalFieldsNegative1() {
+    int? x = 1;
+    string? y = "2";
+    Topt2 _ = {x, y}; // error
+}

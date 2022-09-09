@@ -56,7 +56,8 @@ public class ModuleRecordVariableTest {
                 "testVariableDeclaredWithVar",
                 "testVariableDeclaredWithVar2",
                 "testRecordVariableWithRestBP",
-                "testVariableDeclaredInRecordAsAnnotationValue"
+                "testVariableDeclaredInRecordAsAnnotationValue",
+                "testOptionalFieldAssignment"
         };
     }
 
@@ -84,13 +85,10 @@ public class ModuleRecordVariableTest {
         validateError(compileResultNegetive, index++,
                 "invalid error binding pattern with type 'map<string>'", 53, 35);
         validateError(compileResultNegetive, index++,
-                "invalid field binding pattern; can only bind required fields", 75, 28);
+                "incompatible types: expected 'record {| int id; int age?; anydata...; |}', " +
+                        "found 'record {| int id; int age?; anydata...; |}?'", 91, 31);
         validateError(compileResultNegetive, index++,
-                "invalid field binding pattern; can only bind required fields", 77, 39);
-        validateError(compileResultNegetive, index++,
-                "invalid field binding pattern; can only bind required fields", 91, 22);
-        validateError(compileResultNegetive, index++,
-                "invalid field binding pattern; can only bind required fields", 91, 43);
+                "incompatible types: expected 'record {| int b?; anydata...; |}[1]', found 'record {| int b?; anydata...; |}[1]?'", 101, 12);
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 

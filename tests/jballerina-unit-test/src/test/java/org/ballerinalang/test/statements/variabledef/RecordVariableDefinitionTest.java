@@ -294,6 +294,13 @@ public class RecordVariableDefinitionTest {
     }
 
     @Test
+    public void testRecordDefinitionWithOptionalFields() {
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields1");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields2");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields3");
+    }
+
+    @Test
     public void testNegativeRecordVariables() {
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
@@ -392,6 +399,8 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'record {| int b?; anydata...; |}[1]', " +
                         "found 'record {| int b?; anydata...; |}[1]?'", 336, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int?', found 'string?'",
+                347, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

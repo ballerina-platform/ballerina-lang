@@ -504,6 +504,12 @@ function testOptionalFieldAssignment2() {
     assertEquality(5, b);
 }
 
+function testOptionalFieldAssignment3() {
+    Topt2 topt = {a: 4, c: [{b: 5}]};
+    var {a, c: [{}]} = topt;
+    assertEquality(4, a);
+}
+
 type Topt3 record {
     int a;
     record {
@@ -511,7 +517,7 @@ type Topt3 record {
     }[1] c?;
 };
 
-function testOptionalFieldAssignment3() {
+function testOptionalFieldAssignment4() {
     Topt3 topt = {a: 4, c: [{b: 5}]};
     var {a, c} = topt;
     assertEquality(a, 4);
@@ -520,18 +526,77 @@ function testOptionalFieldAssignment3() {
     assertEquality(b, 5);
 }
 
-function testOptionalFieldAssignment4() {
+function testOptionalFieldAssignment5() {
     Topt3 topt = {a: 4};
     var {a, c} = topt;
     assertTrue(c is ());
 }
 
-function testOptionalFieldAssignment5() {
+function testOptionalFieldAssignment6() {
     [record {int i?;}] y = [{}];
     var [{i}] = y;
     assertTrue(i is ());
     var [{i: i2}] = y;
     assertTrue(i2 is ());
+}
+
+function testRecordDefinitionWithOptionalFields1() {
+    int? x = 2;
+    int? y = ();
+    Topt1 topt = {x, y};
+    assertEquality(topt.x, 2);
+    assertTrue(topt.y is ());
+}
+
+function testRecordDefinitionWithOptionalFields2() {
+    int? x = ();
+    int? y = ();
+    Topt1 topt = {x, y};
+    assertTrue(topt.x is ());
+    assertTrue(topt.y is ());
+}
+
+function testRecordDefinitionWithOptionalFields3() {
+    Topt1 topt = {x: 3, y: ()};
+    assertEquality(topt.x, 3);
+    assertTrue(topt.y is ());
+}
+
+function testRecordDefinitionWithOptionalFields4() {
+    int? a = 4;
+    int? b = ();
+    Topt2 topt = {a: 4, c: [{b}]};
+    assertEquality(4, topt.a);
+    assertTrue((topt.c)[0].b is ());
+}
+
+function testRecordDefinitionWithOptionalFields5() {
+    int? a = 4;
+    record {
+        int b?;
+    }[1]? c = ();
+    Topt3 topt = {a: 4, c};
+    assertEquality(4, topt.a);
+    assertTrue(topt.c is ());
+}
+
+function testRecordDefinitionWithOptionalFields6() {
+    int? a = 4;
+    int? b = 41;
+    record {
+        int b?;
+    }[1]? c = ();
+    Topt3 topt = {a: 4, c: [{b}]};
+    assertEquality(4, topt.a);
+    assertTrue(topt.c is ());
+}
+
+function testRecordDefinitionWithOptionalFields7() {
+    int x = 2;
+    int? y = ();
+    Topt1 topt = {x, y};
+    assertEquality(topt.x, 2);
+    assertTrue(topt.y is ());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

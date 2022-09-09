@@ -89,3 +89,13 @@ function getNewEmployeeList() returns EmployeeNew[2] {
 }
 
 var [{name: nameNew, details: {id: idNew, age: ageNew}}, ...x] = getNewEmployeeList();
+
+type Topt record {
+    int a;
+    record {
+        int b?;
+    }[1] c?;
+};
+
+Topt topt = {a: 4, c: [{b: 5}]};
+var {a, c: [{b}]} = topt; // error

@@ -298,13 +298,16 @@ type H record {
 };
 
 class I {
-    H h = {};
+    H h = {m: {}};
 }
 
 function testFillingReadOnInitializedObjectField() returns boolean {
     I i = new;
-    i.h.m["one"] = 1;
-    i.h.m["two"] = 2;
+    map<int>? m = i.h.m;
+    if m !is () {
+        m["one"] = 1;
+        m["two"] = 2;
+    }
 
     map<int>? rm = i.h?.m;
 
@@ -344,11 +347,18 @@ type K record {
 };
 
 function testFillingReadOnRecordPositive() returns boolean {
-    K k1 = {};
-    K k2 = {};
+    string s = "";
+    K k1 = {j: {s}};
+    K k2 = {j: {s}};
 
-    k1.j.s = "new value 1";
-    k2.j.s = "new value 2";
+    J? jx1 = k1.j;
+    if jx1 !is () {
+        jx1.s = "new value 1";
+    }
+    J? jx2 = k2.j;
+    if jx2 !is () {
+        jx2.s = "new value 2";
+    }
 
     J? j1 = k1?.j;
     J? j2 = k2?.j;
@@ -384,14 +394,12 @@ function testFieldUpdateOfElementForRecordWithNoFillerValue() returns boolean {
     m1["l"]["i"] = 150;
 
     M m2 = { l: { i: 10 } };
-    m2.l.i = 250;
+    L? l = m2.l;
+    if l !is () {
+        l.i = 250;
+    }
 
     return m1["l"]["i"] == 150 && m2?.l?.i == 250;
-}
-
-function testFillingReadOnRecordNegativeFieldAccessLvExpr() {
-    M m = {};
-    m.l.i = 1;
 }
 
 function testFillingReadOnRecordNegativeMemberAccessLvExpr() {

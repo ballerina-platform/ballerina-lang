@@ -61,7 +61,7 @@ public class DisplayAnnotationTest {
         BLangFunction fooFunction = (BLangFunction) ((List) ((BLangPackage) result.getAST()).functions).get(0);
         BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) fooFunction.annAttachments).get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
-                " {iconPath: fooIconPath.icon,label: Foo function}");
+                " {iconPath: <string?> fooIconPath.icon,label: Foo function}");
     }
 
     @Test
@@ -69,7 +69,7 @@ public class DisplayAnnotationTest {
         BLangService service = (BLangService) result.getAST().getServices().get(0);
         BLangAnnotationAttachment attachment = service.getAnnotationAttachments().get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(attachment.expr).toString(),
-                " {iconPath: service.icon,label: service,misc: <anydata> Other info}");
+                " {iconPath: <string?> service.icon,label: service,misc: <anydata> Other info}");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class DisplayAnnotationTest {
         List<? extends AnnotationAttachmentNode> objAnnot = clz.getAnnotationAttachments();
         Assert.assertEquals(objAnnot.size(), 1);
         Assert.assertEquals(objAnnot.get(0).getExpression().toString(),
-                " {iconPath: barIconPath.icon,label: Bar class}");
+                " {iconPath: <string?> barIconPath.icon,label: Bar class}");
 
         List<BLangAnnotationAttachment> attachedFuncAttachments =
                 ((BLangClassDefinition) clz).functions.get(0).annAttachments;
