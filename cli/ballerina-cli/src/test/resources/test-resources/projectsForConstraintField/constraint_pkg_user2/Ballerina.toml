@@ -1,0 +1,5 @@
+[package]
+org = "foo"
+name = "constraint_pkg_user2"
+version = "0.1.0"
+constraint="samjs/non_existent"

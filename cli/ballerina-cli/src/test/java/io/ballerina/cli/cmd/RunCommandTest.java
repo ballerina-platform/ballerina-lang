@@ -310,4 +310,23 @@ public class RunCommandTest extends BaseCommandTest {
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
+
+    @Test(description = "Run a ballerina project with a non-existent constraint package")
+    public void testRunBalProjectWithNonExistentConstraintField() throws IOException {
+        String userPackageName = "constraint_pkg_user2";
+        Path projectPath = this.testResources.resolve("projectsForConstraintField").resolve(userPackageName);
+        System.setProperty("user.dir", projectPath.toString());
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+
+        Assert.assertEquals(buildLog, getOutput("run-project-with-non-existent-constraint-field.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("constraint_pkg_user2").resolve("0.1.0").resolve("java11")
+                .resolve("foo-constraint_pkg_user2-0.1.0.jar").toFile().exists());
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
 }

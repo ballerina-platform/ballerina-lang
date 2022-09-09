@@ -384,4 +384,21 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
                 "returns error? {\n}"));
     }
+
+    @Test(description = "Pack a ballerina project with a non-existent constraint package")
+    public void testPackBalProjectWithNonExistentConstraintField() throws IOException {
+        String userPackageName = "constraint_pkg_user2";
+        Path projectPath = this.testResources.resolve("projectsForConstraintField").resolve(userPackageName);
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, false);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog, getOutput("pack-project-with-non-existent-constraint-field.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("foo-constraint_pkg_user2-any-0.1.0.bala");
+        Assert.assertTrue(balaFilePath.toFile().exists());
+    }
 }

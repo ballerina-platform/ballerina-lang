@@ -21,6 +21,7 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -28,6 +29,7 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 
 /**
  * Contains test cases to test constraint field.
@@ -81,15 +83,24 @@ public class ConstraintFieldTests {
 
     @Test(description = "Test a project with invalidly formatted constraint field. Should generate an error diagnostic",
             dataProvider = "provideDataForConstraintFieldFormatValidation")
-    public void testProjectWithInvalidFormatConstraintField(String packageName, String diagnosticMessage) {
+    public void testProjectWithInvalidFormatConstraintField(String packageName, String invalidFormatMessage) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(packageName);
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1, "Invalid compilation diagnostics count");
-        Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().toString(), diagnosticMessage);
+        int diagnosticCount = diagnosticResult.diagnosticCount();
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        if (diagnosticCount == 1) {
+            Assert.assertEquals(diagnosticIterator.next().toString(), invalidFormatMessage);
+        } else if (diagnosticCount == 2) {
+            String constraintPkgNotFoundMsg = "WARNING [" + packageName + "] Cannot resolve constraint package: ";
+            Assert.assertTrue(diagnosticIterator.next().toString().contains(constraintPkgNotFoundMsg));
+            Assert.assertEquals(diagnosticIterator.next().toString(), invalidFormatMessage);
+        } else {
+            Assert.fail("Invalid compilation diagnostics count");
+        }
 
         // Check if compiler plugin is added as a dependency
         Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 0,
@@ -104,7 +115,9 @@ public class ConstraintFieldTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.errorCount(), 0, "Invalid compilation diagnostics count");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1, "Invalid compilation diagnostics count");
+        Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().toString(),
+                "WARNING [package_k] Cannot resolve constraint package: foo/nonexistant");
 
         // Check if compiler plugin is added as a dependency
         Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 0,

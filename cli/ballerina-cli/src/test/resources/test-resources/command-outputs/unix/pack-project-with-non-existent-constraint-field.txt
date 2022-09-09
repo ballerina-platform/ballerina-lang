@@ -1,0 +1,6 @@
+Compiling source
+	foo/constraint_pkg_user2:0.1.0
+WARNING [constraint_pkg_user2] Cannot resolve constraint package: samjs/non_existent
+
+Creating bala
+	target/bala/foo-constraint_pkg_user2-any-0.1.0.bala

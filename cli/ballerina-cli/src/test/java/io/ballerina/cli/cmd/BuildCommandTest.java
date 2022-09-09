@@ -870,6 +870,25 @@ public class BuildCommandTest extends BaseCommandTest {
                 "second code gen duration is greater than the expected value");
     }
 
+    @Test(description = "Build a ballerina project with a non-existent constraint package")
+    public void testBuildBalProjectWithNonExistentConstraintField() throws IOException {
+        String userPackageName = "constraint_pkg_user2";
+        Path projectPath = this.testResources.resolve("projectsForConstraintField").resolve(userPackageName);
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+
+        Assert.assertEquals(buildLog, getOutput("build-project-with-non-existent-constraint-field.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("constraint_pkg_user2").resolve("0.1.0").resolve("java11")
+                .resolve("foo-constraint_pkg_user2-0.1.0.jar").toFile().exists());
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;

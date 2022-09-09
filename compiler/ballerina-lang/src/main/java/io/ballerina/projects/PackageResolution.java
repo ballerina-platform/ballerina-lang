@@ -364,6 +364,9 @@ public class PackageResolution {
                 resolvedPkgContainer.add(pkgDesc.org(), pkgDesc.name(), resolvedPkg);
             }
         }
+        if (!isConstraintPackageResolved(resolutionResponses)) {
+            addUnresolvedConstraintPackageDiagnostic();
+        }
 
         // Build the resolved package dependency graph
         DependencyGraphBuilder<ResolvedPackageDependency> depGraphBuilder =
@@ -386,6 +389,16 @@ public class PackageResolution {
             }
         }
         return depGraphBuilder.build();
+    }
+
+    private boolean isConstraintPackageResolved(Collection<ResolutionResponse> resolutionResponses) {
+        Optional<PackageDescriptor> packageDescriptor = getConstraintPackageDescFromPackageManifest();
+        if (packageDescriptor.isEmpty()) {
+            return true;
+        }
+        return resolutionResponses.stream().map(resp -> resp.responseDescriptor()).anyMatch(
+                descriptor -> descriptor.name().equals(packageDescriptor.get().name())
+                        && descriptor.org().equals(packageDescriptor.get().org()));
     }
 
     private boolean isConstraintPackage(ResolvedPackageDependency resolvedPackage) {
@@ -416,6 +429,16 @@ public class PackageResolution {
         diagnosticList.add(PackageDiagnostic.from(
                 diagnosticInfo, moduleDescriptor, constraintPackage.project(),
                 new NullLocation(constraintPackage.descriptor().name().toString()), Collections.emptyList(), message));
+    }
+
+    private void addUnresolvedConstraintPackageDiagnostic() {
+        PackageDescriptor packageDescriptor = getConstraintPackageDescFromPackageManifest().get();
+        String message = "Cannot resolve constraint package: '" + packageDescriptor + "'";
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                DiagnosticErrorCode.UNDEFINED_MODULE.diagnosticId(), message, DiagnosticSeverity.WARNING);
+        PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                rootPackageContext.packageName().toString());
+        diagnosticList.add(diagnostic);
     }
 
     private Optional<PackageDescriptor> getConstraintPackageDescFromPackageManifest() {
