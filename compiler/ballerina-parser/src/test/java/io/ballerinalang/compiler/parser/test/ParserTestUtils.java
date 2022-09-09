@@ -368,6 +368,7 @@ public class ParserTestUtils {
             case RE_CHAR_ESCAPE_VALUE:
             case RE_CHAR_SET_VALUE:
             case RE_FLAGS_ON_OFF_VALUE:
+            case RE_BASE_QUANTIFIER_VALUE:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
             case CODE_CONTENT:

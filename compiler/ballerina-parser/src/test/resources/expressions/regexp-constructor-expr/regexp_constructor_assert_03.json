@@ -132,7 +132,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -234,7 +234,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "+"
                                         }
                                       ]
                                     }
@@ -350,7 +350,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "?"
                                         }
                                       ]
                                     }
@@ -452,7 +452,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "{2}"
                                         }
                                       ]
                                     }
@@ -554,7 +554,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "{2,}"
                                         }
                                       ]
                                     }
@@ -656,7 +656,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "{1,3}"
                                         }
                                       ]
                                     }
