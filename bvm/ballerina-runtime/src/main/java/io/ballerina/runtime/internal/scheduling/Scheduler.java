@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -115,6 +116,10 @@ public class Scheduler {
 
     public static Map<Integer, Strand> getCurrentStrands() {
         return new HashMap<>(currentStrands);
+    }
+
+    public static int getCreatedStrandGroupCount() {
+        return ItemGroup.getNextItemGroupId();
     }
 
     /**
@@ -663,6 +668,10 @@ class ItemGroup {
 
     public int getId() {
         return id;
+    }
+
+    static int getNextItemGroupId() {
+        return nextItemGroupId.get();
     }
 
     public boolean isScheduled() {

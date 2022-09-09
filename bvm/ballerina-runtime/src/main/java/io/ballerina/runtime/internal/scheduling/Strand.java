@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -129,6 +130,11 @@ public class Strand {
             this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
         }
     }
+
+    public static int getCreatedStrandCount() {
+        return nextStrandId.get();
+    }
+
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
                                                            String strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext

@@ -37,25 +37,36 @@ public class StrandDump {
 
     public static String getStrandDump() {
         Map<Integer, Strand> availableStrands = Scheduler.getCurrentStrands();
+        int createdStrandGroupCount = Scheduler.getCreatedStrandGroupCount();
+        int createdStrandCount = Strand.getCreatedStrandCount();
         int availableStrandCount = availableStrands.size();
         Map<Integer, List<String>> availableStrandGroups = new HashMap<>();
         populateAvailableStrandGroups(availableStrands, availableStrandGroups);
 
-        StringBuilder infoStr = new StringBuilder("Ballerina Strand Dump [");
+        String strandDumpOutput = generateOutput(availableStrandGroups, availableStrandCount, createdStrandGroupCount,
+                createdStrandCount);
+        cleanUp(availableStrands, availableStrandGroups);
+        return strandDumpOutput;
+    }
+
+    private static String generateOutput(Map<Integer, List<String>> availableStrandGroups, int availableStrandCount,
+                                         int createdStrandGroupCount, int createdStrandCount) {
+        StringBuilder outputStr = new StringBuilder("Ballerina Strand Dump [");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();
-        infoStr.append(dateTimeFormatter.format(localDateTime));
-        infoStr.append("]\n===========================================\n\n");
-        infoStr.append("Current no. of strand groups\t:\t").append(availableStrandGroups.size()).append("\n");
-        infoStr.append("Current no. of strands      \t:\t").append(availableStrandCount).append("\n\n");
+        outputStr.append(dateTimeFormatter.format(localDateTime));
+        outputStr.append("]\n===========================================\n\n");
+        outputStr.append("Total no. of strand groups created\t:\t").append(createdStrandGroupCount).append("\n");
+        outputStr.append("Total no. of strands created      \t:\t").append(createdStrandCount).append("\n");
+        outputStr.append("Current no. of strand groups      \t:\t").append(availableStrandGroups.size()).append("\n");
+        outputStr.append("Current no. of strands            \t:\t").append(availableStrandCount).append("\n\n");
         availableStrandGroups.forEach((strandGroupId, strandList) -> {
-            infoStr.append("group ").append(strandGroupId).append(" [").append(strandList.get(0)).append("]: [")
+            outputStr.append("group ").append(strandGroupId).append(" [").append(strandList.get(0)).append("]: [")
                     .append(strandList.size() - 1).append("]\n");
-            strandList.subList(1, strandList.size()).forEach(infoStr::append);
+            strandList.subList(1, strandList.size()).forEach(outputStr::append);
         });
-        infoStr.append("===========================================\n");
-        cleanUp(availableStrands, availableStrandGroups);
-        return infoStr.toString();
+        outputStr.append("===========================================\n");
+        return outputStr.toString();
     }
 
     private static void populateAvailableStrandGroups(Map<Integer, Strand> availableStrands,
