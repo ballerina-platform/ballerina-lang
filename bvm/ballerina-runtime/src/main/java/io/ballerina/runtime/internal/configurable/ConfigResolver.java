@@ -101,7 +101,7 @@ public class ConfigResolver {
     private Function<ConfigProvider, Optional<?>> getValueFunction(Module module, VariableKey key, Type type) {
         switch (type.getTag()) {
             case TypeTags.NULL_TAG:
-                return Optional.empty();
+                return null;
             case TypeTags.INT_TAG:
                 return configProvider -> configProvider.getAsIntAndMark(module, key);
             case TypeTags.BYTE_TAG:
@@ -132,11 +132,18 @@ public class ConfigResolver {
                 return configProvider -> configProvider.getAsTableAndMark(module, key);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+<<<<<<< HEAD
                 return configProvider -> configProvider.getAsUnionAndMark(module, key);
             case TypeTags.TUPLE_TAG:
                 return configProvider -> configProvider.getAsTupleAndMark(module, key);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return getValueFunction(module, key, ((ReferenceType) type).getReferredType());
+=======
+            case TypeTags.JSON_TAG:
+                return configProvider -> configProvider.getAsUnionAndMark(module, key);
+            case TypeTags.TUPLE_TAG:
+                return configProvider -> configProvider.getAsTupleAndMark(module, key);
+>>>>>>> e1b9318d0f9fbc395826c61840df51be26ac0899
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 return getValueFunction(module, key, effectiveType);

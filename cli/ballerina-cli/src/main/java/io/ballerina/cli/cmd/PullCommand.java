@@ -199,15 +199,17 @@ public class PullCommand implements BLauncherCmd {
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                                initializeProxy(settings.getProxy()),
                                                                getAccessTokenOfCLI(settings));
+                client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                                   RepoUtils.getBallerinaVersion(), false);
                 if (version.equals(Names.EMPTY.getValue())) {
                     List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
                             RepoUtils.getBallerinaVersion());
                     version = getLatestVersion(versions);
                 }
-                client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                                   RepoUtils.getBallerinaVersion(), false);
-                boolean hasCompilationErrors = pullDependencyPackages(orgName, packageName, version, supportedPlatform);
+                boolean hasCompilationErrors = pullDependencyPackages(orgName, packageName, version);
                 if (hasCompilationErrors) {
+                    CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
             } catch (PackageAlreadyExistsException e) {
@@ -234,14 +236,12 @@ public class PullCommand implements BLauncherCmd {
         return latestVersion;
     }
 
-    private boolean pullDependencyPackages(String orgName, String packageName, String version,
-                                           String supportedPlatform) {
+    private boolean pullDependencyPackages(String orgName, String packageName, String version) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
-        Path packagePathInBalaCache = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME)
-                .resolve(orgName).resolve(packageName);
-        Path balaPath = packagePathInBalaCache.resolve(version).resolve(supportedPlatform);
+        Path balaDirPath = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME);
+        Path balaPath = ProjectUtils.getPackagePath(balaDirPath, orgName, packageName, version);
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         Path cacheDir = centralRepositoryDirPath.resolve(
                 ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion);
@@ -261,26 +261,27 @@ public class PullCommand implements BLauncherCmd {
         Collection<Diagnostic> resolutionDiagnostics = packageCompilation.getResolution()
                 .diagnosticResult().diagnostics();
         if (!resolutionDiagnostics.isEmpty()) {
-            printDiagnostics(resolutionDiagnostics,
-                    "failed to resolve dependencies: dependency resolution contains errors");
+            printDiagnostics(resolutionDiagnostics);
+        }
+        if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
             return true;
         }
 
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (!backendDiagnostics.isEmpty()) {
-            printDiagnostics(backendDiagnostics, "failed to generate caches: package compilation contains errors");
+            printDiagnostics(backendDiagnostics);
+        }
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             return true;
         }
         return false;
     }
 
-    private void printDiagnostics(Collection<Diagnostic> diagnostics, String message) {
+    private void printDiagnostics(Collection<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic: diagnostics) {
             CommandUtil.printError(this.errStream, diagnostic.toString(), null, false);
         }
-        CommandUtil.printError(this.errStream, message, null, false);
-        CommandUtil.exitError(this.exitWhenFinish);
     }
 
     @Override
