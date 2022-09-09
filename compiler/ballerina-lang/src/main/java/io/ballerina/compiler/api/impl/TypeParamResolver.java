@@ -252,13 +252,16 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BTableType typeInSymbol, BType boundType) {
         BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
-        // TODO: The key constraint type ignored for now
+        // TODO: Resolving the key constraint type ignored for now
 
         if (boundConstraintType == typeInSymbol) {
             return typeInSymbol;
         }
 
-        return new BTableType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
+        BTableType bTableType = new BTableType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol,
+                                               typeInSymbol.flags);
+        bTableType.keyTypeConstraint = typeInSymbol.keyTypeConstraint;
+        return bTableType;
     }
 
     @Override
