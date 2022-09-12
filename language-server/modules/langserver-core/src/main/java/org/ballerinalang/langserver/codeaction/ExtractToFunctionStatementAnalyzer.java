@@ -167,11 +167,6 @@ public class ExtractToFunctionStatementAnalyzer extends NodeVisitor {
 
     @Override
     protected void visitSyntaxNode(Node node) {
-        if (node instanceof Token) {
-            node.accept(this);
-            return;
-        }
-
         if (notSupportedSyntaxKindsWithinRange.contains(node.kind())) {
             this.isExtractable = false;
             return;
