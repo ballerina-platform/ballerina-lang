@@ -155,7 +155,7 @@ public class CommandUtil {
 
 
     static void applyTemplate(String orgName, String templatePkgName, String version, String packageName,
-                              Path projectPath, Path balaCache) {
+                              Path projectPath, Path balaCache, Map<String, String> configurations) {
         Path balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, null));
         //First we will check for a bala that match any platform
@@ -170,7 +170,7 @@ public class CommandUtil {
             CommandUtil.exitError(exitWhenFinish);
         }
         try {
-            addModules(balaPath, projectPath, packageName, platform);
+            addModules(balaPath, projectPath, packageName, platform, configurations);
         } catch (IOException e) {
             ProjectUtils.deleteDirectory(projectPath);
             CommandUtil.printError(errStream,
@@ -181,7 +181,8 @@ public class CommandUtil {
         }
     }
 
-    private static void addModules(Path balaPath, Path projectPath, String packageName, String platform)
+    private static void addModules(Path balaPath, Path projectPath, String packageName, String platform,
+                                   Map<String, String> configurations)
             throws IOException {
         Gson gson = new Gson();
         Path packageJsonPath = balaPath.resolve(PACKAGE_JSON);
@@ -222,12 +223,14 @@ public class CommandUtil {
         Path ballerinaToml = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createDirectories(projectPath);
         Files.createFile(ballerinaToml);
+        updatePackageJson(configurations, templatePackageJson);
         writeBallerinaToml(ballerinaToml, templatePackageJson, packageName, platform);
 
         if (dependencyGraphJsonPath.toFile().exists()) {
             // Create Dependencies.toml
             Path dependenciesToml = projectPath.resolve(DEPENDENCIES_TOML);
             Files.createFile(dependenciesToml);
+            // TODO: check if this is affected by the change to templatePackageJson
             writeDependenciesToml(projectPath, templateDependencyGraphJson, templatePackageJson);
         }
 
@@ -368,7 +371,8 @@ public class CommandUtil {
         }
     }
 
-    public static void initPackageFromCentral(Path balaCache, Path projectPath, String packageName, String template) {
+    public static void initPackageFromCentral(Path balaCache, Path projectPath, String packageName, String template,
+                                              Map<String, String> configurations) {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         String templatePackageName = findPkgName(template);
         String orgName = findOrg(template);
@@ -405,7 +409,7 @@ public class CommandUtil {
             PackageVersion latest = findLatest(packageVersions);
             version = Objects.requireNonNull(latest).toString();
         }
-        applyTemplate(orgName, templatePackageName, version, packageName, projectPath, balaCache);
+        applyTemplate(orgName, templatePackageName, version, packageName, projectPath, balaCache, configurations);
     }
 
     private static void pullPackageFromRemote(String orgName, String packageName, String version, Path destination)
@@ -425,6 +429,27 @@ public class CommandUtil {
             client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
                     RepoUtils.getBallerinaVersion(), false);
         }
+    }
+
+    private static void updatePackageJson(Map<String, String> configurations, PackageJson packageJson) {
+        // This method can be extended to have more fields as required in the future.
+        packageJson.setOrganization(
+                updateFieldWithUserInput("package.org", configurations, packageJson.getOrganization()));
+        packageJson.setVersion(updateFieldWithUserInput("package.version", configurations, packageJson.getVersion()));
+        packageJson.setSourceRepository(updateFieldWithUserInput("package.repository", configurations,
+                packageJson.getSourceRepository()));
+        packageJson.setVisibility(updateFieldWithUserInput("package.visibility", configurations,
+                packageJson.getVisibility()));
+        packageJson.setIcon(updateFieldWithUserInput("package.icon", configurations, packageJson.getIcon()));
+    }
+
+    private static String updateFieldWithUserInput(String key, Map<String, String> configurations,
+                                                          String defaultValue) {
+        // TODO: handle escaped "."s in the key (need to look into the possibility of key having dots first)
+        if (configurations.containsKey(key)) {
+            return configurations.get(key);
+        }
+        return defaultValue;
     }
 
     public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson,

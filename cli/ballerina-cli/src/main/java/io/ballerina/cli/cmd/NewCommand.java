@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -32,7 +33,9 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.ballerina.cli.cmd.CommandUtil.initPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
@@ -60,6 +63,9 @@ public class NewCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
             "default: default")
     public String template = "default";
+
+    @CommandLine.Unmatched
+    public List<String> unformattedConfigurations;
 
     public NewCommand() {
         this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -111,6 +117,15 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
+        Map<String, String> configurations;
+        try {
+            configurations = parsePackageManifestFields(unformattedConfigurations);
+        } catch (ProjectException e) {
+            CommandUtil.printError(errStream, e.getMessage(), null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         // If the current directory is a ballerina project, fail the command.
         if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
@@ -122,6 +137,9 @@ public class NewCommand implements BLauncherCmd {
         }
 
         String packageName = argList.get(0);
+        if (configurations.containsKey("package.name")) {
+            packageName = configurations.get("package.name");
+        }
         Path path = userDir.resolve(packageName);
         // Check if the directory or file exists with the given project name
         if (Files.exists(path)) {
@@ -165,6 +183,7 @@ public class NewCommand implements BLauncherCmd {
         try {
             // check if the template matches with one of the inbuilt template types
             if (CommandUtil.getTemplates().contains(template)) {
+                // TODO: apply to the predefined templates as well
                 // create package with inbuilt template
                 CommandUtil.initPackageByTemplate(path, packageName, template);
             } else {
@@ -172,7 +191,7 @@ public class NewCommand implements BLauncherCmd {
                 Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
                         .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                         .resolve(ProjectConstants.BALA_DIR_NAME);
-                initPackageFromCentral(balaCache, path, packageName, template);
+                initPackageFromCentral(balaCache, path, packageName, template, configurations);
             }
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
@@ -206,6 +225,31 @@ public class NewCommand implements BLauncherCmd {
             Runtime.getRuntime().exit(0);
         }
         return;
+    }
+
+    private Map<String, String> parsePackageManifestFields(List<String> unformattedConfigurations) {
+        Map<String, String> configurations = new HashMap<>();
+        // TODO: check if the format is correct. i.e. contain a "=" in the middle.
+        // TODO: check if the given field is in ballerina.toml schema, the value is acceptable
+        // TODO: parse the values into the correct format
+        // TODO: generate the final hashmap
+        unformattedConfigurations.stream().forEach(config -> {
+            // Validate the format of the config value.
+            if (!config.strip().startsWith("--")) {
+                throw new ProjectException("Invalid configuration '" + config +"'. " +
+                        "Should be in the format --<key>=<value>");
+            }
+            String[] configParts = config.strip().substring(2).split("=", 2);
+            if (configParts.length != 2) {
+                throw new ProjectException("Invalid configuration '" + config +"'. " +
+                        "Should be in the format --<key>=<value>");
+            }
+            String key = configParts[0];
+            String value = configParts[1];
+
+            configurations.put(key, value);
+        });
+        return configurations;
     }
 
     @Override
