@@ -6193,12 +6193,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (type.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) type;
             if (arrayType.state != BArrayState.OPEN && arrayType.size == 2 &&
-                    TypeTags.isStringTypeTag(arrayType.eType.tag)) {
+                    types.isAssignable(arrayType.eType, symTable.stringType)) {
                 return arrayType.eType;
             }
         } else if (type.tag == TypeTags.TUPLE) {
             List<BType> tupleTypeList = ((BTupleType) type).tupleTypes;
-            if (tupleTypeList.size() == 2 && TypeTags.isStringTypeTag(tupleTypeList.get(0).tag)) {
+            if (tupleTypeList.size() == 2 && types.isAssignable(tupleTypeList.get(0), symTable.stringType)) {
                 return tupleTypeList.get(1);
             }
         }
