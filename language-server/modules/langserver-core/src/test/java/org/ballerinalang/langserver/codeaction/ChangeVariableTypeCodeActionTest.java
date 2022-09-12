@@ -54,7 +54,10 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
                 {"changeVarType1.json"},
                 {"changeVarType2.json"},
                 {"changeVarType_int_to_float.json"},
-                {"changeVarType_int_to_float_in_constant.json"}
+                {"changeVarType_int_to_float_in_constant.json"},
+                {"changeVarTypeInObjectFields1.json"},
+                {"changeVarTypeInObjectFields2.json"},
+                {"changeVarTypeInObjectFields3.json"},
         };
     }
 
