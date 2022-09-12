@@ -169,46 +169,32 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         misMatched = true;
                     }
                 }
+
                 // Match args
-                if (expected.command != null) {
-                    JsonObject expectedCommand = expected.command;
-                    JsonObject actualCommand = right.get("command").getAsJsonObject();
-
-                    if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
-                        actual.command = actualCommand;
+                JsonObject actualCommand = right.get("command").getAsJsonObject();
+                if (actualCommand != null &&
+                        !("Report usage statistics".equals(actualCommand.get("title").getAsString()))) {
+                    if (expected.command == null) {
                         misMatched = true;
-                    }
-
-                    if (!Objects.equals(actualCommand.get("title"), expectedCommand.get("title"))) {
-                        actual.command = actualCommand;
-                        misMatched = true;
-                    }
-
-                    JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
-                    JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
-                    if (!TestUtil.isArgumentsSubArray(actualArgs, expArgs)) {
-                        actual.command = actualCommand;
-                        misMatched = true;
-                    }
-
-                    boolean docUriFound = false;
-                    for (JsonElement actualArg : actualArgs) {
-                        JsonObject arg = actualArg.getAsJsonObject();
-                        if ("doc.uri".equals(arg.get("key").getAsString())) {
-                            Optional<Path> docPath = PathUtil.getPathFromURI(arg.get("value").getAsString());
-                            if (docPath.isPresent()) {
-                                // We just check file names, since one refers to file in build/ while
-                                // the other refers to the file in test resources
-                                docUriFound = docPath.get().getFileName().equals(sourcePath.getFileName());
-                            }
+                    } else {
+                        JsonObject expectedCommand = expected.command;
+                        if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
+                            misMatched = true;
                         }
-                    }
 
-                    if (!docUriFound) {
+                        if (!Objects.equals(actualCommand.get("title"), expectedCommand.get("title"))) {
+                            misMatched = true;
+                        }
+
+                        JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
+                        JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
+                        if (!validateAndModifyArguments(actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
+                            misMatched = true;
+                        }
                         actual.command = actualCommand;
-                        misMatched = true;
                     }
                 }
+
                 // Code-action matched
                 if (!misMatched) {
                     codeActionFound = true;
@@ -225,7 +211,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         String cursorStartStr = range.getStart().getLine() + ":" + range.getStart().getCharacter();
         String cursorEndStr = range.getEnd().getLine() + ":" + range.getEnd().getCharacter();
         if (!mismatchedCodeActions.isEmpty()) {
-            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
+//            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
             Assert.fail(
                     String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
                             Arrays.toString(mismatchedCodeActions.toArray()),
@@ -400,5 +386,55 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 && expected.getExtName().equals(actual.getExtName())
                 && expected.getRange().equals(actual.getRange())
                 && expectedActionData.equals(actualActionData);
+    }
+
+    protected boolean validateAndModifyArguments(JsonObject actualCommand,
+                                                 JsonArray actualArgs,
+                                                 JsonArray expArgs,
+                                                 Path sourceRoot,
+                                                 Path sourcePath) {
+        //Validate the args of rename command
+        if ("ballerina.action.rename".equals(actualCommand.get("command").getAsString())) {
+            if (actualArgs.size() == 2) {
+                Optional<String> actualFilePath =
+                        PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
+                                .map(path -> path.toString().replace(sourceRoot.toString() + "/", ""));
+                int actualRenamePosition = expArgs.get(1).getAsInt();
+
+                String expectedFilePath = expArgs.get(0).getAsString();
+                int expectedRenamePosition = expArgs.get(1).getAsInt();
+
+                if (actualFilePath.isPresent()) {
+                    if (actualFilePath.get().equals(expectedFilePath)
+                            && actualRenamePosition == expectedRenamePosition) {
+                        return true;
+                    }
+                    JsonArray newArgs = new JsonArray();
+                    newArgs.add(actualFilePath.get());
+                    newArgs.add(actualRenamePosition);
+
+                    //Replace the args of the actual command to update the test config
+                    actualCommand.add("arguments", newArgs);
+                }
+            }
+            return false;
+        }
+        if (!TestUtil.isArgumentsSubArray(actualArgs, expArgs)) {
+            return false;
+        }
+        boolean docUriFound = false;
+        for (JsonElement actualArg : actualArgs) {
+            JsonObject arg = actualArg.getAsJsonObject();
+            if ("doc.uri".equals(arg.get("key").getAsString())) {
+                Optional<Path> docPath = PathUtil.getPathFromURI(arg.get("value").getAsString());
+                if (docPath.isPresent()) {
+                    // We just check file names, since one refers to file in build/ while
+                    // the other refers to the file in test resources
+                    docUriFound = docPath.get().getFileName().equals(sourcePath.getFileName());
+                }
+            }
+        }
+
+        return docUriFound;
     }
 }
