@@ -44,12 +44,8 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
     // BLangNodes
     public List<BLangFunction> functions;
 
-    // Parser Flags and Data
-    public Set<Flag> flagSet;
-
     public BLangObjectTypeNode() {
         this.functions = new ArrayList<>();
-        this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
     // This ctor is used in node cloner. Fields being set in node cloner are not initialized here
