@@ -3344,7 +3344,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    protected void failFastForErrorResult(Location pos, BlockNode blockStmt, BLangTypeTestExpr typeTestExpr,
+    void failFastForErrorResult(Location pos, BlockNode blockStmt, BLangTypeTestExpr typeTestExpr,
                                           BLangExpression resultRef) {
         BLangIf returnError = ASTBuilderUtil.createIfStmt(pos, blockStmt);
         returnError.expr = typeTestExpr;
@@ -7173,11 +7173,11 @@ public class Desugar extends BLangNodeVisitor {
         return stmtExpr;
     }
 
-    protected BLangTypeTestExpr getNilTypeTestExpr(Location pos, BLangExpression expr) {
+    BLangTypeTestExpr getNilTypeTestExpr(Location pos, BLangExpression expr) {
         return createTypeCheckExpr(pos, expr, getNillTypeNode());
     }
 
-    protected BLangTypeTestExpr getErrorTypeTestExpr(Location pos, BLangExpression expr) {
+    BLangTypeTestExpr getErrorTypeTestExpr(Location pos, BLangExpression expr) {
         return createTypeCheckExpr(pos, expr, getErrorTypeNode());
     }
 
