@@ -66,6 +66,9 @@ public class PublicVariableBalaTest {
                 "testPublicVisibilityInComplexVar",
                 "testPublicWithIsolatedFuncType",
                 "testPublicWithIsolatedObjectType",
+                "testRecordDestructure",
+                "testRecordDefinitionWithPublicOptionalField",
+                "testOptionalFieldAssignment"
         };
     }
 

@@ -116,6 +116,35 @@ function assignAnyToUnionWithErrorAndAny() {
     assertEquality(4, y);
 }
 
+type Topt1 record {
+    int x?;
+    int y?;
+};
+
+function testOptionalFieldAssignment1() {
+    Topt1 t = {x: 2, y: 4};
+    t.x = ();
+    assertEquality(t.x, ());
+    assertEquality(t.y, 4);
+    t.y = ();
+    assertEquality(t.x, ());
+    assertEquality(t.y, ());
+}
+
+type Topt2 record {
+    int a;
+    record {
+        int b?;
+    }[1] c;
+};
+
+function testOptionalFieldAssignment2() {
+    Topt2 t = {a: 2, c: [{b: 4}]};
+    (t.c)[0].b = ();
+    assertEquality(t.a, 2);
+    assertEquality((t.c)[0].b, ());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

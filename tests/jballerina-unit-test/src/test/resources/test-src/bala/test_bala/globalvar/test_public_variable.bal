@@ -44,6 +44,32 @@ public function testPublicWithIsolatedObjectType() {
     assertEquality(20, publicVariables:myIsolatedObj.getVal());
 }
 
+public function testRecordDestructure() {
+    int? aa;
+    int? bb;
+
+    {a: aa, c: [{b: bb}]} = publicVariables:topt1;
+    assertEquality(4, aa);
+    assertEquality(5, bb);
+
+    {a: aa, c: [{b: bb}]} = publicVariables:topt2;
+    assertEquality(true, aa is ());
+    assertEquality(6, bb);
+}
+
+public function testRecordDefinitionWithPublicOptionalField() {
+    publicVariables:Topt1 topt = {a: publicVariables:x, c: [{b: publicVariables:y}]};
+    assertEquality(4, topt.a);
+    assertEquality((), (topt.c)[0].b);
+}
+
+public function testOptionalFieldAssignment() {
+    publicVariables:Topt2 t = {x: 2, y: 4};
+    t.x = publicVariables:y;
+    assertEquality(t.x, ());
+    assertEquality(t.y, 4);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

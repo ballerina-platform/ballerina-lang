@@ -88,7 +88,8 @@ public class ModuleRecordVariableTest {
                 "incompatible types: expected 'record {| int id; int age?; anydata...; |}', " +
                         "found 'record {| int id; int age?; anydata...; |}?'", 91, 31);
         validateError(compileResultNegetive, index++,
-                "incompatible types: expected 'record {| int b?; anydata...; |}[1]', found 'record {| int b?; anydata...; |}[1]?'", 101, 12);
+                "incompatible types: expected 'record {| int b?; anydata...; |}[1]', " +
+                        "found 'record {| int b?; anydata...; |}[1]?'", 101, 12);
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 

@@ -8386,7 +8386,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (varRefType.tag == TypeTags.RECORD) {
             BSymbol fieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, data.env,
                     fieldName, varRefType.tsymbol);
-            // TODO: check the removal of !fieldAccessExpr.isLValue
             if (Symbols.isOptional(fieldSymbol) && !fieldSymbol.type.isNullable()) {
                 fieldAccessExpr.symbol = fieldSymbol;
                 return types.addNilForNillableAccessType(fieldSymbol.type);
