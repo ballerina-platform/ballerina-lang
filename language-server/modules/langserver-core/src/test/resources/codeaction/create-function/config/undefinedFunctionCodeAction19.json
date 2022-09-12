@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 9,
+    "character": 15
+  },
+  "source": "createUndefinedFunction9.bal",
+  "expected": [
+    {
+      "title": "Create function 'getCounter(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 1
+            },
+            "end": {
+              "line": 10,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getCounter() returns Counter {\n    return new ();\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction9.bal",
+        "range": {
+          "start": {
+            "line": 9,
+            "character": 15
+          },
+          "end": {
+            "line": 9,
+            "character": 27
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 9.0,
+              "character": 15.0
+            },
+            "end": {
+              "line": 9.0,
+              "character": 27.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

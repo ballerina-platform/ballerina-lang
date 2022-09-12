@@ -162,6 +162,11 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         return String.valueOf(obj);
     }
 
+    @Override
+    public TypeSymbol originalType() {
+        return this.broaderTypeDescriptor();
+    }
+
     /**
      * Represents Ballerina Constant Symbol Builder.
      */
