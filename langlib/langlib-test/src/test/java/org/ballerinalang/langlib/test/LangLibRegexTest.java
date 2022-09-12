@@ -18,24 +18,13 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.ArrayType;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.test.BAssertUtil;
+import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import static io.ballerina.runtime.api.utils.TypeUtils.getType;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the lang.array library.
@@ -58,7 +47,11 @@ public class LangLibRegexTest {
 
     @Test
     public void testLength() {
-        d
         BRunUtil.invoke(compileResult, "testFind");
+    }
+
+    public static void print(Object value) {
+        System.out.println("############################");
+        System.out.println(StringUtils.getStringValue(value, null));
     }
 }

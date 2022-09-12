@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -34,13 +35,17 @@ import java.util.regex.Pattern;
  *
  * @since 1.2.0
  */
-public class Find {
+public class Matches {
     static BTupleType tupleType = new BTupleType(Lists.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT,
             PredefinedTypes.TYPE_STRING));
-    public static BArray find(BString re, BString str, int startIndex) {
+    static BArrayType arrayType = new BArrayType(tupleType);
+
+    public static BArray matchAt(BString re, BString str, int startIndex) {
+        String stringVal = str.getValue();
         Pattern pattern = Pattern.compile(re.getValue());
         Matcher matcher = pattern.matcher(str.getValue());
-        if (matcher.find(startIndex)) {
+        matcher.region(startIndex, stringVal.length());
+        if (matcher.matches()) {
             System.out.print("Start index: " + matcher.start());
             System.out.print(" End index: " + matcher.end());
             System.out.println(" Found: " + matcher.group());
@@ -54,8 +59,38 @@ public class Find {
         return null;
     }
 
-    public static void print(Object value) {
-        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-        System.out.println(StringUtils.getStringValue(value, null));
+    public static BArray matchGroupsAt(BString re, BString str, int startIndex) {
+        Pattern pattern = Pattern.compile(re.getValue());
+        String stringVal = str.getValue();
+        Matcher matcher = pattern.matcher(str.getValue());
+        BArray resultArray = ValueCreator.createArrayValue(arrayType);
+        matcher.region(startIndex, stringVal.length());
+        if (matcher.matches()) {
+            for (int i = 0 ; i < matcher.groupCount(); i++) {
+                int matcherStart = matcher.start(i);
+                int matcherEnd = matcher.end(i);
+                //todo should we check if the group(i) is null
+                String matcherStr = matcher.group(i);
+                System.out.print("Start index: " + matcherStart);
+                System.out.print(" End index: " + matcherEnd);
+                System.out.println(" Found: " + matcherStr);
+
+                BArray resultTuple = ValueCreator.createTupleValue(tupleType);
+                resultTuple.add(0, matcherStart);
+                resultTuple.add(1, matcherEnd);
+                resultTuple.add(2, StringUtils.fromString(matcherStr));
+                resultArray.append(resultTuple);
+            }
+        }
+        if (resultArray.getLength() == 0) {
+            return null;
+        }
+        return resultArray;
+    }
+
+    public static boolean isFullMatch(BString re, BString str) {
+        Pattern pattern = Pattern.compile(re.getValue());
+        Matcher matcher = pattern.matcher(str.getValue());
+        return matcher.matches();
     }
 }

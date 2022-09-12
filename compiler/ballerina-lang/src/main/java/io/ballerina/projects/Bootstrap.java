@@ -107,6 +107,11 @@ public class Bootstrap {
             symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         }
 
+        if (langLib.equals(STRING)) {
+            // String module requires Regexp module. Hence loading them.
+            symbolTable.langRegexpModuleSymbol = loadLangLibFromBala(REGEXP, compilerContext);
+        }
+
         if (langLib.equals(TRANSACTION) || langLib.equals(QUERY)) {
             symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
             symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
@@ -125,6 +130,11 @@ public class Bootstrap {
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
         }
 
+        if (langLib.equals(REGEXP)) {
+            // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
+            symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
+        }
+
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
     }
@@ -136,6 +146,7 @@ public class Bootstrap {
         // we will load any lang.lib found in cache directory
         symbolTable.langAnnotationModuleSymbol = loadLangLibFromBala(ANNOTATIONS, compilerContext);
         symbolTable.langJavaModuleSymbol = loadLangLibFromBala(JAVA, compilerContext);
+        symbolTable.langRegexpModuleSymbol = loadLangLibFromBala(REGEXP, compilerContext);
         symbolTable.langInternalModuleSymbol = loadLangLibFromBala(INTERNAL, compilerContext);
         symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
         symResolver.bootstrapJsonType();
@@ -163,7 +174,6 @@ public class Bootstrap {
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
         symbolTable.langRuntimeModuleSymbol = loadLangLibFromBala(RUNTIME, compilerContext);
-        symbolTable.langRegexpModuleSymbol = loadLangLibFromBala(REGEXP, compilerContext);
         symbolTable.loadPredeclaredModules();
         symResolver.bootstrapIntRangeType();
         symbolTable.updateBuiltinSubtypeOwners();

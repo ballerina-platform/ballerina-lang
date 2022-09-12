@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BTupleType;
 import org.wso2.ballerinalang.util.Lists;
@@ -34,28 +35,28 @@ import java.util.regex.Pattern;
  *
  * @since 1.2.0
  */
-public class Find {
-    static BTupleType tupleType = new BTupleType(Lists.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT,
-            PredefinedTypes.TYPE_STRING));
-    public static BArray find(BString re, BString str, int startIndex) {
+public class Replace {
+
+    public static BString replaceFromString(BString re, BString str, BString replacingStr, int startIndex) {
         Pattern pattern = Pattern.compile(re.getValue());
         Matcher matcher = pattern.matcher(str.getValue());
         if (matcher.find(startIndex)) {
             System.out.print("Start index: " + matcher.start());
             System.out.print(" End index: " + matcher.end());
             System.out.println(" Found: " + matcher.group());
-
-            BArray resultTuple = ValueCreator.createTupleValue(tupleType);
-            resultTuple.add(0, matcher.start());
-            resultTuple.add(1, matcher.end());
-            resultTuple.add(2, StringUtils.fromString(matcher.group()));
-            return resultTuple;
+            return StringUtils.fromString(matcher.replaceFirst(replacingStr.getValue()));
         }
-        return null;
+        return str;
     }
 
-    public static void print(Object value) {
-        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-        System.out.println(StringUtils.getStringValue(value, null));
+    public static BString replaceAllFromString(BString re, BString str, BString replacingStr, int startIndex) {
+        String originalString = str.getValue();
+        String replacementString = replacingStr.getValue();
+        Pattern pattern = Pattern.compile(re.getValue());
+        Matcher matcher = pattern.matcher(originalString);
+        if (matcher.find(startIndex)) {
+            return StringUtils.fromString(matcher.replaceAll(replacementString));
+        }
+        return str;
     }
 }
