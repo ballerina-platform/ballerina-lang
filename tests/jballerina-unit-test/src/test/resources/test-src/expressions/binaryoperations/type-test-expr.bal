@@ -595,12 +595,12 @@ function testServiceObjects() {
 
     test:assertTrue(a is ServiceClassA);
     test:assertTrue(a is ServiceClassB);
-    test:assertTrue(a is ServiceClassC);
-    test:assertTrue(a is ServiceClassD);
+    test:assertFalse(a is ServiceClassC);
+    test:assertFalse(a is ServiceClassD);
 
     test:assertFalse(b is ServiceClassA);
     test:assertTrue(b is ServiceClassB);
-    test:assertTrue(b is ServiceClassC);
+    test:assertFalse(b is ServiceClassC);
     test:assertFalse(b is ServiceClassD);
 
     test:assertFalse(c is ServiceClassA);
@@ -610,7 +610,7 @@ function testServiceObjects() {
 
     test:assertTrue(d is ServiceClassA);
     test:assertTrue(d is ServiceClassB);
-    test:assertTrue(d is ServiceClassC);
+    test:assertFalse(d is ServiceClassC);
     test:assertTrue(d is ServiceClassD);
 }
 
@@ -1421,4 +1421,390 @@ function testIntSubtypes() {
     test:assertTrue(val8 is int:Signed16);
     test:assertTrue(val8 is int:Signed32);
     test:assertTrue(val8 is int);
+}
+
+type MyClientObjectType client object {
+    resource function get foo/[int]();
+};
+
+function testResourceMethodTyping() {
+    client object {} objectVar = client object {
+        resource function post .() {
+        }
+    };
+
+    boolean result = objectVar is client object {
+        resource function get .();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [string a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo/[string a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [string]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo/[string]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[int]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [byte]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [string a]() {
+        }
+        resource function post [int a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [string]() {
+        }
+        resource function post [int]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get bar/[string... a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get bar/[int... a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get bar/[byte... a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get bar/[int... a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get bar/[int a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get bar/[int... a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo2/[int]() {
+        }
+    };
+
+    result = objectVar is client object {
+        *MyClientObjectType;
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo/[string]() {
+        }
+    };
+
+    result = objectVar is client object {
+        *MyClientObjectType;
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .(int a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .(int... a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int b](int a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [int a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .(int a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [int]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .(int a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = service object {
+        resource function post .() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get .();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = service object {
+        resource function get [string a]() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = service object {
+        resource function get foo/[string a]() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get foo/[int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = service object {
+        resource function get [string]() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [int]() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+
+    objectVar = client object {
+        function \$get\$\* () {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+
+    objectVar = client object {
+        function get () {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+
+    objectVar = client object {
+        remote function get () {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+
+    objectVar = client object {
+        resource function get foo/[int]/[string...]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[int]/[string...]();
+    };
+
+    test:assertTrue(result);
+
+    objectVar = client object {
+        resource function get foo/[int b]/[string... a]() {
+        }
+
+        resource function get boo/[int b]/[int... a](string c) {
+        }
+
+        function name() { 
+        }
+
+        resource function post boo/[int b]/[int... a](string c) {
+        }
+
+        resource function post [int b]/[int... a](string c) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[int b]/[string... a]();
+        function name();
+        resource function get boo/[int b]/[int... a](string c);
+        resource function post boo/[byte b]/[byte... a](string c);
+        resource function post [1 b]/[2... a](string c);
+    };
+
+    test:assertTrue(result);
+
+    result = objectVar is client object {
+        resource function get boo/[int b]/[int... a](string c);
+    };
+
+    test:assertTrue(result);
+
+    result = objectVar is client object {
+        resource function get foo/[int b]/["book"... a]();
+    };
+
+    test:assertTrue(result);
+
+    result = objectVar is client object {
+        function name();
+    };
+
+    test:assertTrue(result);
 }

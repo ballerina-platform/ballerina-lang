@@ -75,6 +75,18 @@ public class JvmConstants {
     public static final String TUPLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TupleValueImpl";
     public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TableValueImpl";
     public static final String SIMPLE_VALUE = "io/ballerina/runtime/internal/values/SimpleValue";
+    public static final String REG_EXP_VALUE = "io/ballerina/runtime/internal/values/RegExpValue";
+    public static final String REG_EXP_DISJUNCTION = "io/ballerina/runtime/internal/values/RegExpDisjunction";
+    public static final String REG_EXP_SEQUENCE = "io/ballerina/runtime/internal/values/RegExpSequence";
+    public static final String REG_EXP_ASSERTION = "io/ballerina/runtime/internal/values/RegExpAssertion";
+    public static final String REG_EXP_ATOM_QUANTIFIER = "io/ballerina/runtime/internal/values/RegExpAtomQuantifier";
+    public static final String REG_EXP_QUANTIFIER = "io/ballerina/runtime/internal/values/RegExpQuantifier";
+    public static final String REG_EXP_CHAR_ESCAPE = "io/ballerina/runtime/internal/values/RegExpLiteralCharOrEscape";
+    public static final String REG_EXP_CHAR_CLASS = "io/ballerina/runtime/internal/values/RegExpCharacterClass";
+    public static final String REG_EXP_CHAR_SET = "io/ballerina/runtime/internal/values/RegExpCharSet";
+    public static final String REG_EXP_CAPTURING_GROUP = "io/ballerina/runtime/internal/values/RegExpCapturingGroup";
+    public static final String REG_EXP_FLAG_EXPR = "io/ballerina/runtime/internal/values/RegExpFlagExpression";
+    public static final String REG_EXP_FLAG_ON_OFF = "io/ballerina/runtime/internal/values/RegExpFlagOnOff";
 
     public static final String B_HANDLE = "io/ballerina/runtime/api/values/BHandle";
 
@@ -145,6 +157,7 @@ public class JvmConstants {
     public static final String RECORD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BRecordType";
     public static final String OBJECT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BObjectType";
     public static final String SERVICE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BServiceType";
+    public static final String CLIENT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BClientType";
     public static final String ERROR_TYPE_IMPL = "io/ballerina/runtime/internal/types/BErrorType";
     public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTupleType";
     public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFunctionType";
@@ -176,7 +189,7 @@ public class JvmConstants {
     // other jvm-specific classes
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
-    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonUtils";
+    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
     public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
@@ -211,6 +224,7 @@ public class JvmConstants {
     public static final String RUNTIME_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
+    public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/RegExpFactory";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";

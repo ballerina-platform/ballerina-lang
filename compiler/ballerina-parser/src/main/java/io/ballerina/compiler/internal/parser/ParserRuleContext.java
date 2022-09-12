@@ -161,6 +161,7 @@ public enum ParserRuleContext {
     RESOURCE_PATH_PARAM("resource-path-param"),
     PATH_PARAM_OPTIONAL_ANNOTS("path-param-optional-annots"),
     PATH_PARAM_ELLIPSIS("path-param-ellipsis"),
+    OPTIONAL_PATH_PARAM_NAME("optional-path-param-name"),
     RELATIVE_RESOURCE_PATH_END("relative-resource-path-end"),
     RESOURCE_PATH_END("relative-resource-path-end"),
     RESOURCE_ACCESSOR_DEF_OR_DECL_RHS("resource-accessor-def-or-decl-rhs"),
@@ -219,12 +220,12 @@ public enum ParserRuleContext {
     ANON_FUNC_PARAM_RHS("anon-func-param-rhs"),
     IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
     OPTIONAL_PEER_WORKER("optional-peer-worker"),
-    WORKER_NAME_OR_METHOD_NAME("worker-name-or-method-name"),
+    METHOD_NAME("method-name"),
     PEER_WORKER_NAME("peer-worker-name"),
     TYPE_DESC_IN_TUPLE_RHS("type-desc-in-tuple-rhs"),
     TUPLE_TYPE_MEMBER_RHS("tuple-type-member-rhs"),
     NIL_OR_PARENTHESISED_TYPE_DESC_RHS("nil-or-parenthesised-tpe-desc-rhs"),
-    REMOTE_CALL_OR_ASYNC_SEND_RHS("remote-call-or-async-send-rhs"),
+    REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS("remote-or-resource-call-or-async-send-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_END("remote-call-or-async-send-end"),
     DEFAULT_WORKER_NAME_IN_ASYNC_SEND("default-worker-name-in-async-send"),
     RECEIVE_WORKERS("receive-workers"),
@@ -351,6 +352,14 @@ public enum ParserRuleContext {
     MODULE_VAR_WITHOUT_FIRST_QUAL("module-var-without-first-qual"),
     MODULE_VAR_WITHOUT_SECOND_QUAL("module-var-without-second-qual"),
     FUNC_DEF_OR_TYPE_DESC_RHS("func-def-or-type-desc-rhs"),
+    CLIENT_RESOURCE_ACCESS_ACTION("client-resource-access-action"),
+    OPTIONAL_RESOURCE_ACCESS_PATH("optional-resource-access-path"),
+    RESOURCE_ACCESS_PATH_SEGMENT("resource-access-path-segment"),
+    COMPUTED_SEGMENT_OR_REST_SEGMENT("computed-segment-or-rest-segment"),
+    RESOURCE_ACCESS_SEGMENT_RHS("resource-access-segment-rhs"),
+    OPTIONAL_RESOURCE_ACCESS_METHOD("optional-resource-access-method"),
+    OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST("optional-resource-method-call-arg-list"),
+    ACTION_END("action-end"),
 
     // Statements
     STATEMENT("statement"),
@@ -472,6 +481,7 @@ public enum ParserRuleContext {
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
     NOT_IS_KEYWORD("!is"),
+    RE_KEYWORD("re"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -552,6 +562,7 @@ public enum ParserRuleContext {
     VAR_REF_COLON("var-ref-colon"),
     TYPE_REF_COLON("type-ref-colon"),
     METHOD_CALL_DOT("method-call-dot"),
+    RESOURCE_METHOD_CALL_SLASH_TOKEN("resource-method-call-slash-token"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -629,6 +640,7 @@ public enum ParserRuleContext {
     TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END("type-cast-param-start-or-inferred-typedesc-default-end"),
     END_OF_PARAMS_OR_NEXT_PARAM_START("end-of-params-or-next-param-start"),
     BRACED_EXPRESSION("braced-expression"),
+    ACTION("action"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

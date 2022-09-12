@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -70,6 +71,10 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     @Override
     public TypeBuilder.TABLE withRowType(TypeSymbol rowType) {
+        if (rowType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            return this.withRowType(((TypeReferenceTypeSymbol) rowType).typeDescriptor());
+        }
+
         this.rowType = rowType;
         return this;
     }

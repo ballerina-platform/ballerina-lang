@@ -68,6 +68,7 @@ public class TypeConstants {
     public static final String UNSIGNED16 = "Unsigned16";
     public static final String UNSIGNED8 = "Unsigned8";
     public static final String CHAR = "Char";
+    public static final String REG_EXP = "RegExp";
     public static final String XML_ELEMENT = "Element";
     public static final String READONLY_XML_ELEMENT = "Element & readonly";
     public static final String XML_PI = "ProcessingInstruction";

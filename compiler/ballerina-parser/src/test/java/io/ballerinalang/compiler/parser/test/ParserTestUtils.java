@@ -364,6 +364,10 @@ public class ParserTestUtils {
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
+            case RE_ASSERTION_VALUE:
+            case RE_CHAR_ESCAPE_VALUE:
+            case RE_CHAR_SET_VALUE:
+            case RE_FLAGS_ON_OFF_VALUE:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
             case CODE_CONTENT:
@@ -608,6 +612,12 @@ public class ParserTestUtils {
                 return SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM;
             case "RESOURCE_PATH_REST_PARAM":
                 return SyntaxKind.RESOURCE_PATH_REST_PARAM;
+            case "CLIENT_RESOURCE_ACCESS_ACTION":
+                return SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION;
+            case "COMPUTED_RESOURCE_ACCESS_SEGMENT":
+                return SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT;
+            case "RESOURCE_ACCESS_REST_SEGMENT":
+                return SyntaxKind.RESOURCE_ACCESS_REST_SEGMENT;
 
             // Trivia
             case "EOF_TOKEN":
@@ -761,6 +771,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_TEMPLATE_EXPRESSION;
             case "STRING_TEMPLATE_EXPRESSION":
                 return SyntaxKind.STRING_TEMPLATE_EXPRESSION;
+            case "REGEX_TEMPLATE_EXPRESSION":
+                return SyntaxKind.REGEX_TEMPLATE_EXPRESSION;
             case "QUERY_EXPRESSION":
                 return SyntaxKind.QUERY_EXPRESSION;
             case "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
@@ -1151,6 +1163,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BYTE_KEYWORD;
             case "XML_KEYWORD":
                 return SyntaxKind.XML_KEYWORD;
+            case "RE_KEYWORD":
+                return SyntaxKind.RE_KEYWORD;
             case "JSON_KEYWORD":
                 return SyntaxKind.JSON_KEYWORD;
             case "HANDLE_KEYWORD":
@@ -1294,6 +1308,43 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_CDATA_START_TOKEN;
             case "XML_CDATA_END_TOKEN":
                 return SyntaxKind.XML_CDATA_END_TOKEN;
+            default:
+                return getRegExpTemplateKind(kind);
+        }
+    }
+
+    private static SyntaxKind getRegExpTemplateKind(String kind) {
+        switch (kind) {
+            case "RE_SEQUENCE":
+                return SyntaxKind.RE_SEQUENCE;
+            case "RE_ATOM_QUANTIFIER":
+                return SyntaxKind.RE_ATOM_QUANTIFIER;
+            case "RE_ASSERTION":
+                return SyntaxKind.RE_ASSERTION;
+            case "RE_ASSERTION_VALUE":
+                return SyntaxKind.RE_ASSERTION_VALUE;
+            case "RE_QUANTIFIER":
+                return SyntaxKind.RE_QUANTIFIER;
+            case "RE_BASE_QUANTIFIER_VALUE":
+                return SyntaxKind.RE_BASE_QUANTIFIER_VALUE;
+            case "RE_CHARACTER_CLASS":
+                return SyntaxKind.RE_CHARACTER_CLASS;
+            case "RE_CHAR_SET":
+                return SyntaxKind.RE_CHAR_SET;
+            case "RE_CHAR_SET_VALUE":
+                return SyntaxKind.RE_CHAR_SET_VALUE;
+            case "RE_FLAG_EXPR":
+                return SyntaxKind.RE_FLAG_EXPR;
+            case "RE_FLAGS_ON_OFF":
+                return SyntaxKind.RE_FLAGS_ON_OFF;
+            case "RE_FLAGS_ON_OFF_VALUE":
+                return SyntaxKind.RE_FLAGS_ON_OFF_VALUE;
+            case "RE_CAPTURING_GROUP":
+                return SyntaxKind.RE_CAPTURING_GROUP;
+            case "RE_CHAR_ESCAPE":
+                return SyntaxKind.RE_CHAR_ESCAPE;
+            case "RE_CHAR_ESCAPE_VALUE":
+                return SyntaxKind.RE_CHAR_ESCAPE_VALUE;
             default:
                 return getDocumentationKind(kind);
         }

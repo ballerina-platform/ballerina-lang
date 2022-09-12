@@ -3187,7 +3187,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token ellipsisToken =
                 modifyToken(resourcePathParameterNode.ellipsisToken().orElse(null));
         Token paramName =
-                modifyToken(resourcePathParameterNode.paramName());
+                modifyToken(resourcePathParameterNode.paramName().orElse(null));
         Token closeBracketToken =
                 modifyToken(resourcePathParameterNode.closeBracketToken());
         return resourcePathParameterNode.modify(
@@ -3253,6 +3253,186 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return spreadMemberNode.modify(
                 ellipsis,
                 expression);
+    }
+
+    @Override
+    public ClientResourceAccessActionNode transform(
+            ClientResourceAccessActionNode clientResourceAccessActionNode) {
+        ExpressionNode expression =
+                modifyNode(clientResourceAccessActionNode.expression());
+        Token rightArrowToken =
+                modifyToken(clientResourceAccessActionNode.rightArrowToken());
+        Token slashToken =
+                modifyToken(clientResourceAccessActionNode.slashToken());
+        SeparatedNodeList<Node> resourceAccessPath =
+                modifySeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath());
+        Token dotToken =
+                modifyToken(clientResourceAccessActionNode.dotToken().orElse(null));
+        SimpleNameReferenceNode methodName =
+                modifyNode(clientResourceAccessActionNode.methodName().orElse(null));
+        ParenthesizedArgList arguments =
+                modifyNode(clientResourceAccessActionNode.arguments().orElse(null));
+        return clientResourceAccessActionNode.modify(
+                expression,
+                rightArrowToken,
+                slashToken,
+                resourceAccessPath,
+                dotToken,
+                methodName,
+                arguments);
+    }
+
+    @Override
+    public ComputedResourceAccessSegmentNode transform(
+            ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        Token openBracketToken =
+                modifyToken(computedResourceAccessSegmentNode.openBracketToken());
+        ExpressionNode expression =
+                modifyNode(computedResourceAccessSegmentNode.expression());
+        Token closeBracketToken =
+                modifyToken(computedResourceAccessSegmentNode.closeBracketToken());
+        return computedResourceAccessSegmentNode.modify(
+                openBracketToken,
+                expression,
+                closeBracketToken);
+    }
+
+    @Override
+    public ResourceAccessRestSegmentNode transform(
+            ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        Token openBracketToken =
+                modifyToken(resourceAccessRestSegmentNode.openBracketToken());
+        Token ellipsisToken =
+                modifyToken(resourceAccessRestSegmentNode.ellipsisToken());
+        ExpressionNode expression =
+                modifyNode(resourceAccessRestSegmentNode.expression());
+        Token closeBracketToken =
+                modifyToken(resourceAccessRestSegmentNode.closeBracketToken());
+        return resourceAccessRestSegmentNode.modify(
+                openBracketToken,
+                ellipsisToken,
+                expression,
+                closeBracketToken);
+    }
+
+    @Override
+    public ReSequenceNode transform(
+            ReSequenceNode reSequenceNode) {
+        NodeList<ReTermNode> reTerm =
+                modifyNodeList(reSequenceNode.reTerm());
+        return reSequenceNode.modify(
+                reTerm);
+    }
+
+    @Override
+    public ReAtomQuantifierNode transform(
+            ReAtomQuantifierNode reAtomQuantifierNode) {
+        Node reAtom =
+                modifyNode(reAtomQuantifierNode.reAtom());
+        ReQuantifierNode reQuantifier =
+                modifyNode(reAtomQuantifierNode.reQuantifier().orElse(null));
+        return reAtomQuantifierNode.modify(
+                reAtom,
+                reQuantifier);
+    }
+
+    @Override
+    public ReAtomCharOrEscapeNode transform(
+            ReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        Node reAtomCharOrEscape =
+                modifyNode(reAtomCharOrEscapeNode.reAtomCharOrEscape());
+        return reAtomCharOrEscapeNode.modify(
+                reAtomCharOrEscape);
+    }
+
+    @Override
+    public ReCharacterClassNode transform(
+            ReCharacterClassNode reCharacterClassNode) {
+        Token openBracket =
+                modifyToken(reCharacterClassNode.openBracket());
+        Token negation =
+                modifyToken(reCharacterClassNode.negation().orElse(null));
+        ReCharSetNode reCharSet =
+                modifyNode(reCharacterClassNode.reCharSet().orElse(null));
+        Token closeBracket =
+                modifyToken(reCharacterClassNode.closeBracket());
+        return reCharacterClassNode.modify(
+                openBracket,
+                negation,
+                reCharSet,
+                closeBracket);
+    }
+
+    @Override
+    public ReCharSetNode transform(
+            ReCharSetNode reCharSetNode) {
+        Node reCharSet =
+                modifyNode(reCharSetNode.reCharSet());
+        return reCharSetNode.modify(
+                reCharSet);
+    }
+
+    @Override
+    public ReCapturingGroupsNode transform(
+            ReCapturingGroupsNode reCapturingGroupsNode) {
+        Token openParenthesis =
+                modifyToken(reCapturingGroupsNode.openParenthesis());
+        ReFlagExpressionNode reFlagExpression =
+                modifyNode(reCapturingGroupsNode.reFlagExpression().orElse(null));
+        NodeList<Node> reSequences =
+                modifyNodeList(reCapturingGroupsNode.reSequences());
+        Token closeParenthesis =
+                modifyToken(reCapturingGroupsNode.closeParenthesis());
+        return reCapturingGroupsNode.modify(
+                openParenthesis,
+                reFlagExpression,
+                reSequences,
+                closeParenthesis);
+    }
+
+    @Override
+    public ReFlagExpressionNode transform(
+            ReFlagExpressionNode reFlagExpressionNode) {
+        Token questionMark =
+                modifyToken(reFlagExpressionNode.questionMark());
+        ReFlagsOnOffNode reFlagsOnOff =
+                modifyNode(reFlagExpressionNode.reFlagsOnOff());
+        Token colon =
+                modifyToken(reFlagExpressionNode.colon());
+        return reFlagExpressionNode.modify(
+                questionMark,
+                reFlagsOnOff,
+                colon);
+    }
+
+    @Override
+    public ReFlagsOnOffNode transform(
+            ReFlagsOnOffNode reFlagsOnOffNode) {
+        Node reFlagsOnOff =
+                modifyNode(reFlagsOnOffNode.reFlagsOnOff());
+        return reFlagsOnOffNode.modify(
+                reFlagsOnOff);
+    }
+
+    @Override
+    public ReAssertionNode transform(
+            ReAssertionNode reAssertionNode) {
+        Node reAssertion =
+                modifyNode(reAssertionNode.reAssertion());
+        return reAssertionNode.modify(
+                reAssertion);
+    }
+
+    @Override
+    public ReQuantifierNode transform(
+            ReQuantifierNode reQuantifierNode) {
+        Node reBaseQuantifier =
+                modifyNode(reQuantifierNode.reBaseQuantifier());
+        Token nonGreedyChar =
+                modifyToken(reQuantifierNode.nonGreedyChar().orElse(null));
+        return reQuantifierNode.modify(
+                reBaseQuantifier,
+                nonGreedyChar);
     }
 
     // Tokens

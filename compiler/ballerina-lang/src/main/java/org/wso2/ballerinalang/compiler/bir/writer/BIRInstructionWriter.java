@@ -543,6 +543,87 @@ public class BIRInstructionWriter extends BIRVisitor {
         writeType(newTypeDesc.type);
     }
 
+    @Override
+    public void visit(BIRNonTerminator.NewRegExp newRegExp) {
+        newRegExp.lhsOp.accept(this);
+        newRegExp.reDisjunction.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReDisjunction reDisjunction) {
+        reDisjunction.lhsOp.accept(this);
+        reDisjunction.sequences.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReSequence reSequence) {
+        reSequence.lhsOp.accept(this);
+        reSequence.terms.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReAssertion reAssertion) {
+        reAssertion.lhsOp.accept(this);
+        reAssertion.assertion.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReAtomQuantifier reAtomQuantifier) {
+        reAtomQuantifier.lhsOp.accept(this);
+        reAtomQuantifier.atom.accept(this);
+        reAtomQuantifier.quantifier.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReLiteralCharOrEscape reLiteralCharOrEscape) {
+        reLiteralCharOrEscape.lhsOp.accept(this);
+        reLiteralCharOrEscape.charOrEscape.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReQuantifier reQuantifier) {
+        reQuantifier.lhsOp.accept(this);
+        reQuantifier.quantifier.accept(this);
+        reQuantifier.nonGreedyChar.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReCharacterClass reCharacterClass) {
+        reCharacterClass.lhsOp.accept(this);
+        reCharacterClass.classStart.accept(this);
+        reCharacterClass.negation.accept(this);
+        reCharacterClass.charSet.accept(this);
+        reCharacterClass.classEnd.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReCharSet reCharSet) {
+        reCharSet.lhsOp.accept(this);
+        reCharSet.charSet.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReCapturingGroup reCapturingGroups) {
+        reCapturingGroups.lhsOp.accept(this);
+        reCapturingGroups.openParen.accept(this);
+        reCapturingGroups.flagExpr.accept(this);
+        reCapturingGroups.reDisjunction.accept(this);
+        reCapturingGroups.closeParen.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReFlagExpression reFlagExpression) {
+        reFlagExpression.lhsOp.accept(this);
+        reFlagExpression.questionMark.accept(this);
+        reFlagExpression.flagsOnOff.accept(this);
+        reFlagExpression.colon.accept(this);
+    }
+
+    public void visit(BIRNonTerminator.NewReFlagOnOff reFlagsOnOff) {
+        reFlagsOnOff.lhsOp.accept(this);
+        reFlagsOnOff.flags.accept(this);
+    }
+
     // Positions
     void writePosition(Location pos) {
         BIRWriterUtils.writePosition(pos, this.buf, this.cp);

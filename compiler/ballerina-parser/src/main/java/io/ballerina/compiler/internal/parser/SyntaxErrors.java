@@ -86,6 +86,10 @@ public class SyntaxErrors {
         return createMissingTokenWithDiagnostics(expectedKind, getDocWarningCode(expectedKind));
     }
 
+    public static STToken createMissingRegExpTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return createMissingTokenWithDiagnostics(expectedKind, getRegExpErrorCode(expectedKind));
+    }
+
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind,
                                                             DiagnosticCode diagnosticCode) {
         List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
@@ -146,7 +150,7 @@ public class SyntaxErrors {
             case QUALIFIED_IDENTIFIER_START_IDENTIFIER:
             case NAMESPACE_PREFIX:
             case IMPLICIT_ANON_FUNC_PARAM:
-            case WORKER_NAME_OR_METHOD_NAME:
+            case METHOD_NAME:
             case PEER_WORKER_NAME:
             case RECEIVE_FIELD_NAME:
             case WAIT_FIELD_NAME:
@@ -191,6 +195,7 @@ public class SyntaxErrors {
             case HEX_INTEGER_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_INTEGER_LITERAL;
             case OBJECT_FIELD_RHS:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case NIL_LITERAL:
             case ERROR_MATCH_PATTERN:
@@ -261,6 +266,8 @@ public class SyntaxErrors {
             case TUPLE_TYPE_DESC_START:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
             case SLASH:
+            case ABSOLUTE_PATH_SINGLE_SLASH:
+            case RESOURCE_METHOD_CALL_SLASH_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_SLASH_TOKEN;
             case COLON:
             case VAR_REF_COLON:
@@ -495,6 +502,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_KEYWORD;
             case XML_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_KEYWORD;
+            case RE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_KEYWORD;
             case VAR_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
@@ -544,6 +553,19 @@ public class SyntaxErrors {
                 return DiagnosticWarningCode.WARNING_MISSING_PARAMETER_NAME;
             case CODE_CONTENT:
                 return DiagnosticWarningCode.WARNING_MISSING_CODE_REFERENCE;
+            default:
+                return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
+        }
+    }
+
+    private static DiagnosticCode getRegExpErrorCode(SyntaxKind expectedKind) {
+        switch (expectedKind) {
+            case CLOSE_PAREN_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
+            case CLOSE_BRACKET_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
+            case COLON_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
             default:
                 return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
         }

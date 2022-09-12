@@ -23,6 +23,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.types.BArray;
 import org.ballerinalang.debugadapter.variable.types.BBoolean;
 import org.ballerinalang.debugadapter.variable.types.BByte;
+import org.ballerinalang.debugadapter.variable.types.BClientObject;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
 import org.ballerinalang.debugadapter.variable.types.BError;
 import org.ballerinalang.debugadapter.variable.types.BFloat;
@@ -50,6 +51,7 @@ import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isClientObject;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isJson;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
@@ -185,6 +187,8 @@ public class VariableFactory {
         } else if (value instanceof ObjectReference) {
             if (isObject(value)) {
                 return new BObject(context, varName, value);
+            } else if (isClientObject(value)) {
+                return new BClientObject(context, varName, value);
             } else if (isRecord(value)) {
                 return new BRecord(context, varName, value);
             } else if (isService(value)) {

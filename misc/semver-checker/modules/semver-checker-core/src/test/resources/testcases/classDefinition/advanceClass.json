@@ -112,7 +112,7 @@
                   {
                     "type": "modified",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
+                    "kind": "service annotation",
                     "message": "service annotation list is modified"
                   }
                 ],

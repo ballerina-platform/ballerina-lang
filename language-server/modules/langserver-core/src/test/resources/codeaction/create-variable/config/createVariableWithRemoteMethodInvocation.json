@@ -13,6 +13,19 @@
           "range": {
             "start": {
               "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "HelloReply|E1 sayHello \u003d "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 22,
               "character": 38
             },
             "end": {
@@ -34,19 +47,6 @@
             }
           },
           "newText": "\n    if sayHello is E1 {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 22,
-              "character": 4
-            },
-            "end": {
-              "line": 22,
-              "character": 4
-            }
-          },
-          "newText": "HelloReply|E1 sayHello \u003d "
         }
       ]
     },
@@ -111,25 +111,6 @@
             }
           },
           "newText": "HelloReply|E1 sayHello \u003d "
-        }
-      ]
-    },
-    {
-      "title": "Ignore return value",
-      "kind": "quickfix",
-      "edits": [
-        {
-          "range": {
-            "start": {
-              "line": 22,
-              "character": 4
-            },
-            "end": {
-              "line": 22,
-              "character": 4
-            }
-          },
-          "newText": "_ \u003d "
         }
       ]
     }

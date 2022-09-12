@@ -141,9 +141,21 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1685,7 +1697,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
-            dlog.error(pos, DiagnosticErrorCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
+            dlog.warning(pos, DiagnosticWarningCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
@@ -2518,6 +2530,28 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             actionInvocation.invokedInsideTransaction = true;
         }
     }
+    
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceActionInvocation, AnalyzerData data) {
+        validateInvocationInMatchGuard(resourceActionInvocation);
+        analyzeExpr(resourceActionInvocation.expr, data);
+        analyzeExprs(resourceActionInvocation.requiredArgs, data);
+        analyzeExprs(resourceActionInvocation.restArgs, data);
+        analyzeExpr(resourceActionInvocation.resourceAccessPathSegments, data);
+        resourceActionInvocation.invokedInsideTransaction = data.withinTransactionScope;
+        
+        if (Symbols.isFlagOn(resourceActionInvocation.symbol.flags, Flags.TRANSACTIONAL) &&
+                !data.withinTransactionScope) {
+            dlog.error(resourceActionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
+            return;
+        }
+        
+        if (Symbols.isFlagOn(resourceActionInvocation.symbol.flags, Flags.DEPRECATED)) {
+            logDeprecatedWarningForInvocation(resourceActionInvocation);
+        }
+
+        validateActionInvocation(resourceActionInvocation.pos, resourceActionInvocation);
+    }
 
     private void logDeprecatedWarningForInvocation(BLangInvocation invocationExpr) {
         String deprecatedConstruct = invocationExpr.name.toString();
@@ -3187,9 +3221,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
-        boolean failureHandled = data.failureHandled;
-        data.failureHandled = true;
-        data.errorTypes.push(new LinkedHashSet<>());
         boolean prevQueryToTableWithKey = data.queryToTableWithKey;
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
         data.queryToMap = queryExpr.isMap;
@@ -3209,8 +3240,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
             analyzeNode(clause, data);
         }
-        data.failureHandled = failureHandled;
-        data.errorTypes.pop();
         data.withinQuery = prevWithinQuery;
         data.queryToTableWithKey = prevQueryToTableWithKey;
     }
@@ -3221,7 +3250,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failureHandled = true;
         boolean prevWithinQuery = data.withinQuery;
         data.withinQuery = true;
-        data.errorTypes.push(new LinkedHashSet<>());
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3239,7 +3267,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         validateActionParentNode(queryAction.pos, queryAction);
         data.failureHandled = prevFailureHandled;
         data.withinQuery = prevWithinQuery;
-        data.errorTypes.pop();
     }
 
     @Override
@@ -3362,6 +3389,54 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
             logDeprecatedWaring(annotAccessExpr.annotationName.toString(), annotationSymbol, annotAccessExpr.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff source, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression source, AnalyzerData data) {
     }
 
     private void logDeprecatedWaring(String deprecatedConstruct, BSymbol symbol, Location pos) {

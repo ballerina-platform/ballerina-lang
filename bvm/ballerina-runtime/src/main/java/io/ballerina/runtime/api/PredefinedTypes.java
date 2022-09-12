@@ -118,6 +118,8 @@ public class PredefinedTypes {
                                                                       new Module(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                                  STRING_LANG_LIB, null),
                                                                       TypeTags.CHAR_STRING_TAG);
+    public static final StringType TYPE_STRING_REG_EXP = new BStringType(TypeConstants.REG_EXP,
+            new Module(BALLERINA_BUILTIN_PKG_PREFIX, STRING_LANG_LIB, null), TypeTags.REG_EXP_TYPE_TAG);
 
     public static final ReadonlyType TYPE_READONLY = new BReadonlyType(TypeConstants.READONLY_TNAME, EMPTY_MODULE);
     public static final XmlType TYPE_ELEMENT = new BXmlType(TypeConstants.XML_ELEMENT,

@@ -28,12 +28,15 @@ import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -52,6 +55,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +70,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
     private  WorkspaceManager workspaceManager;
@@ -77,7 +81,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     public void test(String config) throws IOException, WorkspaceDocumentException {
         Path configJsonPath = getConfigJsonPath(config);
         TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configJsonPath), TestConfig.class);
-        Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(testConfig.source);
+        Path sourceRoot = sourcesPath.resolve(getResourceDir()).resolve("source");
+        Path sourcePath = sourceRoot.resolve(testConfig.source);
         TestUtil.openDocument(getServiceEndpoint(), sourcePath);
 
         // Filter diagnostics for the cursor position
@@ -99,6 +104,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         String res = getResponse(sourcePath, finalRange, codeActionContext);
 
         List<CodeActionObj> mismatchedCodeActions = new ArrayList<>();
+        int matchedCodeActionsCount = 0;
         for (CodeActionObj expected : testConfig.expected) {
             // Create an object to keep track of the actual code action received
             CodeActionObj actual = new CodeActionObj();
@@ -116,7 +122,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 if (!expected.title.equals(actualTitle)) {
                     continue;
                 }
-
+                matchedCodeActionsCount++;
                 // We have to make sure the title is a match since we are checking against all the
                 // code actions received.
                 actual.title = actualTitle;
@@ -131,8 +137,31 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                 // Match edits
                 if (expected.edits != null) {
-                    JsonElement editsElement = right.get("edit").getAsJsonObject().get("documentChanges")
-                            .getAsJsonArray().get(0).getAsJsonObject().get("edits");
+                    JsonElement editsElement;
+                    if (expected.resolvable) {
+                        Assert.assertFalse(right.has("edit"));
+                        ResolvableCodeAction action = ResolvableCodeAction.from(gson.fromJson(right, CodeAction.class));
+                        String response = TestUtil.getCodeActionResolveResponse(getServiceEndpoint(), action);
+                        JsonObject resolvedResponse = getResponseJson(response);
+                        editsElement = resolvedResponse.get("result").getAsJsonObject().get("edit").getAsJsonObject()
+                                .get("documentChanges").getAsJsonArray().get(0).getAsJsonObject().get("edits");
+                        JsonElement actualData = right.get("data");
+                        if (!actualData.isJsonNull()) {
+                            this.alterFileUri(actual, actualData, sourceRoot);
+                        }
+                        if (expected.data != null) {
+                            this.alterExpectedUri(expected.data, sourceRoot);
+                            JsonElement expectedData = gson.toJsonTree(expected.data);
+                            if (!expectedData.equals(actualData)) {
+                                this.alterFileUri(actual, actualData, sourceRoot);
+                            }
+                        }
+
+                    } else {
+                        editsElement = right.get("edit").getAsJsonObject().get("documentChanges")
+                                .getAsJsonArray().get(0).getAsJsonObject().get("edits");
+                    }
+
                     Type type = new TypeToken<List<TextEdit>>() {
                     }.getType();
                     List<TextEdit> actualEdit = gson.fromJson(editsElement, type);
@@ -193,12 +222,21 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         }
         TestUtil.closeDocument(getServiceEndpoint(), sourcePath);
 
-        String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
+        String cursorStartStr = range.getStart().getLine() + ":" + range.getStart().getCharacter();
+        String cursorEndStr = range.getEnd().getLine() + ":" + range.getEnd().getCharacter();
         if (!mismatchedCodeActions.isEmpty()) {
 //            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
-            Assert.fail(String.format("Cannot find expected code action(s) for: '%s', cursor at [%s] in '%s': %s",
+            Assert.fail(
+                    String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
                     Arrays.toString(mismatchedCodeActions.toArray()),
-                    cursorStr, sourcePath, testConfig.description));
+                    cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
+        }
+
+        if (matchedCodeActionsCount != testConfig.expected.size()) {
+            Assert.fail(
+                    String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
+                    Arrays.toString(mismatchedCodeActions.toArray()),
+                    cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
         }
     }
 
@@ -262,7 +300,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         responseJson.remove("id");
         return responseJson;
     }
-    
+
     @BeforeClass
     public void setup() {
         workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
@@ -291,11 +329,26 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Files.write(configPath, objStr.getBytes(StandardCharsets.UTF_8));
     }
 
+    protected void alterExpectedUri(CodeActionData data, Path root) throws IOException {
+        String[] uriComponents = data.getFileUri().replace("\"", "").split("/");
+        Path expectedPath = Paths.get(root.toUri());
+        for (String uriComponent : uriComponents) {
+            expectedPath = expectedPath.resolve(uriComponent);
+        }
+        data.setFileUri(expectedPath.toFile().getCanonicalPath());
+    }
+
+    protected void alterFileUri(CodeActionObj actual, JsonElement actualData, Path root) {
+        actual.data = gson.fromJson(actualData, CodeActionData.class);
+        String fileUri = actual.data.getFileUri().replace(root.toUri().toString(), "");
+        actual.data.setFileUri(fileUri);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     public abstract Object[][] dataProvider();
 
     public abstract String getResourceDir();
-    
+
     @AfterClass
     public void cleanUp() {
         this.serverContext = null;
@@ -319,6 +372,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         String kind;
         List<TextEdit> edits;
         JsonObject command;
+        boolean resolvable = false;
+        CodeActionData data;
 
         @Override
         public String toString() {

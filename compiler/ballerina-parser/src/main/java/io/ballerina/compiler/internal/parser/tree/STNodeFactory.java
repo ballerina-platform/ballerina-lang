@@ -2401,5 +2401,138 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ellipsis,
                 expression);
     }
+
+    public static STNode createClientResourceAccessActionNode(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode slashToken,
+            STNode resourceAccessPath,
+            STNode dotToken,
+            STNode methodName,
+            STNode arguments) {
+
+        return new STClientResourceAccessActionNode(
+                expression,
+                rightArrowToken,
+                slashToken,
+                resourceAccessPath,
+                dotToken,
+                methodName,
+                arguments);
+    }
+
+    public static STNode createComputedResourceAccessSegmentNode(
+            STNode openBracketToken,
+            STNode expression,
+            STNode closeBracketToken) {
+
+        return new STComputedResourceAccessSegmentNode(
+                openBracketToken,
+                expression,
+                closeBracketToken);
+    }
+
+    public static STNode createResourceAccessRestSegmentNode(
+            STNode openBracketToken,
+            STNode ellipsisToken,
+            STNode expression,
+            STNode closeBracketToken) {
+
+        return new STResourceAccessRestSegmentNode(
+                openBracketToken,
+                ellipsisToken,
+                expression,
+                closeBracketToken);
+    }
+
+    public static STNode createReSequenceNode(
+            STNode reTerm) {
+
+        return new STReSequenceNode(
+                reTerm);
+    }
+
+    public static STNode createReAtomQuantifierNode(
+            STNode reAtom,
+            STNode reQuantifier) {
+
+        return new STReAtomQuantifierNode(
+                reAtom,
+                reQuantifier);
+    }
+
+    public static STNode createReAtomCharOrEscapeNode(
+            STNode reAtomCharOrEscape) {
+
+        return new STReAtomCharOrEscapeNode(
+                reAtomCharOrEscape);
+    }
+
+    public static STNode createReCharacterClassNode(
+            STNode openBracket,
+            STNode negation,
+            STNode reCharSet,
+            STNode closeBracket) {
+
+        return new STReCharacterClassNode(
+                openBracket,
+                negation,
+                reCharSet,
+                closeBracket);
+    }
+
+    public static STNode createReCharSetNode(
+            STNode reCharSet) {
+
+        return new STReCharSetNode(
+                reCharSet);
+    }
+
+    public static STNode createReCapturingGroupsNode(
+            STNode openParenthesis,
+            STNode reFlagExpression,
+            STNode reSequences,
+            STNode closeParenthesis) {
+
+        return new STReCapturingGroupsNode(
+                openParenthesis,
+                reFlagExpression,
+                reSequences,
+                closeParenthesis);
+    }
+
+    public static STNode createReFlagExpressionNode(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon) {
+
+        return new STReFlagExpressionNode(
+                questionMark,
+                reFlagsOnOff,
+                colon);
+    }
+
+    public static STNode createReFlagsOnOffNode(
+            STNode reFlagsOnOff) {
+
+        return new STReFlagsOnOffNode(
+                reFlagsOnOff);
+    }
+
+    public static STNode createReAssertionNode(
+            STNode reAssertion) {
+
+        return new STReAssertionNode(
+                reAssertion);
+    }
+
+    public static STNode createReQuantifierNode(
+            STNode reBaseQuantifier,
+            STNode nonGreedyChar) {
+
+        return new STReQuantifierNode(
+                reBaseQuantifier,
+                nonGreedyChar);
+    }
 }
 

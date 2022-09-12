@@ -57,6 +57,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -145,7 +147,21 @@ public class CodeActionUtil {
     }
 
     /**
-     * Returns a list of possible types for this type descriptor.
+     * Returns first possible type for this type descriptor.
+     *
+     * @param typeDescriptor  {@link TypeSymbol}
+     * @param context         {@link CodeActionContext}
+     * @param importsAcceptor imports acceptor
+     * @return possible type for given type descriptor
+     */
+    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                   ImportsAcceptor importsAcceptor) {
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, context, importsAcceptor);
+        return possibleTypes.isEmpty() ? Optional.empty() : Optional.of(possibleTypes.get(0));
+    }
+
+    /**
+     * Returns first possible type for this type descriptor.
      *
      * @param typeDescriptor {@link TypeSymbol}
      * @param importEdits    a list of import {@link TextEdit}
@@ -154,10 +170,25 @@ public class CodeActionUtil {
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> importEdits,
                                                 CodeActionContext context) {
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, context, importsAcceptor);
+        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
+        return possibleTypes;
+    }
+
+    /**
+     * Returns a list of possible types for this type descriptor.
+     *
+     * @param typeDescriptor  {@link TypeSymbol}
+     * @param context         {@link CodeActionContext}
+     * @param importsAcceptor imports acceptor
+     * @return a list of possible types
+     */
+    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                ImportsAcceptor importsAcceptor) {
         if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
-        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();
         if (typeDescriptor.typeKind() == TypeDescKind.RECORD) {
@@ -264,7 +295,7 @@ public class CodeActionUtil {
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
-            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), importEdits, context).stream()
+            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).stream()
                     .map(m -> {
                         switch (arrayTypeSymbol.memberTypeDescriptor().typeKind()) {
                             case UNION:
@@ -280,7 +311,6 @@ public class CodeActionUtil {
             types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
 
-        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
         return types;
     }
 
@@ -460,9 +490,11 @@ public class CodeActionUtil {
                         }
                     } else {
                         // Parent function already has another return-type
-                        String typeName =
-                                CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
-                        returnText = "returns " + typeName + "|error";
+                        if (enclosedRetTypeDesc.typeKind() != TypeDescKind.ERROR) {
+                            String typeName =
+                                    CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
+                            returnText = "returns " + typeName + "|error";
+                        }
                         returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     }
                 } else {
@@ -804,6 +836,24 @@ public class CodeActionUtil {
                                               String codeActionKind) {
         CodeAction action = createCodeAction(commandTitle, edits, uri);
         action.setKind(codeActionKind);
+        return action;
+    }
+
+    /**
+     * Returns a Resolvable code action.
+     *
+     * @param commandTitle   title of the code action
+     * @param codeActionKind kind of the code action
+     * @param data           code action data
+     * @return {@link ResolvableCodeAction}
+     */
+    public static ResolvableCodeAction createResolvableCodeAction(String commandTitle, String codeActionKind,
+                                                                  CodeActionData data) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        ResolvableCodeAction action = new ResolvableCodeAction(commandTitle);
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+        action.setKind(codeActionKind);
+        action.setData(data);
         return action;
     }
 }

@@ -77,8 +77,20 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -358,6 +370,8 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangInvocation.BLangAttachedFunctionInvocation node, T data);
 
     public abstract void visit(BLangInvocation.BLangActionInvocation node, T data);
+    
+    public abstract void visit(BLangInvocation.BLangResourceAccessInvocation node, T data);
 
     public abstract void visit(BLangIsAssignableExpr node, T data);
 
@@ -432,6 +446,30 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangStatementExpression node, T data);
 
     public abstract void visit(BLangStringTemplateLiteral node, T data);
+
+    public abstract void visit(BLangRegExpTemplateLiteral node, T data);
+
+    public abstract void visit(BLangReSequence node, T data);
+
+    public abstract void visit(BLangReAtomQuantifier node, T data);
+
+    public abstract void visit(BLangReAtomCharOrEscape node, T data);
+
+    public abstract void visit(BLangReQuantifier node, T data);
+
+    public abstract void visit(BLangReCharacterClass node, T data);
+
+    public abstract void visit(BLangReCharSet node, T data);
+
+    public abstract void visit(BLangReAssertion node, T data);
+
+    public abstract void visit(BLangReCapturingGroups node, T data);
+
+    public abstract void visit(BLangReDisjunction node, T data);
+
+    public abstract void visit(BLangReFlagsOnOff node, T data);
+
+    public abstract void visit(BLangReFlagExpression node, T data);
 
     public abstract void visit(BLangTableConstructorExpr node, T data);
 

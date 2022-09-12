@@ -39,6 +39,7 @@ import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_MESSAGE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_VERSION_IMPACT;
 import static io.ballerina.semver.checker.util.DiffUtils.getDiffTypeName;
+import static io.ballerina.semver.checker.util.DiffUtils.isCompoundDiff;
 import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
@@ -58,12 +59,17 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     protected String message;
 
     protected NodeDiffImpl(T newNode, T oldNode) {
-        this(newNode, oldNode, SemverImpact.UNKNOWN);
+        this(newNode, oldNode, DiffKind.UNKNOWN);
     }
 
-    private NodeDiffImpl(T newNode, T oldNode, SemverImpact versionImpact) {
+    protected NodeDiffImpl(T newNode, T oldNode, DiffKind diffKind) {
+        this(newNode, oldNode, diffKind, SemverImpact.UNKNOWN);
+    }
+
+    private NodeDiffImpl(T newNode, T oldNode, DiffKind diffKind, SemverImpact versionImpact) {
         this.newNode = newNode;
         this.oldNode = oldNode;
+        this.diffKind = diffKind;
         this.versionImpact = versionImpact;
         this.childDiffs = new ArrayList<>();
         this.message = null;
@@ -169,9 +175,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
             sb.append(stringifyDiff(this));
         } else {
             // Todo: Add the rest of module-level definition types
-            if (this instanceof FunctionDiff || this instanceof ServiceDiff || this instanceof ModuleVarDiff
-                    || this instanceof ModuleConstantDiff || this instanceof ClassDiff
-                    || this instanceof ObjectFieldDiff) {
+            if (isCompoundDiff(this)) {
                 sb.append(stringifyDiff(this));
             }
             childDiffs.forEach(diff -> sb.append(diff.getAsString()));
@@ -185,9 +189,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         JsonObject jsonObject = new JsonObject();
 
         // Todo: Add the rest of module-level definition types
-        if (childDiffs == null || childDiffs.isEmpty() || this instanceof FunctionDiff || this instanceof ServiceDiff
-                || this instanceof ModuleVarDiff || this instanceof ModuleConstantDiff || this instanceof ClassDiff
-                || this instanceof ObjectFieldDiff) {
+        if (childDiffs == null || childDiffs.isEmpty() || isCompoundDiff(this)) {
             jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
             jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.ENGLISH)));
             jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()

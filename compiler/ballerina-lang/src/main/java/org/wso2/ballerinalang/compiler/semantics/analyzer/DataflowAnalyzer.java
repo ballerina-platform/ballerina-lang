@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangResourceAccessInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
@@ -122,8 +123,20 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1467,6 +1480,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangResourceAccessInvocation resourceAccessInvocation) {
+        analyzeNode(resourceAccessInvocation.resourceAccessPathSegments, env);
+        this.visit((BLangInvocation) resourceAccessInvocation);
+    }
+
+    @Override
     public void visit(BLangQueryExpr queryExpr) {
         for (BLangNode clause : queryExpr.getQueryClauses()) {
             analyzeNode(clause, env);
@@ -2182,6 +2201,54 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (!this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
         }
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff source) {
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression source) {
     }
 
     /**
