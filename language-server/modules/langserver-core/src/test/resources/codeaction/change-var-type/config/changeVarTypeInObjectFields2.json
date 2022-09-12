@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 4,
+    "character": 13
+  },
+  "source": "change_var_type_in_object_fields.bal",
+  "expected": [
+    {
+      "title": "Change variable 'a' type to 'string'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 7
+            }
+          },
+          "newText": "string"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
