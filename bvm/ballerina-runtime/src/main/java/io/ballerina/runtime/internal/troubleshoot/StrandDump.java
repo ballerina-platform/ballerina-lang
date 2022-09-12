@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.runtime.internal.scheduling.ItemGroup.getCreatedStrandGroupCount;
+
 /**
  * Used to get the status of current Ballerina strands.
  *
@@ -37,7 +39,7 @@ public class StrandDump {
 
     public static String getStrandDump() {
         Map<Integer, Strand> availableStrands = Scheduler.getCurrentStrands();
-        int createdStrandGroupCount = Scheduler.getCreatedStrandGroupCount();
+        int createdStrandGroupCount = getCreatedStrandGroupCount();
         int createdStrandCount = Strand.getCreatedStrandCount();
         int availableStrandCount = availableStrands.size();
         Map<Integer, List<String>> availableStrandGroups = new HashMap<>();
@@ -72,11 +74,11 @@ public class StrandDump {
     private static void populateAvailableStrandGroups(Map<Integer, Strand> availableStrands,
                                                       Map<Integer, List<String>> availableStrandGroups) {
         for (Strand strand : availableStrands.values()) {
-            int strandGroupId = strand.getStrandGroupId();
+            int strandGroupId = strand.getStrandGroup().getId();
             String strandState = strand.dumpState();
             availableStrandGroups.computeIfAbsent(strandGroupId, k -> {
                 ArrayList<String> strandDataList = new ArrayList<>();
-                strandDataList.add(getStrandGroupStatus(strand.isStrandGroupScheduled()));
+                strandDataList.add(getStrandGroupStatus(strand.getStrandGroup().isScheduled()));
                 return strandDataList;
             }).add(strandState);
         }
