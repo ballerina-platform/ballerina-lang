@@ -5259,13 +5259,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         } else if (isAddOrSubOperator && exprType != symTable.semanticError &&
-                TypeTags.isIntegerTypeTag(referredTypeTag) && referredTypeTag != TypeTags.INT) {
+                TypeTags.isIntegerTypeTag(referredTypeTag) && referredTypeTag != TypeTags.INT
+                && isUnaryCompatibleSingletonForIntSubtype(unaryExpr.expr)) {
             BType tempActualType = checkCompatibilityWithConstructedNumericLiteral(unaryExpr, referredType, data);
             if (tempActualType != symTable.semanticError) {
                 return  tempActualType;
             }
         }
         return actualType;
+    }
+
+    public boolean isUnaryCompatibleSingletonForIntSubtype(BLangExpression expr) {
+        if (expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+            return true;
+        }
+        return false;
     }
 
     public BType checkCompatibilityWithConstructedNumericLiteral(BLangUnaryExpr unaryExpr, BType referredType,

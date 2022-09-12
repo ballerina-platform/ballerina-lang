@@ -109,3 +109,12 @@ function testIntSubtypeField() {
     test:assertEquals(val?.minutes, 9);
     test:assertEquals(val?.seconds, <decimal>8.555);
 }
+
+function testStaticTypeOfUnaryExpr() {
+    int:Signed16 a = <int:Signed16> -(-32767);
+    test:assertEquals(a is int:Signed16, true);
+    int:Signed8 b = <int:Signed8> -(-127);
+    test:assertEquals(b is int:Signed8, true);
+    int:Signed32 c = <int:Signed32> -(-2147483647);
+    test:assertEquals(c is int:Signed32, true);
+}

@@ -177,6 +177,11 @@ public class BIntegerValueTest {
         BRunUtil.invoke(result, "testIntSubtypeField");
     }
 
+    @Test(description = "Test static type of unary expression when static type of expression is int:subtype")
+    public void testStaticTypeOfUnaryExpr() {
+        BRunUtil.invoke(result, "testStaticTypeOfUnaryExpr");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
