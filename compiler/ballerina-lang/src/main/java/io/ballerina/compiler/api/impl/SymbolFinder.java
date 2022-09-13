@@ -160,6 +160,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPattern
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -275,6 +276,11 @@ class SymbolFinder extends BaseVisitor {
         }
 
         lookupNode(xmlnsNode.namespaceURI);
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
+        lookupNode(clientDeclarationStatement.getClientDeclaration());
     }
 
     @Override
