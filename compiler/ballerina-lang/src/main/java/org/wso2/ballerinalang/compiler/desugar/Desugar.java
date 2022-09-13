@@ -7099,22 +7099,21 @@ public class Desugar extends BLangNodeVisitor {
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
         BType nonNilType = exprBType.getMemberTypes().iterator().next();
 
-        boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryExpr.opKind);
-        boolean isShiftOperator = symResolver.isBinaryShiftOperator(binaryExpr.opKind);
-
-        boolean isBitWiseOperator = !isArithmeticOperator && !isShiftOperator;
-
-        BType rhsType = nonNilType;
-        if (isBitWiseOperator) {
+        BType rhsType;
+        BType lhsType;
+        if (symResolver.isArithmeticOperator(binaryExpr.opKind)) {
+            rhsType = nonNilType;
+            lhsType = nonNilType;
+        } else {
+            // then it is a bitwise operator or a shift operator
+            // set RHS type
             if (binaryExpr.rhsExpr.getBType().isNullable()) {
                 rhsType = types.getSafeType(binaryExpr.rhsExpr.getBType(), true, false);
             } else {
                 rhsType = binaryExpr.rhsExpr.getBType();
             }
-        }
 
-        BType lhsType = nonNilType;
-        if (isBitWiseOperator) {
+            // set LHS type
             if (binaryExpr.lhsExpr.getBType().isNullable()) {
                 lhsType = types.getSafeType(binaryExpr.lhsExpr.getBType(), true, false);
             } else {
