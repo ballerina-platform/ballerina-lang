@@ -43,7 +43,6 @@ import java.util.Optional;
 import java.util.Set;
 
 /***
- *
  * Code Action for adding subtype for a raw template.
  * @since 2201.2.1
  */
@@ -65,7 +64,6 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-
         TemplateExpressionNode templateExpressionNode = (TemplateExpressionNode) positionDetails.matchedNode();
         Optional<TypeSymbol> typeSymbol = templateExpressionNode.apply(new CodeActionContextTypeResolver(context));
 
