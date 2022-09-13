@@ -15,3 +15,12 @@
 // under the License.
 
 client "http://example.com" as cl1;
+
+function testClientDeclStmt() {
+    client "http://www.example.com/apis/one.yaml" as bar;
+    bar:ClientConfiguration config = {'limit: 5};
+    bar:client cl = new (config);
+    int 'limit = cl->getLimit();
+
+    cl1:Config config2 = {url: "http://www.example.com"};
+}

@@ -61,6 +61,7 @@ public class ClientDeclSymbolTest {
     public Object[][] getClientDeclInfo() {
         return new Object[][]{
                 {16, 31, "cl1", "http://example.com"},
+                {19, 53, "bar", "http://www.example.com/apis/one.yaml"},
         };
     }
 
