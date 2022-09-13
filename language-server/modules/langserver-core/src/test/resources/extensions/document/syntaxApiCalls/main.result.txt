@@ -116,8 +116,7 @@ NodeFactory.createModulePartNode(
                     NodeFactory.createMinutiaeList(
                         NodeFactory.createEndOfLineMinutiae("\n")
                     )
-                ),
-                null
+                )
             )
         )
     ),

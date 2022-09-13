@@ -60,8 +60,7 @@ NodeFactory.createModulePartNode(
                         NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN)
                     )
                 ),
-                NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN),
-                null
+                NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN)
             )
         )
     ),
