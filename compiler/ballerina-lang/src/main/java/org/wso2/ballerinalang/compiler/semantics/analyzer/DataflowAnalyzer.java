@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -735,10 +736,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangClientDeclaration clientDeclaration) {
         BLangIdentifier prefix = clientDeclaration.prefix;
         Location location = prefix.pos;
-        BPackageSymbol symbol = symResolver.getModuleForPackageId(
-                symTable.clientDeclarations.get(location.lineRange()).orElseThrow());
-        checkUnusedImportOrClientDeclPrefix(symbol, prefix.value, location,
-                                            DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX);
+
+        Optional<PackageID> optionalPackageID = symTable.clientDeclarations.get(location.lineRange());
+        // `optionalPackageID` is empty if no compatible plugin was found to generate a module for the client
+        // declaration (for which an error would have been logged).
+        // Unused prefix analysis cannot be carried out in such scenarios since it is bound to a `BPackageSymbol`.
+        if (optionalPackageID.isPresent()) {
+            checkUnusedImportOrClientDeclPrefix(symResolver.getModuleForPackageId(optionalPackageID.get()),
+                                                prefix.value, location, DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX);
+        }
     }
     
     @Override

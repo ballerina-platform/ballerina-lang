@@ -10066,7 +10066,14 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        PackageID packageID = symTable.clientDeclarations.get(clientDeclPrefixLineRange).orElseThrow();
+        Optional<PackageID> optionalPackageID = symTable.clientDeclarations.get(clientDeclPrefixLineRange);
+
+        // No compatible plugin was found to generate a module for the client declaration.
+        if (optionalPackageID.isEmpty()) {
+            return;
+        }
+
+        PackageID packageID = optionalPackageID.get();
 
         // Also happens with single bal files when there are IDL client plugins.
         // TODO: 2022-08-30 Remove once fixed from the project API side.
