@@ -72,7 +72,7 @@ public class ParserTestUtils {
      * <b>WARNING</b>: Enabling this flag will update all the assertion files in unit tests.
      * Should be used only if there is a bulk update that needs to be made to the test assertions.
      */
-    private static final boolean UPDATE_ASSERTS = true;
+    private static final boolean UPDATE_ASSERTS = false;
 
     /**
      * Test parsing a valid source.
@@ -365,7 +365,15 @@ public class ParserTestUtils {
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
             case RE_ASSERTION_VALUE:
-            case RE_CHAR_ESCAPE_VALUE:
+            case RE_CHAR:
+            case RE_ESCAPE:
+            case RE_SYNTAX_CHAR:
+            case RE_SIMPLE_CHAR_CLASS_CODE:
+            case RE_PROPERTY:
+            case RE_UNICODE_SCRIPT_START:
+            case RE_UNICODE_PROPERTY_VALUE:
+            case RE_UNICODE_GENERAL_CATEGORY_START:
+            case RE_UNICODE_GENERAL_CATEGORY_NAME:
             case RE_CHAR_SET_ATOM:
             case RE_CHAR_SET_ATOM_NO_DASH:
             case RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM:
@@ -1053,6 +1061,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LEFT_ARROW_TOKEN;
             case "HASH_TOKEN":
                 return SyntaxKind.HASH_TOKEN;
+            case "BACK_SLASH_TOKEN":
+                return SyntaxKind.BACK_SLASH_TOKEN;
             default:
                 return getKeywordKind(kind);
         }
@@ -1328,38 +1338,60 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_ASSERTION;
             case "RE_ASSERTION_VALUE":
                 return SyntaxKind.RE_ASSERTION_VALUE;
-            case "RE_QUANTIFIER":
-                return SyntaxKind.RE_QUANTIFIER;
-            case "RE_BASE_QUANTIFIER_VALUE":
-                return SyntaxKind.RE_BASE_QUANTIFIER_VALUE;
-            case "RE_BRACED_QUANTIFIER":
-                return SyntaxKind.RE_BRACED_QUANTIFIER;
-            case "RE_BRACED_QUANTIFIER_DIGIT":
-                return SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT;
+            case "RE_CHAR_ESCAPE":
+                return SyntaxKind.RE_CHAR_ESCAPE;
+            case "RE_CHAR":
+                return SyntaxKind.RE_CHAR;
+            case "RE_ESCAPE":
+                return SyntaxKind.RE_ESCAPE;
+            case "RE_QUOTE_ESCAPE":
+                return SyntaxKind.RE_QUOTE_ESCAPE;
+            case "RE_SYNTAX_CHAR":
+                return SyntaxKind.RE_SYNTAX_CHAR;
+            case "RE_SIMPLE_CHAR_CLASS_ESCAPE":
+                return SyntaxKind.RE_SIMPLE_CHAR_CLASS_ESCAPE;
+            case "RE_SIMPLE_CHAR_CLASS_CODE":
+                return SyntaxKind.RE_SIMPLE_CHAR_CLASS_CODE;
+            case "RE_UNICODE_PROPERTY_ESCAPE":
+                return SyntaxKind.RE_UNICODE_PROPERTY_ESCAPE;
+            case "RE_PROPERTY":
+                return SyntaxKind.RE_PROPERTY;
+            case "RE_UNICODE_SCRIPT":
+                return SyntaxKind.RE_UNICODE_SCRIPT;
+            case "RE_UNICODE_SCRIPT_START":
+                return SyntaxKind.RE_UNICODE_SCRIPT_START;
+            case "RE_UNICODE_PROPERTY_VALUE":
+                return SyntaxKind.RE_UNICODE_PROPERTY_VALUE;
+            case "RE_UNICODE_GENERAL_CATEGORY":
+                return SyntaxKind.RE_UNICODE_GENERAL_CATEGORY;
+            case "RE_UNICODE_GENERAL_CATEGORY_START":
+                return SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_START;
+            case "RE_UNICODE_GENERAL_CATEGORY_NAME":
+                return SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME;
             case "RE_CHARACTER_CLASS":
                 return SyntaxKind.RE_CHARACTER_CLASS;
-            case "RE_CHAR_SET":
-                return SyntaxKind.RE_CHAR_SET;
             case "RE_CHAR_SET_ATOM":
                 return SyntaxKind.RE_CHAR_SET_ATOM;
             case "RE_CHAR_SET_ATOM_NO_DASH":
                 return SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH;
-            case "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM":
-                return SyntaxKind.RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM;
-            case "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH":
-                return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH;
             case "RE_CHAR_SET_RANGE":
                 return SyntaxKind.RE_CHAR_SET_RANGE;
             case "RE_CHAR_SET_RANGE_NO_DASH":
                 return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH;
+            case "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM":
+                return SyntaxKind.RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM;
+            case "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH":
+                return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH;
             case "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET":
                 return SyntaxKind.RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET;
             case "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET":
                 return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET;
-            case "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH":
-                return SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH;
             case "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH":
                 return SyntaxKind.RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH;
+            case "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH":
+                return SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH;
+            case "RE_CAPTURING_GROUP":
+                return SyntaxKind.RE_CAPTURING_GROUP;
             case "RE_FLAG_EXPR":
                 return SyntaxKind.RE_FLAG_EXPR;
             case "RE_FLAGS_ON_OFF":
@@ -1368,12 +1400,14 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_FLAGS;
             case "RE_FLAGS_VALUE":
                 return SyntaxKind.RE_FLAGS_VALUE;
-            case "RE_CAPTURING_GROUP":
-                return SyntaxKind.RE_CAPTURING_GROUP;
-            case "RE_CHAR_ESCAPE":
-                return SyntaxKind.RE_CHAR_ESCAPE;
-            case "RE_CHAR_ESCAPE_VALUE":
-                return SyntaxKind.RE_CHAR_ESCAPE_VALUE;
+            case "RE_QUANTIFIER":
+                return SyntaxKind.RE_QUANTIFIER;
+            case "RE_BASE_QUANTIFIER_VALUE":
+                return SyntaxKind.RE_BASE_QUANTIFIER_VALUE;
+            case "RE_BRACED_QUANTIFIER":
+                return SyntaxKind.RE_BRACED_QUANTIFIER;
+            case "RE_BRACED_QUANTIFIER_DIGIT":
+                return SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT;
             default:
                 return getDocumentationKind(kind);
         }

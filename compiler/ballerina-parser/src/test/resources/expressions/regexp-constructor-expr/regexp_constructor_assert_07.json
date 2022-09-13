@@ -128,17 +128,8 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_ATOM",
-                                              "value": "^"
-                                            },
-                                            {
-                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
-                                              "value": "\\u{1234}"
-                                            }
-                                          ]
+                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "value": "\\u{1234}"
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -239,17 +230,8 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_ATOM",
-                                              "value": "^"
-                                            },
-                                            {
-                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
-                                              "value": "\\u{1F600}"
-                                            }
-                                          ]
+                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "value": "\\u{1F600}"
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -350,17 +332,8 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_ATOM",
-                                              "value": "^"
-                                            },
-                                            {
-                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
-                                              "value": "\\u{5C}"
-                                            }
-                                          ]
+                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "value": "\\u{5C}"
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"

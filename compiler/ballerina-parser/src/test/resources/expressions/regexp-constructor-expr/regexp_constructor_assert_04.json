@@ -122,7 +122,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -227,7 +227,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "B"
                                         }
                                       ]
@@ -332,7 +332,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -346,7 +346,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "B"
                                         }
                                       ]
@@ -451,7 +451,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -572,7 +572,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -700,7 +700,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
