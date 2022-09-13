@@ -205,6 +205,23 @@ function testBitWiseOperationsForNullable() {
     assertEqual(a << j, 16777216);
 
     assertEqual(11 << b, 1408);
+
+    byte lhsval1 = 251;
+    int:Unsigned8 lhsval2 = 251;
+    byte? lhsval3 = 251;
+    int:Unsigned8? lhsval4 = 251;
+    int:Signed8? rhsval1 = -123;
+    int? rhsval2 = -123;
+    int:Signed8 rhsval3 = -123;
+    int rhsval4 = -123;
+
+    byte? ans1 = lhsval1 >>> rhsval1;
+    int:Unsigned8?|float ans2 = lhsval2 >> rhsval1;
+    ()|int ans3 = lhsval1 >>> rhsval2;
+    int? ans4 = lhsval2 >> rhsval2;
+
+    assertEqual([ans1,ans2,ans3,ans4,lhsval3 >>> rhsval3,lhsval4 >> rhsval3,lhsval3 >>> rhsval4,lhsval4 >> rhsval4],
+    [7,7,7,7,7,7,7,7]);
 }
 
 int intVal = 10;
