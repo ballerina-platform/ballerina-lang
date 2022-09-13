@@ -171,4 +171,6 @@ public class CommandConstants {
     public static final String MAKE_ANNOT_DECL_CONST = "Convert '%s' to constant";
 
     public static final String EXTRACT_TO_CONSTANT = "Extract to constant";
+
+    public static final String GENERATE_MODULE_FOR_CLIENT_DECLARATION = "Generate module for client declaration";
 }

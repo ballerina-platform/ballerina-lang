@@ -117,7 +117,7 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
             ResolvableCodeAction action = CodeActionUtil.createResolvableCodeAction(
                     commandTitle, CodeActionKind.QuickFix, codeActionData);
             action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
-            return Collections.singletonList(action);
+            
         }
 
         return Collections.emptyList();

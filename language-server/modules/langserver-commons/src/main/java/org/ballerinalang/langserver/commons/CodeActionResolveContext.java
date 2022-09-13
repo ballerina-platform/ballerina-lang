@@ -15,11 +15,28 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageServer;
+
 /**
  * Represents the code action resolve context.
  *
  * @since 2201.2.1
  */
 public interface CodeActionResolveContext extends DocumentServiceContext {
+    
+    /**
+     * Get the language server instance.
+     *
+     * @return {@link LanguageServer}
+     */
+    LanguageServer getLanguageServer();
 
+    /**
+     * Get the language client.
+     *
+     * @return {@link LanguageClient}
+     */
+    ExtendedLanguageClient getLanguageClient();
 }

@@ -358,7 +358,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         fileUri,
                         workspaceManagerProxy.get(),
                         this.serverContext,
-                        cancelChecker);
+                        cancelChecker, this.languageServer);
                 return LangExtensionDelegator.instance().resolveCodeAction(resolvableCodeAction, resolveContext);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Resolve Code Action", e);
