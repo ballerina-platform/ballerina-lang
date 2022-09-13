@@ -460,8 +460,24 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "{2}"
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "2"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "QUESTION_MARK_TOKEN"
@@ -565,8 +581,31 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "{2,}"
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "2"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "QUESTION_MARK_TOKEN"
@@ -670,8 +709,36 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "{1,3}"
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "1"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "3"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "QUESTION_MARK_TOKEN"

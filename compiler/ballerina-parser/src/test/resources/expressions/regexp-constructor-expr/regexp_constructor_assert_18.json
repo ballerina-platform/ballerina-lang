@@ -925,11 +925,32 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "g-i"
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "^"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                      "value": "g"
+                                                    },
+                                                    {
+                                                      "kind": "MINUS_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                      "value": "i"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },

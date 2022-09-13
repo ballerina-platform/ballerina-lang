@@ -72,7 +72,7 @@ public class ParserTestUtils {
      * <b>WARNING</b>: Enabling this flag will update all the assertion files in unit tests.
      * Should be used only if there is a bulk update that needs to be made to the test assertions.
      */
-    private static final boolean UPDATE_ASSERTS = false;
+    private static final boolean UPDATE_ASSERTS = true;
 
     /**
      * Test parsing a valid source.
@@ -366,9 +366,13 @@ public class ParserTestUtils {
             case TEMPLATE_STRING:
             case RE_ASSERTION_VALUE:
             case RE_CHAR_ESCAPE_VALUE:
-            case RE_CHAR_SET_VALUE:
-            case RE_FLAGS_ON_OFF_VALUE:
+            case RE_CHAR_SET_ATOM:
+            case RE_CHAR_SET_ATOM_NO_DASH:
+            case RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM:
+            case RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH:
+            case RE_FLAGS_VALUE:
             case RE_BASE_QUANTIFIER_VALUE:
+            case RE_BRACED_QUANTIFIER_DIGIT:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
             case CODE_CONTENT:
@@ -1328,18 +1332,42 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_QUANTIFIER;
             case "RE_BASE_QUANTIFIER_VALUE":
                 return SyntaxKind.RE_BASE_QUANTIFIER_VALUE;
+            case "RE_BRACED_QUANTIFIER":
+                return SyntaxKind.RE_BRACED_QUANTIFIER;
+            case "RE_BRACED_QUANTIFIER_DIGIT":
+                return SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT;
             case "RE_CHARACTER_CLASS":
                 return SyntaxKind.RE_CHARACTER_CLASS;
             case "RE_CHAR_SET":
                 return SyntaxKind.RE_CHAR_SET;
-            case "RE_CHAR_SET_VALUE":
-                return SyntaxKind.RE_CHAR_SET_VALUE;
+            case "RE_CHAR_SET_ATOM":
+                return SyntaxKind.RE_CHAR_SET_ATOM;
+            case "RE_CHAR_SET_ATOM_NO_DASH":
+                return SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH;
+            case "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM":
+                return SyntaxKind.RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM;
+            case "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH":
+                return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH;
+            case "RE_CHAR_SET_RANGE":
+                return SyntaxKind.RE_CHAR_SET_RANGE;
+            case "RE_CHAR_SET_RANGE_NO_DASH":
+                return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH;
+            case "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET":
+                return SyntaxKind.RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET;
+            case "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET":
+                return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET;
+            case "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH":
+                return SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH;
+            case "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH":
+                return SyntaxKind.RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH;
             case "RE_FLAG_EXPR":
                 return SyntaxKind.RE_FLAG_EXPR;
             case "RE_FLAGS_ON_OFF":
                 return SyntaxKind.RE_FLAGS_ON_OFF;
-            case "RE_FLAGS_ON_OFF_VALUE":
-                return SyntaxKind.RE_FLAGS_ON_OFF_VALUE;
+            case "RE_FLAGS":
+                return SyntaxKind.RE_FLAGS;
+            case "RE_FLAGS_VALUE":
+                return SyntaxKind.RE_FLAGS_VALUE;
             case "RE_CAPTURING_GROUP":
                 return SyntaxKind.RE_CAPTURING_GROUP;
             case "RE_CHAR_ESCAPE":

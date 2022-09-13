@@ -302,8 +302,13 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                  "value": "i"
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "value": "i"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -375,11 +380,32 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "a-i"
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "^"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                      "value": "a"
+                                                    },
+                                                    {
+                                                      "kind": "MINUS_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                      "value": "i"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -643,32 +669,35 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
+                                          "kind": "RE_BRACED_QUANTIFIER",
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_INVALID_QUANTIFIER_IN_REG_EXP"
-                                          ],
-                                          "value": "{"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHAR_ESCAPE",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                          ],
-                                          "value": "}"
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "hasDiagnostics": true,
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_INVALID_QUANTIFIER_IN_REG_EXP"
+                                                  ],
+                                                  "value": "}"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_PAREN_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -776,12 +805,42 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
+                                          "kind": "RE_BRACED_QUANTIFIER",
                                           "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_INVALID_QUANTIFIER_IN_REG_EXP"
-                                          ],
-                                          "value": "{1,2"
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "1"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "2"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_PAREN_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
                                     }

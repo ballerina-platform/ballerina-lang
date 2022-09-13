@@ -146,68 +146,47 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "RE_FLAGS_ON_OFF_VALUE",
+                                                  "kind": "LIST",
                                                   "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                  ],
-                                                  "value": "k"
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                      ],
+                                                      "value": "k"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "value": "i"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
                                             {
-                                              "kind": "COLON_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COLON_TOKEN"
-                                              ]
+                                              "kind": "COLON_TOKEN"
                                             }
                                           ]
                                         },
                                         {
                                           "kind": "LIST",
-                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "RE_SEQUENCE",
-                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "LIST",
-                                                  "hasDiagnostics": true,
                                                   "children": [
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "hasDiagnostics": true,
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": "-"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                          "value": "i"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "COLON_TOKEN"
-                                                        }
-                                                      ]
-                                                    },
                                                     {
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
@@ -351,88 +330,56 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "RE_FLAGS_ON_OFF_VALUE",
+                                                  "kind": "LIST",
                                                   "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                  ],
-                                                  "value": "k"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "COLON_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COLON_TOKEN"
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "RE_SEQUENCE",
-                                              "hasDiagnostics": true,
-                                              "children": [
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                      ],
+                                                      "value": "k"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
                                                 {
                                                   "kind": "LIST",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "value": "i"
+                                                    },
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
                                                       "hasDiagnostics": true,
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": "-"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                          "value": "i"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_CHAR_ESCAPE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
-                                                              "value": "k"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_CHAR_ESCAPE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
-                                                              "value": ":"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
+                                                      "diagnostics": [
+                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                      ],
+                                                      "value": "k"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "RE_SEQUENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
                                                     {
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
@@ -592,10 +539,53 @@
                                             },
                                             {
                                               "kind": "RE_FLAGS_ON_OFF",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                  "value": "i-m"
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "value": "i"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "LIST",
+                                                  "hasDiagnostics": true,
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "value": "m"
+                                                    },
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                      ],
+                                                      "value": "a"
+                                                    },
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                      ],
+                                                      "value": ")"
+                                                    },
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                      ],
+                                                      "value": "*"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -611,44 +601,15 @@
                                         },
                                         {
                                           "kind": "LIST",
-                                          "children": [
-                                            {
-                                              "kind": "RE_SEQUENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "LIST",
-                                                  "children": [
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_CHAR_ESCAPE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
-                                                              "value": "a"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
+                                          "children": []
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "RE_QUANTIFIER",
-                                      "children": [
-                                        {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "*"
+                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }
@@ -781,10 +742,42 @@
                                             },
                                             {
                                               "kind": "RE_FLAGS_ON_OFF",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                  "value": "i"
+                                                  "kind": "LIST",
+                                                  "hasDiagnostics": true,
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "value": "i"
+                                                    },
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                      ],
+                                                      "value": "k"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "LIST",
+                                                  "hasDiagnostics": true,
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                      ],
+                                                      "value": ")"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -800,49 +793,15 @@
                                         },
                                         {
                                           "kind": "LIST",
-                                          "children": [
-                                            {
-                                              "kind": "RE_SEQUENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "LIST",
-                                                  "children": [
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_CHAR_ESCAPE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
-                                                              "value": "k"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_CHAR_ESCAPE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
-                                                              "value": "-"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
+                                          "children": []
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN"
+                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }

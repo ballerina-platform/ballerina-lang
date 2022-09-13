@@ -128,10 +128,14 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "^"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                               "value": "\\p{sc\u003dLatin}"
                                             }
                                           ]
@@ -235,10 +239,14 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "^"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                               "value": "\\P{sc\u003dLatin}"
                                             }
                                           ]
@@ -339,13 +347,8 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "\\p{sc\u003dLatin}"
-                                            }
-                                          ]
+                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "value": "\\p{sc\u003dLatin}"
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -446,10 +449,14 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "^"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                               "value": "\\p{gc\u003dLetter}"
                                             }
                                           ]
@@ -553,10 +560,14 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "^"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                               "value": "\\P{gc\u003dLetter}"
                                             }
                                           ]
@@ -657,13 +668,8 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "\\p{gc\u003dLetter}"
-                                            }
-                                          ]
+                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "value": "\\p{gc\u003dLetter}"
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -764,10 +770,14 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "^"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                               "value": "\\p{Letter}"
                                             }
                                           ]
@@ -871,10 +881,14 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "^"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                               "value": "\\P{Letter}"
                                             }
                                           ]
@@ -975,13 +989,8 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "\\P{Letter}"
-                                            }
-                                          ]
+                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "value": "\\P{Letter}"
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
