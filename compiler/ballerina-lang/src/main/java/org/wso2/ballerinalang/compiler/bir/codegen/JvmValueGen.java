@@ -220,7 +220,8 @@ public class JvmValueGen {
             BType bType = optionalTypeDef.type;
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
-            if (optionalTypeDef.type.tag == TypeTags.OBJECT && Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
+            if (optionalTypeDef.type.tag == TypeTags.OBJECT &&
+                    Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) optionalTypeDef.type;
                 byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, jvmConstantsGen
                         , asyncDataCollector);

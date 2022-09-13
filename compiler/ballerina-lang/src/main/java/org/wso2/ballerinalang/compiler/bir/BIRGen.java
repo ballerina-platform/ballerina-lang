@@ -2410,11 +2410,12 @@ public class BIRGen extends BLangNodeVisitor {
 
         long size = -1L;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
-        BType listConstructorExprType = Types.getReferredType(listConstructorExpr.getBType());
-        if (listConstructorExprType.tag == TypeTags.ARRAY &&
-                ((BArrayType) listConstructorExprType).state != BArrayState.OPEN) {
-            size = ((BArrayType) listConstructorExprType).size;
-        } else if (listConstructorExprType.tag == TypeTags.TUPLE) {
+        BType listConstructorExprType = listConstructorExpr.getBType();
+        BType referredType = Types.getReferredType(listConstructorExprType);
+        if (referredType.tag == TypeTags.ARRAY &&
+                ((BArrayType) referredType).state != BArrayState.OPEN) {
+            size = ((BArrayType) referredType).size;
+        } else if (referredType.tag == TypeTags.TUPLE) {
             size = exprs.size();
         }
 
