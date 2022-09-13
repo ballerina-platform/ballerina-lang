@@ -214,11 +214,14 @@ public class JvmValueGen {
     void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            if (optionalTypeDef.type.tag == TypeTags.TYPEREFDESC) {
+                return;
+            }
+            BType bType = optionalTypeDef.type;
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
-            if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
-                BObjectType objectType = (BObjectType) bType;
+            if (optionalTypeDef.type.tag == TypeTags.OBJECT && Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
+                BObjectType objectType = (BObjectType) optionalTypeDef.type;
                 byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, jvmConstantsGen
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);

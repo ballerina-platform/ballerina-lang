@@ -153,34 +153,36 @@ public class CloneWithType {
 
         unresolvedValues.add(typeValuePair);
 
-        Object newValue;
-        switch (value.getType().getTag()) {
+        Object newValue = getConvertedObject(value, value.getType(), targetType, unresolvedValues, t);
+        unresolvedValues.remove(typeValuePair);
+        return newValue;
+    }
+
+    private static Object getConvertedObject(BRefValue value, Type sourceType, Type targetType,
+                                             List<TypeValuePair> unresolvedValues, BTypedesc t) {
+        switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                newValue = convertMap((BMap<?, ?>) value, targetType, unresolvedValues, t);
-                break;
+                return convertMap((BMap<?, ?>) value, targetType, unresolvedValues, t);
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                newValue = convertArray((BArray) value, targetType, unresolvedValues, t);
-                break;
+                return convertArray((BArray) value, targetType, unresolvedValues, t);
             case TypeTags.TABLE_TAG:
-                newValue = convertTable((BTable<?, ?>) value, targetType, unresolvedValues, t);
-                break;
+                return convertTable((BTable<?, ?>) value, targetType, unresolvedValues, t);
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.ERROR_TAG:
-                newValue = value.copy(new HashMap<>());
-                break;
+                return value.copy(new HashMap<>());
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getConvertedObject(value, ((ReferenceType) sourceType).getReferredType(), targetType,
+                        unresolvedValues, t);
             default:
                 // should never reach here
                 throw createConversionError(value, targetType);
         }
-
-        unresolvedValues.remove(typeValuePair);
-        return newValue;
     }
 
     private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,

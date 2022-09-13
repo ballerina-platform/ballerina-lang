@@ -2947,8 +2947,17 @@ public class TypeChecker {
             return false;
         }
 
-        int lhsValTypeTag = getType(lhsValue).getTag();
-        int rhsValTypeTag = getType(rhsValue).getTag();
+        return checkValueEquals(lhsValue, rhsValue, checkedValues, getType(lhsValue), getType(rhsValue));
+    }
+
+    private static boolean checkValueEquals(Object lhsValue, Object rhsValue, List<ValuePair> checkedValues,
+                                            Type lhsValType, Type rhsValType) {
+        int lhsValTypeTag = lhsValType.getTag();
+        int rhsValTypeTag = rhsValType.getTag();
+        if (rhsValTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            rhsValType = ((BTypeReferenceType) rhsValType).getReferredType();
+            rhsValTypeTag = rhsValType.getTag();
+        }
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
@@ -3008,6 +3017,11 @@ public class TypeChecker {
             case TypeTags.TABLE_TAG:
                 return rhsValTypeTag == TypeTags.TABLE_TAG &&
                         isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return checkValueEquals(lhsValue, rhsValue, checkedValues,
+                        ((BTypeReferenceType) lhsValType).getReferredType(), rhsValType);
+            default:
+                return false;
         }
         return false;
     }

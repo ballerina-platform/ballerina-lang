@@ -116,10 +116,10 @@ function validateRuntimeAPIs() {
 
     result = validateTypeUtilsAPI(PositiveInt);
 
-    // BArray arr = [1, 2, 3];
-    // BTuple tup = [1, {id: 101, msg: "message", "priority": 2}];
-    // result = validateBArray(arr, tup);
-    // test:assertTrue(result);
+    BArray arr = [1, 2, 3];
+    BTuple tup = [1, {id: 101, msg: "message", "priority": 2}];
+    result = validateBArray(arr, tup);
+    test:assertTrue(result);
 
     BMap m = {a: 1, b: 2, c: 3};
     RecordType r = {id: 11, msg: "message", "intVal": 22};
