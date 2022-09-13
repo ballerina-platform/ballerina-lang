@@ -855,12 +855,52 @@ public abstract class NodeVisitor {
         visitSyntaxNode(reAtomCharOrEscapeNode);
     }
 
+    public void visit(ReQuoteEscapeNode reQuoteEscapeNode) {
+        visitSyntaxNode(reQuoteEscapeNode);
+    }
+
+    public void visit(ReSimpleCharClassEscapeNode reSimpleCharClassEscapeNode) {
+        visitSyntaxNode(reSimpleCharClassEscapeNode);
+    }
+
+    public void visit(ReUnicodePropertyEscapeNode reUnicodePropertyEscapeNode) {
+        visitSyntaxNode(reUnicodePropertyEscapeNode);
+    }
+
+    public void visit(ReUnicodeScriptNode reUnicodeScriptNode) {
+        visitSyntaxNode(reUnicodeScriptNode);
+    }
+
+    public void visit(ReUnicodeGeneralCategoryNode reUnicodeGeneralCategoryNode) {
+        visitSyntaxNode(reUnicodeGeneralCategoryNode);
+    }
+
     public void visit(ReCharacterClassNode reCharacterClassNode) {
         visitSyntaxNode(reCharacterClassNode);
     }
 
-    public void visit(ReCharSetNode reCharSetNode) {
-        visitSyntaxNode(reCharSetNode);
+    public void visit(ReCharSetRangeWithReCharSetNode reCharSetRangeWithReCharSetNode) {
+        visitSyntaxNode(reCharSetRangeWithReCharSetNode);
+    }
+
+    public void visit(ReCharSetRangeNode reCharSetRangeNode) {
+        visitSyntaxNode(reCharSetRangeNode);
+    }
+
+    public void visit(ReCharSetAtomWithReCharSetNoDashNode reCharSetAtomWithReCharSetNoDashNode) {
+        visitSyntaxNode(reCharSetAtomWithReCharSetNoDashNode);
+    }
+
+    public void visit(ReCharSetRangeNoDashWithReCharSetNode reCharSetRangeNoDashWithReCharSetNode) {
+        visitSyntaxNode(reCharSetRangeNoDashWithReCharSetNode);
+    }
+
+    public void visit(ReCharSetRangeNoDashNode reCharSetRangeNoDashNode) {
+        visitSyntaxNode(reCharSetRangeNoDashNode);
+    }
+
+    public void visit(ReCharSetAtomNoDashWithReCharSetNoDashNode reCharSetAtomNoDashWithReCharSetNoDashNode) {
+        visitSyntaxNode(reCharSetAtomNoDashWithReCharSetNoDashNode);
     }
 
     public void visit(ReCapturingGroupsNode reCapturingGroupsNode) {
@@ -875,12 +915,20 @@ public abstract class NodeVisitor {
         visitSyntaxNode(reFlagsOnOffNode);
     }
 
+    public void visit(ReFlagsNode reFlagsNode) {
+        visitSyntaxNode(reFlagsNode);
+    }
+
     public void visit(ReAssertionNode reAssertionNode) {
         visitSyntaxNode(reAssertionNode);
     }
 
     public void visit(ReQuantifierNode reQuantifierNode) {
         visitSyntaxNode(reQuantifierNode);
+    }
+
+    public void visit(ReBracedQuantifierNode reBracedQuantifierNode) {
+        visitSyntaxNode(reBracedQuantifierNode);
     }
 
     // Tokens

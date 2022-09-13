@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReFlagsOnOffNode;
+import io.ballerina.compiler.syntax.tree.ReUnicodeScriptNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,66 +30,56 @@ import java.util.Collections;
  *
  * @since 2201.3.0
  */
-public class STReFlagsOnOffNode extends STNode {
-    public final STNode lhsReFlags;
-    public final STNode minusToken;
-    public final STNode rhsReFlags;
+public class STReUnicodeScriptNode extends STReUnicodePropertyNode {
+    public final STNode scriptStart;
+    public final STNode reUnicodePropertyValue;
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    STReUnicodeScriptNode(
+            STNode scriptStart,
+            STNode reUnicodePropertyValue) {
         this(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+                scriptStart,
+                reUnicodePropertyValue,
                 Collections.emptyList());
     }
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags,
+    STReUnicodeScriptNode(
+            STNode scriptStart,
+            STNode reUnicodePropertyValue,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_FLAGS_ON_OFF, diagnostics);
-        this.lhsReFlags = lhsReFlags;
-        this.minusToken = minusToken;
-        this.rhsReFlags = rhsReFlags;
+        super(SyntaxKind.RE_UNICODE_SCRIPT, diagnostics);
+        this.scriptStart = scriptStart;
+        this.reUnicodePropertyValue = reUnicodePropertyValue;
 
         addChildren(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags);
+                scriptStart,
+                reUnicodePropertyValue);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReFlagsOnOffNode(
-                this.lhsReFlags,
-                this.minusToken,
-                this.rhsReFlags,
+        return new STReUnicodeScriptNode(
+                this.scriptStart,
+                this.reUnicodePropertyValue,
                 diagnostics);
     }
 
-    public STReFlagsOnOffNode modify(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    public STReUnicodeScriptNode modify(
+            STNode scriptStart,
+            STNode reUnicodePropertyValue) {
         if (checkForReferenceEquality(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags)) {
+                scriptStart,
+                reUnicodePropertyValue)) {
             return this;
         }
 
-        return new STReFlagsOnOffNode(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+        return new STReUnicodeScriptNode(
+                scriptStart,
+                reUnicodePropertyValue,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReFlagsOnOffNode(this, position, parent);
+        return new ReUnicodeScriptNode(this, position, parent);
     }
 
     @Override

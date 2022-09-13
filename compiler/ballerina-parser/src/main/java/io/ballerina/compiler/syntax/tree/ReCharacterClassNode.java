@@ -41,7 +41,7 @@ public class ReCharacterClassNode extends ReAtomNode {
         return optionalChildInBucket(1);
     }
 
-    public Optional<ReCharSetNode> reCharSet() {
+    public Optional<Node> reCharSet() {
         return optionalChildInBucket(2);
     }
 
@@ -71,7 +71,7 @@ public class ReCharacterClassNode extends ReAtomNode {
     public ReCharacterClassNode modify(
             Token openBracket,
             Token negation,
-            ReCharSetNode reCharSet,
+            Node reCharSet,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
@@ -101,7 +101,7 @@ public class ReCharacterClassNode extends ReAtomNode {
         private final ReCharacterClassNode oldNode;
         private Token openBracket;
         private Token negation;
-        private ReCharSetNode reCharSet;
+        private Node reCharSet;
         private Token closeBracket;
 
         public ReCharacterClassNodeModifier(ReCharacterClassNode oldNode) {
@@ -126,7 +126,7 @@ public class ReCharacterClassNode extends ReAtomNode {
         }
 
         public ReCharacterClassNodeModifier withReCharSet(
-                ReCharSetNode reCharSet) {
+                Node reCharSet) {
             this.reCharSet = reCharSet;
             return this;
         }

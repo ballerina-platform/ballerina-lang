@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReFlagsOnOffNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetRangeNoDashWithReCharSetNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,66 +30,56 @@ import java.util.Collections;
  *
  * @since 2201.3.0
  */
-public class STReFlagsOnOffNode extends STNode {
-    public final STNode lhsReFlags;
-    public final STNode minusToken;
-    public final STNode rhsReFlags;
+public class STReCharSetRangeNoDashWithReCharSetNode extends STNode {
+    public final STNode reCharSetRangeNoDash;
+    public final STNode reCharSet;
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    STReCharSetRangeNoDashWithReCharSetNode(
+            STNode reCharSetRangeNoDash,
+            STNode reCharSet) {
         this(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+                reCharSetRangeNoDash,
+                reCharSet,
                 Collections.emptyList());
     }
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags,
+    STReCharSetRangeNoDashWithReCharSetNode(
+            STNode reCharSetRangeNoDash,
+            STNode reCharSet,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_FLAGS_ON_OFF, diagnostics);
-        this.lhsReFlags = lhsReFlags;
-        this.minusToken = minusToken;
-        this.rhsReFlags = rhsReFlags;
+        super(SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET, diagnostics);
+        this.reCharSetRangeNoDash = reCharSetRangeNoDash;
+        this.reCharSet = reCharSet;
 
         addChildren(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags);
+                reCharSetRangeNoDash,
+                reCharSet);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReFlagsOnOffNode(
-                this.lhsReFlags,
-                this.minusToken,
-                this.rhsReFlags,
+        return new STReCharSetRangeNoDashWithReCharSetNode(
+                this.reCharSetRangeNoDash,
+                this.reCharSet,
                 diagnostics);
     }
 
-    public STReFlagsOnOffNode modify(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    public STReCharSetRangeNoDashWithReCharSetNode modify(
+            STNode reCharSetRangeNoDash,
+            STNode reCharSet) {
         if (checkForReferenceEquality(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags)) {
+                reCharSetRangeNoDash,
+                reCharSet)) {
             return this;
         }
 
-        return new STReFlagsOnOffNode(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+        return new STReCharSetRangeNoDashWithReCharSetNode(
+                reCharSetRangeNoDash,
+                reCharSet,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReFlagsOnOffNode(this, position, parent);
+        return new ReCharSetRangeNoDashWithReCharSetNode(this, position, parent);
     }
 
     @Override

@@ -4506,6 +4506,99 @@
             ]
         },
         {
+            "name": "ReQuoteEscapeNode",
+            "base": "Node",
+            "kind": "RE_QUOTE_ESCAPE",
+            "attributes": [
+                {
+                    "name": "slashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "reSyntaxChar",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReSimpleCharClassEscapeNode",
+            "base": "Node",
+            "kind": "RE_SIMPLE_CHAR_CLASS_ESCAPE",
+            "attributes": [
+                {
+                    "name": "slashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "reSimpleCharClassCode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReUnicodePropertyEscapeNode",
+            "base": "Node",
+            "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+            "attributes": [
+                {
+                    "name": "slashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "property",
+                    "type": "Node"
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "reUnicodeProperty",
+                    "type": "ReUnicodePropertyNode"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ReUnicodePropertyNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ReUnicodeScriptNode",
+            "base": "ReUnicodePropertyNode",
+            "kind": "RE_UNICODE_SCRIPT",
+            "attributes": [
+                {
+                    "name": "scriptStart",
+                    "type": "Node"
+                },
+                {
+                    "name": "reUnicodePropertyValue",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReUnicodeGeneralCategoryNode",
+            "base": "ReUnicodePropertyNode",
+            "kind": "RE_UNICODE_GENERAL_CATEGORY",
+            "attributes": [
+                {
+                    "name": "categoryStart",
+                    "type": "Node",
+                    "isOptional": true
+                },
+                {
+                    "name": "reUnicodeGeneralCategoryName",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
             "name": "ReCharacterClassNode",
             "base": "ReAtomNode",
             "kind": "RE_CHARACTER_CLASS",
@@ -4521,7 +4614,7 @@
                 },
                 {
                     "name": "reCharSet",
-                    "type": "ReCharSetNode",
+                    "type": "Node",
                     "isOptional": true
                 },
                 {
@@ -4531,12 +4624,101 @@
             ]
         },
         {
-            "name": "ReCharSetNode",
+            "name": "ReCharSetRangeWithReCharSetNode",
             "base": "Node",
-            "kind": "RE_CHAR_SET",
+            "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
             "attributes": [
                 {
+                    "name": "reCharSetRange",
+                    "type": "ReCharSetRangeNode"
+                },
+                {
                     "name": "reCharSet",
+                    "type": "Node",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ReCharSetRangeNode",
+            "base": "Node",
+            "kind": "RE_CHAR_SET_RANGE",
+            "attributes": [
+                {
+                    "name": "lhsReCharSetAtom",
+                    "type": "Node"
+                },
+                {
+                    "name": "minusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "rhsReCharSetAtom",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReCharSetAtomWithReCharSetNoDashNode",
+            "base": "Node",
+            "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+            "attributes": [
+                {
+                    "name": "reCharSetAtom",
+                    "type": "Node"
+                },
+                {
+                    "name": "reCharSetNoDash",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReCharSetRangeNoDashWithReCharSetNode",
+            "base": "Node",
+            "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+            "attributes": [
+                {
+                    "name": "reCharSetRangeNoDash",
+                    "type": "ReCharSetRangeNoDashNode"
+                },
+                {
+                    "name": "reCharSet",
+                    "type": "Node",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ReCharSetRangeNoDashNode",
+            "base": "Node",
+            "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+            "attributes": [
+                {
+                    "name": "reCharSetAtomNoDash",
+                    "type": "Node"
+                },
+                {
+                    "name": "minusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "reCharSetAtom",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReCharSetAtomNoDashWithReCharSetNoDashNode",
+            "base": "Node",
+            "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+            "attributes": [
+                {
+                    "name": "reCharSetAtomNoDash",
+                    "type": "Node"
+                },
+                {
+                    "name": "reCharSetNoDash",
                     "type": "Node"
                 }
             ]
@@ -4591,8 +4773,30 @@
             "kind": "RE_FLAGS_ON_OFF",
             "attributes": [
                 {
-                    "name": "reFlagsOnOff",
-                    "type": "Node"
+                    "name": "lhsReFlags",
+                    "type": "ReFlagsNode"
+                },
+                {
+                    "name": "minusToken",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "rhsReFlags",
+                    "type": "ReFlagsNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ReFlagsNode",
+            "base": "Node",
+            "kind": "RE_FLAGS",
+            "attributes": [
+                {
+                    "name": "reFlag",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -4620,6 +4824,36 @@
                     "name": "nonGreedyChar",
                     "type": "Token",
                     "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ReBracedQuantifierNode",
+            "base": "Node",
+            "kind": "RE_BRACED_QUANTIFIER",
+            "attributes": [
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "leastTimesMatchedDigit",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "commaToken",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "mostTimesMatchedDigit",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
                 }
             ]
         }

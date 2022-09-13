@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReFlagsOnOffNode;
+import io.ballerina.compiler.syntax.tree.ReSimpleCharClassEscapeNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,66 +30,56 @@ import java.util.Collections;
  *
  * @since 2201.3.0
  */
-public class STReFlagsOnOffNode extends STNode {
-    public final STNode lhsReFlags;
-    public final STNode minusToken;
-    public final STNode rhsReFlags;
+public class STReSimpleCharClassEscapeNode extends STNode {
+    public final STNode slashToken;
+    public final STNode reSimpleCharClassCode;
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    STReSimpleCharClassEscapeNode(
+            STNode slashToken,
+            STNode reSimpleCharClassCode) {
         this(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+                slashToken,
+                reSimpleCharClassCode,
                 Collections.emptyList());
     }
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags,
+    STReSimpleCharClassEscapeNode(
+            STNode slashToken,
+            STNode reSimpleCharClassCode,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_FLAGS_ON_OFF, diagnostics);
-        this.lhsReFlags = lhsReFlags;
-        this.minusToken = minusToken;
-        this.rhsReFlags = rhsReFlags;
+        super(SyntaxKind.RE_SIMPLE_CHAR_CLASS_ESCAPE, diagnostics);
+        this.slashToken = slashToken;
+        this.reSimpleCharClassCode = reSimpleCharClassCode;
 
         addChildren(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags);
+                slashToken,
+                reSimpleCharClassCode);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReFlagsOnOffNode(
-                this.lhsReFlags,
-                this.minusToken,
-                this.rhsReFlags,
+        return new STReSimpleCharClassEscapeNode(
+                this.slashToken,
+                this.reSimpleCharClassCode,
                 diagnostics);
     }
 
-    public STReFlagsOnOffNode modify(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    public STReSimpleCharClassEscapeNode modify(
+            STNode slashToken,
+            STNode reSimpleCharClassCode) {
         if (checkForReferenceEquality(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags)) {
+                slashToken,
+                reSimpleCharClassCode)) {
             return this;
         }
 
-        return new STReFlagsOnOffNode(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+        return new STReSimpleCharClassEscapeNode(
+                slashToken,
+                reSimpleCharClassCode,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReFlagsOnOffNode(this, position, parent);
+        return new ReSimpleCharClassEscapeNode(this, position, parent);
     }
 
     @Override

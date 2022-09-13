@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReFlagsOnOffNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetRangeNoDashNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -28,68 +28,68 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2201.3.0
+ * @since 22201.3.0
  */
-public class STReFlagsOnOffNode extends STNode {
-    public final STNode lhsReFlags;
+public class STReCharSetRangeNoDashNode extends STNode {
+    public final STNode reCharSetAtomNoDash;
     public final STNode minusToken;
-    public final STNode rhsReFlags;
+    public final STNode reCharSetAtom;
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
+    STReCharSetRangeNoDashNode(
+            STNode reCharSetAtomNoDash,
             STNode minusToken,
-            STNode rhsReFlags) {
+            STNode reCharSetAtom) {
         this(
-                lhsReFlags,
+                reCharSetAtomNoDash,
                 minusToken,
-                rhsReFlags,
+                reCharSetAtom,
                 Collections.emptyList());
     }
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
+    STReCharSetRangeNoDashNode(
+            STNode reCharSetAtomNoDash,
             STNode minusToken,
-            STNode rhsReFlags,
+            STNode reCharSetAtom,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_FLAGS_ON_OFF, diagnostics);
-        this.lhsReFlags = lhsReFlags;
+        super(SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH, diagnostics);
+        this.reCharSetAtomNoDash = reCharSetAtomNoDash;
         this.minusToken = minusToken;
-        this.rhsReFlags = rhsReFlags;
+        this.reCharSetAtom = reCharSetAtom;
 
         addChildren(
-                lhsReFlags,
+                reCharSetAtomNoDash,
                 minusToken,
-                rhsReFlags);
+                reCharSetAtom);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReFlagsOnOffNode(
-                this.lhsReFlags,
+        return new STReCharSetRangeNoDashNode(
+                this.reCharSetAtomNoDash,
                 this.minusToken,
-                this.rhsReFlags,
+                this.reCharSetAtom,
                 diagnostics);
     }
 
-    public STReFlagsOnOffNode modify(
-            STNode lhsReFlags,
+    public STReCharSetRangeNoDashNode modify(
+            STNode reCharSetAtomNoDash,
             STNode minusToken,
-            STNode rhsReFlags) {
+            STNode reCharSetAtom) {
         if (checkForReferenceEquality(
-                lhsReFlags,
+                reCharSetAtomNoDash,
                 minusToken,
-                rhsReFlags)) {
+                reCharSetAtom)) {
             return this;
         }
 
-        return new STReFlagsOnOffNode(
-                lhsReFlags,
+        return new STReCharSetRangeNoDashNode(
+                reCharSetAtomNoDash,
                 minusToken,
-                rhsReFlags,
+                reCharSetAtom,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReFlagsOnOffNode(this, position, parent);
+        return new ReCharSetRangeNoDashNode(this, position, parent);
     }
 
     @Override

@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReFlagsOnOffNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetRangeWithReCharSetNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,66 +30,56 @@ import java.util.Collections;
  *
  * @since 2201.3.0
  */
-public class STReFlagsOnOffNode extends STNode {
-    public final STNode lhsReFlags;
-    public final STNode minusToken;
-    public final STNode rhsReFlags;
+public class STReCharSetRangeWithReCharSetNode extends STNode {
+    public final STNode reCharSetRange;
+    public final STNode reCharSet;
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    STReCharSetRangeWithReCharSetNode(
+            STNode reCharSetRange,
+            STNode reCharSet) {
         this(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+                reCharSetRange,
+                reCharSet,
                 Collections.emptyList());
     }
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags,
+    STReCharSetRangeWithReCharSetNode(
+            STNode reCharSetRange,
+            STNode reCharSet,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_FLAGS_ON_OFF, diagnostics);
-        this.lhsReFlags = lhsReFlags;
-        this.minusToken = minusToken;
-        this.rhsReFlags = rhsReFlags;
+        super(SyntaxKind.RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET, diagnostics);
+        this.reCharSetRange = reCharSetRange;
+        this.reCharSet = reCharSet;
 
         addChildren(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags);
+                reCharSetRange,
+                reCharSet);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReFlagsOnOffNode(
-                this.lhsReFlags,
-                this.minusToken,
-                this.rhsReFlags,
+        return new STReCharSetRangeWithReCharSetNode(
+                this.reCharSetRange,
+                this.reCharSet,
                 diagnostics);
     }
 
-    public STReFlagsOnOffNode modify(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    public STReCharSetRangeWithReCharSetNode modify(
+            STNode reCharSetRange,
+            STNode reCharSet) {
         if (checkForReferenceEquality(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags)) {
+                reCharSetRange,
+                reCharSet)) {
             return this;
         }
 
-        return new STReFlagsOnOffNode(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+        return new STReCharSetRangeWithReCharSetNode(
+                reCharSetRange,
+                reCharSet,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReFlagsOnOffNode(this, position, parent);
+        return new ReCharSetRangeWithReCharSetNode(this, position, parent);
     }
 
     @Override

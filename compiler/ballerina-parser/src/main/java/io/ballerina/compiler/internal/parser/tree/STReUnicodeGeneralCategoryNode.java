@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReFlagsOnOffNode;
+import io.ballerina.compiler.syntax.tree.ReUnicodeGeneralCategoryNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,66 +30,56 @@ import java.util.Collections;
  *
  * @since 2201.3.0
  */
-public class STReFlagsOnOffNode extends STNode {
-    public final STNode lhsReFlags;
-    public final STNode minusToken;
-    public final STNode rhsReFlags;
+public class STReUnicodeGeneralCategoryNode extends STReUnicodePropertyNode {
+    public final STNode categoryStart;
+    public final STNode reUnicodeGeneralCategoryName;
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    STReUnicodeGeneralCategoryNode(
+            STNode categoryStart,
+            STNode reUnicodeGeneralCategoryName) {
         this(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+                categoryStart,
+                reUnicodeGeneralCategoryName,
                 Collections.emptyList());
     }
 
-    STReFlagsOnOffNode(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags,
+    STReUnicodeGeneralCategoryNode(
+            STNode categoryStart,
+            STNode reUnicodeGeneralCategoryName,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_FLAGS_ON_OFF, diagnostics);
-        this.lhsReFlags = lhsReFlags;
-        this.minusToken = minusToken;
-        this.rhsReFlags = rhsReFlags;
+        super(SyntaxKind.RE_UNICODE_GENERAL_CATEGORY, diagnostics);
+        this.categoryStart = categoryStart;
+        this.reUnicodeGeneralCategoryName = reUnicodeGeneralCategoryName;
 
         addChildren(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags);
+                categoryStart,
+                reUnicodeGeneralCategoryName);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReFlagsOnOffNode(
-                this.lhsReFlags,
-                this.minusToken,
-                this.rhsReFlags,
+        return new STReUnicodeGeneralCategoryNode(
+                this.categoryStart,
+                this.reUnicodeGeneralCategoryName,
                 diagnostics);
     }
 
-    public STReFlagsOnOffNode modify(
-            STNode lhsReFlags,
-            STNode minusToken,
-            STNode rhsReFlags) {
+    public STReUnicodeGeneralCategoryNode modify(
+            STNode categoryStart,
+            STNode reUnicodeGeneralCategoryName) {
         if (checkForReferenceEquality(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags)) {
+                categoryStart,
+                reUnicodeGeneralCategoryName)) {
             return this;
         }
 
-        return new STReFlagsOnOffNode(
-                lhsReFlags,
-                minusToken,
-                rhsReFlags,
+        return new STReUnicodeGeneralCategoryNode(
+                categoryStart,
+                reUnicodeGeneralCategoryName,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReFlagsOnOffNode(this, position, parent);
+        return new ReUnicodeGeneralCategoryNode(this, position, parent);
     }
 
     @Override

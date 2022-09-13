@@ -20,20 +20,25 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
  * @since 2201.3.0
  */
-public class ReCharSetNode extends NonTerminalNode {
+public class ReCharSetRangeWithReCharSetNode extends NonTerminalNode {
 
-    public ReCharSetNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ReCharSetRangeWithReCharSetNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node reCharSet() {
+    public ReCharSetRangeNode reCharSetRange() {
         return childInBucket(0);
+    }
+
+    public Optional<Node> reCharSet() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -49,22 +54,26 @@ public class ReCharSetNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "reCharSetRange",
                 "reCharSet"};
     }
 
-    public ReCharSetNode modify(
+    public ReCharSetRangeWithReCharSetNode modify(
+            ReCharSetRangeNode reCharSetRange,
             Node reCharSet) {
         if (checkForReferenceEquality(
+                reCharSetRange,
                 reCharSet)) {
             return this;
         }
 
-        return NodeFactory.createReCharSetNode(
+        return NodeFactory.createReCharSetRangeWithReCharSetNode(
+                reCharSetRange,
                 reCharSet);
     }
 
-    public ReCharSetNodeModifier modify() {
-        return new ReCharSetNodeModifier(this);
+    public ReCharSetRangeWithReCharSetNodeModifier modify() {
+        return new ReCharSetRangeWithReCharSetNodeModifier(this);
     }
 
     /**
@@ -72,24 +81,33 @@ public class ReCharSetNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class ReCharSetNodeModifier {
-        private final ReCharSetNode oldNode;
+    public static class ReCharSetRangeWithReCharSetNodeModifier {
+        private final ReCharSetRangeWithReCharSetNode oldNode;
+        private ReCharSetRangeNode reCharSetRange;
         private Node reCharSet;
 
-        public ReCharSetNodeModifier(ReCharSetNode oldNode) {
+        public ReCharSetRangeWithReCharSetNodeModifier(ReCharSetRangeWithReCharSetNode oldNode) {
             this.oldNode = oldNode;
-            this.reCharSet = oldNode.reCharSet();
+            this.reCharSetRange = oldNode.reCharSetRange();
+            this.reCharSet = oldNode.reCharSet().orElse(null);
         }
 
-        public ReCharSetNodeModifier withReCharSet(
+        public ReCharSetRangeWithReCharSetNodeModifier withReCharSetRange(
+                ReCharSetRangeNode reCharSetRange) {
+            Objects.requireNonNull(reCharSetRange, "reCharSetRange must not be null");
+            this.reCharSetRange = reCharSetRange;
+            return this;
+        }
+
+        public ReCharSetRangeWithReCharSetNodeModifier withReCharSet(
                 Node reCharSet) {
-            Objects.requireNonNull(reCharSet, "reCharSet must not be null");
             this.reCharSet = reCharSet;
             return this;
         }
 
-        public ReCharSetNode apply() {
+        public ReCharSetRangeWithReCharSetNode apply() {
             return oldNode.modify(
+                    reCharSetRange,
                     reCharSet);
         }
     }
