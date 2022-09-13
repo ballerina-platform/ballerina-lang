@@ -144,7 +144,16 @@ function testConstUnaryExpressions() {
     assertEqual(CUE["a"], -1);
 }
 
-function assertEqual(int|float|decimal|boolean actual, int|float|decimal|boolean expected) {
+const float X1 = 5.5;
+const float ANS1 = X1 % 0;
+const float ANS2 = X1 % 1.1;  // 1.0999999999999996
+
+function testConstRemainderOperation() {
+    assertEqual(ANS1.toString(), "NaN");
+    assertEqual(ANS2, 1.0999999999999996);
+}
+
+function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
     if (actual != expected) {
         panic error(string `Assertion error: expected ${expected} found ${actual}`);
     }

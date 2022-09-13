@@ -321,3 +321,19 @@ Ints2 ints2 = 2;
 
 float:NaN floatNan = 1.0;
 float:Infinity floatInf = 1.0;
+
+// Test arithmatic errors
+const NUM1 = -1;
+const int NUM2 = -9223372036854775807 - 1;
+const int NUM3 = 0;
+const int ANS1 = NUM2 / NUM1;          // error
+const int ANS2 = NUM2 / NUM3;          // error
+
+const int ANS3 = NUM2 * NUM1;          // error
+const int ANS4 = NUM2 * 5;             // error
+
+const int ANS5 = NUM2 % NUM3;          // error
+const int ANS6 = -NUM2;                // error
+
+const int ANS7 = NUM2 + NUM1;          // error
+const int ANS8 = NUM2 - 1;             // error

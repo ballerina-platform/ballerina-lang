@@ -150,6 +150,11 @@ public class ConstantExpressionTest {
         BRunUtil.invoke(compileResult, "testConstUnaryExpressions");
     }
 
+    @Test
+    public void testConstRemainderOperation() {
+        BRunUtil.invoke(compileResult, "testConstRemainderOperation");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

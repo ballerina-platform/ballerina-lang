@@ -165,6 +165,22 @@ public class SimpleConstantNegativeTest {
                 322, 22);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Infinityf', found 'float'",
                 323, 27);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'long overflow'",
+                329, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason '/ by zero'",
+                330, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'long overflow'",
+                332, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'long overflow'",
+                333, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason '/ by zero'",
+                335, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'long overflow'",
+                336, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'long overflow'",
+                338, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'long overflow'",
+                339, 18);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }
