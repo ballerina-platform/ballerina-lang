@@ -115,18 +115,27 @@ public class CreateExecutableTask implements Task {
         // todo following call has to be refactored after introducing new plugin architecture
         notifyPlugins(project, target);
 
-        Path relativePathToExecutable = currentDir.relativize(executablePath);
+        try {
+            Path relativePathToExecutable = currentDir.relativize(executablePath);
 
-        if (project.buildOptions().getTargetPath() != null) {
-            this.out.println("\t" + relativePathToExecutable);
-        } else {
-            if (relativePathToExecutable.toString().contains("..") ||
-                    relativePathToExecutable.toString().contains("." + File.separator)) {
-                this.out.println("\t" + executablePath.toString());
+            if (project.buildOptions().getTargetPath() != null) {
+                this.out.println("\t" + relativePathToExecutable);
             } else {
-                this.out.println("\t" + relativePathToExecutable.toString());
+                if (relativePathToExecutable.toString().contains("..") ||
+                        relativePathToExecutable.toString().contains("." + File.separator)) {
+                    this.out.println("\t" + executablePath.toString());
+                } else {
+                    this.out.println("\t" + relativePathToExecutable.toString());
+                }
             }
+        } catch (IllegalArgumentException iae) {
+            this.out.println(iae.getCause().toString());
+            this.out.println("\t" + currentDir);
+            this.out.println("\t" + executablePath);
         }
+
+
+
 
     }
 
