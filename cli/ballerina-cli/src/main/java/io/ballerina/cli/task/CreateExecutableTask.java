@@ -128,15 +128,12 @@ public class CreateExecutableTask implements Task {
                     this.out.println("\t" + relativePathToExecutable.toString());
                 }
             }
+
         } catch (IllegalArgumentException iae) {
             this.out.println(iae.getCause().toString());
             this.out.println("\t" + currentDir);
             this.out.println("\t" + executablePath);
         }
-
-
-
-
     }
 
     private void notifyPlugins(Project project, Target target) {
