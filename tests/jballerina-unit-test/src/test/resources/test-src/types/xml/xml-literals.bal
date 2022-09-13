@@ -32,11 +32,17 @@ function testXMLSequence() {
     test:assertEquals(x5.toString(), "<!--comment-->text1");
     xml x6 = xml `<!--comment-->`;
     test:assertEquals(x6.toString(), "<!--comment-->");
+    xml x27 = xml `<_>element</_>`;
+    test:assertEquals(x27.toString(), "<_>element</_>");
+    xml x28 = xml `<_/>`;
+    test:assertEquals(x28.toString(), "<_></_>");
 
     xml<'xml:Element> x23 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
     test:assertEquals(x23.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
     xml<xml<'xml:Element>> x24 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
     test:assertEquals(x24.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    xml<'xml:Element> x29 = xml `<_>element</_>`;
+    test:assertEquals(x29.toString(), "<_>element</_>");
 
     xml<'xml:ProcessingInstruction> x17 = xml `<?foo?><?faa?>`;
     test:assertEquals(x17.toString(), "<?foo ?><?faa ?>");

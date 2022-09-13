@@ -836,7 +836,7 @@ public class BuildCommandTest extends BaseCommandTest {
         cleanTarget(projectPath);
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs("--enable-cache");
         buildCommand.execute();
         long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
@@ -857,7 +857,7 @@ public class BuildCommandTest extends BaseCommandTest {
         cleanTarget(projectPath);
 
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs("--enable-cache");
         testCommand.execute();
         long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
@@ -866,7 +866,7 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
-        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
+        Assert.assertTrue(firstCodeGenDuration > secondCodeGenDuration,
                 "second code gen duration is greater than the expected value");
     }
 
