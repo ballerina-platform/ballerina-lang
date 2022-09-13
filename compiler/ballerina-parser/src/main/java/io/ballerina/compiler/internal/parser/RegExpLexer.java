@@ -50,6 +50,21 @@ public class RegExpLexer extends AbstractLexer {
             case RE_CAPTURING_GROUP_RE_DISJUNCTION:
                 token = readTokenInReDisjunction();
                 break;
+            case RE_ESCAPE:
+                token = readTokenInReEscape();
+                break;
+            case RE_UNICODE_PROP_ESCAPE:
+                token = readTokenInReUnicodePropertyEscape();
+                break;
+            case RE_UNICODE_PROP_START:
+                token = readTokenInReUnicodePropertyStart();
+                break;
+            case RE_UNICODE_PROPERTY_VALUE:
+                token = readTokenInReUnicodePropertyValue();
+                break;
+            case RE_UNICODE_GENERAL_CATEGORY_NAME:
+                token = readTokenInReUnicodeGeneralCategoryName();
+                break;
             case RE_CHAR_SET:
             case RE_NEGATED_CHAR_CLASS_START:
                 token = readTokenInCharacterClass();
@@ -155,11 +170,15 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.DOT:
                 this.reader.advance();
                 startMode(ParserMode.RE_QUANTIFIER);
-                return getRegExpText(SyntaxKind.RE_CHAR_ESCAPE_VALUE);
+                return getRegExpText(SyntaxKind.RE_CHAR);
             case LexerTerminals.BACKSLASH:
-                processReEscape();
-                startMode(ParserMode.RE_QUANTIFIER);
-                return getRegExpText(SyntaxKind.RE_CHAR_ESCAPE_VALUE);
+                boolean processed = processOnlyNumericEscapeOrControlEscape();
+                if (processed) {
+                    startMode(ParserMode.RE_QUANTIFIER);
+                    return getRegExpText(SyntaxKind.RE_ESCAPE);
+                }
+                this.reader.advance();
+                return getRegExpSyntaxToken(SyntaxKind.BACK_SLASH_TOKEN);
             // Handle "[" ["^"] [ReCharSet] "]".
             case LexerTerminals.OPEN_BRACKET:
                 this.reader.advance();
@@ -185,7 +204,7 @@ public class RegExpLexer extends AbstractLexer {
                     return getRegExpSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
                 }
                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
-                return getRegExpText(SyntaxKind.RE_CHAR_ESCAPE_VALUE);
+                return getRegExpText(SyntaxKind.RE_CHAR);
             default:
                 // Handle ReLiteralChar.
                 this.reader.advance();
@@ -194,8 +213,228 @@ public class RegExpLexer extends AbstractLexer {
                 } else {
                     reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
                 }
-                return getRegExpText(SyntaxKind.RE_CHAR_ESCAPE_VALUE);
+                return getRegExpText(SyntaxKind.RE_CHAR);
         }
+    }
+
+    /**
+     * Read tokens in ReQuoteEscape or ReSimpleCharClassEscape.
+     * It can be either p, P, {, or }.
+     * <p>
+     * <code>
+     * ReQuoteEscape := "\" ReSyntaxChar
+     * </code>
+     * <code>
+     * ReSimpleCharClassEscape := "\" ReSimpleCharClassCode
+     * </code>
+     *
+     * @return Next token
+     */
+    private STToken readTokenInReEscape() {
+        this.reader.mark();
+
+        if (this.reader.isEOF()) {
+            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        int nextToken = peek();
+        boolean isReSyntaxChar = isReSyntaxChar(nextToken);
+        boolean isReSimpleCharClassCode = isReSimpleCharClassCode(nextToken);
+
+        if (!isReSyntaxChar && !isReSimpleCharClassCode) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
+        }
+
+        this.reader.advance();
+        endMode();
+        switchParserModeFollowingReEscape();
+
+        if (isReSyntaxChar) {
+            return getRegExpText(SyntaxKind.RE_SYNTAX_CHAR);
+        }
+
+        if (isReSimpleCharClassCode) {
+            return getRegExpText(SyntaxKind.RE_SIMPLE_CHAR_CLASS_CODE);
+        }
+
+        return getRegExpText(SyntaxKind.RE_CHAR);
+    }
+
+    private void switchParserModeFollowingReEscape() {
+        switch (this.mode) {
+            case RE_CHAR_SET_NO_DASH:
+                // An ReCharSetAtomNoDash can be followed by - in a ReCharSetRangeNoDash.
+                if (isStartOfCharSetRange()) {
+                    // Switch parser mode to handle rhs of the ReCharSetRangeNoDash.
+                    switchMode(ParserMode.RE_CHAR_SET_RANGE_NO_DASH_RHS_START);
+                    break;
+                }
+                // An ReCharSetAtomNoDash can be followed by ReCharSetNoDash.
+                if (peek() != LexerTerminals.CLOSE_BRACKET) {
+                    // Switch parser mode to handle ReCharSetNoDash.
+                    switchMode(ParserMode.RE_CHAR_SET_NO_DASH);
+                    break;
+                }
+                switchMode(ParserMode.RE_CHAR_SET);
+                break;
+            case RE_CHAR_SET:
+            case RE_NEGATED_CHAR_CLASS_START:
+                // An ReCharSetAtom can be followed by - in a ReCharSetRange.
+                if (isStartOfCharSetRange()) {
+                    // Switch parser mode to handle rhs of the ReCharSetRange.
+                    switchMode(ParserMode.RE_CHAR_SET_RANGE_RHS_START);
+                    break;
+                }
+                // An ReCharSetAtom can be followed by ReCharSetNoDash.
+                if (peek() != LexerTerminals.CLOSE_BRACKET) {
+                    // Switch parser mode to handle ReCharSetNoDash.
+                    switchMode(ParserMode.RE_CHAR_SET_NO_DASH);
+                }
+                break;
+            case RE_CHAR_SET_RANGE_RHS:
+            case RE_CHAR_SET_RANGE_RHS_START:
+            case RE_CHAR_SET_RANGE_NO_DASH_RHS_START:
+            case RE_CHAR_SET_RANGE_NO_DASH_RHS:
+                switchMode(ParserMode.RE_CHAR_SET);
+                break;
+            default:
+                startMode(ParserMode.RE_QUANTIFIER);
+                break;
+        }
+    }
+
+    /**
+     * Read special tokens in ReUnicodePropertyEscape.
+     * It can be either p, P, {, or }.
+     *
+     * @return Next token
+     */
+    private STToken readTokenInReUnicodePropertyEscape() {
+        this.reader.mark();
+
+        if (this.reader.isEOF()) {
+            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        if (peek() == LexerTerminals.OPEN_BRACE) {
+            this.reader.advance();
+            switchMode(ParserMode.RE_UNICODE_PROP_START);
+            return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        }
+
+        if (peek() == LexerTerminals.CLOSE_BRACE) {
+            this.reader.advance();
+            endMode();
+            switchParserModeFollowingReEscape();
+            return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+        }
+
+        this.reader.advance();
+        return getRegExpText(SyntaxKind.RE_PROPERTY);
+    }
+
+    /**
+     * Read token at the start of a ReUnicodeProperty.
+     * It can be either sc=, gc= or ReUnicodeGeneralCategoryName.
+     *
+     * @return Next token
+     */
+    private STToken readTokenInReUnicodePropertyStart() {
+        this.reader.mark();
+
+        if (this.reader.isEOF()) {
+            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        if (peek() == 's' && this.reader.peek(1) == 'c' && this.reader.peek(2) == '=') {
+            switchMode(ParserMode.RE_UNICODE_PROPERTY_VALUE);
+            this.reader.advance(3);
+            return getRegExpText(SyntaxKind.RE_UNICODE_SCRIPT_START);
+        }
+
+        if (peek() == 'g' && this.reader.peek(1) == 'c' && this.reader.peek(2) == '=') {
+            switchMode(ParserMode.RE_UNICODE_GENERAL_CATEGORY_NAME);
+            this.reader.advance(3);
+            return getRegExpText(SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_START);
+        }
+
+        processReUnicodePropertyValue();
+        endMode();
+        if (peek() == LexerTerminals.CLOSE_BRACE) {
+            startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
+        }
+
+        return getRegExpText(SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
+    }
+
+    /**
+     * Read token in ReUnicodePropertyValue.
+     * <p>
+     * <code>
+     * ReUnicodePropertyValue := ReUnicodePropertyValueChar+
+     * </code>
+     *
+     * @return Next token
+     */
+    private STToken readTokenInReUnicodePropertyValue() {
+        this.reader.mark();
+
+        if (this.reader.isEOF()) {
+            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        processReUnicodePropertyValue();
+        endMode();
+        if (peek() == LexerTerminals.CLOSE_BRACE) {
+            startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
+        }
+        return getRegExpText(SyntaxKind.RE_UNICODE_PROPERTY_VALUE);
+    }
+
+    private void processReUnicodePropertyValue() {
+        if (!isReUnicodePropertyValueChar(peek())) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
+            this.reader.advance();
+        }
+
+        while (!isEndOfUnicodePropertyEscape()) {
+            if (!isReUnicodePropertyValueChar(peek())) {
+                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
+            }
+            this.reader.advance();
+        }
+    }
+
+    /**
+     * Read token in ReUnicodeGeneralCategoryName.
+     *
+     * @return Next token
+     */
+    private STToken readTokenInReUnicodeGeneralCategoryName() {
+        this.reader.mark();
+
+        if (this.reader.isEOF()) {
+            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        processReUnicodePropertyValue();
+        endMode();
+        if (peek() == LexerTerminals.CLOSE_BRACE) {
+            startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
+        }
+        return getRegExpText(SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
+    }
+
+    private boolean isEndOfUnicodePropertyEscape() {
+        return peek() == LexerTerminals.CLOSE_BRACE || this.reader.isEOF();
+    }
+
+    private boolean isReUnicodePropertyValueChar(int nextChar) {
+        return isDigit(nextChar) || isAsciiLetter(nextChar) || nextChar == '_';
+    }
+
+    private boolean isAsciiLetter(int nextChar) {
+        return 'A' <= nextChar && nextChar <= 'Z' || 'a' <= nextChar && nextChar <= 'z';
     }
 
     /**
@@ -214,6 +453,7 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.BITWISE_XOR:
                 // Handle negation token at the start of a character class.
                 if (this.mode == ParserMode.RE_NEGATED_CHAR_CLASS_START) {
+                    this.reader.advance();
                     switchMode(ParserMode.RE_CHAR_SET);
                     return getRegExpSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
                 }
@@ -227,7 +467,12 @@ public class RegExpLexer extends AbstractLexer {
         }
 
         // Process the first ReCharSetAtom.
-        processReCharSetAtom();
+        boolean processed = processReCharSetAtom();
+        if (!processed) {
+            // Handle ReEscapes separately.
+            this.reader.advance();
+            return getRegExpSyntaxToken(SyntaxKind.BACK_SLASH_TOKEN);
+        }
 
         // An ReCharSetAtom can be followed by - in a ReCharSetRange.
         if (isStartOfCharSetRange()) {
@@ -275,7 +520,12 @@ public class RegExpLexer extends AbstractLexer {
         }
 
         // Process ReCharSetAtom in the rhs of a ReCharSetRange.
-        processReCharSetAtom();
+        boolean processed = processReCharSetAtom();
+        if (!processed) {
+            // Handle ReEscapes separately.
+            this.reader.advance();
+            return getRegExpSyntaxToken(SyntaxKind.BACK_SLASH_TOKEN);
+        }
 
         // Switch parser mode to handle the following ReCharSet if available.
         switchMode(ParserMode.RE_CHAR_SET);
@@ -304,7 +554,12 @@ public class RegExpLexer extends AbstractLexer {
         }
 
         // Process the first ReCharSetAtomNoDash.
-        processReCharSetAtomNoDash(peek());
+        boolean processed = processReCharSetAtomNoDash(peek());
+        if (!processed) {
+            // Handle ReEscapes separately.
+            this.reader.advance();
+            return getRegExpSyntaxToken(SyntaxKind.BACK_SLASH_TOKEN);
+        }
 
         // An ReCharSetAtomNoDash can be followed by - in a ReCharSetRangeNoDash.
         if (isStartOfCharSetRange()) {
@@ -350,7 +605,12 @@ public class RegExpLexer extends AbstractLexer {
         }
 
         // Process ReCharSetAtom in the rhs of a ReCharSetRangeNoDash.
-        processReCharSetAtom();
+        boolean processed = processReCharSetAtom();
+        if (!processed) {
+            // Handle ReEscapes separately.
+            this.reader.advance();
+            return getRegExpSyntaxToken(SyntaxKind.BACK_SLASH_TOKEN);
+        }
 
         // Switch parser mode to handle the following ReCharSet if available.
         switchMode(ParserMode.RE_CHAR_SET);
@@ -367,13 +627,13 @@ public class RegExpLexer extends AbstractLexer {
      *   | "-"
      * </code>
      */
-    private void processReCharSetAtom() {
+    private boolean processReCharSetAtom() {
         int nextToken = peek();
         if (peek() == LexerTerminals.MINUS) {
             this.reader.advance();
-            return;
+            return true;
         }
-        processReCharSetAtomNoDash(nextToken);
+        return processReCharSetAtomNoDash(nextToken);
     }
 
     /**
@@ -386,19 +646,21 @@ public class RegExpLexer extends AbstractLexer {
      *   | "\-"
      * </code>
      */
-    private void processReCharSetAtomNoDash(int nextToken) {
+    private boolean processReCharSetAtomNoDash(int nextToken) {
         if (isReCharSetLiteralChar(nextToken)) {
             this.reader.advance();
-            return;
+            return true;
         }
 
         if (nextToken == LexerTerminals.BACKSLASH) {
             if (this.reader.peek(1) == LexerTerminals.MINUS) {
                 this.reader.advance(2);
-                return;
+                return true;
             }
-            processReEscape();
+            return processOnlyNumericEscapeOrControlEscape();
         }
+
+        return true;
     }
 
     /**
@@ -568,94 +830,6 @@ public class RegExpLexer extends AbstractLexer {
     }
 
     /**
-     * Process ReUnicodeProperty.
-     * <p>
-     * <code>
-     * ReUnicodeProperty :=  ReUnicodeScript | ReUnicodeGeneralCategory
-     * </code>
-     */
-    private void processReUnicodeProperty() {
-        // Process '\p{' or '\P{'
-        this.reader.advance(3);
-
-        if (peek() == 's') {
-            this.reader.advance();
-            // ReUnicodeScript starts with `sc=`.
-            if (peek() != 'c') {
-                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-                if (peek() != LexerTerminals.EQUAL) {
-                    this.reader.advance();
-                }
-            } else {
-                this.reader.advance();
-            }
-
-            if (peek() != LexerTerminals.EQUAL) {
-                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-            }
-            this.reader.advance();
-
-            processReUnicodePropertyValue();
-            return;
-        }
-
-        // Handle ReUnicodeGeneralCategory.
-        if (peek() == 'g') {
-            // ReUnicodeGeneralCategory might start with `gc=`.
-            this.reader.advance();
-            if (peek() != 'c') {
-                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-                if (peek() != LexerTerminals.EQUAL) {
-                    this.reader.advance();
-                }
-            } else {
-                this.reader.advance();
-            }
-
-            if (peek() != LexerTerminals.EQUAL) {
-                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-            }
-            this.reader.advance();
-        }
-
-        processReUnicodePropertyValue();
-    }
-
-    /**
-     * Process ReUnicodePropertyValue.
-     * <p>
-     * <code>
-     * ReUnicodePropertyValue := ReUnicodePropertyValueChar+
-     * </code>
-     */
-    private void processReUnicodePropertyValue() {
-        if (!isReUnicodePropertyValueChar(peek())) {
-            // ReUnicodePropertyEscape should have at least one character.
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-            if (peek() != LexerTerminals.CLOSE_BRACE) {
-                this.reader.advance();
-            }
-        }
-
-        while (isReUnicodePropertyValueChar(peek())) {
-            this.reader.advance();
-        }
-
-        if (peek() != LexerTerminals.CLOSE_BRACE) {
-            // ReUnicodePropertyEscape should end with close brace.
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-            return;
-        }
-
-        this.reader.advance();
-    }
-
-    private boolean isReUnicodePropertyValueChar(int nextChar) {
-        return isDigit(nextChar) || 'A' <= nextChar && nextChar <= 'Z' || 'a' <= nextChar && nextChar <= 'z' ||
-                nextChar == '_';
-    }
-
-    /**
      * Process ReEscape.
      * <p>
      * <code>
@@ -667,7 +841,7 @@ public class RegExpLexer extends AbstractLexer {
      *    | ReSimpleCharClassEscape
      * </code>
      */
-    private void processReEscape() {
+    private boolean processOnlyNumericEscapeOrControlEscape() {
         switch (this.reader.peek(1)) {
             // Handle NumericEscape.
             case 'u':
@@ -685,11 +859,12 @@ public class RegExpLexer extends AbstractLexer {
             case 'r':
                 this.reader.advance(2);
                 break;
-            // Handle ReUnicodePropertyEscape.
+            // Handle ReUnicodePropertyEscape separately.
             case 'p':
             case 'P':
                 if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                    processReUnicodeProperty();
+                    startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
+                    return false;
                 } else {
                     // Invalid ReUnicodePropertyEscape.
                     reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
@@ -699,13 +874,15 @@ public class RegExpLexer extends AbstractLexer {
             default:
                 // Handle ReQuoteEscape and ReSimpleCharClassEscape.
                 if (isReSyntaxChar(this.reader.peek(1)) || isReSimpleCharClassCode(this.reader.peek(1))) {
-                    this.reader.advance(2);
+                    startMode(ParserMode.RE_ESCAPE);
+                    return false;
                 } else {
                     // Invalid ReEscape.
                     reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
                     this.reader.advance();
                 }
         }
+        return true;
     }
 
     private STToken getRegExpSyntaxToken(SyntaxKind kind) {

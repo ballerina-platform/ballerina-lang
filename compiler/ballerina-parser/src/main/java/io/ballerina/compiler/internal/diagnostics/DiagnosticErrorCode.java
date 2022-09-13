@@ -212,6 +212,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_ATTACH_POINT_NAME("BCE0414", "error.missing.attach.point.name"),
     ERROR_MISSING_HEX_NUMBER_AFTER_HEX_INDICATOR("BCE0415", "error.missing.hex.number.after.hex.indicator"),
     ERROR_MISSING_DIGIT_AFTER_DOT("BCE0416", "error.missing.digit.after.dot"),
+    ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE("BCE0417", "error.missing.unicode.property.value"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),

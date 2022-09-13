@@ -3409,7 +3409,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(reCharSetAtomNoDash, "reCharSetAtomNoDash must not be null");
         Objects.requireNonNull(reCharSetNoDash, "reCharSetNoDash must not be null");
 
-        STNode stReCharSetAtomNoDashWithReCharSetNoDashNode = STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(
+        STNode stReCharSetAtomNoDashWithReCharSetNoDashNode =
+                STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(
                 reCharSetAtomNoDash.internalNode(),
                 reCharSetNoDash.internalNode());
         return stReCharSetAtomNoDashWithReCharSetNoDashNode.createUnlinkedFacade();

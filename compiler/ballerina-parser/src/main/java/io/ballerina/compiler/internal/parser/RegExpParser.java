@@ -95,8 +95,12 @@ public class RegExpParser extends AbstractParser {
 
         STNode reAtom;
         switch (nextToken.kind) {
-            case RE_CHAR_ESCAPE_VALUE:
-                reAtom = parseReAtomCharEscape();
+            case RE_CHAR:
+            case RE_ESCAPE:
+                reAtom = parseChars();
+                break;
+            case BACK_SLASH_TOKEN:
+                reAtom = parseReEscape();
                 break;
             case OPEN_BRACKET_TOKEN:
                 reAtom = parseCharacterClass();
@@ -132,17 +136,130 @@ public class RegExpParser extends AbstractParser {
     }
 
     /**
-     * Parse ReLiteralChar, . or ReEscape.
+     * Parse ReQuoteEscape, ReUnicodePropertyEscape or ReSimpleCharClassEscape.
+     *
+     * @return ReQuoteEscapeNode, ReUnicodePropertyEscapeNode or ReSimpleCharClassEscapeNode node
+     */
+    private STNode parseReEscape() {
+        STNode backSlash = consume();
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case RE_PROPERTY:
+                return parseReUnicodePropertyEscape(backSlash);
+            case RE_SYNTAX_CHAR:
+                return parseReQuoteEscape(backSlash);
+            case RE_SIMPLE_CHAR_CLASS_CODE:
+                return parseReSimpleCharClassEscape(backSlash);
+        }
+        return consume();
+    }
+
+    /**
+     * Parse ReLiteralChar, ., NumericEscape or ControlEscape.
      *
      * @return ReAtomCharOrEscape node
      */
-    private STNode parseReAtomCharEscape() {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.BACK_SLASH_TOKEN) {
+    private STNode parseChars() {
+        STNode chars = consume();
+        return STNodeFactory.createReAtomCharOrEscapeNode(chars);
+    }
 
+    /**
+     * Parse ReUnicodePropertyEscape.
+     *
+     * @return ReUnicodePropertyEscapeNode node
+     */
+    private STNode parseReUnicodePropertyEscape(STNode backSlash) {
+        STNode property = consume();
+        STNode openBrace = parseOpenBrace();
+        STNode unicodeProperty = parseUnicodeProperty();
+        STNode closeBrace = parseCloseBrace();
+        return STNodeFactory.createReUnicodePropertyEscapeNode(backSlash, property, openBrace, unicodeProperty,
+                closeBrace);
+    }
+
+    /**
+     * Parse { token in ReUnicodePropertyEscape.
+     *
+     * @return { token
+     */
+    private STNode parseOpenBrace() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+            return consume();
         }
-        STNode charEscape = consume();
-        return STNodeFactory.createReAtomCharOrEscapeNode(charEscape);
+        return createMissingTokenWithDiagnostics(SyntaxKind.OPEN_BRACE_TOKEN);
+    }
+
+    /**
+     * Parse ReUnicodeScript or ReUnicodeGeneralCategory.
+     *
+     * @return ReUnicodeScriptNode or ReUnicodeGeneralCategoryNode node
+     */
+    private STNode parseUnicodeProperty() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RE_UNICODE_SCRIPT_START) {
+            return parseReUnicodeScript();
+        }
+        return parseReUnicodeGeneralCategory();
+    }
+
+    /**
+     * Parse ReUnicodeScript.
+     *
+     * @return ReUnicodeScriptNode node
+     */
+    private STNode parseReUnicodeScript() {
+        STNode scriptStart = consume();
+        STToken nextToken = peek();
+        STNode unicodePropertyValue;
+        if (nextToken.kind == SyntaxKind.RE_UNICODE_PROPERTY_VALUE) {
+            unicodePropertyValue = consume();
+        } else {
+            unicodePropertyValue = createMissingTokenWithDiagnostics(SyntaxKind.RE_UNICODE_PROPERTY_VALUE);
+        }
+        return STNodeFactory.createReUnicodeScriptNode(scriptStart, unicodePropertyValue);
+    }
+
+    /**
+     * Parse ReUnicodeGeneralCategory.
+     *
+     * @return ReUnicodeGeneralCategoryNode node
+     */
+    private STNode parseReUnicodeGeneralCategory() {
+        STToken nextToken = peek();
+        STNode scriptStart = null;
+        if (nextToken.kind == SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_START) {
+            scriptStart = consume();
+        }
+        nextToken = peek();
+        STNode generalCategory;
+        if (nextToken.kind == SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME) {
+            generalCategory = consume();
+        } else {
+            generalCategory = createMissingTokenWithDiagnostics(SyntaxKind.RE_UNICODE_PROPERTY_VALUE);
+        }
+        return STNodeFactory.createReUnicodeGeneralCategoryNode(scriptStart, generalCategory);
+    }
+
+    /**
+     * Parse ReQuoteEscape.
+     *
+     * @return ReQuoteEscapeNode node
+     */
+    private STNode parseReQuoteEscape(STNode backSlash) {
+        STNode syntaxChar = consume();
+        return STNodeFactory.createReQuoteEscapeNode(backSlash, syntaxChar);
+    }
+
+    /**
+     * Parse ReSimpleCharClassEscape.
+     *
+     * @return ReSimpleCharClassEscapeNode node
+     */
+    private STNode parseReSimpleCharClassEscape(STNode backSlash) {
+        STNode simpleCharClassCode = consume();
+        return STNodeFactory.createReSimpleCharClassEscapeNode(backSlash, simpleCharClassCode);
     }
 
     /**
@@ -194,7 +311,7 @@ public class RegExpParser extends AbstractParser {
         if (isCharacterClassEnd(nextToken.kind)) {
             return null;
         }
-        STNode startReCharSetAtom = consume();
+        STNode startReCharSetAtom = parseCharSetAtom(nextToken);
         nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return startReCharSetAtom;
@@ -205,12 +322,13 @@ public class RegExpParser extends AbstractParser {
             if (isCharacterClassEnd(nextToken.kind)) {
                 return STNodeFactory.createReCharSetAtomWithReCharSetNoDashNode(startReCharSetAtom, minus);
             }
-            STNode rhsReCharSetAtom = consume();
-            STNode reCharSetRange = STNodeFactory.createReCharSetRangeNode(startReCharSetAtom, minus, rhsReCharSetAtom);
+            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken);
+            STNode reCharSetRange = STNodeFactory.createReCharSetRangeNode(startReCharSetAtom, minus,
+                    rhsReCharSetAtom);
             STNode reCharSet = parseReCharSet();
             return STNodeFactory.createReCharSetRangeWithReCharSetNode(reCharSetRange, reCharSet);
         }
-        STNode reCharSetNoDash = parseCharSetAtomNoDash();
+        STNode reCharSetNoDash = parseCharSetAtomNoDash(nextToken);
         return STNodeFactory.createReCharSetAtomWithReCharSetNoDashNode(startReCharSetAtom, reCharSetNoDash);
     }
 
@@ -219,9 +337,9 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReCharSetNoDash node
      */
-    private STNode parseCharSetAtomNoDash() {
-        STNode startReCharSetAtomNoDash = consume();
-        STToken nextToken = peek();
+    private STNode parseCharSetAtomNoDash(STToken nextToken) {
+        STNode startReCharSetAtomNoDash = parseCharSetAtom(nextToken);
+        nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return startReCharSetAtomNoDash;
         }
@@ -229,15 +347,25 @@ public class RegExpParser extends AbstractParser {
             STNode minus = consume();
             nextToken = peek();
             if (isCharacterClassEnd(nextToken.kind)) {
-                return STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(startReCharSetAtomNoDash, minus);
+                return STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(startReCharSetAtomNoDash,
+                        minus);
             }
-            STNode rhsReCharSetAtom = consume();
-            STNode reCharSetRange = STNodeFactory.createReCharSetRangeNoDashNode(startReCharSetAtomNoDash, minus, rhsReCharSetAtom);
+            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken);
+            STNode reCharSetRange = STNodeFactory.createReCharSetRangeNoDashNode(startReCharSetAtomNoDash, minus,
+                    rhsReCharSetAtom);
             STNode reCharSet = parseReCharSet();
             return STNodeFactory.createReCharSetRangeNoDashWithReCharSetNode(reCharSetRange, reCharSet);
         }
-        STNode reCharSetNoDash = parseCharSetAtomNoDash();
-        return STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(startReCharSetAtomNoDash, reCharSetNoDash);
+        STNode reCharSetNoDash = parseCharSetAtomNoDash(nextToken);
+        return STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(startReCharSetAtomNoDash,
+                reCharSetNoDash);
+    }
+
+    private STNode parseCharSetAtom(STToken nextToken) {
+        if (nextToken.kind == SyntaxKind.BACK_SLASH_TOKEN) {
+            return parseReEscape();
+        }
+        return consume();
     }
 
     private boolean isCharacterClassEnd(SyntaxKind kind) {
