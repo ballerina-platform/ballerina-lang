@@ -311,6 +311,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     return calculateMultiplication(lhs, rhs);
                 case DIV:
                     return calculateDivision(lhs, rhs);
+                case MOD:
+                    return calculateMod(lhs, rhs);
                 case BITWISE_AND:
                     return calculateBitWiseOp(lhs, rhs, (a, b) -> a & b);
                 case BITWISE_OR:
