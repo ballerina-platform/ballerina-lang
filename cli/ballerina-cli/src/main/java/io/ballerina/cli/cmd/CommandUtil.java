@@ -456,6 +456,7 @@ public class CommandUtil {
         writePackageAttributeValue(balTomlPath, packageJson.getSourceRepository(), "repository");
         writePackageAttributeValue(balTomlPath, packageJson.getVisibility(), "visibility");
         writePackageAttributeValue(balTomlPath, packageJson.getIcon(), "icon");
+        writePackageAttributeValue(balTomlPath, packageJson.getConstraint(), "constraint");
 
         Files.writeString(balTomlPath, "\n\n[build-options]", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\nobservabilityIncluded = true\n", StandardOpenOption.APPEND);
