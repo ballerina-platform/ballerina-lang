@@ -134,9 +134,13 @@ function validateRuntimeAPIs() {
     // result = validateBObject(obj);
     // test:assertTrue(result);
 
-    // BFunctionPointer fp = testFunc;
-    // result = validateBFunctionPointer(fp);
-    // test:assertTrue(result);
+    BFunctionPointer fp = testFunc;
+    result = validateBFunctionPointer(fp);
+    test:assertTrue(result);
+
+    fp = (i) => 5 * i;
+    result = validateBFunctionPointer(fp);
+    test:assertTrue(result);
 }
 
 function testFunc(int a) returns int {

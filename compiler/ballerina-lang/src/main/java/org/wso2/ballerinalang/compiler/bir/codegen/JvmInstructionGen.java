@@ -1732,6 +1732,8 @@ public class JvmInstructionGen {
 
         JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(), lambdaName,
                                           inst.closureMaps.size());
+        type = inst.lhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ? inst.lhsOp.variableDcl.type : type;
+
         jvmTypeGen.loadType(this.mv, type);
         if (inst.strandName != null) {
             mv.visitLdcInsn(inst.strandName);
