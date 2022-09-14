@@ -378,12 +378,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateAddition(BLangConstantValue lhs, BLangConstantValue rhs) {
-        // TODO : Handle overflow in numeric values.
         Object result = null;
         switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = Math.addExact((Long) lhs.value, (Long) rhs.value);
+                try {
+                    result = Math.addExact((Long) lhs.value, (Long) rhs.value);
+                } catch (ArithmeticException ae) {
+                    dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
+                    return new BLangConstantValue(null, this.currentConstSymbol.type);
+                }
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs.value))
@@ -407,7 +411,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = Math.subtractExact((Long) lhs.value, (Long) rhs.value);
+                try {
+                    result = Math.subtractExact((Long) lhs.value, (Long) rhs.value);
+                } catch (ArithmeticException ae) {
+                    dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
+                    return new BLangConstantValue(null, this.currentConstSymbol.type);
+                }
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs.value))
@@ -424,12 +433,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateMultiplication(BLangConstantValue lhs, BLangConstantValue rhs) {
-        // TODO : Handle overflow in numeric values.
         Object result = null;
         switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = Math.multiplyExact((Long) lhs.value, (Long) rhs.value);
+                try {
+                    result = Math.multiplyExact((Long) lhs.value, (Long) rhs.value);
+                } catch (ArithmeticException ae) {
+                    dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
+                    return new BLangConstantValue(null, this.currentConstSymbol.type);
+                }
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs.value))
@@ -450,8 +463,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                if ((Long)lhs.value == Long.MIN_VALUE && (Long) rhs.value == -1) {
-                    throw new ArithmeticException("long overflow");
+                if ((Long) lhs.value == Long.MIN_VALUE && (Long) rhs.value == -1) {
+                    dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
+                    return new BLangConstantValue(null, this.currentConstSymbol.type);
                 }
                 result = (Long) ((Long) lhs.value / (Long) rhs.value);
                 break;
@@ -469,7 +483,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
-    // TODO : Not working at the moment.
     private BLangConstantValue calculateMod(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
         switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
@@ -493,7 +506,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private Object calculateNegationForInt(BLangConstantValue value) {
         if ((Long) (value.value) == Long.MIN_VALUE) {
-            throw new ArithmeticException("long overflow");
+            dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
+            return new BLangConstantValue(null, this.currentConstSymbol.type);
         }
         return -1 * ((Long) (value.value));
     }
@@ -513,23 +527,17 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         Object result = null;
         BType constSymbolValType = value.type;
         int constSymbolValTypeTag = constSymbolValType.tag;
-        try {
-            switch (constSymbolValTypeTag) {
-                case TypeTags.INT:
-                    result = calculateNegationForInt(value);
-                    break;
-                case TypeTags.FLOAT:
-                    result = calculateNegationForFloat(value);
-                    break;
-                case TypeTags.DECIMAL:
-                    result = calculateNegationForDecimal(value);
-                    break;
-            }
-        } catch (NumberFormatException nfe) {
-        // Ignore. This will be handled as a compiler error.
-        } catch (ArithmeticException ae) {
-            result = null;
-            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
+
+        switch (constSymbolValTypeTag) {
+            case TypeTags.INT:
+                result = calculateNegationForInt(value);
+                break;
+            case TypeTags.FLOAT:
+                result = calculateNegationForFloat(value);
+                break;
+            case TypeTags.DECIMAL:
+                result = calculateNegationForDecimal(value);
+                break;
         }
 
         return new BLangConstantValue(result, constSymbolValType);
