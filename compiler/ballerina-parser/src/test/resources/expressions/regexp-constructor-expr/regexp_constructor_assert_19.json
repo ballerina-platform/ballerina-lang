@@ -302,11 +302,16 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
