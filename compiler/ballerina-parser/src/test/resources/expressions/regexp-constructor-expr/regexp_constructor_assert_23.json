@@ -132,7 +132,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_ESCAPE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_ESCAPE_SEQUENCE"
@@ -150,7 +150,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "q"
                                         }
                                       ]
@@ -250,7 +250,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_ESCAPE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_ESCAPE_SEQUENCE"
@@ -268,7 +268,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "e"
                                         }
                                       ]
@@ -366,7 +366,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -380,7 +380,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -396,7 +396,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_ESCAPE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_ESCAPE_SEQUENCE"
@@ -414,7 +414,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "y"
                                         }
                                       ]
@@ -514,7 +514,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_ESCAPE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE"
@@ -618,7 +618,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_ESCAPE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_ESCAPE_SEQUENCE"
@@ -636,7 +636,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "!"
                                         }
                                       ]

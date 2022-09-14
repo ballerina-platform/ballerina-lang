@@ -31,40 +31,60 @@ import java.util.Collections;
  * @since 2201.3.0
  */
 public class STReFlagsOnOffNode extends STNode {
-    public final STNode reFlagsOnOff;
+    public final STNode lhsReFlags;
+    public final STNode minusToken;
+    public final STNode rhsReFlags;
 
     STReFlagsOnOffNode(
-            STNode reFlagsOnOff) {
+            STNode lhsReFlags,
+            STNode minusToken,
+            STNode rhsReFlags) {
         this(
-                reFlagsOnOff,
+                lhsReFlags,
+                minusToken,
+                rhsReFlags,
                 Collections.emptyList());
     }
 
     STReFlagsOnOffNode(
-            STNode reFlagsOnOff,
+            STNode lhsReFlags,
+            STNode minusToken,
+            STNode rhsReFlags,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RE_FLAGS_ON_OFF, diagnostics);
-        this.reFlagsOnOff = reFlagsOnOff;
+        this.lhsReFlags = lhsReFlags;
+        this.minusToken = minusToken;
+        this.rhsReFlags = rhsReFlags;
 
         addChildren(
-                reFlagsOnOff);
+                lhsReFlags,
+                minusToken,
+                rhsReFlags);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReFlagsOnOffNode(
-                this.reFlagsOnOff,
+                this.lhsReFlags,
+                this.minusToken,
+                this.rhsReFlags,
                 diagnostics);
     }
 
     public STReFlagsOnOffNode modify(
-            STNode reFlagsOnOff) {
+            STNode lhsReFlags,
+            STNode minusToken,
+            STNode rhsReFlags) {
         if (checkForReferenceEquality(
-                reFlagsOnOff)) {
+                lhsReFlags,
+                minusToken,
+                rhsReFlags)) {
             return this;
         }
 
         return new STReFlagsOnOffNode(
-                reFlagsOnOff,
+                lhsReFlags,
+                minusToken,
+                rhsReFlags,
                 diagnostics);
     }
 

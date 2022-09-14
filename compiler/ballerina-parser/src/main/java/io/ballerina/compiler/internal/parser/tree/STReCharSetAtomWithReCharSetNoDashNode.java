@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser.tree;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReCharSetNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetAtomWithReCharSetNoDashNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,46 +30,56 @@ import java.util.Collections;
  *
  * @since 2201.3.0
  */
-public class STReCharSetNode extends STNode {
-    public final STNode reCharSet;
+public class STReCharSetAtomWithReCharSetNoDashNode extends STNode {
+    public final STNode reCharSetAtom;
+    public final STNode reCharSetNoDash;
 
-    STReCharSetNode(
-            STNode reCharSet) {
+    STReCharSetAtomWithReCharSetNoDashNode(
+            STNode reCharSetAtom,
+            STNode reCharSetNoDash) {
         this(
-                reCharSet,
+                reCharSetAtom,
+                reCharSetNoDash,
                 Collections.emptyList());
     }
 
-    STReCharSetNode(
-            STNode reCharSet,
+    STReCharSetAtomWithReCharSetNoDashNode(
+            STNode reCharSetAtom,
+            STNode reCharSetNoDash,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RE_CHAR_SET, diagnostics);
-        this.reCharSet = reCharSet;
+        super(SyntaxKind.RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH, diagnostics);
+        this.reCharSetAtom = reCharSetAtom;
+        this.reCharSetNoDash = reCharSetNoDash;
 
         addChildren(
-                reCharSet);
+                reCharSetAtom,
+                reCharSetNoDash);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STReCharSetNode(
-                this.reCharSet,
+        return new STReCharSetAtomWithReCharSetNoDashNode(
+                this.reCharSetAtom,
+                this.reCharSetNoDash,
                 diagnostics);
     }
 
-    public STReCharSetNode modify(
-            STNode reCharSet) {
+    public STReCharSetAtomWithReCharSetNoDashNode modify(
+            STNode reCharSetAtom,
+            STNode reCharSetNoDash) {
         if (checkForReferenceEquality(
-                reCharSet)) {
+                reCharSetAtom,
+                reCharSetNoDash)) {
             return this;
         }
 
-        return new STReCharSetNode(
-                reCharSet,
+        return new STReCharSetAtomWithReCharSetNoDashNode(
+                reCharSetAtom,
+                reCharSetNoDash,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReCharSetNode(this, position, parent);
+        return new ReCharSetAtomWithReCharSetNoDashNode(this, position, parent);
     }
 
     @Override

@@ -2468,6 +2468,57 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 reAtomCharOrEscape);
     }
 
+    public static STNode createReQuoteEscapeNode(
+            STNode slashToken,
+            STNode reSyntaxChar) {
+
+        return new STReQuoteEscapeNode(
+                slashToken,
+                reSyntaxChar);
+    }
+
+    public static STNode createReSimpleCharClassEscapeNode(
+            STNode slashToken,
+            STNode reSimpleCharClassCode) {
+
+        return new STReSimpleCharClassEscapeNode(
+                slashToken,
+                reSimpleCharClassCode);
+    }
+
+    public static STNode createReUnicodePropertyEscapeNode(
+            STNode slashToken,
+            STNode property,
+            STNode openBraceToken,
+            STNode reUnicodeProperty,
+            STNode closeBraceToken) {
+
+        return new STReUnicodePropertyEscapeNode(
+                slashToken,
+                property,
+                openBraceToken,
+                reUnicodeProperty,
+                closeBraceToken);
+    }
+
+    public static STNode createReUnicodeScriptNode(
+            STNode scriptStart,
+            STNode reUnicodePropertyValue) {
+
+        return new STReUnicodeScriptNode(
+                scriptStart,
+                reUnicodePropertyValue);
+    }
+
+    public static STNode createReUnicodeGeneralCategoryNode(
+            STNode categoryStart,
+            STNode reUnicodeGeneralCategoryName) {
+
+        return new STReUnicodeGeneralCategoryNode(
+                categoryStart,
+                reUnicodeGeneralCategoryName);
+    }
+
     public static STNode createReCharacterClassNode(
             STNode openBracket,
             STNode negation,
@@ -2481,11 +2532,62 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBracket);
     }
 
-    public static STNode createReCharSetNode(
+    public static STNode createReCharSetRangeWithReCharSetNode(
+            STNode reCharSetRange,
             STNode reCharSet) {
 
-        return new STReCharSetNode(
+        return new STReCharSetRangeWithReCharSetNode(
+                reCharSetRange,
                 reCharSet);
+    }
+
+    public static STNode createReCharSetRangeNode(
+            STNode lhsReCharSetAtom,
+            STNode minusToken,
+            STNode rhsReCharSetAtom) {
+
+        return new STReCharSetRangeNode(
+                lhsReCharSetAtom,
+                minusToken,
+                rhsReCharSetAtom);
+    }
+
+    public static STNode createReCharSetAtomWithReCharSetNoDashNode(
+            STNode reCharSetAtom,
+            STNode reCharSetNoDash) {
+
+        return new STReCharSetAtomWithReCharSetNoDashNode(
+                reCharSetAtom,
+                reCharSetNoDash);
+    }
+
+    public static STNode createReCharSetRangeNoDashWithReCharSetNode(
+            STNode reCharSetRangeNoDash,
+            STNode reCharSet) {
+
+        return new STReCharSetRangeNoDashWithReCharSetNode(
+                reCharSetRangeNoDash,
+                reCharSet);
+    }
+
+    public static STNode createReCharSetRangeNoDashNode(
+            STNode reCharSetAtomNoDash,
+            STNode minusToken,
+            STNode reCharSetAtom) {
+
+        return new STReCharSetRangeNoDashNode(
+                reCharSetAtomNoDash,
+                minusToken,
+                reCharSetAtom);
+    }
+
+    public static STNode createReCharSetAtomNoDashWithReCharSetNoDashNode(
+            STNode reCharSetAtomNoDash,
+            STNode reCharSetNoDash) {
+
+        return new STReCharSetAtomNoDashWithReCharSetNoDashNode(
+                reCharSetAtomNoDash,
+                reCharSetNoDash);
     }
 
     public static STNode createReCapturingGroupsNode(
@@ -2513,10 +2615,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createReFlagsOnOffNode(
-            STNode reFlagsOnOff) {
+            STNode lhsReFlags,
+            STNode minusToken,
+            STNode rhsReFlags) {
 
         return new STReFlagsOnOffNode(
-                reFlagsOnOff);
+                lhsReFlags,
+                minusToken,
+                rhsReFlags);
+    }
+
+    public static STNode createReFlagsNode(
+            STNode reFlag) {
+
+        return new STReFlagsNode(
+                reFlag);
     }
 
     public static STNode createReAssertionNode(
@@ -2533,6 +2646,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STReQuantifierNode(
                 reBaseQuantifier,
                 nonGreedyChar);
+    }
+
+    public static STNode createReBracedQuantifierNode(
+            STNode openBraceToken,
+            STNode leastTimesMatchedDigit,
+            STNode commaToken,
+            STNode mostTimesMatchedDigit,
+            STNode closeBraceToken) {
+
+        return new STReBracedQuantifierNode(
+                openBraceToken,
+                leastTimesMatchedDigit,
+                commaToken,
+                mostTimesMatchedDigit,
+                closeBraceToken);
     }
 }
 
