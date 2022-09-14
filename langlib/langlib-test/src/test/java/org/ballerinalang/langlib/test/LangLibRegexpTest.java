@@ -26,12 +26,14 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertEquals;
+
 /**
- * Test cases for the lang.array library.
+ * Test cases for the lang.regexp library.
  *
  * @since 1.0
  */
-public class LangLibRegexTest {
+public class LangLibRegexpTest {
 
     private CompileResult compileResult;
 
@@ -46,9 +48,40 @@ public class LangLibRegexTest {
     }
 
     @Test
-    public void testLength() {
+    public void testFind() {
         BRunUtil.invoke(compileResult, "testFind");
     }
+
+    @Test
+    public void testFindGroups() {
+        BRunUtil.invoke(compileResult, "testFindGroups");
+    }
+
+    @Test
+    public void testFindAll() {
+        BRunUtil.invoke(compileResult, "testFindAll");
+    }
+
+    @Test
+    public void testMatchAt() {
+        BRunUtil.invoke(compileResult, "testMatchAt");
+    }
+
+    @Test
+    public void testMatchGroupsAt() {
+        BRunUtil.invoke(compileResult, "testMatchGroupsAt");
+    }
+
+    @Test
+    public void testIsFullMatch() {
+        BRunUtil.invoke(compileResult, "testIsFullMatch");
+    }
+
+    @Test
+    public void testFullMatchGroups() {
+        BRunUtil.invoke(compileResult, "testFullMatchGroups");
+    }
+
 
     public static void print(Object value) {
         System.out.println("############################");

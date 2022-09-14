@@ -50,7 +50,7 @@
             <class name="org.ballerinalang.langlib.test.LangLibRuntimeTest" />
             <class name="org.ballerinalang.langlib.test.LangLibTypedescTest" />
             <class name="org.ballerinalang.langlib.test.LangLibFunctionTest" />
-            <class name="org.ballerinalang.langlib.test.LangLibRegexTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibRegexpTest" />
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorHandlingTests"/>

@@ -67,8 +67,11 @@ public class Matches {
         BArray resultArray = ValueCreator.createArrayValue(arrayType);
         matcher.region(startIndex, stringVal.length());
         if (matcher.matches()) {
-            for (int i = 0 ; i < matcher.groupCount(); i++) {
+            for (int i = 1 ; i <= matcher.groupCount(); i++) {
                 int matcherStart = matcher.start(i);
+                if (matcher.start(i) == -1) {
+                    continue;
+                }
                 int matcherEnd = matcher.end(i);
                 //todo should we check if the group(i) is null
                 String matcherStr = matcher.group(i);
