@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -76,8 +78,11 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writePosition;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -363,6 +368,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
+            writeAnnotAttachments(buff, (List<BAnnotationAttachmentSymbol>) field.symbol.getAnnotations());
         }
 
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;
@@ -577,4 +583,104 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(inclusion);
         }
     }
+
+    private void writeAnnotAttachments(ByteBuf buff, List<BAnnotationAttachmentSymbol> annotAttachments) {
+        ByteBuf annotBuf = Unpooled.buffer();
+        annotBuf.writeInt(annotAttachments.size());
+        for (BAnnotationAttachmentSymbol annotAttachment : annotAttachments) {
+            writeAnnotAttachment(annotBuf, annotAttachment);
+        }
+        int length = annotBuf.nioBuffer().limit();
+        buff.writeLong(length);
+        buff.writeBytes(annotBuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeAnnotAttachment(ByteBuf annotBuf, BAnnotationAttachmentSymbol annotAttachment) {
+        // Write module information of the annotation attachment
+        annotBuf.writeInt(BIRWriterUtils.addPkgCPEntry(annotAttachment.annotPkgID, this.cp));
+        // Write position
+        writePosition(annotAttachment.pos, annotBuf, cp);
+        annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTag.value));
+
+        if (!(annotAttachment instanceof BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol)) {
+            annotBuf.writeBoolean(false);
+            return;
+        }
+
+        annotBuf.writeBoolean(true);
+        BLangConstantValue constVal =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment)
+                        .attachmentValueSymbol.value;
+        writeType(annotBuf, constVal.type);
+        writeConstValue(annotBuf, constVal);
+    }
+
+    private void writeType(ByteBuf buf, BType type) {
+        buf.writeInt(cp.addShapeCPEntry(type));
+    }
+
+    private void writeConstValue(ByteBuf buf, BLangConstantValue constValue) {
+        writeConstValue(buf, constValue.value, constValue.type);
+    }
+
+    private void writeConstValue(ByteBuf buf, Object value, BType type) {
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+                buf.writeInt(addIntCPEntry((Long) value));
+                break;
+            case TypeTags.BYTE:
+                int byteValue = ((Number) value).intValue();
+                buf.writeInt(addByteCPEntry(byteValue));
+                break;
+            case TypeTags.FLOAT:
+                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
+                double doubleVal = value instanceof String ? Double.parseDouble((String) value)
+                        : (Double) value;
+                buf.writeInt(addFloatCPEntry(doubleVal));
+                break;
+            case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
+            case TypeTags.DECIMAL:
+                buf.writeInt(addStringCPEntry((String) value));
+                break;
+            case TypeTags.BOOLEAN:
+                buf.writeBoolean((Boolean) value);
+                break;
+            case TypeTags.NIL:
+                break;
+            case TypeTags.RECORD:
+                Map<String, BLangConstantValue> mapConstVal = (Map<String, BLangConstantValue>) value;
+                buf.writeInt(mapConstVal.size());
+                mapConstVal.forEach((key, fieldValue) -> {
+                    buf.writeInt(addStringCPEntry(key));
+                    writeType(buf, fieldValue.type);
+                    writeConstValue(buf, fieldValue);
+                });
+                break;
+            case TypeTags.TUPLE:
+                BLangConstantValue[] tupleConstVal = (BLangConstantValue[]) value;
+                buf.writeInt(tupleConstVal.length);
+                for (BLangConstantValue memValue : tupleConstVal) {
+                    writeType(buf, memValue.type);
+                    writeConstValue(buf, memValue);
+                }
+                break;
+            case TypeTags.INTERSECTION:
+                BType effectiveType = ((BIntersectionType) type).effectiveType;
+                writeConstValue(buf, value, effectiveType);
+                break;
+            default:
+                // TODO support for other types
+                throw new UnsupportedOperationException(
+                        "finite type value is not supported for type: " + type);
+
+        }
+    }
+
 }

@@ -1178,6 +1178,8 @@ public class BIRPackageSymbolEnter {
                                                               recordSymbol.scope.owner, symTable.builtinPos,
                                                               COMPILED_SOURCE);
 
+                        defineAnnotAttachmentSymbols(inputStream, varSymbol);
+
                         defineMarkDownDocAttachment(varSymbol, docBytes);
 
                         BField structField = new BField(varSymbol.name, varSymbol.pos, varSymbol);
