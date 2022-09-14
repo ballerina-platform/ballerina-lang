@@ -58,10 +58,10 @@ public class StrandDump {
         LocalDateTime localDateTime = LocalDateTime.now();
         outputStr.append(dateTimeFormatter.format(localDateTime));
         outputStr.append("]\n===========================================\n\n");
-        outputStr.append("Total no. of strand groups created\t:\t").append(createdStrandGroupCount).append("\n");
-        outputStr.append("Total no. of strands created      \t:\t").append(createdStrandCount).append("\n");
-        outputStr.append("Current no. of strand groups      \t:\t").append(availableStrandGroups.size()).append("\n");
-        outputStr.append("Current no. of strands            \t:\t").append(availableStrandCount).append("\n\n");
+        outputStr.append("Total strand group count \t:\t").append(createdStrandGroupCount).append("\n");
+        outputStr.append("Total strand count       \t:\t").append(createdStrandCount).append("\n");
+        outputStr.append("Active strand group count\t:\t").append(availableStrandGroups.size()).append("\n");
+        outputStr.append("Active strand count      \t:\t").append(availableStrandCount).append("\n\n");
         availableStrandGroups.forEach((strandGroupId, strandList) -> {
             outputStr.append("group ").append(strandGroupId).append(" [").append(strandList.get(0)).append("]: [")
                     .append(strandList.size() - 1).append("]\n");

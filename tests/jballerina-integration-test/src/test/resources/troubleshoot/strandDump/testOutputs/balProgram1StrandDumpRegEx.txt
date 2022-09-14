@@ -1,10 +1,10 @@
 Ballerina Strand Dump \[\d*/\d*/\d* \d*:\d*:\d*\]
 ===========================================
 
-Total no. of strand groups created\t:\t6
-Total no. of strands created      \t:\t10
-Current no. of strand groups      \t:\t3
-Current no. of strands            \t:\t9
+Total strand group count \t:\t6
+Total strand count       \t:\t10
+Active strand group count\t:\t3
+Active strand count      \t:\t9
 
 group \d* \[QUEUED\]: \[7\]
 \tstrand \d* "main" \[\$anon...0:main\] \[BLOCKED\]:
