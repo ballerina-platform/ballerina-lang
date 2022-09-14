@@ -232,8 +232,7 @@ function orderTests() returns error? {
 function restructureTest(TestFunction testFunction, string[] descendants) returns error? {
     descendants.push(testFunction.name);
 
-    // TODO: Change the type to function after https://github.com/ballerina-platform/ballerina-lang/issues/37379 fixed
-    foreach string dependsOnFunction in testFunction.dependsOnString {
+    foreach function dependsOnFunction in testFunction.dependsOn {
         TestFunction dependsOnTestFunction = check testRegistry.getTestFunction(dependsOnFunction);
         dependsOnTestFunction.dependents.push(testFunction);
 
