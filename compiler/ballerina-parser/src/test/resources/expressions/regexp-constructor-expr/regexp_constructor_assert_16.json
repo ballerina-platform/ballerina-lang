@@ -134,11 +134,16 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -320,11 +325,16 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -555,15 +565,20 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "s"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -745,23 +760,28 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "s"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "x"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "x"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -932,15 +952,20 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "s"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -948,15 +973,20 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "x"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "x"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -1189,11 +1219,16 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -1201,11 +1236,16 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -1356,15 +1396,20 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "s"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -1372,11 +1417,16 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -1527,11 +1577,16 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "x"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "x"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -1539,15 +1594,20 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "s"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -1775,23 +1835,28 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "s"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "x"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "x"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -1799,23 +1864,28 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "s"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "x"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "x"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -1966,15 +2036,20 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "s"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -1982,11 +2057,16 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }

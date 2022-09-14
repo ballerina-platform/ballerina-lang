@@ -146,16 +146,22 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "kind": "LIST",
                                                       "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                      ],
-                                                      "value": "k"
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                          ],
+                                                          "value": "k"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -163,11 +169,16 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -330,16 +341,22 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "kind": "LIST",
                                                       "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                      ],
-                                                      "value": "k"
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                          ],
+                                                          "value": "k"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -347,20 +364,26 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "kind": "LIST",
                                                       "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                      ],
-                                                      "value": "k"
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                          ],
+                                                          "value": "k"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -542,11 +565,16 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -554,36 +582,42 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "m"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "kind": "LIST",
                                                       "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                      ],
-                                                      "value": "a"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                      ],
-                                                      "value": ")"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                      ],
-                                                      "value": "*"
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                          ],
+                                                          "value": "a"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                          ],
+                                                          "value": ")"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                          ],
+                                                          "value": "*"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -745,20 +779,26 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
-                                                      "value": "i"
-                                                    },
-                                                    {
-                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "kind": "LIST",
                                                       "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                      ],
-                                                      "value": "k"
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                          ],
+                                                          "value": "k"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -766,16 +806,22 @@
                                                   "kind": "MINUS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_FLAGS_VALUE",
+                                                      "kind": "LIST",
                                                       "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                      ],
-                                                      "value": ")"
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                          ],
+                                                          "value": ")"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
