@@ -185,6 +185,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_R
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CAPTURING_GROUP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_SET_RANGE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_DISJUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_FLAG_EXPR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_FLAG_ON_OFF;
@@ -1978,9 +1979,18 @@ public class JvmInstructionGen {
     }
 
     void generateNewRegExpCharSetIns(BIRNonTerminator.NewReCharSet newReCharSet) {
-        this.loadVar(newReCharSet.charSet.variableDcl);
+        this.loadVar(newReCharSet.charSetAtoms.variableDcl);
         this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharSet", CREATE_RE_CHAR_SET, false);
         this.storeToVar(newReCharSet.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCharSetRangeIns(BIRNonTerminator.NewReCharSetRange newReCharSetRange) {
+        this.loadVar(newReCharSetRange.lhsCharSetAtom.variableDcl);
+        this.loadVar(newReCharSetRange.dash.variableDcl);
+        this.loadVar(newReCharSetRange.rhsCharSetAtom.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharSetRange", CREATE_RE_CHAR_SET_RANGE,
+                false);
+        this.storeToVar(newReCharSetRange.lhsOp.variableDcl);
     }
 
     void generateNewRegExpCapturingGroupIns(BIRNonTerminator.NewReCapturingGroup newReCapturingGroup) {
@@ -2284,6 +2294,9 @@ public class JvmInstructionGen {
                     break;
                 case NEW_RE_CHAR_SET:
                     generateNewRegExpCharSetIns((BIRNonTerminator.NewReCharSet) inst);
+                    break;
+                case NEW_RE_CHAR_SET_RANGE:
+                    generateNewRegExpCharSetRangeIns((BIRNonTerminator.NewReCharSetRange) inst);
                     break;
                 case NEW_RE_CAPTURING_GROUP:
                     generateNewRegExpCapturingGroupIns((BIRNonTerminator.NewReCapturingGroup) inst);

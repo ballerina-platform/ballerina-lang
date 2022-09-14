@@ -117,10 +117,11 @@ public enum InstructionKind {
     NEW_RE_LITERAL_CHAR_ESCAPE((byte) 94),
     NEW_RE_CHAR_CLASS((byte) 95),
     NEW_RE_CHAR_SET((byte) 96),
-    NEW_RE_CAPTURING_GROUP((byte) 97),
-    NEW_RE_FLAG_EXPR((byte) 98),
-    NEW_RE_FLAG_ON_OFF((byte) 99),
-    NEW_RE_QUANTIFIER((byte) 99),
+    NEW_RE_CHAR_SET_RANGE((byte) 97),
+    NEW_RE_CAPTURING_GROUP((byte) 98),
+    NEW_RE_FLAG_EXPR((byte) 99),
+    NEW_RE_FLAG_ON_OFF((byte) 100),
+    NEW_RE_QUANTIFIER((byte) 101),
 
     PLATFORM((byte) 128);
 

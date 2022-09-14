@@ -1016,12 +1016,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 2201.3.0
      */
     public static class NewReCharSet extends BIRNonTerminator {
-        public BIROperand charSet;
+        public BIROperand charSetAtoms;
 
-        public NewReCharSet(Location pos, BIROperand lhsOp, BIROperand charSet) {
+        public NewReCharSet(Location pos, BIROperand lhsOp, BIROperand charSetAtoms) {
             super(pos, InstructionKind.NEW_RE_CHAR_SET);
             this.lhsOp = lhsOp;
-            this.charSet = charSet;
+            this.charSetAtoms = charSetAtoms;
         }
 
         @Override
@@ -1031,7 +1031,37 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            return new BIROperand[]{this.charSet};
+            return new BIROperand[]{this.charSetAtoms};
+        }
+    }
+
+    /**
+     * New ReCharSetRange instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReCharSetRange extends BIRNonTerminator {
+        public BIROperand lhsCharSetAtom;
+        public BIROperand dash;
+        public BIROperand rhsCharSetAtom;
+
+        public NewReCharSetRange(Location pos, BIROperand lhsOp, BIROperand lhsCharSetAtom,
+                                 BIROperand dash, BIROperand rhsCharSetAtom) {
+            super(pos, InstructionKind.NEW_RE_CHAR_SET_RANGE);
+            this.lhsOp = lhsOp;
+            this.lhsCharSetAtom = lhsCharSetAtom;
+            this.dash = dash;
+            this.rhsCharSetAtom = rhsCharSetAtom;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.lhsCharSetAtom, this.dash, this.rhsCharSetAtom};
         }
     }
 

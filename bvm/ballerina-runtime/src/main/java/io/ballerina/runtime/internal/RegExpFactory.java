@@ -22,6 +22,7 @@ import io.ballerina.runtime.internal.values.RegExpAtom;
 import io.ballerina.runtime.internal.values.RegExpAtomQuantifier;
 import io.ballerina.runtime.internal.values.RegExpCapturingGroup;
 import io.ballerina.runtime.internal.values.RegExpCharSet;
+import io.ballerina.runtime.internal.values.RegExpCharSetRange;
 import io.ballerina.runtime.internal.values.RegExpCharacterClass;
 import io.ballerina.runtime.internal.values.RegExpDisjunction;
 import io.ballerina.runtime.internal.values.RegExpFlagExpression;
@@ -71,8 +72,12 @@ public class RegExpFactory {
                 characterClassEnd.getValue());
     }
 
-    public static RegExpCharSet createReCharSet(BString charSet) {
-        return new RegExpCharSet(charSet.getValue());
+    public static RegExpCharSet createReCharSet(ArrayValue charSet) {
+        return new RegExpCharSet(charSet);
+    }
+
+    public static RegExpCharSetRange createReCharSetRange(BString lhsCharSetAtom, BString dash, BString rhsCharSetAtom) {
+        return new RegExpCharSetRange(lhsCharSetAtom.getValue(), dash.getValue(), rhsCharSetAtom.getValue());
     }
 
     public static RegExpCapturingGroup createReCapturingGroup(BString openParen, RegExpFlagExpression flagExpr,
@@ -122,38 +127,49 @@ public class RegExpFactory {
     private static RegExpAtom translateLiteralCharOrEscape(RegExpLiteralCharOrEscape charOrEscape) {
         String value = charOrEscape.getCharOrEscape();
         if (".".equals(value)) {
-            return createCharacterClass("^", "\\r\\n");
+            return createCharacterClass("^", new String[]{"\\r"," \\n"});
         }
         if ("\\s".equals(value)) {
-            return createCharacterClass("", "\\t\\s\\n\\r");
+            return createCharacterClass("", new String[]{"\\t", "\\s", "\\n", "\\r"});
         }
         if ("\\S".equals(value)) {
-            return createCharacterClass("^", "\\t\\s\\n\\r");
+            return createCharacterClass("^", new String[]{"\\t", "\\s", "\\n", "\\r"});
+        }
+        if ("&".equals(value)) {
+            return createLiteralCharOrEscape("\\&");
         }
         return charOrEscape;
     }
 
-    private static RegExpCharacterClass createCharacterClass(String negation, String charSet) {
-        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet), "]");
+    private static RegExpLiteralCharOrEscape createLiteralCharOrEscape(String charOrEscape) {
+        return new RegExpLiteralCharOrEscape(charOrEscape);
+    }
+
+    private static RegExpCharacterClass createCharacterClass(String negation, String[] charSet) {
+        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet) , "]");
     }
 
     private static RegExpAtom translateCharacterClass(RegExpCharacterClass charClass) {
         RegExpCharSet charSet = charClass.getReCharSet();
-        String chars = charSet.getCharSet();
-        String translatedChars = translateCharSet(chars, "&&");
-        charSet.setCharSet(translatedChars);
+        Object[] charAtoms = charSet.getCharSetAtoms();
+        int c = charAtoms.length;
+        for (int i = 0; i < c; i++) {
+            Object charAtom = charAtoms[i];
+            if (charAtom instanceof RegExpCharSetRange) {
+                RegExpCharSetRange range = (RegExpCharSetRange) charAtom;
+                range.setLhsCharSetAtom(translateCharInCharacterClass(range.getLhsCharSetAtom()));
+                range.setRhsCharSetAom(translateCharInCharacterClass(range.getRhsCharSetAtom()));
+                continue;
+            }
+            charAtoms[i] = translateCharInCharacterClass((String) charAtom);
+        }
         return charClass;
     }
 
-    private static String translateCharSet(String chars, String translateChars) {
-        String[] charArr = chars.split(translateChars);
-        if (charArr.length == 1) {
-            return chars;
+    private static String translateCharInCharacterClass(String originalValue) {
+        if ("&".equals(originalValue)) {
+            return "\\&";
         }
-        StringJoiner sj = new StringJoiner("\\&\\&");
-        for (String str : charArr) {
-            sj.add(str);
-        }
-        return sj.toString();
+        return originalValue;
     }
 }
