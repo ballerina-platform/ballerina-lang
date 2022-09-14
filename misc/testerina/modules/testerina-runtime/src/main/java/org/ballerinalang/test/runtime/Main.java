@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
+import org.ballerinalang.test.runtime.entity.TestArguments;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
@@ -124,8 +125,9 @@ public class Main {
                         }
 
                         Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
-                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
-                                targetPath, classLoader);
+                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite,
+                                jsonTmpSummaryPath, classLoader, new TestArguments(args[0], moduleName, args[2],
+                                        args[3], args[4], args[5], args[6], args[7]));
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -140,10 +142,10 @@ public class Main {
     }
 
     private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath,
-                                     Path targetPath, ClassLoader classLoader) throws IOException {
+                                     ClassLoader classLoader, TestArguments args) throws IOException {
         int exitStatus = 0;
         try {
-            TesterinaUtils.executeTests(sourceRootPath, targetPath, testSuite, classLoader);
+            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {
