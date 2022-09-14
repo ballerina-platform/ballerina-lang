@@ -174,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -8432,7 +8433,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
-        reAtomQuantifier.atom = rewriteExpr(reAtomQuantifier.atom);
+        BLangExpression reAtom = reAtomQuantifier.atom;
+        if (isReAtomNode(reAtom.getKind())) {
+            reAtomQuantifier.atom = rewriteExpr(reAtom);
+        } else {
+            reAtomQuantifier.atom = rewriteExpr(getToStringInvocationOnExpr(reAtom));
+        }
+
         // Create empty quantifier.
         if (reAtomQuantifier.quantifier == null) {
             reAtomQuantifier.quantifier = ASTBuilderUtil.createEmptyQuantifier(reAtomQuantifier.pos,
@@ -8440,6 +8447,17 @@ public class Desugar extends BLangNodeVisitor {
         }
         reAtomQuantifier.quantifier = rewriteExpr(reAtomQuantifier.quantifier);
         result = reAtomQuantifier;
+    }
+
+    private boolean isReAtomNode(NodeKind kind) {
+        switch (kind) {
+            case REG_EXP_ATOM_CHAR_ESCAPE:
+            case REG_EXP_CHARACTER_CLASS:
+            case REG_EXP_CAPTURING_GROUP:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -8471,8 +8489,7 @@ public class Desugar extends BLangNodeVisitor {
         reCharacterClass.negation = rewriteExpr(reCharacterClass.negation);
         // Create empty charSet.
         if (reCharacterClass.charSet == null) {
-            reCharacterClass.charSet = ASTBuilderUtil.createEmptyCharSet(reCharacterClass.pos,
-                    symTable.anydataType, symTable.stringType);
+            reCharacterClass.charSet = ASTBuilderUtil.createEmptyCharSet(symTable.anydataType);
         }
         reCharacterClass.charSet = rewriteExpr(reCharacterClass.charSet);
         reCharacterClass.characterClassEnd = rewriteExpr(reCharacterClass.characterClassEnd);
@@ -8481,8 +8498,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReCharSet reCharSet) {
-        reCharSet.charSetAtoms = rewriteExpr(reCharSet.charSetAtoms);
+        reCharSet.charSetAtoms.forEach(this::rewriteExpr);
         result = reCharSet;
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        reCharSetRange.lhsCharSetAtom = rewriteExpr(reCharSetRange.lhsCharSetAtom);
+        reCharSetRange.dash = rewriteExpr(reCharSetRange.dash);
+        reCharSetRange.rhsCharSetAtom = rewriteExpr(reCharSetRange.rhsCharSetAtom);
+        result = reCharSetRange;
     }
 
     @Override

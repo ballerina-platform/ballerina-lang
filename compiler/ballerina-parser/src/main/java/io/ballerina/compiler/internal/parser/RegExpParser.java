@@ -563,7 +563,7 @@ public class RegExpParser extends AbstractParser {
             reFlags.add(reFlag);
             nextToken = peek();
         }
-        return STNodeFactory.createNodeList(reFlags);
+        return STNodeFactory.createReFlagsNode(STNodeFactory.createNodeList(reFlags));
     }
 
     private boolean isEndOfReFlags(SyntaxKind kind) {

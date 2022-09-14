@@ -96,6 +96,7 @@ import org.ballerinalang.model.tree.expressions.ReAtomCharOrEscapeNode;
 import org.ballerinalang.model.tree.expressions.ReAtomQuantifierNode;
 import org.ballerinalang.model.tree.expressions.ReCapturingGroupsNode;
 import org.ballerinalang.model.tree.expressions.ReCharSetNode;
+import org.ballerinalang.model.tree.expressions.ReCharSetRangeNode;
 import org.ballerinalang.model.tree.expressions.ReCharacterClassNode;
 import org.ballerinalang.model.tree.expressions.ReDisjunctionNode;
 import org.ballerinalang.model.tree.expressions.ReFlagExpressionNode;
@@ -271,6 +272,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -1041,6 +1043,10 @@ public class TreeBuilder {
 
     public static ReCharSetNode createReCharSetNode() {
         return new BLangReCharSet();
+    }
+
+    public static ReCharSetRangeNode createReCharSetRangeNode() {
+        return new BLangReCharSetRange();
     }
 
     public static ReQuantifierNode createReQuantifierNode() {

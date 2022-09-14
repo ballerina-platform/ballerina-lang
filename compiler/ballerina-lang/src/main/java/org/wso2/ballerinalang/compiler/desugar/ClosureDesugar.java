@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -1466,8 +1467,37 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        regExpTemplateLiteral.reDisjunction = rewriteExpr(regExpTemplateLiteral.reDisjunction);
+        resolveClosuresInInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         result = regExpTemplateLiteral;
+    }
+
+    private void resolveClosuresInInterpolations(List<BLangExpression> sequenceList) {
+        for (BLangExpression seq : sequenceList) {
+            BLangReSequence sequence = (BLangReSequence) seq;
+            for (BLangExpression term : sequence.termList) {
+                if (term.getKind() == NodeKind.REG_EXP_ATOM_QUANTIFIER) {
+                    BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
+                    NodeKind kind = atom.getKind();
+                    if (!isReAtomNode(kind)) {
+                        atom = rewriteExpr(atom);
+                    }
+                    if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
+                        resolveClosuresInInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isReAtomNode(NodeKind kind) {
+        switch (kind) {
+            case REG_EXP_ATOM_CHAR_ESCAPE:
+            case REG_EXP_CHARACTER_CLASS:
+            case REG_EXP_CAPTURING_GROUP:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -1519,8 +1549,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReCharSet reCharSet) {
-        reCharSet.charSetAtoms = rewriteExpr(reCharSet.charSetAtoms);
+        reCharSet.charSetAtoms.forEach(this::rewriteExpr);
         result = reCharSet;
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        reCharSetRange.lhsCharSetAtom = rewriteExpr(reCharSetRange.lhsCharSetAtom);
+        reCharSetRange.dash = rewriteExpr(reCharSetRange.dash);
+        reCharSetRange.rhsCharSetAtom = rewriteExpr(reCharSetRange.rhsCharSetAtom);
+        result = reCharSetRange;
     }
 
     @Override

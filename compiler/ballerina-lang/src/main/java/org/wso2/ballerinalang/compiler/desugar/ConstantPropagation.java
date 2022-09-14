@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -1150,6 +1151,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangReCharSet reCharSet) {
         rewrite(reCharSet.charSetAtoms);
         result = reCharSet;
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        rewrite(reCharSetRange.lhsCharSetAtom);
+        rewrite(reCharSetRange.dash);
+        rewrite(reCharSetRange.rhsCharSetAtom);
+        result = reCharSetRange;
     }
 
     @Override
