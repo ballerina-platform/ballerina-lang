@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,30 +18,16 @@
 package io.ballerina.compiler.api.symbols;
 
 /**
- * Represents the types of Symbols.
+ * Represents an client declaration Symbol.
  *
- * @since 2.0.0
+ * @since 2201.3.0
  */
-public enum SymbolKind {
-    MODULE,
-    XMLNS,
-    FUNCTION,
-    METHOD,
-    RESOURCE_METHOD,
-    CONSTANT,
-    TYPE_DEFINITION,
-    TYPE,
-    VARIABLE,
-    SERVICE_DECLARATION,
-    CLIENT_DECLARATION,
-    CLASS,
-    WORKER,
-    ANNOTATION,
-    RECORD_FIELD,
-    OBJECT_FIELD,
-    CLASS_FIELD,
-    ENUM,
-    ENUM_MEMBER,
-    PARAMETER,
-    PATH_PARAMETER
+public interface ClientDeclSymbol extends Symbol {
+
+    /**
+     * Get the service URI.
+     * 
+     * @return {@link String} service URI
+     */
+    String serviceUri();
 }
