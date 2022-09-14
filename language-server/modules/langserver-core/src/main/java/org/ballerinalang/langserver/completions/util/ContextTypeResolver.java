@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -232,11 +233,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(ObjectFieldNode node) {
         Optional<Symbol> symbol =
-                this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.symbol(node.typeName()));
-        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.TYPE) {
+                this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.symbol(node));
+        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.CLASS_FIELD) {
             return Optional.empty();
         }
-        return Optional.of(this.getRawContextType((TypeSymbol) symbol.get()));
+        ClassFieldSymbol classFieldSymbol = (ClassFieldSymbol) symbol.get();
+        return Optional.of(this.getRawContextType(classFieldSymbol.typeDescriptor()));
     }
 
     @Override
