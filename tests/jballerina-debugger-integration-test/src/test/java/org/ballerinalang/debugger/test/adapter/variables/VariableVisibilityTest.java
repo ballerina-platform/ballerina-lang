@@ -195,7 +195,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(globalVariables, "nameWithoutType", "\"Ballerina\"", "string");
         debugTestRunner.assertVariable(globalVariables, "nameWithType", "\"Ballerina\"", "string");
         debugTestRunner.assertVariable(globalVariables, "nameMap", "(debug_test_resources/variable_tests" +
-                ":0:$nameMap$_0 & readonly)", "record");
+                ":0:$anonType$nameMap$_0 & readonly)", "record");
         debugTestRunner.assertVariable(globalVariables, "nilWithoutType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "nilWithType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "RED", "\"RED\"", "string");
