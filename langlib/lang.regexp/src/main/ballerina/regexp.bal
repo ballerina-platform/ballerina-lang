@@ -47,8 +47,6 @@ function findImpl(RegExp reExp, string str, int startIndex = 0) returns [int, in
    name: "find"
 } external;
 
-// If we have named groups, then we will add another function to handle them.
-
 type TupleType [int, int, string];
 type TupleTypeArr TupleType[];
 type TupleArrType TupleTypeArr[];

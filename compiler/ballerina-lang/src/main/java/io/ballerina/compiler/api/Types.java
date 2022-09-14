@@ -87,7 +87,6 @@ public abstract class Types {
         this.ANYDATA = typesFactory.getTypeDescriptor(symbolTable.anydataType);
         this.NEVER = typesFactory.getTypeDescriptor(symbolTable.neverType);
         this.READONLY = typesFactory.getTypeDescriptor(symbolTable.readonlyType);
-//        this.REGEXP = typesFactory.getTypeDescriptor(symbolTable.regExpType);
         this.JSON = typesFactory.getTypeDescriptor(symbolTable.jsonType);
         this.BYTE = typesFactory.getTypeDescriptor(symbolTable.byteType);
         this.COMPILATION_ERROR = typesFactory.getTypeDescriptor(symbolTable.semanticError);
