@@ -18,43 +18,29 @@
 
 package org.ballerinalang.langlib.regexp;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.BTupleType;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Native implementation of lang.regexp:search(string).
+ * Native implementation of lang.regexp:replace(string).
  *
- * @since 1.2.0
+ * @since 2.3.0
  */
 public class Replace {
-
     public static BString replaceFromString(BRegexpValue regExp, BString str, BString replacingStr, int startIndex) {
-        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
-        Matcher matcher = pattern.matcher(str.getValue());
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         if (matcher.find(startIndex)) {
-            System.out.print("Start index: " + matcher.start());
-            System.out.print(" End index: " + matcher.end());
-            System.out.println(" Found: " + matcher.group());
             return StringUtils.fromString(matcher.replaceFirst(replacingStr.getValue()));
         }
         return str;
     }
 
     public static BString replaceAllFromString(BRegexpValue regExp, BString str, BString replacingStr, int startIndex) {
-        String originalString = str.getValue();
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         String replacementString = replacingStr.getValue();
-        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
-        Matcher matcher = pattern.matcher(originalString);
         if (matcher.find(startIndex)) {
             return StringUtils.fromString(matcher.replaceAll(replacementString));
         }

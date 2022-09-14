@@ -18,40 +18,25 @@
 
 package org.ballerinalang.langlib.regexp;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.types.BTupleType;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Native implementation of lang.regexp:search(string).
+ * Native implementation of lang.regexp:matches(string).
  *
- * @since 1.2.0
+ * @since 2.3.0
  */
 public class Matches {
-    static BTupleType tupleType = new BTupleType(Lists.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT,
-            PredefinedTypes.TYPE_STRING));
-    static BArrayType arrayType = new BArrayType(tupleType);
-
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
-        String stringVal = str.getValue();
-        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
-        Matcher matcher = pattern.matcher(str.getValue());
-        matcher.region(startIndex, stringVal.length());
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        matcher.region(startIndex, str.length());
         if (matcher.matches()) {
-            System.out.print("Start index: " + matcher.start());
-            System.out.print(" End index: " + matcher.end());
-            System.out.println(" Found: " + matcher.group());
-
-            BArray resultTuple = ValueCreator.createTupleValue(tupleType);
+            BArray resultTuple = ValueCreator.createTupleValue(RegexUtil.SPAN_AS_TUPLE_TYPE);
             resultTuple.add(0, matcher.start());
             resultTuple.add(1, matcher.end());
             resultTuple.add(2, StringUtils.fromString(matcher.group()));
@@ -61,28 +46,19 @@ public class Matches {
     }
 
     public static BArray matchGroupsAt(BRegexpValue regExp, BString str, int startIndex) {
-        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
-        String stringVal = str.getValue();
-        Matcher matcher = pattern.matcher(str.getValue());
-        BArray resultArray = ValueCreator.createArrayValue(arrayType);
-        matcher.region(startIndex, stringVal.length());
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        BArray resultArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE);
+        matcher.region(startIndex, str.length());
         if (matcher.matches()) {
             for (int i = 1 ; i <= matcher.groupCount(); i++) {
                 int matcherStart = matcher.start(i);
                 if (matcher.start(i) == -1) {
                     continue;
                 }
-                int matcherEnd = matcher.end(i);
-                //todo should we check if the group(i) is null
-                String matcherStr = matcher.group(i);
-                System.out.print("Start index: " + matcherStart);
-                System.out.print(" End index: " + matcherEnd);
-                System.out.println(" Found: " + matcherStr);
-
-                BArray resultTuple = ValueCreator.createTupleValue(tupleType);
+                BArray resultTuple = ValueCreator.createTupleValue(RegexUtil.SPAN_AS_TUPLE_TYPE);
                 resultTuple.add(0, matcherStart);
-                resultTuple.add(1, matcherEnd);
-                resultTuple.add(2, StringUtils.fromString(matcherStr));
+                resultTuple.add(1, matcher.end(i));
+                resultTuple.add(2, StringUtils.fromString(matcher.group(i)));
                 resultArray.append(resultTuple);
             }
         }
@@ -93,8 +69,7 @@ public class Matches {
     }
 
     public static boolean isFullMatch(BRegexpValue regExp, BString str) {
-        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
-        Matcher matcher = pattern.matcher(str.getValue());
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         return matcher.matches();
     }
 }
