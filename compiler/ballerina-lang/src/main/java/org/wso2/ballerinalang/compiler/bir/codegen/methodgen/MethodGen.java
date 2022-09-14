@@ -388,7 +388,6 @@ public class MethodGen {
             case TypeTags.HANDLE:
             case TypeTags.TYPEDESC:
             case TypeTags.READONLY:
-                //todo @chiran
             case TypeTags.REGEXP:
                 mv.visitInsn(ACONST_NULL);
                 mv.visitVarInsn(ASTORE, index);

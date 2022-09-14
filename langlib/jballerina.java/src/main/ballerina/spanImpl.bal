@@ -14,13 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Span readonly & object {
-   int startIndex;
-   int endIndex;
-   // This avoids constructing a potentially long string unless and until it is needed
-   isolated function substring() returns string;
-};
-
 # Implementation for the `regexp.Span`.
 #
 # + startIndex - Callable name
@@ -31,7 +24,6 @@ public readonly class SpanImpl {
    public int endIndex;
    public string substr;
 
-    // This avoids constructing a potentially long string unless and until it is needed
     public isolated function substring() returns string {
         return self.substr;
     }

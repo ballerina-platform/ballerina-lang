@@ -268,7 +268,6 @@ public class SymbolTable {
         initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
         initializeType(readonlyType, TypeKind.READONLY.typeName(), BUILTIN);
-//        initializeType(regExpType, TypeKind.REGEXP.typeName(), BUILTIN);
 
         // Define subtypes
         initializeTSymbol(signed32IntType, Names.SIGNED32, PackageID.INT);

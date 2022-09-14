@@ -24,6 +24,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -47,41 +48,23 @@ public class LangLibRegexpTest {
         compileResult = null;
     }
 
-    @Test
-    public void testFind() {
-        BRunUtil.invoke(compileResult, "testFind");
+    @Test(dataProvider = "testRegexLangLibFunctionList")
+    public void testRegexLibFunctions(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
     }
 
-    @Test
-    public void testFindGroups() {
-        BRunUtil.invoke(compileResult, "testFindGroups");
+    @DataProvider(name = "testRegexLangLibFunctionList")
+    public Object[] testRegexLangLibFunctions() {
+        return new Object[]{
+                "testFind",
+                "testFindGroups",
+                "testFindAll",
+                "testMatchAt",
+                "testMatchGroupsAt",
+                "testIsFullMatch",
+                "testFullMatchGroups"
+        };
     }
-
-    @Test
-    public void testFindAll() {
-        BRunUtil.invoke(compileResult, "testFindAll");
-    }
-
-    @Test
-    public void testMatchAt() {
-        BRunUtil.invoke(compileResult, "testMatchAt");
-    }
-
-    @Test
-    public void testMatchGroupsAt() {
-        BRunUtil.invoke(compileResult, "testMatchGroupsAt");
-    }
-
-    @Test
-    public void testIsFullMatch() {
-        BRunUtil.invoke(compileResult, "testIsFullMatch");
-    }
-
-    @Test
-    public void testFullMatchGroups() {
-        BRunUtil.invoke(compileResult, "testFullMatchGroups");
-    }
-
 
     public static void print(Object value) {
         System.out.println("############################");

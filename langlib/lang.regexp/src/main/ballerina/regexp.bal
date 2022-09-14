@@ -39,8 +39,8 @@ type GroupsArrayType GroupsAsSpanArrayType[];
 public function find(RegExp reExp, string str, int startIndex = 0) returns Span? {
     SpanAsTupleType? resultArr = findImpl(reExp, str, startIndex);
     if (resultArr is SpanAsTupleType) {
-        Span s = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
-        return s;
+        Span spanObj = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
+        return spanObj;
     }
 }
 
@@ -57,8 +57,8 @@ public function findGroups(RegExp reExp, string str, int startIndex = 0) returns
         Span[] spanArr = [];
         foreach int index in 1 ..< resultArr.length() {
             SpanAsTupleType matchGroup = resultArr[index];
-            Span s = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
-            spanArr.push(s);
+            Span spanObj = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
+            spanArr.push(spanObj);
         }
         return [firstMatchSpan, ...spanArr];
     }
@@ -91,8 +91,8 @@ public function findAllGroups(RegExp reExp, string str, int startIndex = 0) retu
             Span[] spanArr = [];
             foreach int index in 1 ..< resultArrLength {
                 SpanAsTupleType matchGroup = groupArr[index];
-                Span s = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
-                spanArr.push(s);
+                Span spanObj = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
+                spanArr.push(spanObj);
             }
             Groups g = [firstMatchSpan, ...spanArr];
             groupArrRes.push(g);
@@ -109,8 +109,8 @@ function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0) returns
 public function matchAt(RegExp reExp, string str, int startIndex = 0) returns Span? {
     SpanAsTupleType? resultArr = matchAtImpl(reExp, str, startIndex);
     if (resultArr is SpanAsTupleType) {
-        Span s = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
-        return s;
+        Span spanObj = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
+        return spanObj;
     }
 }
 
@@ -127,8 +127,8 @@ public function matchGroupsAt(RegExp reExp, string str, int startIndex = 0) retu
         Span[] spanArr = [];
         foreach int index in 1 ..< resultArr.length() {
             SpanAsTupleType matchGroup = resultArr[index];
-            Span s = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
-            spanArr.push(s);
+            Span spanObj = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
+            spanArr.push(spanObj);
         }
         return [firstMatchSpan, ...spanArr];
     }
