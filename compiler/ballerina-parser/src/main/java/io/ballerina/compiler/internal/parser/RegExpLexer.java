@@ -852,37 +852,35 @@ public class RegExpLexer extends AbstractLexer {
                     reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
                     this.reader.advance(2);
                 }
-                break;
+                return true;
             // Handle ControlEscape.
             case 'n':
             case 't':
             case 'r':
                 this.reader.advance(2);
-                break;
+                return true;
             // Handle ReUnicodePropertyEscape separately.
             case 'p':
             case 'P':
                 if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
                     startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
                     return false;
-                } else {
-                    // Invalid ReUnicodePropertyEscape.
-                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
-                    this.reader.advance(2);
                 }
-                break;
+                // Invalid ReUnicodePropertyEscape.
+                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP);
+                this.reader.advance(2);
+                return true;
             default:
                 // Handle ReQuoteEscape and ReSimpleCharClassEscape.
                 if (isReSyntaxChar(this.reader.peek(1)) || isReSimpleCharClassCode(this.reader.peek(1))) {
                     startMode(ParserMode.RE_ESCAPE);
                     return false;
-                } else {
-                    // Invalid ReEscape.
-                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
-                    this.reader.advance();
                 }
+                // Invalid ReEscape.
+                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
+                this.reader.advance();
+                return true;
         }
-        return true;
     }
 
     private STToken getRegExpSyntaxToken(SyntaxKind kind) {

@@ -4490,13 +4490,8 @@
       ]
     },
     {
-      "name": "ReAtomNode",
-      "base": "Node",
-      "isAbstract": true
-    },
-    {
       "name": "ReAtomCharOrEscapeNode",
-      "base": "ReAtomNode",
+      "base": "Node",
       "kind": "RE_CHAR_ESCAPE",
       "attributes": [
         {
@@ -4600,7 +4595,7 @@
     },
     {
       "name": "ReCharacterClassNode",
-      "base": "ReAtomNode",
+      "base": "Node",
       "kind": "RE_CHARACTER_CLASS",
       "attributes": [
         {
@@ -4725,7 +4720,7 @@
     },
     {
       "name": "ReCapturingGroupsNode",
-      "base": "ReAtomNode",
+      "base": "Node",
       "kind": "RE_CAPTURING_GROUP",
       "attributes": [
         {
