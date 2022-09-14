@@ -21,7 +21,8 @@ import ballerina/lang.regexp;
 @builtinSubtype
 type Char string;
 
-type RegExp regexp:RegExp;
+//todo @chiran
+//type RegExp regexp:RegExp;
 
 //public type RegExp anydata & readonly;
 
@@ -319,13 +320,12 @@ public isolated function padZero(string str, int len, Char zeroChar = "0") retur
 // simplified conceptual model of regular expressions, and at this level
 // `matches` feels good enough.
 // Need to be careful about cycle between this module and regexp module.
-function matches(string str, RegExp re) returns boolean {
-   return re.isFullMatch(str);
+public function matches(string str, regexp:RegExp regExp) returns boolean {
+   return regExp.isFullMatch(str);
 }
 
 # True if there is a match for `re` anywhere in `str`
 // we already have includes(string, substr, int startIndex)
-function includesMatch(string str, RegExp re, int startIndex = 0) returns boolean {
-//   return re.find(str, startIndex) != ();
-return false;
+public function includesMatch(string str, regexp:RegExp regExp, int startIndex = 0) returns boolean {
+   return regExp.find(str, startIndex) != ();
 }

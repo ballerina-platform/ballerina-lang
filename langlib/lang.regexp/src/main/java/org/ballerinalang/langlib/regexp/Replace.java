@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BTupleType;
 import org.wso2.ballerinalang.util.Lists;
@@ -37,8 +38,8 @@ import java.util.regex.Pattern;
  */
 public class Replace {
 
-    public static BString replaceFromString(BString re, BString str, BString replacingStr, int startIndex) {
-        Pattern pattern = Pattern.compile(re.getValue());
+    public static BString replaceFromString(BRegexpValue regExp, BString str, BString replacingStr, int startIndex) {
+        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
         Matcher matcher = pattern.matcher(str.getValue());
         if (matcher.find(startIndex)) {
             System.out.print("Start index: " + matcher.start());
@@ -49,10 +50,10 @@ public class Replace {
         return str;
     }
 
-    public static BString replaceAllFromString(BString re, BString str, BString replacingStr, int startIndex) {
+    public static BString replaceAllFromString(BRegexpValue regExp, BString str, BString replacingStr, int startIndex) {
         String originalString = str.getValue();
         String replacementString = replacingStr.getValue();
-        Pattern pattern = Pattern.compile(re.getValue());
+        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
         Matcher matcher = pattern.matcher(originalString);
         if (matcher.find(startIndex)) {
             return StringUtils.fromString(matcher.replaceAll(replacementString));

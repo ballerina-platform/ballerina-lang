@@ -1674,7 +1674,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.XML_TEXT:
                     return symTable.xmlTextType;
                 case TypeTags.REGEXP:
-                    return symTable.regexpType;
+                    return symTable.regExpType;
             }
             return null;
         }

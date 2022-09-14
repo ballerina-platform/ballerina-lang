@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BTupleType;
 import org.wso2.ballerinalang.util.Lists;
@@ -37,8 +38,8 @@ import java.util.regex.Pattern;
 public class Find {
     static BTupleType tupleType = new BTupleType(Lists.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT,
             PredefinedTypes.TYPE_STRING));
-    public static BArray find(BString re, BString str, int startIndex) {
-        Pattern pattern = Pattern.compile(re.getValue());
+    public static BArray find(BRegexpValue regExp, BString str, int startIndex) {
+        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
         Matcher matcher = pattern.matcher(str.getValue());
         if (matcher.find(startIndex)) {
             System.out.print("Start index: " + matcher.start());

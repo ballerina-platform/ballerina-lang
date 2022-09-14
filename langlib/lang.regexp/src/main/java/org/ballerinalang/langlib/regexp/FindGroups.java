@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -42,8 +43,8 @@ public class FindGroups {
     static BArrayType groupType = new BArrayType(tupleType);
     static BArrayType groupArrayType = new BArrayType(groupType);
 
-    public static BArray findGroups(BString re, BString str, int startIndex) {
-        Pattern pattern = Pattern.compile(re.getValue());
+    public static BArray findGroups(BRegexpValue regExp, BString str, int startIndex) {
+        Pattern pattern = Pattern.compile(StringUtils.getStringValue(regExp, null));
         Matcher matcher = pattern.matcher(str.getValue());
         BArray resultArray = ValueCreator.createArrayValue(groupType);
         while (matcher.find()) {
@@ -68,9 +69,9 @@ public class FindGroups {
         return resultArray;
     }
 
-    public static BArray findAllGroups(BString re, BString str, int startIndex) {
+    public static BArray findAllGroups(BRegexpValue regExp, BString str, int startIndex) {
         String stringVal = str.getValue();
-        Matcher matcher = Pattern.compile(re.getValue()).matcher(stringVal);
+        Matcher matcher = Pattern.compile(StringUtils.getStringValue(regExp, null)).matcher(stringVal);
         BArray groupArray = ValueCreator.createArrayValue(groupArrayType);
         int matchCount = 0;
         while (matcher.find()) {

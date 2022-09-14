@@ -18,6 +18,7 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
@@ -35,10 +36,10 @@ import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
  *
  * @since 2201.3.0
  */
-public class RegExpValue implements RefValue {
+public class RegExpValue implements BRegexpValue, RefValue {
     private RegExpDisjunction regExpDisjunction;
     private BTypedesc typedesc;
-    private final Type type = PredefinedTypes.TYPE_STRING_REG_EXP;
+    private final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
 
     public RegExpValue(RegExpDisjunction regExpDisjunction) {
         this.regExpDisjunction = regExpDisjunction;

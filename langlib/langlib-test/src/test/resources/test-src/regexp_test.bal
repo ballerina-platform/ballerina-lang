@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.regexp;
+//import ballerina/lang.'string;
 import ballerina/jballerina.java;
 
 function testFind() {
@@ -24,7 +25,11 @@ function testFind() {
 //    var res = regexp:findGroups("\\G(\\w+)=(\\w+);","name1=gil;name2=orit;", 10);
 //Start index: 10 End index: 21 Found: name2=orit;
 //    var res = regexp:findGroups("([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(?:\\.([0-9]{1,3}))?","14:35:59.99");
-    var res = regexp:findAllGroups("(ab)(cd)","abcdefabcdef");
+    xml:Element x = xml `<x></x>`;
+    regexp:RegExp regExpression = re `(ab)(cd)`;
+
+    var res = regexp:isFullMatch(regExpression,"abcdabcd");
+    var res2 = "abcd".matches(regExpression);
 
 //    var res = regexp:matchAt("\\G(\\w+)=(\\w+);","name1=gil;name2=orit;", 10);
 //    var res = regexp:matchAt("\\d\\d\\d","a123", 1);
@@ -47,6 +52,7 @@ function testFind() {
 
 //var res = regexp:replace("0+","10010011", "*");
     print(res);
+    print(res2);
 }
 
 
