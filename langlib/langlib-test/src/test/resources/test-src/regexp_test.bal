@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/lang.regexp;
-//import ballerina/lang.'string;
 import ballerina/jballerina.java;
 
 function testFind() {
@@ -248,46 +247,6 @@ function testFullMatchGroups() {
     assertEquality(8, resultSpan2_2.endIndex);
     assertEquality("900", resultSpan2_2.substring());
 }
-
-function testFoo() {
-//    var res = regexp:find("a","abca");
-//    print(res);
-
-//    var res = regexp:findGroups("\\G(\\w+)=(\\w+);","name1=gil;name2=orit;", 10);
-//Start index: 10 End index: 21 Found: name2=orit;
-//    var res = regexp:findGroups("([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(?:\\.([0-9]{1,3}))?","14:35:59.99");
-    xml:Element x = xml `<x></x>`;
-    regexp:RegExp regExpression = re `(ab)(cd)`;
-
-    var res = regexp:isFullMatch(regExpression,"abcdabcd");
-    var res2 = "abcd".matches(regExpression);
-
-//    var res = regexp:matchAt("\\G(\\w+)=(\\w+);","name1=gil;name2=orit;", 10);
-//    var res = regexp:matchAt("\\d\\d\\d","a123", 1);
-
-//var res = regexp:matchGroupsAt("([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(?:\\.([0-9]{1,3}))?","14:35:59.99");
-//Start index: 0 End index: 11 Found: 14:35:59.99
-//Start index: 0 End index: 2 Found: 14
-//Start index: 3 End index: 5 Found: 35
-//Start index: 6 End index: 8 Found: 59
-
-//    var res = regexp:isFullMatch("\\d\\d\\d","a123");
-
-//var res = regexp:fullMatchGroups("([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(?:\\.([0-9]{1,3}))?","14:35:59.99");
-//Start index: 0 End index: 11 Found: 14:35:59.99
-//Start index: 0 End index: 2 Found: 14
-//Start index: 3 End index: 5 Found: 35
-//Start index: 6 End index: 8 Found: 59
-//var res = regexp:fullMatchGroups("([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(?:\\.([0-9]{1,3}))?","a14:35:59.99");
-//res is nil
-
-//var res = regexp:replace("0+","10010011", "*");
-    print(res);
-    print(res2);
-}
-
-
-
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

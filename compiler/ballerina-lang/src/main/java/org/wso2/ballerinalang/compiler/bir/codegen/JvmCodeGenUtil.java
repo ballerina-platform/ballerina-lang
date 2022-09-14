@@ -807,7 +807,6 @@ public class JvmCodeGenUtil {
     }
 
     public static String getRefTypeConstantName(BTypeReferenceType type) {
-
         return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
     }
 }

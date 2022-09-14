@@ -44,46 +44,16 @@ public class BallerinaRegexpTypeSymbol extends AbstractTypeSymbol implements Reg
 
     @Override
     public Optional<TypeSymbol> typeParameter() {
-//        if (this.typeParameter == null) {
-//            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-//            BType constraintType = ((BXMLType) this.getBType()).constraint;
-//            if (constraintType != null) {
-//                this.typeParameter = typesFactory.getTypeDescriptor(constraintType, constraintType.tsymbol, true);
-//            }
-//        }
-
         return Optional.ofNullable(this.typeParameter);
     }
 
     @Override
     public Optional<String> getName() {
-//        if (this.typeName == null) {
-//            BXMLType xmlType = (BXMLType) this.getBType();
-//            SymbolTable symbolTable = SymbolTable.getInstance(this.context);
-//
-//            if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
-//                this.typeName = "xml";
-//            } else {
-//                this.typeName = "xml<" + this.typeParameter().get().getName().orElse("") + ">";
-//            }
-//        }
-
         return Optional.of(this.typeName);
     }
 
     @Override
     public String signature() {
-//        if (this.signature == null) {
-//            BXMLType xmlType = (BXMLType) this.getBType();
-//            SymbolTable symbolTable = SymbolTable.getInstance(this.context);
-//
-//            if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
-//                this.signature = "xml";
-//            } else {
-//                this.signature = "xml<" + this.typeParameter().get().signature() + ">";
-//            }
-//        }
-
         return this.signature;
     }
 

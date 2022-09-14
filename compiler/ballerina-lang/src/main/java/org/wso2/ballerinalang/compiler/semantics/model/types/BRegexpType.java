@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,9 +24,9 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
- * Represents Builtin Subtype of integer.
+ * Represents Builtin Regexp Type.
  *
- * @since 1.2.0
+ * @since 2.3.0
  */
 public class BRegexpType extends BType {
 
