@@ -1,4 +1,3 @@
-
 type Error distinct error;
 
 type ClientError distinct Error;
@@ -10,6 +9,7 @@ type PayloadBindingClientError distinct ClientError;
 type PayloadBindingListenerError distinct ListenerError;
 type PayloadBindingError PayloadBindingClientError | PayloadBindingListenerError;
 type PayloadBindingError1 distinct ClientError | distinct ListenerError;
+type PayloadBindingError2 ClientError | distinct ListenerError;
 
 function getGenericClientError() returns ClientError {
     return error GenericClientError("Whoops!");
@@ -37,4 +37,6 @@ function testDistinctError() {
 
     r = getPayloadBindingError2();
     _ = r is PayloadBindingError1; // hint: always true
+
+    _ = r is PayloadBindingError2; // hint: always true
 }

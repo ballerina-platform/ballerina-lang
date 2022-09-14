@@ -3672,13 +3672,16 @@ public class Types {
         List<BType> errorTypes = new ArrayList<>(errorTypesSet);
         int size = errorTypes.size();
         Set<BTypeIdSet.BTypeId> t1TypeIds = ((BErrorType) errorTypes.get(0)).typeIdSet.getAll();
+        if (t1TypeIds.size() == 0) {
+            return false;
+        }
         for (int i = 1; i < size; i++) {
             Set<BTypeIdSet.BTypeId> t2TypeIds = ((BErrorType) errorTypes.get(i)).typeIdSet.getAll();
             if (!t1TypeIds.equals(t2TypeIds)) {
                 return false;
             }
         }
-        return t1TypeIds.size() != 0;
+        return true;
     }
 
     public boolean isSelfReferencedStructuredType(BType source, BType s) {

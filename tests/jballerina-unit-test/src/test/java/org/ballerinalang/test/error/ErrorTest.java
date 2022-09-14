@@ -494,6 +494,8 @@ public class ErrorTest {
                 36, 9);
         BAssertUtil.validateHint(result, i++, "unnecessary condition: expression will always evaluate to 'true'",
                 39, 9);
+        BAssertUtil.validateHint(result, i++, "unnecessary condition: expression will always evaluate to 'true'",
+                41, 9);
         Assert.assertEquals(result.getHintCount(), i);
     }
 
