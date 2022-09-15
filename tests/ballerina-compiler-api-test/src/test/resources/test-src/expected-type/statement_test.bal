@@ -16,7 +16,8 @@
 
 function add(int x, int y) returns int {
     int sum = x + y;
-    // `return` statement returns a value.
+    return ;
+}
 
 
 function foo() {
