@@ -119,30 +119,62 @@ function testAssignAnyToUnionWithErrorAndAny() {
 function testAssignVarInQueryExpression() {
     xml x1 = xml `<book><a>The Lost World</a><b>Clean Code</b></book>`;
 
-    var x2 = from xml element in x1 select element.toBalString();
-    assertTrue(x2 is string[]);
-    string[] x3 = x2;
-    assertEquality(x3, <string[]> ["xml`<book><a>The Lost World</a><b>Clean Code</b></book>`"]);
+    var x2 = from xml element in x1 select element;
+    assertTrue(x2 is xml);
+    xml x3 = x2;
+    assertEquality(x3, xml `<book><a>The Lost World</a><b>Clean Code</b></book>`);
 
-    var x4 = from xml element in x1 select element;
-    assertTrue(x4 is xml[]);
-    xml[] x5 = x4;
-    assertEquality(x5, <xml[]> [xml `<book><a>The Lost World</a><b>Clean Code</b></book>`]);
+    var x4 = from xml element in x1/<a> select element;
+    assertTrue(x4 is xml<xml:Element>);
+    xml x5 = x4;
+    assertEquality(x5, xml `<a>The Lost World</a>`);
 
-    var x6 = from xml element in x1/<a> select element;
-    assertTrue(x6 is xml<xml:Element>);
-    xml x7 = x6;
-    assertEquality(x7, xml `<a>The Lost World</a>`);
+    var x6 = "string";
 
-    var x8 = from string element in "string" select element;
-    assertTrue(x8 is string);
-    string x9 = x8;
-    assertEquality(x9, "string");
+    var x7 = from string element in x6 select element;
+    assertTrue(x7 is string);
+    string x8 = x7;
+    assertEquality(x8, "string");
 
-    var x10 = from string element in ["string 1", "string 2"] select element;
-    assertTrue(x10 is string[]);
-    string[] x11 = x10;
-    assertEquality(x11, <string[]>["string 1", "string 2"]);
+    var x9 = from string element in x6 select "a";
+    assertTrue(x9 is string);
+    string x10 = x9;
+    assertEquality(x10, "aaaaaa");
+
+    var x11 = [1, 2];
+    var x12 = [x1, x1];
+
+    var x13 = from int element in x11 select element;
+    assertTrue(x13 is int[]);
+    int[] x14 = x13;
+    assertEquality(x14, <int[]>[1, 2]);
+
+    var x15 = from int element in x11 select 1;
+    assertTrue(x15 is int[]);
+    int[] x16 = x15;
+    assertEquality(x16, <int[]>[1, 1]);
+
+    var x17 = from int element in x11 select string `string ${element}`;
+    assertTrue(x17 is string[]);
+    string[] x18 = x17;
+    assertEquality(x18, <string[]>["string 1", "string 2"]);
+
+    var x19 = from xml element in x12 select element;
+    assertTrue(x19 is xml[]);
+    xml[] x20 = x19;
+    assertEquality(x20, <xml[]>[x1, x1]);
+
+    var x21 = [1, "string 1", true, x1];
+
+    var x22 = from var element in x21 select element;
+    assertTrue(x22 is (int|string|boolean|xml)[]);
+    (int|string|boolean|xml)[] x23 = x22;
+    assertEquality(x23, x21);
+
+    var x24 = from int element in 1...4 select element;
+    assertTrue(x24 is int[]);
+    int[] x25 = x24;
+    assertEquality(x25, <int[]>[1, 2, 3, 4]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

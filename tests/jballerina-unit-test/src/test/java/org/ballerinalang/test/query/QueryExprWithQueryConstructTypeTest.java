@@ -54,12 +54,22 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test query expr returning a stream ")
+    public void testSimpleQueryReturnStream2() {
+        BRunUtil.invoke(result, "testSimpleQueryReturnStream2");
+    }
+
     @Test(description = "Test query expr with stream in from clause returning a stream ")
     public void testStreamInFromClauseWithReturnStream() {
         Object returnValues = BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
+    }
+
+    @Test(description = "Test query expr with stream in from clause returning a stream ")
+    public void testStreamInFromClauseWithReturnStream2() {
+        BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream2");
     }
 
     @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
@@ -70,6 +80,11 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
+    public void testMultipleFromWhereAndLetReturnStream2() {
+        BRunUtil.invoke(result, "testMultipleFromWhereAndLetReturnStream2");
+    }
+
     @Test(description = "Test query expr with inner join returning a stream ")
     public void testInnerJoinAndLimitReturnStream() {
         Object returnValues = BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream");
@@ -78,12 +93,22 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test query expr with inner join returning a stream ")
+    public void testInnerJoinAndLimitReturnStream2() {
+        BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream2");
+    }
+
     @Test(description = "Test query expr returning table")
     public void testSimpleQueryExprReturnTable() {
         Object returnValues = BRunUtil.invoke(result, "testSimpleQueryExprReturnTable");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
+    }
+
+    @Test(description = "Test query expr returning table")
+    public void testSimpleQueryExprReturnTable2() {
+        BRunUtil.invoke(result, "testSimpleQueryExprReturnTable2");
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
@@ -129,6 +154,10 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
+    }
+
+    public void testConstructTablesWithRecords() {
+        BRunUtil.invoke(result, "testConstructTablesWithRecords");
     }
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
@@ -241,6 +270,22 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
                         "is not an iterable collection", 395, 100);
+        validateError(negativeResult, index++, "incompatible type 'int', expected a construct type" +
+                        " of 'string'", 411, 49);
+        validateError(negativeResult, index++, "incompatible type '[int,int,int,int]', expected a" +
+                        " construct type of 'string'", 412, 49);
+        validateError(negativeResult, index++, "incompatible type 'string', expected a construct" +
+                        " type of 'xml'", 416, 42);
+        validateError(negativeResult, index++, "incompatible type 'int', expected a construct type" +
+                        " of 'xml'", 417, 42);
+        validateError(negativeResult, index++, "incompatible type '[int,int,int,int]', expected a" +
+                        " construct type of 'xml'", 418, 42);
+        validateError(negativeResult, index++, "incompatible type 'int', expected a construct type of" +
+                        " 'table<Employee> key(name)'", 425, 41);
+        validateError(negativeResult, index++, "incompatible type '[string,int]', expected a construct" +
+                        " type of 'table<Employee> key(name)'", 426, 41);
+        validateError(negativeResult, index++, "incompatible type 'table<Employee> key(name)'," +
+                        " expected a construct type of 'table<Employee> key(name)'", 427, 41);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

@@ -396,3 +396,33 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
                             select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error"))
                                     select item;
 }
+
+type Employee record {
+    readonly string name;
+    int salary;
+};
+
+type Employee2 record {
+    readonly string name;
+    int salary;
+};
+
+function testQueryConstructWithInvalidStaticType() {
+    var _ = from string letter in "abcd" select 1;
+    var _ = from string letter in "abcd" select [1, 2, 3, 4];
+
+    xml x = xml `<book><a>The Lost World</a><b>Clean Code</b></book>`;
+
+    var _ = from xml element in x select element.toString();
+    var _ = from xml element in x select 1;
+    var _ = from xml element in x select [1, 2, 3, 4];
+
+    table<Employee> key(name) t = table [
+        { name: "John", salary: 100 },
+        { name: "Jane", salary: 200 }
+    ];
+
+    var _ = from Employee e in t select 1;
+    var _ = from Employee e in t select ["name", 35000];
+    var _ = from Employee e in t select t;
+}

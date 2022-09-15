@@ -777,7 +777,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "unsupported.computed.resource.access.path.segment.type"),
     UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE("BCE4032", "unsupported.resource.access.rest.segment.type"),
     INVALID_RESOURCE_METHOD_RETURN_TYPE("BCE4033", "invalid.resource.method.return.type"),
-    OUT_OF_RANGE("BCE4034", "numeric.literal.out.of.range")
+    OUT_OF_RANGE("BCE4034", "numeric.literal.out.of.range"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4035", "invalid.error.query.construct.type")
     ;
 
     private String diagnosticId;

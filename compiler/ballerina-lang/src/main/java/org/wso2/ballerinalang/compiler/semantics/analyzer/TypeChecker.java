@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
@@ -217,8 +218,7 @@ import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_STRINGS;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.*;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -6134,7 +6134,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                     resolvedType = symTable.mapType;
                 } else {
-                    resolvedType = getNonContextualQueryType(selectType, collectionType);
+                    resolvedType = getNonContextualQueryType(selectType, collectionType, selectExp.pos);
                 }
                 break;
         }
@@ -6298,26 +6298,36 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return completionType;
     }
 
-    private BType getNonContextualQueryType(BType staticType, BType basicType) {
+    private BType getNonContextualQueryType(BType staticType, BType basicType, Location pos) {
         switch (basicType.tag) {
             case TypeTags.TABLE:
-                return symTable.tableType;
+                if (types.isAssignable(staticType, symTable.mapAllType)) {
+                    return symTable.tableType;
+                }
+                break;
             case TypeTags.STREAM:
                 return symTable.streamType;
+            case TypeTags.MAP:
+                return symTable.mapType;
             case TypeTags.XML:
-                switch (staticType.tag) {
-                    case TypeTags.XML:
-                    case TypeTags.XML_TEXT:
-                    case TypeTags.XML_ELEMENT:
-                    case TypeTags.XML_PI:
-                    case TypeTags.XML_COMMENT:
-                        return new BXMLType(staticType, null);
+                if (types.isSubTypeOfBaseType(staticType, symTable.xmlType.tag)) {
+                    return new BXMLType(staticType, null);
                 }
                 break;
             case TypeTags.STRING:
-                return symTable.stringType;
+                if (types.isSubTypeOfBaseType(staticType, TypeTags.STRING)) {
+                    return symTable.stringType;
+                }
+                break;
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+            case TypeTags.OBJECT:
+                return new BArrayType(staticType);
+            default:
+                return symTable.semanticError;
         }
-        return new BArrayType(staticType);
+        dlog.error(pos, INCOMPATIBLE_QUERY_CONSTRUCT_TYPE, staticType, basicType);
+        return symTable.semanticError;
     }
 
     @Override

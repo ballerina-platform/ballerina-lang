@@ -145,13 +145,6 @@ public class QueryExpressionWithVarTypeTest {
         Assert.assertEquals((person2.get(StringUtils.fromString("age"))), 30L);
     }
 
-    @Test(description = "Test filtering map with from query expression")
-    public void testMapWithArity() {
-        Object returnValues = BRunUtil.invoke(result, "testMapWithArity");
-        Assert.assertNotNull(returnValues);
-        Assert.assertTrue((Boolean) returnValues);
-    }
-
     @Test(description = "Test selecting values in a JSON array from query expression")
     public void testJSONArrayWithArity() {
         Object returnValues = BRunUtil.invoke(result, "testJSONArrayWithArity");
