@@ -19,9 +19,6 @@ OPTIONS
        --repository
            Push the BALA of the current package to a custom repository.
            Only 'local' is allowed.
-       -v, --verbose
-           Run verbose for central API requests.
-
 
 EXAMPLES
        Push the BALA of the current package to Ballerina Central.
