@@ -33,8 +33,6 @@ import io.ballerina.runtime.internal.values.RegExpSequence;
 import io.ballerina.runtime.internal.values.RegExpTerm;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
-import java.util.StringJoiner;
-
 /**
  * Common utility methods used for regular expression manipulation.
  *
@@ -76,7 +74,8 @@ public class RegExpFactory {
         return new RegExpCharSet(charSet);
     }
 
-    public static RegExpCharSetRange createReCharSetRange(BString lhsCharSetAtom, BString dash, BString rhsCharSetAtom) {
+    public static RegExpCharSetRange createReCharSetRange(BString lhsCharSetAtom, BString dash,
+                                                          BString rhsCharSetAtom) {
         return new RegExpCharSetRange(lhsCharSetAtom.getValue(), dash.getValue(), rhsCharSetAtom.getValue());
     }
 
@@ -127,7 +126,7 @@ public class RegExpFactory {
     private static RegExpAtom translateLiteralCharOrEscape(RegExpLiteralCharOrEscape charOrEscape) {
         String value = charOrEscape.getCharOrEscape();
         if (".".equals(value)) {
-            return createCharacterClass("^", new String[]{"\\r"," \\n"});
+            return createCharacterClass("^", new String[]{"\\r", "\\n"});
         }
         if ("\\s".equals(value)) {
             return createCharacterClass("", new String[]{"\\t", "\\s", "\\n", "\\r"});
