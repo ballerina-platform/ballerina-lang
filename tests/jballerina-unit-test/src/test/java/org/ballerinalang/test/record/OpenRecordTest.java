@@ -89,6 +89,12 @@ public class OpenRecordTest {
 
         Assert.assertTrue(returns.get(2) instanceof Long);
         Assert.assertEquals(returns.get(2), 999L);
+
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 10L);
+
+        Assert.assertTrue(returns.get(4) instanceof Long);
+        Assert.assertEquals(returns.get(4), 1L);
     }
 
     @Test(description = "Test default value of a nested record field")

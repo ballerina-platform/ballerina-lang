@@ -99,9 +99,19 @@ function testStructExpressionAsIndex () returns string {
     return dpt.employees[0].family.children[dpt.employees[0].family.noOfChildren - 1];
 }
 
-function testDefaultVal () returns [string, string, int] {
+type Mat record {|
+    int x = fn();
+|};
+
+isolated function fn() returns int {
+    return 10;
+}
+
+function testDefaultVal () returns [string, string, int, int, int] {
     Person p = {};
-    return [p.name, p.lname, p.age];
+    Mat m = {};
+    Mat m2 = {x: 1};
+    return [p.name, p.lname, p.age, m.x, m2.x];
 }
 
 function testNestedFieldDefaultVal () returns [string, string, int] {

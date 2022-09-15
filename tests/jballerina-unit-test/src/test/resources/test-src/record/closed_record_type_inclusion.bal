@@ -286,9 +286,21 @@ type SimpleConstNegateExpr record {|
     "-" op = "-";
 |};
 
+type R0 record {
+    int|string f = 1;
+};
+
+type R1 record {
+    *R0;
+    string f;
+};
+
+
 function testTypeInclusionWithFiniteField() {
     SimpleConstNegateExpr expr = {};
+    R1 r1 = { f : "hello"};
     assertEquality(true, expr is UnaryExpr);
+    assertEquality("hello", r1.f);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
