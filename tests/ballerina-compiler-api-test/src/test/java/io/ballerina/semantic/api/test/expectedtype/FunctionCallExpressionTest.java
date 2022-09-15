@@ -48,7 +48,10 @@ public class FunctionCallExpressionTest {
                 {38, 15, TypeDescKind.TYPE_REFERENCE},
                 {43, 13, TypeDescKind.INT},
                 {44, 25, TypeDescKind.INT},
-                {45, 34, TypeDescKind.INT}
+                {45, 34, TypeDescKind.INT},
+                {53, 36, TypeDescKind.STRING},
+                {63, 51, TypeDescKind.TYPE_REFERENCE},
+                {79, 63, TypeDescKind.TYPE_REFERENCE}
         };
     }
 }

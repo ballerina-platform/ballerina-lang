@@ -28,7 +28,7 @@ public class RemoteActionNodeTest {
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/expected-type/table_constructor_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/expected-type/remote_action_node_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
@@ -43,7 +43,7 @@ public class RemoteActionNodeTest {
     @DataProvider(name = "LinePosProvider")
     public Object[][] getLinePos() {
         return new Object[][]{
-                {21, 26, TypeDescKind.TABLE}
+                {52, 30, TypeDescKind.STRING}
         };
     }
 }
