@@ -36,6 +36,21 @@ public type ApiDefinition record {|
 
 public type MyType byte[]|string|int|float;
 
+function testJavaNullPointerException() {
+    error? unionResult = trap callThrowNPEWithCallback();
+    test:assertEquals(unionResult is error, true);
+    if unionResult is error {
+        test:assertEquals(unionResult.message(), "java.lang.NullPointerException");
+    }
+}
+
+function callThrowNPEWithCallback() {
+    int[] arr = [1, 2, 3];
+    arr.forEach(function(int x) {
+        throwNPE();
+    });
+}
+
 function testAcceptNothingAndReturnNothing() {
     acceptNothingAndReturnNothing();
 }
@@ -169,6 +184,10 @@ function hashCode(int receiver) returns int = @java:Method {
 } external;
 
 // Interop functions
+function throwNPE() = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function acceptNothingAndReturnNothing() = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
