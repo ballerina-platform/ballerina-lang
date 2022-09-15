@@ -111,6 +111,14 @@
 
             <!--Expected Type-->
             <class name="io.ballerina.semantic.api.test.expectedtype.ExpectedTypeTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.VariableDeclarationTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.StatementTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.ExpressionTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.TableConstructorExpressionTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.ListenerDeclarationTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.RemoteActionNodeTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.QueryExpressionTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.FunctionCallExpressionTest" />
 
             <!--Expressions-->
             <class name="io.ballerina.semantic.api.test.expressions.QueryExpressionTest" />
