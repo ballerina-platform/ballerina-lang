@@ -398,14 +398,14 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
                         PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
-                                .map(path -> path.toString().replace(sourceRoot.toString() + "/", ""));
+                                .map(path -> path.toString().replace(sourceRoot.toString(), ""));
                 int actualRenamePosition = expArgs.get(1).getAsInt();
 
                 String expectedFilePath = expArgs.get(0).getAsString();
                 int expectedRenamePosition = expArgs.get(1).getAsInt();
 
                 if (actualFilePath.isPresent()) {
-                    if (actualFilePath.get().equals(expectedFilePath)
+                    if (sourceRoot.resolve(actualFilePath.get()).equals(sourceRoot.resolve(expectedFilePath))
                             && actualRenamePosition == expectedRenamePosition) {
                         return true;
                     }
