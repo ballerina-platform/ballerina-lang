@@ -59,7 +59,7 @@ public class Errors {
         List<TypeId> typeIds = ((ErrorType) TypeUtils.getReferredType(error.getType())).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
-                size), size);
+                size));
         int index = 0;
         for (TypeId typeId : typeIds) {
             arrayValue.add(index, StringUtils.fromString(typeId.getName()));

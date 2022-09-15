@@ -212,7 +212,7 @@ public class Option {
     private BArray getBArray(BString paramName, ArrayType fieldType) {
         BArray bArray = (BArray) recordVal.get(paramName);
         if (bArray == null) {
-            bArray = ValueCreator.createArrayValue(fieldType, -1);
+            bArray = ValueCreator.createArrayValue(fieldType);
             recordVal.put(paramName, bArray);
         }
         return bArray;

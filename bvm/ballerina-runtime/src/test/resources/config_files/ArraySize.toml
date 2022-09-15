@@ -1,4 +1,4 @@
-intArr = [1, 2, 3, 4]
+intArr = [1, 2, 3]
 anydataArr1 = [1, "b", 1.23]
 
 [[mapArr]]

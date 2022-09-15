@@ -43,6 +43,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -55,6 +56,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BTupleType;
 import org.ballerinalang.langlib.value.FromJsonWithType;
 import org.jetbrains.annotations.Nullable;
 
@@ -134,7 +136,7 @@ public class Values {
         TupleType tupleType = TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_STRING,
                 PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_STRING));
         if (funcType.isEmpty()) {
-            return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType, 0), 0);
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType, 0));
         }
         RemoteMethodType remoteType = (RemoteMethodType) funcType.get();
         Parameter[] parameters = remoteType.getParameters();
@@ -149,7 +151,7 @@ public class Values {
             elements[i] = ValueCreator
                     .createListInitialValueEntry(ValueCreator.createTupleValue(tupleType, 3, initialTupleValues));
         }
-        return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType), len, elements);
+        return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType), elements);
     }
 
     public static BString getFunctionString(BObject object, BString methodName) {
@@ -182,8 +184,8 @@ public class Values {
         assert arrayType.isPresent();
         List<Type> constituentTypes = arrayType.get().getConstituentTypes();
         int size = constituentTypes.size();
-        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, size)
-                , size);
+        BArray arrayValue =
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, size));
         int index = 0;
         for (Type type : constituentTypes) {
             arrayValue.add(index, StringUtils.fromString(type.toString()));
@@ -196,7 +198,7 @@ public class Values {
         List<TypeId> typeIds = ((ObjectType) bObject.getType()).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
-                size), size);
+                size));
         int index = 0;
         for (TypeId typeId : typeIds) {
             arrayValue.add(index, StringUtils.fromString(typeId.getName()));
@@ -402,6 +404,35 @@ public class Values {
             }
         }
         return constraintError;
+    }
+
+    public static BArray getIntArray(BTypedesc typedesc) {
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BArray arrayValue = ValueCreator.createArrayValue(arrayType);
+        arrayValue.add(0, 1L);
+        arrayValue.add(1, 2L);
+        arrayValue.add(2, 3L);
+        return arrayValue;
+    }
+
+    public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        int size = array.size();
+        BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
+        for (int i = 0; i < size; i++) {
+            elements[i] = ValueCreator.createListInitialValueEntry(array.get(i));
+        }
+        return ValueCreator.createArrayValue(arrayType, elements);
+    }
+
+    public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
+        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        int size = array.size();
+        BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
+        for (int i = 0; i < size; i++) {
+            elements[i] = ValueCreator.createListInitialValueEntry(array.get(i));
+        }
+        return ValueCreator.createTupleValue(tupleType, elements);
     }
 
 }

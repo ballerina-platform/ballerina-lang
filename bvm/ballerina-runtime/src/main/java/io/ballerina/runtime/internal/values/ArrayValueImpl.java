@@ -89,10 +89,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.refValues = values;
         this.type = this.arrayType = type;
         this.size = values.length;
-        if (type.getTag() == TypeTags.ARRAY_TAG) {
-            this.elementType = type.getElementType();
-            this.elementReferredType = TypeUtils.getReferredType(this.elementType);
-        }
+        this.elementType = type.getElementType();
+        this.elementReferredType = TypeUtils.getReferredType(this.elementType);
         this.typedesc = getTypedescValue(type, this);
     }
 
@@ -142,14 +140,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public ArrayValueImpl(ArrayType type) {
-        this.type = this.arrayType = type;
-        this.elementType = type.getElementType();
-        this.elementReferredType = TypeUtils.getReferredType(this.elementType);
-        initArrayValues();
-        if (type.getState() == ArrayState.CLOSED) {
-            this.size = maxSize = type.getSize();
-        }
-        this.typedesc = getTypedescValue(type, this);
+        this(type, type.getSize());
     }
 
     private void initArrayValues() {
@@ -264,12 +255,19 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this(type, size, initialValues, null);
     }
 
+    public ArrayValueImpl(ArrayType type, BListInitialValueEntry[] initialValues) {
+        this(type, type.getSize(), initialValues, null);
+    }
+
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
         this(type, size, initialValues, null);
     }
 
-    public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues,
-                          TypedescValue typedescValue) {
+    public ArrayValueImpl(Type type, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
+        this(type, ((ArrayType) TypeUtils.getReferredType(type)).getSize(), initialValues, typedescValue);
+    }
+
+    public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
         this.type = type;
         this.arrayType = (ArrayType) TypeUtils.getReferredType(type);
         this.elementType = arrayType.getElementType();

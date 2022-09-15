@@ -143,16 +143,15 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.typedesc = getTypedescValue(type, this);
     }
 
-    public TupleValueImpl(Type type, long size, BListInitialValueEntry[] initialValues) {
-        this((TupleType) TypeUtils.getReferredType(type), size, initialValues);
-        this.type = type;
+    public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
+        this(type, initialValues);
     }
 
+    public TupleValueImpl(Type type, BListInitialValueEntry[] initialValues) {
+        this.type = type;
+        this.tupleType = (TupleType) TypeUtils.getReferredType(type);
 
-    public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
-        this.type = this.tupleType = type;
-
-        List<Type> memTypes = this.tupleType.getTupleTypes();
+                List<Type> memTypes = this.tupleType.getTupleTypes();
         int memCount = memTypes.size();
 
         if (tupleType.getRestType() != null) {
@@ -173,7 +172,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.minSize = memCount;
         this.hasRestElement = this.tupleType.getRestType() != null;
 
-        if (type.getRestType() == null) {
+        if (tupleType.getRestType() == null) {
             this.maxSize = this.size;
             this.refValues = new Object[this.size];
         } else {

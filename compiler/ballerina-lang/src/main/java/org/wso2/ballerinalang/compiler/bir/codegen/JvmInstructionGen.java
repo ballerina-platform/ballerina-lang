@@ -1474,7 +1474,6 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
             this.mv.visitInsn(DUP);
             jvmTypeGen.loadType(this.mv, inst.type);
-            this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
             BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
 
@@ -1489,8 +1488,8 @@ public class JvmInstructionGen {
         } else {
             this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
             this.mv.visitInsn(DUP);
+
             jvmTypeGen.loadType(this.mv, inst.type);
-            this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, JVM_INIT_METHOD, INIT_TUPLE, false);
             this.storeToVar(inst.lhsOp.variableDcl);

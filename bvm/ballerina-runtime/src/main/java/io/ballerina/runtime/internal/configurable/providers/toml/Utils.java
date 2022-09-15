@@ -160,7 +160,7 @@ public class Utils {
             tableEntries[count++] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData = new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION,
-                true), tableSize, tableEntries);
+                true), tableEntries);
         ArrayValue keyNames = (ArrayValue) StringUtils.fromStringArray(new String[0]);
         TableType tableType = TypeCreator.createTableType(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION,
                 true), true);
@@ -189,8 +189,7 @@ public class Utils {
             arrayValues[count++] = new ListInitialValueEntry.ExpressionEntry(getBalValueFromToml(tomlValueNode,
                     visitedNodes, (BAnydataType) TYPE_READONLY_ANYDATA, invalidTomlLines, variableName));
         }
-        return new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION, true),
-                arrayValues.length, arrayValues);
+        return new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION, true), arrayValues);
     }
 
     private static Object getMapAnydataArray(TomlTableArrayNode tomlNode, Set<TomlNode> visitedNodes,
@@ -204,7 +203,7 @@ public class Utils {
         }
         return new ArrayValueImpl(
                 TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION), true),
-                arrayValues.length, arrayValues);
+                arrayValues);
     }
 
     static boolean checkEffectiveTomlType(TomlType kind, Type expectedType, String variableName) {
