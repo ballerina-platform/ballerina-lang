@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -65,17 +66,15 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         
-        if (this.isServiceObject(node)) {
+        if (this.isServiceOrClientObject(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
-            if (this.onSuggestInitMethod(node)) {
-                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
-            }
-        } else if (this.isClientObject(node)) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
+        }
+
+        if (this.onSuggestInitMethod(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
         }
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
@@ -86,22 +85,22 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
         return completionItems;
     }
 
-    private boolean isServiceObject(Node node) {
-        return node.kind() == SyntaxKind.SERVICE_DECLARATION
-                || (node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+    private boolean isServiceOrClientObject(Node node) {
+        return node.kind() == SyntaxKind.SERVICE_DECLARATION || (node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
                 && ((ObjectConstructorExpressionNode) node).objectTypeQualifiers().stream()
-                .anyMatch(token -> token.kind() == SyntaxKind.SERVICE_KEYWORD));
-    }
-
-    private boolean isClientObject(Node node) {
-        return (node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
-                && ((ObjectConstructorExpressionNode) node).objectTypeQualifiers().stream()
-                .anyMatch(token -> token.kind() == SyntaxKind.CLIENT_KEYWORD));
+                .anyMatch(token -> token.kind() == SyntaxKind.CLIENT_KEYWORD
+                        || token.kind() == SyntaxKind.CLIENT_KEYWORD));
     }
 
     private boolean onSuggestInitMethod(Node node) {
-        return node.kind() == SyntaxKind.SERVICE_DECLARATION 
-                && ((ServiceDeclarationNode) node).members().stream()
+        NodeList<Node> members = null;
+        if (node.kind() == SyntaxKind.SERVICE_DECLARATION) {
+            members = ((ServiceDeclarationNode) node).members();
+        } else if (node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+            members = ((ObjectConstructorExpressionNode) node).members();
+        }
+
+        return members != null && members.stream()
                 .filter(member-> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
                 .map(member->(FunctionDefinitionNode) member)
                 .noneMatch(funcDef -> ItemResolverConstants.INIT.equals(funcDef.functionName().text()));
