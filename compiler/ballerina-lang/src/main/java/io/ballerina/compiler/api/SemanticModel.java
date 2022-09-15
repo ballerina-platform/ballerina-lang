@@ -26,7 +26,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
 import java.util.Optional;
