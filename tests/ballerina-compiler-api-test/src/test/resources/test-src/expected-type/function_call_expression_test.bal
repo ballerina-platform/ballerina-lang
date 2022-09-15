@@ -46,5 +46,46 @@ function arrTest() {
     string s = "abc".substring(1, );
 }
 
+function namedargTest(int x, string y) returns int{
+    return x;
+}
 
+function namedArgText() {
+    int x = namedargTest(x = 2, y = );
+}
+
+type Coord record {
+    int x;
+    string y;
+};
+
+function argumentTest() {
+    string ccc = "";
+    string|Coord str = nameLen2(str = ccc, coord = );
+}
+
+function nameLen(string str, int len = str.length()) returns int {
+    return len;
+}
+
+function nameLen2(string str, Coord coord) returns string|NewType {
+    return str;
+}
+
+type NewType typedesc<int|string>;
+
+service on new http:Listener(9090) {
+    resource function get hi (http:Caller caller) {
+        string ccc = "";
+        string|NewType str = nameLenTest2(str = ccc, newType = );
+    }
+}
+
+function nameLenTest(string str, int len = str.length()) returns int {
+    return len;
+}
+
+function nameLenTest2(string str, NewType newType) returns string|NewType {
+    return str;
+}
 

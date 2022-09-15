@@ -57,3 +57,66 @@ function testListConstructorExpression() {
     int[] v = [1, 2, 3];
     int x = v[];
 }
+
+function ifElseTest() {
+    int x = 1;
+    if () {
+    }
+}
+
+function whileTest() {
+    int x = 1;
+    while  {
+    }
+}
+
+class Person {
+    int id;
+    string name;
+    int age;
+
+    function init(string name, int age, int rank) {
+        self.name = name;
+        self.age = age;
+        self.rank = rank;
+    }
+
+    public function setId(int id) {
+        self.id = id;
+    }
+}
+
+public function testExpressions() {
+    Person person1 = new Person();
+    Person person2 = new Person("John", )
+    Person person3 = new Person("John", 25, )
+}
+
+function mapTest() {
+    int a = 5;
+    map<any> b = {a};
+}
+
+type MyType record {|
+    int line;
+    int offset;
+|};
+
+class MyClass {
+    function init(int arg1, string arg2, MyType arg3) {
+
+    }
+}
+
+function myFunc() {
+    MyClass c1 = new(arg1 = 2, , );
+    MyClass c2 = new(arg1 = 2, , );
+    MyClass c3 = new(arg1 = 2, , , )
+}
+
+function testListConstructorExpression() {
+    int[] nums1 = [1, 2, 3, ];
+    int[] nums2 = [];
+    int[] nums3 = ;
+}
+
