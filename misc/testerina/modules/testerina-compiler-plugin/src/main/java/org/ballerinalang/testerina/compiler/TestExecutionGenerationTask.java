@@ -74,6 +74,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
     private static final String DISABLE_GROUPS_PARAMETER = "disableGroups";
     private static final String TESTS_PARAMETER = "tests";
     private static final String RERUN_FAILED_PARAMETER = "rerunFailed";
+    private static final String LIST_GROUPS_PARAMETER = "listGroups";
 
     @Override
     public void generate(SourceGeneratorContext generatorContext) {
@@ -98,7 +99,8 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 getPositionalArg(GROUPS_PARAMETER),
                 getPositionalArg(DISABLE_GROUPS_PARAMETER),
                 getPositionalArg(TESTS_PARAMETER),
-                getPositionalArg(RERUN_FAILED_PARAMETER)))));
+                getPositionalArg(RERUN_FAILED_PARAMETER),
+                getPositionalArg(LIST_GROUPS_PARAMETER)))));
 
         // Register all the test cases of the module
         for (DocumentId documentId : module.testDocumentIds()) {
@@ -285,7 +287,8 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(GROUPS_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(DISABLE_GROUPS_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(TESTS_PARAMETER),
-                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(RERUN_FAILED_PARAMETER)),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(RERUN_FAILED_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(LIST_GROUPS_PARAMETER)),
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
     }
 
