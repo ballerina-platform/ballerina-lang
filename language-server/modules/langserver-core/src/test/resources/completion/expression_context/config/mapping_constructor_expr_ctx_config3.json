@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 6,
+    "character": 51
+  },
+  "source": "expression_context/source/mapping_constructor_expr_ctx_source3.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "empId",
+      "kind": "Field",
+      "detail": "(record {|readonly int empId; string name;|}).empId",
+      "sortText": "K",
+      "insertText": "empId: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "(record {|readonly int empId; string name;|}).name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {|readonly int empId; string name;|} Required Fields",
+      "kind": "Property",
+      "detail": "record {|readonly int empId; string name;|}",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "empId: ${1:0},\nname: ${2:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
