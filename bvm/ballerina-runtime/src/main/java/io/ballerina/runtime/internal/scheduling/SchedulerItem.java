@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Represent an executable item in Scheduler.
+ * Represents an executable item in Scheduler.
  *
  * @since 0.995.0
  */
