@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
 
@@ -36,7 +36,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public CaptureBindingPatternNode variableName() {
+    public BindingPatternNode variableName() {
         return childInBucket(1);
     }
 
@@ -69,7 +69,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
 
     public GroupingKeyVarDeclarationNode modify(
             TypeDescriptorNode typeDescriptor,
-            CaptureBindingPatternNode variableName,
+            BindingPatternNode variableName,
             Token equalsToken,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
@@ -99,7 +99,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
     public static class GroupingKeyVarDeclarationNodeModifier {
         private final GroupingKeyVarDeclarationNode oldNode;
         private TypeDescriptorNode typeDescriptor;
-        private CaptureBindingPatternNode variableName;
+        private BindingPatternNode variableName;
         private Token equalsToken;
         private ExpressionNode expression;
 
@@ -119,7 +119,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
         }
 
         public GroupingKeyVarDeclarationNodeModifier withVariableName(
-                CaptureBindingPatternNode variableName) {
+                BindingPatternNode variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;
