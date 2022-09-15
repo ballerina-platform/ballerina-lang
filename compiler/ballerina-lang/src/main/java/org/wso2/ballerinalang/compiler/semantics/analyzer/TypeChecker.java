@@ -4226,15 +4226,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType, data);
                 cIExpr.initInvocation.setBType(symTable.nilType);
 
-                if (matchedType.tag == TypeTags.OBJECT) {
-                    if (((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
-                        cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
+                BType referredMatchedType = Types.getReferredType(matchedType);
+                if (referredMatchedType.tag == TypeTags.OBJECT) {
+                    if (((BObjectTypeSymbol) referredMatchedType.tsymbol).initializerFunc != null) {
+                        cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) referredMatchedType.tsymbol).initializerFunc.symbol;
                         checkInvocationParam(cIExpr.initInvocation, data);
                         cIExpr.initInvocation.setBType(((BInvokableSymbol) cIExpr.initInvocation.symbol).retType);
                         actualType = matchedType;
                         break;
                     } else {
-                        if (!isValidInitInvocation(cIExpr, (BObjectType) matchedType, data)) {
+                        if (!isValidInitInvocation(cIExpr, (BObjectType) referredMatchedType, data)) {
                             return symTable.semanticError;
                         }
                     }
@@ -4359,12 +4360,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             if (containsSingleObject) {
-                return Collections.singletonList(memberType);
+                return Collections.singletonList(type);
             }
 
             BAttachedFunction initializerFunc = ((BObjectTypeSymbol) memberType.tsymbol).initializerFunc;
             if (isArgsMatchesFunction(cIExpr.argsExpr, initializerFunc, data)) {
-                matchingLhsMemberTypes.add(memberType);
+                matchingLhsMemberTypes.add(type);
             }
         }
         return matchingLhsMemberTypes;
@@ -4379,7 +4380,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return symTable.semanticError;
         } else if (matchingLhsMembers.size() == 1) {
             // We have a correct match.
-            return matchingLhsMembers.get(0).tsymbol.type;
+            return matchingLhsMembers.get(0);
         } else {
             // Multiple matches found.
             dlog.error(cIExpr.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, lhsUnion);
