@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -334,7 +335,7 @@ public class BuildCommandTest extends BaseCommandTest {
      *         ├── Sample3.class ---> conflicted class file
      *         └── Sample4.class ---> conflicted class file
      */
-    @Test(description = "Build a valid ballerina project")
+    @Test(description = "Build a ballerina project with conflicted jars")
     public void testBuildBalProjectWithJarConflicts() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithConflictedJars");
         System.setProperty("user.dir", projectPath.toString());
@@ -827,6 +828,48 @@ public class BuildCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
+    @Test(description = "Test bir cached project build performance")
+    public void testBirCachedProjectBuildPerformance() {
+        Path projectPath = this.testResources.resolve("noClassDefProject");
+        System.setProperty("user.dir", projectPath.toString());
+
+        cleanTarget(projectPath);
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
+
+        BuildCommand secondBuildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(secondBuildCommand).parseArgs("--enable-cache");
+        secondBuildCommand.execute();
+        long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
+
+        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
+                "second code gen duration is greater than the expected value");
+    }
+
+    @Test(description = "Test bir cached project build performance followed by a test command")
+    public void testBirCachedProjectBuildPerformanceAfterTestCommand() {
+        Path projectPath = this.testResources.resolve("noClassDefProject");
+        System.setProperty("user.dir", projectPath.toString());
+
+        cleanTarget(projectPath);
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parse();
+        testCommand.execute();
+        long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs("--enable-cache");
+        buildCommand.execute();
+        long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
+
+        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
+                "second code gen duration is greater than the expected value");
+    }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
@@ -861,5 +904,11 @@ public class BuildCommandTest extends BaseCommandTest {
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
             return FileVisitResult.CONTINUE;
         }
+    }
+
+    private void cleanTarget(Path projectPath) {
+        CleanCommand cleanCommand = new CleanCommand(projectPath, false);
+        new CommandLine(cleanCommand).parse();
+        cleanCommand.execute();
     }
 }
