@@ -69,8 +69,8 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             return false;
         }
 
-        //Suggest the code action only if the immediate parent of the matched node is a return statement 
-        // and the return statement corresponds to the enclosing function's signature. 
+        //Suggest the code action only if the immediate parent of the matched node is either of return statement,
+        //check expression, check action.
         NonTerminalNode parentNode = positionDetails.matchedNode().parent();
         if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT &&
                 positionDetails.matchedNode().kind() != SyntaxKind.CHECK_EXPRESSION && 
