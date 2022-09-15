@@ -81,9 +81,6 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    @CommandLine.Option(names = {"--verbose", "-v"})
-    private boolean verboseEnabled;
-
     public PullCommand() {
         this.errStream = System.err;
         this.exitWhenFinish = true;
@@ -200,8 +197,8 @@ public class PullCommand implements BLauncherCmd {
                     settings = Settings.from();
                 }
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                                                               initializeProxy(settings.getProxy()),
-                                                               getAccessTokenOfCLI(settings));
+                        initializeProxy(settings.getProxy()),
+                        getAccessTokenOfCLI(settings));
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                                    RepoUtils.getBallerinaVersion(), false);
                 if (version.equals(Names.EMPTY.getValue())) {

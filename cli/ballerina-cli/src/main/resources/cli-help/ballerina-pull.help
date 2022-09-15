@@ -15,10 +15,6 @@ DESCRIPTION
        Organizations are unique within a repository and can be mapped to an
        individual user or organization registered with the repository.
 
-OPTIONS
-       -v, --verbose
-            Run verbose for central API requests.
-
 
 EXAMPLES
        Pull the latest version of the 'gmail' connector in the 'wso2'

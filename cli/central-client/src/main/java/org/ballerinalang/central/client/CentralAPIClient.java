@@ -108,6 +108,9 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_GET_TRIGGER = "error: failed to find the trigger: ";
     private static final String ERR_PACKAGE_RESOLUTION = "error: while connecting to central: ";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    // System property name for enabling central verbose
+    public static final String SYS_PROP_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
+
     private final String baseUrl;
     private final Proxy proxy;
     private String accessToken;
@@ -119,15 +122,7 @@ public class CentralAPIClient {
         this.baseUrl = baseUrl;
         this.proxy = proxy;
         this.accessToken = accessToken;
-        this.verboseEnabled = false;
-    }
-
-    public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken, boolean verboseEnabled) {
-        this.outStream = System.out;
-        this.baseUrl = baseUrl;
-        this.proxy = proxy;
-        this.accessToken = accessToken;
-        this.verboseEnabled = verboseEnabled;
+        this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
     }
 
     /**
