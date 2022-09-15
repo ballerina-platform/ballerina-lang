@@ -4,7 +4,7 @@
     "character": 23
   },
   "source": "add_conditional_default_in_mapping_constructor.bal",
-  "description": "Test the code action when an value of optional type is assigned to a record field",
+  "description": "Test the code action when a value of optional type is assigned to a record field",
   "expected": [
     {
       "title": "Add conditional default value",

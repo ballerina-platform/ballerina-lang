@@ -4,7 +4,7 @@
     "character": 23
   },
   "source": "negative_add_conditional_default_in_mapping_constructor.bal",
-  "description": "Test the code action when an value of optional type is assigned to a record field is not a subtype of the expected type",
+  "description": "Test the code action when the value of optional type is assigned to a record field is not a subtype of the expected type",
   "expected": [
     {
       "title": "Add conditional default value"
