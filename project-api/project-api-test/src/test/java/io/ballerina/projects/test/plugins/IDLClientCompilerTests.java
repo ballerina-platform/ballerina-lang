@@ -35,6 +35,7 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -124,6 +125,8 @@ public class IDLClientCompilerTests {
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
         int index = 0;
+        validateError(diagnostics, index++, "no matching plugin found for client declaration", 40, 1);
+        validateError(diagnostics, index++, "no matching plugin found for client declaration", 43, 5);
         validateError(diagnostics, index++, "unknown type 'Config'", 19, 1);
         validateError(diagnostics, index++, "unknown type 'Client'", 20, 1);
         validateError(diagnostics, index++, "unknown type 'ClientConfig'", 23, 5);
@@ -249,8 +252,8 @@ public class IDLClientCompilerTests {
 
     private Project loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
-        BuildOptions.builder().targetDir(ProjectUtils.getTemporaryTargetPath());
-        return TestUtils.loadBuildProject(projectDirPath);
+        BuildOptions buildOptions = BuildOptions.builder().targetDir(ProjectUtils.getTemporaryTargetPath()).build();
+        return TestUtils.loadBuildProject(projectDirPath, buildOptions);
     }
 
     private static void validateError(Diagnostic[] diagnostics, int errorIndex, String expectedErrMsg,

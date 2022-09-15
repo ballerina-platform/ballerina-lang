@@ -18,7 +18,9 @@
 
 package io.ballerina.projects.plugins;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -40,5 +42,5 @@ public interface IDLSourceGeneratorContext {
 
     void reportDiagnostic(Diagnostic diagnostic);
 
-    void addClient(ModuleConfig clientModule);
+    void addClient(ModuleConfig clientModule, NodeList<AnnotationNode> supportedAnnotations);
 }

@@ -1,18 +1,19 @@
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -161,10 +162,6 @@ public class Package {
         return this.packageContext.getResolution(compilationOptions);
     }
 
-    PackageResolution getResolution(CompilationOptions compilationOptions, IDLPluginManager idlPluginManager) {
-        return this.packageContext.getResolution(compilationOptions, idlPluginManager);
-    }
-
     public DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
         // Each Package should know the packages that it depends on and packages that depends on it
         // Each Module should know the modules that it depends on and modules that depends on it
@@ -239,12 +236,10 @@ public class Package {
                     "IDL plugin generation is not supported for project kind: " + ProjectKind.BALA_PROJECT);
         }
 
-        // Initialize IDL plugin manager
-        IDLPluginManager idlPluginManager = IDLPluginManager.from(this.project.targetDir());
-
         // Clear existing module and document contexts.
         // Otherwise the cached compilations will be reused skipping the IDL client generator plugins.
         Package updatedPackage = resetIfCompiled();
+        this.project.setCurrentPackage(updatedPackage);
 
         // Generate IDL client modules
         CompilationOptions newCompilationOptions = this.packageContext.compilationOptions().acceptTheirs(
@@ -253,29 +248,15 @@ public class Package {
                         .setOffline(resolutionOptions.offline())
                         .setSticky(resolutionOptions.sticky())
                         .build());
-        PackageResolution packageResolution = updatedPackage.getResolution(newCompilationOptions, idlPluginManager);
+        PackageResolution packageResolution = updatedPackage.getResolution(newCompilationOptions);
 
-        // Add generated client modules to the updated package.
-        // The IDL plugins should be disable to avoid infinite recursion.
-        updatedPackage = addGeneratedModules(updatedPackage, newCompilationOptions, packageResolution);
+        // Save the generated client modules
         try {
-            saveGeneratedModules(packageResolution.generatedModules());
+            saveGeneratedModules(packageResolution);
         } catch (IOException e) {
             throw new ProjectException("failed to save generated IDL client modules: " + e.getMessage(), e);
         }
-        return new IDLClientGeneratorResult(updatedPackage, idlPluginManager.diagnosticList());
-    }
-
-    private Package addGeneratedModules(Package updatedPackage,
-                                        CompilationOptions newCompilationOptions,
-                                        PackageResolution packageResolution) {
-        newCompilationOptions = newCompilationOptions.acceptTheirs(
-                    CompilationOptions.builder().withIDLGenerators(false).build());
-        Modifier modifier = updatedPackage.modify().withCompilationOptions(newCompilationOptions);
-        for (ModuleConfig generatedModule : packageResolution.generatedModules()) {
-            modifier.addModule(generatedModule);
-        }
-        return modifier.apply();
+        return new IDLClientGeneratorResult(updatedPackage, packageResolution.pluginDiagnosticList());
     }
 
     private Package resetIfCompiled() {
@@ -285,10 +266,16 @@ public class Package {
         return duplicate(this.project);
     }
 
-    private void saveGeneratedModules(List<ModuleConfig> generatedModules) throws IOException {
+    private void saveGeneratedModules(PackageResolution resolution) throws IOException {
         Path modulesRoot = this.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
-        for (ModuleConfig moduleConfig : generatedModules) {
-            ProjectUtils.writeModule(moduleConfig, modulesRoot);
+        for (ModuleId moduleId : resolution.packageContext().moduleIds()) {
+            if (resolution.packageContext().moduleContext(moduleId).isGenerated()) {
+                Utils.writeModule(project.currentPackage().module(moduleId), modulesRoot);
+            }
+        }
+        if (!resolution.clientsToCache().isEmpty()) {
+            String json = new Gson().toJson(resolution.clientsToCache());
+            Files.writeString(this.project.targetDir().resolve(ProjectConstants.IDL_CACHE_FILE), json);
         }
     }
 
@@ -654,7 +641,8 @@ public class Package {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                     this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
-                    this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph());
+                    this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph(),
+                    this.oldPackageContext.idlPluginManager());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
             if (oldPackageContext.cachedCompilation() != null) {

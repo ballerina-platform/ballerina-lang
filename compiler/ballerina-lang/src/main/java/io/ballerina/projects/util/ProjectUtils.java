@@ -26,6 +26,7 @@ import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleConfig;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -42,6 +43,9 @@ import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.DocumentData;
+import io.ballerina.projects.internal.ModuleData;
+import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
@@ -1190,5 +1194,26 @@ public class ProjectUtils {
         for (ResourceConfig resource : moduleConfig.resources()) {
             Files.write(moduleResourcesDirPath.resolve(resource.name()), resource.content().orElse(null));
         }
+    }
+
+    public static ModuleConfig createModuleConfig (String moduleName, Project project) {
+        ModuleData moduleData = ProjectFiles.loadModule(
+                project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(moduleName));
+        ModuleId moduleId = ModuleId.create(moduleName, project.currentPackage().packageId());
+        List<DocumentConfig> documentConfigs = new ArrayList<>();
+        List<DocumentConfig> testDocumentConfigs = new ArrayList<>();
+        for (DocumentData sourceDoc : moduleData.sourceDocs()) {
+            DocumentId documentId = DocumentId.create(sourceDoc.name(), moduleId);
+            documentConfigs.add(DocumentConfig.from(documentId, sourceDoc.content(), sourceDoc.name()));
+        }
+        for (DocumentData sourceDoc : moduleData.testSourceDocs()) {
+            DocumentId documentId = DocumentId.create(sourceDoc.name(), moduleId);
+            testDocumentConfigs.add(DocumentConfig.from(documentId, sourceDoc.content(), sourceDoc.name()));
+        }
+        ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
+                ModuleName.from(project.currentPackage().packageName(), moduleName),
+                project.currentPackage().descriptor());
+        return ModuleConfig.from(
+                moduleId, moduleDescriptor, documentConfigs, testDocumentConfigs, null, new ArrayList<>());
     }
 }
