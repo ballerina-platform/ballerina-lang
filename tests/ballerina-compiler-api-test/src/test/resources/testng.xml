@@ -114,7 +114,6 @@
             <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
 
             <!--Expected Type-->
-            <class name="io.ballerina.semantic.api.test.expectedtype.ExpectedTypeTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.VariableDeclarationTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.StatementTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.ExpressionTest" />

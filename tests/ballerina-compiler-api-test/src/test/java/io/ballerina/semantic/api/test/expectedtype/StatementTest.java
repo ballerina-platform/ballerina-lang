@@ -43,7 +43,7 @@ public class StatementTest {
     @DataProvider(name = "LinePosProvider")
     public Object[][] getLinePos() {
         return new Object[][]{
-                {18, 8, TypeDescKind.BOOLEAN},
+                {18, 11, TypeDescKind.INT},
         };
     }
 }
