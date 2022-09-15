@@ -1,9 +1,10 @@
 {
   "position": {
-    "line": 6,
+    "line": 10,
     "character": 9
   },
-  "source": "expression_context/source/object_constructor_expr_ctx_source5.bal",
+  "source": "expression_context/source/object_constructor_expr_ctx_source15.bal",
+  "description": "Checks whether we suggest another init function when we already have a init function",
   "items": [
     {
       "label": "StrandData",
@@ -161,6 +162,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
@@ -168,6 +178,78 @@
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "runtime",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.test",
@@ -194,12 +276,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "test/local_project2",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "array",
-      "insertText": "array",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -213,7 +295,55 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.array;\n"
+          "newText": "import test/local_project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "value",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -242,12 +372,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "runtime",
-      "insertText": "runtime",
+      "filterText": "array",
+      "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -261,7 +391,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -295,6 +425,14 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     },
     {
@@ -429,152 +567,6 @@
       "sortText": "Q",
       "filterText": "transactional",
       "insertText": "transactional",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "value",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "project2",
-      "insertText": "project2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project2;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "project1",
-      "insertText": "project1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project1;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/local_project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "local_project2",
-      "insertText": "local_project2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project2;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/local_project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "local_project1",
-      "insertText": "local_project1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project1;\n"
-        }
-      ]
-    },
-    {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "null",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "function",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "init function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "init_function",
-      "insertText": "function init(${1}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

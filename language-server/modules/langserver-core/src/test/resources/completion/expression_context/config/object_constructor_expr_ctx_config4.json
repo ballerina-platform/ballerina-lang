@@ -567,6 +567,15 @@
       "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "init function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "init_function",
+      "insertText": "function init(${1}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
