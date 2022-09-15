@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Code action to add conditional default value
+ * Code action to add conditional default value.
  *
  * @since 2201.2.1
  */
@@ -51,14 +51,14 @@ import java.util.stream.Collectors;
 public class AddConditionalDefaultValueCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Add conditional default value";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066");
+    public static final String DIAGNOSTIC_CODES = "BCE2066";
 
     @Override
     public boolean validate(Diagnostic diagnostic,
                             DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return context.currentSemanticModel().isPresent() &&
-                DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                DIAGNOSTIC_CODES.equals(diagnostic.diagnosticInfo().code()) &&
                 CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
