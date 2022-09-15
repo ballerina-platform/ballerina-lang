@@ -3328,7 +3328,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public GroupingKeyVarDeclarationNode transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
         TypeDescriptorNode typeDescriptor = formatNode(groupingKeyVarDeclarationNode.typeDescriptor(), 1, 0);
-        CaptureBindingPatternNode variableName = formatNode(groupingKeyVarDeclarationNode.variableName(), 1, 0);
+        BindingPatternNode variableName = formatNode(groupingKeyVarDeclarationNode.variableName(), 1, 0);
         Token equalsToken = formatToken(groupingKeyVarDeclarationNode.equalsToken(), 1, 0);
         ExpressionNode expression = formatNode(groupingKeyVarDeclarationNode.expression(), env.trailingWS,
                 env.trailingNL);

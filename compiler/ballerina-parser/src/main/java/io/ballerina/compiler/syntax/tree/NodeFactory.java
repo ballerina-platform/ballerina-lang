@@ -3047,7 +3047,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static GroupingKeyVarDeclarationNode createGroupingKeyVarDeclarationNode(
             TypeDescriptorNode typeDescriptor,
-            CaptureBindingPatternNode variableName,
+            BindingPatternNode variableName,
             Token equalsToken,
             ExpressionNode expression) {
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");

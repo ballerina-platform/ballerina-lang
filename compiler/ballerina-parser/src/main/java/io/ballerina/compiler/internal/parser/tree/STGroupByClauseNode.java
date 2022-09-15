@@ -28,7 +28,7 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class STGroupByClauseNode extends STIntermediateClauseNode {
     public final STNode groupKeyword;
