@@ -74,7 +74,7 @@ public class GenerateModuleForClientDeclCodeAction implements DiagnosticBasedCod
 
     private static final String NAME = "Generate Client Declaration Module";
 
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE4037", "BCE5303");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE4037");
 
     @Override
     public boolean validate(Diagnostic diagnostic,
@@ -140,19 +140,12 @@ public class GenerateModuleForClientDeclCodeAction implements DiagnosticBasedCod
                     IDLClientGeneratorResult idlClientGeneratorResult = project.get().currentPackage()
                             .runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build());
                     boolean diagnosticNotResolved = idlClientGeneratorResult.reportedDiagnostics().diagnostics().stream().anyMatch(diagnostic ->
-                            DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()));
+                            DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) || "BCE5303".equals(diagnostic.diagnosticInfo().code()));
                     if (diagnosticNotResolved) {
                         throw new UserErrorException("Failed to generate modules for client declarations");
                     }
                 })
                 .thenRunAsync(() -> {
-                    try {
-                        // Refresh project
-                        ((BallerinaWorkspaceManager) resolveContext.workspace()).refreshProject(filePath.get());
-                    } catch (WorkspaceDocumentException e) {
-                        throw new UserErrorException("Failed to refresh project");
-                    }
-                }).thenRunAsync(() -> {
                     DocumentServiceContext docContext = ContextBuilder.buildDocumentServiceContext(
                             filePath.get().toUri().toString(),
                             resolveContext.workspace(), LSContextOperation.TXT_DID_CHANGE,
@@ -160,6 +153,14 @@ public class GenerateModuleForClientDeclCodeAction implements DiagnosticBasedCod
                     DiagnosticsHelper.getInstance(resolveContext.languageServercontext())
                             .schedulePublishDiagnostics(languageClient, docContext);
                 })
+//                .thenRunAsync(() -> {
+//                    try {
+//                        // Refresh project
+//                        ((BallerinaWorkspaceManager) resolveContext.workspace()).refreshProject(filePath.get());
+//                    } catch (WorkspaceDocumentException e) {
+//                        throw new UserErrorException("Failed to refresh project");
+//                    }
+//                })
                 .whenComplete((result, throwable) -> {
                     boolean failed = false;
                     if (throwable != null) {
