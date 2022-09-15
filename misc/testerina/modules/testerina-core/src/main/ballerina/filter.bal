@@ -22,9 +22,10 @@ string moduleName = "";
 boolean hasFilteredTests = false;
 string targetPath = "";
 boolean terminate = false;
+boolean listGroups = false;
 
-public function setTestOptions(string inTargetPath, string inModuleName, string inReport,
-    string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed) {
+public function setTestOptions(string inTargetPath, string inModuleName, string inReport, string inCoverage, 
+    string inGroups, string inDisableGroups, string inTests, string inRerunFailed, string inListGroups) {
 
     targetPath = inTargetPath;
     moduleName = inModuleName;
@@ -33,6 +34,7 @@ public function setTestOptions(string inTargetPath, string inModuleName, string 
     boolean rerunFailed = parseBooleanInput(inRerunFailed, "rerun-failed");
     boolean testReport = parseBooleanInput(inReport, "test-report");
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
+    listGroups = parseBooleanInput(inListGroups, "list-groups");
 
     if rerunFailed {
         error? err = parseRerunJson();
