@@ -17,6 +17,11 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 
+/**
+ * Test cases for the find expected types in statements.
+ *
+ * @since 2.3.0
+ */
 public class StatementTest {
     private SemanticModel model;
     private Document srcFile;
