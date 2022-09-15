@@ -68,6 +68,7 @@ public class Find {
 
     public static BArray findAllGroups(BRegexpValue regExp, BString str, int startIndex) {
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        matcher.region(startIndex, str.length());
         BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
         while (matcher.find()) {
             BArray group = ValueCreator.createArrayValue(RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE);
@@ -78,7 +79,9 @@ public class Find {
                 resultTuple.add(2, StringUtils.fromString(matcher.group()));
                 group.append(resultTuple);
             }
-            groupArray.append(group);
+            if (groupArray.getLength() != 0) {
+                groupArray.append(group);
+            }
         }
         if (groupArray.getLength() == 0) {
             return null;

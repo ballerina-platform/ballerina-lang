@@ -100,6 +100,27 @@ function testFindGroups() {
     assertEquality(16, resultSpan3.startIndex);
     assertEquality(19, resultSpan3.endIndex);
     assertEquality("GFG", resultSpan3.substring());
+
+    var regExpr3 = re `(GFG)(FGF)`;
+    regexp:Groups? res4 = regExpr3.findGroups(str2);
+    assertTrue(res4 is regexp:Groups);
+    regexp:Groups resultGroups4 = <regexp:Groups>res4;
+    assertEquality(3, resultGroups4.length());
+
+    regexp:Span resultSpan3_1 = <regexp:Span>resultGroups4[0];
+    assertEquality(0, resultSpan3_1.startIndex);
+    assertEquality(6, resultSpan3_1.endIndex);
+    assertEquality("GFGFGF", resultSpan3_1.substring());
+
+    regexp:Span resultSpan3_2 = <regexp:Span>resultGroups4[1];
+    assertEquality(6, resultSpan3_2.startIndex);
+    assertEquality(12, resultSpan3_2.endIndex);
+    assertEquality("GFGFGF", resultSpan3_2.substring());
+
+    regexp:Span resultSpan3_3 = <regexp:Span>resultGroups4[2];
+    assertEquality(12, resultSpan3_3.startIndex);
+    assertEquality(18, resultSpan3_3.endIndex);
+    assertEquality("GFGFGF", resultSpan3_3.substring());
 }
 
 function testFindAll() {
@@ -136,6 +157,17 @@ function testFindAll() {
     assertEquality("GFG", resultSpan1_5.substring());
 }
 
+function testFindAllGroups() {
+    string str2 = "GFGFGFGFGFGFGFGFGF";
+    var regExpr2 = re `(GFG)(FGF)`;
+    var res2 = regExpr2.findGroups(str2);
+
+//    string str5 = "100000100011";
+//    var regExpr4 = re `0+`;
+//    var result5 = regExpr4.findAllGroups(str5);
+    print(res2);
+}
+
 function testMatchAt() {
     string str1 = "HelloWorld";
     var regExpr1 = re `World`;
@@ -148,6 +180,15 @@ function testMatchAt() {
     assertEquality(5, resultSpan1.startIndex);
     assertEquality(10, resultSpan1.endIndex);
     assertEquality("World", resultSpan1.substring());
+
+    string str2 = "Ballerina is great";
+    var regExpr2 = re `Ba[a-z ]+`;
+    regexp:Span? res3 = regExpr2.matchAt(str2);
+    assertTrue(res3 is regexp:Span);
+    regexp:Span resultSpan2 = <regexp:Span>res3;
+    assertEquality(0, resultSpan2.startIndex);
+    assertEquality(18, resultSpan2.endIndex);
+    assertEquality(str2, resultSpan2.substring());
 }
 
 function testMatchGroupsAt() {
@@ -192,7 +233,6 @@ function testMatchGroupsAt() {
     assertEquality("900", resultSpan2_2.substring());
 }
 
-
 function testIsFullMatch() {
     var regExpr1 = re `(?i:[a-z]+)`;
     string str1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -203,6 +243,11 @@ function testIsFullMatch() {
     string str2 = "a123";
     boolean isFullMatch2 = regExpr2.isFullMatch(str2);
     assertFalse(isFullMatch2);
+
+    string str3 = "This Should Match";
+    var regExpr3 = re `Th.*ch`;
+    boolean isFullMatch3 = regExpr3.isFullMatch(str3);
+    assertTrue(isFullMatch3);
 }
 
 function testFullMatchGroups() {
@@ -246,6 +291,78 @@ function testFullMatchGroups() {
     assertEquality(5, resultSpan2_2.startIndex);
     assertEquality(8, resultSpan2_2.endIndex);
     assertEquality("900", resultSpan2_2.substring());
+}
+
+function testReplace() {
+    string str1 = "ReplaceThisThisTextThis";
+    var regExpr1 = re `This`;
+    string replacement1 = " ";
+    string result1 = regExpr1.replace(str1, replacement1);
+    assertEquality("Replace ThisTextThis", result1);
+
+    string replacement2 = "# ";
+    string result2 = regExpr1.replace(str1, replacement2);
+    assertEquality("Replace# ThisTextThis", result2);
+
+    string str3 = "10010011";
+    var regExpr3 = re `0+`;
+    string replacement3 = "*";
+    string result3 = regExpr3.replace(str3, replacement3);
+    assertEquality("1*10011", result3);
+
+    string str4 = "100100011";
+    var regExpr4 = re `0+`;
+    string replacement4 = "";
+    string result4 = regExpr4.replace(str4, replacement4);
+    assertEquality("1100011", result4);
+
+    string str5 = "100000100011";
+    string result5 = regExpr4.replace(str5, replacementFunctionForReplace);
+    assertEquality("16100011", result5);
+
+    string str6 = "100100011";
+    var regExpr5 = re `0+`;
+    string result6 = regExpr5.replace(str6, replacementFunctionForReplace, 4);
+    assertEquality("1001711", result6);
+}
+
+isolated function replacementFunctionForReplace(regexp:Groups groups) returns string {
+    return groups[0].endIndex.toString();
+}
+
+function testReplaceAll() {
+    string str1 = "ReplaceTTTGGGThis";
+    var regExpr1 = re `T.*G`;
+    string replacement1 = " ";
+    string result1 = regExpr1.replaceAll(str1, replacement1);
+    assertEquality("Replace This", result1);
+
+    string str2 = "100100011";
+    var regExpr2 = re `0+`;
+    string replacement2 = "*";
+    string result2 = regExpr2.replaceAll(str2, replacement2);
+    assertEquality("1*1*11", result2);
+
+    //non matching
+    string str3 = "100100011";
+    var regExpr3 = re `95`;
+    string replacement3 = "*";
+    string result3 = regExpr3.replaceAll(str3, replacement3);
+    assertEquality(str3, result3);
+
+    string str4 = "100100011";
+    var regExpr4 = re `0+`;
+    string replacement4 = "";
+    string result4 = regExpr4.replaceAll(str4, replacement4);
+    assertEquality("1111", result4);
+
+    string str5 = "100000100011";
+    string result5 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll);
+    assertEquality("121211", result5);
+}
+
+isolated function replacementFunctionForReplaceAll(regexp:Groups groups) returns string {
+    return groups.length().toString();
 }
 
 function assertEquality(any|error expected, any|error actual) {

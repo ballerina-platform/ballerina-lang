@@ -62,7 +62,10 @@ public class LangLibRegexpTest {
                 "testMatchAt",
                 "testMatchGroupsAt",
                 "testIsFullMatch",
-                "testFullMatchGroups"
+                "testFullMatchGroups",
+                "testReplaceAll",
+                "testReplace",
+                "testFindAllGroups",
         };
     }
 

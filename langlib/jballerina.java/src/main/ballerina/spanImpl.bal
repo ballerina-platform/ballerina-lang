@@ -33,4 +33,8 @@ public readonly class SpanImpl {
         self.endIndex = endIndex;
         self.substr = substring;
     }
+
+   public isolated function toString() returns string {
+        return self.substr;
+   }
 }
