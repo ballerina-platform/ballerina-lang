@@ -1156,15 +1156,17 @@ public class ProjectUtils {
         for (DocumentConfig sourceDoc : moduleConfig.sourceDocs()) {
             Files.writeString(moduleDirPath.resolve(sourceDoc.name()), sourceDoc.content());
         }
+
+        Path moduleTestDirPath = moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME);
+        Files.createDirectories(moduleTestDirPath);
         for (DocumentConfig testSourceDoc : moduleConfig.testSourceDocs()) {
-            Files.writeString(
-                    moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(testSourceDoc.name()),
-                    testSourceDoc.content());
+            Files.writeString(moduleTestDirPath.resolve(testSourceDoc.name()), testSourceDoc.content());
         }
+
+        Path moduleResourcesDirPath = moduleDirPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        Files.createDirectories(moduleTestDirPath);
         for (ResourceConfig resource : moduleConfig.resources()) {
-            Files.write(
-                    moduleDirPath.resolve(ProjectConstants.RESOURCE_DIR_NAME).resolve(resource.name()),
-                    resource.content().orElse(null));
+            Files.write(moduleResourcesDirPath.resolve(resource.name()), resource.content().orElse(null));
         }
     }
 }
