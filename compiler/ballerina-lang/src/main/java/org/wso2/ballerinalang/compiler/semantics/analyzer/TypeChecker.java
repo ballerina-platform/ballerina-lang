@@ -5785,6 +5785,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private void checkExprWithInterpolations(List<BLangExpression> sequenceList, AnalyzerData data) {
         for (BLangExpression seq : sequenceList) {
+            if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
+                return;
+            }
             BLangReSequence sequence = (BLangReSequence) seq;
             for (BLangExpression term : sequence.termList) {
                 if (term.getKind() == NodeKind.REG_EXP_ATOM_QUANTIFIER) {
