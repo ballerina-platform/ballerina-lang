@@ -109,6 +109,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HAND
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
@@ -129,6 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_F
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_JOBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_REGEX_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TYPEDESC_VALUE;
@@ -248,6 +250,8 @@ public class JvmCodeGenUtil {
                     return InteropMethodGen.getJTypeSignature((JType) bType);
                 case TypeTags.TYPEREFDESC:
                     return getFieldTypeSignature(getReferredType(bType));
+                case TypeTags.REGEXP:
+                    return GET_REGEXP;
                 default:
                     throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
             }
@@ -426,6 +430,8 @@ public class JvmCodeGenUtil {
                 return GET_HANDLE_VALUE;
             case TypeTags.TYPEREFDESC:
                 return getArgTypeSignature(getReferredType(bType));
+            case TypeTags.REGEXP:
+                return GET_REGEXP;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                                                          bType);
@@ -489,6 +495,8 @@ public class JvmCodeGenUtil {
                 return RETURN_HANDLE_VALUE;
             case TypeTags.TYPEREFDESC:
                 return generateReturnType(getReferredType(bType));
+            case TypeTags.REGEXP:
+                return RETURN_REGEX_VALUE;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }

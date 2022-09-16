@@ -125,6 +125,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUTU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
@@ -387,6 +388,7 @@ public class MethodGen {
             case TypeTags.HANDLE:
             case TypeTags.TYPEDESC:
             case TypeTags.READONLY:
+            case TypeTags.REGEXP:
                 mv.visitInsn(ACONST_NULL);
                 mv.visitVarInsn(ASTORE, index);
                 break;
@@ -630,6 +632,10 @@ public class MethodGen {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                                   GET_XML);
                 mv.visitVarInsn(ASTORE, index);
+            } else if (TypeTags.REGEXP == bType.tag) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
+                        GET_REGEXP);
+                mv.visitVarInsn(ASTORE, index);
             } else {
                 generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index, bType);
             }
@@ -795,6 +801,10 @@ public class MethodGen {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                                   GET_XML);
+            } else if (TypeTags.REGEXP == bType.tag) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
+                        GET_REGEXP);
             } else {
                 generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, bType);
             }
@@ -1025,6 +1035,8 @@ public class MethodGen {
             return GET_STRING;
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return GET_XML;
+        } else if (TypeTags.REGEXP == bType.tag) {
+            return GET_REGEXP;
         }
 
         String jvmType;

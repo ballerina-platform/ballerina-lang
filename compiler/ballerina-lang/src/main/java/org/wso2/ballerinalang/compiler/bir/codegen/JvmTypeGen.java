@@ -137,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HAND
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
@@ -377,6 +378,7 @@ public class JvmTypeGen {
                     typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ANY" : "TYPE_ANY";
                     break;
                 case TypeTags.ANYDATA:
+                case TypeTags.REGEXP:
                     typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ANYDATA" :
                             "TYPE_ANYDATA";
                     break;
@@ -505,6 +507,7 @@ public class JvmTypeGen {
                 case TypeTags.ANY:
                     return LOAD_ANY_TYPE;
                 case TypeTags.ANYDATA:
+                case TypeTags.REGEXP:
                     return LOAD_ANYDATA_TYPE;
                 case TypeTags.JSON:
                     return LOAD_JSON_TYPE;
@@ -990,6 +993,8 @@ public class JvmTypeGen {
             return GET_BSTRING;
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return GET_XML;
+        } else if (bType.tag == TypeTags.REGEXP) {
+            return GET_REGEXP;
         }
 
         switch (bType.tag) {

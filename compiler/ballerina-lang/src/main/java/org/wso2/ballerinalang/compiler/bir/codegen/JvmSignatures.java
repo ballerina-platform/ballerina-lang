@@ -217,6 +217,7 @@ public class JvmSignatures {
     public static final String GET_BERROR = "L" + BERROR + ";";
     public static final String GET_BOBJECT = "L" + B_OBJECT + ";";
     public static final String GET_BSTRING = "L" + B_STRING_VALUE + ";";
+    public static final String GET_REGEXP = "L" + REG_EXP_VALUE + ";";
     public static final String GET_BSTRING_FOR_ARRAY_INDEX = "(J)L" + JvmConstants.B_STRING_VALUE + ";";
     public static final String GET_ERROR_TYPE = "L" + ERROR_TYPE + ";";
     public static final String GET_ERROR_VALUE = "L" + ERROR_VALUE + ";";
@@ -392,6 +393,7 @@ public class JvmSignatures {
     public static final String RETURN_ARRAY_VALUE = ")L" + ARRAY_VALUE + ";";
     public static final String RETURN_B_OBJECT = ")L" + B_OBJECT + ";";
     public static final String RETURN_B_STRING_VALUE = ")L" + B_STRING_VALUE + ";";
+    public static final String RETURN_REGEX_VALUE = ")L" + REG_EXP_VALUE + ";";
     public static final String RETURN_DECIMAL_VALUE = ")L" + DECIMAL_VALUE + ";";
     public static final String RETURN_ERROR_VALUE = ")L" + ERROR_VALUE + ";";
     public static final String RETURN_FUNCTION_POINTER = ")L" + FUNCTION_POINTER + ";";

@@ -453,7 +453,7 @@ public class JvmInstructionGen {
             mv.visitVarInsn(LLOAD, valueIndex);
             return;
         }  else if (TypeTags.isXMLTypeTag(bType.tag) ||
-                TypeTags.isStringTypeTag(bType.tag)) {
+                TypeTags.isStringTypeTag(bType.tag) || TypeTags.REGEXP == bType.tag) {
             mv.visitVarInsn(ALOAD, valueIndex);
             return;
         }
@@ -526,7 +526,7 @@ public class JvmInstructionGen {
             mv.visitVarInsn(LSTORE, valueIndex);
             return;
         } else if (TypeTags.isStringTypeTag(bType.tag) ||
-                TypeTags.isXMLTypeTag(bType.tag)) {
+                TypeTags.isXMLTypeTag(bType.tag) || bType.tag == TypeTags.REGEXP) {
             mv.visitVarInsn(ASTORE, valueIndex);
             return;
         }

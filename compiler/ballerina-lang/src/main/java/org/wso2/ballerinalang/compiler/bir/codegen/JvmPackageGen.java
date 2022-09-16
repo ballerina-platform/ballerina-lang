@@ -210,6 +210,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.BOOLEAN);
         dependentModuleArray.add(PackageID.QUERY);
         dependentModuleArray.add(PackageID.TRANSACTION);
+        dependentModuleArray.add(PackageID.REGEXP);
     }
 
     private static boolean isLangModule(PackageID moduleId) {

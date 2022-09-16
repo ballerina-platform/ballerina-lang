@@ -77,8 +77,9 @@ public class TypeTags {
     public static final int XML_COMMENT = XML_PI + 1;
     public static final int XML_TEXT = XML_COMMENT + 1;
     public static final int NEVER = XML_TEXT + 1;
+    public static final int REGEXP = NEVER + 1;
 
-    public static final int NULL_SET = NEVER + 1;
+    public static final int NULL_SET = REGEXP + 1;
     public static final int PARAMETERIZED_TYPE = NULL_SET + 1;
 
     private TypeTags() {

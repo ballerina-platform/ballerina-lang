@@ -187,6 +187,7 @@ import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.REGEXP;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -3676,6 +3677,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(TRANSACTION)) {
             symTable.langTransactionModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(REGEXP)) {
+            symTable.langRegexpModuleSymbol = packageSymbol;
             return;
         }
     }
