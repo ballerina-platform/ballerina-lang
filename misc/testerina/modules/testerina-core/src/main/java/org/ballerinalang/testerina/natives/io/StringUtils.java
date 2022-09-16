@@ -21,23 +21,31 @@ package org.ballerinalang.testerina.natives.io;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
 import java.util.IllegalFormatConversionException;
+import java.util.regex.Pattern;
+
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
 /**
  * External function ballerina/test#sprintf.
  *
  * @since 2.0.0
  */
-public class Sprintf {
+public class StringUtils {
 
-    private Sprintf() {
+    private StringUtils() {
+    }
+
+    public static boolean matchWildcard(BString functionName, BString functionPattern) {
+        return Pattern.matches(functionPattern.getValue().replace(TesterinaConstants.WILDCARD,
+                        DOT + TesterinaConstants.WILDCARD), functionName.getValue());
     }
 
     public static BString sprintf(BString format, Object... args) {
@@ -83,7 +91,7 @@ public class Sprintf {
                         case 's':
                             if (ref != null) {
                                 result.append(String.format("%" + padding + "s",
-                                                            StringUtils.getStringValue(ref, null)));
+                                        io.ballerina.runtime.api.utils.StringUtils.getStringValue(ref, null)));
                             }
                             break;
                         case '%':
@@ -111,7 +119,7 @@ public class Sprintf {
             // no match, copy and continue
             result.append(format.getValue().charAt(i));
         }
-        return StringUtils.fromString(result.toString());
+        return io.ballerina.runtime.api.utils.StringUtils.fromString(result.toString());
     }
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
