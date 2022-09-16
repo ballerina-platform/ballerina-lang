@@ -68,6 +68,7 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
     private static final String TEST_EXEC_FILENAME = "test_execute";
 
     private static final String TARGET_PATH_PARAMETER = "targetPath";
+    private static final String PACKAGE_NAME_PARAMETER = "packageName";
     private static final String MODULE_NAME_PARAMETER = "moduleName";
     private static final String REPORT_PATH_PARAMETER = "report";
     private static final String COVERAGE_PATH_PARAMETER = "coverage";
@@ -99,6 +100,7 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
         // Add the statement, 'test:setTestOptions(<args[]>);'
         statements.add(getFunctionCallStatement(getTestFunctionCall(SET_OPTIONS_FUNCTION, getFunctionParamList(
                 getPositionalArg(TARGET_PATH_PARAMETER),
+                getPositionalArg(PACKAGE_NAME_PARAMETER),
                 getPositionalArg(MODULE_NAME_PARAMETER),
                 getPositionalArg(REPORT_PATH_PARAMETER),
                 getPositionalArg(COVERAGE_PATH_PARAMETER),

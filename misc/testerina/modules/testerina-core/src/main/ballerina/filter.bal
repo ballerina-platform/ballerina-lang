@@ -23,7 +23,7 @@ boolean hasFilteredTests = false;
 string targetPath = "";
 boolean terminate = false;
 
-public function setTestOptions(string inTargetPath, string inModuleName, string inReport,
+public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
     string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed) {
 
     targetPath = inTargetPath;
@@ -41,7 +41,8 @@ public function setTestOptions(string inTargetPath, string inModuleName, string 
             return;
         }
     } else {
-        filterTests = parseStringArrayInput(inTests);
+        string[] singleExecTests = parseStringArrayInput(inTests);
+        filterKeyBasedTests(inPackageName, moduleName, singleExecTests);
     }
 
     if testReport || codeCoverage {
@@ -52,6 +53,23 @@ public function setTestOptions(string inTargetPath, string inModuleName, string 
 }
 
 function parseStringArrayInput(string arrArg) returns string[] => arrArg == "" ? [] : split(arrArg, ",");
+
+function filterKeyBasedTests(string packageName, string moduleName, string[] tests) {
+    foreach string testName in tests {
+        string updatedName = testName;
+        if (containsModulePrefix(packageName, moduleName, testName)) {
+            int separatorIndex = <int>updatedName.indexOf(MODULE_SEPARATOR);
+            updatedName = updatedName.substring(separatorIndex);
+        }
+        if (containsDataKeySuffix(updatedName)) {
+            filterSubTests.push(updatedName);
+            int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
+            updatedName = updatedName.substring(0, separatorIndex);
+        }
+        filterTests.push(updatedName);
+        // TODO: handleWildCards(updatedName)
+    }
+}
 
 function parseBooleanInput(string input, string variableName) returns boolean {
     boolean|error booleanVariable = boolean:fromString(input);
@@ -76,4 +94,30 @@ function parseRerunJson() returns error? {
 function readRerunJson() returns map<ModuleRerunJson>|error {
     string|error content = trap readContent(targetPath + "/" + RERUN_JSON_FILE);
     return content is string ? content.fromJsonStringWithType() : content;
+}
+
+function containsModulePrefix(string packageName, string moduleName, string testName) returns boolean {
+    if (containsAPrefix(testName)) {
+        return isPrefixInCorrectFormat(packageName, moduleName, testName);
+    }
+    return false;
+}
+
+function containsAPrefix(string testName) returns boolean {
+    if (testName.includes(MODULE_SEPARATOR)) {
+        if (containsDataKeySuffix(testName)) {
+            return testName.indexOf(MODULE_SEPARATOR) < testName.indexOf(DATA_KEY_SEPARATOR);
+        }
+        return true;
+    }
+    return false;
+}
+
+function containsDataKeySuffix(string testName) returns boolean {
+    return testName.includes(DATA_KEY_SEPARATOR);
+}
+
+function isPrefixInCorrectFormat(string packageName, string moduleName, string testName) returns boolean {
+    string prefix = testName.substring(0, <int>testName.indexOf(MODULE_SEPARATOR));
+    return prefix.includes(packageName) || prefix.includes(packageName + DOT + moduleName);
 }
