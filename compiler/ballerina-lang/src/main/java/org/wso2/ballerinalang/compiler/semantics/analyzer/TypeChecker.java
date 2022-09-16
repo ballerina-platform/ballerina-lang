@@ -196,6 +196,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -710,20 +711,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                            BType expType, AnalyzerData data) {
         literalExpr.value = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
         BType referredType = Types.getReferredType(expType);
+        BType literalType = symTable.decimalType;
         if (referredType.tag == TypeTags.FINITE) {
             BFiniteType finiteType = (BFiniteType) referredType;
             if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.DECIMAL)) {
                 setLiteralValueForFiniteType(literalExpr, symTable.decimalType, data);
-                return symTable.decimalType;
             }
         } else if (referredType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) expType;
             BType unionMember = getAndSetAssignableUnionMember(literalExpr, unionType, symTable.decimalType, data);
             if (unionMember != symTable.noType) {
-                return unionMember;
+                literalType = unionMember;
             }
         }
-        return symTable.decimalType;
+        if (!types.validateDecimalLiteral(literalExpr.pos, literalExpr.value.toString())) {
+            data.resultType = literalType = symTable.semanticError;
+        }
+        return literalType;
     }
 
     private BType getTypeOfDecimalFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue, BType expType,
