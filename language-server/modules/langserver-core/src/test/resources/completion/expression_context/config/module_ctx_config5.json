@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 3,
-    "character": 6
+    "character": 5
   },
   "source": "expression_context/source/module_ctx_source5.bal",
   "items": [
@@ -330,14 +330,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -346,6 +338,14 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -491,6 +491,20 @@
       "sortText": "Q",
       "filterText": "null",
       "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "array:ASCENDING",
+      "kind": "EnumMember",
+      "detail": "\"ascending\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "H",
+      "insertText": "array:ASCENDING",
       "insertTextFormat": "Snippet"
     },
     {
