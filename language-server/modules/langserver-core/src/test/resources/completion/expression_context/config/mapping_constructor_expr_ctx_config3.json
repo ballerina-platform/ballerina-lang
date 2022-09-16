@@ -4,6 +4,7 @@
     "character": 51
   },
   "source": "expression_context/source/mapping_constructor_expr_ctx_source3.bal",
+  "description": "completions for mapping constructor in a row list of a table constructor",
   "items": [
     {
       "label": "readonly",

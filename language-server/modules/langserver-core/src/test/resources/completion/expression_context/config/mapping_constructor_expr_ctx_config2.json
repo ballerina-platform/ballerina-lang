@@ -4,6 +4,7 @@
     "character": 40
   },
   "source": "expression_context/source/mapping_constructor_expr_ctx_source2.bal",
+  "description": "completions for anonymous object field record mapping constructor expression",
   "items": [
     {
       "label": "readonly",
