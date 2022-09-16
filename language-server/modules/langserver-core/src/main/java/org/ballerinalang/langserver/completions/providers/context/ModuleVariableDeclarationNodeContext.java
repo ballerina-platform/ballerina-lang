@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -119,6 +120,11 @@ public class ModuleVariableDeclarationNodeContext extends
         }
 
         if (resolvedContext == ResolvedContext.ON_QUALIFIER) {
+            Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
+            if (lastQualifier.isPresent() && lastQualifier.get().kind().equals(SyntaxKind.CONFIGURABLE_KEYWORD)) {
+                SortingUtil.sortCompletionsAfterConfigurableQualifier(completionItems);
+                return;
+            }
             SortingUtil.toDefaultSorting(context, completionItems);
             return;
         }
@@ -139,13 +145,13 @@ public class ModuleVariableDeclarationNodeContext extends
     @Override
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
-        if (qualifiers.isEmpty()) {
+        Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
+        if (lastQualifier.isEmpty()) {
             return completionItems;
         }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-        switch (lastQualifier.kind()) {
+        Set<SyntaxKind> qualKinds = CommonUtil.getQualifiersOfNode(context, node)
+                .stream().map(Node::kind).collect(Collectors.toSet());
+        switch (lastQualifier.get().kind()) {
             case PUBLIC_KEYWORD:
                 completionItems.addAll(getTypeDescContextItems(context));
                 List<Snippet> snippets = Arrays.asList(

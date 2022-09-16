@@ -605,7 +605,6 @@ public class CommonUtil {
                 && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 
-
     /**
      * Returns ballerina text edit for a given lsp4j text edit.
      *
@@ -621,5 +620,20 @@ public class CommonUtil {
         int start = textDocument.textPositionFrom(LinePosition.from(startPos.getLine(), startPos.getCharacter()));
         int end = textDocument.textPositionFrom(LinePosition.from(endPos.getLine(), endPos.getCharacter()));
         return io.ballerina.tools.text.TextEdit.from(TextRange.from(start, end - start), textEdit.getNewText());
+    }
+
+    /**
+     * Get the last appearing qualifier token of a give node.
+     *
+     * @param context completion context.
+     * @param node    node.
+     * @return {@link Token} lastQualifier.
+     */
+    public static Optional<Token> getLastQualifier(BallerinaCompletionContext context, Node node) {
+        List<Token> qualifiers = getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(qualifiers.get(qualifiers.size() - 1));
     }
 }
