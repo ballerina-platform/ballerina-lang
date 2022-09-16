@@ -35,8 +35,4 @@ function testStaticTypeOfUnaryExpr() {
     int:Signed16 _ = -e;
     testType3 f = -128;
     int:Signed8 _ = -f;
-
-    int:Signed16 _ = -(-32767);
-    int:Signed8 _ = -(-127);
-    int:Signed32 _ = -(-2147483647);
 }

@@ -32,7 +32,7 @@ public class BIntegerValueNegativeTest {
     @Test
     public void testIntegerValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/integer/integer-value-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 17);
+        Assert.assertEquals(compileResult.getErrorCount(), 14);
 
         int index = 0;
         String expectedError = "'0xFFFFFFFFFFFFFFFF' is out of range for 'int'";
@@ -76,14 +76,5 @@ public class BIntegerValueNegativeTest {
 
         expectedError = "incompatible types: expected 'int:Signed8', found 'int'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 37, 21);
-
-        expectedError = "incompatible types: expected 'int:Signed16', found 'int'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 39, 22);
-
-        expectedError = "incompatible types: expected 'int:Signed8', found 'int'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 40, 21);
-
-        expectedError = "incompatible types: expected 'int:Signed32', found 'int'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 41, 22);
     }
 }
