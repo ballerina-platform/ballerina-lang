@@ -1575,6 +1575,34 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    public BLangConstantValue getConstantValue(BType type) {
+        switch (type.tag) {
+            case TypeTags.FINITE:
+                BLangExpression expr  =((BFiniteType) type).getValueSpace().iterator().next();
+                return new BLangConstantValue (((BLangLiteral) expr).value, expr.getBType());
+            case TypeTags.INTERSECTION:
+                return getConstantValue(((BIntersectionType) type).getEffectiveType());
+            case TypeTags.RECORD:
+                Map<String, BLangConstantValue> fields = new HashMap<>();
+                LinkedHashMap<String, BField> recordFields = ((BRecordType) type).fields;
+                for (String key : recordFields.keySet()) {
+                    BLangConstantValue constantValue = getConstantValue(fields.get(key).type);
+                    fields.put(key, constantValue);
+                }
+                return new BLangConstantValue(recordFields, type);
+            case TypeTags.TUPLE:
+                List<BLangConstantValue> members = new ArrayList<>();
+                List<BType> tupleTypes = ((BTupleType) type).tupleTypes;
+                for (BType memberType : tupleTypes) {
+                    BLangConstantValue constantValue = getConstantValue(memberType);
+                    members.add(constantValue);
+                }
+                return new BLangConstantValue(members, type);
+            default:
+                return null;
+        }
+    }
+
     public static class FillMemberType {
         public int precedence;
         public BType type;

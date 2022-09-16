@@ -1519,6 +1519,8 @@ public class TypeResolver {
         constantSymbol.type = intersectionType;
         constantSymbol.literalType = intersectionType;
 
+        constantSymbol.value = constantTypeChecker.getConstantValue(intersectionType);
+
         if (constantSymbol.type.tag != TypeTags.TYPEREFDESC && typeDef != null) {
             constantSymbol.type.tsymbol.flags |= typeDef.symbol.flags;
         }
