@@ -367,20 +367,21 @@ public class LangLibValueTest {
 
     @DataProvider(name = "cloneWithTypeToTupleTypeFunctions")
     public Object[][] cloneWithTypeToTupleTypeFunctions() {
-        return new Object[][] {
-                { "testCloneWithTypeArrayToTupleWithRestType" },
-                { "testCloneWithTypeArrayToTupleWithRestTypeUnionType" },
-                { "testCloneWithTypeArrayToUnionTupleNegative" },
-                { "testCloneWithTypeArrayToTupleWithMoreTargetTypes" },
-                { "testCloneWithTypeArrayToTupleWithUnionRestTypeNegative" },
-                { "testCloneWithTypeArrayToTupleNegative" },
-                { "testCloneWithTypeArrayToTupleWithStructureRestTypeNegative" },
-                { "testCloneWithTypeTupleRestType" },
-                { "testCloneWithTypeUnionTuple" },
-                { "testCloneWithTypeTupleRestTypeNegative" },
-                { "testCloneWithTypeUnionTupleRestTypeNegative" },
-                { "testCloneWithTypeToTupleTypeWithFiniteTypesNegative" },
-                { "testCloneWithTypeTupleConsideringFillerValues" }
+        return new Object[][]{
+                {"testCloneWithTypeArrayToTupleWithRestType"},
+                {"testCloneWithTypeArrayToTupleWithRestTypeUnionType"},
+                {"testCloneWithTypeArrayToUnionTupleNegative"},
+                {"testCloneWithTypeArrayToTupleWithMoreTargetTypes"},
+                {"testCloneWithTypeArrayToTupleWithUnionRestTypeNegative"},
+                {"testCloneWithTypeArrayToTupleNegative"},
+                {"testCloneWithTypeArrayToTupleWithStructureRestTypeNegative"},
+                {"testCloneWithTypeTupleRestType"},
+                {"testCloneWithTypeUnionTuple"},
+                {"testCloneWithTypeTupleRestTypeNegative"},
+                {"testCloneWithTypeUnionTupleRestTypeNegative"},
+                {"testCloneWithTypeToTupleTypeWithFiniteTypesNegative"},
+                {"testCloneWithTypeTupleConsideringFillerValues"},
+                {"testCloneWithTypeConsideringReadOnlyFillerValues"}
         };
     }
 
