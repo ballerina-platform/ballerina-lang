@@ -209,6 +209,8 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'function ((any|error)...) returns ()', found " +
                         "'function (any...) returns ()'", 123, 47);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected " +
+                "'[\"list\",int?,Type]', found 'Type'", 133, 14);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

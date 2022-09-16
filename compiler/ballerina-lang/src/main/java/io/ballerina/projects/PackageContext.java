@@ -227,6 +227,7 @@ class PackageContext {
                 .setDumpRawGraphs(this.compilationOptions.dumpRawGraphs())
                 .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
+                .setEnableCache(this.compilationOptions.enableCache())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
         return PackageCompilation.from(this, mergedOptions);

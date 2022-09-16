@@ -27,15 +27,17 @@ public class BuildOptions {
     private Boolean skipTests;
     private CompilationOptions compilationOptions;
     private String targetDir;
+    private Boolean enableCache;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions, String targetPath) {
+                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
         this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
         this.targetDir = targetPath;
+        this.enableCache = enableCache;
     }
 
     public boolean testReport() {
@@ -94,6 +96,10 @@ public class BuildOptions {
         return this.compilationOptions.exportOpenAPI();
     }
 
+    public boolean enableCache() {
+        return this.compilationOptions.enableCache();
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -127,6 +133,11 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.targetDir(this.targetDir);
         }
+        if (theirOptions.enableCache != null) {
+            buildOptionsBuilder.setEnableCache(theirOptions.enableCache);
+        } else {
+            buildOptionsBuilder.setEnableCache(this.enableCache);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
@@ -140,6 +151,7 @@ public class BuildOptions {
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
 
         return buildOptionsBuilder.build();
     }
@@ -199,6 +211,7 @@ public class BuildOptions {
         private Boolean dumpBuildTime;
         private Boolean skipTests;
         private String targetPath;
+        private Boolean enableCache;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
 
         private BuildOptionsBuilder() {
@@ -296,9 +309,16 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setEnableCache(Boolean value) {
+            compilationOptionsBuilder.setEnableCache(value);
+            enableCache = value;
+            return this;
+        }
+
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
-            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions, targetPath);
+            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests,
+                    compilationOptions, targetPath, enableCache);
         }
     }
 }
