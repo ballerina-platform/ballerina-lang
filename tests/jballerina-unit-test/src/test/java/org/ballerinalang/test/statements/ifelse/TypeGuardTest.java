@@ -746,6 +746,11 @@ public class TypeGuardTest {
         BRunUtil.invoke(result, "testTypeTestingInReadonlyRecord");
     }
 
+    @Test(description = "Test is condition with circular tuples inside a if block")
+    public void testCustomCircularTupleTypeWithIsCheck() {
+        BRunUtil.invoke(result, "testCustomCircularTupleTypeWithIsCheck");
+    }
+
     @Test
     public void testTypeGuardsAccountingForSemTypes1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_1.bal");

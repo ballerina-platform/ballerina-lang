@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 10,
+    "character": 4
+  },
+  "source": "createFunctionCodeActionWithStrands.bal",
+  "expected": [
+    {
+      "title": "Create function 'funcWithNoType(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 1
+            },
+            "end": {
+              "line": 11,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction funcWithNoType() {\n    \n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createFunctionCodeActionWithStrands.bal",
+        "range": {
+          "start": {
+            "line": 10,
+            "character": 4
+          },
+          "end": {
+            "line": 10,
+            "character": 26
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 10.0,
+              "character": 4.0
+            },
+            "end": {
+              "line": 10.0,
+              "character": 26.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

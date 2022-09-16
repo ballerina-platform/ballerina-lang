@@ -1,6 +1,6 @@
-name: Improvement Request
-description: File a bug report
-title: "[Improvement]: "
+name: Task Request
+description: File a task request
+title: "[Task]: "
 labels: ["Type/Task", "triage"]
 body:
   - type: markdown
@@ -24,23 +24,30 @@ body:
   - type: dropdown
     id: labels
     attributes:
-      label: Labels
-      description: Tag the issue with related labels
-      multiple: true
+      label: Related area
+      description: Tag the issue with related area
+      multiple: false
       options:
-        - LanguageServer
-        - CompilerFE
-        - CompilerFETools
-        - Observability
-        - jBallerina
-        - LanguageServer/Extensions
-        - StandardLibs
-        - DIU
-        - PCM
-        - VSCode
-        - CICD
-        - DevTools
+        - Compilation
+        - Run Time
+        - Standard Library
+        - Central
         - Website
+        - APIDocs
+        - Debugger
+        - Update Tool
+        - GRPC Tool
+        - AsyncAPI Tool
+        - OpenAPI Tool
+        - Semver Validator Tool
+        - Bindgen Tool
+        - Formatter
+        - Shell
+        - Editor
+        - Test Framework
+        - Obsevability
+        - CICD
+        - Other
     validations:
       required: true
   - type: textarea

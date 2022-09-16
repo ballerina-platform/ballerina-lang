@@ -32,7 +32,8 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -335,6 +336,7 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 validateUnionValue(tomlValue, variableName, (BUnionType) type);
                 break;
             default:
@@ -631,15 +633,17 @@ public class TomlProvider implements ConfigProvider {
         Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
-            if (TypeChecker.checkIsLikeType(balValue, type, false)) {
-                convertibleTypes.add(type);
-                if (convertibleTypes.size() > 1) {
-                    invalidTomlLines.add(tomlValue.location().lineRange());
-                    throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
-                            variableName, decodeIdentifier(unionType.toString()));
-                }
-            }
+            convertibleTypes.addAll(TypeConverter.getConvertibleTypes(balValue, type, variableName, false,
+                    new ArrayList<>(), new ArrayList<>(), false, false));
         }
+
+        if (convertibleTypes.size() > 1 &&
+                !(balValue instanceof BArray && unionType.getTag() == TypeTags.ANYDATA_TAG)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
+                    variableName, decodeIdentifier(unionType.toString()));
+        }
+
         if (convertibleTypes.isEmpty()) {
             throwTypeIncompatibleError(tomlValue, variableName, unionType);
         }
@@ -691,6 +695,9 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
+                visitedNodes.add(tomlValue);
+                tomlValue = getValueFromKeyValueNode(tomlValue);
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
             default:
@@ -706,7 +713,6 @@ public class TomlProvider implements ConfigProvider {
             case TABLE_ARRAY:
                 visitedNodes.add(tomlValue);
                 List<TomlTableNode> tableNodeList = ((TomlTableArrayNode) tomlValue).children();
-                validateArraySize(tomlValue, variableName, arrayType, tableNodeList.size());
                 for (int i = 0; i < tableNodeList.size(); i++) {
                     validateValue(tableNodeList.get(i), variableName + "[" + i + "]", elementType);
                 }
@@ -714,7 +720,6 @@ public class TomlProvider implements ConfigProvider {
             case ARRAY:
                 visitedNodes.add(tomlValue);
                 List<TomlValueNode> nodeList = ((TomlArrayValueNode) tomlValue).elements();
-                validateArraySize(tomlValue, variableName, arrayType, nodeList.size());
                 for (int i = 0; i < nodeList.size(); i++) {
                     validateValue(nodeList.get(i), variableName + "[" + i + "]", elementType);
                 }
@@ -729,30 +734,17 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private void validateArraySize(TomlNode tomlValue, String variableName, ArrayType arrayType, int tomlArraySize) {
-        // remove this check after fix #35522
-        int arraySize = arrayType.getSize();
-        if (arraySize != tomlArraySize && arrayType.getState() != ArrayType.ArrayState.OPEN) {
-            invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_SIZE_MISMATCH, getLineRange(tomlValue), variableName, arraySize,
-                    tomlArraySize);
-        }
-    }
-
     private void validateUnionValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType,
                                          BUnionType elementType) {
         if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
             validateMapUnionArray((TomlTableArrayNode) tomlValue, variableName, arrayType, elementType);
             return;
         }
-        TomlValueNode valueNode = ((TomlKeyValueNode) tomlValue).value();
-        if (!checkEffectiveTomlType(valueNode.kind(), arrayType, variableName)) {
+        if (!checkEffectiveTomlType(tomlValue.kind(), arrayType, variableName)) {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         visitedNodes.add(tomlValue);
-        TomlArrayValueNode arrayNode = (TomlArrayValueNode) valueNode;
-        validateArraySize(arrayNode, variableName, arrayType, arrayNode.elements().size());
-        validateArrayElements(variableName, arrayNode.elements(), elementType);
+        validateArrayElements(variableName, ((TomlArrayValueNode) tomlValue).elements(), elementType);
     }
 
     private void validateMapUnionArray(TomlTableArrayNode tomlValue, String variableName, ArrayType arrayType,
@@ -761,7 +753,6 @@ public class TomlProvider implements ConfigProvider {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         visitedNodes.add(tomlValue);
-        validateArraySize(tomlValue, variableName, arrayType, tomlValue.children().size());
         for (TomlNode tomlValueNode : tomlValue.children()) {
             validateUnionValue(tomlValueNode, variableName, elementType);
         }
@@ -772,7 +763,6 @@ public class TomlProvider implements ConfigProvider {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
-        validateArraySize(tomlValue, variableName, arrayType, arrayList.size());
         validateArrayElements(variableName, arrayList, TypeUtils.getReferredType(arrayType.getElementType()));
     }
 
@@ -794,6 +784,7 @@ public class TomlProvider implements ConfigProvider {
                     break;
                 case TypeTags.ANYDATA_TAG:
                 case TypeTags.UNION_TAG:
+                case TypeTags.JSON_TAG:
                     validateUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
                     break;
                 default:
