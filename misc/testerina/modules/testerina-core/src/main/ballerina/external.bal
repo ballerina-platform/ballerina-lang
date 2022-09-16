@@ -69,7 +69,12 @@ isolated function fileExists(string filePath) returns boolean = @java:Method {
 
 isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
     name : "sprintf",
-    'class : "org.ballerinalang.testerina.natives.io.Sprintf"
+    'class : "org.ballerinalang.testerina.natives.io.StringUtils"
+} external;
+
+isolated function matchWildcard(string functionName, string functionPattern) returns boolean = @java:Method {
+    name : "matchWildcard",
+    'class : "org.ballerinalang.testerina.natives.io.StringUtils"
 } external;
 
 isolated function getBallerinaType((any|error) value) returns string = @java:Method {
