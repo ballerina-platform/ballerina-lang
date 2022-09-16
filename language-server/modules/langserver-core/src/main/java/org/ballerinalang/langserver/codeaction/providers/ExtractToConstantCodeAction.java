@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -35,10 +36,12 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -59,6 +62,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     public static final String NAME = "Extract To Constant";
     private static final String CONSTANT_NAME_PREFIX = "CONST";
+    private static final String RENAME_COMMAND = "Rename Constant";
 
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL,
@@ -81,15 +85,15 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
      */
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context,
-                                                    RangeBasedPositionDetails posDetails) {
-        
+                                           RangeBasedPositionDetails posDetails) {
+
         Node node = posDetails.matchedCodeActionNode();
         BasicLiteralNodeValidator nodeValidator = new BasicLiteralNodeValidator();
         node.accept(nodeValidator);
         if (nodeValidator.getInvalidNode()) {
             return Collections.emptyList();
         }
-        
+
         String constName = getLocalVarName(context);
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
@@ -97,15 +101,18 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return Collections.emptyList();
         }
-        
+
         Position constDeclPosition = getPosition(context);
         String constDeclStr = String.format("const %s %s = %s;%n", typeSymbol.get().signature(), constName, value);
         TextEdit constDeclEdit = new TextEdit(new Range(constDeclPosition, constDeclPosition), constDeclStr);
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
-                PositionUtil.toPosition(replaceRange.endLine())),  constName);
+                PositionUtil.toPosition(replaceRange.endLine())), constName);
 
-        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT, 
-                List.of(constDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract));
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                List.of(constDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
+        addRenamePopup(context, codeAction, constDeclStr.length(), node.textRange().startOffset());
+
+        return Collections.singletonList(codeAction);
     }
 
     @Override
@@ -127,12 +134,27 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     private Position getPosition(CodeActionContext context) {
         ModulePartNode modulePartNode = context.currentSyntaxTree().get().rootNode();
         NodeList<ImportDeclarationNode> importsList = modulePartNode.imports();
-        
+
         if (importsList.isEmpty()) {
             return PositionUtil.toPosition(modulePartNode.lineRange().startLine());
         }
         ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
         return new Position(lastImport.lineRange().endLine().line() + 2, 0);
+    }
+
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction,
+                                int constDeclStrLength, int nodeStartOffset) {
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
+            return;
+        }
+
+        int startPos = constDeclStrLength + nodeStartOffset;
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(RENAME_COMMAND, "ballerina.action.rename",
+                    List.of(context.fileUri(), startPos)));
+        }
     }
 
     /**
