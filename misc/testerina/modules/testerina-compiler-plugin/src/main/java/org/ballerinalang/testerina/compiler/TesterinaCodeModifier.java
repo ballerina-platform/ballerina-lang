@@ -18,19 +18,18 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
-import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.plugins.CodeModifier;
+import io.ballerina.projects.plugins.CodeModifierContext;
 
 /**
- * Compiler plugin for the Testerina module.
+ * Code modifier for the Testerina module.
  *
  * @since 2201.3.0
  */
-public class TesterinaCompilerPlugin extends CompilerPlugin {
+public class TesterinaCodeModifier extends CodeModifier {
 
     @Override
-    public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeGenerator(new TesterinaCodeGenerator());
-        pluginContext.addCodeModifier(new TesterinaCodeModifier());
+    public void init(CodeModifierContext modifierContext) {
+        modifierContext.addSourceModifierTask(new TestExecutionModificationTask());
     }
 }

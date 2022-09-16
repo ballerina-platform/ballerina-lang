@@ -38,13 +38,14 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.plugins.GeneratorTask;
-import io.ballerina.projects.plugins.SourceGeneratorContext;
+import io.ballerina.projects.plugins.ModifierTask;
+import io.ballerina.projects.plugins.SourceModifierContext;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
@@ -52,11 +53,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Code generation task to generate the main Testerina runtime function.
+ * Code modification task to generate the main Testerina runtime function.
  *
  * @since 2201.3.0
  */
-public class TestExecutionGenerationTask implements GeneratorTask<SourceGeneratorContext> {
+public class TestExecutionModificationTask implements ModifierTask<SourceModifierContext> {
 
     private static final String TEST_REGISTER_FUNCTION = "registerTest";
     private static final String SET_OPTIONS_FUNCTION = "setTestOptions";
@@ -74,24 +75,25 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
     private static final String DISABLE_GROUPS_PARAMETER = "disableGroups";
     private static final String TESTS_PARAMETER = "tests";
     private static final String RERUN_FAILED_PARAMETER = "rerunFailed";
-    private static final String LIST_GROUPS_PARAMETER = "listGroups";
 
     @Override
-    public void generate(SourceGeneratorContext generatorContext) {
+    public void modify(SourceModifierContext modifierContext) {
 
-        if (TesterinaCompilerPluginUtils.isSingleFileProject(generatorContext.currentPackage().project())) {
+        if (!TesterinaCompilerPluginUtils.isSingleFileProject(modifierContext.currentPackage().project())) {
             return;
         }
 
-        for (ModuleId moduleId : generatorContext.currentPackage().moduleIds()) {
-            Module module = generatorContext.currentPackage().module(moduleId);
-            TextDocument document = generateDocument(module);
-            generatorContext.addTestSourceFile(document, TEST_EXEC_FILENAME, moduleId);
+        for (ModuleId moduleId : modifierContext.currentPackage().moduleIds()) {
+            Module module = modifierContext.currentPackage().module(moduleId);
+            for (DocumentId documentId: module.documentIds()) {
+                Document document = module.document(documentId);
+                TextDocument updatedTextDocument = modifyDocument(document);
+                modifierContext.modifySourceFile(updatedTextDocument, documentId);
+            }
         }
     }
 
-    private static TextDocument generateDocument(Module module) {
-
+    private static TextDocument modifyDocument(Document document) {
         List<StatementNode> statements = new ArrayList<>();
 
         // Add the statement, 'test:setTestOptions(<args[]>);'
@@ -103,27 +105,16 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 getPositionalArg(GROUPS_PARAMETER),
                 getPositionalArg(DISABLE_GROUPS_PARAMETER),
                 getPositionalArg(TESTS_PARAMETER),
-                getPositionalArg(RERUN_FAILED_PARAMETER),
-                getPositionalArg(LIST_GROUPS_PARAMETER)))));
+                getPositionalArg(RERUN_FAILED_PARAMETER)))));
 
-        // Register all the test cases of the module
-        for (DocumentId documentId : module.testDocumentIds()) {
-            Document document = module.document(documentId);
-            Node node = document.syntaxTree().rootNode();
-            TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
-            node.accept(testFunctionVisitor);
+        ModulePartNode rootNode = document.syntaxTree().rootNode();
+        TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
+        rootNode.accept(testFunctionVisitor);
 
-            // Add the statements, 'check test:registerTest(<name>, <function>);'
-            testFunctionVisitor.getTestStaticFunctions().forEach(func ->
-                    statements.add(invokeRegisterFunction(func.functionName().toString(),
-                            func.functionName().toString())));
-
-            //TODO: Enable dynamic registration upon approval
-//            // Add the statements, 'check <function>()'
-//            testFunctionVisitor.getTestDynamicFunctions().forEach(func ->
-//                    statements.add(invokeFactoryFunction(func.functionName().toString(),
-//                            func.functionSignature().returnTypeDesc())));
-        }
+        // Add the statements, 'check test:registerTest(<name>, <function>);'
+        testFunctionVisitor.getTestStaticFunctions().forEach(func ->
+                statements.add(invokeRegisterFunction(func.functionName().toString(),
+                        func.functionName().toString())));
 
         // Add the statement, 'test:startSuite();'
         statements.add(getFunctionCallStatement(getTestFunctionCall(START_SUITE_FUNCTION,
@@ -156,33 +147,12 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 getFunctionSignature(),
                 functionBodyNode);
 
-        // Construct the module part node
-        // Add the line, 'import ballerina/test;'
-        ImportDeclarationNode testImport = NodeFactory.createImportDeclarationNode(
-                NodeFactory.createToken(
-                        SyntaxKind.IMPORT_KEYWORD,
-                        NodeFactory.createEmptyMinutiaeList(),
-                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
-                NodeFactory.createImportOrgNameNode(
-                        NodeFactory.createIdentifierToken(TEST_ORG_NAME),
-                        NodeFactory.createToken(SyntaxKind.SLASH_TOKEN)),
-                NodeFactory.createSeparatedNodeList(
-                        NodeFactory.createIdentifierToken(TEST_MODULE_NAME)),
-                null,
-                NodeFactory.createToken(
-                        SyntaxKind.SEMICOLON_TOKEN,
-                        NodeFactory.createEmptyMinutiaeList(),
-                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
-
-        // Construct the document content
-        NodeList<ModuleMemberDeclarationNode> nodeList = NodeFactory.createNodeList(List.of(functionDefinition));
-        Token eofToken = NodeFactory.createToken(SyntaxKind.EOF_TOKEN, NodeFactory.createEmptyMinutiaeList(),
-                NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n")));
-        ModulePartNode modulePartNode = NodeFactory.createModulePartNode(
-                NodeFactory.createNodeList(testImport), nodeList, eofToken);
-
-        // Construct the document config
-        return TextDocuments.from(modulePartNode.toSourceCode());
+        NodeList<ModuleMemberDeclarationNode> newMembers =
+                rootNode.members().add(functionDefinition);
+        ModulePartNode newModulePart =
+                rootNode.modify(rootNode.imports(), newMembers, rootNode.eofToken());
+        SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
+        return updatedSyntaxTree.textDocument();
     }
 
     private static StatementNode invokeRegisterFunction(String testNameVal, String testFuncVal) {
@@ -202,23 +172,6 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
         return getFunctionCallStatement(getTestFunctionCall(TEST_REGISTER_FUNCTION, separatedNodeList));
     }
-
-    //TODO: Enable dynamic registration upon approval
-//    private static StatementNode invokeFactoryFunction(String functionName,
-//                                                       Optional<ReturnTypeDescriptorNode> returnTypeDesc) {
-//
-//        SimpleNameReferenceNode simpleNameReferenceNode =
-//                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(functionName));
-//        ExpressionNode functionExpressionNode = NodeFactory.createFunctionCallExpressionNode(
-//                simpleNameReferenceNode,
-//                NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
-//                NodeFactory.createSeparatedNodeList(new ArrayList<>()),
-//                NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
-//
-//        return getFunctionCallStatement(returnTypeDesc.isPresent()
-//                ? getCheckedExpressionStatement(functionExpressionNode)
-//                : functionExpressionNode);
-//    }
 
     public static MethodCallExpressionNode getTestFunctionCall(String functionName,
                                                                SeparatedNodeList<FunctionArgumentNode> nodeList) {
@@ -242,17 +195,6 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
     }
-
-    //TODO: Enable dynamic registration upon approval
-//    private static CheckExpressionNode getCheckedExpressionStatement(ExpressionNode expression) {
-//
-//        return NodeFactory.createCheckExpressionNode(
-//                SyntaxKind.CHECK_EXPRESSION,
-//                NodeFactory.createToken(SyntaxKind.CHECK_KEYWORD,
-//                        NodeFactory.createEmptyMinutiaeList(),
-//                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
-//                expression);
-//    }
 
     private static SeparatedNodeList<FunctionArgumentNode> getFunctionParamList(PositionalArgumentNode... args) {
 
@@ -291,8 +233,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(GROUPS_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(DISABLE_GROUPS_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(TESTS_PARAMETER),
-                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(RERUN_FAILED_PARAMETER),
-                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(LIST_GROUPS_PARAMETER)),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(RERUN_FAILED_PARAMETER)),
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
     }
 
