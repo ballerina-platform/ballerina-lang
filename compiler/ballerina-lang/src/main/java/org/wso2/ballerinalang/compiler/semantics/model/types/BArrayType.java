@@ -106,7 +106,7 @@ public class BArrayType extends BType implements ArrayType {
         this.resolvingToString = true;
         StringBuilder sb = new StringBuilder(eType.toString());
         String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);
-        if (eType.tag == TypeTags.ARRAY) {
+        if (eType.tag == TypeTags.ARRAY && !eType.toString().equals("...")) {
             if (state != BArrayState.OPEN) {
                 sb.insert(sb.indexOf("["), "[" + tempSize + "]");
             } else {
