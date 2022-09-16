@@ -18,19 +18,26 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
-import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 
 /**
- * Compiler plugin for the Testerina module.
+ * Testerina compiler plugin utils for the Testerina module.
  *
  * @since 2201.3.0
  */
-public class TesterinaCompilerPlugin extends CompilerPlugin {
+public class TesterinaCompilerPluginUtils {
 
-    @Override
-    public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeGenerator(new TesterinaCodeGenerator());
-        pluginContext.addCodeModifier(new TesterinaCodeModifier());
+    /**
+     * Returns true if a project is single file project kind.
+     * @param project
+     * @return is single file project
+     */
+    public static boolean isSingleFileProject(Project project) {
+        boolean isSingleFileProject = false;
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            isSingleFileProject = true;
+        }
+        return isSingleFileProject;
     }
 }
