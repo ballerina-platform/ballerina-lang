@@ -572,7 +572,13 @@ public class TestProcessor {
      * @param module Module
      * @return String
      */
+
+    // TODO
     private String getExecutePath(Module module) {
+        if (isSingleFileProject(module.project())) {
+            String fileName = module.project().sourceRoot().getFileName().toString();
+            return fileName.substring(0, fileName.length() - 4);
+        }
         for (DocumentId docId : module.testDocumentIds()) {
             if (module.document(docId).name().startsWith(TEST_EXECUTE_FILE_PREFIX)) {
                 String executePath = module.document(docId).name();
