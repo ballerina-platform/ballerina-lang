@@ -92,7 +92,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);
         } else {
-            Assert.fail("Package Name Validation for coverage XML falied for single module project");
+            Assert.fail("Package Name Validation for coverage XML failed for single module project");
         }
     }
 
@@ -135,19 +135,24 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "testerina_report/foo/0",
                 "testerina_report/foo$0046bar/0",
                 "testerina_report/foo/0/annotations",
+                "testerina_report/foo$0046bar$test/0/types",
                 "testerina_report/foo/0/constants",
                 "testerina_report/foo$0046math$test/0/types",
                 "testerina_report/foo$0046math/0/annotations",
                 "testerina_report/foo$0046bar$0046tests$test/0/creators",
                 "testerina_report/foo$0046bar$0046tests$test/0",
                 "testerina_report/foo$0046bar$0046tests/0/annotations",
+                "testerina_report/foo$0046bar$test/0/constants",
                 "testerina_report/foo$0046bar$0046tests$test/0/annotations",
                 "testerina_report/foo$0046math$test/0/annotations",
+                "testerina_report/foo$0046bar$test/0/creators",
                 "testerina_report/foo$test/0/annotations",
                 "testerina_report/foo$test/0/constants",
+                "testerina_report/foo$0046bar$test/0/annotations",
                 "testerina_report/foo$0046math/0",
                 "testerina_report/foo$0046bar/0/constants",
                 "test-report-tests/modules/bar",
+                "testerina_report/foo$0046bar$test/0",
                 "testerina_report/foo$test/0/creators"
         );
         // Validate Package names in XML File
