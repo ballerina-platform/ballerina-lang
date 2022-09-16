@@ -426,7 +426,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangNode> typeAndClassDefsCloned = new ArrayList<>();
         typeAndClassDefs.forEach(i -> typeAndClassDefsCloned.add(nodeCloner.cloneNode(i)));
 
-        defineTypeNodes(typeAndClassDefs, pkgEnv);
+
 
         boolean runTypeResolver = false;
         if (runTypeResolver) {
@@ -435,6 +435,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeResolver.defineBTypes(typeAndClassDefsCloned, cloneEnv, pkgNode);
             this.env = prevEnv;
         }
+
+        defineTypeNodes(typeAndClassDefs, pkgEnv);
 
         for (BLangVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
