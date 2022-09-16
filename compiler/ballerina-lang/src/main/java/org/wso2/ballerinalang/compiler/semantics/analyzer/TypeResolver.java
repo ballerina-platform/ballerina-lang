@@ -50,7 +50,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDI
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
 /**
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 
 public class TypeResolver {
@@ -1482,27 +1482,42 @@ public class TypeResolver {
         if (constant.typeNode != null) {
             staticType = resolveTypeDesc(symEnv, modTable, typeDef, 0, constant.typeNode);//symResolver.resolveTypeNode(constant.typeNode, symEnv);
         }
-        ConstantTypeChecker.AnalyzerData data = new ConstantTypeChecker.AnalyzerData();
-        data.env = symEnv;
-        data.modTable = modTable;
-        BType type = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
-
-        if (type == symTable.semanticError) {
-            return;
-        } else if (staticType == symTable.noType) {
-            staticType = type;
-        }
 
         BConstantSymbol constantSymbol = symEnter.getConstantSymbol(constant);
         constant.symbol = constantSymbol;
 
-        BType referredType = Types.getReferredType(staticType);
-        if (typeDef == null) {
-            constantSymbol.type = referredType;
+        ConstantTypeChecker.AnalyzerData data = new ConstantTypeChecker.AnalyzerData();
+        data.constantSymbol = constantSymbol;
+        data.env = symEnv;
+        data.modTable = modTable;
+        BType inferredExpType = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
+
+        BType narrowedType;
+        if (inferredExpType == symTable.semanticError) {
+            return;
+        } else if (staticType == symTable.noType) {
+            narrowedType = constantTypeChecker.getNarrowedType(inferredExpType);
         } else {
-            constantSymbol.type = typeDef.symbol.type;
+            data.isValidating = true;
+            data.diagCode = null;
+            narrowedType = constantTypeChecker.getValidType(staticType, inferredExpType, data);
+
+            if (data.diagCode == DiagnosticErrorCode.AMBIGUOUS_TYPES) {
+                dlog.error(constant.expr.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, staticType);
+                return;
+            } else if (narrowedType == symTable.semanticError) {
+                narrowedType = constantTypeChecker.getNarrowedType(inferredExpType);
+                dlog.error(constant.expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, staticType, narrowedType);
+                return;
+            }
         }
-        constantSymbol.literalType = referredType;
+
+        BType intersectionType = ImmutableTypeCloner.getImmutableType(constant.pos, types, narrowedType, symEnv,
+                symEnv.scope.owner.pkgID, symEnv.scope.owner, symTable, anonymousModelHelper, names,
+                new HashSet<>());
+
+        constantSymbol.type = intersectionType;
+        constantSymbol.literalType = intersectionType;
 
         if (constantSymbol.type.tag != TypeTags.TYPEREFDESC && typeDef != null) {
             constantSymbol.type.tsymbol.flags |= typeDef.symbol.flags;
@@ -1525,21 +1540,6 @@ public class TypeResolver {
         symEnv.scope.define(constantSymbol.name, constantSymbol);
         constResolver.resolve(constant, pkgNode.packageID, symEnv);
     }
-
-//    private BType evaluateConst(BLangConstant constant) {
-//        switch (constant.symbol.value.type.getKind()) {
-//            case INT:
-//                return SemTypes.intConst((long) constant.symbol.value.value);
-//            case BOOLEAN:
-//                return SemTypes.booleanConst((boolean) constant.symbol.value.value);
-//            case STRING:
-//                return  SemTypes.stringConst((String) constant.symbol.value.value);
-//            case FLOAT:
-//                return SemTypes.floatConst((double) constant.symbol.value.value);
-//            default:
-//                throw new AssertionError("Expression type not implemented for const semtype");
-//        }
-//    }
 
     /**
      * @since 3.0.0
