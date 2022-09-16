@@ -27,6 +27,11 @@ public function startSuite() {
             println("\t[" + string:'join(", ", ...groupsList) + "]");
         }
     } else {
+        if testRegistry.getFunctions().length() == 0 && testRegistry.getDependentFunctions().length() == 0 {
+            println("\tNo tests found");
+            return;
+        }
+
         error? err = orderTests();
         if err is error { //TODO: break the execution and display the error in a better way
             println(err.message());

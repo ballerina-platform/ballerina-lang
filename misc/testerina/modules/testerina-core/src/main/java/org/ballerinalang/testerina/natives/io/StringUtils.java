@@ -31,8 +31,6 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import java.util.IllegalFormatConversionException;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
-
 /**
  * External function ballerina/test#sprintf.
  *
@@ -45,7 +43,7 @@ public class StringUtils {
 
     public static boolean matchWildcard(BString functionName, BString functionPattern) {
         return Pattern.matches(functionPattern.getValue().replace(TesterinaConstants.WILDCARD,
-                        DOT + TesterinaConstants.WILDCARD), functionName.getValue());
+                        TesterinaConstants.DOT + TesterinaConstants.WILDCARD), functionName.getValue());
     }
 
     public static BString sprintf(BString format, Object... args) {
