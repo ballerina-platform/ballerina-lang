@@ -3561,24 +3561,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangType type : intersectionTypeNode.constituentTypeNodes) {
             defineNode(type, env);
         }
-
-        List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
-
-        BType typeOneReference = Types.getReferredType(constituentTypeNodes.get(0).getBType());
-        BType typeTwoReference = Types.getReferredType(constituentTypeNodes.get(1).getBType());
-        if (typeOneReference == symTable.noType || typeTwoReference == symTable.noType) {
-            return;
-        }
-
-        boolean hasReadOnlyType = typeOneReference == symTable.readonlyType
-                                    || typeTwoReference == symTable.readonlyType;
-
-        boolean isErrorIntersection = typeOneReference.tag == TypeTags.ERROR || typeTwoReference.tag == TypeTags.ERROR;
-
-        if (!(hasReadOnlyType || isErrorIntersection)) {
-            dlog.error(intersectionTypeNode.pos,
-                       DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION, intersectionTypeNode);
-        }
     }
 
     private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode) {

@@ -19,3 +19,14 @@ public function testFunctionWithObjectConstructor() {
         }
     };
 }
+
+function returnIntWithError() returns int|error {
+    return 10;
+}
+
+public function testCheckExprReturnType(int x) returns error {
+    if (x == 2) {
+        _ = check returnIntWithError();
+    }
+    return "string";
+}

@@ -70,7 +70,7 @@ public class IntersectionTypeTest {
 
         validateError(result, index++, "invalid intersection type with 'readonly', 'future<int>' can never be " +
                 "'readonly'", 19, 5);
-        validateError(result, index++, "unsupported intersection 'json & int'", 23, 5);
+        validateError(result, index++, "unsupported intersection", 23, 5);
         validateError(result, index++, "invalid intersection type '(Bar & readonly)': no intersection", 26,
                       45);
         validateError(result, index++, "invalid intersection type '(Baz & readonly)': no intersection", 32,
@@ -237,14 +237,13 @@ public class IntersectionTypeTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/types/intersection/unsupported_intersection_negative.bal");
         int index = 0;
-        validateError(result, index++, "invalid intersection type 'int & string': no intersection", 17, 8);
-        validateError(result, index++, "unsupported intersection 'int & string'", 17, 8);
-        validateError(result, index++, "unsupported intersection 'int & int'", 18, 9);
-        validateError(result, index++,
-                "unsupported intersection 'function()returns(int) & function()returns(2|3|4.0f|-50d|\"a\")'", 19, 9);
-        validateError(result, index++, "unsupported intersection 'int & int'", 21, 1);
+        validateError(result, index++, "unsupported intersection", 17, 8);
+        validateError(result, index++, "unsupported intersection", 18, 9);
+        validateError(result, index++, "unsupported intersection", 19, 9);
+        validateError(result, index++, "unsupported intersection", 21, 1);
         validateError(result, index++, "unknown type 'A'", 23, 14);
-        validateError(result, index++, "unsupported intersection 'int & int'", 23, 25);
+        validateError(result, index++, "unknown type 'II'", 23, 19);
+        validateError(result, index++, "unsupported intersection", 23, 25);
         assertEquals(result.getErrorCount(), index);
     }
 

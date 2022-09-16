@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 18,
+    "character": 53
+  },
+  "source": "create_function_in_remote_method_call_action1.bal",
+  "expected": [
+    {
+      "title": "Create function 'getRandomString(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 1
+            },
+            "end": {
+              "line": 19,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getRandomString() returns string {\n    return \"\";\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_remote_method_call_action1.bal",
+        "range": {
+          "start": {
+            "line": 18,
+            "character": 52
+          },
+          "end": {
+            "line": 18,
+            "character": 69
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 18.0,
+              "character": 52.0
+            },
+            "end": {
+              "line": 18.0,
+              "character": 69.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

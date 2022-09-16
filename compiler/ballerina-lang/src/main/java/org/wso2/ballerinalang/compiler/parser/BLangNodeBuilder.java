@@ -3555,7 +3555,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLSimpleNameNode xmlSimpleNameNode) {
         BLangXMLQName xmlName = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
-        xmlName.localname = createIdentifier(xmlSimpleNameNode.name());
+        Token xmlSimpleName = xmlSimpleNameNode.name();
+        xmlName.localname = createIdentifier(getPosition(xmlSimpleName), xmlSimpleName, true);
         xmlName.prefix = createIdentifier(null, "");
         xmlName.pos = getPosition(xmlSimpleNameNode);
         return xmlName;
@@ -3976,7 +3977,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             intersectionType.constituentTypeNodes.add(lhsType);
             intersectionType.constituentTypeNodes.add(rhsType);
         }
-        intersectionType.inTypeDefinitionContext = isInTypeDefinitionContext(intersectionTypeDescriptorNode.parent());
+
         intersectionType.pos = getPosition(intersectionTypeDescriptorNode);
         return intersectionType;
     }
@@ -5433,6 +5434,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangIdentifier createIdentifier(Location pos, Token token) {
+        return createIdentifier(pos, token, false);
+    }
+
+    private BLangIdentifier createIdentifier(Location pos, Token token, boolean isXML) {
         if (token == null) {
             return createIdentifier(pos, (String) null);
         }
@@ -5440,7 +5445,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String identifierName = token.text();
         if (token.isMissing() || identifierName.equals(IDENTIFIER_LITERAL_PREFIX)) {
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
-        } else if (identifierName.equals("_") || identifierName.equals(IDENTIFIER_LITERAL_PREFIX + "_")) {
+        } else if (!isXML && (identifierName.equals("_") || identifierName.equals(IDENTIFIER_LITERAL_PREFIX + "_"))) {
             dlog.error(pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED_AS_IDENTIFIER);
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
         }
