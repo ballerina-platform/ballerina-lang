@@ -51,6 +51,7 @@ import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -637,5 +638,38 @@ public class SortingUtil {
             return Optional.of((QueryExpressionNode) evalNode2);
         }
         return Optional.empty();
+    }
+    
+    /**
+     * Sets the sorting text to provided completion items to be suggested after configurable qualifier.
+     *
+     * @param completionItems Completion items to be set sorting texts
+     */
+    public static void sortCompletionsAfterConfigurableQualifier(List<LSCompletionItem> completionItems) {
+        List<String> anyDataSubTypeLabels = Arrays.asList("boolean", "int", "float",
+                "decimal", "string", "xml", "map", "table");
+        completionItems.forEach(lsCompletionItem -> {
+            String sortText;
+            if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Unit &&
+                    lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
+                if (symbol.isPresent() && symbol.get() instanceof ModuleSymbol &&
+                        CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()) &&
+                        anyDataSubTypeLabels.contains(lsCompletionItem.getCompletionItem().getLabel())
+                ) {
+                    sortText = SortingUtil.genSortText(1);
+                } else {
+                    sortText = SortingUtil.genSortText(3);
+                }
+            } else if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter
+                    || lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Struct) {
+                sortText = SortingUtil.genSortText(2);
+            } else if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Module) {
+                sortText = SortingUtil.genSortText(3);
+            } else {
+                sortText = SortingUtil.genSortText(4);
+            }
+            lsCompletionItem.getCompletionItem().setSortText(sortText);
+        });
     }
 }

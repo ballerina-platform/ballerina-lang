@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -29,14 +28,12 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,7 +87,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 currently the qualifier can be isolated/transactional/client.
             */
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, context));
-            Optional<Token> lastQualifier = getLastQualifier(context, node);
+            Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
             if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
                 resolvedContext = ResolvedContext.ON_CONFIGURABLE_QUALIFIER;
             }
@@ -105,7 +102,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     @Override
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
-        Optional<Token> lastQualifier = getLastQualifier(context, node);
+        Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
         if (lastQualifier.isEmpty()) {
             return completionItems;
         }
@@ -181,45 +178,13 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 .getServiceTemplates(context));
         return completionItems;
     }
-
-    private Optional<Token> getLastQualifier(BallerinaCompletionContext context, Node node) {
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
-        if (qualifiers.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(qualifiers.get(qualifiers.size() - 1));
-    }
-
+    
     @Override
     public void sort(BallerinaCompletionContext context, ModulePartNode node,
                      List<LSCompletionItem> completionItems, Object... metaData) {
         ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
         if (resolvedContext == ResolvedContext.ON_CONFIGURABLE_QUALIFIER) {
-            List<String> anyDataSubTypeLabels = Arrays.asList("boolean", "int", "float",
-                    "decimal", "string", "xml", "map", "table");
-            completionItems.forEach(lsCompletionItem -> {
-                String sortText;
-                if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Unit &&
-                        lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
-                    Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
-                    if (symbol.isPresent() && symbol.get() instanceof ModuleSymbol &&
-                            CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()) &&
-                            anyDataSubTypeLabels.contains(lsCompletionItem.getCompletionItem().getLabel())
-                    ) {
-                        sortText = SortingUtil.genSortText(1);
-                    } else {
-                        sortText = SortingUtil.genSortText(3);
-                    }
-                } else if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter
-                        || lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Struct) {
-                    sortText = SortingUtil.genSortText(2);
-                } else if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Module) {
-                    sortText = SortingUtil.genSortText(3);
-                } else {
-                    sortText = SortingUtil.genSortText(4);
-                }
-                lsCompletionItem.getCompletionItem().setSortText(sortText);
-            });
+            SortingUtil.sortCompletionsAfterConfigurableQualifier(completionItems);
         } else {
             ModulePartNodeContextUtil.sort(completionItems);
         }
