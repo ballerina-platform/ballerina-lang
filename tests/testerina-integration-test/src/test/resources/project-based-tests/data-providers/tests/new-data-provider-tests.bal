@@ -53,13 +53,6 @@ function errorDataProviderTest(int value1, int value2, int result1) returns erro
 }
 
 @test:Config {
-    dataProvider: dataGen5
-}
-function invalidDataProviderTest(int value1, int value2, int result1) returns error? {
-    test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
-}
-
-@test:Config {
     dataProvider: dataGen6
 }
 function testFunction1(int value1, int value2, int result1) returns error? {
@@ -257,10 +250,6 @@ function dataGen3() returns map<[json,json, json]> {
 
 function dataGen4() returns map<[string]>|error{
     return error("Error occurred while generating data set.");
-}
-
-function dataGen5() returns (string) {
-    return "this is invalid";
 }
 
 function dataGen6() returns map<[int, int, int]>|error {

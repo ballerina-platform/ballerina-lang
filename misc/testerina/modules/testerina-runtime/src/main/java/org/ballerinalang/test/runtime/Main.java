@@ -127,7 +127,7 @@ public class Main {
                         Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite,
                                 jsonTmpSummaryPath, classLoader, new TestArguments(args[0], moduleName, args[2],
-                                        args[3], args[4], args[5], args[6], args[7]));
+                                        args[3], args[4], args[5], args[6], args[7], args[8]));
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {

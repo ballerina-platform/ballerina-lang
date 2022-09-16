@@ -18,16 +18,30 @@ boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 
 public function startSuite() {
-    error? err = orderTests();
-    if err is error { //TODO: break the execution and display the error in a better way
-        println(err.message());
+    if listGroups {
+        string[] groupsList = groupStatusRegistry.getGroupsList();
+        if groupsList.length() == 0 {
+            println("\tThere are no groups available!");
+        } else {
+            println("\tFollowing groups are available :");
+            println("\t[" + string:'join(", ", ...groupsList) + "]");
+        }
     } else {
-        executeBeforeSuiteFunctions();
-        executeTests();
-        executeAfterSuiteFunctions();
-        reportGenerators.forEach(reportGen => reportGen(reportData));
-    }
+        if testRegistry.getFunctions().length() == 0 && testRegistry.getDependentFunctions().length() == 0 {
+            println("\tNo tests found");
+            return;
+        }
 
+        error? err = orderTests();
+        if err is error { //TODO: break the execution and display the error in a better way
+            println(err.message());
+        } else {
+            executeBeforeSuiteFunctions();
+            executeTests();
+            executeAfterSuiteFunctions();
+            reportGenerators.forEach(reportGen => reportGen(reportData));
+        }
+    }
 }
 
 function executeTests() {
@@ -54,11 +68,13 @@ function executeTest(TestFunction testFunction) {
     executeBeforeEachFunctions();
     executeBeforeFunction(testFunction);
 
+    boolean shouldSkipDependents = false;
     if !testFunction.skip && !shouldSkip {
         DataProviderReturnType? params = testFunction.params;
         if params is map<AnyOrError[]> {
             foreach [string, AnyOrError[]] entry in params.entries() {
                 if executeDataDrivenTest(testFunction, entry[0], entry[1]) {
+                    shouldSkipDependents = true;
                     break;
                 }
             }
@@ -66,18 +82,23 @@ function executeTest(TestFunction testFunction) {
             int i = 0;
             foreach AnyOrError[] entry in params {
                 if executeDataDrivenTest(testFunction, i.toString(), entry) {
+                    shouldSkipDependents = true;
                     break;
                 }
                 i += 1;
             }
         } else {
-            ExecutionError? err = executeTestFunction(testFunction, "");
-            if err is ExecutionError {
-                reportData.onFailed(name = testFunction.name, message = err.message());
+            ExecutionError|boolean output = executeTestFunction(testFunction, "");
+            if output is ExecutionError {
+                reportData.onFailed(name = testFunction.name, message = output.message());
+            }
+            if output is boolean && output {
+                shouldSkipDependents = true;
             }
         }
     } else {
         reportData.onSkipped(name = testFunction.name);
+        shouldSkipDependents = true;
     }
 
     testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
@@ -85,6 +106,11 @@ function executeTest(TestFunction testFunction) {
     executeAfterEachFunctions();
     executeAfterGroupFunctions(testFunction);
 
+    if shouldSkipDependents {
+        testFunction.dependents.forEach(function(TestFunction dependent) {
+            dependent.skip = true;
+        });
+    }
     testFunction.dependents.forEach(dependent => executeTest(dependent));
 }
 
@@ -175,7 +201,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrEr
             return false;
         }
     }
-    ExecutionError? err = executeTestFunction(testFunction, suffix, params);
+    ExecutionError|boolean err = executeTestFunction(testFunction, suffix, params);
     if err is ExecutionError {
         reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
             + "]\n" + getErrorMessage(err));
@@ -195,13 +221,15 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function executeTestFunction(TestFunction testFunction, string suffix, AnyOrError[]? params = ()) returns ExecutionError? {
+function executeTestFunction(TestFunction testFunction, string suffix, AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is TestError {
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output));
+        return true;
     } else if output is any {
         reportData.onPassed(name = testFunction.name, suffix = suffix);
+        return false;
     } else {
         return error(getErrorMessage(output), functionName = testFunction.name);
     }
@@ -232,8 +260,7 @@ function orderTests() returns error? {
 function restructureTest(TestFunction testFunction, string[] descendants) returns error? {
     descendants.push(testFunction.name);
 
-    // TODO: Change the type to function after https://github.com/ballerina-platform/ballerina-lang/issues/37379 fixed
-    foreach string dependsOnFunction in testFunction.dependsOnString {
+    foreach function dependsOnFunction in testFunction.dependsOn {
         TestFunction dependsOnTestFunction = check testRegistry.getTestFunction(dependsOnFunction);
         dependsOnTestFunction.dependents.push(testFunction);
 
@@ -246,7 +273,6 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
         } else if !dependsOnTestFunction.visited {
             check restructureTest(dependsOnTestFunction, descendants);
         }
-
     }
 
     testFunction.enabled = true;

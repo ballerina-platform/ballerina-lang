@@ -109,6 +109,7 @@ public class RunTestsTask implements Task {
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private Map<String, Module> coverageModules;
+    private boolean listGroups;
 
     TestReport testReport;
 
@@ -121,7 +122,7 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules) {
+                        Map<String, Module> modules, boolean listGroups) {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -138,6 +139,7 @@ public class RunTestsTask implements Task {
         this.includesInCoverage = includes;
         this.coverageReportFormat = coverageFormat;
         this.coverageModules = modules;
+        this.listGroups = listGroups;
     }
 
     @Override
@@ -441,6 +443,7 @@ public class RunTestsTask implements Task {
                 this.disableGroupList : "");
         cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
+        cmdArgs.add(Boolean.toString(listGroups));
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();

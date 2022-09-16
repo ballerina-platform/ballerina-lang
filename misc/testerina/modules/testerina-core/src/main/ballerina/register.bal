@@ -31,7 +31,7 @@ public function registerTest(string name, function f, string[] dependsOn = []) {
 type TestFunction record {|
     string name;
     function executableFunction;
-    boolean enabled = false;
+    boolean enabled = true;
     DataProviderReturnType? params = ();
     function? before = ();
     function? after = ();
@@ -58,11 +58,11 @@ class TestRegistry {
         }
     }
 
-    function getTestFunction(string dependsOnFunction) returns TestFunction|error {
+    function getTestFunction(function f) returns TestFunction|error {
         TestFunction[] filter;
-        filter = self.rootRegistry.filter(testFunction => dependsOnFunction == testFunction.name);
+        filter = self.rootRegistry.filter(testFunction => f === testFunction.executableFunction);
         if filter.length() == 0 {
-            filter = self.dependentRegistry.filter(testFunction => dependsOnFunction == testFunction.name);
+            filter = self.dependentRegistry.filter(testFunction => f === testFunction.executableFunction);
             if filter.length() == 0 {
                 //TODO: need to obtain the function name form the variable
                 return error(string `The dependent test function is either disabled or not included.`);
@@ -70,20 +70,6 @@ class TestRegistry {
         }
         return filter.pop();
     }
-
-    // TODO: Enable this function after https://github.com/ballerina-platform/ballerina-lang/issues/37379 fixed
-    // function getTestFunction(function f) returns TestFunction|error {
-    //     TestFunction[] filter;
-    //     filter = self.rootRegistry.filter(testFunction => f === testFunction.executableFunction);
-    //     if filter.length() == 0 {
-    //         filter = self.dependentRegistry.filter(testFunction => f === testFunction.executableFunction);
-    //         if filter.length() == 0 {
-    //             //TODO: need to obtain the function name form the variable
-    //             return error(string `The dependent test function is either disabled or not included.`);
-    //         }
-    //     }
-    //     return filter.pop();
-    // }
 
     function getFunctions() returns TestFunction[] => self.rootRegistry.sort(key = testFunctionsSort);
 
@@ -142,6 +128,8 @@ class GroupStatusRegistry {
     }
 
     function getSkipAfterGroup(string group) returns boolean => self.skip.get(group);
+
+    function getGroupsList() returns string[] => self.totalTests.keys();
 }
 
 isolated function testFunctionsSort(TestFunction testFunction) returns string => testFunction.name;
