@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
@@ -33,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 
 import java.util.Optional;
@@ -151,7 +153,7 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
         if (PositionUtil.isWithinLineRange(matchedNode.lineRange(), node.containerExpression().lineRange())) {
             return Optional.of(node.containerExpression());
         }
-        
+
         if (!node.keyExpression().isEmpty()) {
             for (ExpressionNode expressionNode : node.keyExpression()) {
                 if (PositionUtil.isWithinLineRange(matchedNode.lineRange(), expressionNode.lineRange())) {
@@ -159,8 +161,27 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
                 }
             }
         }
-        
+
         return Optional.of(node);
+    }
+
+    @Override
+    public Optional<ExpressionNode> transform(ConditionalExpressionNode conditionalExpressionNode) {
+        ExpressionNode lhsExpr = conditionalExpressionNode.lhsExpression();
+        ExpressionNode middleExpr = conditionalExpressionNode.middleExpression();
+        ExpressionNode endExpr = conditionalExpressionNode.endExpression();
+        LineRange matchedLineRange = matchedNode.lineRange();
+
+        if (PositionUtil.isWithinLineRange(matchedLineRange, lhsExpr.lineRange())) {
+            return Optional.of(lhsExpr);
+        }
+        if (PositionUtil.isWithinLineRange(matchedLineRange, middleExpr.lineRange())) {
+            return Optional.of(middleExpr);
+        }
+        if (PositionUtil.isWithinLineRange(matchedLineRange, endExpr.lineRange())) {
+            return Optional.of(endExpr);
+        }
+        return Optional.of(conditionalExpressionNode);
     }
 
     @Override

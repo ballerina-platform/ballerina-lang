@@ -128,11 +128,12 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
         String typeName = "";
         if (expectedTypeSymbol.subtypeOf(actualTypeSymbol)) {
             typeName = NameUtil.getModifiedTypeName(context, expectedTypeSymbol);
-        } else if (isNumeric(actualTypeSymbol)) {
-            Optional<TypeSymbol> numericExpectedType = checkAndGetNumericExpectedType(expectedTypeSymbol);
+        } else if (isNumeric(expectedTypeSymbol)) {
+            Optional<TypeSymbol> numericExpected = findNumericType(expectedTypeSymbol);
+            Optional<TypeSymbol> numericActual = findNumericType(actualTypeSymbol);
             //Numeric types can be cast between each other.
-            if (numericExpectedType.isPresent()) {
-                typeName = NameUtil.getModifiedTypeName(context, numericExpectedType.get());
+            if (numericActual.isPresent() && numericExpected.isPresent()) {
+                typeName = NameUtil.getModifiedTypeName(context, numericExpected.get());
             }
         }
 
@@ -192,16 +193,16 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
     }
 
     private boolean isNumeric(TypeSymbol typeSymbol) {
-        //Todo: When the type is a singleton.
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
-           return  ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream().allMatch(this::isNumeric);
+            return ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream()
+                    .anyMatch(this::isNumeric);
         }
         return (typeSymbol.typeKind().isIntegerType()
                 || typeSymbol.typeKind() == TypeDescKind.FLOAT
                 || typeSymbol.typeKind() == TypeDescKind.DECIMAL);
     }
 
-    private Optional<TypeSymbol> checkAndGetNumericExpectedType(TypeSymbol typeSymbol) {
+    private Optional<TypeSymbol> findNumericType(TypeSymbol typeSymbol) {
         if (typeSymbol.typeKind() != TypeDescKind.UNION && isNumeric(typeSymbol)) {
             return Optional.of(typeSymbol);
         }
