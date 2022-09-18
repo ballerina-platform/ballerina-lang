@@ -403,14 +403,17 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                 String expectedFilePath = expArgs.get(0).getAsString();
                 int expectedRenamePosition = expArgs.get(1).getAsInt();
-
                 if (actualFilePath.isPresent()) {
-                    if (sourceRoot.resolve(actualFilePath.get()).equals(sourceRoot.resolve(expectedFilePath))
+                    String actualPath = actualFilePath.get();
+                    if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
+                        actualPath = actualFilePath.get().substring(1);
+                    }
+                    if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath))
                             && actualRenamePosition == expectedRenamePosition) {
                         return true;
                     }
                     JsonArray newArgs = new JsonArray();
-                    newArgs.add(actualFilePath.get());
+                    newArgs.add(actualPath);
                     newArgs.add(actualRenamePosition);
 
                     //Replace the args of the actual command to update the test config
