@@ -4050,7 +4050,11 @@ public class Types {
         BigDecimal bd;
         try {
             bd = new BigDecimal(decimalLiteral, MathContext.DECIMAL128);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
+            // If there is an error, that means there is a parsing error.
+            if (dlog.errorCount() == 0) {
+                dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, decimalLiteral, symTable.decimalType);
+            }
             return false;
         }
         if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
