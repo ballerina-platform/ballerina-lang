@@ -169,4 +169,8 @@ public class CommandConstants {
     public static final String EXTRACT_TYPE = "Extract type";
 
     public static final String MAKE_ANNOT_DECL_CONST = "Convert '%s' to constant";
+
+    public static final String ADD_CONDITIONAL_DEFAULT = "Add conditional default value";
+    
+    public static final String EXTRACT_TO_CONSTANT = "Extract to constant";
 }

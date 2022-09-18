@@ -23,10 +23,8 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -38,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
@@ -462,7 +459,7 @@ class ModuleContext {
         }
 
         // Serialize the BIR  model
-        birContent = generateBIR(moduleContext, compilerContext);
+        birContent = generateBIR(moduleContext);
 
         // Skip the code generation phase if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
@@ -472,27 +469,13 @@ class ModuleContext {
         // Generate and write the thin JAR to the file system
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
 
-        // Skip writing the bir for BuildProject
-        if (birContent == null) {
-            return;
-        }
-
         // Write the bir to the file system
         // This code will execute only if JAR caching is successful
         // TODO: check the filesystem cache and delete if the cache is incomplete (if BIR or JAR is missing)
         moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
     }
 
-    private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
-        // Skip caching the BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
-        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
-                moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
-            CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-            if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
-                return null;
-            }
-        }
-
+    private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext) {
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         try {
