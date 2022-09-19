@@ -451,12 +451,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol).returnTypeAnnots.addAll(
                     getAnnotationAttachmentSymbols(funcNode.returnTypeAnnAttachments));
             if (returnTypeNode.getKind() == TUPLE_TYPE_NODE) {
-                for (BLangMemberTypeNode memberTypeNode : ((BLangTupleTypeNode) returnTypeNode).memberTypeNodes) {
-                    for (BLangAnnotationAttachment annotationAttachment : memberTypeNode.annAttachments) {
-                        annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
-                        this.analyzeDef(annotationAttachment, data);
-                    }
-                }
+                visit((BLangTupleTypeNode) returnTypeNode, data);
             }
         }
 
