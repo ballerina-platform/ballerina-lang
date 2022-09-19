@@ -59,8 +59,9 @@ public class GetterCodeAction implements RangeBasedCodeActionProvider {
         String fieldName = String.valueOf(objectFieldNode.fieldName().text());
         String commandTitle = String.format("Create a getter for '%s'", fieldName);
         String typeName = String.valueOf(objectFieldNode.typeName()).trim();
-        String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
-                fieldName.substring(1);
+        String extractedFieldName = CodeActionUtil.removeQuotedIdentifier(fieldName);
+        String functionName = "get" + extractedFieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                extractedFieldName.substring(1);
         if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
         }
