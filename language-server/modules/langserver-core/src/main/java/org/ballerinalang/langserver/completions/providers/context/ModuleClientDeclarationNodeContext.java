@@ -15,27 +15,19 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.ConstantSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ModuleClientDeclarationNode} context.
@@ -54,22 +46,8 @@ public class ModuleClientDeclarationNodeContext extends AbstractCompletionProvid
                                                  ModuleClientDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (this.onSuggestConstants(context, node)) {
-            Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.CONSTANT
-                    && ((ConstantSymbol) symbol).broaderTypeDescriptor().typeKind() == TypeDescKind.STRING;
-            NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate);
-                completionItems.addAll(this.getCompletionItemList(moduleContent, context));
-            } else {
-                List<Symbol> constants = context.visibleSymbols(context.getCursorPosition()).stream()
-                        .filter(predicate)
-                        .collect(Collectors.toList());
-                completionItems.addAll(this.getCompletionItemList(constants, context));
-                completionItems.addAll(this.getModuleCompletionItems(context));
-            }
+        if (this.onSuggestClientUri(context, node)) {
+            return Collections.emptyList();
         } else if (this.onSuggestAsKeyword(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
@@ -78,13 +56,13 @@ public class ModuleClientDeclarationNodeContext extends AbstractCompletionProvid
         return completionItems;
     }
 
-    private boolean onSuggestConstants(BallerinaCompletionContext context, ModuleClientDeclarationNode node) {
+    private boolean onSuggestClientUri(BallerinaCompletionContext context, ModuleClientDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
-        Token xmlnsKeyword = node.clientKeyword();
+        Token clientKeyword = node.clientKeyword();
         Token asKeyword = node.asKeyword();
         BasicLiteralNode clientUri = node.clientUri();
 
-        return xmlnsKeyword.textRange().endOffset() < cursor && asKeyword.textRange().startOffset() > cursor
+        return clientKeyword.textRange().endOffset() < cursor && asKeyword.textRange().startOffset() > cursor
                 && (clientUri.isMissing() || cursor < clientUri.textRange().endOffset() + 1);
     }
 
