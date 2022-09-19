@@ -227,7 +227,6 @@ ballerina-task-1.1.0-java.jar                                                   
 ballerina-jwt-1.0.0-java.jar                                                                        jar            apache2
 ballerina-lang.boolean-1.0.0-java.jar                                                               jar            apache2
 ballerina-observe-1.0.0.jar                                                                         jar            apache2
-ballerina-core-2.0.0-Preview1.jar                                                                   jar            apache2
 netty-codec-http2-4.1.59.Final.jar                                                                  bundle         apache2
 quartz-2.3.2.jar                                                                                    bundle         apache2
 ballerina-lang.float-1.0.0.jar                                                                      jar            apache2

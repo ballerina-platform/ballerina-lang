@@ -209,7 +209,9 @@ public class ValueCreator {
      * @param type   {@code ArrayType} of the array.
      * @param length maximum length
      * @return       fixed length ref value array
+     * @deprecated   use {@link #createArrayValue(ArrayType)} instead
      */
+    @Deprecated
     public static BArray createArrayValue(ArrayType type, int length) {
         return new ArrayValueImpl(type, length);
     }
@@ -221,9 +223,23 @@ public class ValueCreator {
      * @param size          array size
      * @param initialValues initial values
      * @return              fixed length ref value array
+     * @deprecated          use {@link #createArrayValue(ArrayType, BListInitialValueEntry[])} instead
      */
+    @Deprecated
     public static BArray createArrayValue(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
         return new ArrayValueImpl(type, size, initialValues);
+    }
+
+    /**
+     *
+     * Create a ref value array with given type and initial values.
+     *
+     * @param type          {@code ArrayType} of the array.
+     * @param initialValues initial values
+     * @return              ref value array
+     */
+    public static BArray createArrayValue(ArrayType type, BListInitialValueEntry[] initialValues) {
+        return new ArrayValueImpl(type, initialValues);
     }
 
     /**
@@ -243,9 +259,22 @@ public class ValueCreator {
      * @param size          size of the tuple
      * @param initialValues initial values
      * @return              the new tuple
+     * @deprecated use {@link #createTupleValue(TupleType, BListInitialValueEntry[])} instead
      */
+    @Deprecated
     public static BArray createTupleValue(TupleType type, long size, BListInitialValueEntry[] initialValues) {
         return new TupleValueImpl(type, size, initialValues);
+    }
+
+    /**
+     * Creates a new tuple with given tuple type.
+     *
+     * @param type          the {@code TupleType} object representing the type
+     * @param initialValues initial values
+     * @return              the new tuple
+     */
+    public static BArray createTupleValue(TupleType type, BListInitialValueEntry[] initialValues) {
+        return new TupleValueImpl(type, initialValues);
     }
 
     /**

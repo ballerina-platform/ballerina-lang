@@ -748,4 +748,36 @@ public class TomlProviderTest {
         Object value = configValueMap.get(intVar).getValue();
         Assert.assertEquals(12L, value);
     }
+
+    @Test(dataProvider = "array-size-tests")
+    public void testArraySize(Type elementType, String varName, String stringValue) {
+        ArrayType arrayType = TypeCreator.createArrayType(elementType, 4, true);
+        VariableKey arr = new VariableKey(ROOT_MODULE, varName,
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0,
+                        true), true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{arr}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ArraySize.toml"),
+                        configVarMap.keySet())));
+        Map<VariableKey, ConfigValue> valueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Object value = valueMap.get(arr).getValue();
+        Assert.assertEquals(value.toString(), stringValue);
+    }
+
+    @DataProvider(name = "array-size-tests")
+    public Object[][] getArraySizeTests() {
+        MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
+        return new Object[][]{
+                {PredefinedTypes.TYPE_INT, "intArr", "[1,2,3,0]"},
+                {TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true), "mapArr", "[{\"a\":1},{\"a\":2}," +
+                        "{\"a\":3},{}]"},
+                {TypeCreator.createMapType(TYPE_ANYDATA, true), "mapAnydataArr", "[{\"a\":\"a\"},{\"a\":\"b\"}," +
+                        "{\"a\":\"c\"},{}]"},
+                {TYPE_ANYDATA, "anydataArr1", "[1,\"b\",1.23,null]"},
+                {TypeCreator.createUnionType(List.of(mapType, PredefinedTypes.TYPE_INT), true), "anydataArr2", "[{\"a" +
+                        "\":\"a\"},{\"b\":1},{\"c\":1.23},null]"},
+        };
+    }
 }

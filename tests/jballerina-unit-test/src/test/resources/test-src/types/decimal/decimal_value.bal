@@ -280,6 +280,17 @@ function testDecimalValUsingIntLiterals() {
     assertEquality("9.223372036854776E+80", result.toString());
 }
 
+public type Seconds decimal;
+public type SecondsOrNil Seconds?;
+
+function testDecimalTypeRef() {
+    Seconds? sec1 = 10;
+    assertEquality(sec1 is decimal, true);
+
+    SecondsOrNil sec2 = 11;
+    assertEquality(sec2 is decimal, true);
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
