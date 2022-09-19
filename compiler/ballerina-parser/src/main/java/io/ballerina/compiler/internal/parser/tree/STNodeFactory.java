@@ -2313,13 +2313,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createGroupingKeyVarDeclarationNode(
             STNode typeDescriptor,
-            STNode variableName,
+            STNode simpleBindingPattern,
             STNode equalsToken,
             STNode expression) {
 
         return new STGroupingKeyVarDeclarationNode(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression);
     }
