@@ -177,11 +177,13 @@ public class LangLibFunctionTest {
 
         List<String> expFunctions = List.of("length", "iterator", "getCodePoint", "substring", "codePointCompare",
                 "'join", "indexOf", "lastIndexOf", "startsWith", "endsWith", "toLowerAscii",
-                "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes", "toCodePointInts", "clone",
-                "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString", "fromBalString", "toJson",
-                "toJsonString", "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
-                "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType", "includes",
-                "concat", "padStart", "padEnd", "padZero", "matches", "includesMatch");
+                "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes",
+                                            "toCodePointInts", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
+                                            "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
+                                            "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
+                                            "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
+                                            "includes", "concat", "padStart", "padEnd", "padZero", "matches",
+                                            "includesMatch");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
