@@ -332,13 +332,15 @@ public class StringUtils {
         if (exprValue.startsWith("table key")) {
             return BalStringUtils.parseTableExpressionStringValue(exprValue, parent);
         }
-        String templateExpr = exprValue.substring(exprValue.indexOf('`') + 1,
-                exprValue.lastIndexOf('`')).trim();
         if (exprValue.startsWith("xml")) {
-            return BalStringUtils.parseXmlExpressionStringValue(templateExpr, parent);
+            String xml = exprValue.substring(exprValue.indexOf('`') + 1,
+                    exprValue.lastIndexOf('`')).trim();
+            return BalStringUtils.parseXmlExpressionStringValue(xml, parent);
         }
         if (exprValue.startsWith("re")) {
-            return RegExpFactory.parse(templateExpr);
+            String regexp = exprValue.substring(exprValue.indexOf('`') + 1,
+                    exprValue.lastIndexOf('`')).trim();
+            return RegExpFactory.parse(regexp);
         }
         if (exprValue.startsWith("...")) {
             return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
