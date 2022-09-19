@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -192,8 +193,8 @@ public class TypeParamAnalyzer {
                 return containsTypeParam(((BArrayType) type).eType, resolvedTypes);
             case TypeTags.TUPLE:
                 BTupleType bTupleType = (BTupleType) type;
-                for (BType member : bTupleType.tupleTypes) {
-                    if (containsTypeParam(member, resolvedTypes)) {
+                for (BTupleMemberType member : bTupleType.tupleTypes) {
+                    if (containsTypeParam(member.type, resolvedTypes)) {
                         return true;
                     }
                 }
@@ -515,7 +516,8 @@ public class TypeParamAnalyzer {
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         for (int i = 0; i < expType.tupleTypes.size() && i < actualType.tupleTypes.size(); i++) {
-            findTypeParam(loc, expType.tupleTypes.get(i), actualType.tupleTypes.get(i), env, resolvedTypes, result);
+            findTypeParam(loc, expType.tupleTypes.get(i).type, actualType.tupleTypes.get(i).type, env,
+                    resolvedTypes, result);
         }
     }
 
@@ -553,12 +555,12 @@ public class TypeParamAnalyzer {
             if (actualType.keyTypeConstraint != null) {
                 findTypeParam(loc, expType.keyTypeConstraint, actualType.keyTypeConstraint, env, resolvedTypes, result);
             } else if (!actualType.fieldNameList.isEmpty()) {
-                List<BType> memberTypes = new ArrayList<>();
+                List<BTupleMemberType> memberTypes = new ArrayList<>();
                 actualType.fieldNameList.stream()
                         .map(f -> types.getTableConstraintField(actualType.constraint, f))
-                        .filter(Objects::nonNull).map(f -> f.type).forEach(memberTypes::add);
+                        .filter(Objects::nonNull).map(f -> new BTupleMemberType(f.type)).forEach(memberTypes::add);
                 if (memberTypes.size() == 1) {
-                    findTypeParam(loc, expType.keyTypeConstraint, memberTypes.get(0), env, resolvedTypes, result);
+                    findTypeParam(loc, expType.keyTypeConstraint, memberTypes.get(0).type, env, resolvedTypes, result);
                 } else {
                     BTupleType tupleType = new BTupleType(memberTypes);
                     findTypeParam(loc, expType.keyTypeConstraint, tupleType, env, resolvedTypes, result);
@@ -569,7 +571,8 @@ public class TypeParamAnalyzer {
 
     private void findTypeParamInTupleForArray(Location loc, BArrayType expType, BTupleType actualType,
                                               SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(actualType.tupleTypes);
+        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>();
+        actualType.tupleTypes.forEach(m -> tupleTypes.add(m.type));
         if (actualType.restType != null) {
             tupleTypes.add(actualType.restType);
         }
@@ -599,7 +602,7 @@ public class TypeParamAnalyzer {
                 }
             }
             if (type.tag == TypeTags.TUPLE) {
-                members.addAll(((BTupleType) type).getTupleTypes());
+                ((BTupleType) type).getTupleTypes().forEach(m -> members.add(m.type));
             }
         }
         BUnionType tupleElementType = BUnionType.create(null, members);
@@ -863,14 +866,14 @@ public class TypeParamAnalyzer {
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         boolean hasDifferentType = false;
-        List<BType> tupleTypes = new ArrayList<>();
-        for (BType type : expType.tupleTypes) {
-            BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
-            if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
+        List<BTupleMemberType> tupleTypes = new ArrayList<>();
+        for (BTupleMemberType type : expType.tupleTypes) {
+            BType matchingBoundType = getMatchingBoundType(type.type, env, resolvedTypes);
+            if (!hasDifferentType && isDifferentTypes(type.type, matchingBoundType)) {
                 hasDifferentType = true;
             }
 
-            tupleTypes.add(matchingBoundType);
+            tupleTypes.add(new BTupleMemberType(matchingBoundType));
         }
 
         BType restType = expType.restType;

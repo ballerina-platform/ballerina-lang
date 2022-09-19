@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -181,8 +182,8 @@ public class TypeParamFinder implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        for (BType tupleType : bTupleType.tupleTypes) {
-            find(tupleType);
+        for (BTupleMemberType tupleType : bTupleType.tupleTypes) {
+            find(tupleType.type);
         }
 
         find(bTupleType.restType);

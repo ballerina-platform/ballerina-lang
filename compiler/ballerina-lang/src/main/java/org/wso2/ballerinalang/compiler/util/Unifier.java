@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -233,23 +234,23 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        List<BType> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.tupleTypes) :
-                Collections.singletonList(null);
+        List<BTupleMemberType> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.tupleTypes) :
+                Collections.singletonList(new BTupleMemberType(null, null));
 
-        List<BType> members = new ArrayList<>();
+        List<BTupleMemberType> members = new ArrayList<>();
         int delta = hasMatchedTupleType ? 1 : 0;
 
         boolean errored = false;
 
-        List<BType> tupleTypes = originalType.tupleTypes;
+        List<BTupleMemberType> tupleTypes = originalType.tupleTypes;
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
-            if (this.visitedTypes.contains(tupleTypes.get(i))) {
+            if (this.visitedTypes.contains(tupleTypes.get(i).type)) {
                 continue;
             }
-            BType member = tupleTypes.get(i);
-            BType expMember = expTupleTypes.get(j);
+            BType member = tupleTypes.get(i).type;
+            BType expMember = expTupleTypes.get(j).type;
             BType newMem = member.accept(this, expMember);
-            members.add(newMem);
+            members.add(new BTupleMemberType(newMem));
 
             if (isSemanticErrorInInvocation(newMem)) {
                 errored = true;
@@ -653,7 +654,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             if (restArgType.tag == TypeTags.RECORD) {
                 return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
             }
-            return getConstraintTypeIfNotError(((BTupleType) restArgType).tupleTypes.get(index - requiredArgCount));
+            return getConstraintTypeIfNotError(
+                    ((BTupleType) restArgType).tupleTypes.get(index - requiredArgCount).type);
         }
 
         BLangNamedArgsExpression namedArg = createTypedescExprNamedArg(expType, paramName);
@@ -798,9 +800,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private void populateParamMapFromTupleRestArg(List<BVarSymbol> params, int currentParamIndex,
                                                   BTupleType tupleType) {
         int tupleIndex = 0;
-        List<BType> tupleTypes = tupleType.tupleTypes;
+        List<BTupleMemberType> tupleTypes = tupleType.tupleTypes;
         for (int i = currentParamIndex; i < params.size(); i++) {
-            paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++));
+            paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++).type);
         }
     }
 
@@ -1071,8 +1073,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
 
-                for (BType tupleMemType : tupleType.tupleTypes) {
-                    if (refersInferableParamName(paramsWithInferredTypedescDefault, tupleMemType, unresolvedTypes)) {
+                for (BTupleMemberType tupleMemType : tupleType.tupleTypes) {
+                    if (refersInferableParamName(
+                            paramsWithInferredTypedescDefault, tupleMemType.type, unresolvedTypes)) {
                         return true;
                     }
                 }

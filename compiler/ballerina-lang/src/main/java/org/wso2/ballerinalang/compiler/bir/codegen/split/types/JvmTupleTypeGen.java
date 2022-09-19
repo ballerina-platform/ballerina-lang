@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -163,14 +164,14 @@ public class JvmTupleTypeGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
     }
 
-    private void createTupleMembersList(MethodVisitor mv, List<BType> members) {
+    private void createTupleMembersList(MethodVisitor mv, List<BTupleMemberType> members) {
         mv.visitTypeInsn(NEW, ARRAY_LIST);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
 
-        for (BType tupleType : members) {
+        for (BTupleMemberType tupleType : members) {
             mv.visitInsn(DUP);
-            jvmTypeGen.loadType(mv, tupleType);
+            jvmTypeGen.loadType(mv, tupleType.type);
             mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
         }

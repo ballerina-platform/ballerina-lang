@@ -1623,7 +1623,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) symbol.type;
-                tupleType.tupleTypes.forEach(t -> checkForExportableType(t.tsymbol, pos, visitedSymbols));
+                tupleType.tupleTypes.forEach(t -> checkForExportableType(t.type.tsymbol, pos, visitedSymbols));
                 if (tupleType.restType != null) {
                     checkForExportableType(tupleType.restType.tsymbol, pos, visitedSymbols);
                 }

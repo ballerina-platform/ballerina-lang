@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -2000,9 +2001,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (resolvedTypeNodes.tag) {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
-                for (BType member : definedTupleType.getTupleTypes()) {
+                for (BTupleMemberType member : definedTupleType.getTupleTypes()) {
                     if (!((BTupleType) newTypeNode).addMembers(member)) {
-                        return constructDependencyListError(typeDef, member);
+                        return constructDependencyListError(typeDef, member.type);
                     }
                 }
                 if (!((BTupleType) newTypeNode).addRestType(definedTupleType.restType)) {
@@ -2493,23 +2494,23 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
 
                     if (possibleTypes.size() > 1) {
-                        List<BType> memberTupleTypes = new ArrayList<>();
+                        List<BTupleMemberType> memberTupleTypes = new ArrayList<>();
                         for (int i = 0; i < varNode.memberVariables.size(); i++) {
                             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
                             for (BType possibleType : possibleTypes) {
                                 if (possibleType.tag == TypeTags.TUPLE) {
-                                    memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
+                                    memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i).type);
                                 } else if (possibleType.tag == TypeTags.ARRAY) {
                                     memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
-                                    memberTupleTypes.add(referredType);
+                                    memberTupleTypes.add(new BTupleMemberType(referredType));
                                 }
                             }
 
                             if (memberTypes.size() > 1) {
-                                memberTupleTypes.add(BUnionType.create(null, memberTypes));
+                                memberTupleTypes.add(new BTupleMemberType(BUnionType.create(null, memberTypes)));
                             } else {
-                                memberTupleTypes.addAll(memberTypes);
+                                memberTypes.forEach(m -> memberTupleTypes.add(new BTupleMemberType(m)));
                             }
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
@@ -2523,18 +2524,18 @@ public class SymbolEnter extends BLangNodeVisitor {
                         break;
                     }
 
-                    List<BType> memberTypes = new ArrayList<>();
+                    List<BTupleMemberType> memberTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTypes.add(possibleTypes.get(0));
+                        memberTypes.add(new BTupleMemberType(possibleTypes.get(0)));
                     }
                     tupleTypeNode = new BTupleType(memberTypes);
                     tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                     break;
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
-                    List<BType> memberTupleTypes = new ArrayList<>();
+                    List<BTupleMemberType> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTupleTypes.add(referredType);
+                        memberTupleTypes.add(new BTupleMemberType(referredType));
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
                     if (varNode.restVariable != null) {
@@ -2545,10 +2546,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                     tupleTypeNode = (BTupleType) referredType;
                     break;
                 case TypeTags.ARRAY:
-                    List<BType> tupleTypes = new ArrayList<>();
+                    List<BTupleMemberType> tupleTypes = new ArrayList<>();
                     BArrayType arrayType = (BArrayType) referredType;
                     for (int i = 0; i < arrayType.size; i++) {
-                        tupleTypes.add(arrayType.eType);
+                        tupleTypes.add(new BTupleMemberType(arrayType.eType));
                     }
                     tupleTypeNode = new BTupleType(tupleTypes);
                     break;
@@ -2567,7 +2568,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int i = 0;
         BType type;
         for (BLangVariable var : varNode.memberVariables) {
-            type = tupleTypeNode.tupleTypes.get(i);
+            type = tupleTypeNode.tupleTypes.get(i).type;
             i++;
             if (var.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
@@ -2589,7 +2590,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             int tupleNodeMemCount = tupleTypeNode.tupleTypes.size();
             int varNodeMemCount = varNode.memberVariables.size();
             BType restType = tupleTypeNode.restType;
-            List<BType> memberTypes = new ArrayList<>();
+            List<BTupleMemberType> memberTypes = new ArrayList<>();
             if (varNodeMemCount < tupleNodeMemCount) {
                 for (int j = varNodeMemCount; j < tupleNodeMemCount; j++) {
                     memberTypes.add(tupleTypeNode.tupleTypes.get(j));
@@ -2623,7 +2624,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BTupleType tupleType = (BTupleType) possibleType;
                 for (int j = varNode.memberVariables.size(); j < tupleType.tupleTypes.size();
                      j++) {
-                    memberRestTypes.add(tupleType.tupleTypes.get(j));
+                    memberRestTypes.add(tupleType.tupleTypes.get(j).type);
                 }
                 if (tupleType.restType != null) {
                     memberRestTypes.add(tupleType.restType);
@@ -3723,8 +3724,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return true;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BType tupMemType : tupleType.getTupleTypes()) {
-                    if (!isCloneableTypeSkippingObjectTypeHelper(tupMemType, unresolvedTypes)) {
+                for (BTupleMemberType tupMemType : tupleType.getTupleTypes()) {
+                    if (!isCloneableTypeSkippingObjectTypeHelper(tupMemType.type, unresolvedTypes)) {
                         return false;
                     }
                 }

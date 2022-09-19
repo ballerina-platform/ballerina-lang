@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -969,8 +970,8 @@ public class BIRPackageSymbolEnter {
                 break;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BType t : tupleType.tupleTypes) {
-                    populateParameterizedType(t, paramsMap, invSymbol);
+                for (BTupleMemberType t : tupleType.tupleTypes) {
+                    populateParameterizedType(t.type, paramsMap, invSymbol);
                 }
                 populateParameterizedType(tupleType.restType, paramsMap, invSymbol);
                 break;
@@ -1464,9 +1465,21 @@ public class BIRPackageSymbolEnter {
                     BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
                     bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
-                    List<BType> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
+                    List<BTupleMemberType> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
+
                     for (int i = 0; i < tupleMemberCount; i++) {
-                        tupleMemberTypes.add(readTypeFromCp());
+                        String iname = getStringCPEntryValue(inputStream);
+                        var fieldFlags = inputStream.readLong();
+
+                        BType memberType = readTypeFromCp();
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(iname),
+                                tupleTypeSymbol.pkgID, memberType,
+                                memberType.tsymbol.owner, symTable.builtinPos,
+                                COMPILED_SOURCE);
+
+                        defineAnnotAttachmentSymbols(inputStream, varSymbol);
+
+                        tupleMemberTypes.add(new BTupleMemberType(memberType, varSymbol));
                     }
                     bTupleType.tupleTypes = tupleMemberTypes;
 

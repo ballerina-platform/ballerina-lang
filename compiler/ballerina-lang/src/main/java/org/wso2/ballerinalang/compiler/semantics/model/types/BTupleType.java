@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 public class BTupleType extends BType implements TupleType {
 
-    public List<BType> tupleTypes;
+    public List<BTupleMemberType> tupleTypes;
     public BType restType;
     public Boolean isAnyData = null;
     public boolean resolvingToString = false;
@@ -43,29 +43,30 @@ public class BTupleType extends BType implements TupleType {
 
     private BIntersectionType intersectionType = null;
 
-    public BTupleType(List<BType> tupleTypes) {
+    public BTupleType(List<BTupleMemberType> tupleTypes) {
         super(TypeTags.TUPLE, null);
         this.tupleTypes = tupleTypes;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMemberType> tupleTypes) {
         super(TypeTags.TUPLE, tsymbol);
         this.tupleTypes = tupleTypes;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, boolean isCyclic) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMemberType> tupleTypes, boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol);
         this.tupleTypes = tupleTypes;
         this.isCyclic = isCyclic;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, long flags) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMemberType> tupleTypes, BType restType, long flags) {
         super(TypeTags.TUPLE, tsymbol, flags);
         this.tupleTypes = tupleTypes;
         this.restType = restType;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, long flags, boolean isCyclic) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMemberType> tupleTypes, BType restType, long flags,
+                      boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol, flags);
         this.tupleTypes = tupleTypes;
         this.restType = restType;
@@ -89,7 +90,7 @@ public class BTupleType extends BType implements TupleType {
     }
 
     @Override
-    public List<BType> getTupleTypes() {
+    public List<BTupleMemberType> getTupleTypes() {
         return tupleTypes;
     }
 
@@ -119,7 +120,7 @@ public class BTupleType extends BType implements TupleType {
         }
         this.resolvingToString = true;
 
-        String stringRep = "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
+        String stringRep = "[" + tupleTypes.stream().map(BTupleMemberType::toString).collect(Collectors.joining(","))
                 + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
         this.resolvingToString = false;
@@ -138,18 +139,22 @@ public class BTupleType extends BType implements TupleType {
 
     // In the case of a cyclic tuple, this aids in
     //adding resolved members to a previously defined empty tuple shell in main scope
-    public boolean addMembers(BType memberType) {
+    public boolean addMembers(BTupleMemberType memberType) {
         // Prevent cyclic types of same type ex: type Foo [int, Foo];
-        if (memberType instanceof BTupleType && ((BTupleType) memberType).isCyclic &&
-                memberType.getQualifiedTypeName().equals(this.getQualifiedTypeName())) {
+        if (memberType.type instanceof BTupleType && ((BTupleType) memberType.type).isCyclic &&
+                memberType.type.getQualifiedTypeName().equals(this.getQualifiedTypeName())) {
             return false;
         }
         this.tupleTypes.add(memberType);
-        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(memberType.flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(memberType.type.flags, Flags.READONLY)) {
             this.flags ^= Flags.READONLY;
         }
-        setCyclicFlag(memberType);
+        setCyclicFlag(memberType.type);
         return true;
+    }
+
+    public boolean addMembers(BType memberType) {
+        return this.addMembers(new BTupleMemberType(memberType));
     }
 
     // In the case of a cyclic tuple, this aids in
@@ -168,7 +173,7 @@ public class BTupleType extends BType implements TupleType {
         return true;
     }
 
-    public void setMemberTypes(List<BType> memberTypes) {
+    public void setMemberTypes(List<BTupleMemberType> memberTypes) {
         assert memberTypes.size() == 0;
         this.tupleTypes = memberTypes;
     }

@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -400,7 +401,7 @@ public class ImmutableTypeCloner {
                                                               Names names, Set<BType> unresolvedTypes,
                                                               BTupleType type) {
         BTypeSymbol origTupleTypeSymbol = type.tsymbol;
-        List<BType> origTupleMemTypes = type.tupleTypes;
+        List<BTupleMemberType> origTupleMemTypes = type.tupleTypes;
 
         Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, pkgId, type);
         if (immutableType.isPresent()) {
@@ -410,7 +411,7 @@ public class ImmutableTypeCloner {
                     type, new BTupleType(origTupleTypeSymbol), symTable));
         }
 
-        List<BType> immutableMemTypes = new ArrayList<>(origTupleMemTypes.size());
+        List<BTupleMemberType> immutableMemTypes = new ArrayList<>(origTupleMemTypes.size());
         BTupleType tupleEffectiveImmutableType =
                 (BTupleType) Types.getImmutableType(symTable, pkgId, type).get().effectiveType;
         tupleEffectiveImmutableType.isCyclic = type.isCyclic;
@@ -424,15 +425,15 @@ public class ImmutableTypeCloner {
             tupleEffectiveImmutableType.name = origTupleTypeSymbolName;
         }
 
-        for (BType origTupleMemType : origTupleMemTypes) {
-            if (types.isInherentlyImmutableType(origTupleMemType)) {
+        for (BTupleMemberType origTupleMemType : origTupleMemTypes) {
+            if (types.isInherentlyImmutableType(origTupleMemType.type)) {
                 tupleEffectiveImmutableType.addMembers(origTupleMemType);
                 continue;
             }
-            if (!types.isSelectivelyImmutableType(origTupleMemType, unresolvedTypes, pkgId)) {
+            if (!types.isSelectivelyImmutableType(origTupleMemType.type, unresolvedTypes, pkgId)) {
                 continue;
             }
-            tupleEffectiveImmutableType.addMembers(getImmutableType(pos, types, origTupleMemType, env,
+            tupleEffectiveImmutableType.addMembers(getImmutableType(pos, types, origTupleMemType.type, env,
                     pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes));
         }
 
