@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -59,7 +58,7 @@ public class ExtractToFunctionStatementAnalyzer extends NodeVisitor {
             SyntaxKind.BRACED_ACTION, SyntaxKind.CHECK_ACTION, SyntaxKind.START_ACTION, SyntaxKind.TRAP_ACTION,
             SyntaxKind.FLUSH_ACTION, SyntaxKind.ASYNC_SEND_ACTION, SyntaxKind.SYNC_SEND_ACTION,
             SyntaxKind.RECEIVE_ACTION, SyntaxKind.WAIT_ACTION, SyntaxKind.QUERY_ACTION, SyntaxKind.COMMIT_ACTION,
-            SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION);
+            SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION, SyntaxKind.RETURN_STATEMENT);
 
     public ExtractToFunctionStatementAnalyzer(Range selectedRange, SemanticModel semanticModel) {
         this.selectedRange = selectedRange;
@@ -153,15 +152,6 @@ public class ExtractToFunctionStatementAnalyzer extends NodeVisitor {
         Optional<Symbol> symbol = semanticModel.symbol(node.typedBindingPattern().bindingPattern());
         symbol.ifPresent(declaredVariableSymbols::add);
         super.visit(node);
-    }
-
-    @Override
-    public void visit(ReturnStatementNode node) {
-        if (node.expression().isPresent() && node.parent().kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
-            super.visit(node);
-        } else {
-            this.isExtractable = false;
-        }
     }
 
     @Override

@@ -26,7 +26,6 @@ import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
@@ -155,17 +154,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             returnTypeDescriptor = String.format("returns %s", possibleTypeOfUpdatingVar.get());
         }
 
-        if (matchedCodeActionNode.kind() == SyntaxKind.RETURN_STATEMENT
-                && ((ReturnStatementNode) matchedCodeActionNode).expression().isPresent()) {
-            Optional<TypeSymbol> typeSymbol =
-                    semanticModel.typeOf(((ReturnStatementNode) matchedCodeActionNode).expression().get());
-            if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR
-                    || typeSymbol.get().typeKind() == TypeDescKind.NONE) {
-                return Collections.emptyList();
-            }
-             returnTypeDescriptor = String.format("returns %s", typeSymbol.get().typeKind().getName());
-        }
-
         List<Symbol> argsSymbolsForExtractFunction =
                 getVarAndParamSymbolsWithinRangeForStmts(context, enclosingNode);
 
@@ -209,8 +197,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             String varName = updatedVar.get().getName().get();
             replaceFunctionCall =
                     String.format("%s %s = %s", possibleTypeOfUpdatingVar.get(), varName, replaceFunctionCall);
-        } else if (matchedCodeActionNode.kind() == SyntaxKind.RETURN_STATEMENT) {
-            replaceFunctionCall = String.format("return %s", replaceFunctionCall);
         }
 
         Position replaceFuncCallStartPos = PositionUtil.toPosition(selectedNodes.get(0).lineRange().startLine());
@@ -568,7 +554,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 SyntaxKind.ASSIGNMENT_STATEMENT,
                 SyntaxKind.IF_ELSE_STATEMENT,
                 SyntaxKind.WHILE_STATEMENT,
-                SyntaxKind.RETURN_STATEMENT,
                 SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT,
                 SyntaxKind.LOCK_STATEMENT,
                 SyntaxKind.FOREACH_STATEMENT,
