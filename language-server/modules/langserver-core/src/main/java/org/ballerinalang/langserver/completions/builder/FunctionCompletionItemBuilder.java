@@ -349,7 +349,7 @@ public final class FunctionCompletionItemBuilder {
             return Optional.empty();
         } else {
             return Optional.of(NameUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
-                    (param.getName().isEmpty() ? "" : " " + param.getName().get()));
+                    ((param.getName().isEmpty() || param.isTypeOnlyParam()) ? "" : " " + param.getName().get()));
         }
     }
 
