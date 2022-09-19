@@ -1469,15 +1469,17 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
             BLangReSequence sequence = (BLangReSequence) seq;
             for (BLangExpression term : sequence.termList) {
-                if (term.getKind() == NodeKind.REG_EXP_ATOM_QUANTIFIER) {
-                    BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
-                    NodeKind kind = atom.getKind();
-                    if (!isReAtomNode(kind)) {
-                        atom = rewriteExpr(atom);
-                    }
-                    if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
-                        resolveClosuresInInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList);
-                    }
+                if (term.getKind() != NodeKind.REG_EXP_ATOM_QUANTIFIER) {
+                    continue;
+                }
+                BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
+                NodeKind kind = atom.getKind();
+                if (!isReAtomNode(kind)) {
+                    ((BLangReAtomQuantifier) term).atom = rewriteExpr(atom);
+                    continue;
+                }
+                if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
+                    resolveClosuresInInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList);
                 }
             }
         }
