@@ -65,7 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -984,10 +984,10 @@ public class Types {
                 return false;
             }
 
-            List<BTupleMemberType> fieldTypes = new ArrayList<>();
+            List<BTupleMember> fieldTypes = new ArrayList<>();
             sourceTableType.fieldNameList.stream()
                     .map(f -> getTableConstraintField(sourceTableType.constraint, f))
-                    .filter(Objects::nonNull).map(f -> new BTupleMemberType(f.type)).forEach(fieldTypes::add);
+                    .filter(Objects::nonNull).map(f -> new BTupleMember(f.type)).forEach(fieldTypes::add);
             if (fieldTypes.size() == 1) {
                 return isAssignable(fieldTypes.get(0).type, targetTableType.keyTypeConstraint, unresolvedTypes);
             }
@@ -1122,7 +1122,7 @@ public class Types {
 
         if (target.tag == TypeTags.JSON && source.tag == TypeTags.TUPLE) {
             BTupleType rhsTupleType = (BTupleType) source;
-            for (BTupleMemberType tupleType : rhsTupleType.tupleTypes) {
+            for (BTupleMember tupleType : rhsTupleType.tupleTypes) {
                 if (!isAssignable(tupleType.type, target, unresolvedTypes)) {
                     return false;
                 }
@@ -1168,9 +1168,9 @@ public class Types {
         return true;
     }
 
-    private boolean checkAllTupleMembersBelongNoType(List<BTupleMemberType> tupleTypes) {
+    private boolean checkAllTupleMembersBelongNoType(List<BTupleMember> tupleTypes) {
         boolean isNoType = false;
-        for (BTupleMemberType memberType : tupleTypes) {
+        for (BTupleMember memberType : tupleTypes) {
             switch (memberType.type.tag) {
                 case TypeTags.NONE:
                     isNoType = true;
@@ -1195,9 +1195,9 @@ public class Types {
             return false;
         }
 
-        List<BTupleMemberType> sourceTypes = new ArrayList<>(source.tupleTypes);
+        List<BTupleMember> sourceTypes = new ArrayList<>(source.tupleTypes);
         if (source.restType != null) {
-            sourceTypes.add(new BTupleMemberType(source.restType));
+            sourceTypes.add(new BTupleMember(source.restType));
         }
         return sourceTypes.stream()
                 .allMatch(tupleElemType -> isAssignable(tupleElemType.type, target.eType, unresolvedTypes));
@@ -1206,7 +1206,7 @@ public class Types {
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      Set<TypePair> unresolvedTypes) {
         BType restType = target.restType;
-        List<BTupleMemberType> tupleTypes = target.tupleTypes;
+        List<BTupleMember> tupleTypes = target.tupleTypes;
         if (source.state == BArrayState.OPEN) {
             if (restType == null || !tupleTypes.isEmpty()) {
                 // [int, int] = int[] || [int, int...] = int[]
@@ -1230,7 +1230,7 @@ public class Types {
         }
 
         BType sourceElementType = source.eType;
-        for (BTupleMemberType memType : tupleTypes) {
+        for (BTupleMember memType : tupleTypes) {
             if (!isAssignable(sourceElementType, memType.type, unresolvedTypes)) {
                 return false;
             }
@@ -1396,7 +1396,7 @@ public class Types {
                         isSelectivelyImmutableType(elementType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BTupleMemberType tupMemType : tupleType.tupleTypes) {
+                for (BTupleMember tupMemType : tupleType.tupleTypes) {
                     if (!isInherentlyImmutableType(tupMemType.type) &&
                             !isSelectivelyImmutableType(tupMemType.type, unresolvedTypes, forceCheck, packageID)) {
                         return false;
@@ -4553,8 +4553,8 @@ public class Types {
             return false;
         }
 
-        List<BTupleMemberType> lhsMemberTypes = lhsType.getTupleTypes();
-        List<BTupleMemberType> rhsMemberTypes = rhsType.getTupleTypes();
+        List<BTupleMember> lhsMemberTypes = lhsType.getTupleTypes();
+        List<BTupleMember> rhsMemberTypes = rhsType.getTupleTypes();
 
         for (int i = 0; i < lhsType.getTupleTypes().size(); i++) {
             if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsMemberTypes.get(i).type),
@@ -4792,14 +4792,14 @@ public class Types {
             return originalType;
         }
 
-        List<BTupleMemberType> originalTupleTypes = new ArrayList<>(originalType.tupleTypes);
-        List<BTupleMemberType> typesToRemove = new ArrayList<>(typeToRemove.tupleTypes);
+        List<BTupleMember> originalTupleTypes = new ArrayList<>(originalType.tupleTypes);
+        List<BTupleMember> typesToRemove = new ArrayList<>(typeToRemove.tupleTypes);
         if (originalTupleTypes.size() < typesToRemove.size()) {
             return originalType;
         }
-        List<BTupleMemberType> tupleTypes = new ArrayList<>();
+        List<BTupleMember> tupleTypes = new ArrayList<>();
         for (int i = 0; i < originalTupleTypes.size(); i++) {
-            tupleTypes.add(new BTupleMemberType(
+            tupleTypes.add(new BTupleMember(
                     getRemainingMatchExprType(originalTupleTypes.get(i).type, typesToRemove.get(i).type, env)));
         }
         if (typeToRemove.restType == null) {
@@ -4809,7 +4809,7 @@ public class Types {
             return originalType;
         }
         for (int i = typesToRemove.size(); i < originalTupleTypes.size(); i++) {
-            tupleTypes.add(new BTupleMemberType(
+            tupleTypes.add(new BTupleMember(
                     getRemainingMatchExprType(originalTupleTypes.get(i).type, typeToRemove.restType, env)));
         }
         return new BTupleType(tupleTypes);
@@ -4817,9 +4817,9 @@ public class Types {
 
     private BType getRemainingType(BTupleType originalType, BArrayType typeToRemove, SymbolEnv env) {
         BType eType = typeToRemove.eType;
-        List<BTupleMemberType> tupleTypes = new ArrayList<>();
-        for (BTupleMemberType tupleType : originalType.tupleTypes) {
-            tupleTypes.add(new BTupleMemberType(getRemainingMatchExprType(tupleType.type, eType, env)));
+        List<BTupleMember> tupleTypes = new ArrayList<>();
+        for (BTupleMember tupleType : originalType.tupleTypes) {
+            tupleTypes.add(new BTupleMember(getRemainingMatchExprType(tupleType.type, eType, env)));
         }
         BTupleType remainingType = new BTupleType(tupleTypes);
         if (originalType.restType != null) {
@@ -5307,7 +5307,7 @@ public class Types {
         if (!visitedTypes.add(tupleType)) {
             return tupleType;
         }
-        List<BTupleMemberType> tupleTypes = tupleType.tupleTypes;
+        List<BTupleMember> tupleTypes = tupleType.tupleTypes;
         if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
             if (tupleTypes.size() > arrayType.size) {
                 return symTable.semanticError;
@@ -5318,15 +5318,15 @@ public class Types {
             }
         }
 
-        List<BTupleMemberType> tupleMemberTypes = new ArrayList<>(tupleTypes.size());
+        List<BTupleMember> tupleMemberTypes = new ArrayList<>(tupleTypes.size());
         BType eType = arrayType.eType;
-        for (BTupleMemberType memberType : tupleTypes) {
+        for (BTupleMember memberType : tupleTypes) {
             BType intersectionType = getTypeIntersection(intersectionContext, memberType.type, eType, env,
                     visitedTypes);
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            tupleMemberTypes.add(new BTupleMemberType(intersectionType));
+            tupleMemberTypes.add(new BTupleMember(intersectionType));
         }
 
         if (tupleType.restType == null) {
@@ -5352,14 +5352,14 @@ public class Types {
             return symTable.semanticError;
         }
 
-        List<BTupleMemberType> lhsTupleTypes = lhsTupleType.tupleTypes;
-        List<BTupleMemberType> tupleTypes = tupleType.tupleTypes;
+        List<BTupleMember> lhsTupleTypes = lhsTupleType.tupleTypes;
+        List<BTupleMember> tupleTypes = tupleType.tupleTypes;
 
         if (lhsTupleTypes.size() > tupleTypes.size()) {
             return symTable.semanticError;
         }
 
-        List<BTupleMemberType> tupleMemberTypes = new ArrayList<>(tupleTypes.size());
+        List<BTupleMember> tupleMemberTypes = new ArrayList<>(tupleTypes.size());
         for (int i = 0; i < tupleTypes.size(); i++) {
             BType lhsType = (lhsTupleTypes.size() > i) ? lhsTupleTypes.get(i).type : lhsTupleType.restType;
             BType intersectionType = getTypeIntersection(intersectionContext, tupleTypes.get(i).type, lhsType, env,
@@ -5367,7 +5367,7 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            tupleMemberTypes.add(new BTupleMemberType(intersectionType));
+            tupleMemberTypes.add(new BTupleMember(intersectionType));
         }
 
         if (lhsTupleType.restType != null && tupleType.restType != null) {
@@ -6342,8 +6342,8 @@ public class Types {
                 BType elementType = ((BArrayType) type).eType;
                 return isOrderedType(elementType, hasCycle);
             case TypeTags.TUPLE:
-                List<BTupleMemberType> tupleMemberTypes = ((BTupleType) type).tupleTypes;
-                for (BTupleMemberType memType : tupleMemberTypes) {
+                List<BTupleMember> tupleMemberTypes = ((BTupleType) type).tupleTypes;
+                for (BTupleMember memType : tupleMemberTypes) {
                     if (!isOrderedType(memType.type, hasCycle)) {
                         return false;
                     }
@@ -6541,8 +6541,8 @@ public class Types {
                 return false;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                List<BTupleMemberType> tupleTypes = tupleType.tupleTypes;
-                for (BTupleMemberType mem : tupleTypes) {
+                List<BTupleMember> tupleTypes = tupleType.tupleTypes;
+                for (BTupleMember mem : tupleTypes) {
                     if (!visitedTypeSet.add(mem.type)) {
                         continue;
                     }

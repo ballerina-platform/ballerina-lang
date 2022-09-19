@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.model.types;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 
 import java.util.List;
 
@@ -28,5 +28,5 @@ import java.util.List;
  */
 public interface TupleType extends SelectivelyImmutableReferenceType {
 
-    List<? extends BTupleMemberType> getTupleTypes();
+    List<? extends BTupleMember> getTupleTypes();
 }

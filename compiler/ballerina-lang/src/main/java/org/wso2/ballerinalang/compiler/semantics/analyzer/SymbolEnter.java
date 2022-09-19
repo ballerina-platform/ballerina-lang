@@ -82,7 +82,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -2001,7 +2001,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (resolvedTypeNodes.tag) {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
-                for (BTupleMemberType member : definedTupleType.getTupleTypes()) {
+                for (BTupleMember member : definedTupleType.getTupleTypes()) {
                     if (!((BTupleType) newTypeNode).addMembers(member)) {
                         return constructDependencyListError(typeDef, member.type);
                     }
@@ -2494,7 +2494,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
 
                     if (possibleTypes.size() > 1) {
-                        List<BTupleMemberType> memberTupleTypes = new ArrayList<>();
+                        List<BTupleMember> memberTupleTypes = new ArrayList<>();
                         for (int i = 0; i < varNode.memberVariables.size(); i++) {
                             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
                             for (BType possibleType : possibleTypes) {
@@ -2503,14 +2503,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 } else if (possibleType.tag == TypeTags.ARRAY) {
                                     memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
-                                    memberTupleTypes.add(new BTupleMemberType(referredType));
+                                    memberTupleTypes.add(new BTupleMember(referredType));
                                 }
                             }
 
                             if (memberTypes.size() > 1) {
-                                memberTupleTypes.add(new BTupleMemberType(BUnionType.create(null, memberTypes)));
+                                memberTupleTypes.add(new BTupleMember(BUnionType.create(null, memberTypes)));
                             } else {
-                                memberTypes.forEach(m -> memberTupleTypes.add(new BTupleMemberType(m)));
+                                memberTypes.forEach(m -> memberTupleTypes.add(new BTupleMember(m)));
                             }
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
@@ -2524,18 +2524,18 @@ public class SymbolEnter extends BLangNodeVisitor {
                         break;
                     }
 
-                    List<BTupleMemberType> memberTypes = new ArrayList<>();
+                    List<BTupleMember> memberTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTypes.add(new BTupleMemberType(possibleTypes.get(0)));
+                        memberTypes.add(new BTupleMember(possibleTypes.get(0)));
                     }
                     tupleTypeNode = new BTupleType(memberTypes);
                     tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                     break;
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
-                    List<BTupleMemberType> memberTupleTypes = new ArrayList<>();
+                    List<BTupleMember> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTupleTypes.add(new BTupleMemberType(referredType));
+                        memberTupleTypes.add(new BTupleMember(referredType));
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
                     if (varNode.restVariable != null) {
@@ -2546,10 +2546,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                     tupleTypeNode = (BTupleType) referredType;
                     break;
                 case TypeTags.ARRAY:
-                    List<BTupleMemberType> tupleTypes = new ArrayList<>();
+                    List<BTupleMember> tupleTypes = new ArrayList<>();
                     BArrayType arrayType = (BArrayType) referredType;
                     for (int i = 0; i < arrayType.size; i++) {
-                        tupleTypes.add(new BTupleMemberType(arrayType.eType));
+                        tupleTypes.add(new BTupleMember(arrayType.eType));
                     }
                     tupleTypeNode = new BTupleType(tupleTypes);
                     break;
@@ -2590,7 +2590,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             int tupleNodeMemCount = tupleTypeNode.tupleTypes.size();
             int varNodeMemCount = varNode.memberVariables.size();
             BType restType = tupleTypeNode.restType;
-            List<BTupleMemberType> memberTypes = new ArrayList<>();
+            List<BTupleMember> memberTypes = new ArrayList<>();
             if (varNodeMemCount < tupleNodeMemCount) {
                 for (int j = varNodeMemCount; j < tupleNodeMemCount; j++) {
                     memberTypes.add(tupleTypeNode.tupleTypes.get(j));
@@ -3724,7 +3724,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return true;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BTupleMemberType tupMemType : tupleType.getTupleTypes()) {
+                for (BTupleMember tupMemType : tupleType.getTupleTypes()) {
                     if (!isCloneableTypeSkippingObjectTypeHelper(tupMemType.type, unresolvedTypes)) {
                         return false;
                     }

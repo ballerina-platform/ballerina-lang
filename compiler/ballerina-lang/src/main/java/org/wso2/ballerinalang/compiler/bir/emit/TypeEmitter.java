@@ -35,7 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -234,7 +234,7 @@ class TypeEmitter {
         StringBuilder tupleStr = new StringBuilder("(");
         int length = bType.tupleTypes.size();
         int i = 0;
-        for (BTupleMemberType mType : bType.tupleTypes) {
+        for (BTupleMember mType : bType.tupleTypes) {
             if (mType != null) {
                 tupleStr.append(emitTypeRef(mType.type, tabs));
                 i += 1;

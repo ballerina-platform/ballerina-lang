@@ -64,7 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -897,14 +897,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BLangMemberTypeNode> memberTypeNodes = tupleTypeNode.memberTypeNodes;
-        int i = 0;
-        for (BLangMemberTypeNode memType : memberTypeNodes) {
-            analyzeDef(memType, data);
-            for (BLangAnnotationAttachment ann : memType.annAttachments) {
-                ((BTupleType) tupleTypeNode.getBType()).tupleTypes.get(i).symbol
-                        .addAnnotation(ann.annotationAttachmentSymbol);
+        for (int i = 0; i < memberTypeNodes.size(); i++) {
+            analyzeDef(memberTypeNodes.get(i), data);
+            if (tupleTypeNode.getBType() != null && tupleTypeNode.getBType().getKind() == TypeKind.TUPLE) {
+                for (BLangAnnotationAttachment ann : memberTypeNodes.get(i).annAttachments) {
+                    ((BTupleType) tupleTypeNode.getBType()).tupleTypes.get(i).symbol
+                            .addAnnotation(ann.annotationAttachmentSymbol);
+                }
             }
-            i++;
         }
         if (tupleTypeNode.restParamType != null) {
             analyzeDef(tupleTypeNode.restParamType, data);
@@ -1207,7 +1207,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 break;
             case TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BTupleMemberType memberType : tupleType.tupleTypes) {
+                for (BTupleMember memberType : tupleType.tupleTypes) {
                     if (!isSupportedConfigType(memberType.type, errors, varName, unresolvedTypes)) {
                         errors.add("tuple element type '" + memberType + "' is not supported");
                     }
@@ -1491,9 +1491,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private BType resolveTupleType(BLangTupleVariable varNode) {
-        List<BTupleMemberType> memberTypes = new ArrayList<>(varNode.memberVariables.size());
+        List<BTupleMember> memberTypes = new ArrayList<>(varNode.memberVariables.size());
         for (BLangVariable memberVariable : varNode.memberVariables) {
-            memberTypes.add(new BTupleMemberType(getTupleMemberType(memberVariable)));
+            memberTypes.add(new BTupleMember(getTupleMemberType(memberVariable)));
         }
 
         BLangVariable restVariable = varNode.restVariable;
@@ -2364,9 +2364,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         }
 
-        List<BTupleMemberType> sourceTypes = new ArrayList<>(((BTupleType) source).tupleTypes);
+        List<BTupleMember> sourceTypes = new ArrayList<>(((BTupleType) source).tupleTypes);
         if (((BTupleType) source).restType != null) {
-            sourceTypes.add(new BTupleMemberType(((BTupleType) source).restType));
+            sourceTypes.add(new BTupleMember(((BTupleType) source).restType));
         }
 
         for (int i = 0; i < sourceTypes.size(); i++) {
@@ -2774,10 +2774,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 break;
             case LIST_MATCH_PATTERN:
                 BLangListMatchPattern listMatchPattern = (BLangListMatchPattern) matchPattern;
-                List<BTupleMemberType> memberTypes = new ArrayList<>();
+                List<BTupleMember> memberTypes = new ArrayList<>();
                 for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(memberMatchPattern, env);
-                    memberTypes.add(new BTupleMemberType(memberMatchPattern.getBType()));
+                    memberTypes.add(new BTupleMember(memberMatchPattern.getBType()));
                 }
                 BTupleType matchPatternType = new BTupleType(memberTypes);
 
@@ -2893,7 +2893,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     if (arrayType.state == BArrayState.CLOSED) {
                         BTupleType restTupleType = createTupleForClosedArray(
                                 arrayType.size - listMatchPattern.matchPatterns.size(),
-                                new BTupleMemberType(arrayType.eType));
+                                new BTupleMember(arrayType.eType));
                         listMatchPattern.restMatchPattern.setBType(restTupleType);
                         BVarSymbol restMatchPatternSymbol = listMatchPattern.restMatchPattern.declaredVars
                                 .get(listMatchPattern.restMatchPattern.getIdentifier().getValue());
@@ -2910,12 +2910,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     return;
                 }
                 BTupleType patternTupleType = (BTupleType) patternType;
-                List<BTupleMemberType> types = patternTupleType.tupleTypes;
+                List<BTupleMember> types = patternTupleType.tupleTypes;
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
-                List<BTupleMemberType> memberTypes = new ArrayList<>();
+                List<BTupleMember> memberTypes = new ArrayList<>();
                 for (int i = 0; i < matchPatterns.size(); i++) {
                     assignTypesToMemberPatterns(matchPatterns.get(i), types.get(i).type, data);
-                    memberTypes.add(new BTupleMemberType(matchPatterns.get(i).getBType()));
+                    memberTypes.add(new BTupleMember(matchPatterns.get(i).getBType()));
                 }
                 BTupleType tupleType = new BTupleType(memberTypes);
 
@@ -2966,13 +2966,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
-    private BTupleType createTupleForClosedArray(int noOfElements, BTupleMemberType elementType) {
-        List<BTupleMemberType> memTypes = Collections.nCopies(noOfElements, elementType);
+    private BTupleType createTupleForClosedArray(int noOfElements, BTupleMember elementType) {
+        List<BTupleMember> memTypes = Collections.nCopies(noOfElements, elementType);
         return new BTupleType(memTypes);
     }
 
-    private BType createTypeForTupleRestType(int startIndex, List<BTupleMemberType> types, BType patternRestType) {
-        List<BTupleMemberType> remainingTypes = new ArrayList<>();
+    private BType createTypeForTupleRestType(int startIndex, List<BTupleMember> types, BType patternRestType) {
+        List<BTupleMember> remainingTypes = new ArrayList<>();
         for (int i = startIndex; i < types.size(); i++) {
             remainingTypes.add(types.get(i));
         }
@@ -3081,10 +3081,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangListBindingPattern listBindingPattern, AnalyzerData data) {
-        List<BTupleMemberType> listMemberTypes = new ArrayList<>();
+        List<BTupleMember> listMemberTypes = new ArrayList<>();
         for (BLangBindingPattern bindingPattern : listBindingPattern.bindingPatterns) {
             analyzeNode(bindingPattern, data);
-            listMemberTypes.add(new BTupleMemberType(bindingPattern.getBType()));
+            listMemberTypes.add(new BTupleMember(bindingPattern.getBType()));
             listBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         }
         BTupleType listBindingPatternType = new BTupleType(listMemberTypes);
@@ -3419,10 +3419,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangListMatchPattern listMatchPattern, AnalyzerData data) {
-        List<BTupleMemberType> memberTypes = new ArrayList<>();
+        List<BTupleMember> memberTypes = new ArrayList<>();
         for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
             memberMatchPattern.accept(this, data);
-            memberTypes.add(new BTupleMemberType(memberMatchPattern.getBType()));
+            memberTypes.add(new BTupleMember(memberMatchPattern.getBType()));
             checkForSimilarVars(listMatchPattern.declaredVars, memberMatchPattern.declaredVars, memberMatchPattern.pos);
             listMatchPattern.declaredVars.putAll(memberMatchPattern.declaredVars);
         }
@@ -3488,7 +3488,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     if (arrayType.state == BArrayState.CLOSED) {
                         BTupleType restTupleType = createTupleForClosedArray(
                                 arrayType.size - listBindingPattern.bindingPatterns.size(),
-                                new BTupleMemberType(arrayType.eType));
+                                new BTupleMember(arrayType.eType));
                         listBindingPattern.restBindingPattern.setBType(restTupleType);
                         BVarSymbol restBindingPatternSymbol = listBindingPattern.restBindingPattern.declaredVars
                                 .get(listBindingPattern.restBindingPattern.getIdentifier().getValue());
@@ -3505,12 +3505,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     return;
                 }
                 BTupleType bindingPatternTupleType = (BTupleType) bindingPatternType;
-                List<BTupleMemberType> types = bindingPatternTupleType.getTupleTypes();
+                List<BTupleMember> types = bindingPatternTupleType.getTupleTypes();
                 List<BLangBindingPattern> bindingPatterns = listBindingPattern.bindingPatterns;
-                List<BTupleMemberType> memberTypes = new ArrayList<>();
+                List<BTupleMember> memberTypes = new ArrayList<>();
                 for (int i = 0; i < bindingPatterns.size(); i++) {
                     assignTypesToMemberPatterns(bindingPatterns.get(i), types.get(i).type, data);
-                    memberTypes.add(new BTupleMemberType(bindingPatterns.get(i).getBType()));
+                    memberTypes.add(new BTupleMember(bindingPatterns.get(i).getBType()));
                 }
                 BTupleType tupleType = new BTupleType(memberTypes);
 

@@ -21,7 +21,7 @@ import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -51,7 +51,7 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
             List<TypeSymbol> types = new ArrayList<>();
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
 
-            for (BTupleMemberType type : ((BTupleType) this.getBType()).tupleTypes) {
+            for (BTupleMember type : ((BTupleType) this.getBType()).tupleTypes) {
                 types.add(typesFactory.getTypeDescriptor(type.type));
             }
 

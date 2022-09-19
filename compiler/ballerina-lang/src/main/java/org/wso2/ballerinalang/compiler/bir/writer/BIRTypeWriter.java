@@ -62,7 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -287,13 +287,12 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BTupleType bTupleType) {
         buff.writeInt(bTupleType.tupleTypes.size());
-        int i = 0;
-        for (BTupleMemberType memberType : bTupleType.tupleTypes) {
+        for (int i = 0; i < bTupleType.tupleTypes.size(); i++) {
+            BTupleMember memberType = bTupleType.tupleTypes.get(i);
             buff.writeInt(addStringCPEntry(Integer.toString(i)));
             buff.writeLong(memberType.symbol.flags);
             writeTypeCpIndex(memberType.type);
             writeAnnotAttachments(buff, (List<BAnnotationAttachmentSymbol>) memberType.symbol.getAnnotations());
-            i++;
         }
         if (bTupleType.restType != null) {
             buff.writeBoolean(true);

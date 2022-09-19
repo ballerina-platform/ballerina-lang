@@ -34,7 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -162,15 +162,15 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType typeInSymbol, BType boundType) {
-        List<BTupleMemberType> newTupleTypes = new ArrayList<>();
+        List<BTupleMember> newTupleTypes = new ArrayList<>();
 
-        List<BTupleMemberType> tupleTypes = typeInSymbol.tupleTypes;
+        List<BTupleMember> tupleTypes = typeInSymbol.tupleTypes;
         boolean areAllSameType = true;
 
-        for (BTupleMemberType type : tupleTypes) {
+        for (BTupleMember type : tupleTypes) {
             BType newType = resolve(type.type, boundType);
             areAllSameType &= newType == type.type;
-            newTupleTypes.add(new BTupleMemberType(newType));
+            newTupleTypes.add(new BTupleMember(newType));
         }
 
         BType newRestType = typeInSymbol.restType != null ? resolve(typeInSymbol.restType, boundType) : null;

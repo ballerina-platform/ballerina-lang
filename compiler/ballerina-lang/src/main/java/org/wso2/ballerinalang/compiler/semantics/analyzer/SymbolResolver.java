@@ -67,7 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -1441,8 +1441,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
 
-        List<BTupleMemberType> tupleMemberTypes = new ArrayList<>();
-        memberTypes.forEach(m -> tupleMemberTypes.add(new BTupleMemberType(m)));
+        List<BTupleMember> tupleMemberTypes = new ArrayList<>();
+        memberTypes.forEach(m -> tupleMemberTypes.add(new BTupleMember(m)));
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, tupleMemberTypes);
         tupleTypeSymbol.type = tupleType;
 

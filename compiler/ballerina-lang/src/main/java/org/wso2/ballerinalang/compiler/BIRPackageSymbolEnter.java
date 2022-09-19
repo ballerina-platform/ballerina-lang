@@ -77,7 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -970,7 +970,7 @@ public class BIRPackageSymbolEnter {
                 break;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BTupleMemberType t : tupleType.tupleTypes) {
+                for (BTupleMember t : tupleType.tupleTypes) {
                     populateParameterizedType(t.type, paramsMap, invSymbol);
                 }
                 populateParameterizedType(tupleType.restType, paramsMap, invSymbol);
@@ -1465,7 +1465,7 @@ public class BIRPackageSymbolEnter {
                     BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
                     bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
-                    List<BTupleMemberType> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
+                    List<BTupleMember> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
 
                     for (int i = 0; i < tupleMemberCount; i++) {
                         String iname = getStringCPEntryValue(inputStream);
@@ -1479,7 +1479,7 @@ public class BIRPackageSymbolEnter {
 
                         defineAnnotAttachmentSymbols(inputStream, varSymbol);
 
-                        tupleMemberTypes.add(new BTupleMemberType(memberType, varSymbol));
+                        tupleMemberTypes.add(new BTupleMember(memberType, varSymbol));
                     }
                     bTupleType.tupleTypes = tupleMemberTypes;
 

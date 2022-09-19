@@ -50,7 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -193,7 +193,7 @@ public class TypeParamAnalyzer {
                 return containsTypeParam(((BArrayType) type).eType, resolvedTypes);
             case TypeTags.TUPLE:
                 BTupleType bTupleType = (BTupleType) type;
-                for (BTupleMemberType member : bTupleType.tupleTypes) {
+                for (BTupleMember member : bTupleType.tupleTypes) {
                     if (containsTypeParam(member.type, resolvedTypes)) {
                         return true;
                     }
@@ -555,10 +555,10 @@ public class TypeParamAnalyzer {
             if (actualType.keyTypeConstraint != null) {
                 findTypeParam(loc, expType.keyTypeConstraint, actualType.keyTypeConstraint, env, resolvedTypes, result);
             } else if (!actualType.fieldNameList.isEmpty()) {
-                List<BTupleMemberType> memberTypes = new ArrayList<>();
+                List<BTupleMember> memberTypes = new ArrayList<>();
                 actualType.fieldNameList.stream()
                         .map(f -> types.getTableConstraintField(actualType.constraint, f))
-                        .filter(Objects::nonNull).map(f -> new BTupleMemberType(f.type)).forEach(memberTypes::add);
+                        .filter(Objects::nonNull).map(f -> new BTupleMember(f.type)).forEach(memberTypes::add);
                 if (memberTypes.size() == 1) {
                     findTypeParam(loc, expType.keyTypeConstraint, memberTypes.get(0).type, env, resolvedTypes, result);
                 } else {
@@ -866,14 +866,14 @@ public class TypeParamAnalyzer {
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         boolean hasDifferentType = false;
-        List<BTupleMemberType> tupleTypes = new ArrayList<>();
-        for (BTupleMemberType type : expType.tupleTypes) {
+        List<BTupleMember> tupleTypes = new ArrayList<>();
+        for (BTupleMember type : expType.tupleTypes) {
             BType matchingBoundType = getMatchingBoundType(type.type, env, resolvedTypes);
             if (!hasDifferentType && isDifferentTypes(type.type, matchingBoundType)) {
                 hasDifferentType = true;
             }
 
-            tupleTypes.add(new BTupleMemberType(matchingBoundType));
+            tupleTypes.add(new BTupleMember(matchingBoundType));
         }
 
         BType restType = expType.restType;

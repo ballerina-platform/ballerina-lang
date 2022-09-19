@@ -47,7 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
@@ -902,7 +902,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         List<BLangExpression> memberExprs = ((BLangListConstructorExpr) expr).exprs;
-        List<BTupleMemberType> tupleTypes = new ArrayList<>(constValueList.size());
+        List<BTupleMember> tupleTypes = new ArrayList<>(constValueList.size());
 
         for (int i = 0; i < memberExprs.size(); i++) {
             BLangExpression memberExpr = memberExprs.get(i);
@@ -914,13 +914,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
                 if (tag == TypeTags.FINITE) {
                     // https://github.com/ballerina-platform/ballerina-lang/issues/35127
-                    tupleTypes.add(new BTupleMemberType(type));
+                    tupleTypes.add(new BTupleMember(type));
                     continue;
                 }
 
                 if (tag == TypeTags.INTERSECTION) {
                     memberConstValue.type = type;
-                    tupleTypes.add(new BTupleMemberType(type));
+                    tupleTypes.add(new BTupleMember(type));
                     continue;
                 }
             }
@@ -930,7 +930,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             if (newType == null) {
                 return null;
             }
-            tupleTypes.add(new BTupleMemberType(newType));
+            tupleTypes.add(new BTupleMember(newType));
 
             if (newType.tag != TypeTags.FINITE) {
                 // https://github.com/ballerina-platform/ballerina-lang/issues/35127

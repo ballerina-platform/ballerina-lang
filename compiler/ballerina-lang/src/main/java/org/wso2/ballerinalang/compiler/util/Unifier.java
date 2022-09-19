@@ -44,7 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -234,15 +234,15 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        List<BTupleMemberType> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.tupleTypes) :
-                Collections.singletonList(new BTupleMemberType(null, null));
+        List<BTupleMember> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.tupleTypes) :
+                Collections.singletonList(new BTupleMember(null, null));
 
-        List<BTupleMemberType> members = new ArrayList<>();
+        List<BTupleMember> members = new ArrayList<>();
         int delta = hasMatchedTupleType ? 1 : 0;
 
         boolean errored = false;
 
-        List<BTupleMemberType> tupleTypes = originalType.tupleTypes;
+        List<BTupleMember> tupleTypes = originalType.tupleTypes;
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
             if (this.visitedTypes.contains(tupleTypes.get(i).type)) {
                 continue;
@@ -250,7 +250,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType member = tupleTypes.get(i).type;
             BType expMember = expTupleTypes.get(j).type;
             BType newMem = member.accept(this, expMember);
-            members.add(new BTupleMemberType(newMem));
+            members.add(new BTupleMember(newMem));
 
             if (isSemanticErrorInInvocation(newMem)) {
                 errored = true;
@@ -800,7 +800,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private void populateParamMapFromTupleRestArg(List<BVarSymbol> params, int currentParamIndex,
                                                   BTupleType tupleType) {
         int tupleIndex = 0;
-        List<BTupleMemberType> tupleTypes = tupleType.tupleTypes;
+        List<BTupleMember> tupleTypes = tupleType.tupleTypes;
         for (int i = currentParamIndex; i < params.size(); i++) {
             paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++).type);
         }
@@ -1073,7 +1073,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
 
-                for (BTupleMemberType tupleMemType : tupleType.tupleTypes) {
+                for (BTupleMember tupleMemType : tupleType.tupleTypes) {
                     if (refersInferableParamName(
                             paramsWithInferredTypedescDefault, tupleMemType.type, unresolvedTypes)) {
                         return true;

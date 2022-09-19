@@ -38,7 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
@@ -366,7 +366,7 @@ public class AnnotationTests {
         BTypeDefinitionSymbol symbol =
                 ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("Tup")).symbol);
         Assert.assertEquals(symbol.getAnnotations().size(), 1);
-        List<BTupleMemberType> members = ((BTupleType) symbol.type).tupleTypes;
+        List<BTupleMember> members = ((BTupleType) symbol.type).tupleTypes;
         List<? extends AnnotationAttachmentSymbol> m1 = members.get(0).symbol.getAnnotations();
 
         BAnnotationAttachmentSymbol m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));

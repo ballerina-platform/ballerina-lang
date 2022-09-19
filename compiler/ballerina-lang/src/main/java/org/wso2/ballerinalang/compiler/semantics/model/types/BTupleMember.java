@@ -19,20 +19,21 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 /**
- * {@code {@link BTupleMemberType }} represents a member in a tuple.
+ * {@code {@link BTupleMember}} represents a member in a tuple.
  *
+ * @since 2201.3.0
  */
-public class BTupleMemberType {
+public class BTupleMember {
 
     public BType type;
     public BVarSymbol symbol;
 
-    public BTupleMemberType(BType type, BVarSymbol symbol) {
+    public BTupleMember(BType type, BVarSymbol symbol) {
         this.type = type;
         this.symbol = symbol;
     }
 
-    public BTupleMemberType(BType type) {
+    public BTupleMember(BType type) {
         this.type = type;
         this.symbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
     }
