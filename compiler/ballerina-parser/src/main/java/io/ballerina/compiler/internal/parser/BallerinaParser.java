@@ -2919,8 +2919,15 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseQualifiedIdentifierWithPredeclPrefix(STToken preDeclaredPrefix, boolean isInConditionalExpr) {
-        STNode identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
-                preDeclaredPrefix.leadingMinutiae(), preDeclaredPrefix.trailingMinutiae());
+        STNode identifier;
+        if (preDeclaredPrefix.isMissing()) {
+            identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                                                                        DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
+        } else {
+            identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
+                                                             preDeclaredPrefix.leadingMinutiae(),
+                                                             preDeclaredPrefix.trailingMinutiae());
+        }
         return parseQualifiedIdentifier(identifier, isInConditionalExpr);
     }
 
