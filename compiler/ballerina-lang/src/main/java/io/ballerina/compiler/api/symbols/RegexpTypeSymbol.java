@@ -17,19 +17,10 @@
 
 package io.ballerina.compiler.api.symbols;
 
-import java.util.Optional;
-
 /**
  * Represents an RegExp type descriptor.
  *
  * @since 2.3.0
  */
 public interface RegexpTypeSymbol extends TypeSymbol {
-
-    /**
-     * Get the type descriptor of the type parameter.
-     *
-     * @return The type parameter
-     */
-    Optional<TypeSymbol> typeParameter();
 }

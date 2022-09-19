@@ -24,7 +24,7 @@ import io.ballerina.runtime.internal.values.RegExpDisjunction;
  * Represents RegexpValue.
  * </p>
  * 
- * @since 2.3.0
+ * @since 2201.3.0
  */
 public interface BRegexpValue extends BValue {
 
