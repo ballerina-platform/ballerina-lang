@@ -63,14 +63,16 @@ public class GetterSetterCodeAction implements RangeBasedCodeActionProvider {
         String fieldName = String.valueOf(objectFieldNode.fieldName().text());
         String commandTitle = String.format("Create getter and setter for '%s'", fieldName);
         String typeName = String.valueOf(objectFieldNode.typeName()).trim();
-        String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
-                fieldName.substring(1);
+        String extractedFieldName = CodeActionUtil.removeQuotedIdentifier(fieldName);
+        String functionName = "get" + extractedFieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                extractedFieldName.substring(1);
         Optional<FunctionDefinitionNode> initNode = CodeActionUtil.getInitNode(objectFieldNode);
         if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
         }
 
-        functionName = "set" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
+        functionName = "set" + extractedFieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                extractedFieldName.substring(1);
         if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
         }
