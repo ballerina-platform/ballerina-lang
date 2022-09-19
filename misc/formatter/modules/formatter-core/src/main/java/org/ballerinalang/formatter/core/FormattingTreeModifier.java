@@ -4397,17 +4397,6 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
-     * Check whether a node in a statement continues to the next lines.
-     *
-     * @param node node to be checked for continuity
-     * @return <code>true</code> If the statement continues to the next line.
-     *         <code>false</code> otherwise
-     */
-    private boolean isContinuing(Node node) {
-        return node.toSourceCode().contains(System.lineSeparator());
-    }
-
-    /**
      * Check whether a node list needs to be expanded into multiple lines.
      *
      * @param node node to be expanded
