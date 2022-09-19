@@ -113,6 +113,7 @@ import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MatchClauseNode;
 import io.ballerina.compiler.syntax.tree.MatchStatementNode;
+import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
@@ -1051,7 +1052,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 RestDescriptorNode restDescriptor = (RestDescriptorNode) node;
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
-                tupleTypeNode.memberTypeNodes.add(createTypeNode(node));
+                MemberTypeDescriptorNode member = (MemberTypeDescriptorNode) node;
+                tupleTypeNode.memberTypeNodes.add(createTypeNode(member.typeDescriptor()));
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);

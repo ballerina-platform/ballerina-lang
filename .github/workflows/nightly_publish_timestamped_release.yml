@@ -3,6 +3,11 @@ name: Publish Timestamped Snapshot Artifacts
 on:
   schedule:
     - cron: '0 0 * * *'
+  push:
+    branches:
+      - master
+      - annot-tuple-members
+  workflow_dispatch:
 
 jobs:
   publish-ballerina-lang:
