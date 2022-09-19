@@ -178,7 +178,7 @@ public class AnnotationAttachmentSymbolsTest {
 
     @Test
     public void testAnnotOnResourceOne() {
-        BLangFunction function = getFunction("$anonType$_1.$get$res");
+        BLangFunction function = getFunction("$anonType$_0.$get$res");
         List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.getAnnotations();
         Assert.assertEquals(attachments.size(), 2);
         assertAttachmentSymbol(attachments.get(0), "v3");
@@ -196,7 +196,7 @@ public class AnnotationAttachmentSymbolsTest {
     @Test
     public void testAnnotOnServiceTwo() {
         ClassDefinition ser = compileResult.getAST().getClassDefinitions().stream()
-                .filter(classNode -> classNode.getName().getValue().equals("$anonType$_3"))
+                .filter(classNode -> classNode.getName().getValue().equals("$anonType$_1"))
                 .findFirst()
                 .get();
         List<BAnnotationAttachmentSymbol> attachments =
@@ -208,7 +208,7 @@ public class AnnotationAttachmentSymbolsTest {
 
     @Test
     public void testAnnotOnResourceTwo() {
-        BLangFunction function = getFunction("$anonType$_3.$get$res");
+        BLangFunction function = getFunction("$anonType$_1.$get$res");
         List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.getAnnotations();
         Assert.assertEquals(attachments.size(), 1);
         assertAttachmentSymbol(attachments.get(0), "v5");

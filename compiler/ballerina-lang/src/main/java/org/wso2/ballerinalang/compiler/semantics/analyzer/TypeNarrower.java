@@ -267,8 +267,10 @@ public class TypeNarrower extends BLangNodeVisitor {
             // Terminate for undefined symbols
             return;
         }
+
         final TypeChecker.AnalyzerData data = new TypeChecker.AnalyzerData();
         data.env = env;
+
         typeChecker.markAndRegisterClosureVariable(symbol, lhsExpression.pos, env, data);
         if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
             return;
@@ -414,8 +416,12 @@ public class TypeNarrower extends BLangNodeVisitor {
                 env.scope.owner, expr.pos, SOURCE);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
-        finiteType.addValue(expr);
+        if (expr.getKind() == NodeKind.UNARY_EXPR) {
+            finiteType.addValue(Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
+        } else {
+            expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
+            finiteType.addValue(expr);
+        }
         finiteTypeSymbol.type = finiteType;
 
         return finiteType;
@@ -438,10 +444,11 @@ public class TypeNarrower extends BLangNodeVisitor {
             return;
         }
 
-        NodeKind rhsExperKind = rhsExpr.getKind();
-        if (rhsExperKind == NodeKind.LITERAL || rhsExperKind == NodeKind.NUMERIC_LITERAL) {
+        NodeKind rhsExprKind = rhsExpr.getKind();
+        if (rhsExprKind == NodeKind.LITERAL || rhsExprKind == NodeKind.NUMERIC_LITERAL ||
+                types.isExpressionAnAllowedUnaryType(rhsExpr, rhsExprKind)) {
             setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, createFiniteType(rhsExpr), binaryExpr.pos);
-        } else if (rhsExperKind == NodeKind.SIMPLE_VARIABLE_REF) {
+        } else if (rhsExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
             BSymbol rhsVarSymbol = ((BLangSimpleVarRef) rhsExpr).symbol;
             if (rhsVarSymbol != symTable.notFoundSymbol && rhsVarSymbol.kind == SymbolKind.CONSTANT) {
                 setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, rhsVarSymbol.type, binaryExpr.pos);

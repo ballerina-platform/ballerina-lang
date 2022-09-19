@@ -77,6 +77,8 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++,
                       "a function with a non-'external' function body cannot be a dependently-typed function", 115, 45);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 115, 45);
+        validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) " +
+                "returns (string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 61);
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
                 "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
                 " (other|error)'", 140, 5);
@@ -233,7 +235,8 @@ public class DependentlyTypedFunctionsTest {
                 {"testDependentlyTypedFunctionWithIncludedRecordParam"},
                 {"testDependentlyTypedMethodCallOnObjectType"},
                 {"testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument"},
-                {"testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType"}
+                {"testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType"},
+                {"testDependentlyTypedResourceMethods"}
         };
     }
 

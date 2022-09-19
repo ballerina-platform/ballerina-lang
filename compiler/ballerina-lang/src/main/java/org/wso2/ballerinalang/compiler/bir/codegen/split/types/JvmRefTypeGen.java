@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
+import io.ballerina.identifier.Utils;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
@@ -59,7 +60,7 @@ public class JvmRefTypeGen {
     public void createTypeRefType(MethodVisitor mv, BTypeReferenceType typeRefType) {
         mv.visitTypeInsn(NEW, TYPE_REF_TYPE_IMPL);
         mv.visitInsn(DUP);
-        mv.visitLdcInsn(typeRefType.tsymbol.name.value);
+        mv.visitLdcInsn(Utils.decodeIdentifier(typeRefType.tsymbol.name.value));
         String varName = jvmConstantsGen.getModuleConstantVar(typeRefType.tsymbol.pkgID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, GET_MODULE);
         mv.visitMethodInsn(INVOKESPECIAL, TYPE_REF_TYPE_IMPL, JVM_INIT_METHOD, INIT_TYPE_REF, false);

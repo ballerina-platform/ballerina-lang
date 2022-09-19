@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
@@ -41,11 +43,10 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.eclipse.lsp4j.Position;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.eclipse.lsp4j.Range;
 
 import java.util.Optional;
@@ -53,7 +54,7 @@ import java.util.Optional;
 /**
  * Node analyzer for the code actions. This analyzer will determine
  * 1. The node for node based code actions
- * 2. Code action node type
+ * 2. Code action syntax kind
  * 3. Closest statement node to the cursor position
  * 4. Documentable node
  * 5. Enclosing documentable node of the cursor position
@@ -62,36 +63,38 @@ import java.util.Optional;
  */
 public class CodeActionNodeAnalyzer extends NodeVisitor {
 
-    private final int positionOffset;
-
+    private final int startPositionOffset;
+    private final int endPositionOffset;
     private NonTerminalNode codeActionNode;
-    private CodeActionNodeType codeActionNodeType;
+    private SyntaxKind syntaxKind;
     private StatementNode statementNode;
     private NonTerminalNode documentableNode;
     private NonTerminalNode enclosingDocumentableNode;
 
-    private CodeActionNodeAnalyzer(int positionOffset) {
-        this.positionOffset = positionOffset;
+    private CodeActionNodeAnalyzer(int startPositionOffset, int endPositionOffset) {
+        this.startPositionOffset = startPositionOffset;
+        this.endPositionOffset = endPositionOffset;
     }
 
     /**
      * Entry point to the analyzer. Provided the cursor position and the syntax tree, this method will calculate the
      * node details as mentioned in the class level docs.
      *
-     * @param cursorPosition Cursor position
-     * @param syntaxTree     Syntax tree
+     * @param range      Highlighted range
+     * @param syntaxTree Syntax tree
      */
-    public static CodeActionNodeAnalyzer analyze(Position cursorPosition, SyntaxTree syntaxTree) {
-        LinePosition linePos = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
-        int positionOffset = syntaxTree.textDocument().textPositionFrom(linePos);
-        CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(positionOffset);
-        NonTerminalNode node = CommonUtil.findNode(new Range(cursorPosition, cursorPosition), syntaxTree);
+    public static CodeActionNodeAnalyzer analyze(Range range, SyntaxTree syntaxTree) {
+        int startPositionOffset = PositionUtil.getPositionOffset(range.getStart(), syntaxTree);
+        int endPositionOffset = PositionUtil.getPositionOffset(range.getEnd(), syntaxTree);
+
+        CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(startPositionOffset, endPositionOffset);
+        NonTerminalNode node = CommonUtil.findNode(range, syntaxTree);
         if (node.kind() == SyntaxKind.LIST) {
             node.parent().accept(analyzer);
         } else {
             node.accept(analyzer);
         }
-        
+
         return analyzer;
     }
 
@@ -104,7 +107,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ImportDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.IMPORTS);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
@@ -117,7 +120,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ServiceDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.SERVICE);
+        checkAndSetSyntaxKind(node.kind());
 
         int serviceKwStart = node.serviceKeyword().textRange().startOffset();
         int openBraceEnd = node.openBraceToken().textRange().endOffset();
@@ -141,7 +144,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         }
 
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.FUNCTION);
+        checkAndSetSyntaxKind(node.kind());
 
         NodeList<Token> qualifiers = node.qualifierList();
         int startOffset = !qualifiers.isEmpty() ?
@@ -168,9 +171,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         // If cursor was outside object/record type desc, we have to manually check for the type
         Node typeDescriptor = node.typeDescriptor();
         if (typeDescriptor.kind() == SyntaxKind.RECORD_TYPE_DESC) {
-            checkAndSetCodeActionNodeType(CodeActionNodeType.RECORD);
+            checkAndSetSyntaxKind(typeDescriptor.kind());
         } else if (typeDescriptor.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT);
+            checkAndSetSyntaxKind(typeDescriptor.kind());
         }
 
         Optional<Token> qualifier = node.visibilityQualifier();
@@ -192,7 +195,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ClassDefinitionNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.CLASS);
+        checkAndSetSyntaxKind(node.kind());
 
         Optional<Token> qualifier = node.visibilityQualifier();
         int startOffset = qualifier.isEmpty() ?
@@ -214,7 +217,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ModuleVariableDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.MODULE_VARIABLE);
+        checkAndSetSyntaxKind(node.kind());
 
         Optional<Token> visibilityQualifier = node.visibilityQualifier();
         NodeList<Token> qualifiers = node.qualifiers();
@@ -301,7 +304,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(AnnotationDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.ANNOTATION);
+        checkAndSetSyntaxKind(node.kind());
 
         int startOffset = node.visibilityQualifier()
                 .map(token -> token.textRange().startOffset())
@@ -330,7 +333,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(MethodDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT_FUNCTION);
+        checkAndSetSyntaxKind(node.kind());
 
         int startOffset;
         NodeList<Token> qualifierList = node.qualifierList();
@@ -353,44 +356,65 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(RecordTypeDescriptorNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.RECORD);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(BasicLiteralNode node) {
+            checkAndSetCodeActionNode(node);
+            checkAndSetSyntaxKind(node.kind());
+            visitSyntaxNode(node);
     }
 
     @Override
     public void visit(ObjectTypeDescriptorNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(BinaryExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
     public void visit(VariableDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.LOCAL_VARIABLE);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
     public void visit(AssignmentStatementNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.ASSIGNMENT);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(UnaryExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
     public void visit(ObjectFieldNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT_FIELD);
-        
+        checkAndSetSyntaxKind(node.kind());
+
         int startOffset = node.visibilityQualifier()
                 .map(token -> token.textRange().startOffset())
                 .or(() -> node.qualifierList().stream().findFirst().map(token -> token.textRange().startOffset()))
                 .orElseGet(() -> node.typeName().textRange().startOffset());
         int endOffset = node.semicolonToken().textRange().endOffset();
         if (isWithinRange(startOffset, endOffset)) {
-           checkAndSetEnclosingDocumentableNode(node);
-           checkAndSetDocumentableNode(node);
+            checkAndSetEnclosingDocumentableNode(node);
+            checkAndSetDocumentableNode(node);
         }
     }
 
@@ -407,9 +431,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         }
     }
 
-    private void checkAndSetCodeActionNodeType(CodeActionNodeType type) {
-        if (this.codeActionNodeType == null) {
-            this.codeActionNodeType = type;
+    private void checkAndSetSyntaxKind(SyntaxKind kind) {
+        if (this.syntaxKind == null) {
+            this.syntaxKind = kind;
         }
     }
 
@@ -432,7 +456,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     private boolean isWithinRange(int startOffSet, int endOffset) {
-        return this.positionOffset > startOffSet && this.positionOffset <= endOffset;
+        return this.startPositionOffset > startOffSet && this.endPositionOffset <= endOffset;
     }
 
     @Override
@@ -453,8 +477,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         return Optional.ofNullable(codeActionNode);
     }
 
-    public CodeActionNodeType getCodeActionNodeType() {
-        return codeActionNodeType != null ? codeActionNodeType : CodeActionNodeType.NONE;
+    public SyntaxKind getSyntaxKind() {
+        return syntaxKind != null ? syntaxKind : SyntaxKind.NONE;
     }
 
     public Optional<StatementNode> getStatementNode() {

@@ -321,16 +321,28 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                     data.continueAsLastStatement, data.potentiallyInvalidAssignmentInLoopsInfo);
 
             if (data.booleanConstCondition == symTable.trueType) {
+                if (elseStmt.getKind() != NodeKind.IF) {
+                    data.statementReturnsPanicsOrFails = checkAllBranchesTerminate(ifStmtReturnsPanicsOrFails,
+                            ifStmtBreakAsLastStatement, ifStmtContinueAsLastStatement, data);
+                }
                 resetErrorThrown(data);
             }
 
             if (data.booleanConstCondition == symTable.semanticError) {
-                data.statementReturnsPanicsOrFails = ifStmtReturnsPanicsOrFails && data.statementReturnsPanicsOrFails;
+                data.statementReturnsPanicsOrFails = checkAllBranchesTerminate(ifStmtReturnsPanicsOrFails,
+                        ifStmtBreakAsLastStatement, ifStmtContinueAsLastStatement, data);
                 data.errorThrown = currentErrorThrown && data.errorThrown;
                 data.breakAsLastStatement = ifStmtBreakAsLastStatement && data.breakAsLastStatement;
                 data.continueAsLastStatement = ifStmtContinueAsLastStatement && data.continueAsLastStatement;
             }
         }
+    }
+
+    private boolean checkAllBranchesTerminate(boolean ifStmtReturnsPanicsOrFails, boolean ifStmtBreakAsLastStatement,
+                                              boolean ifStmtContinueAsLastStatement, AnalyzerData data) {
+        return (ifStmtReturnsPanicsOrFails || ifStmtBreakAsLastStatement
+                || ifStmtContinueAsLastStatement) && (data.statementReturnsPanicsOrFails
+                || data.breakAsLastStatement || data.continueAsLastStatement);
     }
 
     @Override

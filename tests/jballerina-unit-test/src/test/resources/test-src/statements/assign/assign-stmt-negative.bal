@@ -122,3 +122,13 @@ function assignErrorToUnionWithErrorArray() {
 function assignFunctionParameterAnyToParameterUnionWithErrorAndAny() {
     function (any|error...) returns () func = function (any... y) {};
 }
+
+type Type A|Tuple|List;
+type A "A";
+type Tuple ["tuple", Type, Type...];
+type List ["list", int?, Type];
+
+function incompatibilityAssignInTupleTypes() {
+    Type a = ["tuple", "A", "A", "A"];
+    List b = a; // error: incompatible types: expected '["list",int?,Type]', found 'Type'
+}

@@ -1,0 +1,160 @@
+[
+  {
+    "description": "Add a method , add a object field",
+    "oldCode": "public class Employee{}",
+    "newCode": "public class Employee{\n\tpublic function foo(){}\n\tpublic int x;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "new",
+                  "versionImpact": "minor"
+                },
+                {
+                  "kind": "object field",
+                  "type": "new",
+                  "versionImpact": "minor"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add a method , Remove a object field , Remove public qualifier , Add documentation",
+    "oldCode": "public class Employee{\n\tpublic int x;\n}",
+    "newCode": "#documentation\nclass Employee{\n\tpublic function foo(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "new",
+                  "versionImpact": "patch",
+                  "message": "documentation is added"
+                },
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from class 'Employee'"
+                },
+                {
+                  "kind": "function",
+                  "type": "new",
+                  "versionImpact": "minor"
+                },
+                {
+                  "kind": "object field",
+                  "type": "removed",
+                  "versionImpact": "major"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Rename  a object field , Add a new method,  Remove annotation for class , Add documentation for class , remove documentation for method",
+    "oldCode": "@deprecated\npublic class Employee{\n\t#Method documentation\npublic function foo(){}\n\tpublic int x;\n}",
+    "newCode": "#documentation\nclass Employee{\n\tpublic function foo(){}\n\tpublic int y;\n\tpublic function hello(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "new",
+                  "versionImpact": "patch",
+                  "message": "documentation is added"
+                },
+                [
+                  {
+                    "type": "modified",
+                    "versionImpact": "ambiguous",
+                    "kind": "service annotation",
+                    "message": "service annotation list is modified"
+                  }
+                ],
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from class 'Employee'"
+                },
+                {
+                  "kind": "function",
+                  "type": "new",
+                  "versionImpact": "minor"
+                },
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "documentation",
+                      "type": "removed",
+                      "versionImpact": "patch",
+                      "message": "documentation is removed"
+                    }
+                  ]
+                },
+                {
+                  "kind": "object field",
+                  "type": "new",
+                  "versionImpact": "minor"
+                },
+                {
+                  "kind": "object field",
+                  "type": "removed",
+                  "versionImpact": "major"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

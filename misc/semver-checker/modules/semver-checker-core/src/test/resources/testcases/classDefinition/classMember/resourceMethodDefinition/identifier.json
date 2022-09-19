@@ -1,0 +1,100 @@
+[
+  {
+    "description": "Change a function name",
+    "oldCode": "public class Employee{\nresource function get hello(){}\n}",
+    "newCode": "public class Employee{\nresource function get hi(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "new",
+                  "versionImpact": "minor"
+                },
+                {
+                  "kind": "resource function",
+                  "type": "removed",
+                  "versionImpact": "major"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove a function",
+    "oldCode": "public class Employee{\nresource function get hello(){}\n}",
+    "newCode": "public class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "removed",
+                  "versionImpact": "major"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add a new function",
+    "oldCode": "public class Employee{}",
+    "newCode": "public class Employee{\nresource function get hello(){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "new",
+                  "versionImpact": "minor"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

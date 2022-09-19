@@ -97,7 +97,7 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
         NodeList<AnnotationNode> newAnnots = newMeta.map(MetadataNode::annotations).orElse(null);
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
         DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
-                DiffKind.SERVICE_ANNOTATION.toString());
+                DiffKind.SERVICE_ANNOTATION);
         annotsComparator.computeDiff().ifPresent(metadataDiffs::add);
 
         return metadataDiffs;
@@ -157,12 +157,11 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
         if (newNode.expressions().size() <= 1 && oldNode.expressions().size() <= 1) {
             ExpressionNode newListener = newNode.expressions().size() > 0 ? newNode.expressions().get(0) : null;
             ExpressionNode oldListener = oldNode.expressions().size() > 0 ? oldNode.expressions().get(0) : null;
-            new DumbNodeComparator<>(newListener, oldListener, DiffKind.SERVICE_LISTENER_EXPR.toString()).computeDiff()
+            new DumbNodeComparator<>(newListener, oldListener, DiffKind.SERVICE_LISTENER_EXPR).computeDiff()
                     .ifPresent(listenerDiffs::add);
         } else {
             new DumbNodeListComparator<>(newNode.expressions().stream().collect(Collectors.toList()),
-                    oldNode.expressions().stream().collect(Collectors.toList()))
-                    .computeDiff()
+                    oldNode.expressions().stream().collect(Collectors.toList())).computeDiff()
                     .ifPresent(listenerDiffs::add);
         }
 

@@ -91,7 +91,7 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testMultiplyStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'string'", 14, 9);
@@ -101,6 +101,8 @@ public class MultiplyOperationTest {
                 "'(string|string:Char)'", 30, 17);
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 37, 14);
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 38, 14);
+        BAssertUtil.validateError(resultNegative, i++, "'9223372036854775808' is out of range " +
+                "for 'int'", 51, 17);
     }
 
     @Test(description = "Test multiplication of nullable values")

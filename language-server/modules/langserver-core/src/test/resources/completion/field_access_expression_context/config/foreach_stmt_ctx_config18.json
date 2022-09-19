@@ -174,11 +174,11 @@
     {
       "label": "'map(function (table:MapType val) returns table:MapType1 func)",
       "kind": "Function",
-      "detail": "table<table:MapType1>",
+      "detail": "table<table:MapType1> key<never>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n  \n**Params**  \n- `function (table:MapType val) returns table:MapType1` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1>`   \n- new table containing result of applying parameter `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n  \n**Params**  \n- `function (table:MapType val) returns table:MapType1` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1> key<never>`   \n- new table containing result of applying parameter `func` to each member  \n  \n"
         }
       },
       "sortText": "CD",

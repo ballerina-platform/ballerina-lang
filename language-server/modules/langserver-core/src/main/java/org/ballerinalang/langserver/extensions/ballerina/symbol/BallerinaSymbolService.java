@@ -31,9 +31,12 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.diagramutil.connector.models.connector.Type;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
@@ -137,6 +140,87 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
     }
 
     @JsonRequest
+    public CompletableFuture<TypesFromExpressionResponse> getTypeFromExpression(TypeFromExpressionRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            TypesFromExpressionResponse typesResponse = new TypesFromExpressionResponse();
+            String fileUri = request.getDocumentIdentifier().getUri();
+            String[] pathSegments = fileUri.split("/");
+            String fileName = pathSegments[pathSegments.length - 1];
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
+            if (filePath.isEmpty()) {
+                return typesResponse;
+            }
+            List<ResolvedTypeForExpression> types = new ArrayList<>();
+            try {
+                for (LineRange range: request.getExpressionRanges()) {
+                    ResolvedTypeForExpression resolvedType = new ResolvedTypeForExpression(range);
+
+                        Optional<SemanticModel> semanticModel =
+                                this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
+                        if (semanticModel.isEmpty()) {
+                            return typesResponse;
+                        }
+                        LinePosition start = range.startLine();
+                        LinePosition end = range.endLine();
+                        LineRange lineRange = LineRange.from(fileName, start, end);
+                        Optional<TypeSymbol> typeSymbol;
+                        if (semanticModel.get().typeOf(lineRange).isPresent()) {
+                            typeSymbol = semanticModel.get().typeOf(lineRange);
+                            Type.clearParentSymbols();
+                            Type type = typeSymbol.map(Type::fromSemanticSymbol).orElse(null);
+                            resolvedType.setType(type);
+                            types.add(resolvedType);
+                        }
+                }
+                typesResponse.setTypes(types);
+                return typesResponse;
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaSymbol/getTypeFromExpression' failed!";
+                this.clientLogger.logError(SymbolContext.SC_GET_TYPE_FROM_EXPRESSION_API, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+                return typesResponse;
+            }
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<TypesFromSymbolResponse> getTypeFromSymbol(TypeFromSymbolRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            TypesFromSymbolResponse typeFromSymbolResponse = new TypesFromSymbolResponse();
+            String fileUri = request.getDocumentIdentifier().getUri();
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
+            if (filePath.isEmpty()) {
+                return typeFromSymbolResponse;
+            }
+            List<ResolvedTypeForSymbol> types = new ArrayList<>();
+            try {
+                for (LinePosition position: request.getPositions()) {
+                    ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(position);
+                        Optional<SemanticModel> semanticModel =
+                                this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
+                        Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
+                        if (semanticModel.isEmpty() || document.isEmpty()) {
+                            return typeFromSymbolResponse;
+                        }
+                        LinePosition linePosition = LinePosition.from(position.line(), position.offset());
+                        Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), linePosition);
+                        Type.clearParentSymbols();
+                        Type type = symbol.map(Type::fromSemanticSymbol).orElse(null);
+                        resolvedType.setType(type);
+                        types.add(resolvedType);
+                }
+                typeFromSymbolResponse.setTypes(types);
+                return typeFromSymbolResponse;
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaSymbol/getTypeFromSymbol' failed!";
+                this.clientLogger.logError(SymbolContext.SC_GET_TYPE_FROM_SYMBOL_API, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+                return typeFromSymbolResponse;
+            }
+        });
+    }
+
+    @JsonRequest
     public CompletableFuture<SymbolInfoResponse> getSymbol(SymbolInfoRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             SymbolInfoResponse symbolInfoResponse = new SymbolInfoResponse();
@@ -167,20 +251,22 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         request.getPosition().getCharacter());
                 Optional<? extends Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
 
+                Range nodeRange = new Range(request.getPosition(), request.getPosition());
+                NonTerminalNode nodeAtCursor = CommonUtil.findNode(nodeRange, srcFile.get().syntaxTree());
+
                 if (symbolAtCursor.isEmpty()) {
-                    Range nodeRange = new Range(request.getPosition(), request.getPosition());
-                    NonTerminalNode nodeAtCursor = CommonUtil.findNode(nodeRange, srcFile.get().syntaxTree());
                     if (nodeAtCursor != null) {
                         MatchedExpressionNodeResolver exprResolver = new MatchedExpressionNodeResolver(nodeAtCursor);
                         Optional<ExpressionNode> expr = exprResolver.findExpression(nodeAtCursor);
                         if (expr.isPresent()) {
-                            return getDocMetadataForNewExpression(expr.get(), context, symbolInfoResponse);
+                            return getDocMetadataForNewExpression(expr.get(), context, symbolInfoResponse,
+                                    nodeAtCursor);
                         }
                     }
                     return symbolInfoResponse;
                 }
 
-                return getSymbolDocMetadata(symbolAtCursor.get(), symbolInfoResponse, context);
+                return getSymbolDocMetadata(symbolAtCursor.get(), symbolInfoResponse, context, nodeAtCursor);
 
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaSymbol/getSymbol' failed!";
@@ -227,7 +313,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
     }
 
     private SymbolInfoResponse getDocMetadataForNewExpression(Node exprNode, DocumentServiceContext context,
-                                                             SymbolInfoResponse symbolInfoResponse) {
+                                                              SymbolInfoResponse symbolInfoResponse,
+                                                              NonTerminalNode nodeAtCursor) {
         switch (exprNode.kind()) {
             case IMPLICIT_NEW_EXPRESSION:
             case EXPLICIT_NEW_EXPRESSION:
@@ -258,14 +345,14 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     }
 
                     MethodSymbol initMethodSymbol = classSymbol.initMethod().get();
-                    return getSymbolDocMetadata(initMethodSymbol, symbolInfoResponse, context);
+                    return getSymbolDocMetadata(initMethodSymbol, symbolInfoResponse, context, nodeAtCursor);
                 }
         }
         return symbolInfoResponse;
     }
 
     private SymbolInfoResponse getSymbolDocMetadata(Symbol symbolAtCursor, SymbolInfoResponse symbolInfoResponse,
-                                                   DocumentServiceContext context) {
+                                                    DocumentServiceContext context, NonTerminalNode nodeAtCursor) {
         Optional<Documentation> documentation = symbolAtCursor instanceof Documentable ?
                 ((Documentable) symbolAtCursor).documentation() : Optional.empty();
 
@@ -281,8 +368,9 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
             if (functionSymbol.typeDescriptor().params().isPresent()) {
                 List<ParameterSymbol> parameterSymbolList = functionSymbol.typeDescriptor().params().get();
 
-                parameterSymbolList.stream().filter((parameterSymbol) ->
-                        parameterSymbol.getName().isPresent())
+                parameterSymbolList
+                        .subList(skipFirstParam(symbolAtCursor, nodeAtCursor) ? 1 : 0, parameterSymbolList.size())
+                        .stream().filter((parameterSymbol) -> parameterSymbol.getName().isPresent())
                         .forEach(parameterSymbol -> {
 
                             symbolParams.add(new SymbolDocumentation.ParameterInfo(
@@ -319,6 +407,13 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         symbolInfoResponse.setSymbolKind(symbolAtCursor.kind());
 
         return symbolInfoResponse;
+    }
+
+    private boolean skipFirstParam(Symbol symbolAtCursor, NonTerminalNode nodeAtCursor) {
+        return (symbolAtCursor.kind() == SymbolKind.FUNCTION || symbolAtCursor.kind() == SymbolKind.METHOD)
+                && (symbolAtCursor.getModule().isPresent() &&
+                CommonUtil.isLangLib(symbolAtCursor.getModule().get().id()) &&
+                nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE);
     }
 
     @Override

@@ -31,7 +31,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.types.Field;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -129,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
@@ -247,6 +247,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private final TypeNarrower typeNarrower;
     private final Types types;
     private final Unifier unifier;
+    private final Stack<String> anonTypeNameSuffixes;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -272,6 +273,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.unifier = new Unifier();
+        this.anonTypeNameSuffixes = new Stack<>();
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -290,6 +292,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         data.env = pkgEnv;
+
+        // To keep track of original top level nodes to resolve user defined types independent of the assumptions that
+        // new elements are added to the end of the list and the data structure is always going to be sequential.
+        List<TopLevelNode> copyOfOriginalTopLevelNodes = new ArrayList<>(pkgNode.topLevelNodes);
+
         // Visit constants first.
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
         for (int i = 0; i < topLevelNodes.size(); i++) {
@@ -301,6 +308,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
 
         validateEnumMemberMetadata(pkgNode.constants);
+
+        // Then resolve user defined types without analyzing type definitions that get added while analyzing other nodes
+        for (int i = 0; i < copyOfOriginalTopLevelNodes.size(); i++)  {
+            if (copyOfOriginalTopLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
+                analyzeNode((BLangNode) copyOfOriginalTopLevelNodes.get(i), data);
+            }
+        }
 
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
@@ -320,6 +334,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 // This is a class defined for an object-constructor-expression (OCE). This will be analyzed when
                 // visiting the OCE in the type checker. This is a temporary workaround until we fix
                 // https://github.com/ballerina-platform/ballerina-lang/issues/27009
+                continue;
+            }
+
+            // To skip already analyzed type definitions and analyze the ones that get added while analyzing other nodes
+            if (kind == NodeKind.TYPE_DEFINITION && copyOfOriginalTopLevelNodes.contains(pkgLevelNode)) {
                 continue;
             }
 
@@ -394,23 +413,52 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangResourceFunction funcNode, AnalyzerData data) {
         visit((BLangFunction) funcNode, data);
-        for (BLangSimpleVariable pathParam : funcNode.pathParams) {
-            pathParam.accept(this, data);
-            if (!types.isAssignable(pathParam.getBType(), symTable.pathParamAllowedType)) {
-                dlog.error(pathParam.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
-                           pathParam.getBType());
+        BType returnType = funcNode.returnTypeNode.getBType();
+        if (containsClientObjectTypeOrFunctionType(returnType)) {
+            dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE);
+        }
+        for (BLangType pathParamType : funcNode.resourcePathType.memberTypeNodes) {
+            symResolver.resolveTypeNode(pathParamType, data.env);
+            if (!types.isAssignable(pathParamType.getBType(), symTable.pathParamAllowedType)) {
+                dlog.error(pathParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
+                        pathParamType.getBType());
             }
         }
 
-        if (funcNode.restPathParam != null) {
-            funcNode.restPathParam.accept(this, data);
-            BArrayType arrayType = (BArrayType) funcNode.restPathParam.getBType();
-            BType elemType = arrayType.getElementType();
-            if (!types.isAssignable(elemType, symTable.pathParamAllowedType)) {
-                dlog.error(funcNode.restPathParam.getPosition(),
-                        DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE, elemType);
+        if (funcNode.resourcePathType.restParamType != null) {
+            BLangType restParamType = funcNode.resourcePathType.restParamType;
+            symResolver.resolveTypeNode(restParamType, data.env);
+            if (!types.isAssignable(restParamType.getBType(), symTable.pathParamAllowedType)) {
+                dlog.error(restParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE,
+                        restParamType.getBType());
             }
         }
+    }
+
+    private boolean containsClientObjectTypeOrFunctionType(BType type) {
+        BType referredType = Types.getReferredType(type);
+        if (referredType != symTable.semanticError && Symbols.isFlagOn(referredType.tsymbol.flags, Flags.CLIENT)) {
+            return true;
+        }
+        switch (referredType.tag) {
+            case TypeTags.INVOKABLE:
+                return true;
+            case TypeTags.UNION:
+                for (BType memberType: ((BUnionType) referredType).getMemberTypes()) {
+                    if (containsClientObjectTypeOrFunctionType(memberType)) {
+                        return true;
+                    }
+                }
+                break;
+            case TypeTags.INTERSECTION:
+                for (BType memberType: ((BIntersectionType) referredType).getConstituentTypes()) {
+                    if (containsClientObjectTypeOrFunctionType(memberType)) {
+                        return true;
+                    }
+                }
+                break;
+        }
+        return false;
     }
 
     @Override
@@ -485,7 +533,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (funcNode.hasBody()) {
             data.env = funcEnv;
+            this.anonTypeNameSuffixes.push(funcNode.name.value);
             analyzeNode(funcNode.body, returnTypeNode.getBType(), data);
+            this.anonTypeNameSuffixes.pop();
         }
 
         if (funcNode.anonForkName != null) {
@@ -541,7 +591,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // TODO: Check if a func body env is needed
         for (BLangAnnotationAttachment annotationAttachment : body.annAttachments) {
             annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
+            this.anonTypeNameSuffixes.push(annotationAttachment.annotationName.value);
             analyzeNode(annotationAttachment, data);
+            this.anonTypeNameSuffixes.pop();
         }
         validateAnnotationAttachmentCount(body.annAttachments);
     }
@@ -635,8 +687,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Visit functions as they are not in the same scope/env as the object fields
         for (BLangFunction function : classDefinition.functions) {
             analyzeNode(function, data);
-            if (function.flagSet.contains(Flag.RESOURCE) && function.flagSet.contains(Flag.NATIVE)) {
-                this.dlog.error(function.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, function.name);
+            if (!classDefinition.flagSet.contains(Flag.CLIENT) && function.flagSet.contains(Flag.RESOURCE) &&
+                    function.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(function.pos,
+                        DiagnosticErrorCode.SERVICE_RESOURCE_METHOD_CANNOT_BE_EXTERN, function.name);
             }
         }
 
@@ -692,7 +746,37 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
-        finiteTypeNode.valueSpace.forEach(value -> analyzeNode(value, data));
+        boolean foundUnaryExpr = false;
+        boolean isErroredExprInFiniteType = false;
+        NodeKind valueKind;
+        BLangExpression value;
+
+        for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
+            value = finiteTypeNode.valueSpace.get(i);
+            valueKind = value.getKind();
+
+            if (valueKind == NodeKind.UNARY_EXPR) {
+                foundUnaryExpr = true;
+                BType resultType = typeChecker.checkExpr(value, data.env, symTable.noType, data.prevEnvs);
+                if (resultType == symTable.semanticError) {
+                    isErroredExprInFiniteType = true;
+                }
+                // Replacing unary expression with numeric literal type for + and - numeric values
+                BLangNumericLiteral newNumericLiteral =
+                        Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
+                finiteTypeNode.valueSpace.set(i, newNumericLiteral);
+            } else if ((valueKind == NodeKind.LITERAL || valueKind == NodeKind.NUMERIC_LITERAL) &&
+                    ((BLangLiteral) value).originalValue == null) {
+                // To handle enums when the visit is being called from symbol resolver
+                continue;
+            } else {
+                analyzeNode(value, data);
+            }
+        }
+
+        if (foundUnaryExpr && isErroredExprInFiniteType) {
+            finiteTypeNode.setBType(symTable.semanticError);
+        }
     }
 
     @Override
@@ -729,8 +813,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 this.dlog.error(func.pos, DiagnosticErrorCode.EXTERN_FUNC_ABSTRACT_OBJECT, func.name,
                         objectTypeNode.symbol.name);
             }
-            if (func.flagSet.contains(Flag.RESOURCE) && func.flagSet.contains(Flag.NATIVE)) {
-                this.dlog.error(func.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, func.name);
+            if (!objectTypeNode.flagSet.contains(Flag.CLIENT) && func.flagSet.contains(Flag.RESOURCE) &&
+                    func.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(func.pos, DiagnosticErrorCode.SERVICE_RESOURCE_METHOD_CANNOT_BE_EXTERN, func.name);
             }
         });
 
@@ -951,7 +1036,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
         // Validate Annotation Attachment expression against Annotation Definition type.
         validateAnnotationAttachmentExpr(annAttachmentNode, annotationSymbol, data);
-        symResolver.populateAnnotationAttachmentSymbol(annAttachmentNode, data.env, this.constantValueResolver);
+        symResolver.populateAnnotationAttachmentSymbol(annAttachmentNode, data.env, this.constantValueResolver,
+                this.anonTypeNameSuffixes);
     }
 
     @Override
@@ -1027,7 +1113,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     varNode.symbol.type = lhsType;
                 }
                 // TODO: remove this check once runtime support all configurable types
-                checkSupportedConfigType(lhsType, varNode.pos, varNode.name.value);
+                checkSupportedConfigType(varNode.symbol, varNode.pos, varNode.name.value);
             }
         }
 
@@ -1112,18 +1198,21 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
-    private void checkSupportedConfigType(BType type, Location location, String varName) {
+    private void checkSupportedConfigType(BVarSymbol varSymbol, Location location, String varName) {
         List<String> errors = new ArrayList<>();
-        if (!isSupportedConfigType(type, errors, varName, new HashSet<>()) || !errors.isEmpty()) {
+        if (!isSupportedConfigType(varSymbol.type, errors, varName, new HashSet<>(), Symbols.isFlagOn(varSymbol.flags,
+                Flags.REQUIRED)) || !errors.isEmpty()) {
             StringBuilder errorMsg = new StringBuilder();
             for (String error : errors) {
                 errorMsg.append("\n\t").append(error);
             }
-            dlog.error(location, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, type, errorMsg);
+            dlog.error(location, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, varSymbol.type,
+                    errorMsg);
         }
     }
 
-    private boolean isSupportedConfigType(BType type, List<String> errors, String varName, Set<BType> unresolvedTypes) {
+    private boolean isSupportedConfigType(BType type, List<String> errors, String varName, Set<BType> unresolvedTypes
+            , boolean isRequired) {
         if (!unresolvedTypes.add(type)) {
             return true;
         }
@@ -1132,6 +1221,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 break;
             case FINITE:
                 return types.isAnydata(type);
+            case NIL:
+                return !isRequired;
             case ARRAY:
                 BType elementType = Types.getReferredType(((BArrayType) type).eType);
 
@@ -1140,43 +1231,50 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 }
 
                 if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors, varName,
-                        unresolvedTypes)) {
+                        unresolvedTypes, isRequired)) {
                     errors.add("array element type '" + elementType + "' is not supported");
                 }
                 break;
             case RECORD:
                 BRecordType recordType = (BRecordType) type;
-                Map<BType, List<String>> fieldTypeMap = getRecordFieldTypes(recordType);
-                for (Map.Entry<BType, List<String>> fieldTypeEntry : fieldTypeMap.entrySet()) {
-                    BType fieldType = fieldTypeEntry.getKey();
-                    String field = varName + "." + fieldTypeEntry.getValue().get(0);
-                    if (!isSupportedConfigType(fieldType, errors, field, unresolvedTypes)) {
-                        for (String fieldName : fieldTypeEntry.getValue()) {
-                            errors.add("record field type '" + fieldType + "' of field '" + varName + "." + fieldName +
-                                    "' is not supported");
-                        }
+                Set<BType> invalidTypeSet = new HashSet<>();
+                recordType.getFields().forEach((fieldName, field) -> {
+                    BType fieldType = field.type;
+                    String fieldString = varName + "." + fieldName;
+                    if (invalidTypeSet.contains(fieldType)) {
+                        errors.add("record field type '" + fieldType + "' of field '" + fieldString + "' is not " +
+                                "supported");
+                        return;
                     }
-                }
+                    if (isNilableDefaultField(field, fieldType)) {
+                        return;
+                    }
+                    if (!isSupportedConfigType(fieldType, errors, fieldString, unresolvedTypes, isRequired)) {
+                        errors.add("record field type '" + fieldType + "' of field '" + fieldString + "' is not " +
+                                "supported");
+                        invalidTypeSet.add(fieldType);
+                    }
+                });
                 break;
             case MAP:
                 BMapType mapType = (BMapType) type;
-                if (!isSupportedConfigType(mapType.constraint, errors, varName, unresolvedTypes)) {
+                if (!isSupportedConfigType(mapType.constraint, errors, varName, unresolvedTypes, isRequired)) {
                     errors.add("map constraint type '" + mapType.constraint + "' is not supported");
                 }
                 break;
             case TABLE:
                 BTableType tableType = (BTableType) type;
-                if (!isSupportedConfigType(tableType.constraint, errors, varName, unresolvedTypes)) {
+                if (!isSupportedConfigType(tableType.constraint, errors, varName, unresolvedTypes, isRequired)) {
                     errors.add("table constraint type '" + tableType.constraint + "' is not supported");
                 }
                 break;
             case INTERSECTION:
                 return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors, varName,
-                        unresolvedTypes);
+                        unresolvedTypes, isRequired);
             case UNION:
                 BUnionType unionType = (BUnionType) type;
                 for (BType memberType : unionType.getMemberTypes()) {
-                    if (!isSupportedConfigType(memberType, errors, varName, unresolvedTypes)) {
+                    if (!isSupportedConfigType(memberType, errors, varName, unresolvedTypes, isRequired)) {
                         errors.add("union member type '" + memberType + "' is not supported");
                     }
                 }
@@ -1184,37 +1282,42 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 for (BType memberType : tupleType.tupleTypes) {
-                    if (!isSupportedConfigType(memberType, errors, varName, unresolvedTypes)) {
+                    if (!isSupportedConfigType(memberType, errors, varName, unresolvedTypes, isRequired)) {
                         errors.add("tuple element type '" + memberType + "' is not supported");
                     }
                 }
                 break;
             case TYPEREFDESC:
                 return isSupportedConfigType(Types.getReferredType(type), errors, varName,
-                        unresolvedTypes);
+                        unresolvedTypes, isRequired);
             default:
                 return  types.isAssignable(type, symTable.intType) ||
                         types.isAssignable(type, symTable.floatType) ||
                         types.isAssignable(type, symTable.stringType) ||
                         types.isAssignable(type, symTable.booleanType) ||
                         types.isAssignable(type, symTable.decimalType) ||
-                        types.isAssignable(type, symTable.xmlType);
+                        types.isAssignable(type, symTable.xmlType) ||
+                        types.isAssignable(type, symTable.jsonType);
         }
         return true;
     }
 
-    private Map<BType, List<String>> getRecordFieldTypes(BRecordType recordType) {
-        Map<BType, List<String>> fieldMap = new HashMap<>();
-        for (Field field : recordType.getFields().values()) {
-            BType fieldType = (BType) field.getType();
-            String fieldName = field.getName().getValue();
-            if (fieldMap.containsKey(fieldType)) {
-                fieldMap.get(fieldType).add(fieldName);
-            } else {
-                fieldMap.put(fieldType, new ArrayList<>(Arrays.asList(fieldName)));
+    private boolean isNilableDefaultField(BField field, BType fieldType) {
+        if (!Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED) && !Symbols.isFlagOn(field.symbol.flags,
+                Flags.OPTIONAL)) {
+            if (fieldType.tag == TypeTags.NIL) {
+                return true;
+            }
+            if (fieldType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) fieldType;
+                for (BType memberType : unionType.getMemberTypes()) {
+                    if (memberType.tag == TypeTags.NIL) {
+                        return true;
+                    }
+                }
             }
         }
-        return fieldMap;
+        return false;
     }
 
     private void validateListenerCompatibility(BLangSimpleVariable varNode, BType rhsType) {
@@ -4045,29 +4148,49 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         }
 
-
+        this.anonTypeNameSuffixes.push(constant.name.value);
         constant.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.CONST);
+            this.anonTypeNameSuffixes.push(annotationAttachment.annotationName.value);
             annotationAttachment.accept(this, data);
+            this.anonTypeNameSuffixes.pop();
 
             BAnnotationAttachmentSymbol annotationAttachmentSymbol = annotationAttachment.annotationAttachmentSymbol;
             if (annotationAttachmentSymbol != null) {
                 constant.symbol.addAnnotation(annotationAttachmentSymbol);
             }
         });
+        this.anonTypeNameSuffixes.pop();
 
         BLangExpression expression = constant.expr;
-        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
-                && constant.typeNode == null) {
-            constant.setBType(symTable.semanticError);
+        if (isNodeKindAllowedForConstants(expression, constant)) {
+            // This has to return, because constant.symbol.type is required for further validations.
+            // ATM this is only special cased for unary expressions with `+` and `-` operators with numeric expressions.
             dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
-            return; // This has to return, because constant.symbol.type is required for further validations.
+            return;
         }
 
         typeChecker.checkExpr(expression, data.env, constant.symbol.type, data.prevEnvs, data.commonAnalyzerData);
 
         // Check nested expressions.
         constantAnalyzer.visit(constant);
+    }
+
+    private boolean isLiteralInUnaryFromConstantNotAllowed(BLangUnaryExpr unaryExpr) {
+        return unaryExpr.expr.getKind() != NodeKind.NUMERIC_LITERAL &&
+                !types.isOperatorKindInUnaryValid(unaryExpr.operator);
+    }
+
+    private boolean isNodeKindAllowedForConstants(BLangExpression expression, BLangConstant constant) {
+        NodeKind exprNodeKind = expression.getKind();
+        if (exprNodeKind == NodeKind.UNARY_EXPR &&
+                isLiteralInUnaryFromConstantNotAllowed((BLangUnaryExpr) expression)) {
+            return constant.typeNode == null;
+        }
+        if (!(exprNodeKind == LITERAL || exprNodeKind == NUMERIC_LITERAL) && exprNodeKind != NodeKind.UNARY_EXPR) {
+            return constant.typeNode == null;
+        }
+        return false;
     }
 
     // TODO: 7/10/19 Remove this once const support is added for lists. A separate method is introduced temporarily
@@ -4495,22 +4618,24 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private void validateReferencedFunction(Location pos, BAttachedFunction func, SymbolEnv env,
                                             DiagnosticErrorCode code) {
-        if (!Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.CLASS)) {
+        BInvokableSymbol invokableSymbol = func.symbol;
+        BType receiverType = invokableSymbol.receiverSymbol.type;
+        if (!Symbols.isFlagOn(receiverType.tsymbol.flags, Flags.CLASS)) {
             return;
         }
 
-        if (!Symbols.isFunctionDeclaration(func.symbol)) {
+        if (!Symbols.isFunctionDeclaration(invokableSymbol)) {
             return;
         }
 
-        // Service typing does not consider resource methods when type checking.
-        if (Symbols.isResource(func.symbol)) {
-            return;
-        }
-
-        // There must be an implementation at the outer level, if the function is an interface.
-        if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
-            dlog.error(pos, code, func.funcName, func.symbol.receiverSymbol.type);
+        if (!env.enclPkg.objAttachedFunctions.contains(invokableSymbol)) {
+            if (Symbols.isResource(invokableSymbol)) {
+                // Use the function signature in the error msg since resource function name will contain `$`s if
+                // we use the func.funcName
+                dlog.error(pos, code, func, receiverType);
+            } else {
+                dlog.error(pos, code, func.funcName, receiverType);
+            }
         }
     }
 

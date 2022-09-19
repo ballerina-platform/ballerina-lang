@@ -955,9 +955,10 @@ public class JvmTypeGen {
         loadType(mv, bType.retType);
 
         mv.visitLdcInsn(bType.flags);
-
+        mv.visitLdcInsn(bType.name.getValue());
         // initialize the function type using the param types array and the return type
-        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS, false);
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS,
+                false);
     }
 
     private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
@@ -994,7 +995,7 @@ public class JvmTypeGen {
             } else {
                 mv.visitLdcInsn(bInvokableSymbol.name.value);
             }
-            loadType(mv, paramSymbol.type);
+            loadLocalType(mv, paramSymbol.type);
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
@@ -1014,7 +1015,7 @@ public class JvmTypeGen {
             mv.visitLdcInsn("");
             mv.visitInsn(ICONST_0);
             mv.visitInsn(ACONST_NULL);
-            loadType(mv, paramTypes.get(i));
+            loadLocalType(mv, paramTypes.get(i));
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }

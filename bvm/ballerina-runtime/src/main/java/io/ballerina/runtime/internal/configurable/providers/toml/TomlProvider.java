@@ -31,7 +31,9 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -66,7 +68,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.checkEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
@@ -335,6 +336,7 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 validateUnionValue(tomlValue, variableName, (BUnionType) type);
                 break;
             default:
@@ -631,15 +633,17 @@ public class TomlProvider implements ConfigProvider {
         Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
-            if (TypeChecker.checkIsLikeType(balValue, type, false)) {
-                convertibleTypes.add(type);
-                if (convertibleTypes.size() > 1) {
-                    invalidTomlLines.add(tomlValue.location().lineRange());
-                    throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
-                            variableName, decodeIdentifier(unionType.toString()));
-                }
-            }
+            convertibleTypes.addAll(TypeConverter.getConvertibleTypes(balValue, type, variableName, false,
+                    new ArrayList<>(), new ArrayList<>(), false, false));
         }
+
+        if (convertibleTypes.size() > 1 &&
+                !(balValue instanceof BArray && unionType.getTag() == TypeTags.ANYDATA_TAG)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
+                    variableName, decodeIdentifier(unionType.toString()));
+        }
+
         if (convertibleTypes.isEmpty()) {
             throwTypeIncompatibleError(tomlValue, variableName, unionType);
         }
@@ -660,7 +664,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
-        Type elementType = arrayType.getElementType();
+        Type elementType = TypeUtils.getReferredType(arrayType.getElementType());
         if (isSimpleType(elementType.getTag())) {
             visitedNodes.add(tomlValue);
             tomlValue = getValueFromKeyValueNode(tomlValue);
@@ -691,6 +695,9 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
+                visitedNodes.add(tomlValue);
+                tomlValue = getValueFromKeyValueNode(tomlValue);
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
             default:
@@ -745,12 +752,11 @@ public class TomlProvider implements ConfigProvider {
             validateMapUnionArray((TomlTableArrayNode) tomlValue, variableName, arrayType, elementType);
             return;
         }
-        TomlValueNode valueNode = ((TomlKeyValueNode) tomlValue).value();
-        if (!checkEffectiveTomlType(valueNode.kind(), arrayType, variableName)) {
+        if (!checkEffectiveTomlType(tomlValue.kind(), arrayType, variableName)) {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         visitedNodes.add(tomlValue);
-        TomlArrayValueNode arrayNode = (TomlArrayValueNode) valueNode;
+        TomlArrayValueNode arrayNode = (TomlArrayValueNode) tomlValue;
         validateArraySize(arrayNode, variableName, arrayType, arrayNode.elements().size());
         validateArrayElements(variableName, arrayNode.elements(), elementType);
     }
@@ -773,7 +779,7 @@ public class TomlProvider implements ConfigProvider {
         }
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
         validateArraySize(tomlValue, variableName, arrayType, arrayList.size());
-        validateArrayElements(variableName, arrayList, arrayType.getElementType());
+        validateArrayElements(variableName, arrayList, TypeUtils.getReferredType(arrayType.getElementType()));
     }
 
     private void validateArrayElements(String variableName, List<TomlValueNode> arrayList, Type elementType) {
@@ -794,6 +800,7 @@ public class TomlProvider implements ConfigProvider {
                     break;
                 case TypeTags.ANYDATA_TAG:
                 case TypeTags.UNION_TAG:
+                case TypeTags.JSON_TAG:
                     validateUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
                     break;
                 default:
@@ -835,7 +842,7 @@ public class TomlProvider implements ConfigProvider {
                 }
                 field = Utils.createAdditionalField(recordType, fieldName, value);
             }
-            Type fieldType = getReferredType(field.getFieldType());
+            Type fieldType = TypeUtils.getReferredType(field.getFieldType());
             String variableFieldName = variableName + "." + fieldName;
             visitedNodes.add(value);
             validateValue(value, variableFieldName, fieldType);

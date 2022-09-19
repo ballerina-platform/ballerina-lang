@@ -57,12 +57,20 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -139,7 +147,21 @@ public class CodeActionUtil {
     }
 
     /**
-     * Returns a list of possible types for this type descriptor.
+     * Returns first possible type for this type descriptor.
+     *
+     * @param typeDescriptor  {@link TypeSymbol}
+     * @param context         {@link CodeActionContext}
+     * @param importsAcceptor imports acceptor
+     * @return possible type for given type descriptor
+     */
+    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                   ImportsAcceptor importsAcceptor) {
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, context, importsAcceptor);
+        return possibleTypes.isEmpty() ? Optional.empty() : Optional.of(possibleTypes.get(0));
+    }
+
+    /**
+     * Returns first possible type for this type descriptor.
      *
      * @param typeDescriptor {@link TypeSymbol}
      * @param importEdits    a list of import {@link TextEdit}
@@ -148,10 +170,25 @@ public class CodeActionUtil {
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> importEdits,
                                                 CodeActionContext context) {
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, context, importsAcceptor);
+        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
+        return possibleTypes;
+    }
+
+    /**
+     * Returns a list of possible types for this type descriptor.
+     *
+     * @param typeDescriptor  {@link TypeSymbol}
+     * @param context         {@link CodeActionContext}
+     * @param importsAcceptor imports acceptor
+     * @return a list of possible types
+     */
+    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                ImportsAcceptor importsAcceptor) {
         if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
-        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();
         if (typeDescriptor.typeKind() == TypeDescKind.RECORD) {
@@ -258,7 +295,7 @@ public class CodeActionUtil {
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
-            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), importEdits, context).stream()
+            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).stream()
                     .map(m -> {
                         switch (arrayTypeSymbol.memberTypeDescriptor().typeKind()) {
                             case UNION:
@@ -274,7 +311,6 @@ public class CodeActionUtil {
             types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
 
-        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
         return types;
     }
 
@@ -454,9 +490,11 @@ public class CodeActionUtil {
                         }
                     } else {
                         // Parent function already has another return-type
-                        String typeName =
-                                CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
-                        returnText = "returns " + typeName + "|error";
+                        if (enclosedRetTypeDesc.typeKind() != TypeDescKind.ERROR) {
+                            String typeName =
+                                    CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
+                            returnText = "returns " + typeName + "|error";
+                        }
                         returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     }
                 } else {
@@ -508,12 +546,12 @@ public class CodeActionUtil {
     /**
      * Get the top level node type at the cursor line.
      *
-     * @param cursorPos  {@link Position}
+     * @param range      {@link Range}
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link String}   Top level node
      */
-    public static Optional<NonTerminalNode> getTopLevelNode(Position cursorPos, SyntaxTree syntaxTree) {
-        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(cursorPos, syntaxTree);
+    public static Optional<NonTerminalNode> getTopLevelNode(Range range, SyntaxTree syntaxTree) {
+        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(range, syntaxTree);
         return analyzer.getCodeActionNode();
     }
 
@@ -658,7 +696,7 @@ public class CodeActionUtil {
         int startOffset;
         int textOffset;
         if (initNode.isEmpty()) {
-            LinePosition linePosition =  ((ClassDefinitionNode) objectFieldNode.parent()).
+            LinePosition linePosition = ((ClassDefinitionNode) objectFieldNode.parent()).
                     members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
                     lineRange().endLine();
             startLine = linePosition.line();
@@ -701,7 +739,7 @@ public class CodeActionUtil {
     }
 
     public static boolean isFunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
-        for (Node node: ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
+        for (Node node : ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
             if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
                 if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
                     return true;
@@ -713,7 +751,7 @@ public class CodeActionUtil {
     }
 
     public static Optional<ObjectFieldNode> getObjectFieldNode(CodeActionContext context,
-                                                        NodeBasedPositionDetails posDetails) {
+                                                               RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedNode = posDetails.matchedCodeActionNode();
         if (!(matchedNode.kind() == SyntaxKind.OBJECT_FIELD) || matchedNode.hasDiagnostics()) {
             return Optional.empty();
@@ -728,7 +766,7 @@ public class CodeActionUtil {
     }
 
     public static boolean isImmutableObjectField(ObjectFieldNode objectFieldNode) {
-        return  objectFieldNode.qualifierList().stream()
+        return objectFieldNode.qualifierList().stream()
                 .anyMatch(qualifiers -> qualifiers.toString().strip().equals("final") ||
                         qualifiers.toString().strip().equals("readonly"));
     }
@@ -749,5 +787,73 @@ public class CodeActionUtil {
             return Optional.ofNullable((T) diagnosticProperty.value());
         };
         return filterFunction;
+    }
+
+    /**
+     * Returns a Code Action for commands.
+     *
+     * @param commandTitle   title of the code action
+     * @param command        command
+     * @param codeActionKind kind of the code action
+     * @return {@link CodeAction}
+     */
+    public static CodeAction createCodeAction(String commandTitle, Command command, String codeActionKind) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        CodeAction action = new CodeAction(commandTitle);
+        action.setKind(codeActionKind);
+        action.setCommand(command);
+        action.setDiagnostics(toDiagnostics(diagnostics));
+        return action;
+    }
+
+    /**
+     * Returns a Code action.
+     *
+     * @param commandTitle title of the code action
+     * @param edits        edits to be added in the code action
+     * @param uri          uri
+     * @return {@link CodeAction}
+     */
+    public static CodeAction createCodeAction(String commandTitle, List<TextEdit> edits, String uri) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        CodeAction action = new CodeAction(commandTitle);
+        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
+        action.setDiagnostics(toDiagnostics(diagnostics));
+        return action;
+    }
+
+    /**
+     * Returns a Code action.
+     *
+     * @param commandTitle   title of the code action
+     * @param edits          edits to be added in the code action
+     * @param uri            uri
+     * @param codeActionKind kind of the code action
+     * @return {@link CodeAction}
+     */
+    public static CodeAction createCodeAction(String commandTitle, List<TextEdit> edits, String uri,
+                                              String codeActionKind) {
+        CodeAction action = createCodeAction(commandTitle, edits, uri);
+        action.setKind(codeActionKind);
+        return action;
+    }
+
+    /**
+     * Returns a Resolvable code action.
+     *
+     * @param commandTitle   title of the code action
+     * @param codeActionKind kind of the code action
+     * @param data           code action data
+     * @return {@link ResolvableCodeAction}
+     */
+    public static ResolvableCodeAction createResolvableCodeAction(String commandTitle, String codeActionKind,
+                                                                  CodeActionData data) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        ResolvableCodeAction action = new ResolvableCodeAction(commandTitle);
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+        action.setKind(codeActionKind);
+        action.setData(data);
+        return action;
     }
 }

@@ -62,8 +62,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.flags = flags;
     }
 
-    public BFunctionType(Module pkg, Parameter[] parameters, Type restType, Type retType, long flags) {
-        super("function ()", pkg, Object.class);
+
+    public BFunctionType(Module pkg, Parameter[] parameters, Type restType, Type retType, long flags, String name) {
+        super(name, pkg, Object.class);
         this.parameters = parameters;
         this.restType = restType;
         this.retType = retType;

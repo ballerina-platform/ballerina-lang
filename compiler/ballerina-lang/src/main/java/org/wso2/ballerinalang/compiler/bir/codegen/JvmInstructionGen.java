@@ -47,10 +47,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
@@ -247,6 +250,7 @@ public class JvmInstructionGen {
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
     private final JvmTypeTestGen typeTestGen;
+    private final Map<String, String> functions;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
@@ -261,6 +265,7 @@ public class JvmInstructionGen {
         this.jvmCastGen = jvmCastGen;
         this.jvmConstantsGen = jvmConstantsGen;
         typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen);
+        this.functions = new HashMap<>();
     }
 
     static void addJUnboxInsn(MethodVisitor mv, JType jType) {
@@ -489,15 +494,7 @@ public class JvmInstructionGen {
     public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
-        if (varDcl.kind == VarKind.GLOBAL) {
-            String varName = varDcl.name.value;
-            PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
-            String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
-            String typeSig = getTypeDesc(bType);
-            mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
-            return;
-        } else if (varDcl.kind == VarKind.CONSTANT) {
+        if (varDcl.kind == VarKind.GLOBAL || varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
@@ -1430,27 +1427,30 @@ public class JvmInstructionGen {
     void generateObjectStoreIns(BIRNonTerminator.FieldAccess objectStoreIns) {
         // visit object_ref
         this.loadVar(objectStoreIns.lhsOp.variableDcl);
+        if (objectStoreIns.onInitialization) {
+            BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
+            String className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectType.tsymbol.pkgID),
+                    toNameString(objectType));
+            // add cast to typeValueClass
+            this.mv.visitTypeInsn(CHECKCAST, className);
+            visitKeyValueExpressions(objectStoreIns);
+            // invoke setOnInitialization() method
+            this.mv.visitMethodInsn(INVOKESPECIAL, className, "setOnInitialization",
+                    SET_ON_INIT, false);
+            return;
+        }
+        visitKeyValueExpressions(objectStoreIns);
+        // invoke set() method
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set", SET_ON_INIT, true);
+    }
 
+    private void visitKeyValueExpressions(BIRNonTerminator.FieldAccess objectStoreIns) {
         // visit key_expr
         this.loadVar(objectStoreIns.keyOp.variableDcl);
-
         // visit value_expr
         BType valueType = objectStoreIns.rhsOp.variableDcl.type;
         this.loadVar(objectStoreIns.rhsOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, valueType);
-
-        // invoke set() method
-        if (objectStoreIns.onInitialization) {
-            BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
-            this.mv.visitMethodInsn(INVOKESPECIAL,
-                                    getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectType.tsymbol.pkgID),
-                                                          toNameString(objectType)), "setOnInitialization",
-                                    SET_ON_INIT, false);
-            return;
-        }
-
-        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set",
-                                SET_ON_INIT, true);
     }
 
     void generateStringLoadIns(BIRNonTerminator.FieldAccess stringLoadIns) {
@@ -1711,8 +1711,15 @@ public class JvmInstructionGen {
         this.mv.visitInsn(DUP);
 
         String name = inst.funcName.value;
-        String lambdaName = Utils.encodeFunctionIdentifier(name) + "$lambda" +
-                asyncDataCollector.getLambdaIndex() + "$";
+
+        String funcKey = inst.pkgId.toString() + ":" + name;
+        String lambdaName = functions.get(funcKey);
+        if (lambdaName == null) {
+            lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
+                    asyncDataCollector.getLambdaIndex() + "$";
+            functions.put(funcKey, lambdaName);
+        }
+
         asyncDataCollector.incrementLambdaIndex();
 
         BType type = JvmCodeGenUtil.getReferredType(inst.type);
@@ -1955,8 +1962,8 @@ public class JvmInstructionGen {
 
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
-        BType type = JvmCodeGenUtil.getReferredType(newTypeDesc.type);
-        if (type.tag == TypeTags.RECORD && closureVars.isEmpty() && type.tsymbol != null) {
+        if (isNonReferredRecord(newTypeDesc.type)) {
+            BType type = JvmCodeGenUtil.getReferredType(newTypeDesc.type);
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
@@ -1965,6 +1972,15 @@ public class JvmInstructionGen {
             generateNewTypedescCreate(newTypeDesc.type, closureVars);
         }
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
+    }
+
+    private boolean isNonReferredRecord(BType type) {
+        if (type.tag != TypeTags.TYPEREFDESC) {
+            return false;
+        }
+        BType referredType = ((BTypeReferenceType) type).referredType;
+        return referredType.tag == TypeTags.RECORD &&
+                type.getQualifiedTypeName().equals(referredType.getQualifiedTypeName());
     }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars) {
@@ -1987,8 +2003,7 @@ public class JvmInstructionGen {
             mv.visitInsn(AASTORE);
         }
 
-        String descriptor = TYPE_DESC_CONSTRUCTOR;
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
     }
 
     void loadVar(BIRNode.BIRVariableDcl varDcl) {

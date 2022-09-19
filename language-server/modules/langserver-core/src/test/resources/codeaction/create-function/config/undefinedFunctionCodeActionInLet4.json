@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 8,
+    "character": 38
+  },
+  "source": "testproject/school.bal",
+  "expected": [
+    {
+      "title": "Create function 'getStr(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 1
+            },
+            "end": {
+              "line": 10,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getStr() returns string {\n    return \"\";\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "testproject/school.bal",
+        "range": {
+          "start": {
+            "line": 8,
+            "character": 38
+          },
+          "end": {
+            "line": 8,
+            "character": 46
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 8.0,
+              "character": 38.0
+            },
+            "end": {
+              "line": 8.0,
+              "character": 46.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

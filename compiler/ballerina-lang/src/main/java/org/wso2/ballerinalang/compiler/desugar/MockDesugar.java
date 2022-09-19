@@ -68,7 +68,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 public class MockDesugar {
 
     private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
-    private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN_DELIMITER = "#";
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
@@ -139,12 +139,12 @@ public class MockDesugar {
         // Identify if function is part of current package or import package
         if (functionName.contains(this.bLangPackage.packageID.toString())) {
             // Simply extract the name only
-            functionName = functionName.substring(functionName.indexOf(MOCK_ANNOTATION_DELIMITER) + 1);
+            functionName = functionName.substring(functionName.indexOf(MOCK_FN_DELIMITER) + 1);
             this.originalFunction = getOriginalFunction(functionName);
         } else {
             // Extract the name and the package details
             String packageName = functionName.substring(functionName.indexOf('/') + 1, functionName.indexOf(':'));
-            functionName = functionName.substring(functionName.indexOf(MOCK_ANNOTATION_DELIMITER) + 1);
+            functionName = functionName.substring(functionName.indexOf(MOCK_FN_DELIMITER) + 1);
             this.importFunction = getImportFunction(functionName, packageName);
         }
 

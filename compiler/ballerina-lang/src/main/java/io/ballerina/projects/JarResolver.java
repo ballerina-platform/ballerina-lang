@@ -17,7 +17,9 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -28,17 +30,21 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
@@ -104,7 +110,20 @@ public class JarResolver {
                         .getService(CompilerContext.class);
                 ObservabilitySymbolCollector observabilitySymbolCollector
                         = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.writeToExecutable(observabilityJarPath);
+                observabilitySymbolCollector.writeToExecutable(observabilityJarPath, rootPackageContext.project());
+                // Cache observability jar in target
+                Path observeJarCachePath = rootPackageContext.project().targetDir()
+                        .resolve(CACHES_DIR_NAME)
+                        .resolve(rootPackageContext.packageOrg().value())
+                        .resolve(rootPackageContext.packageName().value())
+                        .resolve(rootPackageContext.packageVersion().value().toString())
+                        .resolve("observe")
+                        .resolve(rootPackageContext.packageOrg().value() + "-"
+                                + rootPackageContext.packageName().value()
+                                + "-observability-symbols.jar");
+                Path observeCachePath = Optional.of(observeJarCachePath.getParent()).orElseThrow();
+                Files.createDirectories(observeCachePath);
+                Files.copy(observabilityJarPath, observeJarCachePath, StandardCopyOption.REPLACE_EXISTING);
 
                 jarFiles.add(new JarLibrary(observabilityJarPath, PlatformLibraryScope.DEFAULT,
                         getPackageName(rootPackageContext)));
@@ -134,16 +153,41 @@ public class JarResolver {
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
 
-        List<String> fileNames = new ArrayList();
-        libraryPaths.stream().forEach(e -> fileNames.add(e.path().toFile().getName()));
-
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-            if (!fileNames.contains(otherJarDependency.path().toFile().getName())) {
+            JarLibrary newEntry = (JarLibrary) otherJarDependency;
+
+            if (newEntry.groupId().isEmpty() || newEntry.artifactId().isEmpty() || newEntry.version().isEmpty()) {
                 libraryPaths.add(new JarLibrary(otherJarDependency.path(), scope, getPackageName(packageContext)));
+                continue;
             }
+            if (libraryPaths.contains(newEntry)) {
+                JarLibrary existingEntry = libraryPaths.stream().filter(jarLibrary1 ->
+                        jarLibrary1.equals(newEntry)).findAny().orElseThrow();
+                if (existingEntry.groupId().isEmpty() || existingEntry.artifactId().isEmpty() ||
+                        existingEntry.version().isEmpty()) {
+                    continue;
+                }
+                ComparableVersion existingVersion = new ComparableVersion(existingEntry.version().orElseThrow());
+                ComparableVersion newVersion = new ComparableVersion(newEntry.version().get());
+
+                if (existingVersion.compareTo(newVersion) >= 0) {
+                    if (!newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
+                        // TODO: issue a warning. For this we need to design diagnostic reporting in JarResolver
+                    }
+                    continue;
+                }
+                libraryPaths.remove(existingEntry);
+            }
+
+            libraryPaths.add(new JarLibrary(
+                    newEntry.path(),
+                    scope,
+                    newEntry.artifactId().orElseThrow(),
+                    newEntry.groupId().orElseThrow(),
+                    newEntry.version().orElseThrow(),
+                    newEntry.packageName().orElseThrow()));
         }
     }
-
 
     public Collection<JarLibrary> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         // 1) Get all the jars excepts for test scope package and platform-specific dependencies

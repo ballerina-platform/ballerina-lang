@@ -1,0 +1,104 @@
+[
+  {
+    "description": "Add annotation for constant declaration",
+    "oldCode": "public const int age=10;",
+    "newCode": "@display {\n\tlabel: \"\"\n}\npublic const int age=10;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "new",
+                    "versionImpact": "ambiguous",
+                    "kind": "module constant annotation",
+                    "message": "a new module constant annotation list is added"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove annotation for constant declaration",
+    "oldCode": "@display {\n\tlabel: \"\"\n}\npublic const int age=10;",
+    "newCode": "public const int age=10;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "removed",
+                    "versionImpact": "ambiguous",
+                    "kind": "module constant annotation",
+                    "message": "an existing module constant annotation list is removed"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify annotation for constant declaration",
+    "oldCode": "@display {\n\tlabel: \"\"\n}\npublic const int age=10;",
+    "newCode": "@display {\n\tlabel: \"label\"\n}\npublic const int age=10;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "modified",
+                    "versionImpact": "ambiguous",
+                    "kind": "module constant annotation",
+                    "message": "module constant annotation list is modified"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

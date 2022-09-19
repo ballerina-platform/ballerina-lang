@@ -31,10 +31,12 @@ import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,7 +55,7 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-    private static PrintStream err = System.err;
+    private static final PrintStream err = System.err;
 
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
@@ -63,12 +65,13 @@ public class Scheduler {
     /**
      * Strands that are ready for execution.
      */
-    private BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
+    private final BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
+    private static final ConcurrentHashMap<Integer, Strand> currentStrands = new ConcurrentHashMap<>();
     private final Strand previousStrand;
 
-    private AtomicInteger totalStrands = new AtomicInteger();
+    private final AtomicInteger totalStrands = new AtomicInteger();
 
     private static String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
 
@@ -108,6 +111,10 @@ public class Scheduler {
     public static Strand getStrandNoException() {
         // issue #22871 is opened to fix this
         return strandHolder.get().strand;
+    }
+
+    public static Map<Integer, Strand> getCurrentStrands() {
+        return new HashMap<>(currentStrands);
     }
 
     /**
@@ -458,6 +465,8 @@ public class Scheduler {
         justCompleted.scheduler = null;
         justCompleted.frames = null;
         justCompleted.waitingContexts = null;
+
+        currentStrands.remove(justCompleted.getId());
         //TODO: more cleanup , eg channels
     }
 
@@ -505,6 +514,7 @@ public class Scheduler {
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties);
+        currentStrands.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -512,6 +522,7 @@ public class Scheduler {
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
+        currentStrands.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -610,6 +621,10 @@ class SchedulerItem {
  */
 class ItemGroup {
 
+    private static final AtomicInteger nextItemGroupId = new AtomicInteger(0);
+
+    private final int id;
+
     /**
      * Keep the list of items that should run on same thread.
      * Using a stack to get advantage of the locality.
@@ -626,10 +641,12 @@ class ItemGroup {
     public static final ItemGroup POISON_PILL = new ItemGroup();
 
     public ItemGroup(SchedulerItem item) {
+        this();
         items.push(item);
     }
 
     public ItemGroup() {
+        this.id = nextItemGroupId.incrementAndGet();
     }
 
     public void add(SchedulerItem item) {
@@ -646,5 +663,13 @@ class ItemGroup {
 
     public void unlock() {
         this.groupLock.unlock();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isScheduled() {
+        return scheduled.get();
     }
 }
