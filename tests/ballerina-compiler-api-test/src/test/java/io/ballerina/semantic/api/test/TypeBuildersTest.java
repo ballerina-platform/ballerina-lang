@@ -84,6 +84,7 @@ import static org.testng.Assert.assertTrue;
  * @since 2201.2.0
  */
 public class TypeBuildersTest {
+
     private Types types;
     private final List<XMLTypeSymbol> xmlSubTypes = new ArrayList<>();
     private static final String ORG = "$anon";
@@ -377,16 +378,13 @@ public class TypeBuildersTest {
     }
 
     @Test(dataProvider = "keySpecifiedTableTypeBuilderProvider")
-    public void testKeySpecifiedTableTypeBuilder(String rowTypeDef, List<String> keys, String signature) {
+    public void testKeySpecifiedTableTypeBuilder(int line, int col, List<String> keys, String signature) {
         TypeBuilder builder = types.builder();
         TypeBuilder.TABLE tableTypeBuilder = builder.TABLE_TYPE;
-        Optional<Symbol> rowType = types.getTypeByName(ORG, MODULE, VERSION, rowTypeDef);
-        assertTrue(rowType.isPresent());
-        assertEquals(rowType.get().kind(), SymbolKind.TYPE_DEFINITION);
-        TypeSymbol rowTypeSymbol = ((TypeDefinitionSymbol) rowType.get()).typeDescriptor();
+        TypeSymbol rowType = getSymbolTypeDef(line, col);
 
         TableTypeSymbol tableTypeSymbol =
-                tableTypeBuilder.withRowType(rowTypeSymbol).withKeySpecifiers(keys.toArray(new String[0])).build();
+                tableTypeBuilder.withRowType(rowType).withKeySpecifiers(keys.toArray(new String[0])).build();
 
         assertEquals(tableTypeSymbol.signature(), signature);
     }
@@ -394,25 +392,21 @@ public class TypeBuildersTest {
     @DataProvider(name = "keySpecifiedTableTypeBuilderProvider")
     private Object[][] getKeySpecifiedTableTypes() {
         return new Object[][] {
-                {"Employee", List.of("name"), "table<Employee> key(name)"},
-                {"Customer", List.of("id", "name"), "table<Customer> key(id,name)"},
-                {"Employee", List.of(), "table<Employee>"},
-                {"Customer", List.of(), "table<Customer>"},
-                {"Student", List.of(), "table<Student>"},
+                {120, 13, List.of("name"), "table<Employee> key(name)"},
+                {119, 13, List.of("id", "name"), "table<Customer> key(id,name)"},
+                {120, 13, List.of(), "table<Employee>"},
+                {119, 13, List.of(), "table<Customer>"},
+                {121, 12, List.of(), "table<Student>"},
         };
     }
 
     @Test(dataProvider = "keyConstrainedTableTypeBuilderProvider")
-    public void testKeyConstrainedTableTypeBuilder(String rowTypeDef, List<TypeSymbol> keyTypes, String signature) {
+    public void testKeyConstrainedTableTypeBuilder(int line, int col, List<TypeSymbol> keyTypes, String signature) {
         TypeBuilder builder = types.builder();
         TypeBuilder.TABLE tableTypeBuilder = builder.TABLE_TYPE;
-        Optional<Symbol> rowType = types.getTypeByName(ORG, MODULE, VERSION, rowTypeDef);
-        assertTrue(rowType.isPresent());
-        assertEquals(rowType.get().kind(), SymbolKind.TYPE_DEFINITION);
-        TypeSymbol rowTypeSymbol = ((TypeDefinitionSymbol) rowType.get()).typeDescriptor();
-
+        TypeSymbol rowType = getSymbolTypeDef(line, col);
         TableTypeSymbol tableTypeSymbol = tableTypeBuilder
-                .withRowType(rowTypeSymbol)
+                .withRowType(rowType)
                 .withKeyConstraints(keyTypes.toArray(new TypeSymbol[0]))
                 .build();
 
@@ -422,12 +416,12 @@ public class TypeBuildersTest {
     @DataProvider(name = "keyConstrainedTableTypeBuilderProvider")
     private Object[][] getKeyConstrainedTableTypes() {
         return new Object[][] {
-                {"Employee", List.of(types.STRING), "table<Employee> key<string>"},
-                {"Customer", List.of(types.INT, types.STRING), "table<Customer> key<[int, string]>"},
-                {"Customer", List.of(types.STRING, types.INT), "table<Customer> key<[string, int]>"},
-                {"Employee", List.of(), "table<Employee>"},
-                {"Customer", List.of(), "table<Customer>"},
-                {"Student", List.of(), "table<Student>"},
+                {120, 13, List.of(types.STRING), "table<Employee> key<string>"},
+                {119, 13, List.of(types.INT, types.STRING), "table<Customer> key<[int, string]>"},
+                {119, 13, List.of(types.STRING, types.INT), "table<Customer> key<[string, int]>"},
+                {120, 13, List.of(), "table<Employee>"},
+                {119, 13, List.of(), "table<Customer>"},
+                {121, 12, List.of(), "table<Student>"},
         };
     }
 
@@ -546,8 +540,8 @@ public class TypeBuildersTest {
     private Object[][] getUnionTypes() {
         return new Object[][] {
                 {List.of(types.INT, types.STRING), "int|string"},
-                {List.of(types.FLOAT, getSymbolTypeDef(138, 7), types.BOOLEAN), "float|MyCls|boolean"},
-                {List.of(getSymbolTypeDef(131, 6), getSymbolTypeDef(133, 5)), "\"389\"|Cus"},
+                {List.of(types.FLOAT, getSymbolTypeDef(140, 6), types.BOOLEAN), "float|MyCls|boolean"},
+                {List.of(getSymbolTypeDef(133, 6), getSymbolTypeDef(135, 5)), "\"389\"|Cus"},
         };
     }
 

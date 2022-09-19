@@ -130,6 +130,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor, 
                 CodeActionKind.QuickFix, CodeActionKind.Source));
+        codeActionOptions.setResolveProvider(true);
         res.getCapabilities().setCodeActionProvider(codeActionOptions);
 
         // Hover, references and definition support will be registered dynamically if supported

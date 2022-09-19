@@ -27,8 +27,8 @@ function foo() {
     // Cannot declare configurable variable locally
     configurable int e = 6;
 }
-// TODO: remove this after runtime supports all configurable types
-configurable json & readonly j2 = {name: "apple", color: "red"};
+
+configurable () & readonly j2 = ?;
 
 // configurable var not allowed with complex variables
 configurable [int, string] [intVar, stringVar] = ?;
@@ -43,16 +43,16 @@ type Person record {|
 |};
 
 type Person1 record {|
-    json jsonField;
+    () nilField;
     anydata anydataField;
 |};
 
 type Person2 record {|
-    int|json unionField;
+    int|() unionField;
 |};
 
 type Person3 record {|
-    json[] jsonArr;
+    ()[] nilArr;
 |};
 
 type Person4 record {|
@@ -61,8 +61,8 @@ type Person4 record {|
 |};
 
 type Person5 record {|
-    json field1;
-    json field2;
+    () field1;
+    () field2;
 |};
 
 type Colors "Red" | "Green";
@@ -79,22 +79,22 @@ configurable Person4 person4 = ?;
 configurable Person5 person5 = ?;
 
 // Unsupported table constraint
-configurable table<map<json>> tableVar1 = ?;
+configurable table<map<()>> tableVar1 = ?;
 configurable table<Person1> tableVar2 = ?;
-configurable table<json> tableVar3 = ?;
+configurable table<()> tableVar3 = ?;
 
 // Unsupported array constraint
-configurable json[] arrayVar = ?;
+configurable ()[] arrayVar = ?;
 
 // Unsupported map constraint
-configurable map<json> & readonly mapVar = ?;
+configurable map<()> & readonly mapVar = ?;
 
 // Unsupported union types
-configurable string|json unionVar1 = ?;
-configurable json unionVar2 = ?;
+configurable string|() unionVar1 = ?;
+configurable () unionVar2 = ?;
 
 // Unsupported tuple type
-configurable [int, string, json] tupleVar = ?;
+configurable [int, string, ()] tupleVar = ?;
 
 // Unsupported nil type
 type Person6 record {|

@@ -1355,7 +1355,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "ROLLBACK_STATEMENT",
+                      "kind": "RETRY_STATEMENT",
                       "hasDiagnostics": true,
                       "children": [
                         {
@@ -1492,7 +1492,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "ROLLBACK_STATEMENT",
+                      "kind": "RETRY_STATEMENT",
                       "hasDiagnostics": true,
                       "children": [
                         {
