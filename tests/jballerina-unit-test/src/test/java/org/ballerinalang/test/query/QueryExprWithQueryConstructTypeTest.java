@@ -296,32 +296,38 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
                         "is not an iterable collection", 432, 100);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'",
+                438, 13);
+        validateError(negativeResult, index++, "incompatible types: expected '(int|float)', " +
+                "found 'table<record {| |}>'", 439, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'string', " +
+                "found 'table<record {| int a; int b; |}>'", 440, 16);
         validateError(negativeResult, index++, "incompatible type 'int', expected a construct type" +
-                " of 'string'", 448, 49);
+                " of 'string'", 454, 49);
         validateError(negativeResult, index++, "incompatible type '[int,int,int,int]', expected a" +
-                " construct type of 'string'", 449, 49);
+                " construct type of 'string'", 455, 49);
         validateError(negativeResult, index++, "incompatible type 'string', expected a construct" +
-                " type of 'xml'", 453, 42);
+                " type of 'xml'", 459, 42);
         validateError(negativeResult, index++, "incompatible type 'int', expected a construct type" +
-                " of 'xml'", 454, 42);
+                " of 'xml'", 460, 42);
         validateError(negativeResult, index++, "incompatible type '[int,int,int,int]', expected a" +
-                " construct type of 'xml'", 455, 42);
+                " construct type of 'xml'", 461, 42);
         validateError(negativeResult, index++, "incompatible type 'int', expected a construct type of" +
-                " 'table<Employee> key(name)'", 462, 41);
+                " 'table<Employee> key(name)'", 468, 41);
         validateError(negativeResult, index++, "incompatible type '[string,int]', expected a construct" +
-                " type of 'table<Employee> key(name)'", 463, 41);
+                " type of 'table<Employee> key(name)'", 469, 41);
         validateError(negativeResult, index++, "incompatible type 'table<Employee> key(name)'," +
-                " expected a construct type of 'table<Employee> key(name)'", 464, 41);
+                " expected a construct type of 'table<Employee> key(name)'", 470, 41);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 468, 36);
+                "start with the map keyword", 474, 36);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 469, 36);
+                "start with the map keyword", 475, 36);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 470, 36);
+                "start with the map keyword", 476, 36);
         validateError(negativeResult, index++, "incompatible type in select clause: expected " +
-                "[string,any|error], found 'int'", 471, 40);
+                "[string,any|error], found 'int'", 477, 40);
         validateError(negativeResult, index++, "incompatible type in select clause: expected " +
-                "[string,any|error], found 'record {| int A; |}'", 472, 40);
+                "[string,any|error], found 'record {| int A; |}'", 478, 40);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

@@ -6587,6 +6587,9 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(invocation);
 
         rewriteExprs(invocation.requiredArgs);
+
+        // Disallow desugaring the same expression twice.
+        // For langlib invocations, expr is duplicated as the first required arg.
         if (invocation.langLibInvocation && !invocation.requiredArgs.isEmpty()) {
             invocation.expr = invocation.requiredArgs.get(0);
         } else {

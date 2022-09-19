@@ -434,6 +434,12 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
                                     select item;
 }
 
+function testInvalidTableCtrAssignment() {
+    int _ = table []; // error
+    int|float _ = table []; // error
+    string _ = table [{a: 1, b: 2}]; // error
+}
+
 type Employee record {
     readonly string name;
     int salary;
