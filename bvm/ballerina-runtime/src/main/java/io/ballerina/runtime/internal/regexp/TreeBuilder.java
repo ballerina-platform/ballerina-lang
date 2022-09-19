@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.internal.regexp;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
 import io.ballerina.runtime.internal.values.RegExpAtom;
