@@ -74,6 +74,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "conditional_expr_source_28.bal",
                 "resiliency_source_04.bal",
                 "record_type_def_source_14.bal",
+                "record_type_def_source_29.bal",
                 "object_type_def_source_12.bal",
                 "anon_func_source_01.bal",
                 "conditional_expr_source_27.bal",
