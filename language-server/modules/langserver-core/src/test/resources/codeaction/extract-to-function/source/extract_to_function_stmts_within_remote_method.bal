@@ -10,10 +10,12 @@ public class Person {
 
 public client class PersonClient {
     remote function getRandomPerson(string name, int id) returns Person|error {
+        error err = error("Invalid name");
+
         if verify(name) {
             return new Person(name, id);
         }
-        return error("Invalid name");
+        return err;
     }
 }
 

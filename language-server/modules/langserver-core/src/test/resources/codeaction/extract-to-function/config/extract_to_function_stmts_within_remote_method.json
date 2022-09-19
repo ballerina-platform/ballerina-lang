@@ -1,15 +1,15 @@
 {
   "range": {
     "start": {
-      "line": 15,
+      "line": 12,
       "character": 8
     },
     "end": {
-      "line": 15,
-      "character": 37
+      "line": 12,
+      "character": 42
     }
   },
-  "source": "extract_to_method_stmts_within_remote_method.bal",
+  "source": "extract_to_function_stmts_within_remote_method.bal",
   "expected": [
     {
       "title": "Extract to function",
@@ -18,30 +18,31 @@
         {
           "range": {
             "start": {
-              "line": 17,
+              "line": 19,
               "character": 1
             },
             "end": {
-              "line": 17,
+              "line": 19,
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns error {\n    return error(\"Invalid name\");\n}"
+          "newText": "\n\nfunction extracted() returns error {\n    error err = error(\"Invalid name\");\n    return err;\n}"
         },
         {
           "range": {
             "start": {
-              "line": 15,
+              "line": 12,
               "character": 8
             },
             "end": {
-              "line": 15,
-              "character": 37
+              "line": 12,
+              "character": 42
             }
           },
-          "newText": "return extracted();"
+          "newText": "error err = extracted();"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for statements when inside a remote method"
