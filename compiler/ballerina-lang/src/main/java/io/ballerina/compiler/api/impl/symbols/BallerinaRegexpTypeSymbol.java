@@ -21,13 +21,9 @@ import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.RegexpTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRegexpType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-
-import java.util.Optional;
 
 /**
  * Represents an RegExp type descriptor.
