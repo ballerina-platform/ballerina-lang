@@ -210,8 +210,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
         BLangType typeNode = typeDefinition.getTypeNode();
         NodeKind kind = typeDefinition.typeNode.getKind();
         if (kind == NodeKind.OBJECT_TYPE || kind == NodeKind.RECORD_TYPE) {
-            List<BLangSimpleVariable> fields = ((BLangStructureTypeNode) typeNode).fields;
-            validateDocumentationOfObjectOrRecord(typeDefinition, fields, data);
+            validateDocumentationOfObjectOrRecord(typeDefinition, ((BLangStructureTypeNode) typeNode).fields, data);
         }
         if (kind == NodeKind.OBJECT_TYPE) {
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(t -> visitNode(t, data));
