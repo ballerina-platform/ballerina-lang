@@ -347,7 +347,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     REST_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE0679",
             "error.rest.parameter.cannot.be.included.record.parameter"),
     RESOURCE_ACCESS_SEGMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT("BCE0680", 
-            "error.resource.access.segment.is.not.allowed.after.rest.segment");
+            "error.resource.access.segment.is.not.allowed.after.rest.segment"),
+    ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR("BCE0680",
+            "error.annotations.not.allowed.for.tuple.rest.descriptor"),
     ;
 
     String diagnosticId;

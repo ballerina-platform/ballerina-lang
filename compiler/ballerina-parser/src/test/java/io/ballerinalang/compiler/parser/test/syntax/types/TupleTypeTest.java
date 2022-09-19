@@ -59,6 +59,11 @@ public class TupleTypeTest extends AbstractTypesTest {
         testFile("tuple-type/tuple_type_source_07.bal", "tuple-type/tuple_type_assert_07.json");
     }
 
+    @Test
+    public void testAnnotTupleMembers() {
+        testFile("tuple-type/tuple_type_source_10.bal", "tuple-type/tuple_type_assert_10.json");
+    }
+
     // Recovery test
 
     @Test
@@ -69,5 +74,15 @@ public class TupleTypeTest extends AbstractTypesTest {
     @Test
     public void testTupleTypeArrayRecovery() {
         testTopLevelNode("tuple-type/tuple_type_source_06.bal", "tuple-type/tuple_type_assert_06.json");
+    }
+
+    @Test
+    public void testInvalidAnnotRestMember() {
+        testFile("tuple-type/tuple_type_source_11.bal", "tuple-type/tuple_type_assert_11.json");
+    }
+
+    @Test
+    public void testTupleTypeMemberAnnotRecovery() {
+        testFile("tuple-type/tuple_type_source_12.bal", "tuple-type/tuple_type_assert_12.json");
     }
 }

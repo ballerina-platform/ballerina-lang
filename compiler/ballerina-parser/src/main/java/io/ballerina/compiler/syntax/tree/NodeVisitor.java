@@ -843,6 +843,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(resourceAccessRestSegmentNode);
     }
 
+    public void visit(MemberTypeDescriptorNode memberTypeDescriptorNode) {
+        visitSyntaxNode(memberTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

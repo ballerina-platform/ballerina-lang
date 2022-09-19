@@ -844,6 +844,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(resourceAccessRestSegmentNode);
     }
 
+    public T transform(MemberTypeDescriptorNode memberTypeDescriptorNode) {
+        return transformSyntaxNode(memberTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
