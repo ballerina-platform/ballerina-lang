@@ -261,6 +261,12 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
                         "is not an iterable collection", 432, 100);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'",
+                438, 13);
+        validateError(negativeResult, index++, "incompatible types: expected '(int|float)', " +
+                "found 'table<record {| |}>'", 439, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'string', " +
+                "found 'table<record {| int a; int b; |}>'", 440, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

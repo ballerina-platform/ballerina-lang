@@ -263,7 +263,7 @@ public class CloneWithType {
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t);
                     arrayValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
-                return ValueCreator.createArrayValue(arrayType, arrayType.getSize(), arrayValues);
+                return ValueCreator.createArrayValue(arrayType, arrayValues);
             case TypeTags.TUPLE_TAG:
                 TupleType tupleType = (TupleType) targetType;
                 int minLen = tupleType.getTupleTypes().size();
