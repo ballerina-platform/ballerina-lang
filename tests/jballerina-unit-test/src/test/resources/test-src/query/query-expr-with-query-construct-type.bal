@@ -347,6 +347,15 @@ function testConstructTablesWithRecords() {
     assertEqual(a3.toString(), "[{\"name\":\"John\"},{\"name\":\"Jane\"}]");
 }
 
+function testConstructMapsWithTuples() {
+    map<int> a = {"a": 1, "b": 2};
+
+   var cm = map from var i in a select ["A",1];
+   assertTrue(cm is map<int>);
+   map<int> cm2 = cm;
+   assertEqual(cm2, {"A": 1});
+}
+
 function testInnerJoinAndLimitReturnStream() returns boolean {
     boolean testPassed = true;
 

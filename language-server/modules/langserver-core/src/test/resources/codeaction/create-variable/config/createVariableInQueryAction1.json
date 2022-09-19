@@ -20,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "string[] listResult = "
+          "newText": "int[] listResult = "
         }
       ]
     }

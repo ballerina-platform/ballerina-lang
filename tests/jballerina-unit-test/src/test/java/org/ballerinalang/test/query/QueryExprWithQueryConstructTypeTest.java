@@ -156,8 +156,14 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test
     public void testConstructTablesWithRecords() {
         BRunUtil.invoke(result, "testConstructTablesWithRecords");
+    }
+
+    @Test
+    public void testConstructMapsWithTuples() {
+        BRunUtil.invoke(result, "testConstructMapsWithTuples");
     }
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
@@ -306,6 +312,16 @@ public class QueryExprWithQueryConstructTypeTest {
                 " type of 'table<Employee> key(name)'", 463, 41);
         validateError(negativeResult, index++, "incompatible type 'table<Employee> key(name)'," +
                 " expected a construct type of 'table<Employee> key(name)'", 464, 41);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 468, 36);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 469, 36);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 470, 36);
+        validateError(negativeResult, index++, "incompatible type in select clause: expected " +
+                "[string,any|error], found 'int'", 471, 40);
+        validateError(negativeResult, index++, "incompatible type in select clause: expected " +
+                "[string,any|error], found 'record {| int A; |}'", 472, 40);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

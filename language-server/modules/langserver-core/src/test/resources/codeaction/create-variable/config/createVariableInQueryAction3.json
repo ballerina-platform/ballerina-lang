@@ -20,9 +20,10 @@
               "character": 4
             }
           },
-          "newText": "(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)[] listResult = "
+          "newText": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text> xmlResult = "
         }
-      ]
+      ],
+      "resolvable": false
     }
   ]
 }

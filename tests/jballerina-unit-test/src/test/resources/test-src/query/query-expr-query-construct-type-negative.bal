@@ -462,4 +462,12 @@ function testQueryConstructWithInvalidStaticType() {
     var _ = from Employee e in t select 1;
     var _ = from Employee e in t select ["name", 35000];
     var _ = from Employee e in t select t;
+
+    map<int> m = {"a": 1, "b": 2};
+
+    var _ = from var i in m select ["A",1];
+    var _ = from var i in m select 1;
+    var _ = from var i in m select {"A": 1};
+    var _ = map from var i in m select 1;
+    var _ = map from var i in m select {"A": 1};
 }

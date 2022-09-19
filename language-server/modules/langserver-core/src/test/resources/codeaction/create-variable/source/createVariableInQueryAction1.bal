@@ -1,4 +1,4 @@
 public function func() {
-    xml x1 = xml `<book>The Lost World</book>`;
-    from xml element in x1 select element.toBalString();
+    int[] x1 = [1, 2, 3, 4, 5];
+    from int element in x1 select element;
 }

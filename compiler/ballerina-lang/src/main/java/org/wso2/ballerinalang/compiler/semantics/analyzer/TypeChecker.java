@@ -6300,7 +6300,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.STREAM:
                 return symTable.streamType;
             case TypeTags.MAP:
-                return symTable.mapType;
+                dlog.error(pos, INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE);
+                return symTable.semanticError;
             case TypeTags.XML:
                 if (types.isSubTypeOfBaseType(staticType, symTable.xmlType.tag)) {
                     return new BXMLType(staticType, null);
@@ -6315,8 +6316,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.TUPLE:
             case TypeTags.OBJECT:
                 return new BArrayType(staticType);
-            default:
-                return symTable.semanticError;
         }
         dlog.error(pos, INCOMPATIBLE_QUERY_CONSTRUCT_TYPE, staticType, basicType);
         return symTable.semanticError;
