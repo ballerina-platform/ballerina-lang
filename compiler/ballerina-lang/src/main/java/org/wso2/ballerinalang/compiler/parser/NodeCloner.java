@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -2377,7 +2378,16 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangReCharSet source) {
         BLangReCharSet clone = new BLangReCharSet();
         source.cloneRef = clone;
-        clone.charSetAtoms = clone(source.charSetAtoms);
+        clone.charSetAtoms = cloneList(source.charSetAtoms);
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange source) {
+        BLangReCharSetRange clone = new BLangReCharSetRange();
+        source.cloneRef = clone;
+        clone.lhsCharSetAtom = clone(source.lhsCharSetAtom);
+        clone.dash = clone(source.dash);
+        clone.rhsCharSetAtom = clone(source.rhsCharSetAtom);
     }
 
     @Override

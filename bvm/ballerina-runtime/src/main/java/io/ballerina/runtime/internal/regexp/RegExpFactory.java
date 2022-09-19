@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.ballerina.runtime.internal;
+package io.ballerina.runtime.internal.regexp;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
 import io.ballerina.runtime.internal.values.RegExpAtom;
 import io.ballerina.runtime.internal.values.RegExpAtomQuantifier;
 import io.ballerina.runtime.internal.values.RegExpCapturingGroup;
 import io.ballerina.runtime.internal.values.RegExpCharSet;
+import io.ballerina.runtime.internal.values.RegExpCharSetRange;
 import io.ballerina.runtime.internal.values.RegExpCharacterClass;
 import io.ballerina.runtime.internal.values.RegExpDisjunction;
 import io.ballerina.runtime.internal.values.RegExpFlagExpression;
@@ -31,8 +35,6 @@ import io.ballerina.runtime.internal.values.RegExpQuantifier;
 import io.ballerina.runtime.internal.values.RegExpSequence;
 import io.ballerina.runtime.internal.values.RegExpTerm;
 import io.ballerina.runtime.internal.values.RegExpValue;
-
-import java.util.StringJoiner;
 
 /**
  * Common utility methods used for regular expression manipulation.
@@ -71,8 +73,13 @@ public class RegExpFactory {
                 characterClassEnd.getValue());
     }
 
-    public static RegExpCharSet createReCharSet(BString charSet) {
-        return new RegExpCharSet(charSet.getValue());
+    public static RegExpCharSet createReCharSet(ArrayValue charSet) {
+        return new RegExpCharSet(charSet);
+    }
+
+    public static RegExpCharSetRange createReCharSetRange(BString lhsCharSetAtom, BString dash,
+                                                          BString rhsCharSetAtom) {
+        return new RegExpCharSetRange(lhsCharSetAtom.getValue(), dash.getValue(), rhsCharSetAtom.getValue());
     }
 
     public static RegExpCapturingGroup createReCapturingGroup(BString openParen, RegExpFlagExpression flagExpr,
@@ -91,6 +98,18 @@ public class RegExpFactory {
 
     public static RegExpQuantifier createReQuantifier(BString quantifier, BString nonGreedyChar) {
         return new RegExpQuantifier(quantifier.getValue(), nonGreedyChar.getValue());
+    }
+
+    public static RegExpValue parse(String regExpStr) {
+        try {
+            CharReader charReader = CharReader.from(regExpStr);
+            TokenReader tokenReader = new TokenReader(new TreeTraverser(charReader));
+            TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
+            return treeBuilder.parse();
+        } catch (BallerinaException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: " +
+                    e.getMessage()));
+        }
     }
 
     public static RegExpDisjunction translateRegExpConstructs(RegExpValue regExpValue) {
@@ -122,38 +141,49 @@ public class RegExpFactory {
     private static RegExpAtom translateLiteralCharOrEscape(RegExpLiteralCharOrEscape charOrEscape) {
         String value = charOrEscape.getCharOrEscape();
         if (".".equals(value)) {
-            return createCharacterClass("^", "\\r\\n");
+            return createCharacterClass("^", new String[]{"\\r", "\\n"});
         }
         if ("\\s".equals(value)) {
-            return createCharacterClass("", "\\t\\s\\n\\r");
+            return createCharacterClass("", new String[]{"\\t", "\\s", "\\n", "\\r"});
         }
         if ("\\S".equals(value)) {
-            return createCharacterClass("^", "\\t\\s\\n\\r");
+            return createCharacterClass("^", new String[]{"\\t", "\\s", "\\n", "\\r"});
+        }
+        if ("&".equals(value)) {
+            return createLiteralCharOrEscape("\\&");
         }
         return charOrEscape;
     }
 
-    private static RegExpCharacterClass createCharacterClass(String negation, String charSet) {
-        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet), "]");
+    private static RegExpLiteralCharOrEscape createLiteralCharOrEscape(String charOrEscape) {
+        return new RegExpLiteralCharOrEscape(charOrEscape);
+    }
+
+    private static RegExpCharacterClass createCharacterClass(String negation, Object[] charSet) {
+        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet) , "]");
     }
 
     private static RegExpAtom translateCharacterClass(RegExpCharacterClass charClass) {
         RegExpCharSet charSet = charClass.getReCharSet();
-        String chars = charSet.getCharSet();
-        String translatedChars = translateCharSet(chars, "&&");
-        charSet.setCharSet(translatedChars);
+        Object[] charAtoms = charSet.getCharSetAtoms();
+        int c = charAtoms.length;
+        for (int i = 0; i < c; i++) {
+            Object charAtom = charAtoms[i];
+            if (charAtom instanceof RegExpCharSetRange) {
+                RegExpCharSetRange range = (RegExpCharSetRange) charAtom;
+                range.setLhsCharSetAtom(translateCharInCharacterClass(range.getLhsCharSetAtom()));
+                range.setRhsCharSetAom(translateCharInCharacterClass(range.getRhsCharSetAtom()));
+                continue;
+            }
+            charAtoms[i] = translateCharInCharacterClass((String) charAtom);
+        }
         return charClass;
     }
 
-    private static String translateCharSet(String chars, String translateChars) {
-        String[] charArr = chars.split(translateChars);
-        if (charArr.length == 1) {
-            return chars;
+    private static String translateCharInCharacterClass(String originalValue) {
+        if ("&".equals(originalValue)) {
+            return "\\&";
         }
-        StringJoiner sj = new StringJoiner("\\&\\&");
-        for (String str : charArr) {
-            sj.add(str);
-        }
-        return sj.toString();
+        return originalValue;
     }
 }

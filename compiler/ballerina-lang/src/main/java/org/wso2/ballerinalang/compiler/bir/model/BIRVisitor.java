@@ -269,6 +269,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.NewReCharSetRange reCharSetRange) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRNonTerminator.NewReCapturingGroup reCapturingGroup) {
         throw new AssertionError();
     }

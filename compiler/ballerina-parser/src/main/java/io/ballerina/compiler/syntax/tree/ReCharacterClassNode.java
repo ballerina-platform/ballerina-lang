@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -25,9 +25,9 @@ import java.util.Optional;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.3.0
+ * @since 2.0.0
  */
-public class ReCharacterClassNode extends ReAtomNode {
+public class ReCharacterClassNode extends NonTerminalNode {
 
     public ReCharacterClassNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -41,7 +41,7 @@ public class ReCharacterClassNode extends ReAtomNode {
         return optionalChildInBucket(1);
     }
 
-    public Optional<ReCharSetNode> reCharSet() {
+    public Optional<Node> reCharSet() {
         return optionalChildInBucket(2);
     }
 
@@ -71,7 +71,7 @@ public class ReCharacterClassNode extends ReAtomNode {
     public ReCharacterClassNode modify(
             Token openBracket,
             Token negation,
-            ReCharSetNode reCharSet,
+            Node reCharSet,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
@@ -101,7 +101,7 @@ public class ReCharacterClassNode extends ReAtomNode {
         private final ReCharacterClassNode oldNode;
         private Token openBracket;
         private Token negation;
-        private ReCharSetNode reCharSet;
+        private Node reCharSet;
         private Token closeBracket;
 
         public ReCharacterClassNodeModifier(ReCharacterClassNode oldNode) {
@@ -126,7 +126,7 @@ public class ReCharacterClassNode extends ReAtomNode {
         }
 
         public ReCharacterClassNodeModifier withReCharSet(
-                ReCharSetNode reCharSet) {
+                Node reCharSet) {
             this.reCharSet = reCharSet;
             return this;
         }

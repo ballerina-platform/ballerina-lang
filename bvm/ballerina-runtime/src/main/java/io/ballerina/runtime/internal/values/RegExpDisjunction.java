@@ -43,6 +43,10 @@ public class RegExpDisjunction implements RefValue {
         this.seqList = seqList.getValues();
     }
 
+    public RegExpDisjunction(Object[] seqList) {
+        this.seqList = seqList;
+    }
+
     public Object[] getRegExpSeqList() {
         return this.seqList;
     }

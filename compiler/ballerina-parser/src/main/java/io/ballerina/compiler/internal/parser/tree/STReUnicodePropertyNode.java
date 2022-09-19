@@ -26,13 +26,13 @@ import java.util.Collection;
  *
  * @since 2201.3.0
  */
-public abstract class STReAtomNode extends STNode {
+public abstract class STReUnicodePropertyNode extends STNode {
 
-    STReAtomNode(SyntaxKind kind) {
+    STReUnicodePropertyNode(SyntaxKind kind) {
         super(kind);
     }
 
-    STReAtomNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+    STReUnicodePropertyNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
     }
 }

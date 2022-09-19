@@ -23,13 +23,20 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *  Represents `ReCharSet` in regular expression.
+ *  Represents `ReCharSetAtom` or `ReCharSetAtomNoDash` in regular expression.
  *
  * @since 2201.3.0
  */
 public class BLangReCharSet extends BLangExpression implements ReCharSetNode {
-    public BLangExpression charSetAtoms;
+    public List<BLangExpression> charSetAtoms;
+
+    public BLangReCharSet() {
+        charSetAtoms = new ArrayList<>();
+    }
 
     @Override
     public NodeKind getKind() {

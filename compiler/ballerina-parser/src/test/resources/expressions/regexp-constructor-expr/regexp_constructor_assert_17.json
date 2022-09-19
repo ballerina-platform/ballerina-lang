@@ -131,7 +131,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -145,7 +145,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -184,7 +184,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "c"
                                         }
                                       ]
@@ -198,7 +198,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "d"
                                         }
                                       ]
@@ -208,7 +208,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -221,7 +221,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "e"
                                         }
                                       ]
@@ -338,11 +338,53 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "a-b\\tx-z"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "a"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "b"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "\\t"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                          "value": "x"
+                                                        },
+                                                        {
+                                                          "kind": "MINUS_TOKEN"
+                                                        },
+                                                        {
+                                                          "kind": "RE_CHAR_SET_ATOM",
+                                                          "value": "z"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -356,7 +398,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "+"
                                         }
                                       ]
                                     }
@@ -381,8 +423,18 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                  "value": "i"
+                                                  "kind": "RE_FLAGS",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "i"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -407,7 +459,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "a"
                                                             }
                                                           ]
@@ -421,7 +473,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "b"
                                                             }
                                                           ]
@@ -444,7 +496,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "c"
                                                             }
                                                           ]
@@ -461,11 +513,23 @@
                                                               "kind": "OPEN_BRACKET_TOKEN"
                                                             },
                                                             {
-                                                              "kind": "RE_CHAR_SET",
+                                                              "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                                               "children": [
                                                                 {
-                                                                  "kind": "RE_CHAR_SET_VALUE",
-                                                                  "value": "d-f"
+                                                                  "kind": "RE_CHAR_SET_RANGE",
+                                                                  "children": [
+                                                                    {
+                                                                      "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                                      "value": "d"
+                                                                    },
+                                                                    {
+                                                                      "kind": "MINUS_TOKEN"
+                                                                    },
+                                                                    {
+                                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                                      "value": "f"
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             },
@@ -491,8 +555,35 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "1"
+                                                },
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "2"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -602,7 +693,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "x"
                                                             }
                                                           ]
@@ -629,7 +720,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "y"
                                                             }
                                                           ]
@@ -669,7 +760,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "z"
                                         }
                                       ]
@@ -699,11 +790,41 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "cde-j"
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "c"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "value": "d"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                          "value": "e"
+                                                        },
+                                                        {
+                                                          "kind": "MINUS_TOKEN"
+                                                        },
+                                                        {
+                                                          "kind": "RE_CHAR_SET_ATOM",
+                                                          "value": "j"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -717,7 +838,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -755,8 +876,22 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                  "value": "ms"
+                                                  "kind": "RE_FLAGS",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "s"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -898,11 +1033,62 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "ab-cdk-l"
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "a"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                      "value": "b"
+                                                    },
+                                                    {
+                                                      "kind": "MINUS_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                      "value": "c"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                      "value": "d"
+                                                    },
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                              "value": "k"
+                                                            },
+                                                            {
+                                                              "kind": "MINUS_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "RE_CHAR_SET_ATOM",
+                                                              "value": "l"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -916,7 +1102,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -950,7 +1136,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "+"
                                         }
                                       ]
                                     }
@@ -1005,7 +1191,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "p"
                                                             }
                                                           ]
@@ -1019,7 +1205,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "q"
                                                             }
                                                           ]
@@ -1033,7 +1219,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "r"
                                                             }
                                                           ]
@@ -1042,8 +1228,31 @@
                                                           "kind": "RE_QUANTIFIER",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                                              "value": "RE_BASE_QUANTIFIER_VALUE"
+                                                              "kind": "RE_BRACED_QUANTIFIER",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "OPEN_BRACE_TOKEN"
+                                                                },
+                                                                {
+                                                                  "kind": "LIST",
+                                                                  "children": [
+                                                                    {
+                                                                      "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                                      "value": "1"
+                                                                    }
+                                                                  ]
+                                                                },
+                                                                {
+                                                                  "kind": "COMMA_TOKEN"
+                                                                },
+                                                                {
+                                                                  "kind": "LIST",
+                                                                  "children": []
+                                                                },
+                                                                {
+                                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -1077,7 +1286,7 @@
                                                           "children": [
                                                             {
                                                               "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                                              "value": "RE_BASE_QUANTIFIER_VALUE"
+                                                              "value": "*"
                                                             }
                                                           ]
                                                         }
@@ -1182,7 +1391,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -1196,7 +1405,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_ESCAPE",
                                           "value": "\\t"
                                         }
                                       ]
@@ -1210,7 +1419,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "d"
                                         }
                                       ]
@@ -1224,7 +1433,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "-"
                                         }
                                       ]
@@ -1234,7 +1443,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -1247,7 +1456,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -1261,7 +1470,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -1281,11 +1490,23 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "c-f"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "c"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "f"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -1299,7 +1520,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "+"
                                         }
                                       ]
                                     }
@@ -1324,8 +1545,18 @@
                                               "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                  "value": "m"
+                                                  "kind": "RE_FLAGS",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "value": "m"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -1350,7 +1581,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "x"
                                                             }
                                                           ]
@@ -1364,7 +1595,7 @@
                                                           "kind": "RE_CHAR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                              "kind": "RE_CHAR",
                                                               "value": "j"
                                                             }
                                                           ]
@@ -1390,8 +1621,18 @@
                                                                   "kind": "RE_FLAGS_ON_OFF",
                                                                   "children": [
                                                                     {
-                                                                      "kind": "RE_FLAGS_ON_OFF_VALUE",
-                                                                      "value": "i"
+                                                                      "kind": "RE_FLAGS",
+                                                                      "children": [
+                                                                        {
+                                                                          "kind": "LIST",
+                                                                          "children": [
+                                                                            {
+                                                                              "kind": "RE_FLAGS_VALUE",
+                                                                              "value": "i"
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
                                                                     }
                                                                   ]
                                                                 },
@@ -1416,7 +1657,7 @@
                                                                               "kind": "RE_CHAR_ESCAPE",
                                                                               "children": [
                                                                                 {
-                                                                                  "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                                                  "kind": "RE_CHAR",
                                                                                   "value": "x"
                                                                                 }
                                                                               ]
@@ -1443,7 +1684,7 @@
                                                                               "kind": "RE_CHAR_ESCAPE",
                                                                               "children": [
                                                                                 {
-                                                                                  "kind": "RE_CHAR_ESCAPE_VALUE",
+                                                                                  "kind": "RE_CHAR",
                                                                                   "value": "y"
                                                                                 }
                                                                               ]

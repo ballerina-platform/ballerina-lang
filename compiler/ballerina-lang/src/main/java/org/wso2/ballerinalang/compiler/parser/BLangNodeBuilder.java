@@ -155,13 +155,25 @@ import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ReAssertionNode;
 import io.ballerina.compiler.syntax.tree.ReAtomCharOrEscapeNode;
 import io.ballerina.compiler.syntax.tree.ReAtomQuantifierNode;
+import io.ballerina.compiler.syntax.tree.ReBracedQuantifierNode;
 import io.ballerina.compiler.syntax.tree.ReCapturingGroupsNode;
-import io.ballerina.compiler.syntax.tree.ReCharSetNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetAtomNoDashWithReCharSetNoDashNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetAtomWithReCharSetNoDashNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetRangeNoDashNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetRangeNoDashWithReCharSetNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetRangeNode;
+import io.ballerina.compiler.syntax.tree.ReCharSetRangeWithReCharSetNode;
 import io.ballerina.compiler.syntax.tree.ReCharacterClassNode;
 import io.ballerina.compiler.syntax.tree.ReFlagExpressionNode;
+import io.ballerina.compiler.syntax.tree.ReFlagsNode;
 import io.ballerina.compiler.syntax.tree.ReFlagsOnOffNode;
 import io.ballerina.compiler.syntax.tree.ReQuantifierNode;
+import io.ballerina.compiler.syntax.tree.ReQuoteEscapeNode;
 import io.ballerina.compiler.syntax.tree.ReSequenceNode;
+import io.ballerina.compiler.syntax.tree.ReSimpleCharClassEscapeNode;
+import io.ballerina.compiler.syntax.tree.ReUnicodeGeneralCategoryNode;
+import io.ballerina.compiler.syntax.tree.ReUnicodePropertyEscapeNode;
+import io.ballerina.compiler.syntax.tree.ReUnicodeScriptNode;
 import io.ballerina.compiler.syntax.tree.ReceiveActionNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
@@ -360,6 +372,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -2371,10 +2384,24 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private boolean isTokenInRegExp(SyntaxKind kind) {
         switch (kind) {
             case RE_ASSERTION_VALUE:
-            case RE_CHAR_ESCAPE_VALUE:
-            case RE_CHAR_SET_VALUE:
-            case RE_FLAGS_ON_OFF_VALUE:
+            case RE_CHAR:
+            case RE_ESCAPE:
+            case RE_SYNTAX_CHAR:
+            case RE_SIMPLE_CHAR_CLASS_CODE:
+            case RE_PROPERTY:
+            case RE_UNICODE_SCRIPT_START:
+            case RE_UNICODE_PROPERTY_VALUE:
+            case RE_UNICODE_GENERAL_CATEGORY_START:
+            case RE_UNICODE_GENERAL_CATEGORY_NAME:
+            case RE_CHAR_SET_ATOM:
+            case RE_CHAR_SET_ATOM_NO_DASH:
+            case RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM:
+            case RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH:
+            case RE_FLAGS_VALUE:
             case RE_BASE_QUANTIFIER_VALUE:
+            case RE_BRACED_QUANTIFIER_DIGIT:
+            case OPEN_BRACE_TOKEN:
+            case CLOSE_BRACE_TOKEN:
             case OPEN_BRACKET_TOKEN:
             case CLOSE_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
@@ -2382,7 +2409,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case QUESTION_MARK_TOKEN:
             case BITWISE_XOR_TOKEN:
             case COLON_TOKEN:
+            case BACK_SLASH_TOKEN:
+            case MINUS_TOKEN:
             case PIPE_TOKEN:
+            case COMMA_TOKEN:
                 return true;
             default:
                 return false;
@@ -3602,7 +3632,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLSimpleNameNode xmlSimpleNameNode) {
         BLangXMLQName xmlName = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
-        xmlName.localname = createIdentifier(xmlSimpleNameNode.name());
+        Token xmlSimpleName = xmlSimpleNameNode.name();
+        xmlName.localname = createIdentifier(getPosition(xmlSimpleName), xmlSimpleName, true);
         xmlName.prefix = createIdentifier(null, "");
         xmlName.pos = getPosition(xmlSimpleNameNode);
         return xmlName;
@@ -5454,6 +5485,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(ReAssertionNode reAssertionNode) {
+        BLangReAssertion reAssertion = (BLangReAssertion) TreeBuilder.createReAssertionNode();
+        reAssertion.assertion = (BLangExpression) reAssertionNode.reAssertion().apply(this);
+        reAssertion.pos = getPosition(reAssertionNode);
+        return reAssertion;
+    }
+
+    @Override
     public BLangNode transform(ReAtomQuantifierNode reAtomQuantifierNode) {
         BLangReAtomQuantifier reAtomQuantifier = (BLangReAtomQuantifier) TreeBuilder.createReAtomQuantifierNode();
         Node reAtomNode = reAtomQuantifierNode.reAtom();
@@ -5479,26 +5518,28 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ReCharacterClassNode reCharacterClassNode) {
-        BLangReCharacterClass reCharacterClass = (BLangReCharacterClass) TreeBuilder.createReCharacterClassNode();
-        reCharacterClass.characterClassStart = (BLangExpression) reCharacterClassNode.openBracket().apply(this);
-        if (reCharacterClassNode.negation().isPresent()) {
-            reCharacterClass.negation = (BLangExpression) reCharacterClassNode.negation().get().apply(this);
+    public BLangNode transform(ReBracedQuantifierNode reBracedQuantifierNode) {
+        BLangLiteral openBrace = (BLangLiteral) reBracedQuantifierNode.openBraceToken().apply(this);
+        BLangLiteral closeBrace = (BLangLiteral) reBracedQuantifierNode.closeBraceToken().apply(this);
+        StringBuilder leastTimesMatchedDigits = new StringBuilder();
+        String quantifier;
+        for (Node digit : reBracedQuantifierNode.leastTimesMatchedDigit()) {
+            BLangLiteral leastDigit = (BLangLiteral) digit.apply(this);
+            leastTimesMatchedDigits.append(leastDigit.value.toString());
         }
-        if (reCharacterClassNode.reCharSet().isPresent()) {
-            reCharacterClass.charSet = (BLangReCharSet) reCharacterClassNode.reCharSet().get().apply(this);
+        if (reBracedQuantifierNode.commaToken().isEmpty()) {
+             quantifier = openBrace.value.toString() + leastTimesMatchedDigits.toString() + closeBrace.value.toString();
+        } else {
+            BLangLiteral comma = (BLangLiteral) reBracedQuantifierNode.commaToken().get().apply(this);
+            StringBuilder mostTimesMatchedDigits = new StringBuilder();
+            for (Node digit : reBracedQuantifierNode.mostTimesMatchedDigit()) {
+                BLangLiteral mostDigit = (BLangLiteral) digit.apply(this);
+                mostTimesMatchedDigits.append(mostDigit.value.toString());
+            }
+            quantifier = openBrace.value.toString() + leastTimesMatchedDigits.toString() +
+                    comma.value.toString() + mostTimesMatchedDigits.toString() + closeBrace.value.toString();
         }
-        reCharacterClass.characterClassEnd = (BLangExpression) reCharacterClassNode.closeBracket().apply(this);
-        reCharacterClass.pos = getPosition(reCharacterClassNode);
-        return reCharacterClass;
-    }
-
-    @Override
-    public BLangNode transform(ReCharSetNode reCharSetNode) {
-        BLangReCharSet reCharSet = (BLangReCharSet) TreeBuilder.createReCharSetNode();
-        reCharSet.charSetAtoms = (BLangExpression) reCharSetNode.reCharSet().apply(this);
-        reCharSet.pos = getPosition(reCharSetNode);
-        return reCharSet;
+        return createStringLiteral(quantifier, getPosition(reBracedQuantifierNode));
     }
 
     @Override
@@ -5511,11 +5552,189 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ReAssertionNode reAssertionNode) {
-        BLangReAssertion reAssertion = (BLangReAssertion) TreeBuilder.createReAssertionNode();
-        reAssertion.assertion = (BLangExpression) reAssertionNode.reAssertion().apply(this);
-        reAssertion.pos = getPosition(reAssertionNode);
-        return reAssertion;
+    public BLangNode transform(ReQuoteEscapeNode reQuoteEscapeNode) {
+        Location pos = getPosition(reQuoteEscapeNode);
+        BLangLiteral backSlash = (BLangLiteral) reQuoteEscapeNode.slashToken().apply(this);
+        BLangLiteral syntaxChar = (BLangLiteral) reQuoteEscapeNode.reSyntaxChar().apply(this);
+        BLangExpression escapeChar = createStringLiteral(backSlash.value.toString() +
+                syntaxChar.value.toString(), pos);
+        BLangReAtomCharOrEscape reAtomCharOrEscape =
+                (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
+        reAtomCharOrEscape.charOrEscape = escapeChar;
+        reAtomCharOrEscape.pos = pos;
+        return reAtomCharOrEscape;
+    }
+
+    @Override
+    public BLangNode transform(ReSimpleCharClassEscapeNode reSimpleCharClassEscapeNode) {
+        Location pos = getPosition(reSimpleCharClassEscapeNode);
+        BLangLiteral backSlash = (BLangLiteral) reSimpleCharClassEscapeNode.slashToken().apply(this);
+        BLangLiteral simpleCharClassEscapeNode =
+                (BLangLiteral) reSimpleCharClassEscapeNode.reSimpleCharClassCode().apply(this);
+        BLangExpression escapeChar = createStringLiteral(backSlash.value.toString() +
+                simpleCharClassEscapeNode.value.toString(), pos);
+        BLangReAtomCharOrEscape reAtomCharOrEscape =
+                (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
+        reAtomCharOrEscape.charOrEscape = escapeChar;
+        reAtomCharOrEscape.pos = pos;
+        return reAtomCharOrEscape;
+    }
+
+    @Override
+    public BLangNode transform(ReUnicodePropertyEscapeNode reUnicodePropertyEscapeNode) {
+        Location pos = getPosition(reUnicodePropertyEscapeNode);
+        BLangLiteral backSlash = (BLangLiteral) reUnicodePropertyEscapeNode.slashToken().apply(this);
+        BLangLiteral property = (BLangLiteral) reUnicodePropertyEscapeNode.property().apply(this);
+        BLangLiteral openBrace = (BLangLiteral) reUnicodePropertyEscapeNode.openBraceToken().apply(this);
+        BLangLiteral unicodeProperty = (BLangLiteral) reUnicodePropertyEscapeNode.reUnicodeProperty().apply(this);
+        BLangLiteral closeBrace = (BLangLiteral) reUnicodePropertyEscapeNode.closeBraceToken().apply(this);
+        BLangExpression escapeChar =
+                createStringLiteral(backSlash.value.toString() + property.value.toString() +
+                        openBrace.value.toString() + unicodeProperty.value.toString() +
+                        closeBrace.value.toString(), pos);
+        BLangReAtomCharOrEscape reAtomCharOrEscape =
+                (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
+        reAtomCharOrEscape.charOrEscape = escapeChar;
+        reAtomCharOrEscape.pos = pos;
+        return reAtomCharOrEscape;
+    }
+
+    @Override
+    public BLangNode transform(ReUnicodeScriptNode reUnicodeScriptNode) {
+        BLangLiteral scriptStart = (BLangLiteral) reUnicodeScriptNode.scriptStart().apply(this);
+        BLangLiteral unicodePropertyValue = (BLangLiteral) reUnicodeScriptNode.reUnicodePropertyValue().apply(this);
+        return createStringLiteral(scriptStart.value.toString() + unicodePropertyValue.value.toString(),
+                getPosition(reUnicodeScriptNode));
+    }
+
+    @Override
+    public BLangNode transform(ReUnicodeGeneralCategoryNode reUnicodeGeneralCategoryNode) {
+        BLangLiteral unicodeGeneralCategoryName =
+                (BLangLiteral) reUnicodeGeneralCategoryNode.reUnicodeGeneralCategoryName().apply(this);
+        if (reUnicodeGeneralCategoryNode.categoryStart().isPresent()) {
+            BLangLiteral categoryStart = (BLangLiteral) reUnicodeGeneralCategoryNode.categoryStart().get().apply(this);
+            return createStringLiteral(categoryStart.value.toString() +
+                    unicodeGeneralCategoryName.value.toString(), getPosition(reUnicodeGeneralCategoryNode));
+        }
+        return createStringLiteral(String.valueOf(unicodeGeneralCategoryName.value),
+                getPosition(reUnicodeGeneralCategoryNode));
+    }
+
+    @Override
+    public BLangNode transform(ReCharacterClassNode reCharacterClassNode) {
+        BLangReCharacterClass reCharacterClass = (BLangReCharacterClass) TreeBuilder.createReCharacterClassNode();
+        reCharacterClass.characterClassStart = (BLangExpression) reCharacterClassNode.openBracket().apply(this);
+        if (reCharacterClassNode.negation().isPresent()) {
+            reCharacterClass.negation = (BLangExpression) reCharacterClassNode.negation().get().apply(this);
+        }
+        if (reCharacterClassNode.reCharSet().isPresent()) {
+            BLangReCharSet charSet = (BLangReCharSet) TreeBuilder.createReCharSetNode();
+            BLangExpression charSetAtoms = (BLangExpression) reCharacterClassNode.reCharSet().get().apply(this);
+            if (charSetAtoms.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                charSet.charSetAtoms.addAll(((BLangListConstructorExpr) charSetAtoms).exprs);
+            } else {
+                charSet.charSetAtoms.add(charSetAtoms);
+            }
+            charSet.pos = charSetAtoms.pos;
+            reCharacterClass.charSet = charSet;
+        }
+        reCharacterClass.characterClassEnd = (BLangExpression) reCharacterClassNode.closeBracket().apply(this);
+        reCharacterClass.pos = getPosition(reCharacterClassNode);
+        return reCharacterClass;
+    }
+
+    @Override
+    public BLangNode transform(ReCharSetAtomWithReCharSetNoDashNode charSetNode) {
+        BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                TreeBuilder.createListConstructorExpressionNode();
+        listConstructorExpr.pos = getPosition(charSetNode);
+        List<BLangExpression> exprs = new ArrayList<>();
+        exprs.add((BLangExpression) charSetNode.reCharSetAtom().apply(this));
+        BLangExpression charSetNoDash =
+                (BLangExpression) charSetNode.reCharSetNoDash().apply(this);
+        if (charSetNoDash.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+            exprs.addAll(((BLangListConstructorExpr) charSetNoDash).exprs);
+        } else {
+            exprs.add(charSetNoDash);
+        }
+        listConstructorExpr.exprs = exprs;
+        return listConstructorExpr;
+    }
+
+    @Override
+    public BLangNode transform(ReCharSetAtomNoDashWithReCharSetNoDashNode charSetNode) {
+        BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                TreeBuilder.createListConstructorExpressionNode();
+        listConstructorExpr.pos = getPosition(charSetNode);
+        List<BLangExpression> exprs = new ArrayList<>();
+        exprs.add((BLangExpression) charSetNode.reCharSetAtomNoDash().apply(this));
+        BLangExpression charSetNoDash =
+                (BLangExpression) charSetNode.reCharSetNoDash().apply(this);
+        if (charSetNoDash.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+            exprs.addAll(((BLangListConstructorExpr) charSetNoDash).exprs);
+        } else {
+            exprs.add(charSetNoDash);
+        }
+        listConstructorExpr.exprs = exprs;
+        return listConstructorExpr;
+    }
+
+    @Override
+    public BLangNode transform(ReCharSetRangeWithReCharSetNode charSetNode) {
+        BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                TreeBuilder.createListConstructorExpressionNode();
+        listConstructorExpr.pos = getPosition(charSetNode);
+        List<BLangExpression> exprs = new ArrayList<>();
+        exprs.add((BLangExpression) charSetNode.reCharSetRange().apply(this));
+        if (charSetNode.reCharSet().isPresent()) {
+            BLangExpression charSet = (BLangExpression) charSetNode.reCharSet().get().apply(this);
+            if (charSet.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                exprs.addAll(((BLangListConstructorExpr) charSet).exprs);
+            } else {
+                exprs.add(charSet);
+            }
+        }
+        listConstructorExpr.exprs = exprs;
+        return listConstructorExpr;
+    }
+
+    @Override
+    public BLangNode transform(ReCharSetRangeNode charSetRangeNode) {
+        BLangReCharSetRange charSetRange = (BLangReCharSetRange) TreeBuilder.createReCharSetRangeNode();
+        charSetRange.pos = getPosition(charSetRangeNode);
+        charSetRange.lhsCharSetAtom = (BLangExpression) charSetRangeNode.lhsReCharSetAtom().apply(this);
+        charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
+        charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.rhsReCharSetAtom().apply(this);
+        return charSetRange;
+    }
+
+    @Override
+    public BLangNode transform(ReCharSetRangeNoDashWithReCharSetNode charSetNode) {
+        BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                TreeBuilder.createListConstructorExpressionNode();
+        listConstructorExpr.pos = getPosition(charSetNode);
+        List<BLangExpression> exprs = new ArrayList<>();
+        exprs.add((BLangExpression) charSetNode.reCharSetRangeNoDash().apply(this));
+        if (charSetNode.reCharSet().isPresent()) {
+            BLangExpression charSet = (BLangExpression) charSetNode.reCharSet().get().apply(this);
+            if (charSet.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                exprs.addAll(((BLangListConstructorExpr) charSet).exprs);
+            } else {
+                exprs.add(charSet);
+            }
+        }
+        listConstructorExpr.exprs = exprs;
+        return listConstructorExpr;
+    }
+
+    @Override
+    public BLangNode transform(ReCharSetRangeNoDashNode charSetRangeNode) {
+        BLangReCharSetRange charSetRange = (BLangReCharSetRange) TreeBuilder.createReCharSetRangeNode();
+        charSetRange.pos = getPosition(charSetRangeNode);
+        charSetRange.lhsCharSetAtom = (BLangExpression) charSetRangeNode.reCharSetAtomNoDash().apply(this);
+        charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
+        charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.reCharSetAtom().apply(this);
+        return charSetRange;
     }
 
     @Override
@@ -5549,9 +5768,32 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ReFlagsOnOffNode reFlagsOnOffNode) {
         BLangReFlagsOnOff reFlagsOnOff = (BLangReFlagsOnOff) TreeBuilder.createReFlagsOnOffNode();
-        reFlagsOnOff.flags = (BLangExpression) reFlagsOnOffNode.reFlagsOnOff().apply(this);
+        BLangLiteral lhsFlags = (BLangLiteral) reFlagsOnOffNode.lhsReFlags().apply(this);
+        String flags;
+        if (reFlagsOnOffNode.minusToken().isEmpty()) {
+            flags = lhsFlags.value.toString();
+        } else {
+            BLangLiteral dash = (BLangLiteral) reFlagsOnOffNode.minusToken().get().apply(this);
+            if (reFlagsOnOffNode.rhsReFlags().isEmpty()) {
+                flags = lhsFlags.value.toString() + dash.value.toString();
+            } else {
+                BLangLiteral rhsFlags = (BLangLiteral) reFlagsOnOffNode.rhsReFlags().get().apply(this);
+                flags = lhsFlags.value.toString() + dash.value.toString() + rhsFlags.value.toString();
+            }
+        }
         reFlagsOnOff.pos = getPosition(reFlagsOnOffNode);
+        reFlagsOnOff.flags = createStringLiteral(flags, getPosition(reFlagsOnOffNode));
         return reFlagsOnOff;
+    }
+
+    @Override
+    public BLangNode transform(ReFlagsNode reFlagsNode) {
+        StringBuilder flags = new StringBuilder();
+        for (Node reFlag : reFlagsNode.reFlag()) {
+            BLangLiteral flag = (BLangLiteral) reFlag.apply(this);
+            flags.append(flag.value.toString());
+        }
+        return createStringLiteral(flags.toString(), getPosition(reFlagsNode));
     }
 
     private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
@@ -5611,6 +5853,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangIdentifier createIdentifier(Location pos, Token token) {
+        return createIdentifier(pos, token, false);
+    }
+
+    private BLangIdentifier createIdentifier(Location pos, Token token, boolean isXML) {
         if (token == null) {
             return createIdentifier(pos, (String) null);
         }
@@ -5618,7 +5864,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String identifierName = token.text();
         if (token.isMissing() || identifierName.equals(IDENTIFIER_LITERAL_PREFIX)) {
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
-        } else if (identifierName.equals("_") || identifierName.equals(IDENTIFIER_LITERAL_PREFIX + "_")) {
+        } else if (!isXML && (identifierName.equals("_") || identifierName.equals(IDENTIFIER_LITERAL_PREFIX + "_"))) {
             dlog.error(pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED_AS_IDENTIFIER);
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
         }

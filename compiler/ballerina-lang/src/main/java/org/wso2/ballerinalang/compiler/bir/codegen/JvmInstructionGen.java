@@ -51,7 +51,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
@@ -183,6 +185,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_R
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CAPTURING_GROUP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_SET_RANGE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_DISJUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_FLAG_EXPR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_FLAG_ON_OFF;
@@ -261,6 +264,7 @@ public class JvmInstructionGen {
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
     private final JvmTypeTestGen typeTestGen;
+    private final Map<String, String> functions;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
@@ -275,6 +279,7 @@ public class JvmInstructionGen {
         this.jvmCastGen = jvmCastGen;
         this.jvmConstantsGen = jvmConstantsGen;
         typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen);
+        this.functions = new HashMap<>();
     }
 
     static void addJUnboxInsn(MethodVisitor mv, JType jType) {
@@ -503,15 +508,7 @@ public class JvmInstructionGen {
     public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
-        if (varDcl.kind == VarKind.GLOBAL) {
-            String varName = varDcl.name.value;
-            PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
-            String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
-            String typeSig = getTypeDesc(bType);
-            mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
-            return;
-        } else if (varDcl.kind == VarKind.CONSTANT) {
+        if (varDcl.kind == VarKind.GLOBAL || varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
@@ -1728,8 +1725,15 @@ public class JvmInstructionGen {
         this.mv.visitInsn(DUP);
 
         String name = inst.funcName.value;
-        String lambdaName = Utils.encodeFunctionIdentifier(name) + "$lambda" +
-                asyncDataCollector.getLambdaIndex() + "$";
+
+        String funcKey = inst.pkgId.toString() + ":" + name;
+        String lambdaName = functions.get(funcKey);
+        if (lambdaName == null) {
+            lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
+                    asyncDataCollector.getLambdaIndex() + "$";
+            functions.put(funcKey, lambdaName);
+        }
+
         asyncDataCollector.incrementLambdaIndex();
 
         BType type = JvmCodeGenUtil.getReferredType(inst.type);
@@ -1975,9 +1979,18 @@ public class JvmInstructionGen {
     }
 
     void generateNewRegExpCharSetIns(BIRNonTerminator.NewReCharSet newReCharSet) {
-        this.loadVar(newReCharSet.charSet.variableDcl);
+        this.loadVar(newReCharSet.charSetAtoms.variableDcl);
         this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharSet", CREATE_RE_CHAR_SET, false);
         this.storeToVar(newReCharSet.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCharSetRangeIns(BIRNonTerminator.NewReCharSetRange newReCharSetRange) {
+        this.loadVar(newReCharSetRange.lhsCharSetAtom.variableDcl);
+        this.loadVar(newReCharSetRange.dash.variableDcl);
+        this.loadVar(newReCharSetRange.rhsCharSetAtom.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharSetRange", CREATE_RE_CHAR_SET_RANGE,
+                false);
+        this.storeToVar(newReCharSetRange.lhsOp.variableDcl);
     }
 
     void generateNewRegExpCapturingGroupIns(BIRNonTerminator.NewReCapturingGroup newReCapturingGroup) {
@@ -2099,8 +2112,7 @@ public class JvmInstructionGen {
             mv.visitInsn(AASTORE);
         }
 
-        String descriptor = TYPE_DESC_CONSTRUCTOR;
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
     }
 
     void loadVar(BIRNode.BIRVariableDcl varDcl) {
@@ -2282,6 +2294,9 @@ public class JvmInstructionGen {
                     break;
                 case NEW_RE_CHAR_SET:
                     generateNewRegExpCharSetIns((BIRNonTerminator.NewReCharSet) inst);
+                    break;
+                case NEW_RE_CHAR_SET_RANGE:
+                    generateNewRegExpCharSetRangeIns((BIRNonTerminator.NewReCharSetRange) inst);
                     break;
                 case NEW_RE_CAPTURING_GROUP:
                     generateNewRegExpCapturingGroupIns((BIRNonTerminator.NewReCapturingGroup) inst);

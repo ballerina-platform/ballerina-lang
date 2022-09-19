@@ -141,7 +141,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
@@ -254,7 +254,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
@@ -356,7 +356,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -370,7 +370,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -384,7 +384,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "c"
                                         }
                                       ]
@@ -409,7 +409,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
@@ -511,7 +511,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -525,7 +525,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -539,7 +539,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "c"
                                         }
                                       ]
@@ -564,7 +564,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
@@ -582,7 +582,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -596,7 +596,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -694,7 +694,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -708,7 +708,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -722,7 +722,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "c"
                                         }
                                       ]
@@ -747,7 +747,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
@@ -765,7 +765,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -779,7 +779,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -877,7 +877,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -891,7 +891,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -905,7 +905,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "c"
                                         }
                                       ]
@@ -925,11 +925,23 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "g-i"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "g"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "i"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -958,7 +970,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"

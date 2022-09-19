@@ -128,11 +128,23 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "a-d"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "a"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "d"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -232,225 +244,23 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "a-d"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHARACTER_CLASS",
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "BITWISE_XOR_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "A-D\\-"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHARACTER_CLASS",
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "BITWISE_XOR_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "m-pr-u"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "a"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "d"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -553,11 +363,27 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "\\u{41}-d\\u{55}-\\u{58}"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "A"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "D"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "\\-"
                                             }
                                           ]
                                         },
@@ -660,11 +486,44 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "\\u{41}-d\\u{46}i"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "m"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "p"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                      "value": "r"
+                                                    },
+                                                    {
+                                                      "kind": "MINUS_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                      "value": "u"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -767,11 +626,44 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "AB-A"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "\\u{41}"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "d"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                      "value": "\\u{55}"
+                                                    },
+                                                    {
+                                                      "kind": "MINUS_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                      "value": "\\u{58}"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -874,11 +766,310 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "ABCg-j"
+                                              "kind": "RE_CHAR_SET_RANGE",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "value": "\\u{41}"
+                                                },
+                                                {
+                                                  "kind": "MINUS_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "d"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "value": "\\u{46}"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "value": "i"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "A"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                      "value": "B"
+                                                    },
+                                                    {
+                                                      "kind": "MINUS_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                      "value": "A"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_CHARACTER_CLASS",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+                                          "children": [
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "value": "A"
+                                            },
+                                            {
+                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "value": "B"
+                                                },
+                                                {
+                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                  "children": [
+                                                    {
+                                                      "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                      "value": "C"
+                                                    },
+                                                    {
+                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+                                                          "children": [
+                                                            {
+                                                              "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                              "value": "g"
+                                                            },
+                                                            {
+                                                              "kind": "MINUS_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "RE_CHAR_SET_ATOM",
+                                                              "value": "j"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },

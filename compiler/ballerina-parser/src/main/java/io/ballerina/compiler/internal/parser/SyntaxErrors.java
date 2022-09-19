@@ -564,10 +564,16 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
             case CLOSE_BRACKET_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
+            case OPEN_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
+            case CLOSE_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
             case COLON_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
+            case RE_UNICODE_PROPERTY_VALUE:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
             default:
-                return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
+                return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }
 

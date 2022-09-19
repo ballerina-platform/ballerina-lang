@@ -88,6 +88,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_C
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_ESCAPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_SET_RANGE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_DISJUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FLAG_EXPR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FLAG_ON_OFF;
@@ -285,7 +286,7 @@ public class JvmSignatures {
     public static final String INIT_FINITE_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + SET + ";I)V";
     public static final String INIT_FUCNTION_PARAM = "(L" + STRING_VALUE + ";L" + BOOLEAN_VALUE + ";L" + TYPE + ";)V";
     public static final String INIT_FUNCTION_TYPE_IMPL = "([L" + FUNCTION_PARAMETER + ";L" + TYPE + ";L" + TYPE + ";" +
-            "J)V";
+            "JL" + STRING_VALUE + ";L" + MODULE + ";)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE =
             "(L" + MODULE + ";[L" + TYPE + ";L" + INTERSECTABLE_REFERENCE_TYPE + ";IZ)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_TYPE = "(L" + MODULE + ";[L" + TYPE + ";L" + TYPE + ";IZ)V";
@@ -461,7 +462,9 @@ public class JvmSignatures {
     public static final String CREATE_RE_LITERAL_CHAR = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_CHAR_ESCAPE + ";";
     public static final String CREATE_RE_CHAR_CLASS = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L"
                     + REG_EXP_CHAR_SET + ";L" + B_STRING_VALUE + ";)L" + REG_EXP_CHAR_CLASS + ";";
-    public static final String CREATE_RE_CHAR_SET = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_CHAR_SET + ";";
+    public static final String CREATE_RE_CHAR_SET = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_CHAR_SET + ";";
+    public static final String CREATE_RE_CHAR_SET_RANGE = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L" +
+             B_STRING_VALUE + ";)L" + REG_EXP_CHAR_SET_RANGE + ";";
     public static final String CREATE_RE_CAPTURING_GROUP = "(L" + B_STRING_VALUE + ";L" + REG_EXP_FLAG_EXPR +
             ";L" + REG_EXP_DISJUNCTION + ";L" + B_STRING_VALUE + ";)L" + REG_EXP_CAPTURING_GROUP + ";";
     public static final String CREATE_RE_FLAG_EXPR = "(L" + B_STRING_VALUE + ";L" + REG_EXP_FLAG_ON_OFF +

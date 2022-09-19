@@ -20,9 +20,11 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * <p>
@@ -35,23 +37,49 @@ import java.util.Map;
  * @since 2201.3.0
  */
 public class RegExpCharSet implements RefValue {
-    private String charSet;
+    private Object[] charSetAtoms;
 
-    public RegExpCharSet(String charSet) {
-        this.charSet = charSet;
+    public RegExpCharSet(ArrayValue charSetAtoms) {
+        this.charSetAtoms = this.getCharSetAtomsList(charSetAtoms);
     }
 
-    public String getCharSet() {
-        return this.charSet;
+    public RegExpCharSet(Object[] charSetAtoms) {
+        this.charSetAtoms = charSetAtoms;
     }
 
-    public void setCharSet(String charSet) {
-        this.charSet = charSet;
+    private Object[] getCharSetAtomsList(ArrayValue charSetAtoms) {
+        int size = charSetAtoms.size();
+        Object[] atoms = new Object[size];
+        for (int i = 0; i < size; i++) {
+            Object atom = charSetAtoms.get(i);
+            if (atom instanceof BString) {
+                atoms[i] = ((BString) atom).getValue();
+                continue;
+            }
+            atoms[i] = atom;
+        }
+        return atoms;
+    }
+
+    public Object[] getCharSetAtoms() {
+        return this.charSetAtoms;
+    }
+
+    public void setCharSetAtoms(String[] charSetAtoms) {
+        this.charSetAtoms = charSetAtoms;
     }
 
     @Override
     public String stringValue(BLink parent) {
-        return this.charSet;
+        StringJoiner atoms = new StringJoiner("");
+        for (Object atom : this.charSetAtoms) {
+            if (atom instanceof RegExpCharSetRange) {
+                atoms.add(((RegExpCharSetRange) atom).stringValue(parent));
+                continue;
+            }
+            atoms.add((String) atom);
+        }
+        return atoms.toString();
     }
 
     @Override

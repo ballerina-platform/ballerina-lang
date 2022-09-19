@@ -122,7 +122,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -132,7 +132,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "*"
                                         }
                                       ]
                                     }
@@ -224,7 +224,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "B"
                                         }
                                       ]
@@ -234,7 +234,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "+"
                                         }
                                       ]
                                     }
@@ -326,7 +326,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -340,7 +340,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "B"
                                         }
                                       ]
@@ -350,7 +350,7 @@
                                       "children": [
                                         {
                                           "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "value": "?"
                                         }
                                       ]
                                     }
@@ -442,7 +442,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -451,8 +451,24 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "2"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -544,7 +560,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -553,8 +569,31 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "2"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -646,7 +685,7 @@
                                       "kind": "RE_CHAR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR_ESCAPE_VALUE",
+                                          "kind": "RE_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -655,8 +694,36 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "RE_BASE_QUANTIFIER_VALUE"
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "1"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "3"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }

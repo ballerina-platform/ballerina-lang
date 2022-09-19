@@ -699,7 +699,15 @@ public class BIROptimizer {
         @Override
         public void visit(BIRNonTerminator.NewReCharSet reCharSet) {
             this.optimizeNode(reCharSet.lhsOp, this.env);
-            this.optimizeNode(reCharSet.charSet, this.env);
+            this.optimizeNode(reCharSet.charSetAtoms, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReCharSetRange reCharSetRange) {
+            this.optimizeNode(reCharSetRange.lhsOp, this.env);
+            this.optimizeNode(reCharSetRange.lhsCharSetAtom, this.env);
+            this.optimizeNode(reCharSetRange.dash, this.env);
+            this.optimizeNode(reCharSetRange.rhsCharSetAtom, this.env);
         }
 
         @Override

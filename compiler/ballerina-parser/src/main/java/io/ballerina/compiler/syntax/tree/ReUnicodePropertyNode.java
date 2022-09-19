@@ -24,9 +24,9 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
  *
  * @since 2201.3.0
  */
-public abstract class ReAtomNode extends NonTerminalNode {
+public abstract class ReUnicodePropertyNode extends NonTerminalNode {
 
-    public ReAtomNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ReUnicodePropertyNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 }

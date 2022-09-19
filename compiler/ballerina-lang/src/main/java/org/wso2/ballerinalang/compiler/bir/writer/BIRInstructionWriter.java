@@ -599,7 +599,15 @@ public class BIRInstructionWriter extends BIRVisitor {
     @Override
     public void visit(BIRNonTerminator.NewReCharSet reCharSet) {
         reCharSet.lhsOp.accept(this);
-        reCharSet.charSet.accept(this);
+        reCharSet.charSetAtoms.accept(this);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewReCharSetRange reCharSetRange) {
+        reCharSetRange.lhsOp.accept(this);
+        reCharSetRange.lhsCharSetAtom.accept(this);
+        reCharSetRange.dash.accept(this);
+        reCharSetRange.rhsCharSetAtom.accept(this);
     }
 
     @Override

@@ -1029,9 +1029,8 @@ public class ASTBuilderUtil {
         return quantifier;
     }
 
-    static BLangReCharSet createEmptyCharSet(Location pos, BType exprType, BType valueType) {
+    static BLangReCharSet createEmptyCharSet(BType exprType) {
         BLangReCharSet charSet = (BLangReCharSet) TreeBuilder.createReCharSetNode();
-        charSet.charSetAtoms = ASTBuilderUtil.createLiteral(pos, valueType, "");
         charSet.setBType(exprType);
         return charSet;
     }

@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,16 @@ public class ReFlagsOnOffNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Node reFlagsOnOff() {
+    public ReFlagsNode lhsReFlags() {
         return childInBucket(0);
+    }
+
+    public Optional<Token> minusToken() {
+        return optionalChildInBucket(1);
+    }
+
+    public Optional<ReFlagsNode> rhsReFlags() {
+        return optionalChildInBucket(2);
     }
 
     @Override
@@ -49,18 +58,26 @@ public class ReFlagsOnOffNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "reFlagsOnOff"};
+                "lhsReFlags",
+                "minusToken",
+                "rhsReFlags"};
     }
 
     public ReFlagsOnOffNode modify(
-            Node reFlagsOnOff) {
+            ReFlagsNode lhsReFlags,
+            Token minusToken,
+            ReFlagsNode rhsReFlags) {
         if (checkForReferenceEquality(
-                reFlagsOnOff)) {
+                lhsReFlags,
+                minusToken,
+                rhsReFlags)) {
             return this;
         }
 
         return NodeFactory.createReFlagsOnOffNode(
-                reFlagsOnOff);
+                lhsReFlags,
+                minusToken,
+                rhsReFlags);
     }
 
     public ReFlagsOnOffNodeModifier modify() {
@@ -74,23 +91,41 @@ public class ReFlagsOnOffNode extends NonTerminalNode {
      */
     public static class ReFlagsOnOffNodeModifier {
         private final ReFlagsOnOffNode oldNode;
-        private Node reFlagsOnOff;
+        private ReFlagsNode lhsReFlags;
+        private Token minusToken;
+        private ReFlagsNode rhsReFlags;
 
         public ReFlagsOnOffNodeModifier(ReFlagsOnOffNode oldNode) {
             this.oldNode = oldNode;
-            this.reFlagsOnOff = oldNode.reFlagsOnOff();
+            this.lhsReFlags = oldNode.lhsReFlags();
+            this.minusToken = oldNode.minusToken().orElse(null);
+            this.rhsReFlags = oldNode.rhsReFlags().orElse(null);
         }
 
-        public ReFlagsOnOffNodeModifier withReFlagsOnOff(
-                Node reFlagsOnOff) {
-            Objects.requireNonNull(reFlagsOnOff, "reFlagsOnOff must not be null");
-            this.reFlagsOnOff = reFlagsOnOff;
+        public ReFlagsOnOffNodeModifier withLhsReFlags(
+                ReFlagsNode lhsReFlags) {
+            Objects.requireNonNull(lhsReFlags, "lhsReFlags must not be null");
+            this.lhsReFlags = lhsReFlags;
+            return this;
+        }
+
+        public ReFlagsOnOffNodeModifier withMinusToken(
+                Token minusToken) {
+            this.minusToken = minusToken;
+            return this;
+        }
+
+        public ReFlagsOnOffNodeModifier withRhsReFlags(
+                ReFlagsNode rhsReFlags) {
+            this.rhsReFlags = rhsReFlags;
             return this;
         }
 
         public ReFlagsOnOffNode apply() {
             return oldNode.modify(
-                    reFlagsOnOff);
+                    lhsReFlags,
+                    minusToken,
+                    rhsReFlags);
         }
     }
 }

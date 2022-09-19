@@ -128,13 +128,8 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "\\-"
-                                            }
-                                          ]
+                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "value": "\\-"
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -232,13 +227,8 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET",
-                                          "children": [
-                                            {
-                                              "kind": "RE_CHAR_SET_VALUE",
-                                              "value": "\\-"
-                                            }
-                                          ]
+                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "value": "\\-"
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
