@@ -26,9 +26,13 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.MapValue;
+
+import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -92,11 +96,12 @@ public class MapUtils {
                                                              fieldName, recType));
             }
 
-            if (value == null && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.OPTIONAL)) {
-                return false;
-            }
             // If it can be updated, use it.
             recFieldType = recField.getFieldType();
+            if (value == null && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.OPTIONAL)
+                    && !containsNilType(recFieldType)) {
+                return false;
+            }
         } else if (recType.restFieldType != null) {
             // If there isn't a corresponding field, but there is a rest field, use it
             recFieldType = recType.restFieldType;
@@ -134,5 +139,20 @@ public class MapUtils {
             default:
                 throw createOpNotSupportedError(mapType, op);
         }
+    }
+
+    private static boolean containsNilType(Type type) {
+        int tag = type.getTag();
+        if (tag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return containsNilType(((BTypeReferenceType) type).getReferredType());
+        } else if (tag == TypeTags.UNION_TAG) {
+            List<Type> memTypes = ((BUnionType) type).getMemberTypes();
+            for (Type memType : memTypes) {
+                if (containsNilType(memType)) {
+                    return true;
+                }
+            }
+        }
+        return type.getTag() == TypeTags.NULL_TAG;
     }
 }

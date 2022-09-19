@@ -145,6 +145,20 @@ function testOptionalFieldAssignment2() {
     assertEquality((t.c)[0].b, ());
 }
 
+type Topt3 record {
+    int x?;
+    int? y?;
+};
+
+function testOptionalFieldAssignment3() {
+    Topt3 t3 = {x: 2, y: 4};
+    t3.y = ();
+    assertEquality(t3.toString(), "{\"x\":2,\"y\":null}");
+    Topt1 t1 = {x: 21, y: 41};
+    t1.y = ();
+    assertEquality(t1.toString(), "{\"x\":21}");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

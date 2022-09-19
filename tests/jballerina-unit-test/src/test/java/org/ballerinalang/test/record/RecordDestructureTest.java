@@ -41,5 +41,6 @@ public class RecordDestructureTest {
         BRunUtil.invoke(compileResult, "testRecordDestructure2");
         BRunUtil.invoke(compileResult, "testRecordDestructure3");
         BRunUtil.invoke(compileResult, "testRecordDestructure4");
+        BRunUtil.invoke(compileResult, "testRecordDestructure5");
     }
 }

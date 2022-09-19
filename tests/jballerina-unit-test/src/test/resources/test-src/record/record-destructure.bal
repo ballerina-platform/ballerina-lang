@@ -104,6 +104,21 @@ function testRecordDestructure4() {
     assertTrue(c is ());
 }
 
+type Topt4 record {
+    int x?;
+    int? y?;
+};
+
+function testRecordDestructure5() {
+    int? xx;
+    int? yy;
+
+    Topt4 topt = {x: 2, y: 3};
+    {x: xx, y: yy} = topt;
+    assertEquality(2, xx);
+    assertEquality(3, yy);
+}
+
 const ASSERTION_ERR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {

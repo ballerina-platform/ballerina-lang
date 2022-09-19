@@ -298,6 +298,11 @@ public class RecordVariableDefinitionTest {
         BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields1");
         BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields2");
         BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields3");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields4");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields5");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields6");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields7");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields8");
     }
 
     @Test

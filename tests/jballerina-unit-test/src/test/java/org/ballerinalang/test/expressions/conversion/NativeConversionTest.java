@@ -249,7 +249,7 @@ public class NativeConversionTest {
 
         Assert.assertEquals(personStruct.toString(), "{\"name\":\"Child\",\"age\":25,\"parent\":null," +
                 "\"info\":{\"status\":\"single\"},\"address\":{\"city\":\"Colombo\",\"country\":\"SriLanka\"}," +
-                "\"marks\":[87,94,72],\"a\":\"any value\",\"score\":5.67,\"alive\":true}");
+                "\"marks\":[87,94,72],\"a\":\"any value\",\"score\":5.67,\"alive\":true,\"children\":null}");
     }
 
     @Test(description = "Test converting a map with missing field to a struct")

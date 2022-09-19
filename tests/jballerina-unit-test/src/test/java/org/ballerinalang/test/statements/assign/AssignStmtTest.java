@@ -308,6 +308,7 @@ public class AssignStmtTest {
     public void testOptionalFieldAssignment() {
         BRunUtil.invoke(result, "testOptionalFieldAssignment1");
         BRunUtil.invoke(result, "testOptionalFieldAssignment2");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment3");
     }
 
     @AfterClass

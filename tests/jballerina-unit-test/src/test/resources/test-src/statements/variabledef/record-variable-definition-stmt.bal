@@ -588,7 +588,8 @@ function testRecordDefinitionWithOptionalFields6() {
     }[1]? c = ();
     Topt3 topt = {a: 4, c: [{b}]};
     assertEquality(4, topt.a);
-    assertTrue(topt.c is ());
+    record {int b?;}[] listResult = <record {int b?;}[1]> topt.c;
+    assertEquality(41, listResult[0].b);
 }
 
 function testRecordDefinitionWithOptionalFields7() {
@@ -597,6 +598,20 @@ function testRecordDefinitionWithOptionalFields7() {
     Topt1 topt = {x, y};
     assertEquality(topt.x, 2);
     assertTrue(topt.y is ());
+}
+
+type Topt4 record {
+   int x?;
+   int? y?;
+};
+
+function testRecordDefinitionWithOptionalFields8() {
+   int? x = 1;
+   int? y = ();
+   Topt4 t4 = {x, y};
+   assertEquality(t4.toString(), "{\"x\":1,\"y\":null}");
+   Topt1 t1 = {x, y};
+   assertEquality(t1.toString(), "{\"x\":1}");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
