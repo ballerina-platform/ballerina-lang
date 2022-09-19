@@ -1,7 +1,13 @@
 {
-  "position": {
-    "line": 1,
-    "character": 74
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 69
+    },
+    "end": {
+      "line": 1,
+      "character": 93
+    }
   },
   "source": "extract_to_function_exprs_let_expr.bal",
   "expected": [
@@ -39,5 +45,5 @@
       "resolvable": false
     }
   ],
-  "description": "Extract to function for expressions, cursor inside the function call in let expression"
+  "description": "Extract to function for expressions when binary expression is inside let expression"
 }
