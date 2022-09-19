@@ -509,9 +509,12 @@ public class TypeChecker {
                     return false;
                 }
                 return isHandleValueRefEqual(lhsValue, rhsValue);
+            case TypeTags.FUNCTION_POINTER_TAG:
+                return lhsType.getPackage().equals(rhsType.getPackage()) &&
+                        lhsType.getName().equals(rhsType.getName()) && rhsType.equals(lhsType);
+            default:
+                return false;
         }
-
-        return false;
     }
 
     private static boolean isXMLValueRefEqual(XmlValue lhsValue, XmlValue rhsValue) {
@@ -3335,6 +3338,8 @@ public class TypeChecker {
                 return checkFillerValue((BUnionType) type, unanalyzedTypes);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return hasFillerValue(((BTypeReferenceType) type).getReferredType(), unanalyzedTypes);
+            case TypeTags.INTERSECTION_TAG:
+                return hasFillerValue(((BIntersectionType) type).getEffectiveType(), unanalyzedTypes);
             default:
                 return false;
         }
