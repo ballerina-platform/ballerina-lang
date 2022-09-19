@@ -117,6 +117,7 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "invalid intersection type with 'readonly', 'table<Bar> key(name)' can never " +
                               "be 'readonly'", 159, 5);
+        validateError(result, index++, "cannot infer type of the object from 'other'", 160, 26);
         validateError(result, index++, "invalid intersection type with 'readonly', 'Baz' can never be 'readonly'", 171,
                       5);
         validateError(result, index++, "cannot update 'readonly' value of type '(Config & readonly)'", 194, 5);

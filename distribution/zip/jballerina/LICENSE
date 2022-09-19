@@ -15,7 +15,6 @@ below is and where the actual text of the license can be found.
 Name                                                                                                Version        License
 _________________________________________________________________________________________________________________________________________________
 lang.stream.jar                                                                                     jar            apache2
-ballerina-core-1.1.0.jar                                                                            jar            apache2
 ballerina-http-1.1.0.jar                                                                            jar            apache2
 metrics-core-3.1.0.jar                                                                              bundle         apache2
 ballerina-kubernetes-1.1.0.jar                                                                      jar            apache2

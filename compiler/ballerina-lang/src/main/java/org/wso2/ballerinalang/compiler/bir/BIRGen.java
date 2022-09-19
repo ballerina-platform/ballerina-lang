@@ -575,6 +575,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage impPkg) {
+        if (impPkg.symbol == null) {
+            return;
+        }
         this.env.enclPkg.importModules.add(new BIRNode.BIRImportModule(impPkg.pos, impPkg.symbol.pkgID.orgName,
                 impPkg.symbol.pkgID.name, impPkg.symbol.pkgID.version));
     }
