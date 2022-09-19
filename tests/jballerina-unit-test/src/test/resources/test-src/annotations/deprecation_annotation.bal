@@ -345,3 +345,52 @@ public function testDeprecatedRecordFieldsWithDocumentation() {
     _ = employee2.id;
     _ = employee2.job; // warning
 }
+
+record {|
+    @deprecated
+    string name;
+
+    int id;
+|} employee3 = {name: "Jo", id: 123};
+
+public function testDeprecatedAnonRecord() {
+    _ = employee3.name;  // warning
+    _ = employee3.id;
+}
+
+record {|
+    # This is the description of the `name` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    string name;
+
+    # This is the description of the `id` field.
+    int id;
+|} employee4 = {name: "Jo", id: 123};
+
+public function testDeprecatedAnonRecordWithDocumentation() {
+    _ = employee4.name;  // warning
+    _ = employee4.id;
+}
+
+type Employee5 record {
+    string fname = "";
+    string lname = "";
+    int age = 0;
+
+    @deprecated
+    record { string line01 = "";
+             @deprecated
+             string line02 = "";
+             string city = "";
+             string state = "";
+             string zipcode = "";
+    } address;
+};
+
+public function testDeprecatedAnonStructAsStructField() {
+    Employee5 employee5 = {address: {}};
+    _ = employee5.address;  // warning
+    _ = employee5.address.line02;   // warning
+}
