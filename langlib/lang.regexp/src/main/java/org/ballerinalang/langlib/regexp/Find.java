@@ -74,12 +74,12 @@ public class Find {
             BArray group = ValueCreator.createArrayValue(RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE);
             for (int i = 1; i <= matcher.groupCount(); i++) {
                 BArray resultTuple = ValueCreator.createTupleValue(RegexUtil.SPAN_AS_TUPLE_TYPE);
-                resultTuple.add(0, matcher.start());
-                resultTuple.add(1, matcher.end());
-                resultTuple.add(2, StringUtils.fromString(matcher.group()));
+                resultTuple.add(0, matcher.start(i));
+                resultTuple.add(1, matcher.end(i));
+                resultTuple.add(2, StringUtils.fromString(matcher.group(i)));
                 group.append(resultTuple);
             }
-            if (groupArray.getLength() != 0) {
+            if (group.getLength() != 0) {
                 groupArray.append(group);
             }
         }
@@ -87,10 +87,5 @@ public class Find {
             return null;
         }
         return groupArray;
-    }
-
-    public static void print(Object value) {
-        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-        System.out.println(StringUtils.getStringValue(value, null));
     }
 }

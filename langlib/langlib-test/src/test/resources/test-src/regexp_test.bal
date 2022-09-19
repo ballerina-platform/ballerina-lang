@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/lang.regexp;
-import ballerina/jballerina.java;
 
 function testFind() {
     string str1 = "HelloWorld";
@@ -44,8 +43,24 @@ function testFind() {
     assertEquality("GFG", resultSpan3.substring());
 
     var regExpr4 = re `[0-9]`;
-    regexp:Span? res4 = regExpr4.find(str1);
-    assertTrue(res4 is ());
+    regexp:Span? resultSpan4 = regExpr4.find(str1);
+    assertTrue(resultSpan4 is ());
+
+    string str3 = "Betty Botter bought some butter but she said the butter’s bitter.";
+    var regExpr5 = re `[bB].tt[a-z]*`;
+    regexp:Span? res4  = regExpr5.find(str3);
+    assertTrue(res4 is regexp:Span);
+    regexp:Span resultSpan5 = <regexp:Span>res4;
+    assertEquality(0, resultSpan5.startIndex);
+    assertEquality(5, resultSpan5.endIndex);
+    assertEquality("Betty", resultSpan5.substring());
+
+    regexp:Span? res5  = regExpr5.find(str3, 5);
+    assertTrue(res5 is regexp:Span);
+    regexp:Span resultSpan6 = <regexp:Span>res5;
+    assertEquality(6, resultSpan6.startIndex);
+    assertEquality(12, resultSpan6.endIndex);
+    assertEquality("Botter", resultSpan6.substring());
 }
 
 function testFindGroups() {
@@ -121,6 +136,23 @@ function testFindGroups() {
     assertEquality(12, resultSpan3_3.startIndex);
     assertEquality(18, resultSpan3_3.endIndex);
     assertEquality("GFGFGF", resultSpan3_3.substring());
+
+    string str3 = "Betty Botter bought some butter but she said the butter’s bitter.";
+    var regExpr4 = re `[bB].tt[a-z]*`;
+    regexp:Groups? res5  = regExpr4.findGroups(str3);
+    assertTrue(res5 is regexp:Groups);
+    regexp:Groups resultGroups5 = <regexp:Groups>res5;
+    assertEquality(5, resultGroups5.length());
+
+    regexp:Span resultSpan5_1 = <regexp:Span>resultGroups5[0];
+    assertEquality(0, resultSpan5_1.startIndex);
+    assertEquality(5, resultSpan5_1.endIndex);
+    assertEquality("Betty", resultSpan5_1.substring());
+
+    regexp:Span resultSpan5_2 = <regexp:Span>resultGroups5[1];
+    assertEquality(6, resultSpan5_2.startIndex);
+    assertEquality(12, resultSpan5_2.endIndex);
+    assertEquality("Botter", resultSpan5_2.substring());
 }
 
 function testFindAll() {
@@ -158,14 +190,51 @@ function testFindAll() {
 }
 
 function testFindAllGroups() {
-    string str2 = "GFGFGFGFGFGFGFGFGF";
-    var regExpr2 = re `(GFG)(FGF)`;
-    var res2 = regExpr2.findGroups(str2);
+    string str1 = "GFGFGFGFGFGFGFGFGF";
+    var regExpr1 = re `(GFG)(FGF)`;
+    regexp:Groups[]? res1 = regExpr1.findAllGroups(str1);
+    assertTrue(res1 is regexp:Groups[]);
+    regexp:Groups[] groupsArr1 = <regexp:Groups[]>res1;
+    assertEquality(3, groupsArr1.length());
 
-//    string str5 = "100000100011";
-//    var regExpr4 = re `0+`;
-//    var result5 = regExpr4.findAllGroups(str5);
-    print(res2);
+    regexp:Groups groups1_1 = groupsArr1[0];
+    regexp:Span resultSpan1_1_1 = groups1_1[0];
+    assertEquality(0, resultSpan1_1_1.startIndex);
+    assertEquality(3, resultSpan1_1_1.endIndex);
+    assertEquality("GFG", resultSpan1_1_1.substring());
+
+    regexp:Span? resultSpanOrNil1_1_2 = groups1_1[1];
+    assertTrue(resultSpanOrNil1_1_2 is regexp:Span);
+    regexp:Span resultSpan1_1_2 = <regexp:Span>resultSpanOrNil1_1_2;
+    assertEquality(3, resultSpan1_1_2.startIndex);
+    assertEquality(6, resultSpan1_1_2.endIndex);
+    assertEquality("FGF", resultSpan1_1_2.substring());
+
+    regexp:Groups groups1_2 = groupsArr1[1];
+    regexp:Span resultSpan1_2_1 = groups1_2[0];
+    assertEquality(6, resultSpan1_2_1.startIndex);
+    assertEquality(9, resultSpan1_2_1.endIndex);
+    assertEquality("GFG", resultSpan1_2_1.substring());
+
+    regexp:Span? resultSpanOrNil1_2_2 = groups1_2[1];
+    assertTrue(resultSpanOrNil1_2_2 is regexp:Span);
+    regexp:Span resultSpan1_2_2 = <regexp:Span>resultSpanOrNil1_2_2;
+    assertEquality(9, resultSpan1_2_2.startIndex);
+    assertEquality(12, resultSpan1_2_2.endIndex);
+    assertEquality("FGF", resultSpan1_2_2.substring());
+
+    regexp:Groups groups1_3= groupsArr1[2];
+    regexp:Span resultSpan1_3_1 = groups1_3[0];
+    assertEquality(12, resultSpan1_3_1.startIndex);
+    assertEquality(15, resultSpan1_3_1.endIndex);
+    assertEquality("GFG", resultSpan1_3_1.substring());
+
+    regexp:Span? resultSpanOrNil1_3_2 = groups1_3[1];
+    assertTrue(resultSpanOrNil1_3_2 is regexp:Span);
+    regexp:Span resultSpan1_3_2 = <regexp:Span>resultSpanOrNil1_3_2;
+    assertEquality(15, resultSpan1_3_2.startIndex);
+    assertEquality(18, resultSpan1_3_2.endIndex);
+    assertEquality("FGF", resultSpan1_3_2.substring());
 }
 
 function testMatchAt() {
@@ -386,8 +455,3 @@ function assertTrue(any|error actual) {
 function assertFalse(any|error actual) {
     assertEquality(false, actual);
 }
-
-public function print(any|error value) = @java:Method {
-    'class: "org.ballerinalang.langlib.test.LangLibRegexpTest",
-    name: "print"
-} external;

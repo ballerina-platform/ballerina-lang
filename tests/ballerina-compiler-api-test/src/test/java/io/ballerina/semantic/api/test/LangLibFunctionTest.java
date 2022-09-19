@@ -164,7 +164,7 @@ public class LangLibFunctionTest {
                 "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                 "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
                 "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                "includes", "concat", "padStart", "padEnd", "padZero");
+                "includes", "concat", "padStart", "padEnd", "padZero", "matches", "includesMatch");
 
         assertLangLibList(typeSymbol.langLibMethods(), expFunctions);
     }
@@ -177,12 +177,11 @@ public class LangLibFunctionTest {
 
         List<String> expFunctions = List.of("length", "iterator", "getCodePoint", "substring", "codePointCompare",
                 "'join", "indexOf", "lastIndexOf", "startsWith", "endsWith", "toLowerAscii",
-                "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes",
-                                            "toCodePointInts", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
-                                            "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
-                                            "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
-                                            "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                                            "includes", "concat", "padStart", "padEnd", "padZero");
+                "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes", "toCodePointInts", "clone",
+                "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString", "fromBalString", "toJson",
+                "toJsonString", "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
+                "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType", "includes",
+                "concat", "padStart", "padEnd", "padZero", "matches", "includesMatch");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
