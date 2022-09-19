@@ -34,6 +34,7 @@ public enum LSContextOperation implements LSOperation {
     TXT_REFERENCES("text/references"),
     TXT_DOC_SYMBOL("text/documentSymbol"),
     TXT_CODE_ACTION("text/codeAction"),
+    TXT_RESOLVE_CODE_ACTION("text/resolveCodeAction"),
     TXT_FORMATTING("text/formatting"),
     TXT_RANGE_FORMATTING("text/rangeFormatting"),
     TXT_CODE_LENS("text/codeLens"),

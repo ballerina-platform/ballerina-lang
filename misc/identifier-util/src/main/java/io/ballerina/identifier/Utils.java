@@ -35,10 +35,8 @@ public class Utils {
 
     private static final String CHAR_PREFIX = "$";
     private static final String ESCAPE_PREFIX = "\\";
-    private static final String JVM_RESERVED_CHAR_SET = "\\.:;[]/<>";
-    private static final String ENCODABLE_CHAR_SET = JVM_RESERVED_CHAR_SET + CHAR_PREFIX;
-    private static final Pattern UNESCAPED_SPECIAL_CHAR_SET =
-            Pattern.compile("(?<!\\\\)(?:\\\\\\\\)*([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])");
+    private static final Pattern UNESCAPED_SPECIAL_CHAR_SET = Pattern.compile("([$&+,:;=\\?@#\\\\|/'\\ \\[\\}\\]<\\>" +
+            ".\"^*{}~`()%!-])");
     private static final String GENERATED_METHOD_PREFIX = "$gen$";
 
     private Utils() {

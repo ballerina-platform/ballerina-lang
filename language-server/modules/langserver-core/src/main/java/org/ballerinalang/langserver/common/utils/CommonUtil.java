@@ -604,4 +604,22 @@ public class CommonUtil {
         return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
                 && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
+
+
+    /**
+     * Returns ballerina text edit for a given lsp4j text edit.
+     *
+     * @param syntaxTree syntax tree
+     * @param textEdit   lsp4j text edit
+     * @return Ballerina text edit
+     */
+    public static io.ballerina.tools.text.TextEdit getTextEdit(SyntaxTree syntaxTree,
+                                                               org.eclipse.lsp4j.TextEdit textEdit) {
+        TextDocument textDocument = syntaxTree.textDocument();
+        Position startPos = textEdit.getRange().getStart();
+        Position endPos = textEdit.getRange().getEnd();
+        int start = textDocument.textPositionFrom(LinePosition.from(startPos.getLine(), startPos.getCharacter()));
+        int end = textDocument.textPositionFrom(LinePosition.from(endPos.getLine(), endPos.getCharacter()));
+        return io.ballerina.tools.text.TextEdit.from(TextRange.from(start, end - start), textEdit.getNewText());
+    }
 }

@@ -21,7 +21,7 @@ public function foo() {
 
     foreach
     [country, capital] book in books/<*>
-        {
+    {
     }
 
     xmlns "http://ballerinalang.com/ns1";
