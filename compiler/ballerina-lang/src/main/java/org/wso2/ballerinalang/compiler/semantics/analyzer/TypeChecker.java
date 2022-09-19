@@ -1133,7 +1133,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (!expectedTableType.fieldNameList.isEmpty() && tableType.fieldNameList.isEmpty()) {
                 tableType.fieldNameList = expectedTableType.fieldNameList;
             }
-            data.resultType = tableType;
+
+            if (((BTableType) applicableExpType).keyTypeConstraint != symTable.neverType &&
+                    tableType.constraint.equals(((BTableType) applicableExpType).constraint) &&
+                    tableType.fieldNameList.equals(((BTableType) applicableExpType).fieldNameList)) {
+                data.resultType = expType;
+            } else {
+                data.resultType = tableType;
+            }
         } else if (applicableExpType.tag == TypeTags.UNION) {
 
             boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
