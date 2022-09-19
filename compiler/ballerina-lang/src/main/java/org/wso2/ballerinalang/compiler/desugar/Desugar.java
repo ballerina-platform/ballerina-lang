@@ -6732,7 +6732,8 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(objVarDef);
         BLangInvocation typeInitInvocation = typeInitExpr.initInvocation;
         typeInitInvocation.exprSymbol = objVarDef.var.symbol;
-        typeInitInvocation.symbol = ((BObjectTypeSymbol) Types.getReferredType(objType).tsymbol).generatedInitializerFunc.symbol;
+        typeInitInvocation.symbol =
+                ((BObjectTypeSymbol) Types.getReferredType(objType).tsymbol).generatedInitializerFunc.symbol;
 
         typeInitInvocation.objectInitMethod = true;
 

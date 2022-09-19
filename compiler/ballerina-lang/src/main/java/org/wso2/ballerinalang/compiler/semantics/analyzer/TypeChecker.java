@@ -4236,7 +4236,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType referredMatchedType = Types.getReferredType(matchedType);
                 if (referredMatchedType.tag == TypeTags.OBJECT) {
                     if (((BObjectTypeSymbol) referredMatchedType.tsymbol).initializerFunc != null) {
-                        cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) referredMatchedType.tsymbol).initializerFunc.symbol;
+                        cIExpr.initInvocation.symbol =
+                                ((BObjectTypeSymbol) referredMatchedType.tsymbol).initializerFunc.symbol;
                         checkInvocationParam(cIExpr.initInvocation, data);
                         cIExpr.initInvocation.setBType(((BInvokableSymbol) cIExpr.initInvocation.symbol).retType);
                         actualType = matchedType;
