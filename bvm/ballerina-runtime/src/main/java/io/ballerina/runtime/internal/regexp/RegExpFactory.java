@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.ballerina.runtime.internal;
+package io.ballerina.runtime.internal.regexp;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
 import io.ballerina.runtime.internal.values.RegExpAtom;
@@ -97,6 +100,18 @@ public class RegExpFactory {
         return new RegExpQuantifier(quantifier.getValue(), nonGreedyChar.getValue());
     }
 
+    public static RegExpValue parse(String regExpStr) {
+        try {
+            CharReader charReader = CharReader.from(regExpStr);
+            TokenReader tokenReader = new TokenReader(new TreeTraverser(charReader));
+            TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
+            return treeBuilder.parse();
+        } catch (BallerinaException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: " +
+                    e.getMessage()));
+        }
+    }
+
     public static RegExpDisjunction translateRegExpConstructs(RegExpValue regExpValue) {
         RegExpDisjunction disjunction = regExpValue.getRegExpDisjunction();
         for (Object s : disjunction.getRegExpSeqList()) {
@@ -144,7 +159,7 @@ public class RegExpFactory {
         return new RegExpLiteralCharOrEscape(charOrEscape);
     }
 
-    private static RegExpCharacterClass createCharacterClass(String negation, String[] charSet) {
+    private static RegExpCharacterClass createCharacterClass(String negation, Object[] charSet) {
         return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet) , "]");
     }
 

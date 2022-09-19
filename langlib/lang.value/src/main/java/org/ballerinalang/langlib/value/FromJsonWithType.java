@@ -42,6 +42,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -123,6 +124,9 @@ public class FromJsonWithType {
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
                 newValue = convertArray((BArray) value, matchingType, unresolvedValues, t);
+                break;
+            case TypeTags.REG_EXP_TYPE_TAG:
+                newValue = RegExpFactory.parse(((BString) value).getValue());
                 break;
             default:
                 if (TypeTags.isXMLTypeTag(matchingType.getTag())) {

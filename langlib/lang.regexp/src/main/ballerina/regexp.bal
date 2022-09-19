@@ -194,8 +194,10 @@ function replaceAllFromString(RegExp reExp, string str, string replacementStr, i
     name: "replaceAllFromString"
 } external;
 
-//todo @chiran
-//function fromString(string str) returns RegExp|error;
+public function fromString(string str) returns RegExp|error = @java:Method {
+    'class: "org.ballerinalang.langlib.regexp.FromString",
+    name: "fromString"
+} external;
 
 public function print(any|error value) = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Find",
