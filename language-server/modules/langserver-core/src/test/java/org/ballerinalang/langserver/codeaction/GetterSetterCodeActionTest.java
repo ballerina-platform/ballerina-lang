@@ -50,7 +50,8 @@ public class GetterSetterCodeActionTest extends AbstractCodeActionTest {
                 {"getterSetterCodeAction2.json"},
                 {"getterSetterCodeAction3.json"},
                 {"getterSetterCodeAction4.json"},
-                {"getterSetterCodeAction5.json"}
+                {"getterSetterCodeAction5.json"},
+                {"getterSetterCodeAction6.json"}
 
         };
     }
