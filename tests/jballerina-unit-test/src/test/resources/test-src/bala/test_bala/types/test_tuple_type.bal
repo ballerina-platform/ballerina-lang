@@ -136,14 +136,6 @@ function testTupleWithVar() {
     //assertEquality(<(int|string)[]> [1, "hello", "world"], j);
 }
 
-function testTupleAnnot1() returns any {
-    return tuples:returnTupleWithMemberAnnot1();
-}
-
-function testTupleAnnot2() returns any {
-    return tuples:returnTupleWithMemberAnnot2();
-}
-
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
