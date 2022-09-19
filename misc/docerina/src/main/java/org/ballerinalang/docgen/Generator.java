@@ -177,8 +177,10 @@ public class Generator {
                     typeName, metaDataNode, semanticModel));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
-            if (unionType.memberTypes.stream().allMatch(type -> type.category.equals("errors") ||
-                    (type.category.equals("builtin") && type.name.equals("error")))) {
+            if (unionType.memberTypes.stream().allMatch(type ->
+                    (type.category != null && type.category.equals("errors")) ||
+                            (type.category != null && type.category.equals("builtin")) &&
+                                    type.name.equals("error"))) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
                         Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
             } else {
@@ -835,7 +837,7 @@ public class Generator {
         StringBuilder doc = new StringBuilder();
 
         doc.append(markdownCodeBlockNode.startBacktick().toString());
-        markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute.toString()));
+        markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute));
 
         for (MarkdownCodeLineNode codeLineNode : markdownCodeBlockNode.codeLines()) {
             doc.append(codeLineNode.codeDescription().toString());
