@@ -6,8 +6,8 @@
   "source": "convert_to_query_expr_lhs_non_record1.bal",
   "expected": [
     {
-      "title": "Convert to query expression",
-      "kind": "quickfix",
+      "title": "Map with a query expression",
+      "kind": "refactor.rewrite",
       "edits": [
         {
           "range": {

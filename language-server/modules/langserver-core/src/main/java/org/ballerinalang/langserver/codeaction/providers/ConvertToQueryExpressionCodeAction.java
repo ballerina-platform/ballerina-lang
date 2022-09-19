@@ -138,7 +138,7 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
                     "Failed to format query expression", e, null, (Position) null);
         }
 
-        // The formatter will indend the 2nd line (with select clause) by a single tab since we formatted only the
+        // The formatter will indent the 2nd line (with select clause) by a single tab since we formatted only the
         // query expression. So, we have to explicitly add more padding. Then rejoin by the line separator to get
         // the final output.
         int offset = symbolInfo.lhsNode.lineRange().startLine().offset();
