@@ -20,6 +20,19 @@ public const annotation Allow on parameter, source var;
 
 public const annotation Custom on source annotation;
 
+public const annotation Ann on type;
+
+public const annotation Member on field;
+
+@Ann
+public type Recx record {|
+    @Member int x1;
+    string y1;
+|};
+
+@Ann
+public type Tup [@Member int, string];
+
 @Custom
 public annotation map<int> NonConstAllow on parameter;
 

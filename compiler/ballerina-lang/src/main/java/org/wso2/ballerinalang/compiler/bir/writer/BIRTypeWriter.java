@@ -293,6 +293,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeLong(memberType.symbol.flags);
             writeTypeCpIndex(memberType.type);
             writeAnnotAttachments(buff, (List<BAnnotationAttachmentSymbol>) memberType.symbol.getAnnotations());
+            i++;
         }
         if (bTupleType.restType != null) {
             buff.writeBoolean(true);

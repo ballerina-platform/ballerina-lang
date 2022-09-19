@@ -33,8 +33,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMemberType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -43,6 +48,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -326,6 +332,54 @@ public class AnnotationTests {
         Map<String, BLangConstantValue> mapValue = (Map<String, BLangConstantValue>) value;
         Assert.assertEquals(mapValue.size(), 1);
         Assert.assertEquals(mapValue.get("i").value, 321L);
+    }
+
+    @Test
+    public void testFieldAnnotAttachmentsViaBir() {
+        BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+
+        BTypeDefinitionSymbol symbol =
+                ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("Recx")).symbol);
+        Assert.assertEquals(symbol.getAnnotations().size(), 1);
+        LinkedHashMap<String, BField> fields = ((BRecordType) symbol.type).fields;
+        List<? extends AnnotationAttachmentSymbol> f1 = fields.get("x1").symbol.getAnnotations();
+
+        BAnnotationAttachmentSymbol f1a1 = ((BAnnotationAttachmentSymbol) f1.get(0));
+        PackageID pkgID = f1a1.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(f1a1.annotTag.value, "Member");
+        Assert.assertTrue(f1a1.isConstAnnotation());
+        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol =
+                (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) f1a1;
+        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
+        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
+    }
+
+    @Test
+    public void testTupleMemberAnnotAttachmentsViaBir() {
+        BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+
+        BTypeDefinitionSymbol symbol =
+                ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("Tup")).symbol);
+        Assert.assertEquals(symbol.getAnnotations().size(), 1);
+        List<BTupleMemberType> members = ((BTupleType) symbol.type).tupleTypes;
+        List<? extends AnnotationAttachmentSymbol> m1 = members.get(0).symbol.getAnnotations();
+
+        BAnnotationAttachmentSymbol m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
+        PackageID pkgID = m1a1.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(m1a1.annotTag.value, "Member");
+        Assert.assertTrue(m1a1.isConstAnnotation());
+        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol =
+                (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) m1a1;
+        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
+        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
     }
 
     @Test

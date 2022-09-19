@@ -902,8 +902,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BLangMemberTypeNode> memberTypeNodes = tupleTypeNode.memberTypeNodes;
+        int i = 0;
         for (BLangMemberTypeNode memType : memberTypeNodes) {
             analyzeDef(memType, data);
+            for (BLangAnnotationAttachment ann : memType.annAttachments) {
+                ((BTupleType) tupleTypeNode.getBType()).tupleTypes.get(i).symbol
+                        .addAnnotation(ann.annotationAttachmentSymbol);
+            }
+            i++;
         }
         if (tupleTypeNode.restParamType != null) {
             analyzeDef(tupleTypeNode.restParamType, data);
