@@ -39,7 +39,7 @@ import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 public class RegExpValue implements BRegexpValue, RefValue {
     private RegExpDisjunction regExpDisjunction;
     private BTypedesc typedesc;
-    private final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
+    private final Type type = PredefinedTypes.TYPE_READONLY_ANY;
 
     public RegExpValue(RegExpDisjunction regExpDisjunction) {
         this.regExpDisjunction = regExpDisjunction;

@@ -30,19 +30,35 @@ import java.util.regex.Matcher;
  * @since 2.3.0
  */
 public class Replace {
+
     public static BString replaceFromString(BRegexpValue regExp, BString str, BString replacingStr, int startIndex) {
-        Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        if (matcher.find(startIndex)) {
-            return StringUtils.fromString(matcher.replaceFirst(replacingStr.getValue()));
-        }
-        return str;
+        return replaceFromString(regExp, str, replacingStr, startIndex, false);
     }
 
     public static BString replaceAllFromString(BRegexpValue regExp, BString str, BString replacingStr, int startIndex) {
-        Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        return replaceFromString(regExp, str, replacingStr, startIndex, true);
+    }
+
+    private static BString replaceFromString(BRegexpValue regExp, BString str, BString replacingStr, int startIndex,
+                                             boolean isReplaceAll) {
+        String originalStr = str.getValue();
         String replacementString = replacingStr.getValue();
-        if (matcher.find(startIndex)) {
-            return StringUtils.fromString(matcher.replaceAll(replacementString));
+        Matcher matcher = RegexUtil.getMatcher(regExp, originalStr);
+        matcher.region(startIndex, originalStr.length());
+        if (matcher.find()) {
+            String prefixStr = "";
+            String updatedSubStr;
+            if (startIndex != 0) {
+                prefixStr = originalStr.substring(0, startIndex);
+                String substr = originalStr.substring(startIndex);
+                matcher = RegexUtil.getMatcher(regExp, substr);
+            }
+            if (isReplaceAll) {
+                updatedSubStr = matcher.replaceAll(replacementString);
+            } else {
+                updatedSubStr = matcher.replaceFirst(replacementString);
+            }
+            return StringUtils.fromString(prefixStr + updatedSubStr);
         }
         return str;
     }

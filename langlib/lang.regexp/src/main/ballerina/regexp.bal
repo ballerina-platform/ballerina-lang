@@ -19,7 +19,7 @@
 import ballerina/jballerina.java;
 
 @builtinSubtype
-public type RegExp anydata;
+public type RegExp any;
 
 public type Span readonly & object {
     public int startIndex;
@@ -197,9 +197,4 @@ function replaceAllFromString(RegExp reExp, string str, string replacementStr, i
 public function fromString(string str) returns RegExp|error = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.FromString",
     name: "fromString"
-} external;
-
-public function print(any|error value) = @java:Method {
-    'class: "org.ballerinalang.langlib.regexp.Find",
-    name: "print"
 } external;

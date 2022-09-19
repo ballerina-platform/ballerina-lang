@@ -19,8 +19,12 @@ public class RegexUtil {
 
     static BArrayType GROUPS_ARRAY_TYPE = new BArrayType(GROUPS_AS_SPAN_ARRAY_TYPE);
     static Matcher getMatcher(BRegexpValue regexpVal, BString inputStr) {
+        return getMatcher(regexpVal, inputStr.getValue());
+    }
+
+    static Matcher getMatcher(BRegexpValue regexpVal, String inputStr) {
         String patternStr = StringUtils.getStringValue(regexpVal, null);
         Pattern pattern = Pattern.compile(patternStr);
-        return pattern.matcher(inputStr.getValue());
+        return pattern.matcher(inputStr);
     }
 }
