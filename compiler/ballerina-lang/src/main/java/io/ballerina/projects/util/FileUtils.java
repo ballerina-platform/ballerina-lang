@@ -18,6 +18,7 @@
 package io.ballerina.projects.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,15 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
+import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_TOML;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 
 /**
  * Utilities related to files.
@@ -162,6 +171,45 @@ public class FileUtils {
      */
     public static boolean isValidPng(Path filePath) throws IOException {
         return isMatchingImageFormat(filePath, PNG_HEX_HEADER, 8);
+    }
+
+    /**
+     * Get last modified timestamp of a ballerina project.
+     *
+     * @param projectRoot project root path
+     * @return last modified time of the ballerina project
+     */
+    public static long lastModifiedTimeOfBalProject(Path projectRoot) {
+        File[] files = projectRoot.toAbsolutePath().toFile().listFiles();
+        long latestDate = 0;
+        if (files != null) {
+            for (File file : files) {
+                long fileModifiedDate = latestDate;
+                Path filename = Optional.of(Optional.of(file.toPath()).orElseThrow()).orElseThrow();
+                if (file.isDirectory()) {
+                    if (file.toPath().equals(projectRoot.resolve(MODULES_ROOT))
+                            || file.toPath().equals(projectRoot.resolve(TEST_DIR_NAME))
+                            || file.toPath().equals(projectRoot.resolve(RESOURCE_DIR_NAME))) {
+                        // for `modules`, `tests` and `resources` directories, not considering files inside
+                        fileModifiedDate = file.lastModified();
+                    }
+                } else {
+                    if (file.toPath().equals(projectRoot.resolve(BALLERINA_TOML))
+                            || file.toPath().equals(projectRoot.resolve(COMPILER_PLUGIN_TOML))) {
+                        // Ballerina.toml and CompilerPlugin.toml
+                        fileModifiedDate = file.lastModified();
+                    } else if (filename.toString().endsWith(BLANG_SOURCE_EXT)
+                            && file.toPath().equals(projectRoot.resolve(filename))) {
+                        // default module ballerina source files
+                        fileModifiedDate = file.lastModified();
+                    }
+                }
+                if (fileModifiedDate > latestDate) {
+                    latestDate = fileModifiedDate;
+                }
+            }
+        }
+        return latestDate;
     }
 
     /**
