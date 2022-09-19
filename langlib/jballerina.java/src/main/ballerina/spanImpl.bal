@@ -22,7 +22,7 @@ public readonly class SpanImpl {
 
    public int startIndex;
    public int endIndex;
-   public string substr;
+   string substr;
 
     public isolated function substring() returns string {
         return self.substr;
