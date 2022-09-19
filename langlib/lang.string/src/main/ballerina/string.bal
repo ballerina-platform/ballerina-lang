@@ -24,8 +24,6 @@ type Char string;
 //todo @chiran
 //type RegExp regexp:RegExp;
 
-//public type RegExp anydata & readonly;
-
 # Returns the length of the string.
 #
 # + str - the string
