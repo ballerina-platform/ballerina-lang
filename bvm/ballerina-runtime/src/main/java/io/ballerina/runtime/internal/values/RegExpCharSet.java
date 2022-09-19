@@ -43,7 +43,7 @@ public class RegExpCharSet implements RefValue {
         this.charSetAtoms = this.getCharSetAtomsList(charSetAtoms);
     }
 
-    public RegExpCharSet(String[] charSetAtoms) {
+    public RegExpCharSet(Object[] charSetAtoms) {
         this.charSetAtoms = charSetAtoms;
     }
 

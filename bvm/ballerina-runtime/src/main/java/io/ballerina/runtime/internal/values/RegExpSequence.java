@@ -42,6 +42,10 @@ public class RegExpSequence implements RefValue {
         this.termsList = getRegExpSeqList(termsList);
     }
 
+    public RegExpSequence(RegExpTerm[] termsList) {
+        this.termsList = termsList;
+    }
+
     public RegExpTerm[] getRegExpTermsList() {
         return this.termsList;
     }
