@@ -49,10 +49,13 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
     private List<AnnotationSymbol> annots;
     private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
     private String signature;
+    private boolean isTypeOnlyPathParam;
 
-    public BallerinaPathParameterSymbol(PathSegment.Kind kind, BSymbol symbol, CompilerContext context) {
+    public BallerinaPathParameterSymbol(PathSegment.Kind kind, BSymbol symbol, CompilerContext context,
+                                        boolean isTypeOnlyPathParam) {
         super(symbol.getOriginalName().getValue(), SymbolKind.PATH_PARAMETER, symbol, context);
         this.segmentKind = kind;
+        this.isTypeOnlyPathParam = isTypeOnlyPathParam;
     }
 
     @Override
@@ -89,6 +92,11 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
 
         this.annotAttachments = Collections.unmodifiableList(annotAttachments);
         return this.annotAttachments;
+    }
+
+    @Override
+    public boolean isTypeOnlyParam() {
+        return this.isTypeOnlyPathParam;
     }
 
     @Override
