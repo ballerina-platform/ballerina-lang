@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 5,
+    "character": 13
+  },
+  "source": "extractToVariableInModLevelDeclarations.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable"
+    }
+  ]
+}
