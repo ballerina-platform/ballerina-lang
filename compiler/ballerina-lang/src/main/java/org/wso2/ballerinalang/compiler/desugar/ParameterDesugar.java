@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -379,6 +380,14 @@ public class ParameterDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        if (((BRecordType) recordTypeNode.getBType()).mutableType != null) {
+            BRecordTypeSymbol typeSymbol =
+                    (BRecordTypeSymbol) ((BRecordType) recordTypeNode.getBType()).mutableType.tsymbol;
+            ((BRecordTypeSymbol) recordTypeNode.getBType().tsymbol).defaultValues = typeSymbol.defaultValues;
+            recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
+            result = recordTypeNode;
+            return;
+        }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
