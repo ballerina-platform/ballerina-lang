@@ -289,6 +289,8 @@ public enum Snippet {
 
     KW_SOURCE_WORKER(SnippetGenerator.getKeywordSnippet("source worker")),
 
+    KW_SOURCE_CLIENT(SnippetGenerator.getKeywordSnippet("source client")),
+
     KW_TRUE(SnippetGenerator.getKeywordSnippet("true")),
 
     KW_FALSE(SnippetGenerator.getKeywordSnippet("false")),
