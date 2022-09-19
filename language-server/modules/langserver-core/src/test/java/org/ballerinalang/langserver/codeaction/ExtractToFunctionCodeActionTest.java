@@ -128,6 +128,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_let_expr_selecting_expression.json"},
                 {"extract_to_function_exprs_let_expr_selecting_let_var_decl_expr.json"},
                 {"extract_to_function_exprs_let_expr_with_non_let_var_decls_referred.json"},
+                {"extract_to_function_exprs_binary_expr_in_let_expr.json"},
                 {"extract_to_function_exprs_implicit_new_expr.json"},
                 {"extract_to_function_exprs_explicit_new_expr.json"},
 //                {"extract_to_function_exprs_object_constructor.json"}, // todo support later
@@ -168,7 +169,6 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_pos_error_cons_error_kw.json"},
                 {"extract_to_function_exprs_pos_let_expr_let_kw.json"},
                 {"extract_to_function_exprs_pos_let_expr_in_kw.json"},
-                {"extract_to_function_exprs_pos_function_call_in_let_expr.json"},
         };
     }
 
@@ -253,7 +253,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_exprs_pos_in_module_xmlns_declaration.json"},
                 {"neg_extract_to_function_exprs_pos_in_enum_declaration.json"},
                 {"neg_extract_to_function_exprs_pos_in_type_definition.json"},
-                {"neg_extract_to_function_exprs_pos_in_function_call_with_qualNameRef.json"}
+                {"neg_extract_to_function_exprs_pos_in_function_call_with_qualNameRef.json"},
+                {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
         };
     }
 
