@@ -22,7 +22,12 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.tuple.Pair;
@@ -117,8 +122,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         statementAnalyzer.analyze(matchedCodeActionNode);
 
         /*
-        * Here we decide whether the content of the selected range is syntactically correct
-        * to be extracted to a function
+         * Here we decide whether the content of the selected range is syntactically correct to be extracted to a
+         * function.
         * */
         if (!statementAnalyzer.isExtractable()) {
             return Collections.emptyList();
