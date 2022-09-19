@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
@@ -217,7 +216,10 @@ import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.*;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INCOMPATIBLE_QUERY_CONSTRUCT_TYPE;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -6292,6 +6294,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getNonContextualQueryType(BType staticType, BType basicType, Location pos) {
+        basicType = Types.getReferredType(basicType);
         switch (basicType.tag) {
             case TypeTags.TABLE:
                 if (types.isAssignable(staticType, symTable.mapAllType)) {
@@ -6317,8 +6320,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.TUPLE:
             case TypeTags.OBJECT:
                 return new BArrayType(staticType);
+            default:
+                return symTable.semanticError;
         }
-        dlog.error(pos, INCOMPATIBLE_QUERY_CONSTRUCT_TYPE, staticType, basicType);
+        dlog.error(pos, INCOMPATIBLE_QUERY_CONSTRUCT_TYPE, basicType, staticType);
         return symTable.semanticError;
     }
 

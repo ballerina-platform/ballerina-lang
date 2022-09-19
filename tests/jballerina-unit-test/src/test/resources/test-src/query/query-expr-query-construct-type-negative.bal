@@ -445,10 +445,7 @@ type Employee record {
     int salary;
 };
 
-type Employee2 record {
-    readonly string name;
-    int salary;
-};
+type T1 table<Employee> key(name);
 
 function testQueryConstructWithInvalidStaticType() {
     var _ = from string letter in "abcd" select 1;
@@ -476,4 +473,12 @@ function testQueryConstructWithInvalidStaticType() {
     var _ = from var i in m select {"A": 1};
     var _ = map from var i in m select 1;
     var _ = map from var i in m select {"A": 1};
+
+    T1 t2 = table [
+        { name: "John", salary: 100 },
+        { name: "Jane", salary: 200 }
+    ];
+
+    var _ = from var i in t2 select 1;
+    var _ = from var i in t2 select t2;
 }

@@ -302,32 +302,36 @@ public class QueryExprWithQueryConstructTypeTest {
                 "found 'table<record {| |}>'", 439, 19);
         validateError(negativeResult, index++, "incompatible types: expected 'string', " +
                 "found 'table<record {| int a; int b; |}>'", 440, 16);
-        validateError(negativeResult, index++, "incompatible type 'int', expected a construct type" +
-                " of 'string'", 454, 49);
-        validateError(negativeResult, index++, "incompatible type '[int,int,int,int]', expected a" +
-                " construct type of 'string'", 455, 49);
-        validateError(negativeResult, index++, "incompatible type 'string', expected a construct" +
-                " type of 'xml'", 459, 42);
-        validateError(negativeResult, index++, "incompatible type 'int', expected a construct type" +
-                " of 'xml'", 460, 42);
-        validateError(negativeResult, index++, "incompatible type '[int,int,int,int]', expected a" +
-                " construct type of 'xml'", 461, 42);
-        validateError(negativeResult, index++, "incompatible type 'int', expected a construct type of" +
-                " 'table<Employee> key(name)'", 468, 41);
-        validateError(negativeResult, index++, "incompatible type '[string,int]', expected a construct" +
-                " type of 'table<Employee> key(name)'", 469, 41);
-        validateError(negativeResult, index++, "incompatible type 'table<Employee> key(name)'," +
-                " expected a construct type of 'table<Employee> key(name)'", 470, 41);
+        validateError(negativeResult, index++, "incompatible types: 'string' cannot be constrained with 'int'",
+                451, 49);
+        validateError(negativeResult, index++, "incompatible types: 'string' cannot be constrained " +
+                "with '[int,int,int,int]'", 452, 49);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with 'string'",
+                456, 42);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with 'int'",
+                457, 42);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with " +
+                "'[int,int,int,int]'", 458, 42);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with 'int'", 465, 41);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with '[string,int]'", 466, 41);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with 'table<Employee> key(name)'", 467, 41);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 474, 36);
+                "start with the map keyword", 471, 36);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 475, 36);
+                "start with the map keyword", 472, 36);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 476, 36);
+                "start with the map keyword", 473, 36);
         validateError(negativeResult, index++, "incompatible type in select clause: expected " +
-                "[string,any|error], found 'int'", 477, 40);
+                "[string,any|error], found 'int'", 474, 40);
         validateError(negativeResult, index++, "incompatible type in select clause: expected " +
-                "[string,any|error], found 'record {| int A; |}'", 478, 40);
+                "[string,any|error], found 'record {| int A; |}'", 475, 40);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with 'int'", 482, 37);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with 'T1'", 483, 37);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

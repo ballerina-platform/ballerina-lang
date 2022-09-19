@@ -320,6 +320,8 @@ type Employee2 record {
     int salary;
 };
 
+type Tbl table<Employee2> key(name);
+
 function testConstructTablesWithRecords() {
     table<Employee2> key(name) t = table [
         { name: "John", salary: 100 },
@@ -345,6 +347,16 @@ function testConstructTablesWithRecords() {
     assertTrue(ct3 is table<record {string name;}>);
     table<record {string name;}> a3 = ct3;
     assertEqual(a3.toString(), "[{\"name\":\"John\"},{\"name\":\"Jane\"}]");
+
+    Tbl t3 = table [
+        { name: "John", salary: 100 },
+        { name: "Jane", salary: 200 }
+    ];
+
+    var ct4 = from Employee2 e in t3 select e;
+    assertTrue(ct4 is table<Employee2>);
+    table<Employee2> a4 = ct4;
+    assertEqual(a4.toString(), "[{\"name\":\"John\",\"salary\":100},{\"name\":\"Jane\",\"salary\":200}]");
 }
 
 function testConstructMapsWithTuples() {

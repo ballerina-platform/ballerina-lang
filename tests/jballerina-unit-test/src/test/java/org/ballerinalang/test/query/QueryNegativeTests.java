@@ -77,9 +77,9 @@ public class QueryNegativeTests {
                 416, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', " +
                         "found 'stream<record {| int a; |},error?>'", 421, 12);
-        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 18);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
         validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
-        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 18);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);
         validateError(compileResult, index++, "undefined symbol 'k'", 433, 25);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
                         "table constraint type 'record {| User user; |}'", 451, 28);
