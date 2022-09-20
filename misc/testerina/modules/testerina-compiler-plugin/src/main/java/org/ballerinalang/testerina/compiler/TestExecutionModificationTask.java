@@ -229,6 +229,7 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
 
         return NodeFactory.createFunctionSignatureNode(NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
                 NodeFactory.createSeparatedNodeList(getStringParameter(TARGET_PATH_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(PACKAGE_NAME_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(MODULE_NAME_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(REPORT_PATH_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(COVERAGE_PATH_PARAMETER),

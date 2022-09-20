@@ -79,7 +79,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
     @Override
     public void generate(SourceGeneratorContext generatorContext) {
-
+        // TODO: refactor and reuse methods with TestExecutionModificationTask
         if (TesterinaCompilerPluginUtils.isSingleFileProject(generatorContext.currentPackage().project())) {
             return;
         }
@@ -287,6 +287,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
         return NodeFactory.createFunctionSignatureNode(NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
                 NodeFactory.createSeparatedNodeList(getStringParameter(TARGET_PATH_PARAMETER),
+                        NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(PACKAGE_NAME_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(MODULE_NAME_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(REPORT_PATH_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), getStringParameter(COVERAGE_PATH_PARAMETER),
