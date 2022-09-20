@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
-import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -26,7 +25,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,7 +45,7 @@ public class ClientDeclarationNodeContext extends AbstractCompletionProvider<Cli
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.onSuggestClientUri(context, node)) {
-            return Collections.emptyList();
+            return completionItems;
         } else if (this.onSuggestAsKeyword(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
@@ -58,19 +56,18 @@ public class ClientDeclarationNodeContext extends AbstractCompletionProvider<Cli
 
     private boolean onSuggestClientUri(BallerinaCompletionContext context, ClientDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
-        Token clientKeyword = node.clientKeyword();
-        Token asKeyword = node.asKeyword();
         BasicLiteralNode clientUri = node.clientUri();
 
-        return clientKeyword.textRange().endOffset() < cursor && asKeyword.textRange().startOffset() > cursor
+        return node.clientKeyword().textRange().endOffset() < cursor 
+                && node.asKeyword().textRange().startOffset() > cursor
                 && (clientUri.isMissing() || cursor < clientUri.textRange().endOffset() + 1);
     }
 
     private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ClientDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         BasicLiteralNode clientUri = node.clientUri();
-        Token asKeyword = node.asKeyword();
 
-        return !clientUri.isMissing() && cursor >= clientUri.textRange().endOffset() + 1 && asKeyword.isMissing();
+        return !clientUri.isMissing() && cursor >= clientUri.textRange().endOffset() + 1 
+                && node.asKeyword().isMissing();
     }
 }

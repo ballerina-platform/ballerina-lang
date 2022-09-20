@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,7 +46,7 @@ public class ModuleClientDeclarationNodeContext extends AbstractCompletionProvid
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.onSuggestClientUri(context, node)) {
-            return Collections.emptyList();
+            return completionItems;
         } else if (this.onSuggestAsKeyword(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
@@ -69,9 +68,9 @@ public class ModuleClientDeclarationNodeContext extends AbstractCompletionProvid
     private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ModuleClientDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         BasicLiteralNode clientUri = node.clientUri();
-        Token asKeyword = node.asKeyword();
 
-        return !clientUri.isMissing() && cursor >= clientUri.textRange().endOffset() + 1 && asKeyword.isMissing();
+        return !clientUri.isMissing() && cursor >= clientUri.textRange().endOffset() + 1 
+                && node.asKeyword().isMissing();
     }
 
     @Override

@@ -321,7 +321,28 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.addAll(this.getClientDeclarationCompletionItems(context));
 
+        return completionItems;
+    }
+
+    /**
+     * Get the completion item for a client declaration both statement level and module level.
+     *
+     * @param context Ballerina Completion context
+     * @return {@link List}     List of client declaration completion items
+     */
+    private List<LSCompletionItem> getClientDeclarationCompletionItems(BallerinaCompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        visibleSymbols.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.CLIENT_DECLARATION && symbol.getName().isPresent())
+                .forEach(symbol -> {
+                    String prefix = symbol.getName().get();
+                    CompletionItem item = this.getModuleCompletionItem(prefix, prefix, new ArrayList<>(), prefix);
+//                    CompletionItem cItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
+                    completionItems.add(new SymbolCompletionItem(context, symbol, item));
+                });
         return completionItems;
     }
 
