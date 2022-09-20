@@ -80,7 +80,7 @@ public class CliSpec {
             Type typeOp = curOperand.type;
             if (typeOp.getTag() == TypeTags.ARRAY_TAG) {
                 ArrayType arrayType = (ArrayType) typeOp;
-                BArray bArray = ValueCreator.createArrayValue(arrayType, -1);
+                BArray bArray = ValueCreator.createArrayValue(arrayType);
                 Type elementType = TypeUtils.getReferredType(arrayType.getElementType());
                 int elementCount = getElementCount(operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
@@ -110,7 +110,7 @@ public class CliSpec {
             if (operand.hasDefaultable) {
                 mainArgs.add(getDefaultBValue(opType));
             } else if (isSupportedArrayType(opType)) {
-                mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType, -1));
+                mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType));
             } else if ((CliUtil.isUnionWithNil(opType))) {
                 mainArgs.add(null);
             } else {
