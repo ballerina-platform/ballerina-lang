@@ -1,8 +1,12 @@
 name: Publish Timestamped Snapshot Artifacts
 
 on:
+<<<<<<<< HEAD:.github/workflows/nightly_publish_timestamped_release.yml
   schedule:
     - cron: '0 0 * * *'
+========
+  workflow_dispatch:
+>>>>>>>> e46e4cab9aa7ce0d27339bc9d78d2f83ed15347a:.github/workflows/publish_timestamped_release.yml
 
 jobs:
   publish-ballerina-lang:
@@ -47,6 +51,7 @@ jobs:
             ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
             ./gradlew publish
             ./gradlew createCodeCoverageReport
+<<<<<<<< HEAD:.github/workflows/nightly_publish_timestamped_release.yml
             curl -X POST \
             'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
             -H 'Accept: application/vnd.github.v3+json' \
@@ -58,6 +63,8 @@ jobs:
                 \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
               }
             }"
+========
+>>>>>>>> e46e4cab9aa7ce0d27339bc9d78d2f83ed15347a:.github/workflows/publish_timestamped_release.yml
 
       -   name: Generate Codecov Report
           uses: codecov/codecov-action@v1

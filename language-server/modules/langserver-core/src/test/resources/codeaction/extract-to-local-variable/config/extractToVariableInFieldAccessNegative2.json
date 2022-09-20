@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 30,
+    "character": 12
+  },
+  "source": "extractToVariableInFieldAccess.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable"
+    }
+  ]
+}

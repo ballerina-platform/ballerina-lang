@@ -26,7 +26,7 @@ modules = [
 ]
 
 [[package]]
-org = "lakshan"
+org = "mohan"
 name = "myPackage2"
 version = "0.1.0"
 dependencies = [
@@ -36,8 +36,8 @@ dependencies = [
 	{org = "waruna", name = "websub"}
 ]
 modules = [
-	{org = "lakshan", packageName = "myPackage2", moduleName = "myPackage2"},
-	{org = "lakshan", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
+	{org = "mohan", packageName = "myPackage2", moduleName = "myPackage2"},
+	{org = "mohan", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
 ]
 
 [[package]]

@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 11,
+      "character": 15
+    },
+    "end": {
+      "line": 11,
+      "character": 27
+    }
+  },
+  "source": "extractToVariableInMappingConstructor.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 0
+            },
+            "end": {
+              "line": 11,
+              "character": 0
+            }
+          },
+          "newText": "record {|string field2;|} var1 \u003d {field2: \"\"};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 15
+            },
+            "end": {
+              "line": 11,
+              "character": 27
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}

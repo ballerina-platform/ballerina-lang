@@ -1538,7 +1538,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                         currentTypeNodeName, currentTypeOrClassNode.pos.lineRange().startLine().line(),
                         currentTypeOrClassNode.pos.lineRange().startLine().offset());
                 if (unknownTypeRefs.add(locationData)) {
-                    dlog.error(currentTypeOrClassNode.pos, DiagnosticErrorCode.UNKNOWN_TYPE, currentTypeNodeName);
+                    dlog.error(currentTypeOrClassNode.pos, DiagnosticErrorCode.UNKNOWN_TYPE, 
+                            new Name(currentTypeNodeName));
                 }
             } else {
                 for (BLangNode typeDefinition : typeDefinitions) {
