@@ -132,6 +132,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                     annotationAttachPoints.add(AnnotationAttachPoint.SERVICE);
                 } else {
                     annotationAttachPoints.add(AnnotationAttachPoint.OBJECT_FIELD);
+                    annotationAttachPoints.add(AnnotationAttachPoint.FIELD);
                 }
                 break;
             case FUNCTION:
@@ -140,6 +141,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                 break;
             case RECORD:
                 annotationAttachPoints.add(AnnotationAttachPoint.RECORD_FIELD);
+                annotationAttachPoints.add(AnnotationAttachPoint.FIELD);
                 break;
             case UNION:
                 List<TypeDescKind> typeDescKinds = ((UnionTypeSymbol) symbol).memberTypeDescriptors().stream()
