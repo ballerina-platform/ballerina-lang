@@ -5835,6 +5835,18 @@ public class Types {
         return memberTypes;
     }
 
+    public List<BType> getAllReferredTypes(BUnionType unionType) {
+        List<BType> memberTypes = new LinkedList<>();
+        for (BType type : unionType.getMemberTypes()) {
+            if (type.tag == UNION) {
+                memberTypes.addAll(getAllReferredTypes((BUnionType) type));
+            } else {
+                memberTypes.add(Types.getReferredType(type));
+            }
+        }
+        return memberTypes;
+    }
+
     public boolean isAllowedConstantType(BType type) {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
