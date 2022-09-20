@@ -47,7 +47,7 @@ public class Reduce {
         AtomicInteger index = new AtomicInteger(-1);
         Object[] keys = m.getKeys();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{accum.get(), true,m.get(keys[index.incrementAndGet()]), true }, accum::set,
+                () -> new Object[]{accum.get(), true, m.get(keys[index.incrementAndGet()]), true}, accum::set,
                 accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }

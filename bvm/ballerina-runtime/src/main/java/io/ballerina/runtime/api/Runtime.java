@@ -32,7 +32,6 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.FutureValue;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
