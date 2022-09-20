@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBallerinaConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmFunctionTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmModuleConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmRefTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmTupleTypeConstantsGen;
@@ -62,9 +61,6 @@ public class JvmConstantsGen {
 
     private final JvmRefTypeConstantsGen refTypeConstantsGen;
 
-    private final JvmFunctionTypeConstantsGen functionTypeConstantsGen;
-
-
     public final BTypeHashComparator bTypeHashComparator;
 
     public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, Types types,
@@ -72,7 +68,6 @@ public class JvmConstantsGen {
         this.bTypeHashComparator = new BTypeHashComparator(typeHashVisitor);
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
-        this.functionTypeConstantsGen = new JvmFunctionTypeConstantsGen(module.packageID, module.functions);
         this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, moduleInitClass, this);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID, bTypeHashComparator);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator);
@@ -93,11 +88,9 @@ public class JvmConstantsGen {
         tupleTypeConstantsGen.setJvmTupleTypeGen(jvmCreateTypeGen.getJvmTupleTypeGen());
         arrayTypeConstantsGen.setJvmArrayTypeGen(jvmCreateTypeGen.getJvmArrayTypeGen());
         refTypeConstantsGen.setJvmRefTypeGen(jvmCreateTypeGen.getJvmRefTypeGen());
-        functionTypeConstantsGen.setJvmTypeGen(jvmCreateTypeGen.getJvmTypeGen());
     }
 
     public void generateConstants(Map<String, byte[]> jarEntries) {
-        functionTypeConstantsGen.generateClass(jarEntries);
         jvmBallerinaConstantsGen.generateConstantInit(jarEntries);
         unionTypeConstantsGen.generateClass(jarEntries);
         moduleConstantsGen.generateConstantInit(jarEntries);
@@ -142,14 +135,6 @@ public class JvmConstantsGen {
 
     public String getConstantClass() {
         return jvmBallerinaConstantsGen.getConstantClass();
-    }
-
-    public String getFunctionTypeConstantClass() {
-        return functionTypeConstantsGen.getFunctionTypeConstantClass();
-    }
-
-    public String getFunctionTypeVar(String functionName) {
-        return functionTypeConstantsGen.getFunctionTypeVar(functionName);
     }
 
     public void generateGetBArrayType(MethodVisitor mv, String varName) {

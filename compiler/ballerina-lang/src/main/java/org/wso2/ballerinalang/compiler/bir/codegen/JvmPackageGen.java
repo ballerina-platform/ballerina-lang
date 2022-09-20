@@ -406,7 +406,7 @@ public class JvmPackageGen {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
                 jvmTypeGen.generateUserDefinedTypeFields(cw, module.typeDefs);
-                jvmTypeGen.generateGetTypeMethod(cw);
+                jvmTypeGen.generateGetAnonTypeMethod(cw);
                 jvmTypeGen.generateValueCreatorMethods(cw);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {

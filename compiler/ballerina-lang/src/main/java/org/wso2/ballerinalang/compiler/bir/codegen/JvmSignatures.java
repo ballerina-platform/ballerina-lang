@@ -212,8 +212,6 @@ public class JvmSignatures {
     public static final String GET_ERROR_VALUE = "L" + ERROR_VALUE + ";";
     public static final String GET_FUNCTION = "()L" + FUNCTION + ";";
     public static final String GET_FUNCTION_POINTER = "L" + FUNCTION_POINTER + ";";
-    public static final String GET_FUNCTION_TYPE = "L" + FUNCTION_TYPE + ";";
-    public static final String GET_FUNCTION_TYPE_FOR_STRING = "(L" + STRING_VALUE + ";)" + GET_FUNCTION_TYPE;
     public static final String GET_FUTURE_VALUE = "L" + FUTURE_VALUE + ";";
     public static final String GET_HANDLE_VALUE = "L" + HANDLE_VALUE + ";";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";

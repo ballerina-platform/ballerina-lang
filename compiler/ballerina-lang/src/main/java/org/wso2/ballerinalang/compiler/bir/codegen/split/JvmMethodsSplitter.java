@@ -62,7 +62,6 @@ public class JvmMethodsSplitter {
         jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, moduleInitClass, jarEntries,
                 jvmPackageGen.symbolTable, jvmCastGen, sortedFunctions);
         jvmCreateTypeGen.generateAnonTypeClass(jvmPackageGen, module, moduleInitClass, jarEntries);
-        jvmCreateTypeGen.generateFunctionTypeClass(jvmPackageGen, module, jarEntries, sortedFunctions);
         jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
     }
 }

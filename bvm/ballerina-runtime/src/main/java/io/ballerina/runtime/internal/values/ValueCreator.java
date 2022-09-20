@@ -107,6 +107,4 @@ public abstract class ValueCreator {
 
     public abstract Type getAnonType(int typeHash, String typeShape) throws BError;
 
-    public abstract FunctionType getFunctionType(String functionName) throws BError;
-
 }

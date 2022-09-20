@@ -167,7 +167,6 @@ public class JvmConstants {
     public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
     public static final String ARRAY_TYPE_VAR_PREFIX = "$arrayType";
-    public static final String FUNCTION_TYPE_VAR_PREFIX = "$functionType";
     public static final String MODULE_VAR_PREFIX = "$module";
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
@@ -282,7 +281,6 @@ public class JvmConstants {
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
     public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
     public static final String TYPEREF_TYPE_CONSTANT_CLASS_NAME = "constants/$_typeref_type_constants";
-    public static final String FUNCTION_TYPE_CONSTANT_CLASS_NAME = "constants/$_function_type_constants";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
     public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
@@ -294,7 +292,6 @@ public class JvmConstants {
     public static final String MODULE_UNION_TYPES_CLASS_NAME = "types/$_union_types";
     public static final String MODULE_TUPLE_TYPES_CLASS_NAME = "types/$_tuple_types";
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
-    public static final String MODULE_FUNCTION_TYPES_CLASS_NAME = "types/$_function_types";
     public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/$_records";
     public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/$_objects";
     public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
@@ -366,7 +363,6 @@ public class JvmConstants {
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
     public static final String CALL_FUNCTION = "call";
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
-    public static final String GET_FUNCTION_TYPE_METHOD = "getFunctionType";
 
     // strand data related constants
     public static final String STRAND = "strand";

@@ -17,7 +17,6 @@
 import ballerina/test;
 import testorg/runtime_api_types.objects;
 import runtime_api_types.typeref;
-import testorg/runtime_api_types.functions;
 
 objects:PublicClientObject obj = new ();
 
@@ -28,7 +27,6 @@ public function main() {
     testParamTypesString();
     testConstituentTypes();
     testTypeIds();
-    testGetFucntionType();
 }
 
 function testConstituentTypes() {
@@ -77,8 +75,4 @@ function testRemoteFunctionParameters() {
 function testParamTypesString() {
     //Need to be removed after removing getParamTypes() API
     test:assertEquals(objects:getParamTypesString(obj.testFunction), "int decimal string ");
-}
-
-function testGetFucntionType() {
-    test:assertEquals(functions:getFunctionParameterCountByName("foo"), 3);
 }
