@@ -69,9 +69,8 @@ class ReportData {
 }
 
 function consoleReport(ReportData data) {
-    data.passedCases().forEach(entry => println("\t\t[pass] " + entry.fullName()));
     data.failedCases().forEach(function(Result entry) {
-        println("\t\t[fail] " + entry.fullName() + ":");
+        println("\n\t\t[fail] " + entry.fullName() + ":");
         println("\n\t\t    " + formatFailedError(entry.message()));
     });
 
