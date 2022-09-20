@@ -45,6 +45,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.internal.collections.Pair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,6 +60,7 @@ import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.STRING_LITERAL;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
@@ -284,6 +286,31 @@ public class ServiceSemanticAPITest {
     public void testServiceDeclNegative() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(66, 34));
         assertTrue(symbol.isEmpty());
+    }
+
+    @Test(dataProvider = "PathParamProvider")
+    public void testPathParams(int line, int col, List<Pair<String, Boolean>> pathParamInfo) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), RESOURCE_METHOD);
+        ResourceMethodSymbol resourceMethodSymbol = (ResourceMethodSymbol) symbol.get();
+        assertEquals(resourceMethodSymbol.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
+        List<PathParameterSymbol> pathParams = ((PathSegmentList) resourceMethodSymbol.resourcePath()).pathParameters();
+        assertEquals(pathParams.size(), pathParamInfo.size());
+        for (int i = 0; i < pathParams.size(); i++) {
+            PathParameterSymbol pathParam = pathParams.get(i);
+            assertEquals(pathParam.typeDescriptor().signature(), pathParamInfo.get(i).first());
+            assertEquals(pathParam.isTypeOnlyParam(), pathParamInfo.get(i).second().booleanValue());
+        }
+    }
+
+    @DataProvider(name = "PathParamProvider")
+    private Object[][] getPathParams() {
+        return new Object[][] {
+                {99, 22, List.of(Pair.of("\"SomeLongMsg\"", true))},
+                {104, 22, List.of(Pair.of("\"SomeLongMsg\"", false), Pair.of("float", false), Pair.of(
+                        "\"AnotherLongMsg\"", true))}
+        };
     }
 
     private Object[][] getExpValues() {
