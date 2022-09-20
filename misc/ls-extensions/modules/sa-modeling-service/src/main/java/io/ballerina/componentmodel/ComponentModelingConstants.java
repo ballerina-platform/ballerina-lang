@@ -18,6 +18,12 @@
 
 package io.ballerina.componentmodel;
 
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Constants use for Solution Architecture model generation.
  */
@@ -55,6 +61,9 @@ public class ComponentModelingConstants {
     public static final String SERVICE_ID = "serviceId";
     public static final String ARRAY = "[]";
 
+    public static final String LISTENER = ":Listener";
+    public static final String CLIENT = ":Client";
+
     /**
      * Enum for cardinality types.
      */
@@ -76,6 +85,22 @@ public class ComponentModelingConstants {
         public String getValue() {
             return this.cardinalityValue;
         }
+    }
+
+
+    public static final Map<SyntaxKind, String> TYPE_MAP;
+
+    // for hex literals ?
+    static {
+        Map<SyntaxKind, String> typeMap = new HashMap<>();
+        typeMap.put(SyntaxKind.STRING_LITERAL, "string");
+        typeMap.put(SyntaxKind.BOOLEAN_LITERAL, "boolean");
+//        typeMap.put("array", "[]");
+//        typeMap.put("object", "record {}");
+        typeMap.put(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN, "float");
+        typeMap.put(SyntaxKind.NUMERIC_LITERAL, "decimal");
+        typeMap.put(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN, "float");
+        TYPE_MAP = Collections.unmodifiableMap(typeMap);
     }
 
 }

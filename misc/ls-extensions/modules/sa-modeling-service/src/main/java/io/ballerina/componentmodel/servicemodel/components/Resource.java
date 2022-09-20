@@ -25,17 +25,24 @@ import java.util.List;
  */
 public class Resource {
 
+    private final String identifier;
     private final ResourceId resourceId;
     private final List<Parameter> parameters;
     private final List<String> returns;
-    private final List<ResourceId> interactions;
+//    private final List<ResourceId> interactions;
+    private final List<Interaction> interactions;
 
-    public Resource(ResourceId resourceId, List<Parameter> parameters, List<String> returns,
-                    List<ResourceId> interactions) {
+    public Resource(String identifier, ResourceId resourceId, List<Parameter> parameters, List<String> returns,
+                    List<Interaction> interactions) {
+        this.identifier = identifier;
         this.resourceId = resourceId;
         this.parameters = parameters;
         this.returns = returns;
         this.interactions = interactions;
+    }
+
+    public String getIdentifier() {
+        return identifier;
     }
 
     public ResourceId getResourceId() {
@@ -50,34 +57,7 @@ public class Resource {
         return returns;
     }
 
-    public List<ResourceId> getInteractions() {
+    public List<Interaction> getInteractions() {
         return interactions;
-    }
-
-    /**
-     * Provide resource information.
-     */
-    public static class ResourceId {
-        private final String serviceId;
-        private final String path;
-        private final String method;
-
-        public ResourceId(String serviceId, String method, String path) {
-            this.serviceId = serviceId;
-            this.method = method;
-            this.path = path;
-        }
-
-        public String getServiceId() {
-            return serviceId;
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        public String getMethod() {
-            return method;
-        }
     }
 }

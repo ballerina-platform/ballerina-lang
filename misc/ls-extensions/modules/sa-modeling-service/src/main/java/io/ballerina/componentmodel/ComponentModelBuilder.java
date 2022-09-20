@@ -60,7 +60,7 @@ public class ComponentModelBuilder {
             for (DocumentId documentId : documentIds) {
                 SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
                 ServiceDeclarationNodeVisitor serviceNodeVisitor = new
-                        ServiceDeclarationNodeVisitor(currentSemanticModel);
+                        ServiceDeclarationNodeVisitor(currentSemanticModel, packageId);
                 syntaxTree.rootNode().accept(serviceNodeVisitor);
                 services.addAll(serviceNodeVisitor.getServices());
             }

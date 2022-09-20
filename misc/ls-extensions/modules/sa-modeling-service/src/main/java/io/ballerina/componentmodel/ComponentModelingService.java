@@ -19,6 +19,7 @@
 package io.ballerina.componentmodel;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.ballerina.componentmodel.diagnostics.ComponentModelException;
 import io.ballerina.componentmodel.diagnostics.DiagnosticMessage;
@@ -29,10 +30,14 @@ import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerSe
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageServer;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +64,7 @@ public class ComponentModelingService implements ExtendedLanguageServerService {
     @JsonNotification
     public CompletableFuture<ComponentModelResponse> getComponentModel(ComponentModelRequest request) {
         return CompletableFuture.supplyAsync(() -> {
+//            ((BallerinaWorkspaceManager) workspaceManager).sourceRootToProject
             ComponentModelResponse componentModelResponse = new ComponentModelResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
             Path path = Path.of(fileUri);
@@ -66,8 +72,11 @@ public class ComponentModelingService implements ExtendedLanguageServerService {
                 Project project = getCurrentProject(path);
                 ComponentModelBuilder componentModelBuilder = new ComponentModelBuilder();
                 ComponentModel multiServiceModel = componentModelBuilder.constructComponentModel(project);
-                componentModelResponse.setComponentModel((JsonObject) new Gson().toJsonTree(multiServiceModel));
-            } catch (ComponentModelException | WorkspaceDocumentException e) {
+                Gson gson = new GsonBuilder()
+                        .serializeNulls()
+                        .create();
+                componentModelResponse.setComponentModel((JsonObject) gson.toJsonTree(multiServiceModel));
+            } catch (ComponentModelException | WorkspaceDocumentException | IOException | InterruptedException e) {
                 DiagnosticMessage message = DiagnosticMessage.componentModellingService001(fileUri);
                 return DiagnosticUtils.getDiagnosticResponse(List.of(message), componentModelResponse);
             }
@@ -75,11 +84,22 @@ public class ComponentModelingService implements ExtendedLanguageServerService {
         });
     }
 
-    private Project getCurrentProject(Path path) throws ComponentModelException, WorkspaceDocumentException {
+    private Project getCurrentProject(Path path) throws ComponentModelException, WorkspaceDocumentException, IOException, InterruptedException {
         Optional<Project> project = workspaceManager.project(path);
         if (project.isEmpty()) {
-            DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
-            workspaceManager.didOpen(path, params);
+            DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
+            TextDocumentItem textDocumentItem = new TextDocumentItem();
+            TextDocumentIdentifier identifier = new TextDocumentIdentifier();
+
+            byte[] encodedContent = Files.readAllBytes(path);
+            identifier.setUri(String.valueOf(path.toUri()));
+            textDocumentItem.setUri(identifier.getUri());
+            textDocumentItem.setText(new String(encodedContent));
+            documentParams.setTextDocument(textDocumentItem);
+
+            workspaceManager.didOpen(path, documentParams);
+            Thread.sleep(3000);
+            // need a sleep ??
             project = workspaceManager.project(path);
             if (project.isPresent()) {
                 return project.get();

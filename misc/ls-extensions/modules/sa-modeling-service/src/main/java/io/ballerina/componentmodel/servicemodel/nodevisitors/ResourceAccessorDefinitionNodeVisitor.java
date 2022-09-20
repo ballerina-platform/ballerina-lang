@@ -29,23 +29,12 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
-import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.ParameterNode;
-import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.componentmodel.ComponentModel;
 import io.ballerina.componentmodel.ComponentModelingConstants.ParameterIn;
 import io.ballerina.componentmodel.servicemodel.components.Parameter;
 import io.ballerina.componentmodel.servicemodel.components.Resource;
+import io.ballerina.componentmodel.servicemodel.components.ResourceId;
 
 
 import java.util.ArrayList;
@@ -61,9 +50,12 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
     private final SemanticModel semanticModel;
     List<Resource> resources = new ArrayList<>();
 
-    public ResourceAccessorDefinitionNodeVisitor(String serviceId, SemanticModel semanticModel) {
+    private final ComponentModel.PackageId packageId;
+
+    public ResourceAccessorDefinitionNodeVisitor(String serviceId, SemanticModel semanticModel, ComponentModel.PackageId packageId) {
         this.serviceId = serviceId;
         this.semanticModel = semanticModel;
+        this.packageId = packageId;
     }
 
     public List<Resource> getResources() {
@@ -73,27 +65,40 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
         SyntaxKind kind = functionDefinitionNode.kind();
         if (kind.equals(SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)) {
+            StringBuilder identifierBuilder = new StringBuilder();
             StringBuilder resourcePathBuilder = new StringBuilder();
             NodeList<Node> relativeResourcePaths = functionDefinitionNode.relativeResourcePath();
             for (Node path : relativeResourcePaths) {
-                resourcePathBuilder.append(path.toString());
+                if (path instanceof ResourcePathParameterNode) {
+                    ResourcePathParameterNode pathParam = (ResourcePathParameterNode) path;
+                    identifierBuilder.append(String.format("[%s]", pathParam.typeDescriptor().toSourceCode().trim()));
+                } else {
+                    identifierBuilder.append(path);
+                }
+                resourcePathBuilder.append(path);
             }
+
             String resourcePath = resourcePathBuilder.toString().trim();
             String method = functionDefinitionNode.functionName().text().trim();
 
             List<Parameter> parameterList = getParameters(functionDefinitionNode.functionSignature());
             List<String> returnTypes = getReturnTypes(functionDefinitionNode);
 
-            RemoteMethodCallActionNodeVisitor remoteExpressionVisitor =
-                    new RemoteMethodCallActionNodeVisitor(semanticModel);
-            functionDefinitionNode.accept(remoteExpressionVisitor);
+            ActionNodeVisitor actionNodeVisitor =
+                    new ActionNodeVisitor(semanticModel);
+            functionDefinitionNode.accept(actionNodeVisitor);
 
-            Resource.ResourceId resourceId = new Resource.ResourceId(this.serviceId, method, resourcePath);
+            ResourceId resourceId = new ResourceId(this.serviceId, method, resourcePath);
 
-            Resource resource = new Resource(resourceId, parameterList, returnTypes,
-                    remoteExpressionVisitor.getInteractionList());
+            // todo : complete the interactions
+            Resource resource = new Resource(identifierBuilder.toString().trim(),resourceId, parameterList, returnTypes,
+                    actionNodeVisitor.getInteractionList());
             resources.add(resource);
         }
+    }
+
+    private String getResourceIdentifier() {
+        return "";
     }
 
     private List<Parameter> getParameters(FunctionSignatureNode functionSignatureNode) {
@@ -133,11 +138,26 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
         return parameterList;
     }
 
+    private String getReferenceEntityName(TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
+        String currentPackageName = String.format("%s/%s:%s", packageId.getOrg(), packageId.getName(), packageId.getVersion());
+        String referenceType = typeReferenceTypeSymbol.signature();
+        if (typeReferenceTypeSymbol.getModule().isPresent() &&
+                !referenceType.split(":")[0].equals(currentPackageName.split(":")[0])) {
+            String orgName = typeReferenceTypeSymbol.getModule().get().id().orgName();
+            String packageName =  typeReferenceTypeSymbol.getModule().get().id().packageName();
+            String modulePrefix = typeReferenceTypeSymbol.getModule().get().id().modulePrefix();
+            String recordName = typeReferenceTypeSymbol.getName().get();
+            String version = typeReferenceTypeSymbol.getModule().get().id().version();
+            referenceType = String.format("%s/%s:%s:%s:%s", orgName, packageName, modulePrefix, version, recordName);
+        }
+        return referenceType;
+    }
+
     private void getReferencedType(TypeSymbol typeSymbol, List<String> paramTypes) {
         TypeDescKind typeDescKind = typeSymbol.typeKind();
         if (typeDescKind.equals(TypeDescKind.TYPE_REFERENCE)) {
             TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
-            paramTypes.add(typeReferenceTypeSymbol.signature().trim());
+            paramTypes.add(getReferenceEntityName(typeReferenceTypeSymbol).trim());
         } else if (typeDescKind.equals(TypeDescKind.UNION)) {
             UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;
             List<TypeSymbol> memberTypeDescriptors = unionTypeSymbol.memberTypeDescriptors();
@@ -150,7 +170,12 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
             }
         } else if (typeDescKind.equals(TypeDescKind.ARRAY)) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeSymbol;
-            paramTypes.add(arrayTypeSymbol.signature().trim());
+            if (arrayTypeSymbol.memberTypeDescriptor().typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
+                paramTypes.add(getReferenceEntityName((TypeReferenceTypeSymbol) arrayTypeSymbol.memberTypeDescriptor()).trim());
+            } else {
+                paramTypes.add(arrayTypeSymbol.signature().trim());
+            }
+
         } else {
             paramTypes.add(typeDescKind.getName());
         }

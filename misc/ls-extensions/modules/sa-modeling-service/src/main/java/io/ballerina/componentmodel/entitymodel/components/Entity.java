@@ -26,8 +26,12 @@ import java.util.List;
 public class Entity {
     private List<Attribute> attributes;
 
-    public Entity(List<Attribute> attributes) {
+    private List<String> inclusions;
+
+    public Entity(List<Attribute> attributes, List<String> inclusions) {
+
         this.attributes = attributes;
+        this.inclusions = inclusions;
     }
 
     public List<Attribute> getAttributes() {
@@ -37,4 +41,9 @@ public class Entity {
     public void setAttributes(List<Attribute> attributes) {
         this.attributes = attributes;
     }
+
+    public List<String> getInclusions() {
+        return inclusions;
+    }
 }
+

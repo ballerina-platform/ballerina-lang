@@ -39,6 +39,7 @@ import io.ballerina.componentmodel.entitymodel.components.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.ballerina.componentmodel.ComponentModelingConstants.ARRAY;
 import static io.ballerina.componentmodel.ComponentModelingConstants.COLON;
@@ -58,7 +59,9 @@ public class EntityModelGenerator {
                     String entityName = getEntityName(packageId, typeDefinitionSymbol.moduleQualifiedName());
                     List<Attribute> attributeList = new ArrayList<>();
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
-                    Map<String, RecordFieldSymbol> recordFieldSymbolMap = recordTypeSymbol.fieldDescriptors();
+                    List<String> inclusionList =  new ArrayList<>();
+                    Map<String, RecordFieldSymbol> recordFieldSymbolMap =
+                            getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
                     for (Map.Entry<String, RecordFieldSymbol> fieldEntry : recordFieldSymbolMap.entrySet()) {
 
                         RecordFieldSymbol fieldEntryValue = fieldEntry.getValue();
@@ -74,11 +77,31 @@ public class EntityModelGenerator {
                                 new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations);
                         attributeList.add(attribute);
                     }
-                    Entity entity = new Entity(attributeList);
+                    Entity entity = new Entity(attributeList, inclusionList);
                     entities.put(entityName, entity);
                 }
             }
         }
+    }
+
+    private Map<String, RecordFieldSymbol> getOriginalFieldMap(
+            RecordTypeSymbol recordTypeSymbol, List<String> inclusionList, String entityName) {
+        Map<String, RecordFieldSymbol> childRecordFieldSymbolMap = recordTypeSymbol.fieldDescriptors();
+        if (!recordTypeSymbol.typeInclusions().isEmpty()) {
+            List<TypeSymbol> typeInclusions = recordTypeSymbol.typeInclusions();
+            for (TypeSymbol includedType : typeInclusions) {
+                TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) includedType;
+                inclusionList.add(getAssociateEntityName(typeReferenceTypeSymbol, entityName));
+                RecordTypeSymbol parentRecordTypeSymbol = (RecordTypeSymbol) typeReferenceTypeSymbol.typeDescriptor();
+                Map<String, RecordFieldSymbol> parentRecordFieldSymbolMap = parentRecordTypeSymbol.fieldDescriptors();
+                // is it enough to check only based on the key ?
+                childRecordFieldSymbolMap = childRecordFieldSymbolMap.entrySet().stream()
+                        .filter(entry -> !parentRecordFieldSymbolMap.containsKey(entry.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            }
+        }
+        return childRecordFieldSymbolMap;
     }
 
     private boolean isNillable(TypeSymbol fieldTypeDescriptor) {
@@ -101,7 +124,7 @@ public class EntityModelGenerator {
             for (Map.Entry<String, RecordFieldSymbol> fieldEntry : recordFieldSymbolMap.entrySet()) {
                 TypeSymbol fieldTypeDescriptor = fieldEntry.getValue().typeDescriptor();
                 if (fieldTypeDescriptor instanceof TypeReferenceTypeSymbol) {
-                    if (entityName.equals(fieldTypeDescriptor.signature())) {
+                    if (entityName.equals(getAssociateEntityName((TypeReferenceTypeSymbol) fieldTypeDescriptor, entityName))) {
                         selfCardinality = CardinalityValue.ONE_AND_ONLY_ONE.getValue();
                     }
                 } else if (fieldTypeDescriptor instanceof UnionTypeSymbol) {
@@ -110,7 +133,8 @@ public class EntityModelGenerator {
                     UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) fieldTypeDescriptor;
                     List<TypeSymbol> memberTypeDescriptors = unionTypeSymbol.memberTypeDescriptors();
                     for (TypeSymbol memberTypeSymbol : memberTypeDescriptors) {
-                        if (entityName.equals(memberTypeSymbol.signature())) {
+                        if (memberTypeSymbol instanceof TypeReferenceTypeSymbol &&
+                                entityName.equals(getAssociateEntityName((TypeReferenceTypeSymbol) memberTypeSymbol, entityName))) {
                             isFound = true;
                         } else if (memberTypeSymbol instanceof NilTypeSymbol) {
                             isNull = true;
@@ -120,7 +144,10 @@ public class EntityModelGenerator {
                         selfCardinality = CardinalityValue.ZERO_OR_ONE.getValue();
                     }
                 } else if (fieldTypeDescriptor instanceof ArrayTypeSymbol) {
-                    if (fieldTypeDescriptor.signature().replace(ARRAY, "").equals(entityName)) {
+                    TypeSymbol memberTypeDescriptor = ((ArrayTypeSymbol) fieldTypeDescriptor).memberTypeDescriptor();
+                    if (memberTypeDescriptor instanceof TypeReferenceTypeSymbol &&
+                            getAssociateEntityName((TypeReferenceTypeSymbol) memberTypeDescriptor, entityName).
+                                    replace(ARRAY, "").equals(entityName)) {
                         selfCardinality = CardinalityValue.ZERO_OR_MANY.getValue();
                     }
                 }
@@ -148,14 +175,21 @@ public class EntityModelGenerator {
      * @return
      */
     private String getEntityName(PackageId packageId, String moduleQualifiedName) {
+        // moduleQualifiedName is not correct when there is a dot in package name
         String entityName;
         String[] nameSpits = moduleQualifiedName.split(COLON);
-        if (!nameSpits[0].equals(packageId.getName())) {
-            entityName = packageId.getOrg() + FORWARD_SLASH + packageId.getName() + "." + nameSpits[0] + COLON +
-                    packageId.getVersion() + COLON + nameSpits[1];
-        } else {
-            entityName = packageId.getOrg() + FORWARD_SLASH + nameSpits[0] + COLON + packageId.getVersion() +
+        String[] packageNameSplits = packageId.getName().split("\\.");
+//        if (!nameSpits[0].equals(packageId.getName()) && (packageNameSplits.length > 1 &&
+//                !packageNameSplits[packageNameSplits.length - 1].equals(nameSpits[0]))) {
+//            entityName = packageId.getOrg() + FORWARD_SLASH + packageId.getName() + COLON + nameSpits[0] + COLON +
+//                    packageId.getVersion() + COLON + nameSpits[1];
+//        }
+        if (packageId.getName().equals(nameSpits[0])) { // check whether the referenced type is from the same module
+            entityName = packageId.getOrg() + FORWARD_SLASH + packageId.getName() + COLON + packageId.getVersion() +
                     COLON + nameSpits[1];
+        } else {
+            entityName = packageId.getOrg() + FORWARD_SLASH + packageId.getName() + COLON + nameSpits[0] + COLON +
+                    packageId.getVersion() + COLON + nameSpits[1];
         }
         return entityName;
     }
@@ -174,14 +208,33 @@ public class EntityModelGenerator {
         }
         return unionTypeAssociations;
     }
+
+    private String getAssociateEntityName(TypeReferenceTypeSymbol typeReferenceTypeSymbol, String referencedPackageName) {
+        String referenceType = typeReferenceTypeSymbol.signature();
+        if (typeReferenceTypeSymbol.getModule().isPresent() &&
+                !referenceType.split(":")[0].equals(referencedPackageName.split(":")[0])) {
+            String orgName = typeReferenceTypeSymbol.getModule().get().id().orgName();
+            String packageName =  typeReferenceTypeSymbol.getModule().get().id().packageName();
+            String modulePrefix = typeReferenceTypeSymbol.getModule().get().id().modulePrefix();
+            String recordName = typeReferenceTypeSymbol.getName().get();
+            String version = typeReferenceTypeSymbol.getModule().get().id().version();
+            referenceType = String.format("%s/%s:%s:%s:%s", orgName, packageName, modulePrefix, version, recordName);
+        }
+        return referenceType;
+    }
+
     private List<Association> getAssociations(TypeSymbol fieldTypeDescriptor, String entityName, boolean isRequired,
                                               boolean isNillable) {
         List<Association> associations = new ArrayList<>();
         if (fieldTypeDescriptor instanceof TypeReferenceTypeSymbol) {
-            String associate = fieldTypeDescriptor.signature();
+            String associate = getAssociateEntityName((TypeReferenceTypeSymbol) fieldTypeDescriptor, entityName);
             Association.Cardinality cardinality = new Association.Cardinality(
                     getSelfCardinality(fieldTypeDescriptor, entityName),
                     getAssociateCardinality(false, isRequired, isNillable));
+//            fieldTypeDescriptor.getModule().get().id().packageName();
+            // how to get the package name of the associate entity
+//            ((BallerinaModule)((TypeReferenceTypeSymbol)fieldTypeDescriptor).getModule().get()).packageSymbol.pkgID.pkgName;
+
             associations.add(new Association(associate, cardinality));
         } else if (fieldTypeDescriptor instanceof UnionTypeSymbol) {
             UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) fieldTypeDescriptor;
@@ -189,7 +242,8 @@ public class EntityModelGenerator {
         } else if (fieldTypeDescriptor instanceof ArrayTypeSymbol) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) fieldTypeDescriptor;
             if (arrayTypeSymbol.memberTypeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                String associate = arrayTypeSymbol.signature().replace(ARRAY, "");
+                String associate = getAssociateEntityName((TypeReferenceTypeSymbol)
+                        arrayTypeSymbol.memberTypeDescriptor(), entityName).replace(ARRAY, "");
                 Association.Cardinality cardinality = new Association.Cardinality(
                         getSelfCardinality(arrayTypeSymbol, entityName),
                         getAssociateCardinality(true, isRequired, isNillable));
