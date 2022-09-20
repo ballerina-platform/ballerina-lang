@@ -2644,11 +2644,16 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         LineRange lineRange = symbol.pos.lineRange();
         Map<LineRange, Optional<PackageID>> clientDeclarations = symTable.clientDeclarations;
 
-        if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange).isEmpty()) {
+        if (!clientDeclarations.containsKey(lineRange)) {
             return symTable.notFoundSymbol;
         }
 
-        BPackageSymbol moduleSymbol = getModuleForPackageId(clientDeclarations.get(lineRange).get());
+        Optional<PackageID> optionalPackageID = clientDeclarations.get(lineRange);
+        if (optionalPackageID.isEmpty()) {
+            return symTable.notFoundSymbol;
+        }
+
+        BPackageSymbol moduleSymbol = getModuleForPackageId(optionalPackageID.get());
         moduleSymbol.isUsed = true;
         return moduleSymbol;
     }
