@@ -632,15 +632,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue, data);
             }
         } else if (expectedType.tag == TypeTags.UNION) {
-            for (BType memType : types.getAllTypes(expectedType, true)) {
-                BType memberRefType = Types.getReferredType(memType);
-                if (TypeTags.isIntegerTypeTag(memberRefType.tag) || memberRefType.tag == TypeTags.BYTE) {
+            BUnionType expectedUnionType = (BUnionType) expectedType;
+            List<BType> memberTypes = types.getAllReferredTypes(expectedUnionType);
+            for (BType memType : memberTypes) {
+                int tag = memType.tag;
+                if (TypeTags.isIntegerTypeTag(tag) || tag == TypeTags.BYTE) {
                     BType intLiteralType = getIntLiteralType(memType, literalValue, data);
-                    if (intLiteralType == memberRefType) {
+                    if (intLiteralType == memType) {
                         return intLiteralType;
                     }
-                } else if (memberRefType.tag == TypeTags.JSON || memberRefType.tag == TypeTags.ANYDATA ||
-                        memberRefType.tag == TypeTags.ANY) {
+                } else if (tag == TypeTags.JSON || tag == TypeTags.ANYDATA || tag == TypeTags.ANY) {
                     if (literalValue instanceof Double) {
                         return symTable.floatType;
                     }
@@ -651,7 +652,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
 
-            BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expectedType, symTable.intType);
+            BType finiteType = getFiniteTypeWithValuesOfSingleType(expectedUnionType, symTable.intType);
             if (finiteType != symTable.semanticError) {
                 BType setType = setLiteralValueAndGetType(literalExpr, finiteType, data);
                 if (literalExpr.isFiniteContext) {
@@ -659,8 +660,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     return setType;
                 }
             }
-            BType finiteTypeMatchingByte = getFiniteTypeWithValuesOfSingleType((BUnionType) expectedType,
-                    symTable.byteType);
+            BType finiteTypeMatchingByte = getFiniteTypeWithValuesOfSingleType(expectedUnionType, symTable.byteType);
             if (finiteTypeMatchingByte != symTable.semanticError) {
                 finiteType = finiteTypeMatchingByte;
                 BType setType = setLiteralValueAndGetType(literalExpr, finiteType, data);
@@ -669,8 +669,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     return setType;
                 }
             }
-            Set<BType> memberTypes = ((BUnionType) expectedType).getMemberTypes();
-            return getTypeMatchingFloatOrDecimal(finiteType, memberTypes, literalExpr, (BUnionType) expectedType, data);
+            return getTypeMatchingFloatOrDecimal(finiteType, memberTypes, literalExpr, expectedUnionType, data);
         }
         if (!(literalValue instanceof Long)) {
             dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
@@ -868,7 +867,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return literalType;
     }
 
-    private BType getTypeMatchingFloatOrDecimal(BType finiteType, Set<BType> memberTypes, BLangLiteral literalExpr,
+    private BType getTypeMatchingFloatOrDecimal(BType finiteType, List<BType> memberTypes, BLangLiteral literalExpr,
                                                 BUnionType expType, AnalyzerData data) {
         for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
             if (finiteType == symTable.semanticError) {
@@ -1183,7 +1182,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
             data.resultType = symTable.semanticError;
         } else {
-            data.resultType = symTable.semanticError;
+            data.resultType = types.checkType(tableConstructorExpr.pos,
+                    getInferredTableType(nodeCloner.cloneNode(tableConstructorExpr), data), expType,
+                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
     }
 
@@ -5258,7 +5259,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         } else if (isAddOrSubOperator && exprType != symTable.semanticError &&
-                TypeTags.isIntegerTypeTag(referredTypeTag) && referredTypeTag != TypeTags.INT) {
+                TypeTags.isIntegerTypeTag(referredTypeTag) && referredTypeTag != TypeTags.INT
+                && unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
             BType tempActualType = checkCompatibilityWithConstructedNumericLiteral(unaryExpr, referredType, data);
             if (tempActualType != symTable.semanticError) {
                 return  tempActualType;
@@ -6176,12 +6178,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (type.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) type;
             if (arrayType.state != BArrayState.OPEN && arrayType.size == 2 &&
-                    TypeTags.isStringTypeTag(arrayType.eType.tag)) {
+                    types.isAssignable(arrayType.eType, symTable.stringType)) {
                 return arrayType.eType;
             }
         } else if (type.tag == TypeTags.TUPLE) {
             List<BType> tupleTypeList = ((BTupleType) type).tupleTypes;
-            if (tupleTypeList.size() == 2 && TypeTags.isStringTypeTag(tupleTypeList.get(0).tag)) {
+            if (tupleTypeList.size() == 2 && types.isAssignable(tupleTypeList.get(0), symTable.stringType)) {
                 return tupleTypeList.get(1);
             }
         }

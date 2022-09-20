@@ -37,23 +37,30 @@ body:
   - type: dropdown
     id: labels
     attributes:
-      label: Labels
-      description: Tag the issue with related labels
-      multiple: true
+      label: Related area
+      description: Tag the issue with related area
+      multiple: false
       options:
-        - LanguageServer
-        - CompilerFE
-        - CompilerFETools
-        - Observability
-        - jBallerina
-        - LanguageServer/Extensions
-        - StandardLibs
-        - DIU
-        - PCM
-        - VSCode
-        - CICD
-        - DevTools
+        - Compilation
+        - Runtime
+        - Standard Library
+        - Central
         - Website
+        - API Docs
+        - Debugger
+        - Update Tool
+        - gRPC Tool
+        - AsyncAPI Tool
+        - OpenAPI Tool
+        - SemVer Validator Tool
+        - Bindgen Tool
+        - Formatter
+        - Shell
+        - Editor
+        - Test Framework
+        - Observability
+        - CICD
+        - Other Area
     validations:
       required: true
   - type: textarea
