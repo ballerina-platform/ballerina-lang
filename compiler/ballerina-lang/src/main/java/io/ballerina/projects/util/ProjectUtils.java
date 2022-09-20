@@ -23,6 +23,7 @@ import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.ModuleId;
@@ -1148,6 +1149,27 @@ public class ProjectUtils {
             pattern = pattern.substring(0, pattern.length() - 1);
         }
         return pattern;
+    }
+
+    /**
+     * Return the path of a bala with the available platform directory (java11 or any).
+     *
+     * @param balaDirPath path to the bala directory
+     * @param org org name of the bala
+     * @param name package name of the bala
+     * @param version version of the bala
+     * @return path of the bala file
+     */
+    public static Path getPackagePath(Path balaDirPath, String org, String name, String version) {
+        //First we will check for a bala that match any platform
+        Path balaPath = balaDirPath.resolve(
+                ProjectUtils.getRelativeBalaPath(org, name, version, null));
+        if (!Files.exists(balaPath)) {
+            // If bala for any platform not exist check for specific platform
+            balaPath = balaDirPath.resolve(
+                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+        }
+        return balaPath;
     }
 
     public static void writeModule(ModuleConfig moduleConfig, Path modulesRoot) throws IOException {

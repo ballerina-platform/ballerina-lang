@@ -944,7 +944,6 @@ public class Types {
             if (sourceTag == TypeTags.RECORD) {
                 return isAssignableRecordType((BRecordType) source, target, unresolvedTypes);
             }
-
         }
 
         if (targetTag == TypeTags.FUTURE && sourceTag == TypeTags.FUTURE) {
@@ -3630,6 +3629,7 @@ public class Types {
                 }
             }
             if (sourceTypeIsNotAssignableToAnyTargetType) {
+                unresolvedTypes.remove(pair);
                 return false;
             }
         }
@@ -3659,6 +3659,7 @@ public class Types {
                 }
             }
             if (sourceTypeIsNotAssignableToAnyTargetType) {
+                unresolvedTypes.remove(pair);
                 return false;
             }
         }
@@ -5834,6 +5835,18 @@ public class Types {
         return memberTypes;
     }
 
+    public List<BType> getAllReferredTypes(BUnionType unionType) {
+        List<BType> memberTypes = new LinkedList<>();
+        for (BType type : unionType.getMemberTypes()) {
+            if (type.tag == UNION) {
+                memberTypes.addAll(getAllReferredTypes((BUnionType) type));
+            } else {
+                memberTypes.add(Types.getReferredType(type));
+            }
+        }
+        return memberTypes;
+    }
+
     public boolean isAllowedConstantType(BType type) {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
@@ -6013,6 +6026,8 @@ public class Types {
                 return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
             case TypeTags.TYPEREFDESC:
                 return hasFillerValue(getReferredType(type));
+            case TypeTags.INTERSECTION:
+                return hasFillerValue(((BIntersectionType) type).effectiveType);
             default:
                 // check whether the type is an integer subtype which has filler value 0
                 return TypeTags.isIntegerTypeTag(type.tag);

@@ -1326,6 +1326,30 @@ function testCloneWithTypeTupleConsideringFillerValues() {
     assert(result22, ["0",""]);
 }
 
+type Default record {|
+    int id = 0;
+    string name = "Tom";
+|};
+
+function testCloneWithTypeConsideringReadOnlyFillerValues() {
+    anydata arr = [];
+
+    int[2] & readonly arr1 = checkpanic arr.cloneWithType();
+    int[4][2] & readonly arr2 = checkpanic arr.cloneWithType();
+    [int, string][4] & readonly arr3 = checkpanic arr.cloneWithType();
+    map<int>[2] & readonly arr4 = checkpanic arr.cloneWithType();
+    Default[4] & readonly arr5 = checkpanic arr.cloneWithType();
+    table<Default>[2] & readonly arr6 = checkpanic arr.cloneWithType();
+
+    assertEquality("[0,0]", arr1.toString());
+    assertEquality("[[0,0],[0,0],[0,0],[0,0]]", arr2.toString());
+    assertEquality("[[0,\"\"],[0,\"\"],[0,\"\"],[0,\"\"]]", arr3.toString());
+    assertEquality("[{},{}]", arr4.toString());
+    assertEquality("[{\"id\":0,\"name\":\"Tom\"},{\"id\":0,\"name\":\"Tom\"},{\"id\":0,\"name\":\"Tom\"},"+
+    "{\"id\":0,\"name\":\"Tom\"}]", arr5.toString());
+    assertEquality("[[],[]]", arr6.toString());
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
