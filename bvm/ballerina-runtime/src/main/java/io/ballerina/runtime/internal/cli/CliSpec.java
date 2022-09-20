@@ -110,7 +110,7 @@ public class CliSpec {
             if (operand.hasDefaultable) {
                 mainArgs.add(getDefaultBValue(opType));
             } else if (isSupportedArrayType(opType)) {
-                mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType, -1));
+                mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType));
             } else if ((CliUtil.isUnionWithNil(opType))) {
                 mainArgs.add(null);
             } else {
