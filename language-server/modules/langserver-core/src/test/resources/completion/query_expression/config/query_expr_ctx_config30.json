@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 19,
-    "character": 36
+    "line": 9,
+    "character": 54
   },
-  "source": "query_expression/source/query_expr_ctx_source29.bal",
+  "source": "query_expression/source/query_expr_ctx_source30.bal",
   "items": [
     {
       "label": "let",
@@ -442,60 +442,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getIntArr()",
-      "kind": "Function",
-      "detail": "int[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int[]`   \n  \n"
-        }
-      },
-      "sortText": "CC",
-      "filterText": "getIntArr",
-      "insertText": "getIntArr()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stringValue",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "BB",
-      "insertText": "stringValue",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "intValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "CB",
-      "insertText": "intValue",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "intArray",
-      "kind": "Variable",
-      "detail": "int[]",
-      "sortText": "BB",
-      "insertText": "intArray",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getStrArr()",
-      "kind": "Function",
-      "detail": "string[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string[]`   \n  \n"
-        }
-      },
-      "sortText": "CC",
-      "filterText": "getStrArr",
-      "insertText": "getStrArr()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -512,37 +458,6 @@
       "detail": "Union",
       "sortText": "CN",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getMedalStats()",
-      "kind": "Function",
-      "detail": "stream<MedalStatsRecord, error?>|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `stream<MedalStatsRecord, error?>|error`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "getMedalStats",
-      "insertText": "getMedalStats()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MedalStatsRecord",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "CM",
-      "insertText": "MedalStatsRecord",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "tsvStream",
-      "kind": "Variable",
-      "detail": "stream<string[], error?>",
-      "sortText": "BB",
-      "insertText": "tsvStream",
       "insertTextFormat": "Snippet"
     },
     {
@@ -696,6 +611,108 @@
           "newText": "import test/local_project1;\n"
         }
       ]
+    },
+    {
+      "label": "customerMap",
+      "kind": "Variable",
+      "detail": "map<string>",
+      "sortText": "BB",
+      "insertText": "customerMap",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "BB",
+      "insertText": "customerStr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "CB",
+      "insertText": "i",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerList",
+      "kind": "Variable",
+      "detail": "Customer[]",
+      "sortText": "AB",
+      "insertText": "customerList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "filteredCustomers",
+      "kind": "Variable",
+      "detail": "Customer[]",
+      "sortText": "AB",
+      "insertText": "filteredCustomers",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "CM",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testInClauseSuggestion()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "testInClauseSuggestion",
+      "insertText": "testInClauseSuggestion()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "CB",
+      "insertText": "c",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customers",
+      "kind": "Variable",
+      "detail": "Customer[]",
+      "sortText": "AB",
+      "insertText": "customers",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getCustomers()",
+      "kind": "Function",
+      "detail": "Customer[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Customer[]`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "getCustomers",
+      "insertText": "getCustomers()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerStrArray",
+      "kind": "Variable",
+      "detail": "string[]",
+      "sortText": "BB",
+      "insertText": "customerStrArray",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "function",

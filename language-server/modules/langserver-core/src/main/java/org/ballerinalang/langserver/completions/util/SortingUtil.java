@@ -347,7 +347,7 @@ public class SortingUtil {
      * @param completionItem Completion item
      * @return Symbol or empty if it's not a symbol completion item
      */
-    private static Optional<TypeSymbol> getSymbolFromCompletionItem(LSCompletionItem completionItem) {
+    public static Optional<TypeSymbol> getSymbolFromCompletionItem(LSCompletionItem completionItem) {
         Optional<TypeSymbol> optionalTypeSymbol = Optional.empty();
         switch (completionItem.getType()) {
             case SYMBOL:

@@ -379,7 +379,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
         }
       },
-      "sortText": "B",
+      "sortText": "CC",
       "filterText": "doTask",
       "insertText": "doTask(${1})",
       "insertTextFormat": "Snippet",
@@ -406,7 +406,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "B",
+      "sortText": "CC",
       "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
@@ -415,7 +415,7 @@
       "label": "list1",
       "kind": "Variable",
       "detail": "int[]",
-      "sortText": "AB",
+      "sortText": "BB",
       "insertText": "list1",
       "insertTextFormat": "Snippet"
     },
