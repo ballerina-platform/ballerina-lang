@@ -117,6 +117,8 @@ public class ItemResolverConstants {
     public static final String TABLE_WITH_KEY_TYPE = "type TypeName table<> key";
     public static final String STREAM_DEF = "stream<> streamName = new;";
     public static final String REMOTE_FUNCTION_TYPE = "remote function <name>();";
+
+    public static final String RESOURCE_FUNCTION_TYPE = "resource function <accessor> <path>();";
     public static final String NEW_OBJECT_INITIALIZER_TYPE = "init function";
     public static final String ATTACH_FUNCTION_TYPE = "attach function";
     public static final String DETACH_FUNCTION_TYPE = "detach function";
@@ -157,4 +159,6 @@ public class ItemResolverConstants {
     public static final String RECORD_KEYWORD = "record";
     public static final String OBJECT_KEYWORD = "object";
     public static final String OUTER_KEYWORD = "outer";
+
+    public static final String RESOURCE_KEYWORD = "remote";
 }
