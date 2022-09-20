@@ -1037,6 +1037,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             case LexerTerminals.JOIN:
                 return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
+            case LexerTerminals.RE:
+                return getSyntaxToken(SyntaxKind.RE_KEYWORD);
             default:
 //                if (this.keywordModes.contains(KeywordMode.QUERY)) {
 //                    return getQueryCtxKeywordOrIdentifier(tokenText);
@@ -1246,35 +1248,6 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getLiteral(SyntaxKind.STRING_LITERAL_TOKEN);
-    }
-
-    /**
-     * Process numeric escape.
-     * <p>
-     * <code>NumericEscape := \ u { CodePoint }</code>
-     */
-    private void processNumericEscape() {
-        // Process '\ u {'
-        this.reader.advance(3);
-
-        // Process code-point
-        if (!isHexDigit(peek())) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        reader.advance();
-        while (isHexDigit(peek())) {
-            reader.advance();
-        }
-
-        // Process close brace
-        if (peek() != LexerTerminals.CLOSE_BRACE) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        this.reader.advance();
     }
 
     /**

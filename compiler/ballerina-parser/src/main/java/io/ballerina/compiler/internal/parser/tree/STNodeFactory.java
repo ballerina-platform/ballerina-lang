@@ -2444,5 +2444,223 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression,
                 closeBracketToken);
     }
+
+    public static STNode createReSequenceNode(
+            STNode reTerm) {
+
+        return new STReSequenceNode(
+                reTerm);
+    }
+
+    public static STNode createReAtomQuantifierNode(
+            STNode reAtom,
+            STNode reQuantifier) {
+
+        return new STReAtomQuantifierNode(
+                reAtom,
+                reQuantifier);
+    }
+
+    public static STNode createReAtomCharOrEscapeNode(
+            STNode reAtomCharOrEscape) {
+
+        return new STReAtomCharOrEscapeNode(
+                reAtomCharOrEscape);
+    }
+
+    public static STNode createReQuoteEscapeNode(
+            STNode slashToken,
+            STNode reSyntaxChar) {
+
+        return new STReQuoteEscapeNode(
+                slashToken,
+                reSyntaxChar);
+    }
+
+    public static STNode createReSimpleCharClassEscapeNode(
+            STNode slashToken,
+            STNode reSimpleCharClassCode) {
+
+        return new STReSimpleCharClassEscapeNode(
+                slashToken,
+                reSimpleCharClassCode);
+    }
+
+    public static STNode createReUnicodePropertyEscapeNode(
+            STNode slashToken,
+            STNode property,
+            STNode openBraceToken,
+            STNode reUnicodeProperty,
+            STNode closeBraceToken) {
+
+        return new STReUnicodePropertyEscapeNode(
+                slashToken,
+                property,
+                openBraceToken,
+                reUnicodeProperty,
+                closeBraceToken);
+    }
+
+    public static STNode createReUnicodeScriptNode(
+            STNode scriptStart,
+            STNode reUnicodePropertyValue) {
+
+        return new STReUnicodeScriptNode(
+                scriptStart,
+                reUnicodePropertyValue);
+    }
+
+    public static STNode createReUnicodeGeneralCategoryNode(
+            STNode categoryStart,
+            STNode reUnicodeGeneralCategoryName) {
+
+        return new STReUnicodeGeneralCategoryNode(
+                categoryStart,
+                reUnicodeGeneralCategoryName);
+    }
+
+    public static STNode createReCharacterClassNode(
+            STNode openBracket,
+            STNode negation,
+            STNode reCharSet,
+            STNode closeBracket) {
+
+        return new STReCharacterClassNode(
+                openBracket,
+                negation,
+                reCharSet,
+                closeBracket);
+    }
+
+    public static STNode createReCharSetRangeWithReCharSetNode(
+            STNode reCharSetRange,
+            STNode reCharSet) {
+
+        return new STReCharSetRangeWithReCharSetNode(
+                reCharSetRange,
+                reCharSet);
+    }
+
+    public static STNode createReCharSetRangeNode(
+            STNode lhsReCharSetAtom,
+            STNode minusToken,
+            STNode rhsReCharSetAtom) {
+
+        return new STReCharSetRangeNode(
+                lhsReCharSetAtom,
+                minusToken,
+                rhsReCharSetAtom);
+    }
+
+    public static STNode createReCharSetAtomWithReCharSetNoDashNode(
+            STNode reCharSetAtom,
+            STNode reCharSetNoDash) {
+
+        return new STReCharSetAtomWithReCharSetNoDashNode(
+                reCharSetAtom,
+                reCharSetNoDash);
+    }
+
+    public static STNode createReCharSetRangeNoDashWithReCharSetNode(
+            STNode reCharSetRangeNoDash,
+            STNode reCharSet) {
+
+        return new STReCharSetRangeNoDashWithReCharSetNode(
+                reCharSetRangeNoDash,
+                reCharSet);
+    }
+
+    public static STNode createReCharSetRangeNoDashNode(
+            STNode reCharSetAtomNoDash,
+            STNode minusToken,
+            STNode reCharSetAtom) {
+
+        return new STReCharSetRangeNoDashNode(
+                reCharSetAtomNoDash,
+                minusToken,
+                reCharSetAtom);
+    }
+
+    public static STNode createReCharSetAtomNoDashWithReCharSetNoDashNode(
+            STNode reCharSetAtomNoDash,
+            STNode reCharSetNoDash) {
+
+        return new STReCharSetAtomNoDashWithReCharSetNoDashNode(
+                reCharSetAtomNoDash,
+                reCharSetNoDash);
+    }
+
+    public static STNode createReCapturingGroupsNode(
+            STNode openParenthesis,
+            STNode reFlagExpression,
+            STNode reSequences,
+            STNode closeParenthesis) {
+
+        return new STReCapturingGroupsNode(
+                openParenthesis,
+                reFlagExpression,
+                reSequences,
+                closeParenthesis);
+    }
+
+    public static STNode createReFlagExpressionNode(
+            STNode questionMark,
+            STNode reFlagsOnOff,
+            STNode colon) {
+
+        return new STReFlagExpressionNode(
+                questionMark,
+                reFlagsOnOff,
+                colon);
+    }
+
+    public static STNode createReFlagsOnOffNode(
+            STNode lhsReFlags,
+            STNode minusToken,
+            STNode rhsReFlags) {
+
+        return new STReFlagsOnOffNode(
+                lhsReFlags,
+                minusToken,
+                rhsReFlags);
+    }
+
+    public static STNode createReFlagsNode(
+            STNode reFlag) {
+
+        return new STReFlagsNode(
+                reFlag);
+    }
+
+    public static STNode createReAssertionNode(
+            STNode reAssertion) {
+
+        return new STReAssertionNode(
+                reAssertion);
+    }
+
+    public static STNode createReQuantifierNode(
+            STNode reBaseQuantifier,
+            STNode nonGreedyChar) {
+
+        return new STReQuantifierNode(
+                reBaseQuantifier,
+                nonGreedyChar);
+    }
+
+    public static STNode createReBracedQuantifierNode(
+            STNode openBraceToken,
+            STNode leastTimesMatchedDigit,
+            STNode commaToken,
+            STNode mostTimesMatchedDigit,
+            STNode closeBraceToken) {
+
+        return new STReBracedQuantifierNode(
+                openBraceToken,
+                leastTimesMatchedDigit,
+                commaToken,
+                mostTimesMatchedDigit,
+                closeBraceToken);
+    }
 }
 
