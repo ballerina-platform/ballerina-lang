@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -27,12 +26,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-
 /**
  * Test cases for the lang.regexp library.
  *
- * @since 1.0
+ * @since 2201.3.0
  */
 public class LangLibRegexpTest {
 
@@ -67,10 +64,5 @@ public class LangLibRegexpTest {
                 "testReplace",
                 "testFindAllGroups",
         };
-    }
-
-    public static void print(Object value) {
-        System.out.println("############################");
-        System.out.println(StringUtils.getStringValue(value, null));
     }
 }
