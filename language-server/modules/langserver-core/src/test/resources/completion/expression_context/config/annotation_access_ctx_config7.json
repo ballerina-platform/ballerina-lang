@@ -252,22 +252,6 @@
           "newText": "import test/local_project1;\n"
         }
       ]
-    },
-    {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "display",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "deprecated",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "deprecated",
-      "insertTextFormat": "Snippet"
     }
   ]
 }
