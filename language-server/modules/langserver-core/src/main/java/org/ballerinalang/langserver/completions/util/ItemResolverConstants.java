@@ -160,5 +160,5 @@ public class ItemResolverConstants {
     public static final String OBJECT_KEYWORD = "object";
     public static final String OUTER_KEYWORD = "outer";
 
-    public static final String RESOURCE_KEYWORD = "remote";
+    public static final String RESOURCE_KEYWORD = "resource";
 }
