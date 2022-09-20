@@ -2623,6 +2623,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 closeBracketToken);
     }
 
+    @Override
+    public STMemberTypeDescriptorNode transform(
+            STMemberTypeDescriptorNode memberTypeDescriptorNode) {
+        STNode annotations = modifyNode(memberTypeDescriptorNode.annotations);
+        STNode typeDescriptor = modifyNode(memberTypeDescriptorNode.typeDescriptor);
+        return memberTypeDescriptorNode.modify(
+                annotations,
+                typeDescriptor);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

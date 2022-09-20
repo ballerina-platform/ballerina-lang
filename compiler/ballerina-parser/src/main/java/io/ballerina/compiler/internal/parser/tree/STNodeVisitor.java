@@ -833,6 +833,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(resourceAccessRestSegmentNode);
     }
 
+    public void visit(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
+        visitSyntaxNode(memberTypeDescriptorNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

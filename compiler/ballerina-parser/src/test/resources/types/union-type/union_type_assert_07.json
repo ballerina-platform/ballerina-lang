@@ -274,28 +274,37 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "ARRAY_TYPE_DESC",
+                                  "kind": "MEMBER_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "myType"
-                                        }
-                                      ]
+                                      "kind": "LIST",
+                                      "children": []
                                     },
                                     {
-                                      "kind": "LIST",
+                                      "kind": "ARRAY_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "ARRAY_DIMENSION",
+                                          "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
                                             {
-                                              "kind": "OPEN_BRACKET_TOKEN"
-                                            },
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "myType"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
                                             {
-                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }

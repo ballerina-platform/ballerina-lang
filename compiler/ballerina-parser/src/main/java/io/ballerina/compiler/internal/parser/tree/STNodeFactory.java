@@ -2444,5 +2444,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression,
                 closeBracketToken);
     }
+
+    public static STNode createMemberTypeDescriptorNode(
+            STNode annotations,
+            STNode typeDescriptor) {
+
+        return new STMemberTypeDescriptorNode(
+                annotations,
+                typeDescriptor);
+    }
 }
 
