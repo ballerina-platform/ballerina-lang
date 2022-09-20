@@ -46,6 +46,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.SourceKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -62,6 +63,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -449,10 +451,16 @@ class DocumentContext {
         // TODO: implement validations
         private Path getIDLPath(Node clientNode) throws IOException {
             URL url = new URL(getUri(clientNode));
-            Path resourcePath = this.currentPkg.project().targetDir().resolve(
-                    "idl-resource" + System.currentTimeMillis());
+            String extension = FileNameUtils.getExtension(url.getFile());
+            String fileName = "idl-spec-file" + System.currentTimeMillis();
+            if (!"".equals(extension)) {
+                fileName = fileName + ProjectConstants.DOT + extension;
+            }
+            Path resourceName = Paths.get(fileName);
+            Path resourcePath = this.currentPkg.project().targetDir().resolve(resourceName);
             Files.createDirectories(this.currentPkg.project().targetDir());
             Files.createFile(resourcePath);
+
             try (BufferedInputStream in = new BufferedInputStream(url.openStream());
                  FileOutputStream fileOutputStream = new FileOutputStream(resourcePath.toFile())) {
                 byte[] dataBuffer = new byte[1024];

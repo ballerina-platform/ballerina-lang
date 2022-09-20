@@ -26,7 +26,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.test.TestUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
