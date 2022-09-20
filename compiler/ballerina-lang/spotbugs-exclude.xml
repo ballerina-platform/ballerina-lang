@@ -375,6 +375,16 @@
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager"/>
+        <Method name="getSourceModifierTaskByPackage"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager"/>
+        <Method name="populatePkgSyntaxNodeTaskMap"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.SyntaxNodeAnalysisTask"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
