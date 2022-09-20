@@ -4,6 +4,7 @@
     "character": 23
   },
   "source": "create_function_in_conditional_expression.bal",
+  "description": "Test create function code action in conditional expression",,
   "expected": [
     {
       "title": "Create function 'isGreaterThanZero(...)'",
@@ -20,7 +21,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction isGreaterThanZero(int i) returns boolean {\n    return false;\n}\n"
+          "newText": "\n\nfunction isGreaterThanZero(int i) returns boolean {\n    return false;\n}"
         }
       ],
       "resolvable": true,

@@ -354,9 +354,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Range range;
         Position position;
         String source;
+        String description;
         List<CodeActionObj> expected;
 
-        String description;
     }
 
     static class CodeActionObj {
