@@ -24,7 +24,7 @@ under the License.
     <!-- Ballerina BIR Spec Test Cases. -->
     <test name="ballerina-bir-spec-test-suite" parallel="false">
         <classes>
-            <class name="org.ballerinalang.birspec.BIRSpecTest"/>
+<!--            <class name="org.ballerinalang.birspec.BIRSpecTest"/>-->
         </classes>
     </test>
 </suite>
