@@ -675,10 +675,10 @@ public class CodeActionUtil {
 
         StringBuilder newTextBuilder = new StringBuilder();
         String extractedVarName = removeQuotedIdentifier(varName);
-        String functionName = extractedVarName .substring(0, 1).toUpperCase(Locale.ROOT)
-                + extractedVarName .substring(1);
+        String functionName = extractedVarName.substring(0, 1).toUpperCase(Locale.ROOT)
+                + extractedVarName.substring(1);
         newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
-                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, extractedVarName ))
+                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, extractedVarName))
                 .append(LINE_SEPARATOR).append(spaces).append(spaces)
                 .append(String.format("self.%s = %s;", varName, extractedVarName))
                 .append(LINE_SEPARATOR).append(spaces).append("}");
