@@ -5,4 +5,4 @@ public enum Letter1 {
 ;
 
 public enum Letter2 {
-;
+    ;

@@ -103,7 +103,7 @@ public class ParseObjectMemberTest {
     public void testWithInvalidTokens() {
         String resourceDef = "% isolated resource function foo . () {\n" +
                 "% int x = 1;\n" +
-                "};";
+                "};;";
         Node objectMemberNode = NodeParser.parseObjectMember(resourceDef);
         Assert.assertEquals(objectMemberNode.kind(), SyntaxKind.RESOURCE_ACCESSOR_DEFINITION);
         Assert.assertTrue(objectMemberNode.hasDiagnostics());
@@ -113,6 +113,9 @@ public class ParseObjectMemberTest {
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.PERCENT_TOKEN);
         Assert.assertEquals(objectMemberNode.toString(), " INVALID[%] isolated resource function foo . () {\n" +
                 " INVALID[%] int x = 1;\n" +
-                "};");
+                "}; INVALID[;]");
+        tokens = objectMemberNode.trailingInvalidTokens();
+        Assert.assertEquals(tokens.size(), 1);
+        Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);
     }
 }

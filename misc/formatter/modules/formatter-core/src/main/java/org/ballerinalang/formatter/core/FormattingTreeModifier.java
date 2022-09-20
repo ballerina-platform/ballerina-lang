@@ -1637,7 +1637,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatToken(enumDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
         Token semicolon = formatToken(optSemicolon.orElse(null), env.trailingWS, env.trailingNL);
 
-        EnumDeclarationNode x = enumDeclarationNode.modify()
+        return enumDeclarationNode.modify()
                 .withMetadata(metadata)
                 .withQualifier(qualifier)
                 .withEnumKeywordToken(enumKeywordToken)
@@ -1647,7 +1647,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withCloseBraceToken(closeBraceToken)
                 .withSemicolonToken(semicolon)
                 .apply();
-        return x;
     }
 
     @Override

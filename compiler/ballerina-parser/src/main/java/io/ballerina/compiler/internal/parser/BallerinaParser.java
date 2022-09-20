@@ -3017,7 +3017,7 @@ public class BallerinaParser extends AbstractParser {
      * </p>
      *
      * <code>
-     * function-body-block := { [default-worker-init, named-worker-decl+] default-worker }<br/>
+     * function-body-block := { [default-worker-init, named-worker-decl+] default-worker } [;]<br/>
      * default-worker-init := sequence-stmt<br/>
      * default-worker := sequence-stmt<br/>
      * named-worker-decl := worker worker-name return-type-descriptor { sequence-stmt }<br/>
@@ -3095,8 +3095,8 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBrace = parseCloseBrace();
         STNode semicolon = isAnonFunc ? STNodeFactory.createEmptyNode() : parseOptionalSemicolon();
         endContext();
-        return STNodeFactory.createFunctionBodyBlockNode(
-                openBrace, namedWorkersList, statements, closeBrace, semicolon);
+        return STNodeFactory.createFunctionBodyBlockNode(openBrace, namedWorkersList, statements, closeBrace,
+                semicolon);
     }
 
     private boolean isEndOfFuncBodyBlock(SyntaxKind nextTokenKind, boolean isAnonFunc) {
@@ -3327,6 +3327,11 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse optional semicolon.
+     *
+     * @return Parsed node
+     */
     private STNode parseOptionalSemicolon() {
         STToken token = peek();
         if (token.kind == SyntaxKind.SEMICOLON_TOKEN) {
