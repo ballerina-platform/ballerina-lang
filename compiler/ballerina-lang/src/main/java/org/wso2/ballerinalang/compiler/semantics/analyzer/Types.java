@@ -5156,13 +5156,13 @@ public class Types {
                     visitedTypes);
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    getArrayTypeForAnydataOrJson(type), (BTupleType) lhsType, env, visitedTypes);
+                    getArrayTypeForAnydataOrJson(type, env), (BTupleType) lhsType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
         } else if (type.tag == TypeTags.TUPLE && isAnydataOrJson(lhsType)) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    getArrayTypeForAnydataOrJson(lhsType), (BTupleType) type, env, visitedTypes);
+                    getArrayTypeForAnydataOrJson(lhsType, env), (BTupleType) type, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
@@ -5218,7 +5218,7 @@ public class Types {
         return mapType;
     }
 
-    private BArrayType getArrayTypeForAnydataOrJson(BType type) {
+    private BArrayType getArrayTypeForAnydataOrJson(BType type, SymbolEnv env) {
         BArrayType arrayType = type.tag == TypeTags.ANYDATA ? symTable.arrayAnydataType : symTable.arrayJsonType;
 
         if (isImmutable(type)) {
@@ -6100,6 +6100,10 @@ public class Types {
     private boolean checkFillerValue(BUnionType type) {
         if (type.isNullable()) {
             return true;
+        }
+
+        if (type.isCyclic) {
+            return false;
         }
 
         Set<BType> memberTypes = new HashSet<>();
