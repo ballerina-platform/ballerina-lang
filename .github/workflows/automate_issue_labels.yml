@@ -20,7 +20,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for Run Time related issue
-        if: ${{ contains(github.event.issue.body, 'Run Time') }}
+        if: ${{ contains(github.event.issue.body, 'Runtime') }}
         run: gh issue edit $ISSUE --add-label "Team/jBallerina"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
@@ -50,7 +50,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for APIDocs related issue
-        if: ${{ contains(github.event.issue.body, 'APIDocs') }}
+        if: ${{ contains(github.event.issue.body, 'API Docs') }}
         run: gh issue transfer $ISSUE "ballerina-platform/ballerina-dev-tools"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
@@ -73,7 +73,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for GRPC Tool related issue
-        if: ${{ contains(github.event.issue.body, 'GRPC Tool') }}
+        if: ${{ contains(github.event.issue.body, 'gRPC Tool') }}
         run: gh issue transfer $ISSUE "ballerina-platform/ballerina-standard-library"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
@@ -94,7 +94,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for Semver Validator Tool related issue
-        if: ${{ contains(github.event.issue.body, 'Semver validator Tool') }}
+        if: ${{ contains(github.event.issue.body, 'SemVer Validator Tool') }}
         run: |
           gh issue edit $ISSUE --add-label "Team/DevTools"
           gh issue edit $ISSUE --add-label "Area/SemverValidator"
@@ -162,7 +162,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for other issues 
-        if: ${{ contains(github.event.issue.body, 'Other') }}
+        if: ${{ contains(github.event.issue.body, 'Other Area') }}
         run: gh issue edit $ISSUE --add-label "needTriage"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}

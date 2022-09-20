@@ -36,25 +36,25 @@ body:
       multiple: false
       options:
         - Compilation
-        - Run Time
+        - Runtime
         - Standard Library
         - Central
         - Website
-        - APIDocs
+        - API Docs
         - Debugger
         - Update Tool
-        - GRPC Tool
+        - gRPC Tool
         - AsyncAPI Tool
         - OpenAPI Tool
-        - Semver Validator Tool
+        - SemVer Validator Tool
         - Bindgen Tool
         - Formatter
         - Shell
         - Editor
         - Test Framework
-        - Obsevability
+        - Observability
         - CICD
-        - Other
+        - Other Area
     validations:
       required: true
   - type: textarea
