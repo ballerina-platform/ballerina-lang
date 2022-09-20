@@ -130,6 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_TRANSACTIONAL_LOCAL_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
@@ -1209,7 +1210,8 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ILOAD, invocationVarIndex);
         this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
                 new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
-                        HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false), new Object[]{ins.channel.value + ":\u0001"});
+                        HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
+                ins.channel.value + START_OF_HEADING_WITH_SEMICOLON);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", GET_WORKER_DATA_CHANNEL, false);
         this.loadVar(ins.data.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, ins.data.variableDcl.type);
@@ -1237,7 +1239,8 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ILOAD, invocationVarIndex);
         this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
                 new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
-                        HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false), new Object[]{ins.workerName.value + ":\u0001"});
+                        HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
+                ins.workerName.value + START_OF_HEADING_WITH_SEMICOLON);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", GET_WORKER_DATA_CHANNEL, false);
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);

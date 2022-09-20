@@ -93,6 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
@@ -524,7 +525,8 @@ public class JvmCodeGenUtil {
             mv.visitVarInsn(ILOAD, invocationVarIndex);
             mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
                     new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
-                            HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false), new Object[]{ch.name + ":\u0001"});
+                            HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
+                    ch.name + START_OF_HEADING_WITH_SEMICOLON);
 
             if (ch.channelInSameStrand) {
                 mv.visitInsn(ICONST_1);
