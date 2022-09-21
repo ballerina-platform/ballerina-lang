@@ -47,6 +47,7 @@ import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
@@ -341,6 +342,12 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && node.parent().apply(this);
     }
 
+    @Override
+    public Boolean transform(TemplateExpressionNode node) {
+        return isVisited(node) || (!node.startBacktick().isMissing()
+                && !node.endBacktick().isMissing());
+    }
+    
     @Override
     public Boolean transform(QualifiedNameReferenceNode node) {
         /*
