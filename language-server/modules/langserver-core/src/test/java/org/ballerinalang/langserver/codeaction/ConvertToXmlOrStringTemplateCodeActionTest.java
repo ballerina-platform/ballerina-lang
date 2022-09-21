@@ -23,11 +23,11 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test cases for ChangeSubTypeOfRawTemplateCA.
+ * Test cases for @link{ConvertToXmlOrStringTemplateCodeAction}.
  *
  * @since 2201.2.0
  */
-public class ChangeSubTypeOfRawTemplateCodeActionTest extends AbstractCodeActionTest {
+public class ConvertToXmlOrStringTemplateCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
