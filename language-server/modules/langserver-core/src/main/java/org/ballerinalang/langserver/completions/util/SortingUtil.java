@@ -111,6 +111,21 @@ public class SortingUtil {
     }
 
     /**
+     * Check whether the item is an associated lang lib module completion item.
+     *
+     * @param item {@link LSCompletionItem} to evaluate
+     * @return {@link Boolean} whether type completion or not
+     */
+    public static boolean isLangLibModuleCompletionItem(LSCompletionItem item) {
+        if (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL
+                && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof ModuleSymbol) {
+            Optional<Symbol> symbol = ((SymbolCompletionItem) item).getSymbol();
+            return (symbol.isPresent() && CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()));
+        }
+        return false;
+    }
+
+    /**
      * Get the sort text for a given module completion item.
      *
      * @param context language server completion context
@@ -188,7 +203,7 @@ public class SortingUtil {
             Optional<Symbol> symbol = ((SymbolCompletionItem) item).getSymbol();
             // Case 6
             if (symbol.isEmpty()) {
-                // Basic types such as int, boolean, string, and etc get a lower priority
+                // Basic types and other type completions such as json, any etc.
                 return genSortText(7);
             }
             Optional<Project> currentProject = context.workspace().project(context.filePath());
@@ -198,6 +213,12 @@ public class SortingUtil {
             Optional<ModuleSymbol> symbolModule = symbol.get().getModule();
             String orgName = symbolModule.isPresent() ? symbolModule.get().id().orgName() : "";
             String moduleName = symbolModule.isPresent() ? symbolModule.get().id().moduleName() : "";
+
+            // Case 7
+            // Skip Types coming from lang.value (StrandData, Thread)
+            if (CommonUtil.isLangLib(orgName, moduleName) && !moduleName.equals("lang.annotations")) {
+                return genSortText(7);
+            }
 
             // Case 4
             if (symbol.get().kind() == SymbolKind.CONSTANT) {
@@ -285,7 +306,7 @@ public class SortingUtil {
                 Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(typeSymbol);
                 if (optionalTypeParamTypeSymbol.isPresent()) {
                     Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
-                    return optionalTypeSymbol.isPresent() 
+                    return optionalTypeSymbol.isPresent()
                             && optionalTypeSymbol.get().subtypeOf(optionalTypeParamTypeSymbol.get());
                 }
             }
@@ -299,7 +320,7 @@ public class SortingUtil {
 
     /**
      * Get the type symbol of the type parameter from the given type symbol.
-     * 
+     *
      * @param typeSymbol Type Symbol
      * @return Type Symbol or Empty if type parameter is not present
      */
