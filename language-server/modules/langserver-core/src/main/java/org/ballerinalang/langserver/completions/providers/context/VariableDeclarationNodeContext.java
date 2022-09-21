@@ -48,8 +48,7 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node.initializer().isPresent() && onExpressionContext(context, node)) {
-            completionItems.addAll(this.initializerContextCompletions(context,
-                    node.typedBindingPattern().typeDescriptor(), node.initializer().get()));
+            completionItems.addAll(this.initializerContextCompletions(context, node.initializer().get()));
             this.sort(context, node, completionItems);
             return completionItems;
         } else if (onSuggestionsAfterQualifiers(context, node)) {

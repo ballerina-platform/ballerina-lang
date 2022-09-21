@@ -46,9 +46,11 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +64,6 @@ import java.util.function.Supplier;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
@@ -122,8 +123,6 @@ public class TypeConverter {
             case TypeTags.BYTE_TAG:
                 return anyToByte(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return convertValues(((BTypeReferenceType) targetType).getReferredType(), inputValue);
             default:
                 throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                         BLangExceptionHelper.getErrorDetails(
@@ -263,10 +262,17 @@ public class TypeConverter {
         }
     }
 
-    // TODO: return only the first matching type
     public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
                                                 List<TypeValuePair> unresolvedValues, List<String> errors,
                                                 boolean allowAmbiguity) {
+        return getConvertibleTypes(inputValue, targetType, varName, isFromJson, unresolvedValues, errors,
+                allowAmbiguity, true);
+    }
+
+    // TODO: return only the first matching type
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
+                                                List<TypeValuePair> unresolvedValues, List<String> errors,
+                                                boolean allowAmbiguity, boolean allowNumericConversion) {
         Set<Type> convertibleTypes = new LinkedHashSet<>();
 
         Type inputValueType;
@@ -332,7 +338,7 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.TABLE_TAG:
-                if (isConvertibleToTableType(((BTableType) targetType).getConstrainedType())) {
+                if (isConvertibleToTableType(inputValue, ((BTableType) targetType))) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -378,7 +384,7 @@ public class TypeConverter {
                 return getConvertibleTypes(inputValue, ((BTypedescType) targetType).getConstraint(), varName,
                         isFromJson, unresolvedValues, errors, allowAmbiguity);
             default:
-                if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
+                if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)) {
                     convertibleTypes.add(targetType);
                 }
         }
@@ -404,7 +410,7 @@ public class TypeConverter {
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
                                                          List<TypeValuePair> unresolvedValues, List<String> errors) {
 
-        int targetTypeTag = getReferredType(targetType).getTag();
+        int targetTypeTag = TypeUtils.getReferredType(targetType).getTag();
 
         List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
                 varName, true, unresolvedValues, errors, false));
@@ -571,15 +577,23 @@ public class TypeConverter {
         }
     }
 
-    private static boolean isConvertibleToTableType(Type tableConstrainedType) {
+    private static boolean isConvertibleToTableType(Object sourceValue, BTableType tableType) {
+        if (!(sourceValue instanceof TableValueImpl || sourceValue instanceof ArrayValueImpl)) {
+            return false;
+        }
+        return isValidTableConstraint(tableType.getConstrainedType());
+    }
+
+    private static boolean isValidTableConstraint(Type tableConstrainedType) {
         switch (tableConstrainedType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
                 return true;
             case TypeTags.INTERSECTION_TAG:
-                return isConvertibleToTableType(((BIntersectionType) tableConstrainedType).getEffectiveType());
+                return isValidTableConstraint(((BIntersectionType) tableConstrainedType).getEffectiveType());
+            default:
+                return false;
         }
-        return false;
     }
 
     private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
@@ -615,10 +629,10 @@ public class TypeConverter {
             return false;
         }
         ArrayValue source = (ArrayValue) sourceValue;
-        Type targetTypeElementType = targetType.getElementType();
+        Type targetTypeElementType = TypeUtils.getReferredType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = ((BArrayType) sourceType).getElementType();
+            Type sourceElementType = TypeUtils.getReferredType(((BArrayType) sourceType).getElementType());
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }
@@ -1239,7 +1253,7 @@ public class TypeConverter {
     }
 
     private static boolean isDeepConversionRequiredForArray(Type sourceType) {
-        Type elementType = ((BArrayType) sourceType).getElementType();
+        Type elementType = TypeUtils.getReferredType(((BArrayType) sourceType).getElementType());
 
         if (elementType != null) {
             if (TypeUtils.isValueType(elementType)) {

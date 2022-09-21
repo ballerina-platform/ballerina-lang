@@ -89,3 +89,40 @@ function testNestedElvisNegative() {
     var elvisOutput12 = x8 ?: y8 ?: z9 ?: z10;
     int v12 = elvisOutput12;
 }
+
+type T1 json;
+
+function testElvisWithJsonNegative() {
+    json resp = ();
+    int _ = (resp.population?.value ?: 0) / 1000000;
+}
+
+function testElvisWithJsonNegative2() {
+    json a = {
+        x: {
+            y: 3,
+            z: "a",
+            t: true
+        }
+    };
+    int _ = (a.x?.y ?: 0) / 10;
+    string _ = (a.x?.z ?: "") + "b";
+    boolean _ = (a.x?.t ?: true) && false;
+}
+
+function testElvisWithJsonNegative3() {
+    T1 resp = ();
+    int _ = (resp.population?.value ?: 0) / 1000000;
+}
+
+function testElvisWithJsonNegative4() {
+    json a = ();
+    any[] b = [];
+    int _ = (a.x?.y ?: b) / 10;
+}
+
+function testElvisWithJsonNegative5() {
+    T1 a = ();
+    any[] b = [];
+    int _ = (a.x?.y ?: b) / 10;
+}

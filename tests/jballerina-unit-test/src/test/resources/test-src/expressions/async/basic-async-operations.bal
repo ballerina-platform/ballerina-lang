@@ -1,3 +1,20 @@
+// Copyright (c) (2019-2022), WSO2 Inc. (http://www.wso2.com).
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/lang.runtime;
 import ballerina/jballerina.java;
 
 int globalResult = 0;
@@ -65,8 +82,8 @@ function testAsyncNonNativeBasic7() returns int {
 }
 
 function testAsyncNonNativeBasic8() returns int {
-    future<int> f1 = start subtract(8, 3);
-    future<int> f2 = start subtract(5, 2);
+    future<int> f1 = @strand{thread:"parent"} start subtract(8, 3);
+    future<int> f2 = @strand{thread:"parent"} start subtract(5, 2);
     f1.cancel();
     f2.cancel();
     int result = checkpanic wait f1 | f2;
@@ -74,24 +91,24 @@ function testAsyncNonNativeBasic8() returns int {
 }
 
 function testAsyncNonNativeBasic9() returns int {
-    future<int> f1 = start subtract(5, 2);
-    future<int> f2 = start addNum(5, 2);
+    future<int> f1 = @strand{thread:"parent"} start subtract(5, 2);
+    future<int> f2 = @strand{thread:"parent"} start addNum(5, 2);
     f1.cancel();
     int result = checkpanic wait f1 | f2;
     return result;
 }
 
 function testAsyncNonNativeBasic10() returns any {
-    future<int> f1 = start addNum(5, 2);
-    future<int> f2 = start subtract(5, 2);
+    future<int> f1 = @strand{thread:"parent"} start addNum(5, 2);
+    future<int> f2 = @strand{thread:"parent"} start subtract(5, 2);
     f2.cancel();
     record {| int|error f1; int|error f2; |} result = wait {f1,f2};
     return result;
 }
 
 function testAsyncNonNativeBasic11() returns any {
-    future<int> f1 = start subtract(7, 2);
-    future<int> f2 = start subtract(5, 2);
+    future<int> f1 = @strand{thread:"parent"} start subtract(7, 2);
+    future<int> f2 = @strand{thread:"parent"} start subtract(5, 2);
     f1.cancel();
     f2.cancel();
     record {| int|error f1; int|error f2; |} result = wait {f1,f2};
@@ -133,6 +150,7 @@ function infiniteFunc() {
     int i = 0;
     while (true) {
         i = i + 1;
+        runtime:sleep(0.0001);
     }
 }
 

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -36,11 +37,17 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
+import org.ballerinalang.langserver.completions.CompletionSearchProvider;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -416,5 +423,39 @@ public class SymbolUtil {
         }
         return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
                 && symbol.getName().orElse("").equals(SELF_KW);
+    }
+
+    /**
+     * Filter symbols by prefix.
+     *
+     * @param symbolList           list of expected symbols.
+     * @param context              completion context.
+     * @param prefix               type prefix.
+     * @param moduleId             module id.
+     * @return {@link List} List of symbols.
+     */
+    public static List<Symbol> filterSymbolsByPrefix(List<Symbol> symbolList,
+                                                     BallerinaCompletionContext context,
+                                                     String prefix,
+                                                     ModuleID moduleId) {
+        if (prefix.isEmpty()) {
+            return Collections.emptyList();
+        }
+        CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
+                .getInstance(context.languageServercontext());
+        if (!completionSearchProvider.checkModuleIndexed(moduleId)) {
+            completionSearchProvider.indexModule(moduleId, symbolList.stream().map(symbol -> symbol.getName().get())
+                    .collect(Collectors.toList()));
+        }
+
+        List<String> stringList = completionSearchProvider.getSuggestions(prefix);
+
+        Map<String, Symbol> symbolMap = new HashMap<>();
+        for (Symbol symbol : symbolList) {
+            symbolMap.put(symbol.getName().get(), symbol);
+        }
+        return symbolMap.entrySet().stream().filter(stringSymbolEntry -> stringList.contains(stringSymbolEntry.getKey()
+                        .toLowerCase()))
+                .map(Map.Entry::getValue).collect(Collectors.toList());
     }
 }

@@ -32,8 +32,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmObjectTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRecordTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRefTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTypeRefTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
@@ -130,7 +130,7 @@ public class JvmCreateTypeGen {
     private final JvmUnionTypeGen jvmUnionTypeGen;
     private final JvmTupleTypeGen jvmTupleTypeGen;
     private final JvmArrayTypeGen jvmArrayTypeGen;
-    private final JvmTypeRefTypeGen jvmTypeRefTypeGen;
+    private final JvmRefTypeGen jvmRefTypeGen;
     private final TypeHashVisitor typeHashVisitor;
     public final TypeDefHashComparator typeDefHashComparator;
     private final String typesClass;
@@ -149,7 +149,7 @@ public class JvmCreateTypeGen {
         this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmArrayTypeGen = new JvmArrayTypeGen(jvmTypeGen);
-        this.jvmTypeRefTypeGen = new JvmTypeRefTypeGen(jvmTypeGen, jvmConstantsGen);
+        this.jvmRefTypeGen = new JvmRefTypeGen(jvmTypeGen, jvmConstantsGen);
         this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.typeHashVisitor =  typeHashVisitor;
         this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);
@@ -576,6 +576,14 @@ public class JvmCreateTypeGen {
         return new AnonTypeHashInfo(hashes, labels, labelFieldMapping);
     }
 
+    public void generateRefTypeConstants(List<BIRTypeDefinition> typeDefs, SymbolTable symbolTable) {
+        for (BIRTypeDefinition typeDef : typeDefs) {
+            if (typeDef.referenceType != null) {
+                jvmConstantsGen.getTypeConstantsVar(typeDef.referenceType, symbolTable);
+            }
+        }
+    }
+
     static class AnonTypeHashInfo {
 
         int[] hashes;
@@ -645,7 +653,7 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
 
         // Load the field type
-        jvmTypeGen.loadType(mv, field.type);
+        jvmTypeGen.loadLocalType(mv, field.symbol.type);
 
         // Load field name
         mv.visitLdcInsn(decodeIdentifier(field.name.value));
@@ -668,8 +676,8 @@ public class JvmCreateTypeGen {
         return jvmArrayTypeGen;
     }
 
-    public JvmTypeRefTypeGen getJvmTypeRefTypeGen() {
-        return jvmTypeRefTypeGen;
+    public JvmRefTypeGen getJvmRefTypeGen() {
+        return jvmRefTypeGen;
     }
 
 }

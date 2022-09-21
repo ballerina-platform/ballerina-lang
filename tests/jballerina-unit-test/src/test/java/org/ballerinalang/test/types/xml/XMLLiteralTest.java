@@ -192,14 +192,14 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "missing xml CDATA end token", 128, 49);
         BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 133, 45);
         BAssertUtil.validateError(negativeResult, index++,
-                "incompatible types: expected 'xml', found 'string'", 140, 60);
+                "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'string[]'", 140, 25);
         BAssertUtil.validateError(negativeResult, index++,
-                "incompatible types: expected 'xml', found 'string'", 141, 60);
+                "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'string[]'", 141, 25);
         BAssertUtil.validateError(negativeResult, index++,
-                "incompatible types: expected 'xml', found 'int'", 142, 69);
+                "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'int[]'", 142, 38);
         BAssertUtil.validateError(negativeResult, index++,
-                "invalid literal for type 'xml': raw templates can only be assigned to " +
-                        "abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 143, 52);
+                "incompatible types: expected '(int|float|decimal|string|boolean|xml)', " +
+                        "found 'ballerina/lang.object:0.0.0:RawTemplate[]'", 143, 25);
         BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: 'ballerina/lang.object:0.0.0:RawTemplate[]' cannot be cast to 'string'", 144, 25);
 
@@ -439,6 +439,11 @@ public class XMLLiteralTest {
     @Test
     public void testQueryInXMLTemplateExpr() {
         BRunUtil.invoke(result, "testQueryInXMLTemplateExpr");
+    }
+
+    @Test
+    public void testXMLLiteralWithConditionExpr() {
+        BRunUtil.invoke(result, "testXMLLiteralWithConditionExpr");
     }
 
     @AfterClass

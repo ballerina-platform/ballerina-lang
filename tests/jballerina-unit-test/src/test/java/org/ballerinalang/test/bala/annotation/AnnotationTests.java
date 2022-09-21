@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -135,10 +136,8 @@ public class AnnotationTests {
         Assert.assertEquals(pkgID.version.value, "0.2.0");
         Assert.assertEquals(attachmentSymbol.annotTag.value, "Allow");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
-        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol =
-                (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
-        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
-        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
+        assertTrueAnnot(attachmentSymbol);
+        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol;
 
         BInvokableSymbol otherFunc = (BInvokableSymbol) importedModuleEntries.get(
                 Names.fromString("otherFunc")).symbol;
@@ -314,10 +313,8 @@ public class AnnotationTests {
         Assert.assertEquals(pkgID.version.value, "0.2.0");
         Assert.assertEquals(attachmentSymbol.annotTag.value, "Allow");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
-        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol =
-                (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
-        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
-        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
+        assertTrueAnnot(attachmentSymbol);
+        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol;
 
         attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(1);
         pkgID = attachmentSymbol.annotPkgID;
@@ -406,10 +403,7 @@ public class AnnotationTests {
         Assert.assertEquals(pkgID.version.value, "0.2.0");
         Assert.assertEquals(attachmentSymbol.annotTag.value, "Custom");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
-        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol =
-                (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
-        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
-        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
+        assertTrueAnnot(attachmentSymbol);
     }
 
     @Test
@@ -427,10 +421,7 @@ public class AnnotationTests {
         Assert.assertEquals(pkgID.version.value, "0.0.1");
         Assert.assertEquals(attachmentSymbol.annotTag.value, "KnownConst");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
-        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol =
-                (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
-        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
-        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
+        assertTrueAnnot(attachmentSymbol);
 
         annotationAttachmentSymbols =
                 ((BConstantSymbol) importedModuleEntries.get(Names.fromString("D")).symbol).getAnnotations();
@@ -496,6 +487,89 @@ public class AnnotationTests {
         Assert.assertEquals(f2Member1Map.get("t").value, "t3");
 
         Assert.assertEquals(f2.get(1).value, "test");
+    }
+
+
+    @Test
+    public void testFunctionAnnotAttachmentsViaBir() {
+        BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+
+        BInvokableSymbol invokableSymbol =
+                (BInvokableSymbol) importedModuleEntries.get(Names.fromString("fn1")).symbol;
+        List<? extends AnnotationAttachmentSymbol> attachments = invokableSymbol.getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
+        PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "FunctionAnnot");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+        assertTrueAnnot(annotationAttachmentSymbol);
+
+        attachments = ((BInvokableTypeSymbol) invokableSymbol.type.tsymbol).returnTypeAnnots;
+        Assert.assertEquals(attachments.size(), 1);
+        annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
+        pkgID = annotationAttachmentSymbol.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "ReturnAnnot");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+        assertTrueAnnot(annotationAttachmentSymbol);
+
+        invokableSymbol = (BInvokableSymbol) importedModuleEntries.get(Names.fromString("fn2")).symbol;
+        Assert.assertEquals(invokableSymbol.getAnnotations().size(), 0);
+        Assert.assertEquals(((BInvokableTypeSymbol) invokableSymbol.type.tsymbol).returnTypeAnnots.size(), 0);
+    }
+
+    @Test
+    public void testMethodAnnotAttachmentsViaBir() {
+        BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+
+        BClassSymbol classSymbol = (BClassSymbol) importedModuleEntries.get(Names.fromString("Cl2")).symbol;
+        BInvokableSymbol invokableSymbol = classSymbol.attachedFuncs.stream()
+                .filter(method -> method.funcName.value.equals("cfn1"))
+                .findFirst().get().symbol;
+        Assert.assertEquals(invokableSymbol.getAnnotations().size(), 0);
+
+        List<? extends AnnotationAttachmentSymbol> attachments =
+                ((BInvokableTypeSymbol) invokableSymbol.type.tsymbol).returnTypeAnnots;
+        Assert.assertEquals(attachments.size(), 1);
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
+        PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "ReturnAnnot");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+        assertTrueAnnot(annotationAttachmentSymbol);
+
+        invokableSymbol = classSymbol.attachedFuncs.stream().filter(method -> method.funcName.value.equals("cfn2"))
+                .findFirst().get().symbol;
+        attachments = invokableSymbol.getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+        annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
+        pkgID = annotationAttachmentSymbol.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "FunctionAnnot");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+        assertTrueAnnot(annotationAttachmentSymbol);
+
+        Assert.assertEquals(((BInvokableTypeSymbol) invokableSymbol.type.tsymbol).returnTypeAnnots.size(), 0);
+    }
+
+    private void assertTrueAnnot(BAnnotationAttachmentSymbol annotAttachmentSymbol) {
+        BConstantSymbol attachmentValueSymbol =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachmentSymbol)
+                        .attachmentValueSymbol;
+        Assert.assertEquals(attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
+        Assert.assertEquals(attachmentValueSymbol.value.value, Boolean.TRUE);
     }
 
     @AfterClass

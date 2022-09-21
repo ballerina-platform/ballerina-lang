@@ -1,10 +1,27 @@
 {
-  "line": 7,
-  "character": 4,
+  "position": {
+    "line": 7,
+    "character": 4
+  },
+  "source": "testproject/main.bal",
   "expected": [
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "module2:Country|error countryWithError \u003d "
+        },
         {
           "range": {
             "start": {
@@ -30,41 +47,16 @@
             }
           },
           "newText": "\n    if countryWithError is module2:Country {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 7,
-              "character": 4
-            },
-            "end": {
-              "line": 7,
-              "character": 4
-            }
-          },
-          "newText": "module2:Country|error countryWithError = "
         }
       ]
     },
     {
       "title": "Create variable and check error",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import testproject.module2;\n"
-        },
-        {
-          "range": {
-            "start": {
               "line": 7,
               "character": 4
             },
@@ -73,7 +65,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country countryWithError = "
+          "newText": "module2:Country countryWithError \u003d "
         },
         {
           "range": {
@@ -100,11 +92,25 @@
             }
           },
           "newText": " returns error?"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import testproject.module2;\n"
         }
       ]
     },
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -117,7 +123,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country|error countryWithError = "
+          "newText": "module2:Country|error countryWithError \u003d "
         },
         {
           "range": {

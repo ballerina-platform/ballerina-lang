@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -407,6 +408,8 @@ public class Desugar extends BLangNodeVisitor {
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
+    // Reuse the strand annotation in isolated workers and start action
+    private BLangAnnotationAttachment strandAnnotAttachement;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -813,6 +816,11 @@ public class Desugar extends BLangNodeVisitor {
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
+        addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+    }
+
+    private void addInitFunctionForRecordTypeNodeInTypeDef(BLangPackage pkgNode,
+                                                         List<BLangTypeDefinition> prevTypeDefinitions) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             if (prevTypeDefinitions.contains(typeDef)) {
                 continue;
@@ -1162,12 +1170,7 @@ public class Desugar extends BLangNodeVisitor {
         if (generatedInitFunction.restParam != null) {
             BLangSimpleVarRef restVarRef = ASTBuilderUtil.createVariableRef(location,
                     generatedInitFunction.restParam.symbol);
-            BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
-            bLangRestArgsExpression.expr = restVarRef;
-            bLangRestArgsExpression.pos = generatedInitFunction.pos;
-            bLangRestArgsExpression.setBType(generatedInitFunction.restParam.getBType());
-            bLangRestArgsExpression.expectedType = bLangRestArgsExpression.getBType();
-            invocation.restArgs.add(bLangRestArgsExpression);
+            invocation.restArgs.add(createRestArgsExpression(restVarRef));
         }
         invocation.exprSymbol =
                 objectTypeSymbol.generatedInitializerFunc.symbol.receiverSymbol;
@@ -5064,15 +5067,18 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.stmts.addAll(onFailClause.body.stmts);
         env.scope.entries.putAll(onFailClause.body.scope.entries);
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        BVarSymbol onFailErrorVariableSymbol =
-                ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
-        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                onFailErrorVariableSymbol);
-        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-        env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-        onFailBody.stmts.add(0, errorVarDef);
+        if (onFailVarDefNode != null) {
+            BVarSymbol onFailErrorVariableSymbol =
+                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
+            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                    onFailErrorVariableSymbol);
+            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+            env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+            onFailBody.stmts.add(0, errorVarDef);
+        }
 
         if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {
@@ -5099,15 +5105,18 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.scope = onFailClause.body.scope;
         onFailBody.mapSymbol = onFailClause.body.mapSymbol;
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        BVarSymbol onFailErrorVariableSymbol =
-                ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
-        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                onFailErrorVariableSymbol);
-        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-        onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-        onFailBody.stmts.add(0, errorVarDef);
+        if (onFailVarDefNode != null) {
+            BVarSymbol onFailErrorVariableSymbol =
+                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
+            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                    onFailErrorVariableSymbol);
+            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+            onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+            onFailBody.stmts.add(0, errorVarDef);
+        }
 
         int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
         int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
@@ -5794,7 +5803,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         List<BLangExpression> exprs = tupleLiteral.exprs;
-        BTupleType tupleType = (BTupleType) tupleLiteral.getBType();
+        BTupleType tupleType = (BTupleType) Types.getReferredType(tupleLiteral.getBType());
         List<BTupleMember> tupleMemberTypes = tupleType.tupleTypes;
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
@@ -6118,12 +6127,7 @@ public class Desugar extends BLangNodeVisitor {
             funcSymbol.scope.define(restParam.symbol.name, restParam.symbol);
 
             BLangSimpleVarRef restArg = createVariableRef(pos, restParam.symbol);
-            BLangRestArgsExpression restArgExpr = new BLangRestArgsExpression();
-            restArgExpr.expr = restArg;
-            restArgExpr.pos = pos;
-            restArgExpr.setBType(restSym.type);
-            restArgExpr.expectedType = restArgExpr.getBType();
-            restArgs.add(restArgExpr);
+            restArgs.add(createRestArgsExpression(restArg));
         }
 
         BLangIdentifier field = fieldAccessExpr.field;
@@ -6359,9 +6363,221 @@ public class Desugar extends BLangNodeVisitor {
         if (!actionInvocation.async && actionInvocation.invokedInsideTransaction) {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
+
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action or
+        // isolated named worker declaration.
+        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(actionInvocation);
+        }
+
         rewriteInvocation(actionInvocation, actionInvocation.async);
     }
 
+    private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
+        if (this.strandAnnotAttachement == null) {
+            BLangPackage pkgNode = env.enclPkg;
+            List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+            // Create strand annotation once and reuse it for all isolated start-actions and named workers.
+            this.strandAnnotAttachement =
+                    annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            // Add init function for record type node in type def introduced for internally added strand annotation.
+            addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+        }
+
+        actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
+        ((BInvokableSymbol) actionInvocation.symbol)
+                .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        // `BLangResourceAccessInvocation` will be desugared into a `BLangInvocation`
+        // ex: 1
+        // Target resource function
+        // resource function get [string a]/[int b](string c) returns int {
+        //      return 3;
+        // }
+        //
+        // before desugar -
+        // a->/path/[1].get("hello")
+        //
+        // after desugar -
+        // a.get("path", 1, "hello")
+        //
+        // ex: 2
+        // Target resource function
+        // resource function get4 path/[int a]/[int... b](string c) returns int {
+        //      return 3;
+        // }
+        //
+        // before desugar -
+        // a->/path/[...list].get("hello")
+        //
+        // after desugar -
+        // a.get4(list[0], list.slice(1), "hello")
+        
+        if (resourceAccessInvocation.invokedInsideTransaction) {
+            transactionDesugar.startTransactionCoordinatorOnce(env, resourceAccessInvocation.pos);
+        }
+
+        // Create virtual invocation to reorder resource path parameters
+        BLangInvocation pathParamInvocation = createInvocationForPathParams(resourceAccessInvocation);
+        reorderArguments(pathParamInvocation);
+
+        BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
+        List<Name> resourcePath = targetResourceFunc.resourcePath;
+
+        int pathParamInvocationRequiredArgCount = pathParamInvocation.requiredArgs.size();
+
+        BLangInvocation bLangInvocation = new BLangInvocation();
+
+        // After reordering we have one to one mapping from resource access segments to resource path segments
+        // We need to select only the arguments that are required as path parameters from the pathParamInvocation and
+        // add them to final bLangInvocation.
+        // In the case that the rest arg provides value(requiredArg) for a required parameter, 
+        // `reorderArguments` logic will create statement expression which contains a virtual variable referring to 
+        // rest arg inside that value. 
+        // If that value is not needed by the path parameters, we need to make sure that virtual variable is 
+        // included in an argument that is needed by path parameters. Otherwise we will get NPE in later stages.
+        BLangStatementExpression firstRequiredArgFromRestArg = null;
+        boolean isFirstRequiredArgFromRestArgIncluded = false;
+        for (int i = 0; i < pathParamInvocationRequiredArgCount; i++) {
+            BLangExpression requiredArg = pathParamInvocation.requiredArgs.get(i);
+            // Resource path size is always >= pathParamInvocationRequiredArgCount
+            Name resourcePathName = resourcePath.get(i);
+            if (firstRequiredArgFromRestArg == null && requiredArg.getKind() == NodeKind.STATEMENT_EXPRESSION) {
+                firstRequiredArgFromRestArg = (BLangStatementExpression) requiredArg;
+                if (resourcePathName.value.equals("*")) {
+                    isFirstRequiredArgFromRestArgIncluded = true;
+                    bLangInvocation.requiredArgs.add(requiredArg);
+                    continue;
+                }
+            }
+
+            if (resourcePathName.value.equals("*")) {
+                if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded) {
+                    BLangStatementExpression statementExpression = new BLangStatementExpression();
+                    statementExpression.expr = requiredArg;
+                    statementExpression.stmt = firstRequiredArgFromRestArg.stmt;
+                    statementExpression.setBType(requiredArg.getBType());
+                    bLangInvocation.requiredArgs.add(statementExpression);
+                    isFirstRequiredArgFromRestArgIncluded = true;
+                } else {
+                    bLangInvocation.requiredArgs.add(requiredArg);
+                }
+            }
+        }
+
+        Name lastResourcePathName = resourcePath.get(resourcePath.size() - 1);
+        if (lastResourcePathName.value.equals("**")) {
+            // After reordering pathParamInvocation.restArgs size will always be 0 or 1
+            for (BLangExpression restArg : pathParamInvocation.restArgs) {
+                if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded &&
+                        restArg.getKind() == NodeKind.STATEMENT_EXPRESSION) {
+                    BLangStatementExpression restArgStmtExpr = (BLangStatementExpression) restArg;
+                    ((BLangBlockStmt) restArgStmtExpr.stmt).stmts.add(0, 
+                            ((BLangBlockStmt) firstRequiredArgFromRestArg.stmt).stmts.get(0));
+                }
+                bLangInvocation.requiredArgs.add(restArg);
+            }
+        }
+        
+        bLangInvocation.requiredArgs.addAll(resourceAccessInvocation.requiredArgs);
+        bLangInvocation.pkgAlias = resourceAccessInvocation.pkgAlias;
+        bLangInvocation.name = resourceAccessInvocation.name;
+        bLangInvocation.expr = resourceAccessInvocation.expr;
+        bLangInvocation.restArgs = resourceAccessInvocation.restArgs;
+        bLangInvocation.symbol = resourceAccessInvocation.symbol;
+        bLangInvocation.setBType(resourceAccessInvocation.getBType());
+        bLangInvocation.parent = resourceAccessInvocation.parent;
+        bLangInvocation.pos = resourceAccessInvocation.pos;
+
+        rewriteInvocation(bLangInvocation, false);
+    }
+
+    private BLangInvocation createInvocationForPathParams(
+            BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        // This method will create an invocation in which all the resource path types will be a parameter of the 
+        // invokable symbol and all the path segments will be the arguments.
+        // ex: 1
+        // Target resource function
+        // resource function get path/[int b](string c) returns int {
+        //      return 3;
+        // }
+        // a->/path/[1].get("hello")
+        // 
+        // Generated invokable symbol params: ("path" _, int _)
+        // Generated invocation requiredArgs: ("path", 1)
+        //
+        // ex:2
+        // Target resource function
+        // resource function post books/["books"... a]() returns string[] {
+        //      return a;
+        // }
+        // "books"[2] booksArray = ["books", "books"];
+        // string[] b7 = myClient->/[...booksArray].post;
+        //
+        // Generated invokable symbol params: ("books" _)
+        // Generated invokable symbol restParam: "books"[]
+        // Generated invocation restArgs: BLangRestArgsExpression booksArray
+        BLangInvocation bLangInvocation = new BLangInvocation();
+
+        BInvokableSymbol invokableSymbol = new BInvokableSymbol(
+                resourceAccessInvocation.symbol.tag,
+                resourceAccessInvocation.symbol.flags,
+                resourceAccessInvocation.symbol.name,
+                resourceAccessInvocation.symbol.pkgID,
+                resourceAccessInvocation.symbol.type,
+                resourceAccessInvocation.symbol,
+                resourceAccessInvocation.symbol.pos, VIRTUAL);
+
+        BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
+        List<Name> resourcePath = targetResourceFunc.resourcePath;
+        List<BLangExpression> resourceAccessPathSegments = resourceAccessInvocation.resourceAccessPathSegments.exprs;
+        
+        List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());
+        BTupleType resourcePathType = targetResourceFunc.resourcePathType;
+        for (BType type : resourcePathType.tupleTypes) {
+            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type,
+                    this.env.scope.owner, type.tsymbol.pos, VIRTUAL);
+            invocationParams.add(param);
+        }
+        
+        invokableSymbol.params = invocationParams;
+
+        BType resourcePathRestType = resourcePathType.restType;
+        if (resourcePathRestType != null) {
+            invokableSymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID,
+                    new BArrayType(resourcePathRestType), this.env.scope.owner, 
+                    resourcePathRestType.tsymbol.pos, VIRTUAL);
+        }
+
+        bLangInvocation.symbol = invokableSymbol;
+
+        for (int i = 0;  i < resourceAccessPathSegments.size(); i++) {
+            BLangExpression resourceAccessPathSeg = resourceAccessPathSegments.get(i);
+            if (resourceAccessPathSeg.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                bLangInvocation.restArgs.add(createRestArgsExpression(
+                        ((BLangListConstructorSpreadOpExpr) resourceAccessPathSeg).expr));
+            } else if (i > invocationParams.size() - 1) {
+                bLangInvocation.restArgs.add(resourceAccessPathSeg);
+            } else {
+                bLangInvocation.requiredArgs.add(resourceAccessPathSeg);
+            }
+        }
+
+        return bLangInvocation;
+    }
+    
+    private BLangRestArgsExpression createRestArgsExpression(BLangExpression expr) {
+        BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
+        bLangRestArgsExpression.expr = expr;
+        bLangRestArgsExpression.pos = expr.pos;
+        bLangRestArgsExpression.setBType(expr.getBType());
+        bLangRestArgsExpression.expectedType = bLangRestArgsExpression.getBType();
+        return bLangRestArgsExpression;
+    }
+    
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
         BLangInvocation invRef = invocation;
 
@@ -6374,6 +6590,14 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(invocation);
 
         rewriteExprs(invocation.requiredArgs);
+
+        // Disallow desugaring the same expression twice.
+        // For langlib invocations, expr is duplicated as the first required arg.
+        if (invocation.langLibInvocation && !invocation.requiredArgs.isEmpty()) {
+            invocation.expr = invocation.requiredArgs.get(0);
+        } else {
+            invocation.expr = rewriteExpr(invocation.expr);
+        }
         fixStreamTypeCastsInInvocationParams(invocation);
         fixNonRestArgTypeCastInTypeParamInvocation(invocation);
 
@@ -6386,7 +6610,6 @@ public class Desugar extends BLangNodeVisitor {
             visitFunctionPointerInvocation(invocation);
             return;
         }
-        invocation.expr = rewriteExpr(invocation.expr);
         result = invRef;
 
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
@@ -6824,6 +7047,11 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
+            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
+        }
+
         if (lhsExprTypeTag == TypeTags.DECIMAL) {
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
             return;
@@ -6852,10 +7080,6 @@ public class Desugar extends BLangNodeVisitor {
         if (isBinaryShiftOperator) {
             createTypeCastExprForBinaryShiftExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
             return;
-        }
-
-        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
-            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
         }
     }
 
@@ -7031,28 +7255,56 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void createTypeCastExprForRelationalExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
-                                                                int rhsExprTypeTag) {
+                                                     int rhsExprTypeTag) {
         boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
         boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+        BType lhsExprType = binaryExpr.lhsExpr.getBType();
+        BType rhsExprType = binaryExpr.rhsExpr.getBType();
 
         if ((isLhsIntegerType && isRhsIntegerType) || (lhsExprTypeTag == TypeTags.BYTE &&
                 rhsExprTypeTag == TypeTags.BYTE)) {
             return;
         }
 
+        if (lhsExprTypeTag == TypeTags.DECIMAL) {
+            addTypeCastForBinaryExprB(binaryExpr, lhsExprType, rhsExprType);
+            return;
+        }
+
+        if (rhsExprTypeTag == TypeTags.DECIMAL) {
+            addTypeCastForBinaryExprA(binaryExpr, rhsExprType, lhsExprType);
+            return;
+        }
+
+        if (lhsExprTypeTag == TypeTags.FLOAT) {
+            addTypeCastForBinaryExprB(binaryExpr, lhsExprType, rhsExprType);
+            return;
+        }
+
+        if (rhsExprTypeTag == TypeTags.FLOAT) {
+            addTypeCastForBinaryExprA(binaryExpr, rhsExprType, lhsExprType);
+            return;
+        }
+
         if (isLhsIntegerType && !isRhsIntegerType) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            addTypeCastForBinaryExprB(binaryExpr, symTable.intType, rhsExprType);
             return;
         }
 
         if (!isLhsIntegerType && isRhsIntegerType) {
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            addTypeCastForBinaryExprA(binaryExpr, symTable.intType, lhsExprType);
             return;
         }
 
         if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            if ((lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) ||
+                    (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable())) {
+                binaryExpr.lhsExpr = addNilType(symTable.intType, binaryExpr.lhsExpr);
+                binaryExpr.rhsExpr = addNilType(symTable.intType, binaryExpr.rhsExpr);
+                return;
+            }
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
             return;
         }
 
@@ -7064,13 +7316,37 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (isLhsStringType && !isRhsStringType) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
+            addTypeCastForBinaryExprB(binaryExpr, symTable.stringType, rhsExprType);
             return;
         }
 
         if (!isLhsStringType && isRhsStringType) {
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
+            addTypeCastForBinaryExprA(binaryExpr, symTable.stringType, lhsExprType);
         }
+    }
+
+    private void addTypeCastForBinaryExprA(BLangBinaryExpr binaryExpr, BType rhsExprType, BType lhsExprType) {
+        if (lhsExprType.tag == TypeTags.UNION && lhsExprType.isNullable()) {
+            binaryExpr.rhsExpr = addNilType(rhsExprType, binaryExpr.rhsExpr);
+        } else {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, rhsExprType);
+        }
+    }
+
+    private void addTypeCastForBinaryExprB(BLangBinaryExpr binaryExpr, BType lhsExprType, BType rhsExprType) {
+        if (rhsExprType.tag == TypeTags.UNION && rhsExprType.isNullable()) {
+            binaryExpr.lhsExpr = addNilType(lhsExprType, binaryExpr.lhsExpr);
+        } else {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, lhsExprType);
+        }
+    }
+
+    private BLangExpression addNilType(BType exprType, BLangExpression expr) {
+        LinkedHashSet<BType> members = new LinkedHashSet<>(2);
+        members.add(exprType);
+        members.add(symTable.nilType);
+        BUnionType unionType = new BUnionType(null, members, true, false);
+        return createTypeCastExpr(expr, unionType);
     }
 
     private BLangInvocation replaceWithIntRange(Location location, BLangExpression lhsExpr,
@@ -7188,11 +7464,17 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        // Since the support for singleton type changes are not complete, continuing with the finite type will require
+        // significant changes, therefore we are constructing a numeric literal.
+        if (types.isExpressionInUnaryValid(unaryExpr.expr) && unaryExpr.expectedType.tag == TypeTags.FINITE) {
+            result = rewriteExpr(Types.constructNumericLiteralFromUnaryExpr(unaryExpr));
+            return;
+        }
+
         OperatorKind opKind = unaryExpr.operator;
         if (opKind == OperatorKind.ADD || opKind == OperatorKind.SUB) {
             createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
         }
-
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
         result = unaryExpr;
     }
@@ -8454,14 +8736,14 @@ public class Desugar extends BLangNodeVisitor {
                 || funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             Location invPos = invokableNode.pos;
             Location returnStmtPos;
-            if (invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
-                returnStmtPos = null;
-            } else {
+            if (invPos != null && !invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
                 returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().startLine().offset(),
                         invPos.lineRange().startLine().offset(), 0, 0);
+            } else {
+                returnStmtPos = null;
             }
             BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
             funcBody.addStatement(returnStmt);
@@ -8720,8 +9002,8 @@ public class Desugar extends BLangNodeVisitor {
         boolean tupleTypedVararg = false;
 
         if (varargRef != null) {
-            varargType = varargRef.getBType();
-            tupleTypedVararg = Types.getReferredType(varargType).tag == TypeTags.TUPLE;
+            varargType = Types.getReferredType(varargRef.getBType());
+            tupleTypedVararg = varargType.tag == TypeTags.TUPLE;
         }
 
         // Iterate over the required args.
@@ -9222,7 +9504,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = Types.getReferredType(accessExpr.originalType);
-            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType)) {
+            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType, false)) {
                 accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
             } else {
                 accessExpr.setBType(originalType);
@@ -9307,8 +9589,9 @@ public class Desugar extends BLangNodeVisitor {
         pushToMatchStatementStack(matchStmt, successClause, pos);
     }
 
-    private boolean isMapJson(BType originalType) {
-        return originalType.tag == TypeTags.MAP && ((BMapType) originalType).getConstraint().tag == TypeTags.JSON;
+    private boolean isMapJson(BType originalType, boolean fromMap) {
+        return ((originalType.tag == TypeTags.MAP) && isMapJson(((BMapType) originalType).getConstraint(), true))
+                || ((originalType.tag == TypeTags.JSON) && fromMap);
     }
 
     private void pushToMatchStatementStack(BLangMatchStatement matchStmt, BLangMatchClause successClause,

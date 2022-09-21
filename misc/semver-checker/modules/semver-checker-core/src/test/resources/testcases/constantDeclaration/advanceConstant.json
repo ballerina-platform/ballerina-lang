@@ -1,0 +1,170 @@
+[
+  {
+    "description": "Add public qualifier and change the constant value",
+    "oldCode": "const int id = 102;",
+    "newCode": "public const int id = 100;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to module constant 'id'"
+                },
+                {
+                  "kind": "module constant initializer",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the const type, add annotation",
+    "oldCode": "public const int id = 102;",
+    "newCode": "@display {\n\tlabel: \"\"\n}\npublic const float id = 102;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "new",
+                    "versionImpact": "ambiguous",
+                    "kind": "module constant annotation",
+                    "message": "a new module constant annotation list is added"
+                  }
+                ],
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant type changed from 'int' to 'float'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove documentation , Remove public qualifier",
+    "oldCode": "#Documentation\npublic const int id = 102;",
+    "newCode": "const int id = 102;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "documentation is removed"
+                },
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from module constant 'id'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add documentation , Remove annotation , Change the value, Remove public qualifier",
+    "oldCode": "@display {\n\tlabel: \"\"\n}\npublic const int id = 102;",
+    "newCode": "#Documentation\nconst int id = 100;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "new",
+                  "versionImpact": "patch",
+                  "message": "documentation is added"
+                },
+                [
+                  {
+                    "type": "modified",
+                    "versionImpact": "ambiguous",
+                    "kind": "module constant annotation",
+                    "message": "module constant annotation list is modified"
+                  }
+                ],
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from module constant 'id'"
+                },
+                {
+                  "kind": "module constant initializer",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

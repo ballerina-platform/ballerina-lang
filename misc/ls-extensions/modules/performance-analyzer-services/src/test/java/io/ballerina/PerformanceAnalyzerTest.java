@@ -57,41 +57,47 @@ public class PerformanceAnalyzerTest {
     @Test(description = "Test performance analyzer")
     public void testFunction() throws IOException, ExecutionException, InterruptedException {
 
-        compare(Path.of("project",  "main.bal").toString(), "main.json");
+        compare(Path.of("project", "main.bal").toString(), "main.json", true);
     }
 
     @Test(description = "Test performance analyzer")
     public void testIfElse() throws IOException, ExecutionException, InterruptedException {
 
-        compare(Path.of("project",  "ifElse.bal").toString(), "ifElse.json");
+        compare(Path.of("project", "ifElse.bal").toString(), "ifElse.json", true);
     }
 
     @Test(description = "Test performance analyzer")
     public void testNoData() throws IOException, ExecutionException, InterruptedException {
 
-        compare(Path.of("project",  "noData.bal").toString(), "noData.json");
+        compare(Path.of("project", "noData.bal").toString(), "noData.json", true);
     }
 
     @Test(description = "Test performance analyzer")
     public void testForEach() throws IOException, ExecutionException, InterruptedException {
 
-        compare(Path.of("project",  "forEach.bal").toString(), "forEach.json");
+        compare(Path.of("project", "forEach.bal").toString(), "forEach.json", true);
     }
 
     @Test(description = "Test performance analyzer")
     public void testWhile() throws IOException, ExecutionException, InterruptedException {
 
-        compare(Path.of("project",  "while.bal").toString(), "while.json");
+        compare(Path.of("project", "while.bal").toString(), "while.json", true);
     }
 
     @Test(description = "Test performance analyzer worker support")
     public void testWorker() throws IOException, ExecutionException, InterruptedException {
 
-        compare(Path.of("worker",  "main.bal").toString(), "worker.json");
+        compare(Path.of("worker", "main.bal").toString(), "worker.json", true);
     }
 
-    private void compare(String balFile, String jsonFile) throws IOException, InterruptedException,
-                                                                 ExecutionException {
+    @Test(description = "Test performance analyzer worker not support")
+    public void testWorkerNotSupport() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("worker", "main.bal").toString(), "workerNot.json", false);
+    }
+
+    private void compare(String balFile, String jsonFile, boolean isWorkerSupported) throws IOException,
+            InterruptedException, ExecutionException {
 
         Path project = RES_DIR.resolve(BALLERINA).resolve(balFile);
         Path resultJson = RES_DIR.resolve(RESULT).resolve(jsonFile);
@@ -101,6 +107,7 @@ public class PerformanceAnalyzerTest {
 
         PerformanceAnalyzerRequest request = new PerformanceAnalyzerRequest();
         request.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
+        request.setWorkerSupported(isWorkerSupported);
 
         CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
         List<PerformanceAnalyzerResponse> endpoints = (List<PerformanceAnalyzerResponse>) result.get();

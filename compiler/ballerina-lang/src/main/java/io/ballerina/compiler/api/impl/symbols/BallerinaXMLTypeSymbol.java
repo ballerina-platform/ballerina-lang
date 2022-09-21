@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -47,7 +48,10 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
     public Optional<TypeSymbol> typeParameter() {
         if (this.typeParameter == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.typeParameter = typesFactory.getTypeDescriptor(((BXMLType) this.getBType()).constraint);
+            BType constraintType = ((BXMLType) this.getBType()).constraint;
+            if (constraintType != null) {
+                this.typeParameter = typesFactory.getTypeDescriptor(constraintType, constraintType.tsymbol, true);
+            }
         }
 
         return Optional.ofNullable(this.typeParameter);

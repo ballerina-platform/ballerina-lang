@@ -1,27 +1,56 @@
 {
-  "line": 2,
-  "character": 15,
+  "position": {
+    "line": 2,
+    "character": 15
+  },
+  "source": "createUndefinedFunctionInRecordField.bal",
   "expected": [
     {
       "title": "Create function 'fn(...)'",
-      "command": {
-        "title": "Create function 'fn(...)'",
-        "command": "CREATE_FUNC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line":2,
-                "character": 13
-              },
-              "end": {
-                "line": 2,
-                "character": 17
-              }
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 3
+            },
+            "end": {
+              "line": 3,
+              "character": 3
+            }
+          },
+          "newText": "\n\nfunction fn() returns int {\n    return 0;\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunctionInRecordField.bal",
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 13
+          },
+          "end": {
+            "line": 2,
+            "character": 17
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 2.0,
+              "character": 13.0
+            },
+            "end": {
+              "line": 2.0,
+              "character": 17.0
             }
           }
-        ]
+        }
       }
     }
   ]

@@ -130,6 +130,14 @@
       "sortText": "ACC",
       "insertText": "TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GLOBAL_VAR",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "ABC",
+      "insertText": "GLOBAL_VAR",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

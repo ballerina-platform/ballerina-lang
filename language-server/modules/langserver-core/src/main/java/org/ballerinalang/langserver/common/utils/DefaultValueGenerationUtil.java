@@ -268,7 +268,7 @@ public class DefaultValueGenerationUtil {
                 break;
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
-                StringBuilder errorString = new StringBuilder("error (\"\"");
+                StringBuilder errorString = new StringBuilder("error(\"\"");
                 if (errorType.typeKind() == TypeDescKind.RECORD) {
                     List<RecordFieldSymbol> mandatoryFields = RecordUtil
                             .getMandatoryRecordFields((RecordTypeSymbol) errorType);
@@ -292,6 +292,12 @@ public class DefaultValueGenerationUtil {
                 break;
             case SINGLETON:
                 valueString = rawType.signature();
+                valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
+                break;
+            case JSON:
+            case NIL:
+            case ANY:
+                valueString = "()";
                 valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                 break;
             default:

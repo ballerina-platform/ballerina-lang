@@ -1,27 +1,56 @@
 {
-  "line": 4,
-  "character": 7,
+  "position": {
+    "line": 6,
+    "character": 7
+  },
+  "source": "createUndefinedFunction.bal",
   "expected": [
     {
-      "title": "Create function 'addTwoIntegers3(...)'",
-      "command": {
-        "title": "Create function 'addTwoIntegers3(...)'",
-        "command": "CREATE_FUNC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line": 4,
-                "character": 7
-              },
-              "end": {
-                "line": 4,
-                "character": 28
-              }
+      "title": "Create function 'assignInteger(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 1
+            },
+            "end": {
+              "line": 7,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction assignInteger(string s, int b, boolean b1) returns int {\n    return 0;\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction.bal",
+        "range": {
+          "start": {
+            "line": 6,
+            "character": 7
+          },
+          "end": {
+            "line": 6,
+            "character": 39
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 6.0,
+              "character": 7.0
+            },
+            "end": {
+              "line": 6.0,
+              "character": 39.0
             }
           }
-        ]
+        }
       }
     }
   ]

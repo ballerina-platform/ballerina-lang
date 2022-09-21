@@ -358,6 +358,8 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangInvocation.BLangAttachedFunctionInvocation node, T data);
 
     public abstract void visit(BLangInvocation.BLangActionInvocation node, T data);
+    
+    public abstract void visit(BLangInvocation.BLangResourceAccessInvocation node, T data);
 
     public abstract void visit(BLangIsAssignableExpr node, T data);
 

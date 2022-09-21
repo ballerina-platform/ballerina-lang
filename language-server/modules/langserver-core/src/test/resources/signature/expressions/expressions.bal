@@ -420,3 +420,12 @@ function testLanglib() {
     string subStr = testStr.substring();
     string subStr = testStr.substring(1,7);
 }
+
+type MyType record {|
+      string name;
+|};
+
+public function testPosArg() {
+    json myJson;
+    MyType  rec = myJson.cloneReadOnly().cloneWithType()
+}

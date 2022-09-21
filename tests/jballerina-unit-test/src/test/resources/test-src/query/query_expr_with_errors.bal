@@ -226,7 +226,7 @@ function testCatchingErrorAtOnFail() {
             _ = from int v in 1 ... 3
                 select check verifyCheck(v);
         } on fail error err {
-            _ = from int v in 1 ... 3
+          _ = from int v in 1 ... 3
                 select check verifyCheck(v);
         }
     } on fail error err {

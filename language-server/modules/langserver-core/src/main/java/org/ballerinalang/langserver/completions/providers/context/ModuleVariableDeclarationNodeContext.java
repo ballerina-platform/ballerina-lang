@@ -61,8 +61,7 @@ public class ModuleVariableDeclarationNodeContext extends
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ResolvedContext resolvedContext;
         if (node.initializer().isPresent() && this.withinInitializerContext(ctx, node)) {
-            completionItems.addAll(this.initializerContextCompletions(ctx, node.typedBindingPattern().typeDescriptor(),
-                    node.initializer().get()));
+            completionItems.addAll(this.initializerContextCompletions(ctx, node.initializer().get()));
             resolvedContext = ResolvedContext.INITIALIZER;
         } else if (this.onServiceTypeDescriptorContext(ctx, node)) {
             /*

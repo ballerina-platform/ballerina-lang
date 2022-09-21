@@ -149,6 +149,8 @@ public class DefinitionTest {
                 {"def_record_config1.json", "project"},
                 // TODO Blocked by #30688 causing module of user defined errors to become lang.annotations
                 // {"def_error_config1.json", "project"},
+                // TODO Blocked due to BLangResourceFunction position being set incorrectly
+                // {"def_annotation_on_obj_func_config1.json", "project"}   
         };
     }
 
@@ -158,7 +160,9 @@ public class DefinitionTest {
         return new Object[][]{
                 {"defProject8.json", "project"},
                 {"def_error_config2.json", "project"},
-                {"def_retry_spec_config1.json", "project"}
+                {"def_retry_spec_config1.json", "project"},
+                {"defProject14.json", "project"},
+                {"defProject14.json", "project"}
         };
     }
 

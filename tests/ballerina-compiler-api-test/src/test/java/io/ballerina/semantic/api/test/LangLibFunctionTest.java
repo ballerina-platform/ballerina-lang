@@ -134,7 +134,7 @@ public class LangLibFunctionTest {
 
     @Test
     public void testSingletonLangLib1() {
-        Symbol symbol = getSymbol(72, 4);
+        Symbol symbol = getSymbol(73, 4);
         TypeReferenceTypeSymbol typeRefTypeSymbol = (TypeReferenceTypeSymbol) symbol;
         UnionTypeSymbol unionSymbol = (UnionTypeSymbol) typeRefTypeSymbol.typeDescriptor();
         List<TypeSymbol> memberTypeDescriptors = unionSymbol.memberTypeDescriptors();
@@ -150,7 +150,7 @@ public class LangLibFunctionTest {
 
     @Test
     public void testSingletonLangLib2() {
-        Symbol symbol = getSymbol(74, 4);
+        Symbol symbol = getSymbol(75, 4);
         TypeReferenceTypeSymbol typeRefTypeSymbol = (TypeReferenceTypeSymbol) symbol;
         UnionTypeSymbol unionSymbol = (UnionTypeSymbol) typeRefTypeSymbol.typeDescriptor();
         List<TypeSymbol> memberTypeDescriptors = unionSymbol.memberTypeDescriptors();
@@ -243,16 +243,18 @@ public class LangLibFunctionTest {
 
         List<String> elementFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes",
                                             "getDescendants");
-        List<String> piFuncs = List.of("getTarget");
+        List<String> piFuncs = List.of("getTarget", "getContent");
+        List<String> commentFuncs = List.of("getContent");
 
         return new Object[][]{
-                {67, 8, XML, expFunctions},
-                {68, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), elementFuncs.stream())
+                {68, 8, XML, expFunctions},
+                {69, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), elementFuncs.stream())
                         .collect(Collectors.toList())},
-                {76, 31, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), piFuncs.stream())
+                {77, 31, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), piFuncs.stream())
                         .collect(Collectors.toList())},
-                {77, 17, TYPE_REFERENCE, expFunctions},
-                {78, 14, TYPE_REFERENCE, expFunctions},
+                {78, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), commentFuncs.stream())
+                        .collect(Collectors.toList())},
+                {79, 14, TYPE_REFERENCE, expFunctions},
         };
     }
 
@@ -375,13 +377,14 @@ public class LangLibFunctionTest {
 
         return new Object[][]{
                 {64, 22, expFunctions},
-                {65, 32, Stream.concat(expFunctions.stream(), additionalFuncs.stream()).collect(Collectors.toList())}
+                {65, 32, Stream.concat(expFunctions.stream(), additionalFuncs.stream()).collect(Collectors.toList())},
+                {66, 37, expFunctions},
         };
     }
 
     @Test
     public void testIntersectionType() {
-        Symbol symbol = getSymbol(70, 21);
+        Symbol symbol = getSymbol(71, 21);
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), INTERSECTION);
 
@@ -397,7 +400,7 @@ public class LangLibFunctionTest {
 
     @Test
     public void testAllErrorMemberUnionType() {
-        Symbol symbol = getSymbol(80, 8);
+        Symbol symbol = getSymbol(81, 8);
         TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(typeSymbol.typeKind(), TYPE_REFERENCE);
 

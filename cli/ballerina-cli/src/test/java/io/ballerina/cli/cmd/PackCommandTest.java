@@ -1,8 +1,11 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
@@ -49,7 +52,7 @@ public class PackCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
 
@@ -64,7 +67,7 @@ public class PackCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
 
@@ -82,7 +85,7 @@ public class PackCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         System.setProperty("user.dir", projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         try {
             packCommand.execute();
         } catch (BLauncherException e) {
@@ -96,7 +99,7 @@ public class PackCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         try {
             packCommand.execute();
         } catch (BLauncherException e) {
@@ -110,7 +113,7 @@ public class PackCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
         System.setProperty("user.dir", projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
 
@@ -125,7 +128,7 @@ public class PackCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithDependenciesToml");
         System.setProperty("user.dir", projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
 
@@ -147,7 +150,7 @@ public class PackCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWoRootPkgInDepsToml");
         System.setProperty("user.dir", projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
 
@@ -166,7 +169,7 @@ public class PackCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
 
@@ -182,7 +185,7 @@ public class PackCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
@@ -195,7 +198,7 @@ public class PackCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
@@ -208,7 +211,7 @@ public class PackCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
@@ -216,15 +219,17 @@ public class PackCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pack an empty package with empty Non Default")
-    public void testPackEmptyNonDefaultModule() {
+    public void testPackEmptyNonDefaultModule() throws IOException {
         Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
+        String buildLog = readOutput(true);
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-nondefault-module.txt"));
+        Assert.assertFalse(projectPath.resolve("target").resolve("bala")
                 .resolve("wso2-emptyNonDefaultModule-any-0.1.0.bala").toFile().exists());
     }
 
@@ -236,7 +241,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
                 customTargetDir);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
 
@@ -257,7 +262,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
                 customTargetDir);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
 
@@ -276,7 +281,7 @@ public class PackCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
 
         String buildLog = readOutput(true);
@@ -290,7 +295,7 @@ public class PackCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
 
         String buildLog = readOutput(true);
@@ -298,4 +303,60 @@ public class PackCommandTest extends BaseCommandTest {
                 getOutput("pack-empty-package-with-compiler-plugin.txt"));
     }
 
+    @BeforeGroups("packWithCompilerPlugin")
+    private void buildAndCacheCompilerPluginPackage() {
+        Path compilerPluginPath = this.testResources.resolve("compiler-plugins")
+                .resolve("package_comp_plugin_code_modify_add_function");
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.toString());
+    }
+
+    @Test(enabled = false, description = "Pack a non template package with a compiler plugin dependency",
+            groups = {"packWithCompilerPlugin"})
+    public void testPackNonTemplatePackageWithACompilerPackageDependency() throws IOException {
+
+        // BALA should contain the source documents modified by the compiler plugin
+        Path projectPath = this.testResources.resolve("projects-using-compiler-plugins")
+                .resolve("package_plugin_code_modify_user_not_template");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("samjs-package_plugin_code_modify_user_not_template-any-0.1.0.bala");
+        Assert.assertTrue(balaFilePath.toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String mainBalContent = Files.readString(balaDestPath.resolve("modules")
+                .resolve("package_plugin_code_modify_user_not_template").resolve("main.bal"));
+        Assert.assertTrue(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
+                "returns error? {\n}"));
+    }
+
+    @Test(enabled = false, description = "Pack a template package with a compiler plugin dependency",
+            groups = {"packWithCompilerPlugin"})
+    public void testPackTemplatePackageWithACompilerPackageDependency() throws IOException {
+
+        // BALA should contain the original source documents and not documents modified by the compiler plugin
+        Path projectPath = this.testResources.resolve("projects-using-compiler-plugins")
+                .resolve("package_plugin_code_modify_user_template");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("samjs-package_plugin_code_modify_user_template-any-0.1.0.bala");
+        Assert.assertTrue(balaFilePath.toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String mainBalContent = Files.readString(balaDestPath.resolve("modules")
+                .resolve("package_plugin_code_modify_user_template").resolve("main.bal"));
+        Assert.assertFalse(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
+                "returns error? {\n}"));
+    }
 }

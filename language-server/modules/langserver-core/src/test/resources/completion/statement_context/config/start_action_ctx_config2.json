@@ -558,6 +558,14 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "BR",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

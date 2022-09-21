@@ -80,6 +80,7 @@ dependencies {
     
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
+    testCompile 'org.awaitility:awaitility'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
 }

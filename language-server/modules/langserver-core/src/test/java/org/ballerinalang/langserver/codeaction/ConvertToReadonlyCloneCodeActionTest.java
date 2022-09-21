@@ -28,21 +28,21 @@ public class ConvertToReadonlyCloneCodeActionTest extends AbstractCodeActionTest
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"convert_to_readonly_clone_config1.json", "convert_to_readonly_clone_source1.bal"},
-                {"convert_to_readonly_clone_config2.json", "convert_to_readonly_clone_source2.bal"},
-                {"convert_to_readonly_clone_config3.json", "convert_to_readonly_clone_source3.bal"},
-                {"convert_to_readonly_clone_config4.json", "convert_to_readonly_clone_source4.bal"},
-                {"convert_to_readonly_clone_config5.json", "convert_to_readonly_clone_source5.bal"},
-                {"convert_to_readonly_clone_config6.json", "convert_to_readonly_clone_source6.bal"},
-                {"convert_to_readonly_clone_config7.json", "convert_to_readonly_clone_source7.bal"},
+                {"convert_to_readonly_clone_config1.json"},
+                {"convert_to_readonly_clone_config2.json"},
+                {"convert_to_readonly_clone_config3.json"},
+                {"convert_to_readonly_clone_config4.json"},
+                {"convert_to_readonly_clone_config5.json"},
+                {"convert_to_readonly_clone_config6.json"},
+                {"convert_to_readonly_clone_config7.json"},
         };
     }
 

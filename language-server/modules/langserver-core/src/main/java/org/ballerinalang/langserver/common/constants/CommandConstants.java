@@ -78,6 +78,8 @@ public class CommandConstants {
 
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import module '%s'";
+    
+    public static final String CHANGE_MODULE_PREFIX_TITLE = "Change module prefix to '%s'";
 
     public static final String CREATE_VARIABLE_TITLE = "Create variable";
 
@@ -108,6 +110,8 @@ public class CommandConstants {
     public static final String ADD_TYPE_CAST_TO_NUMERIC_OPERAND_TITLE = "Add type cast to '%s'";
 
     public static final String CHANGE_VAR_TYPE_TITLE = "Change variable '%s' type to '%s'";
+    
+    public static final String CHANGE_CONST_TYPE_TITLE = "Change constant '%s' type to '%s'";
 
     public static final String CHANGE_PARAM_TYPE_TITLE = "Change parameter '%s' type to '%s'";
 
@@ -131,6 +135,12 @@ public class CommandConstants {
 
     public static final String OPTIMIZE_IMPORTS_TITLE = "Optimize all imports";
     
+    public static final String REMOVE_ALL_UNUSED_IMPORTS = "Remove all unused imports";
+
+    public static final String REMOVE_UNUSED_IMPORT = "Remove unused import '%s'";
+
+    public static final String REMOVE_REDECLARED_IMPORT = "Remove re-declared import '%s'";
+
     public static final String REPORT_USAGE_STATISTICS_COMMAND_TITLE = "Report usage statistics";
     
     public static final String CONVERT_FUNCTION_TO_PUBLIC = "Convert to public function";
@@ -153,9 +163,12 @@ public class CommandConstants {
     public static final String IMPLEMENT_ALL = "Implement all";
 
     public static final String MAKE_CONSTRUCT_PUBLIC = "Convert '%s' to public";
-    
+
+    public static final String MAKE_FUNCTION_ISOLATE = "Add isolated qualifier to '%s'";
+
     public static final String EXTRACT_TYPE = "Extract type";
 
     public static final String MAKE_ANNOT_DECL_CONST = "Convert '%s' to constant";
 
+    public static final String EXTRACT_TO_CONSTANT = "Extract to constant";
 }

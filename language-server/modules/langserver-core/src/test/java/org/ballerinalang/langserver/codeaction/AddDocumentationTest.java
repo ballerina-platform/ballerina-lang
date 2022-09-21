@@ -34,30 +34,45 @@ public class AddDocumentationTest extends AbstractCodeActionTest {
         return "add-documentation";
     }
 
-    @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    @Override
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
+    }
+
+    @Test(dataProvider = "negativeDataProvider")
+    @Override
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"singleDocGeneration.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration1.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration3.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration4.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration5.json", "singleDocGeneration.bal"},
+                {"singleDocGeneration.json"},
+                {"singleDocGeneration1.json"},
+                {"singleDocGeneration3.json"},
+                {"singleDocGeneration4.json"},
+                {"singleDocGeneration5.json"},
                 // Non top level node doc suggestions
-                {"singleDocGeneration2.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration6.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration7.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration8.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration9.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration10.json", "singleDocGeneration.bal"},
+                {"singleDocGeneration2.json"},
+                {"singleDocGeneration6.json"},
+                {"singleDocGeneration7.json"},
+                {"singleDocGeneration8.json"},
+                {"singleDocGeneration9.json"},
+                {"singleDocGeneration10.json"},
+                // Within Service
+                {"serviceDocumentation1.json"},
                 // Already documented nodes
-                {"documentAlreadyDocumentedConfig1.json", "alreadyDocumentedSource.bal"},
+                {"documentAlreadyDocumentedConfig1.json"},
+        };
+    }
+
+    @DataProvider
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"negativeDocGeneration1.json"},
         };
     }
 }

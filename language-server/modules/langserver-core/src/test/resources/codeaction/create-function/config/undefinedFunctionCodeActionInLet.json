@@ -1,27 +1,56 @@
 {
-  "line": 13,
-  "character": 37,
+  "position": {
+    "line": 13,
+    "character": 37
+  },
+  "source": "createUndefinedFunctionInLet.bal",
   "expected": [
     {
       "title": "Create function 'getYear(...)'",
-      "command": {
-        "title": "Create function 'getYear(...)'",
-        "command": "CREATE_FUNC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line": 13,
-                "character": 37
-              },
-              "end": {
-                "line": 13,
-                "character": 48
-              }
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 1
+            },
+            "end": {
+              "line": 19,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getYear(module1:TestClass1 tc) returns string {\n    return \"\";\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunctionInLet.bal",
+        "range": {
+          "start": {
+            "line": 13,
+            "character": 37
+          },
+          "end": {
+            "line": 13,
+            "character": 48
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 13.0,
+              "character": 37.0
+            },
+            "end": {
+              "line": 13.0,
+              "character": 48.0
             }
           }
-        ]
+        }
       }
     }
   ]

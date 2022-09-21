@@ -174,11 +174,11 @@
     {
       "label": "'map(function () func)",
       "kind": "Function",
-      "detail": "table<table:MapType1>",
+      "detail": "table<table:MapType1> key<never>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1>`   \n- new table containing result of applying parameter `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1> key<never>`   \n- new table containing result of applying parameter `func` to each member  \n  \n"
         }
       },
       "sortText": "CD",
@@ -208,11 +208,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|table:MapType value;|}?;}",
+      "detail": "object {public isolated function next() returns record {|Employee value;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|table:MapType value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|Employee value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
         }
       },
       "sortText": "CD",

@@ -434,6 +434,16 @@ function testAssigningKeyedToEmptyKeyedTbl() {
     tbl2[222] = {id: 222, firstName: "Melina", lastName: "Kodel"};
 }
 
+type Student record {|
+    readonly int id;
+    string firstName;
+|};
+
+function testIncompatibleTableTypeInAUnion() {
+    string lastName = "Jayawickrama";
+    table<Student>|int t = table key(id) [{id: 1, firstName: "Lochana", lastName}];
+}
+
 type Person1 record {
     readonly int id;
     string name;
@@ -476,4 +486,82 @@ function testMultipleKeys3() {
     ];
 
     Person1? _ = t1[1, 2, 3]; // error
+}
+
+type FooRec record {
+    readonly int x;
+    int y;
+};
+
+FooRec spreadField1 = {x: 1002, y: 30};
+FooRec spreadField2 = {x: 1003, y: 25};
+
+table<FooRec> key(x) tb1 = table [
+    {x: 1001, y: 20},
+    {...spreadField1},
+    {...spreadField2}
+];
+
+table<FooRec> key(x) tb2 = table [
+    {...spreadField1},
+    {...spreadField2}
+];
+
+type BarRec record {
+    readonly int x;
+    readonly int y;
+    readonly string z;
+};
+
+int i = 1;
+BarRec spreadField3 = {x: 1003, y: 25, z: "a"};
+table<BarRec> key(x, y, z) tb3 = table [
+    {x: i, y: i, z: "a"},
+    {...spreadField3}
+];
+
+type Employee2 record {
+    readonly int id;
+    string name;
+};
+
+function testKeyConstraint() {
+    table<Employee2> superTable1 = table key(id) [
+        {id: 0, name: "a"},
+        {id: 1, name: "b"}
+    ];
+    _ = superTable1.remove(0); // error
+
+    table<Employee2> superTable2 = table [
+        {id: 0, name: "a"},
+        {id: 1, name: "b"}
+    ];
+    _ = superTable2.remove(0); // error
+
+    table<Employee2> key<int> keyTable = table key(id) [
+        {id: 0, name: "a"},
+        {id: 1, name: "b"}
+    ];
+    _ = keyTable.remove(0);
+
+    table<Employee2> key<never> keylessTable = table [
+        {id: 0, name: "a"},
+        {id: 1, name: "b"}
+    ];
+    _ = keylessTable.remove(0); // error
+
+    var keyTable1 = table key(id) [
+        {id: 0, name: "a"},
+        {id: 1, name: "b"}
+    ];
+    _ = keyTable1.remove(0);
+
+    var keylessTable1 = table [
+            {id: 0, name: "a"},
+            {id: 1, name: "b"}
+        ];
+    _ = keylessTable1.remove(0); // error
+
+    var ids = from var {id} in keylessTable select {id};
+    _ = ids.remove(0); // error
 }

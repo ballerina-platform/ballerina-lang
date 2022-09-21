@@ -654,16 +654,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service on Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "E",
-      "filterText": "service_Listener",
-      "insertText": "service ${1} on new Listener(${2:0}) {\n    ${3}\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "test/project1",
       "kind": "Module",
       "detail": "Module",
@@ -766,6 +756,48 @@
       "sortText": "B",
       "filterText": "null",
       "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service on module1:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_module1_Listener",
+      "insertText": "service ${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "service on lang.test:MockListener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_lang_test_MockListener",
+      "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]

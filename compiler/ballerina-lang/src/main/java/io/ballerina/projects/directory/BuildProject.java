@@ -40,6 +40,7 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -52,7 +53,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -156,11 +159,17 @@ public class BuildProject extends Project {
     }
 
     @Override
+    public void clearCaches() {
+        resetPackage(this);
+        this.projectEnvironment = ProjectEnvironmentBuilder.getDefaultBuilder().build(this);
+    }
+
+    @Override
     public Project duplicate() {
         BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(
                 ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
-        return cloneProject(buildProject);
+        return resetPackage(buildProject);
     }
 
     @Override
@@ -237,6 +246,13 @@ public class BuildProject extends Project {
             // check whether buildJson is null and last updated time has expired
             if (buildJson != null && !shouldUpdate) {
                 buildJson.setLastBuildTime(System.currentTimeMillis());
+
+                Path projectPath = this.currentPackage().project().sourceRoot();
+                Map<String, Long> lastModifiedTime = new HashMap<>();
+                lastModifiedTime.put(this.currentPackage().packageName().value(),
+                        FileUtils.lastModifiedTimeOfBalProject(projectPath));
+                buildJson.setLastModifiedTime(lastModifiedTime);
+
                 writeBuildFile(buildFilePath, buildJson);
             } else {
                 writeBuildFile(buildFilePath);
@@ -413,9 +429,14 @@ public class BuildProject extends Project {
         }
     }
 
-    private static void writeBuildFile(Path buildFilePath) {
+    private void writeBuildFile(Path buildFilePath) {
+        Path projectPath = this.currentPackage().project().sourceRoot();
+        Map<String, Long> lastModifiedTime = new HashMap<>();
+        lastModifiedTime.put(this.currentPackage().packageName().value(),
+                FileUtils.lastModifiedTimeOfBalProject(projectPath));
+
         BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
-                RepoUtils.getBallerinaShortVersion());
+                RepoUtils.getBallerinaShortVersion(), lastModifiedTime);
         writeBuildFile(buildFilePath, buildJson);
     }
 

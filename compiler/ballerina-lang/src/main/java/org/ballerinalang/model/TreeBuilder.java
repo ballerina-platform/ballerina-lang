@@ -1066,4 +1066,8 @@ public class TreeBuilder {
     public static InferredTypedescDefaultNode createInferTypedescExpressionNode() {
         return new BLangInferredTypedescDefaultNode();
     }
+
+    public static BLangInvocation.BLangResourceAccessInvocation createResourceAccessInvocation() {
+        return new BLangInvocation.BLangResourceAccessInvocation();
+    }
 }

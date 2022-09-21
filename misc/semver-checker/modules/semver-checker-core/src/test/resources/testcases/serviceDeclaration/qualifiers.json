@@ -1,0 +1,66 @@
+[
+  {
+    "description": "Remove an existing isolated qualifier in service declaration",
+    "oldCode": "isolated service /demo on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "ambiguous",
+                  "message": "'isolated' qualifier is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add a isolated keyword to an existing service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "isolated service /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'isolated' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

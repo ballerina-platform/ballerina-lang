@@ -1,6 +1,11 @@
 {
-  "line": 2,
-  "character": 21,
+  "line": 0,
+  "character": 0,
+  "position": {
+    "line": 2,
+    "character": 21
+  },
+  "source": "typeCast2.bal",
   "expected": [
     {
       "title": "Add type cast"

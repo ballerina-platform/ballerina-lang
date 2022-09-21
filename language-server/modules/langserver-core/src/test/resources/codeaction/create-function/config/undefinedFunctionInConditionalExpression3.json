@@ -1,27 +1,56 @@
 {
-  "line": 9,
-  "character": 23,
+  "position": {
+    "line": 9,
+    "character": 23
+  },
+  "source": "createUndefinedFunctionInConditionalExpression.bal",
   "expected": [
     {
       "title": "Create function 'getString(...)'",
-      "command": {
-        "title": "Create function 'getString(...)'",
-        "command": "CREATE_FUNC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line":9,
-                "character": 19
-              },
-              "end": {
-                "line": 9,
-                "character": 33
-              }
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 1
+            },
+            "end": {
+              "line": 10,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getString(int i) returns string {\n    return \"\";\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunctionInConditionalExpression.bal",
+        "range": {
+          "start": {
+            "line": 9,
+            "character": 19
+          },
+          "end": {
+            "line": 9,
+            "character": 33
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 9.0,
+              "character": 19.0
+            },
+            "end": {
+              "line": 9.0,
+              "character": 33.0
             }
           }
-        ]
+        }
       }
     }
   ]

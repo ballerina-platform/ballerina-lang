@@ -1,0 +1,72 @@
+[
+  {
+    "description": "Change the type of a module constant",
+    "oldCode": "public const int id = 102;",
+    "newCode": "public const float id = 102;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant type changed from 'int' to 'float'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the type of a module constant int to string",
+    "oldCode": "public const int id = 102;",
+    "newCode": "public const string id = \"102\";",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant type changed from 'int' to 'string'"
+                },
+                {
+                  "kind": "module constant initializer",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

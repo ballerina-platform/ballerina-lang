@@ -2,7 +2,7 @@
   {
     "description": "Change a parameter type in a function",
     "oldCode": "public function add(int x, int y){}",
-    "newCode": "public function add(int x, String y){}",
+    "newCode": "public function add(int x, string y){}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -21,7 +21,7 @@
                 "kind": "unknown",
                 "type": "modified",
                 "versionImpact": "ambiguous",
-                "message": "type of parameter 'y' is changed from 'int' to 'String'"
+                "message": "type of parameter 'y' is changed from 'int' to 'string'"
               }]
             }
           ]
@@ -31,7 +31,7 @@
   {
     "description": "Change a parameter in a function",
     "oldCode": "public function add(int x, int y){}",
-    "newCode": "public function add(int x , String z){}",
+    "newCode": "public function add(int x , string z){}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -152,14 +152,14 @@
   },
   {
     "description": "Add a default value for a required parameter in parameter set in function definition",
-    "oldCode": "public function add(int x , int y){}",
-    "newCode": "public function add( int x=7 , int y){}",
+    "oldCode": "public function add(int y , int x){}",
+    "newCode": "public function add( int y , int x=7){}",
     "expectedOutput": {}
   },
   {
     "description": "Change the default value parameter as a required parameter in function definition",
-    "oldCode": "public function add(int x = 7 , int y){}",
-    "newCode": "public function add(int x , int y){}",
+    "oldCode": "public function add(int y , int x=7){}",
+    "newCode": "public function add(int y , int x){}",
     "expectedOutput": {}
   },
   {
@@ -241,4 +241,3 @@
     "expectedOutput": {}
   }
 ]
-

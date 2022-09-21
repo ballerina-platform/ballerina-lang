@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -34,6 +35,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
  * Represents the option passed via the cli.
@@ -117,7 +120,7 @@ public class Option {
     }
 
     private void handleOptionArgument(String val, String optionStr, BString optionName) {
-        Type fieldType = recordType.getFields().get(optionName.getValue()).getFieldType();
+        Type fieldType = getReferredType(recordType.getFields().get(optionName.getValue()).getFieldType());
         validateOptionArgument(optionStr, val);
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(optionName, val, (ArrayType) fieldType);
@@ -142,14 +145,14 @@ public class Option {
     }
 
     private boolean handleBooleanTrue(BString paramName) {
-        Type fieldType = recordType.getFields().get(paramName.getValue()).getFieldType();
+        Type fieldType = getReferredType(recordType.getFields().get(paramName.getValue()).getFieldType());
         if (isABoolean(fieldType)) {
             validateRepeatingOptions(paramName);
             recordVal.put(paramName, true);
             return true;
         } else if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(paramName, (ArrayType) fieldType);
-            Type elementType = bArray.getElementType();
+            Type elementType = TypeUtils.getReferredType(bArray.getElementType());
             if (isABoolean(elementType)) {
                 bArray.append(true);
                 return true;
@@ -161,7 +164,7 @@ public class Option {
     private void validateRecordKeys() {
         for (BString key : recordVal.getKeys()) {
             if (!recordKeysFound.contains(key) && isRequired(recordType, key.getValue())) {
-                Type fieldType = recordType.getFields().get(key.getValue()).getFieldType();
+                Type fieldType = getReferredType(recordType.getFields().get(key.getValue()).getFieldType());
                 if (CliUtil.isUnionWithNil(fieldType) || isSupportedArrayType(key, fieldType) ||
                         handleBooleanFalse(key, fieldType)) {
                     continue;
@@ -183,7 +186,7 @@ public class Option {
     private boolean isSupportedArrayType(BString key, Type fieldType) {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(key, (ArrayType) fieldType);
-            Type elementType = bArray.getElementType();
+            Type elementType = TypeUtils.getReferredType(bArray.getElementType());
             if (CliUtil.isSupportedType(elementType.getTag())) {
                 if (recordVal.get(key) == null) {
                     recordVal.put(key, bArray);
@@ -208,7 +211,7 @@ public class Option {
     private BArray getBArray(BString paramName, ArrayType fieldType) {
         BArray bArray = (BArray) recordVal.get(paramName);
         if (bArray == null) {
-            bArray = ValueCreator.createArrayValue(fieldType, -1);
+            bArray = ValueCreator.createArrayValue(fieldType);
             recordVal.put(paramName, bArray);
         }
         return bArray;
@@ -220,7 +223,7 @@ public class Option {
 
     private void processNamedArg(String arg, BString paramName) {
         String val = getValueString(arg);
-        Type fieldType = recordType.getFields().get(paramName.getValue()).getFieldType();
+        Type fieldType = getReferredType(recordType.getFields().get(paramName.getValue()).getFieldType());
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(paramName, val, (ArrayType) fieldType);
             return;
@@ -231,7 +234,7 @@ public class Option {
 
     private void handleArrayParameter(BString paramName, String val, ArrayType fieldType) {
         BArray bArray = getBArray(paramName, fieldType);
-        Type arrayType = bArray.getElementType();
+        Type arrayType = TypeUtils.getReferredType(bArray.getElementType());
         bArray.append(CliUtil.getBValue(arrayType, val, paramName.getValue()));
     }
 

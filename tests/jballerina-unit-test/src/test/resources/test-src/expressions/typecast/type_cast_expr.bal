@@ -265,6 +265,32 @@ function testJsonCastNegative() {
     xml x = xml `text`;
     any a = x;
     assertTypeCastFailureWithMessage(trap <json> a, "incompatible types: 'lang.xml:Text' cannot be cast to 'json'");
+
+    anydata val1 = {"a":1};
+    json|error jval1 = trap <json>val1;
+    test:assertTrue(jval1 is error);
+    if (jval1 is error) {
+        test:assertEquals("{ballerina}TypeCastError", jval1.message());
+        test:assertEquals("incompatible types: 'map<anydata>' cannot be cast to 'json'",
+        <string> checkpanic jval1.detail()["message"]);
+    }
+
+    record {|
+        anydata body;
+    |} badRequest = {
+        body: {
+            code: "ERROR_CODE",
+            details: "ERROR_DETAILS"
+        }
+    };
+
+    json|error jval2 = trap <json>badRequest?.body;
+    test:assertTrue(jval2 is error);
+    if (jval2 is error) {
+        test:assertEquals("{ballerina}TypeCastError", jval2.message());
+        test:assertEquals("incompatible types: 'map<anydata>' cannot be cast to 'json'",
+        <string>checkpanic jval2.detail()["message"]);
+    }
 }
 
 function testMapCastPositive() returns boolean {
@@ -949,10 +975,18 @@ function testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
     assertTypeCastFailureWithMessage(trap <int:Signed16|float> c, "incompatible types: 'string' cannot be cast to '(lang.int:Signed16|float)'");
 }
 
+const NIL = ();
+const int Interger = 1;
+const string String = "Ballerina";
+const float Float = 2.3;
+const decimal Decimal = 4.5d;
+const byte Byte = 5;
+const boolean Boolean = true;
+
 function testFiniteTypeArrayNegative() {
-    (1|2.0|3.0d)[] a = [];
+    (1|2.0|3.0d|true|"Hello"|()|NIL|Interger|String|Float|Decimal|Byte|Boolean)[] a = [];
     any c = a;
-    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(1|2.0f|3.0d)[]' cannot be cast to 'int'");
+    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(()|1|\"Ballerina\"|2.3f|4.5d|5|true|(1|2.0f|3.0d|true|\"Hello\"))?[]' cannot be cast to 'int'");
 }
 
 // Util functions
