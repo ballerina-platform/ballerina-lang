@@ -49,7 +49,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FLOAT_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;

@@ -40,7 +40,7 @@ public class ObjectMethodsCallClass {
     }
 
     function getFieldValWithMultipleOptionalArgs(int a = 3, int b = a, int c = a + b) returns int {
-        return a + b+ c;
+        return a + b + c;
     }
 
     public function callGetFieldValWithNoArgs() returns int = @java:Method {

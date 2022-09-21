@@ -409,7 +409,7 @@ public class JvmConstants {
     public static final int MAX_MODULES_PER_METHOD = 100;
     public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
     public static final int MAX_CONSTANTS_PER_METHOD = 100;
-    public static final int MAX_CALLS_PER_FUNCTION_CALL_METHOD = 3;
+    public static final int MAX_CALLS_PER_FUNCTION_CALL_METHOD = 100;
     /*
     MAX_STRINGS_PER_METHOD is calculated as below.
     No of instructions required for create ballerina string constant object = 12
