@@ -67,7 +67,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
              */
             List<Symbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
-        } else if (TypeResolverUtil.isInMethodCallParameterContext(context, node)) {
+        } else if (TypeResolverUtil.isInMethodCallParameterContext(node, context.getCursorPositionInTree())) {
             /*
              * Covers the following cases:
              * 1. a->func(<cursor>)
@@ -114,7 +114,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     public void sort(BallerinaCompletionContext context,
                      RemoteMethodCallActionNode node,
                      List<LSCompletionItem> completionItems) {
-        if (TypeResolverUtil.isInMethodCallParameterContext(context, node)) {
+        if (TypeResolverUtil.isInMethodCallParameterContext(node, context.getCursorPositionInTree())) {
             super.sort(context, node, completionItems);
             return;
         }

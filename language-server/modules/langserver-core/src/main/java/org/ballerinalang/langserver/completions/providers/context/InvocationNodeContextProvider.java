@@ -73,10 +73,11 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
         if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
-                !TypeResolverUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) 
+                !TypeResolverUtil.isInNewExpressionParameterContext((ExplicitNewExpressionNode) node, 
+                        context.getCursorPositionInTree())) 
                 || (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                        !TypeResolverUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) 
-                                node))) {
+                        !TypeResolverUtil.isInNewExpressionParameterContext(
+                                (ImplicitNewExpressionNode) node, context.getCursorPositionInTree()))) {
             super.sort(context, node, completionItems);
             return;
         }
