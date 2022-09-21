@@ -192,6 +192,9 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
+            if (suite == null) {
+                continue;
+            }
 
             //Set 'hasTests' flag if there are any tests available in the package
             if (!hasTests) {
