@@ -6537,9 +6537,9 @@ public class Desugar extends BLangNodeVisitor {
         
         List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());
         BTupleType resourcePathType = targetResourceFunc.resourcePathType;
-        for (BType type : resourcePathType.tupleTypes) {
-            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type,
-                    this.env.scope.owner, type.tsymbol.pos, VIRTUAL);
+        for (BTupleMember type : resourcePathType.tupleTypes) {
+            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type.type,
+                    this.env.scope.owner, type.type.tsymbol.pos, VIRTUAL);
             invocationParams.add(param);
         }
         

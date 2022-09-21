@@ -3983,7 +3983,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(getFieldCollector());
     }
 
-    private void resolveTupleMembers(BTupleType structureType, BLangTupleTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
+    private void resolveTupleMembers(BTupleType structureType, BLangTupleTypeNode structureTypeNode,
+                                     SymbolEnv typeDefEnv) {
         structureType.tupleTypes = structureTypeNode.memberTypeNodes.stream()
                 .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
                 .filter(field -> field.symbol.type != symTable.semanticError)

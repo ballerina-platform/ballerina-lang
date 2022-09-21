@@ -21,12 +21,14 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -83,22 +85,22 @@ public class BIRWriterUtils {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
-                buf.writeInt(addIntCPEntry(cp, (Long) value));
+                buf.writeInt(addIntCPEntry((Long) value, cp));
                 break;
             case TypeTags.BYTE:
                 int byteValue = ((Number) value).intValue();
-                buf.writeInt(addByteCPEntry(cp, byteValue));
+                buf.writeInt(addByteCPEntry(byteValue, cp));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
                 double doubleVal = value instanceof String ? Double.parseDouble((String) value)
                         : (Double) value;
-                buf.writeInt(addFloatCPEntry(cp, doubleVal));
+                buf.writeInt(addFloatCPEntry(doubleVal, cp));
                 break;
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
-                buf.writeInt(addStringCPEntry(cp, (String) value));
+                buf.writeInt(addStringCPEntry((String) value, cp));
                 break;
             case TypeTags.BOOLEAN:
                 buf.writeBoolean((Boolean) value);
@@ -109,7 +111,7 @@ public class BIRWriterUtils {
                 Map<String, BIRNode.ConstValue> mapConstVal = (Map<String, BIRNode.ConstValue>) value;
                 buf.writeInt(mapConstVal.size());
                 mapConstVal.forEach((key, fieldValue) -> {
-                    buf.writeInt(addStringCPEntry(cp, key));
+                    buf.writeInt(addStringCPEntry(key, cp));
                     writeType(cp, buf, fieldValue.type);
                     writeConstValue(cp, buf, fieldValue);
                 });
@@ -134,23 +136,51 @@ public class BIRWriterUtils {
         }
     }
 
-    public static int addIntCPEntry(ConstantPool cp, long value) {
+    public static int addIntCPEntry(long value, ConstantPool cp) {
         return cp.addCPEntry(new CPEntry.IntegerCPEntry(value));
     }
 
-    public static int addFloatCPEntry(ConstantPool cp, double value) {
+    public static int addFloatCPEntry(double value, ConstantPool cp) {
         return cp.addCPEntry(new CPEntry.FloatCPEntry(value));
     }
 
-    public static int addStringCPEntry(ConstantPool cp, String value) {
-        return cp.addCPEntry(new CPEntry.StringCPEntry(value));
-    }
 
-    public static int addByteCPEntry(ConstantPool cp, int value) {
+    public static int addByteCPEntry(int value, ConstantPool cp) {
         return cp.addCPEntry(new CPEntry.ByteCPEntry(value));
     }
 
     public static void writeType(ConstantPool cp, ByteBuf buf, BType type) {
         buf.writeInt(cp.addShapeCPEntry(type));
+    }
+
+    public static void writeAnnotAttachments(ConstantPool cp, ByteBuf buff,
+                                             List<BIRNode.BIRAnnotationAttachment> annotAttachments) {
+        ByteBuf annotBuf = Unpooled.buffer();
+        annotBuf.writeInt(annotAttachments.size());
+        for (BIRNode.BIRAnnotationAttachment annotAttachment : annotAttachments) {
+            writeAnnotAttachment(cp, annotBuf, annotAttachment);
+        }
+        int length = annotBuf.nioBuffer().limit();
+        buff.writeLong(length);
+        buff.writeBytes(annotBuf.nioBuffer().array(), 0, length);
+    }
+
+    public static void writeAnnotAttachment(ConstantPool cp, ByteBuf annotBuf,
+                                            BIRNode.BIRAnnotationAttachment annotAttachment) {
+        // Write module information of the annotation attachment
+        annotBuf.writeInt(BIRWriterUtils.addPkgCPEntry(annotAttachment.annotPkgId, cp));
+        // Write position
+        writePosition(annotAttachment.pos, annotBuf, cp);
+        annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.value, cp));
+
+        if (!(annotAttachment instanceof BIRNode.BIRConstAnnotationAttachment)) {
+            annotBuf.writeBoolean(false);
+            return;
+        }
+
+        annotBuf.writeBoolean(true);
+        BIRNode.ConstValue constValue = ((BIRNode.BIRConstAnnotationAttachment) annotAttachment).annotValue;
+        writeType(cp, annotBuf, constValue.type);
+        writeConstValue(cp, annotBuf, constValue);
     }
 }

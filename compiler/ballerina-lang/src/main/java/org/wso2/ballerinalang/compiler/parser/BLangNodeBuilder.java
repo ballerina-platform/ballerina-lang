@@ -757,8 +757,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     } else {
                         bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$*"));
                     }
-
-                    tupleTypeNode.memberTypeNodes.add(param.typeNode);
+                    tupleTypeNode.memberTypeNodes.add(param);
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
@@ -780,7 +779,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
-                    tupleTypeNode.memberTypeNodes.add(bLangFiniteTypeNode);
+                    BLangSimpleVariable member = new BLangSimpleVariable();
+                    member.typeNode = bLangFiniteTypeNode;
+                    tupleTypeNode.memberTypeNodes.add(member);
             }
         }
         bLFunction.getParameters().addAll(0, params);
@@ -1053,9 +1054,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
                 MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
-                BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(), memberNode.annotations());
-//                member.typeNode = createTypeNode(memberNode.typeDescriptor());
-//                member.annAttachments = applyAll(memberNode.annotations());
+                BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(),
+                        memberNode.annotations());
                 member.setName(this.createIdentifier(null, String.valueOf(i)));
                 tupleTypeNode.memberTypeNodes.add(member);
             }

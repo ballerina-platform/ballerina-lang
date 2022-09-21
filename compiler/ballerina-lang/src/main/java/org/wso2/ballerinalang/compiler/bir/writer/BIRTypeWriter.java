@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -83,7 +84,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writeConstValue;
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writePosition;
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writeType;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -616,76 +619,8 @@ public class BIRTypeWriter implements TypeVisitor {
         BLangConstantValue constVal =
                 ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment)
                         .attachmentValueSymbol.value;
-        writeType(annotBuf, constVal.type);
-        writeConstValue(annotBuf, constVal);
-    }
-
-    private void writeType(ByteBuf buf, BType type) {
-        buf.writeInt(cp.addShapeCPEntry(type));
-    }
-
-    private void writeConstValue(ByteBuf buf, BLangConstantValue constValue) {
-        writeConstValue(buf, constValue.value, constValue.type);
-    }
-
-    private void writeConstValue(ByteBuf buf, Object value, BType type) {
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED8_INT:
-                buf.writeInt(addIntCPEntry((Long) value));
-                break;
-            case TypeTags.BYTE:
-                int byteValue = ((Number) value).intValue();
-                buf.writeInt(addByteCPEntry(byteValue));
-                break;
-            case TypeTags.FLOAT:
-                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
-                double doubleVal = value instanceof String ? Double.parseDouble((String) value)
-                        : (Double) value;
-                buf.writeInt(addFloatCPEntry(doubleVal));
-                break;
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.DECIMAL:
-                buf.writeInt(addStringCPEntry((String) value));
-                break;
-            case TypeTags.BOOLEAN:
-                buf.writeBoolean((Boolean) value);
-                break;
-            case TypeTags.NIL:
-                break;
-            case TypeTags.RECORD:
-                Map<String, BLangConstantValue> mapConstVal = (Map<String, BLangConstantValue>) value;
-                buf.writeInt(mapConstVal.size());
-                mapConstVal.forEach((key, fieldValue) -> {
-                    buf.writeInt(addStringCPEntry(key));
-                    writeType(buf, fieldValue.type);
-                    writeConstValue(buf, fieldValue);
-                });
-                break;
-            case TypeTags.TUPLE:
-                BLangConstantValue[] tupleConstVal = (BLangConstantValue[]) value;
-                buf.writeInt(tupleConstVal.length);
-                for (BLangConstantValue memValue : tupleConstVal) {
-                    writeType(buf, memValue.type);
-                    writeConstValue(buf, memValue);
-                }
-                break;
-            case TypeTags.INTERSECTION:
-                BType effectiveType = ((BIntersectionType) type).effectiveType;
-                writeConstValue(buf, value, effectiveType);
-                break;
-            default:
-                // TODO support for other types
-                throw new UnsupportedOperationException(
-                        "finite type value is not supported for type: " + type);
-
-        }
+        writeType(this.cp, annotBuf, constVal.type);
+        writeConstValue(this.cp, annotBuf, new BIRNode.ConstValue(constVal.value, constVal.type));
     }
 
 }

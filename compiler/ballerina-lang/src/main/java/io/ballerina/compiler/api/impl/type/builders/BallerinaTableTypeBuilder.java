@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -156,9 +157,9 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
             return checkKeyConstraintBType(keyTypes.get(0), rowType);
         }
 
-        List<BType> tupleMemberTypes = new ArrayList<>();
+        List<BTupleMember> tupleMemberTypes = new ArrayList<>();
         for (TypeSymbol keyType : keyTypes) {
-            tupleMemberTypes.add(checkKeyConstraintBType(keyType, rowType));
+            tupleMemberTypes.add(new BTupleMember(checkKeyConstraintBType(keyType, rowType)));
         }
 
         return new BTupleType(tupleMemberTypes);

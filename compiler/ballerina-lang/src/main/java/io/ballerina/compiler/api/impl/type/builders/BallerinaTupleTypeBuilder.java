@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -68,7 +69,7 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
 
     @Override
     public TupleTypeSymbol build() {
-        List<BType> memberBTypes = new ArrayList<>();
+        List<BTupleMember> memberBTypes = new ArrayList<>();
         for (TypeSymbol memberType : memberTypes) {
             memberBTypes.add(getMemberType(memberType));
         }
@@ -91,16 +92,16 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
         return tupleTypeSymbol;
     }
 
-    private BType getMemberType(TypeSymbol memberType) {
+    private BTupleMember getMemberType(TypeSymbol memberType) {
         if (memberType == null) {
             throw new IllegalArgumentException("Member type provided to the Tuple type descriptor can not be null.");
         }
 
         if (memberType instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) memberType).getBType();
+            return new BTupleMember(((AbstractTypeSymbol) memberType).getBType());
         }
 
-        return symTable.noType;
+        return new BTupleMember(symTable.noType);
     }
 
     private BType getRestType(TypeSymbol restType) {

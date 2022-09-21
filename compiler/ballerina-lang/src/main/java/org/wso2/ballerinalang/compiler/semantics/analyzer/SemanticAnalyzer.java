@@ -418,8 +418,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (containsClientObjectTypeOrFunctionType(returnType)) {
             dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE);
         }
-        for (BLangType pathParamType : funcNode.resourcePathType.memberTypeNodes) {
-            symResolver.resolveTypeNode(pathParamType, data.env);
+        for (BLangSimpleVariable pathParamType : funcNode.resourcePathType.memberTypeNodes) {
+            symResolver.resolveTypeNode(pathParamType.typeNode, data.env);
             if (!types.isAssignable(pathParamType.getBType(), symTable.pathParamAllowedType)) {
                 dlog.error(pathParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
                         pathParamType.getBType());
@@ -1306,7 +1306,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 for (BTupleMember memberType : tupleType.tupleTypes) {
-                    if (!isSupportedConfigType(memberType, errors, varName, unresolvedTypes, isRequired)) {
+                    if (!isSupportedConfigType(memberType.type, errors, varName, unresolvedTypes, isRequired)) {
                         errors.add("tuple element type '" + memberType + "' is not supported");
                     }
                 }
