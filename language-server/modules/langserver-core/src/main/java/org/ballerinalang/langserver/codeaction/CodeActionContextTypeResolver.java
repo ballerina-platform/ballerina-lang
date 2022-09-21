@@ -15,15 +15,18 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 
@@ -33,8 +36,9 @@ import java.util.Optional;
 
 /**
  * This visitor is used to resolve the type of given code action context.
- * 
+ * <p>
  * Todo: Use the ContextTypeResolver instead.
+ *
  * @since 2201.1.1
  */
 public class CodeActionContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
@@ -77,6 +81,22 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(LetVariableDeclarationNode letVariableDeclarationNode) {
         return getTypeDescriptorOfVariable(letVariableDeclarationNode);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(FunctionDefinitionNode functionDefinitionNode) {
+        Optional<ReturnTypeDescriptorNode> returnTypeDesc = functionDefinitionNode.functionSignature().returnTypeDesc();
+        if (returnTypeDesc.isEmpty() || context.currentSemanticModel().isEmpty()) {
+            return Optional.empty();
+        }
+
+        Optional<Symbol> functionSymbol = context.currentSemanticModel().get().symbol(functionDefinitionNode);
+
+        if (functionSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
     }
 
     private Optional<TypeSymbol> getTypeDescriptorOfVariable(Node node) {

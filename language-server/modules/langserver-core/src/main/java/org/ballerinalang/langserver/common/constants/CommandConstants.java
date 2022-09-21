@@ -177,4 +177,7 @@ public class CommandConstants {
     public static final String EXTRACT_TO_CONSTANT = "Extract to constant";
 
     public static final String EXTRACT_TO_VARIABLE = "Extract to local variable";
+    
+    public static final String CHANGE_TO_SUBTYPE_OF_RAW_TEMPLATE_TITLE = "Change to '%s' sub type of row template";
+    
 }
