@@ -130,9 +130,9 @@ function validateRuntimeAPIs() {
     result = validateBError(err);
     test:assertTrue(result);
 
-    // BObject obj = new ();
-    // result = validateBObject(obj);
-    // test:assertTrue(result);
+    BObject obj = new ();
+    result = validateBObject(obj);
+    test:assertTrue(result);
 
     BFunctionPointer fp = testFunc;
     result = validateBFunctionPointer(fp);

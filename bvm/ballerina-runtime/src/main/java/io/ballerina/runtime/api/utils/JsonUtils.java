@@ -331,7 +331,8 @@ public class JsonUtils {
                 newValue = convertMapToJson((BMap<?, ?>) value, unresolvedValues);
                 break;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                newValue = getJsonObject(value,  unresolvedValues, jsonType, ((ReferenceType) sourceType).getReferredType());
+                newValue = getJsonObject(value, unresolvedValues, jsonType,
+                        ((ReferenceType) sourceType).getReferredType());
                 break;
             case TypeTags.ERROR_TAG:
             default:

@@ -344,7 +344,7 @@ public class JvmSignatures {
     public static final String MODULE_START = "(L" + STRAND_CLASS + ";)L" + OBJECT + ";";
     public static final String OBJECT_SET = "(L" + STRING_VALUE + ";L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String OBJECT_TYPE_DUPLICATE = "()L" + OBJECT_TYPE_IMPL + ";";
-    public static final String OBJECT_TYPE_IMPL_INIT = "(L" + OBJECT_TYPE_IMPL + ";)V";
+    public static final String OBJECT_TYPE_IMPL_INIT = "(L" + TYPE + ";)V";
     public static final String PANIC_IF_UNLOCK = "(L" + STRING_VALUE + ";L" + STRAND_CLASS + ";)V";
     public static final String PASS_BSTRING_RETURN_OBJECT = "(L" + B_STRING_VALUE + ";)L" + OBJECT + ";";
     public static final String PASS_OBJECT_RETURN_OBJECT = "(L" + OBJECT + ";)L" + OBJECT + ";";

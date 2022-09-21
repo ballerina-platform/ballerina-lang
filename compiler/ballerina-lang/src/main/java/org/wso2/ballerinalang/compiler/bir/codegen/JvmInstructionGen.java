@@ -1676,11 +1676,9 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
 
-        jvmTypeGen.loadType(mv, type);
+        jvmTypeGen.loadType(mv, objectNewIns.expectedType);
         reloadObjectCtorAnnots(type, strandIndex);
-        this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT,
-                false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, false);
         this.storeToVar(objectNewIns.lhsOp.variableDcl);
     }
 
