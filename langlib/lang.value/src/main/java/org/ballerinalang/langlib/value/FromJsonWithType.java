@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
@@ -125,10 +126,15 @@ public class FromJsonWithType {
             case TypeTags.TUPLE_TAG:
                 newValue = convertArray((BArray) value, matchingType, unresolvedValues, t);
                 break;
-            case TypeTags.REG_EXP_TYPE_TAG:
-                newValue = RegExpFactory.parse(((BString) value).getValue());
-                break;
             default:
+                if (isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
+                    try {
+                        newValue = RegExpFactory.parse(((BString) value).getValue());
+                        break;
+                    } catch (Throwable e) {
+                        throw createConversionError(value, targetType, e.getMessage());
+                    }
+                }
                 if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
                     try {
                         newValue = XmlFactory.parse(((BString) value).getValue());
@@ -154,6 +160,17 @@ public class FromJsonWithType {
 
         unresolvedValues.remove(typeValuePair);
         return newValue;
+    }
+
+    private static boolean isRegExpType(Type targetType) {
+        if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            Type referredType = ((ReferenceType) targetType).getReferredType();
+            if (referredType.getQualifiedName().equals("ballerina/lang.regexp:0:RegExp")) {
+                return true;
+            }
+            return isRegExpType(referredType);
+        }
+        return false;
     }
 
     private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
