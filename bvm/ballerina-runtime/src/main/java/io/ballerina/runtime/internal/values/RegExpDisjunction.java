@@ -19,8 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
@@ -58,11 +58,11 @@ public class RegExpDisjunction implements RefValue {
             if (t == null) {
                 break;
             }
-            if (t instanceof BString) {
-                terms.add(((BString) t).getValue());
+            if (t instanceof String) {
+                terms.add(((String) t));
                 continue;
             }
-            terms.add(((RegExpSequence) t).stringValue(parent));
+            terms.add(StringUtils.getStringValue(t, parent));
         }
         return terms.toString();
     }

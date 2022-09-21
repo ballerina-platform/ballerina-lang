@@ -77,6 +77,10 @@ public class RegExpCharSet implements RefValue {
                 atoms.add(((RegExpCharSetRange) atom).stringValue(parent));
                 continue;
             }
+            if (atom instanceof RegExpCharSet) {
+                atoms.add(((RegExpCharSet) atom).stringValue(parent));
+                continue;
+            }
             atoms.add((String) atom);
         }
         return atoms.toString();
