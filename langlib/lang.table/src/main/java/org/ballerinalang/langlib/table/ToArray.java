@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BTable;
 
@@ -42,7 +43,7 @@ import java.util.Collection;
 public class ToArray {
 
     public static BArray toArray(BTable tbl) {
-        Type constrainedType = ((TableType) tbl.getType()).getConstrainedType();
+        Type constrainedType = ((TableType) TypeUtils.getReferredType(tbl.getType())).getConstrainedType();
 
         Collection values = tbl.values();
         //Basic constrain types not applicable for table type

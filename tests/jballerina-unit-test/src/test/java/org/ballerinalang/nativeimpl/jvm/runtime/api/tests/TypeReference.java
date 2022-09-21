@@ -168,9 +168,9 @@ public class TypeReference {
         if (tableValue.getKeyType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw error;
         }
-//        if (tableValue.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-//            throw error;
-//        }
+        if (tableValue.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
         return true;
     }
 

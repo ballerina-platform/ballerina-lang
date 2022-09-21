@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
@@ -49,7 +50,7 @@ public class Map {
 
     public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
         Type newConstraintType = ((FunctionType) func.getType()).getReturnType();
-        TableType tblType = (TableType) tbl.getType();
+        TableType tblType = (TableType) TypeUtils.getReferredType(tbl.getType());
         TableType newTableType =
                 TypeCreator.createTableType(newConstraintType, PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 

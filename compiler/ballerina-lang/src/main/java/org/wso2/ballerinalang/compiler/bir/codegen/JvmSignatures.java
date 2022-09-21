@@ -94,7 +94,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
@@ -292,7 +291,7 @@ public class JvmSignatures {
     public static final String INIT_STREAM_TYPE_IMPL = "(L" + TYPE + ";L" + TYPE + ";)V";
     public static final String INIT_TABLE_TYPE_IMPL = "(L" + TYPE + ";L" + TYPE + ";Z)V";
     public static final String INIT_TABLE_TYPE_WITH_FIELD_NAME_LIST = "(L" + TYPE + ";[L" + STRING_VALUE + ";Z)V";
-    public static final String INIT_TABLE_VALUE_IMPL = "(L" + TABLE_TYPE + ";L" + ARRAY_VALUE + ";L" + ARRAY_VALUE +
+    public static final String INIT_TABLE_VALUE_IMPL = "(L" + TYPE + ";L" + ARRAY_VALUE + ";L" + ARRAY_VALUE +
             ";)V";
     public static final String INIT_TUPLE = "(L" + TYPE + ";[L" + B_LIST_INITIAL_VALUE_ENTRY + ";)V";
     public static final String INIT_TUPLE_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";IZZ)V";

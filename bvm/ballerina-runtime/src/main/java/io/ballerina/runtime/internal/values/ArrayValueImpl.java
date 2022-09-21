@@ -255,8 +255,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this(type, size, initialValues, null);
     }
 
-    public ArrayValueImpl(ArrayType type, BListInitialValueEntry[] initialValues) {
-        this(type, type.getSize(), initialValues, null);
+    public ArrayValueImpl(Type type, BListInitialValueEntry[] initialValues) {
+        this(type, ((ArrayType) TypeUtils.getReferredType(type)).getSize(), initialValues, null);
     }
 
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues) {

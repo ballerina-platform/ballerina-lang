@@ -3113,8 +3113,10 @@ public class TypeChecker {
             return false;
         }
 
-        boolean isLhsKeyedTable = ((BTableType) lhsTable.getType()).getFieldNames().length > 0;
-        boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
+        boolean isLhsKeyedTable =
+                ((BTableType) TypeUtils.getReferredType(lhsTable.getType())).getFieldNames().length > 0;
+        boolean isRhsKeyedTable =
+                ((BTableType) TypeUtils.getReferredType(rhsTable.getType())).getFieldNames().length > 0;
 
         Object[] lhsTableValues = lhsTable.values().toArray();
         Object[] rhsTableValues = rhsTable.values().toArray();
