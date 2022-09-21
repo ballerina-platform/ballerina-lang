@@ -201,11 +201,7 @@ public class TreeTraverser {
         endMode();
         switchParserModeFollowingReEscape();
 
-        if (isReSyntaxChar) {
-            return getRegExpText(TokenKind.RE_SYNTAX_CHAR);
-        }
-
-        return getRegExpText(TokenKind.RE_SIMPLE_CHAR_CLASS_CODE);
+        return getRegExpText(isReSyntaxChar ? TokenKind.RE_SYNTAX_CHAR : TokenKind.RE_SIMPLE_CHAR_CLASS_CODE);
     }
 
     private void switchParserModeFollowingReEscape() {
@@ -580,7 +576,7 @@ public class TreeTraverser {
      */
     private boolean processReCharSetAtom() {
         int nextToken = peek();
-        if (peek() == Terminals.MINUS) {
+        if (nextToken == Terminals.MINUS) {
             this.reader.advance();
             return true;
         }
@@ -775,8 +771,7 @@ public class TreeTraverser {
                     processNumericEscape();
                     return true;
                 }
-                // Invalid numeric escape.
-                throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+                break;
             // Handle ControlEscape.
             case 'n':
             case 't':
@@ -790,17 +785,17 @@ public class TreeTraverser {
                     startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
                     return false;
                 }
-                // Invalid ReUnicodePropertyEscape.
-                throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+                break;
             default:
                 // Handle ReQuoteEscape and ReSimpleCharClassEscape.
                 if (isReSyntaxChar(this.reader.peek(1)) || isReSimpleCharClassCode(this.reader.peek(1))) {
                     startMode(ParserMode.RE_ESCAPE);
                     return false;
                 }
-                // Invalid ReEscape.
-                throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
         }
+        // Invalid ReEscape.
+        this.reader.advance(2);
+        throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
     }
 
     private void processNumericEscape() {
@@ -980,14 +975,6 @@ public class TreeTraverser {
     }
 
     private static boolean isHexDigit(int c) {
-        if ('a' <= c && c <= 'f') {
-            return true;
-        }
-
-        if ('A' <= c && c <= 'F') {
-            return true;
-        }
-
-        return isDigit(c);
+        return ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F') || isDigit(c);
     }
 }

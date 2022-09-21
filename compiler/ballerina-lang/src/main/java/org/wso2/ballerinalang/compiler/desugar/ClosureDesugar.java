@@ -1475,7 +1475,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
                 NodeKind kind = atom.getKind();
                 if (!isReAtomNode(kind)) {
-                    ((BLangReAtomQuantifier) term).atom = rewriteExpr(atom);
+                    atom = rewriteExpr(atom);
                     continue;
                 }
                 if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {

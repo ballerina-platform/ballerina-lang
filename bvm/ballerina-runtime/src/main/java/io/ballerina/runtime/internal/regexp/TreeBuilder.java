@@ -50,15 +50,15 @@ public class TreeBuilder {
     }
 
     public RegExpValue parse() {
-        RegExpDisjunction disjunction = readReDisjunction();
+        RegExpDisjunction disjunction = readRegDisjunction();
         return new RegExpValue(disjunction);
     }
 
-    private RegExpDisjunction readReDisjunction() {
+    private RegExpDisjunction readRegDisjunction() {
         List<Object> reSequenceList = new ArrayList<>();
         Token nextToken = peek();
         while (!isEndOfReDisjunction(nextToken.kind)) {
-            RegExpSequence reSequence = readReSequence();
+            RegExpSequence reSequence = readRegSequence();
             reSequenceList.add(reSequence);
             nextToken = peek();
             if (nextToken.kind == TokenKind.PIPE_TOKEN) {
@@ -70,38 +70,38 @@ public class TreeBuilder {
         return new RegExpDisjunction(reSequenceList.toArray());
     }
 
-    private RegExpSequence readReSequence() {
+    private RegExpSequence readRegSequence() {
         List<RegExpTerm> termsList = new ArrayList<>();
         Token nextToken = peek();
         while (!isEndOfReSequence(nextToken.kind)) {
-            RegExpTerm reTerm = readReTerm();
+            RegExpTerm reTerm = readRegTerm();
             termsList.add(reTerm);
             nextToken = peek();
         }
         return new RegExpSequence(termsList.toArray(new RegExpTerm[0]));
     }
 
-    private RegExpTerm readReTerm() {
+    private RegExpTerm readRegTerm() {
         Token nextToken = peek();
         TokenKind tokenKind = nextToken.kind;
         if (tokenKind == TokenKind.RE_ASSERTION_VALUE) {
-            return readReAssertion();
+            return readRegAssertion();
         }
 
         RegExpAtom reAtom;
         switch (nextToken.kind) {
             case BACK_SLASH_TOKEN:
-                reAtom = readEscapeChar();
+                reAtom = readRegEscapeChar();
                 break;
             case OPEN_BRACKET_TOKEN:
-                reAtom = readCharacterClass();
+                reAtom = readRegCharacterClass();
                 break;
             case OPEN_PAREN_TOKEN:
-                reAtom = readCapturingGroups();
+                reAtom = readRegCapturingGroups();
                 break;
             default:
                 // Read chars in ReLiteralChar, . or ReEscape.
-                reAtom = readChars();
+                reAtom = readRegChars();
         }
 
         nextToken = peek();
@@ -116,36 +116,34 @@ public class TreeBuilder {
         return new RegExpAtomQuantifier(reAtom, quantifier);
     }
     
-    private RegExpAssertion readReAssertion() {
-        Token assertion = consume();
-        return new RegExpAssertion(assertion.value);
+    private RegExpAssertion readRegAssertion() {
+        return new RegExpAssertion(consume().value);
     }
 
-    private RegExpAtom readChars() {
-        Token chars = consume();
-        return new RegExpLiteralCharOrEscape(chars.value);
+    private RegExpAtom readRegChars() {
+        return new RegExpLiteralCharOrEscape(consume().value);
     }
 
-    private RegExpLiteralCharOrEscape readEscapeChar() {
-        return new RegExpLiteralCharOrEscape(readReEscape());
+    private RegExpLiteralCharOrEscape readRegEscapeChar() {
+        return new RegExpLiteralCharOrEscape(readRegEscape());
     }
 
-    private String readReEscape() {
+    private String readRegEscape() {
         Token backSlash = consume();
         Token nextToken = peek();
         switch (nextToken.kind) {
             case RE_PROPERTY:
-                return readReUnicodePropertyEscape(backSlash.value);
+                return readRegUnicodePropertyEscape(backSlash.value);
             case RE_SYNTAX_CHAR:
-                return readReQuoteEscape(backSlash.value);
+                return readRegQuoteEscape(backSlash.value);
             case RE_SIMPLE_CHAR_CLASS_CODE:
-                return readReSimpleCharClassEscape(backSlash.value);
+                return readRegSimpleCharClassEscape(backSlash.value);
         }
         Token consumedToken = consume();
         return consumedToken.value;
     }
     
-    private String readReUnicodePropertyEscape(String backSlash) {
+    private String readRegUnicodePropertyEscape(String backSlash) {
         Token consumedPropertyToken = consume();
         String property = consumedPropertyToken.value;
         String openBrace = readOpenBrace();
@@ -160,31 +158,29 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        throw new BallerinaException("Missing '{' character");
     }
 
 
     private String readUnicodeProperty() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.RE_UNICODE_SCRIPT_START) {
-            return readReUnicodeScript();
+            return readRegUnicodeScript();
         }
-        return readReUnicodeGeneralCategory();
+        return readRegUnicodeGeneralCategory();
     }
 
-    private String readReUnicodeScript() {
+    private String readRegUnicodeScript() {
         Token scriptStart = consume();
         Token nextToken = peek();
-        Token unicodePropertyValue;
         if (nextToken.kind == TokenKind.RE_UNICODE_PROPERTY_VALUE) {
-            unicodePropertyValue = consume();
-        } else {
-            throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+            Token unicodePropertyValue = consume();
+            return scriptStart.value + unicodePropertyValue.value;
         }
-        return scriptStart.value + unicodePropertyValue.value;
+        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
     }
 
-    private String readReUnicodeGeneralCategory() {
+    private String readRegUnicodeGeneralCategory() {
         Token nextToken = peek();
         Token scriptStart = null;
         if (nextToken.kind == TokenKind.RE_UNICODE_GENERAL_CATEGORY_START) {
@@ -200,21 +196,21 @@ public class TreeBuilder {
         return scriptStart != null ? scriptStart.value + generalCategory.value : generalCategory.value;
     }
 
-    private String readReQuoteEscape(String backSlash) {
+    private String readRegQuoteEscape(String backSlash) {
         Token syntaxChar = consume();
         return backSlash + syntaxChar.value;
     }
 
-    private String readReSimpleCharClassEscape(String backSlash) {
+    private String readRegSimpleCharClassEscape(String backSlash) {
         Token simpleCharClassCode = consume();
         return backSlash + simpleCharClassCode.value;
     }
     
-    private RegExpCharacterClass readCharacterClass() {
+    private RegExpCharacterClass readRegCharacterClass() {
         String characterClassStart = readCharacterClassStart();
         // Read ^ char.
         String negation = readNegation();
-        RegExpCharSet characterSet = readReCharSet();
+        RegExpCharSet characterSet = readRegCharSet();
         String characterClassEnd = readCharacterClassEnd();
         return new RegExpCharacterClass(characterClassStart, negation, characterSet, characterClassEnd);
     }
@@ -225,7 +221,7 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        throw new BallerinaException("Missing '[' character");
     }
     
     private String readNegation() {
@@ -238,7 +234,7 @@ public class TreeBuilder {
         return "";
     }
 
-    private RegExpCharSet readReCharSet() {
+    private RegExpCharSet readRegCharSet() {
         Token nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return new RegExpCharSet(new Object[]{});
@@ -257,7 +253,7 @@ public class TreeBuilder {
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtom, minus.value,
                     rhsReCharSetAtom);
-            RegExpCharSet reCharSet = readReCharSet();
+            RegExpCharSet reCharSet = readRegCharSet();
             return new RegExpCharSet(new Object[]{reCharSetRange, reCharSet});
         }
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
@@ -279,7 +275,7 @@ public class TreeBuilder {
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtomNoDash, minus.value,
                     rhsReCharSetAtom);
-            RegExpCharSet reCharSet = readReCharSet();
+            RegExpCharSet reCharSet = readRegCharSet();
             return new RegExpCharSet(new Object[]{reCharSetRange, reCharSet});
         }
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
@@ -288,7 +284,7 @@ public class TreeBuilder {
 
     private String readCharSetAtom(Token nextToken) {
         if (nextToken.kind == TokenKind.BACK_SLASH_TOKEN) {
-            return readReEscape();
+            return readRegEscape();
         }
         Token consumedToken = consume();
         return consumedToken.value;
@@ -300,7 +296,7 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        throw new BallerinaException("Missing ']' character");
     }
 
     private RegExpQuantifier readReQuantifier() {
@@ -347,7 +343,7 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        throw new BallerinaException("Missing '}' character");
     }
     
     private String readNonGreedyChar() {
@@ -360,7 +356,7 @@ public class TreeBuilder {
         return "";
     }
     
-    private RegExpCapturingGroup readCapturingGroups() {
+    private RegExpCapturingGroup readRegCapturingGroups() {
         String openParenthesis = readOpenParenthesis();
         Token nextToken = peek();
         RegExpFlagExpression flagExpression;
@@ -370,7 +366,7 @@ public class TreeBuilder {
             // Create empty flag expression.
             flagExpression = new RegExpFlagExpression("", new RegExpFlagOnOff(""), "");
         }
-        RegExpDisjunction reDisjunction = readReDisjunction();
+        RegExpDisjunction reDisjunction = readRegDisjunction();
         String closeParenthesis = readCloseParenthesis();
         return new RegExpCapturingGroup(openParenthesis, flagExpression, reDisjunction, closeParenthesis);
     }
@@ -381,7 +377,7 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        throw new BallerinaException("Missing '(' character");
     }
 
     private RegExpFlagExpression readFlagExpression() {
@@ -389,7 +385,7 @@ public class TreeBuilder {
         Token nextToken = peek();
         RegExpFlagOnOff reFlagsOnOff;
         if (!isEndOfFlagExpression(nextToken.kind)) {
-            reFlagsOnOff = readReFlagsOnOff();
+            reFlagsOnOff = readRegFlagsOnOff();
         } else {
             // Create empty flags.
             reFlagsOnOff = new RegExpFlagOnOff("");
@@ -398,20 +394,20 @@ public class TreeBuilder {
         return new RegExpFlagExpression(questionMark.value, reFlagsOnOff, colon);
     }
 
-    private RegExpFlagOnOff readReFlagsOnOff() {
-        String lhsReFlags = readReFlags();
+    private RegExpFlagOnOff readRegFlagsOnOff() {
+        String lhsReFlags = readRegFlags();
         Token nextToken = peek();
         String dash = "";
         String rhsFlags = "";
         if (nextToken.kind == TokenKind.MINUS_TOKEN) {
             Token minus = consume();
             dash = minus.value;
-            rhsFlags = readReFlags();
+            rhsFlags = readRegFlags();
         }
         return new RegExpFlagOnOff(lhsReFlags + dash + rhsFlags);
     }
 
-    private String readReFlags() {
+    private String readRegFlags() {
         StringBuilder flags = new StringBuilder();
         Token nextToken = peek();
         while (!isEndOfReFlags(nextToken.kind)) {
@@ -428,7 +424,7 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        throw new BallerinaException("Missing ':' character");
     }
 
     private String readCloseParenthesis() {
@@ -437,7 +433,7 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        throw new BallerinaException("Missing ')' character");
     }
     
     private boolean isEndOfReDisjunction(TokenKind kind) {

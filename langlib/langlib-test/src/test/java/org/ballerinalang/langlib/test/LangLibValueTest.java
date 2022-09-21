@@ -436,7 +436,9 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeWithNullValuesNegative" },
                 { "testFromJsonWithTypeWithInferredArgument" },
                 { "testFromJsonWithTypeWithTypeReferences" },
-                { "testFromJsonWithTypeNestedRecordsNegative" }
+                { "testFromJsonWithTypeNestedRecordsNegative" },
+                { "testFromJsonWithTypeOnRegExp" },
+                { "testFromJsonWithTypeOnRegExpNegative" }
         };
     }
 
