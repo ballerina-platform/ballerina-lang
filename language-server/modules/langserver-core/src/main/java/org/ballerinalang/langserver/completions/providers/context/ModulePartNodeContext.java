@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -28,15 +29,19 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -56,6 +61,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ModulePartNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
+        ResolvedContext resolvedContext = ResolvedContext.DEFAULT;
         if (ModulePartNodeContextUtil.onServiceTypeDescContext(context.getTokenAtCursor(), context)) {
             /*
             Covers the following cases
@@ -84,10 +90,14 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 currently the qualifier can be isolated/transactional/client.
             */
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, context));
+            Optional<Token> lastQualifier = getLastQualifier(context, node);
+            if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                resolvedContext = ResolvedContext.ON_CONFIGURABLE_QUALIFIER;
+            }
         } else {
             completionItems.addAll(this.getModulePartContextItems(context));
         }
-        this.sort(context, node, completionItems);
+        this.sort(context, node, completionItems, resolvedContext);
 
         return completionItems;
     }
@@ -95,13 +105,13 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     @Override
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
-        if (qualifiers.isEmpty()) {
+        Optional<Token> lastQualifier = getLastQualifier(context, node);
+        if (lastQualifier.isEmpty()) {
             return completionItems;
         }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-        switch (lastQualifier.kind()) {
+        Set<SyntaxKind> qualKinds = CommonUtil.getQualifiersOfNode(context, node)
+                .stream().map(Node::kind).collect(Collectors.toSet());
+        switch (lastQualifier.get().kind()) {
             case PUBLIC_KEYWORD:
                 completionItems.addAll(getTypeDescContextItems(context));
                 List<Snippet> snippets = Arrays.asList(
@@ -168,8 +178,51 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         return completionItems;
     }
 
+    private Optional<Token> getLastQualifier(BallerinaCompletionContext context, Node node) {
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(qualifiers.get(qualifiers.size() - 1));
+    }
+
     @Override
-    public void sort(BallerinaCompletionContext context, ModulePartNode node, List<LSCompletionItem> items) {
-        ModulePartNodeContextUtil.sort(items);
+    public void sort(BallerinaCompletionContext context, ModulePartNode node,
+                     List<LSCompletionItem> completionItems, Object... metaData) {
+        ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
+        if (resolvedContext == ResolvedContext.ON_CONFIGURABLE_QUALIFIER) {
+            List<String> anyDataSubTypeLabels = Arrays.asList("boolean", "int", "float",
+                    "decimal", "string", "xml", "map", "table");
+            completionItems.forEach(lsCompletionItem -> {
+                String sortText;
+                if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Unit &&
+                        lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                    Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
+                    if (symbol.isPresent() && symbol.get() instanceof ModuleSymbol &&
+                            CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()) &&
+                            anyDataSubTypeLabels.contains(lsCompletionItem.getCompletionItem().getLabel())
+                    ) {
+                        sortText = SortingUtil.genSortText(1);
+                    } else {
+                        sortText = SortingUtil.genSortText(3);
+                    }
+                } else if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter
+                        || lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Struct) {
+                    sortText = SortingUtil.genSortText(2);
+                } else if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Module) {
+                    sortText = SortingUtil.genSortText(3);
+                } else {
+                    sortText = SortingUtil.genSortText(4);
+                }
+                lsCompletionItem.getCompletionItem().setSortText(sortText);
+            });
+        } else {
+            ModulePartNodeContextUtil.sort(completionItems);
+        }
+    }
+
+    enum ResolvedContext {
+        DEFAULT,
+        ON_CONFIGURABLE_QUALIFIER
     }
 }

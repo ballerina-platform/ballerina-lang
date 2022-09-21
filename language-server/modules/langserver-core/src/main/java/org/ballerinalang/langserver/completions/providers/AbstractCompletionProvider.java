@@ -105,6 +105,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PATH_PARAMETER;
@@ -603,12 +604,18 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @return {@link List}
      */
     protected List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        CommonUtil.PRE_DECLARED_LANG_LIBS.forEach(langlib -> {
-            CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
-            completionItems.add(new SymbolCompletionItem(context, null, cItem));
-        });
-        
+        visibleSymbols.stream()
+                .filter(symbol -> symbol.getName().isPresent() && symbol.kind() == MODULE)
+                .map(symbol -> (ModuleSymbol) symbol)
+                .filter(moduleSymbol -> CommonUtil.isLangLib(moduleSymbol.id()))
+                .forEach(moduleSymbol -> {
+                    // LangLib modules need to be interpreted as a type in vscode. Therefore, we pass a null to bSymbol.
+                    CompletionItem cItem = TypeCompletionItemBuilder.build(
+                            null, moduleSymbol.id().modulePrefix());
+                    completionItems.add(new SymbolCompletionItem(context, moduleSymbol, cItem));
+                });
         return completionItems;
     }
 
