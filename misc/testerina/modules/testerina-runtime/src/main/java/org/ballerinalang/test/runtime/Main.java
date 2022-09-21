@@ -124,9 +124,8 @@ public class Main {
                             replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir, coverage);
                         }
 
-                        Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
-                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite,
-                                jsonTmpSummaryPath, classLoader, new TestArguments(args[0], packageName, moduleName,
+                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
+                                new TestArguments(args[0], packageName, moduleName,
                                         args[2], args[3], args[4], args[5], args[6], args[7], args[8]));
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
@@ -141,18 +140,14 @@ public class Main {
         Runtime.getRuntime().exit(exitStatus);
     }
 
-    private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath,
-                                     ClassLoader classLoader, TestArguments args) throws IOException {
+    private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
+                                     TestArguments args) {
         int exitStatus = 0;
         try {
             TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {
-            if (testSuite.isReportRequired()) {
-                writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
-                ModuleStatus.clearInstance();
-            }
             return exitStatus;
         }
     }

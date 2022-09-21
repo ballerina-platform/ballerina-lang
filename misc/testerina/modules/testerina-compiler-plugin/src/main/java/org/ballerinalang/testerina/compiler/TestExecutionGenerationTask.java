@@ -58,6 +58,10 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
         for (ModuleId moduleId : generatorContext.currentPackage().moduleIds()) {
             Module module = generatorContext.currentPackage().module(moduleId);
+            // Code generation skipped for the module since no tests are available.
+            if (module.testDocumentIds().isEmpty()) {
+                continue;
+            }
             TextDocument document = generateDocument(module);
             generatorContext.addTestSourceFile(document, TesterinaCompilerPluginConstants.TEST_EXEC_FILENAME, moduleId);
         }

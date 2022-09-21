@@ -572,8 +572,6 @@ public class TestProcessor {
      * @param module Module
      * @return String
      */
-
-    // TODO
     private String getExecutePath(Module module) {
         if (isSingleFileProject(module.project())) {
             String fileName = module.project().sourceRoot().getFileName().toString();
