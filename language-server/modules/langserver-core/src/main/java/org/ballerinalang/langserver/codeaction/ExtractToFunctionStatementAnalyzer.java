@@ -95,14 +95,14 @@ public class ExtractToFunctionStatementAnalyzer extends NodeVisitor {
     }
 
     /**
-     * The list of symbols which are getting updated(assigned) inside the selected range.
+     * The list of symbols which are updated(assigned) inside the selected range.
      */
     public List<Symbol> getUpdatedSymbols() {
         return updatedSymbols;
     }
 
     /**
-     * The list of symbols which are getting declared inside the range.
+     * The list of symbols which are declared inside the range.
      */
     public List<Symbol> getDeclaredVariableSymbols() {
         return declaredVariableSymbols;

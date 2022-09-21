@@ -18,11 +18,11 @@
         {
           "range": {
             "start": {
-              "line": 27,
+              "line": 28,
               "character": 1
             },
             "end": {
-              "line": 27,
+              "line": 28,
               "character": 1
             }
           },
@@ -41,7 +41,8 @@
           },
           "newText": "extracted(nimal)"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for expressions, field access expression for records"

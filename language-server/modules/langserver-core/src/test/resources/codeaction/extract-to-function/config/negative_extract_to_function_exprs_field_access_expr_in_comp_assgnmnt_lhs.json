@@ -1,11 +1,11 @@
 {
   "range": {
     "start": {
-      "line": 25,
+      "line": 27,
       "character": 4
     },
     "end": {
-      "line": 25,
+      "line": 27,
       "character": 13
     }
   },
@@ -15,5 +15,5 @@
       "title": "Extract to function"
     }
   ],
-  "description": "Extract to function for expressions, field access expression in lsh of assignment statement"
+  "description": "Extract to function for expressions, field access expression in lsh of compound assignment statement"
 }

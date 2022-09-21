@@ -22,7 +22,9 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -80,9 +82,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         return context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()
-                && CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode())
                 && (!isExpressionNode(positionDetails.matchedCodeActionNode())
-                || isExpressionExtractable(positionDetails));
+                || isExpressionExtractable(positionDetails))
+                && CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
     }
 
     @Override
@@ -141,7 +143,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         // Empty scenario implies that extracted function should not return any value
         Optional<VariableSymbol> updatedVar = isExtractableAndUpdatingVarPair.getRight();
-        Optional<String> possibleTypeOfUpdatingVar = Optional.empty();
+        Optional<String> possibleTypeOfUpdatedVar = Optional.empty();
 
         String returnTypeDescriptor = "";
         if (updatedVar.isPresent()) {
@@ -150,8 +152,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             if (posType.isEmpty()) {
                 return Collections.emptyList();
             }
-            possibleTypeOfUpdatingVar = posType;
-            returnTypeDescriptor = String.format("returns %s", possibleTypeOfUpdatingVar.get());
+            possibleTypeOfUpdatedVar = posType;
+            returnTypeDescriptor = String.format("returns %s", possibleTypeOfUpdatedVar.get());
         }
 
         List<Symbol> argsSymbolsForExtractFunction =
@@ -196,7 +198,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         if (updatedVar.isPresent() && updatedVar.get().getName().isPresent()) {
             String varName = updatedVar.get().getName().get();
             replaceFunctionCall =
-                    String.format("%s %s = %s", possibleTypeOfUpdatingVar.get(), varName, replaceFunctionCall);
+                    String.format("%s %s = %s", possibleTypeOfUpdatedVar.get(), varName, replaceFunctionCall);
         }
 
         Position replaceFuncCallStartPos = PositionUtil.toPosition(selectedNodes.get(0).lineRange().startLine());
@@ -256,7 +258,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                         .collect(Collectors.toList());
 
         /*
-         * Following checks are done when deciding the selected range R is extractable to a function.
+         * Following checks are done when deciding whether the selected range R is extractable to a function.
          *
          * 1. All updated local variables inside R have been declared inside R.
          * 2. The number of local variables in (1.) is less or equal to 1.
@@ -510,15 +512,27 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         Node enclosingModulePartNode = findEnclosingModulePartNode(node);
         SyntaxKind nodeKind = node.kind();
         SyntaxKind parentKind = node.parent().kind();
-
+        /*
+        * Avoid providing the code action for the following since it is syntactically incorrect.
+        * 1. inside module level declarations or definitions // todo include module-client-decl after 2201.3.0
+        * 2. a mapping constructor used in a table constructor  
+        * 3. a field name of string literal in a specific field,    ex: var val = {"name": 1};
+        * 4. the qualified name reference of a function call expression
+        * 5. a field access expression,
+        *   5.1. with self keyword inside its expression            
+        *   5.2. as varRef() in assignment statement
+        *   5.3. as lhsExpression() in compound assignment statement
+        **/
         return !unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.kind())
                 && (nodeKind != SyntaxKind.MAPPING_CONSTRUCTOR || parentKind != SyntaxKind.TABLE_CONSTRUCTOR)
                 && (nodeKind != SyntaxKind.STRING_LITERAL || parentKind != SyntaxKind.SPECIFIC_FIELD)
                 && (nodeKind != SyntaxKind.QUALIFIED_NAME_REFERENCE || parentKind != SyntaxKind.FUNCTION_CALL)
                 && nodeKind != SyntaxKind.FIELD_ACCESS
                 || (!((FieldAccessExpressionNode) node).expression().toSourceCode().strip().equals(SymbolUtil.SELF_KW)
-                && parentKind != SyntaxKind.ASSIGNMENT_STATEMENT
-                && parentKind != SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT);
+                && (parentKind != SyntaxKind.ASSIGNMENT_STATEMENT 
+                || !((AssignmentStatementNode) node.parent()).varRef().equals(node))
+                && (parentKind != SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT
+                || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node)));
     }
 
     public static List<SyntaxKind> getSupportedExpressionSyntaxKindsList() {
