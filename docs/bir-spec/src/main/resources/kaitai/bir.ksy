@@ -1902,6 +1902,6 @@ enums:
     48: type_tag_xml_comment
     49: type_tag_xml_text
     50: type_tag_never
-    51: type_tag_reg_exp_type
-    52: type_tag_null_set
-    53: type_tag_parameterized_type
+    51: type_tag_null_set
+    52: type_tag_parameterized_type
+    53: type_tag_reg_exp_type
