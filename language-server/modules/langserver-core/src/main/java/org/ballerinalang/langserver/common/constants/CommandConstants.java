@@ -182,6 +182,6 @@ public class CommandConstants {
 
     public static final String FILL_REQUIRED_FIELDS = "Fill '%s' required fields";
     
-    public static final String CHANGE_TO_SUBTYPE_OF_RAW_TEMPLATE_TITLE = "Change to '%s' sub type of row template";
-
+    public static final String CHANGE_TO_SUBTYPE_OF_RAW_TEMPLATE_TITLE = "Convert to '%s' template";
+    
 }
