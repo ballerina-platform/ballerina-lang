@@ -132,4 +132,8 @@ public class StringUtils {
             result.append(String.format("%" + padding + x, argsValues));
         }
     }
+
+    public static boolean isSystemConsole() {
+        return System.console() != null;
+    }
 }

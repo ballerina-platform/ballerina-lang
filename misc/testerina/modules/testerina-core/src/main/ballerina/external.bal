@@ -67,6 +67,11 @@ isolated function fileExists(string filePath) returns boolean = @java:Method {
     name:"fileExists"
 } external;
 
+isolated function isSystemConsole() returns boolean = @java:Method {
+    'class:"org.ballerinalang.testerina.natives.io.StringUtils",
+    name:"isSystemConsole"
+} external;
+
 isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
     name : "sprintf",
     'class : "org.ballerinalang.testerina.natives.io.StringUtils"
