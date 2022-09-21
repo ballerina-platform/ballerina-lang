@@ -683,6 +683,64 @@ function testRemoveThenIterate() returns boolean {
     return ar.length() == 2 && ar[0].name == "John" && ar[1].name == "Jim";
 }
 
+function testRemoveEmptyThenIterate() returns boolean {
+    table<Employee> key(name) data = table [
+        { name: "Mary", department: "IT"},
+        { name: "John", department: "HR" },
+        { name: "Jim", department: "Admin" }
+    ];
+
+    Employee[] ar = [];
+    var rm1 = data.remove("Mary");
+    var rm2 = data.remove("John");
+    var rm3 = data.remove("Jim");
+
+    foreach var v in data {
+        ar.push(v);
+    }
+    return ar.length() == 0;
+}
+
+function testRemoveEmptyAddThenIterate() returns boolean {
+    table<Employee> key(name) data = table [
+        { name: "Mary", department: "IT"},
+        { name: "John", department: "HR" },
+        { name: "Jim", department: "Admin" }
+    ];
+
+    Employee[] ar = [];
+    var rm1 = data.remove("Mary");
+    var rm2 = data.remove("John");
+    var rm3 = data.remove("Jim");
+
+    Employee newEmp = { name: "JesB", department: "Security" }
+    data.add(newEmp);
+    foreach var v in data {
+        ar.push(v);
+    }
+    return ar.length() == 1 && ar[0].name = "JesB";
+}
+
+function testRemoveEmptyIterateThenAdd() returns boolean {
+    table<Employee> key(name) data = table [
+        { name: "Mary", department: "IT"},
+        { name: "John", department: "HR" },
+        { name: "Jim", department: "Admin" }
+    ];
+
+    Employee[] ar = [];
+    var rm1 = data.remove("Mary");
+    var rm2 = data.remove("John");
+    var rm3 = data.remove("Jim");
+
+    Employee newEmp = { name: "JesB", department: "Security" }
+    foreach var v in data {
+        ar.push(v);
+    }
+    data.add(newEmp);
+    return data.length() == 1 && data["Jes"].name = "JesB";
+}
+
 function testAddInconsistentDataToKeylessTbl() {
     EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
