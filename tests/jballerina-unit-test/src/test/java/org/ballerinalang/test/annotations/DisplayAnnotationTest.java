@@ -19,6 +19,9 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.types.RecordTypeNode;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -85,10 +88,27 @@ public class DisplayAnnotationTest {
         Assert.assertEquals(annotAsString, " {label: k method}");
     }
 
+    @Test
+    public void testDisplayAnnotOnRecord() {
+        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(23);
+        List<? extends AnnotationAttachmentNode> annot = typeDefinition.getAnnotationAttachments();
+        Assert.assertEquals(annot.size(), 1);
+        Assert.assertEquals(annot.get(0).getExpression().toString(),
+                " {iconPath: Config.icon,label: RefreshTokenGrantConfig record}");
+        RecordTypeNode recType = (RecordTypeNode) typeDefinition.getTypeNode();
+        SimpleVariableNode field = recType.getFields().get(3);
+        List<? extends AnnotationAttachmentNode> fieldAnnot = field.getAnnotationAttachments();
+        Assert.assertEquals(fieldAnnot.size(), 1);
+        Assert.assertEquals(fieldAnnot.get(0).getExpression().toString(),
+                " {iconPath: Field.icon,label: clientSecret field,kind: <\"text\"|\"password\"|\"file\"> password}");
+    }
+
     @Test void testDisplayAnnotationNegative() {
         BAssertUtil.validateError(negative, 0, "cannot specify more than one annotation value " +
                 "for annotation 'ballerina/lang.annotations:0.0.0:display'", 17, 1);
-        Assert.assertEquals(negative.getErrorCount(), 1);
+        BAssertUtil.validateError(negative, 1, "incompatible types: expected '\"text\"|\"password\"|\"file\"', " +
+                "found 'string'", 24, 74);
+        Assert.assertEquals(negative.getErrorCount(), 2);
     }
 
     private BLangExpression getActualExpressionFromAnnotationAttachmentExpr(BLangExpression expression) {
