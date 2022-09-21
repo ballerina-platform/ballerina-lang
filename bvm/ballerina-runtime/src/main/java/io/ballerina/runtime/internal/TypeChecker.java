@@ -3358,6 +3358,8 @@ public class TypeChecker {
                 return checkFillerValue((BUnionType) type, unanalyzedTypes);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return hasFillerValue(((BTypeReferenceType) type).getReferredType(), unanalyzedTypes);
+            case TypeTags.INTERSECTION_TAG:
+                return hasFillerValue(((BIntersectionType) type).getEffectiveType(), unanalyzedTypes);
             default:
                 return false;
         }
